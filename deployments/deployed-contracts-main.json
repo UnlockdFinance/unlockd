@@ -1,0 +1,131 @@
+{
+  "UnlockdProxyAdminPool": {
+    "address": "0x501c991E0D31D408c25bCf00da27BdF2759A394a",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "NFTOracleImpl": {
+    "address": "0x1bFC8D3D6704D63a9901189CD6dFeFD0993A1B25"
+  },
+  "NFTOracle": {
+    "address": "0x7C2A19e54e48718f6C60908a9Cff3396E4Ea1eBA"
+  },
+  "UnlockdProxyAdminFund": {
+    "address": "0x2A71a0F5cef1fFc519027AD12f19453110e70666",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "UnlockdCollectorImpl": {
+    "address": "0x67a05fae0B411588E4FBA0d28c6bb33588769501"
+  },
+  "UnlockdCollector": {
+    "address": "0x43078AbfB76bd24885Fd64eFFB22049f92a8c495",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "LendPoolAddressesProvider": {
+    "address": "0x24451F47CaF13B24f4b5034e1dF6c0E401ec0e46",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "LendPoolAddressesProviderRegistry": {
+    "address": "0x2C16905Dfd953cf3BF3960c4A101c1eEBBd37E32",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "ReserveLogic": {
+    "address": "0x3837BE5033B370894B37c511108Cf4b3CB2B2101",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "NftLogic": {
+    "address": "0x8ed4C0A0dEFF233F4789C8BD0E761Eb4ab06aE4F",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "GenericLogic": {
+    "address": "0x635120825aae07ecFE409708D3f20a66A4C52e55",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "ValidationLogic": {
+    "address": "0x363176A4B00a9d48fdB193A9Ed0F34E7cb835F35",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "SupplyLogic": {
+    "address": "0x0cf54d474Beaa0D29793D221365d935F1762885D",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "BorrowLogic": {
+    "address": "0xadc2cD054E4D94E76a976C59108112A066523C59",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "LiquidateLogic": {
+    "address": "0xFeae4174AD2e9155A0181C1Bd95bC442Cb32c04B",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "ConfiguratorLogic": {
+    "address": "0x3BC07a0C6af311b7532D39DD57A57a37d29d6770",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "LendPoolImpl": {
+    "address": "0xE240Cf264866c2b69fd72cdE2144aE149f82219b"
+  },
+  "LendPool": {
+    "address": "0x70b97A0da65C15dfb0FFA02aEE6FA36e507C2762"
+  },
+  "LendPoolLoanImpl": {
+    "address": "0x06e2C6F001362dF2E6D3153b7a29487b6cBDF5c0"
+  },
+  "LendPoolLoan": {
+    "address": "0x5f6ac80CdB9E87f3Cfa6a90E5140B9a16A361d5C"
+  },
+  "LendPoolConfiguratorImpl": {
+    "address": "0x0092c3f81BC7d630dD1f885D0be67047f54D5aF1"
+  },
+  "LendPoolConfigurator": {
+    "address": "0x4f694372ced64B8Cf389A04f13E67ac0035A6449"
+  },
+  "BToken": {
+    "address": "0x8364d03349e76386263005ce79517A1776ddfF45",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "DebtToken": {
+    "address": "0xce7CB1D2748bdF4eF38b279d9a6B98817c92a53a",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "ReserveOracleImpl": {
+    "address": "0xDCa414681E92f3eE8BD8e6b40Ba5323B002bC48C"
+  },
+  "ReserveOracle": {
+    "address": "0x16ca3E500dA893cF2EEBb6b401247e68ca5BC072",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "InterestRate": {
+    "address": "0x710A2b4B5f267047728402F1594f440a2aCbaE02",
+    "deployer": "0x8Bd671Ff94fCF7cAFF7e396A3aC38db2720DB3a7"
+  },
+  "rateStrategyWETH": {
+    "address": "0xBa061Eecd101dAEed3EB87504903702a6B5708Cd"
+  },
+  "WETHGatewayImpl": {
+    "address": "0xE79575692Ed7092dD6C5cBbC7203D8dF48494C33"
+  },
+  "WETHGateway": {
+    "address": "0x3B968D2D299B895A5Fcf3BBa7A64ad0F566e6F88"
+  },
+  "PunkGatewayImpl": {
+    "address": "0x70a987A0E1ea971728A1F872eacD764eDAE190B1"
+  },
+  "PunkGateway": {
+    "address": "0xeD01f8A737813F0bDA2D4340d191DBF8c2Cbcf30"
+  },
+  "WalletBalanceProvider": {
+    "address": "0x22d7694d0E74978F691228a1e2d407289Ad78B4F",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "UnlockdProtocolDataProvider": {
+    "address": "0x3811DA50f55CCF75376C5535562F5b4797822480",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "UIPoolDataProvider": {
+    "address": "0x132E3E3eC6652299B235A26D601aa9C68806e3FE",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  },
+  "RepayAndTransferHelper": {
+    "address": "0xF5B67DF02CB633Ca3781e01BAe9d979772a2eff3",
+    "deployer": "0x868964fa49a6fd6e116FE82c8f4165904406f479"
+  }
+}
