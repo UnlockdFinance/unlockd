@@ -198,7 +198,7 @@ library LiquidateLogic {
     uint256 minRepayAmount;
     uint256 maxRepayAmount;
     uint256 bidFine;
-    uint256 redeemEndTimestamp;
+    uint256 auctionEndTimestamp;
     uint256 minBidFinePct;
     uint256 minBidFine;
   }
@@ -233,8 +233,8 @@ library LiquidateLogic {
 
     ValidationLogic.validateRedeem(reserveData, nftData, loanData, params.amount);
 
-    vars.redeemEndTimestamp = (loanData.bidStartTimestamp + nftData.configuration.getRedeemDuration() * 1 days);
-    require(block.timestamp <= vars.redeemEndTimestamp, Errors.LPL_BID_REDEEM_DURATION_HAS_END);
+    vars.auctionEndTimestamp = (loanData.bidStartTimestamp + nftData.configuration.getAuctionDuration() * 1 days);
+    require(block.timestamp <= vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_HAS_END);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();
@@ -291,18 +291,6 @@ library LiquidateLogic {
       reserveData.bTokenAddress,
       vars.repayAmount
     );
-
-    if (loanData.bidderAddress != address(0)) {
-      // transfer (return back) last bid price amount from lend pool to bidder
-      IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.bidderAddress, loanData.bidPrice);
-
-      // transfer bid penalty fine amount from borrower to the first bidder
-      IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(
-        vars.initiator,
-        loanData.firstBidderAddress,
-        vars.bidFine
-      );
-    }
 
     emit Redeem(
       vars.initiator,

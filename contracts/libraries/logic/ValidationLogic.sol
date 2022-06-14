@@ -215,8 +215,6 @@ library ValidationLogic {
 
     require(loanData.state == DataTypes.LoanState.Auction, Errors.LPL_INVALID_LOAN_STATE);
 
-    require(loanData.bidderAddress != address(0), Errors.LPL_INVALID_BIDDER_ADDRESS);
-
     require(amount > 0, Errors.VL_INVALID_AMOUNT);
   }
 
