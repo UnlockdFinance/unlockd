@@ -223,24 +223,14 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (paybackAmount, burn);
   }
 
-  function auction(
-    uint256 punkIndex,
-    uint256 bidPrice,
-    address onBehalfOf
-  ) external override nonReentrant {
-    _checkValidCallerAndOnBehalfOf(onBehalfOf);
-
+  function auction(uint256 punkIndex) external override nonReentrant {
     ILendPool cachedPool = _getLendPool();
     ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
 
     uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
     require(loanId != 0, "PunkGateway: no loan with such punkIndex");
 
-    (, , address reserve, ) = cachedPoolLoan.getLoanCollateralAndReserve(loanId);
-
-    IERC20Upgradeable(reserve).transferFrom(msg.sender, address(this), bidPrice);
-
-    cachedPool.auction(address(wrappedPunks), punkIndex, bidPrice, onBehalfOf);
+    cachedPool.auction(address(wrappedPunks), punkIndex);
   }
 
   function redeem(
@@ -391,12 +381,6 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     }
 
     return (paybackAmount, burn);
-  }
-
-  function auctionETH(uint256 punkIndex, address onBehalfOf) external payable override nonReentrant {
-    _checkValidCallerAndOnBehalfOf(onBehalfOf);
-
-    _wethGateway.auctionETH{value: msg.value}(address(wrappedPunks), punkIndex, onBehalfOf);
   }
 
   function redeemETH(

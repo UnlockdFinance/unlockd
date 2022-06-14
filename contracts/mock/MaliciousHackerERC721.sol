@@ -80,7 +80,7 @@ contract MaliciousHackerERC721 is IERC721Receiver {
     } else if (_simulateAction == ACTION_REPAY) {
       _pool.repay(vars.nfts[0], tokenId, vars.amount);
     } else if (_simulateAction == ACTION_AUCTION) {
-      _pool.auction(vars.nfts[0], tokenId, vars.bidPrice, vars.onBehalfOf);
+      _pool.auction(vars.nfts[0], tokenId);
     } else if (_simulateAction == ACTION_REDEEM) {
       _pool.redeem(vars.nfts[0], tokenId, vars.amount, vars.bidFine);
     } else if (_simulateAction == ACTION_LIQUIDATE) {

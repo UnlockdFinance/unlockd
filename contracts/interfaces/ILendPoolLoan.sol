@@ -65,10 +65,7 @@ interface ILendPoolLoan {
     uint256 nftTokenId,
     uint256 amount,
     uint256 borrowIndex,
-    address bidder,
-    uint256 price,
-    address previousBidder,
-    uint256 previousPrice
+    uint256 price
   );
 
   /**
@@ -157,17 +154,15 @@ interface ILendPoolLoan {
    * @dev Auction the given loan
    *
    * Requirements:
-   *  - The price must be greater than current highest price
-   *  - The loan must be in state Active or Auction
+   *  - The loan must be in state Active
    *
    * @param initiator The address of the user initiating the auction
    * @param loanId The loan getting auctioned
-   * @param bidPrice The bid price of this auction
+   * @param bidPrice The start bid price of this auction
    */
   function auctionLoan(
     address initiator,
     uint256 loanId,
-    address onBehalfOf,
     uint256 bidPrice,
     uint256 borrowAmount,
     uint256 borrowIndex

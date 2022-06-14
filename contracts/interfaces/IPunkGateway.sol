@@ -48,13 +48,8 @@ interface IPunkGateway {
   /**
    * @notice auction a unhealth punk loan with ERC20 reserve
    * @param punkIndex The index of the CryptoPunk used as collteral
-   * @param bidPrice The bid price
    **/
-  function auction(
-    uint256 punkIndex,
-    uint256 bidPrice,
-    address onBehalfOf
-  ) external;
+  function auction(uint256 punkIndex) external;
 
   /**
    * @notice redeem a unhealth punk loan with ERC20 reserve
@@ -114,14 +109,6 @@ interface IPunkGateway {
     external
     payable
     returns (uint256[] memory, bool[] memory);
-
-  /**
-   * @notice auction a unhealth punk loan with native ETH
-   * @param punkIndex The index of the CryptoPunk to repay
-   * @param onBehalfOf Address of the user who will receive the CryptoPunk. Should be the address of the user itself
-   * calling the function if he wants to get collateral
-   **/
-  function auctionETH(uint256 punkIndex, address onBehalfOf) external payable;
 
   /**
    * @notice liquidate a unhealth punk loan with native ETH

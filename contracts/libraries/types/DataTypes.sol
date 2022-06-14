@@ -158,8 +158,6 @@ library DataTypes {
     address initiator;
     address nftAsset;
     uint256 nftTokenId;
-    uint256 bidPrice;
-    address onBehalfOf;
   }
 
   struct ExecuteRedeemParams {

@@ -188,45 +188,22 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   function auctionLoan(
     address initiator,
     uint256 loanId,
-    address onBehalfOf,
     uint256 bidPrice,
     uint256 borrowAmount,
     uint256 borrowIndex
   ) external override onlyLendPool {
     // Must use storage to change state
     DataTypes.LoanData storage loan = _loans[loanId];
-    address previousBidder = loan.bidderAddress;
-    uint256 previousPrice = loan.bidPrice;
 
     // Ensure valid loan state
-    if (loan.bidStartTimestamp == 0) {
-      require(loan.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
+    require(loan.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
 
-      loan.state = DataTypes.LoanState.Auction;
-      loan.bidStartTimestamp = block.timestamp;
-      loan.firstBidderAddress = onBehalfOf;
-    } else {
-      require(loan.state == DataTypes.LoanState.Auction, Errors.LPL_INVALID_LOAN_STATE);
-
-      require(bidPrice > loan.bidPrice, Errors.LPL_BID_PRICE_LESS_THAN_HIGHEST_PRICE);
-    }
-
+    loan.state = DataTypes.LoanState.Auction;
+    loan.bidStartTimestamp = block.timestamp;
     loan.bidBorrowAmount = borrowAmount;
-    loan.bidderAddress = onBehalfOf;
     loan.bidPrice = bidPrice;
 
-    emit LoanAuctioned(
-      initiator,
-      loanId,
-      loan.nftAsset,
-      loan.nftTokenId,
-      loan.bidBorrowAmount,
-      borrowIndex,
-      onBehalfOf,
-      bidPrice,
-      previousBidder,
-      previousPrice
-    );
+    emit LoanAuctioned(initiator, loanId, loan.nftAsset, loan.nftTokenId, loan.bidBorrowAmount, borrowIndex, bidPrice);
   }
 
   /**

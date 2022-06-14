@@ -76,10 +76,9 @@ interface ILendPool {
    * @dev Emitted when a borrower's loan is auctioned.
    * @param user The address of the user initiating the auction
    * @param reserve The address of the underlying asset of the reserve
-   * @param bidPrice The price of the underlying reserve given by the bidder
+   * @param bidPrice The start bid price of the underlying reserve
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token id of the underlying NFT used as collateral
-   * @param onBehalfOf The address that will be getting the NFT
    * @param loanId The loan ID of the NFT loans
    **/
   event Auction(
@@ -88,7 +87,6 @@ interface ILendPool {
     uint256 bidPrice,
     address indexed nftAsset,
     uint256 nftTokenId,
-    address onBehalfOf,
     address indexed borrower,
     uint256 loanId
   );
@@ -254,17 +252,8 @@ interface ILendPool {
    * - The caller (liquidator) want to buy collateral asset of the user getting liquidated
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
-   * @param bidPrice The bid price of the liquidator want to buy the underlying NFT
-   * @param onBehalfOf Address of the user who will get the underlying NFT, same as msg.sender if the user
-   *   wants to receive them on his own wallet, or a different address if the beneficiary of NFT
-   *   is a different wallet
    **/
-  function auction(
-    address nftAsset,
-    uint256 nftTokenId,
-    uint256 bidPrice,
-    address onBehalfOf
-  ) external;
+  function auction(address nftAsset, uint256 nftTokenId) external;
 
   /**
    * @notice Redeem a NFT loan which state is in Auction

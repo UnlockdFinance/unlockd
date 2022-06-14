@@ -42,10 +42,9 @@ library LiquidateLogic {
    * @dev Emitted when a borrower's loan is auctioned.
    * @param user The address of the user initiating the auction
    * @param reserve The address of the underlying asset of the reserve
-   * @param bidPrice The price of the underlying reserve given by the bidder
+   * @param bidPrice The start bid price of the underlying reserve
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token id of the underlying NFT used as collateral
-   * @param onBehalfOf The address that will be getting the NFT
    * @param loanId The loan ID of the NFT loans
    **/
   event Auction(
@@ -54,7 +53,6 @@ library LiquidateLogic {
     uint256 bidPrice,
     address indexed nftAsset,
     uint256 nftTokenId,
-    address onBehalfOf,
     address indexed borrower,
     uint256 loanId
   );
@@ -124,8 +122,6 @@ library LiquidateLogic {
     mapping(address => DataTypes.NftData) storage nftsData,
     DataTypes.ExecuteAuctionParams memory params
   ) external {
-    require(params.onBehalfOf != address(0), Errors.VL_INVALID_ONBEHALFOF_ADDRESS);
-
     AuctionLocalVars memory vars;
     vars.initiator = params.initiator;
 
@@ -141,7 +137,7 @@ library LiquidateLogic {
     DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
 
-    ValidationLogic.validateAuction(reserveData, nftData, loanData, params.bidPrice);
+    ValidationLogic.validateAuction(reserveData, nftData, loanData);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();
@@ -161,40 +157,21 @@ library LiquidateLogic {
     if (loanData.state == DataTypes.LoanState.Active) {
       // loan's accumulated debt must exceed threshold (heath factor below 1.0)
       require(vars.borrowAmount > vars.thresholdPrice, Errors.LP_BORROW_NOT_EXCEED_LIQUIDATION_THRESHOLD);
+    }
 
-      // bid price must greater than liquidate price
-      require(params.bidPrice >= vars.liquidatePrice, Errors.LPL_BID_PRICE_LESS_THAN_LIQUIDATION_PRICE);
+    uint256 bidPrice = vars.borrowAmount;
 
-      // bid price must greater than borrow debt
-      require(params.bidPrice >= vars.borrowAmount, Errors.LPL_BID_PRICE_LESS_THAN_BORROW);
-    } else {
-      // bid price must greater than borrow debt
-      require(params.bidPrice >= vars.borrowAmount, Errors.LPL_BID_PRICE_LESS_THAN_BORROW);
-
-      vars.auctionEndTimestamp = loanData.bidStartTimestamp + (nftData.configuration.getAuctionDuration() * 1 days);
-      require(block.timestamp <= vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_HAS_END);
-
-      // bid price must greater than highest bid + delta
-      vars.minBidDelta = vars.borrowAmount.percentMul(PercentageMath.ONE_PERCENT);
-      require(params.bidPrice >= (loanData.bidPrice + vars.minBidDelta), Errors.LPL_BID_PRICE_LESS_THAN_HIGHEST_PRICE);
+    if (vars.liquidatePrice > vars.borrowAmount) {
+      bidPrice = vars.liquidatePrice;
     }
 
     ILendPoolLoan(vars.loanAddress).auctionLoan(
       vars.initiator,
       vars.loanId,
-      params.onBehalfOf,
-      params.bidPrice,
+      bidPrice,
       vars.borrowAmount,
       reserveData.variableBorrowIndex
     );
-
-    // lock highest bidder bid price amount to lend pool
-    IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, address(this), params.bidPrice);
-
-    // transfer (return back) last bid price amount to previous bidder from lend pool
-    if (loanData.bidderAddress != address(0)) {
-      IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.bidderAddress, loanData.bidPrice);
-    }
 
     // update interest rate according latest borrow amount (utilizaton)
     reserveData.updateInterestRates(loanData.reserveAsset, reserveData.bTokenAddress, 0, 0);
@@ -202,10 +179,9 @@ library LiquidateLogic {
     emit Auction(
       vars.initiator,
       loanData.reserveAsset,
-      params.bidPrice,
+      bidPrice,
       params.nftAsset,
       params.nftTokenId,
-      params.onBehalfOf,
       loanData.borrower,
       vars.loanId
     );

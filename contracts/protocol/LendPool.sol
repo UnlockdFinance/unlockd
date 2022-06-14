@@ -271,31 +271,16 @@ contract LendPool is
 
   /**
    * @dev Function to auction a non-healthy position collateral-wise
-   * - The bidder want to buy collateral asset of the user getting liquidated
+   * - The collateral asset of the user getting liquidated is auctioned on Looksrare & Opensea
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
-   * @param bidPrice The bid price of the bidder want to buy underlying NFT
-   * @param onBehalfOf Address of the user who will get the underlying NFT, same as msg.sender if the user
-   *   wants to receive them on his own wallet, or a different address if the beneficiary of NFT
-   *   is a different wallet
    **/
-  function auction(
-    address nftAsset,
-    uint256 nftTokenId,
-    uint256 bidPrice,
-    address onBehalfOf
-  ) external override nonReentrant whenNotPaused {
+  function auction(address nftAsset, uint256 nftTokenId) external override nonReentrant whenNotPaused {
     LiquidateLogic.executeAuction(
       _addressesProvider,
       _reserves,
       _nfts,
-      DataTypes.ExecuteAuctionParams({
-        initiator: _msgSender(),
-        nftAsset: nftAsset,
-        nftTokenId: nftTokenId,
-        bidPrice: bidPrice,
-        onBehalfOf: onBehalfOf
-      })
+      DataTypes.ExecuteAuctionParams({initiator: _msgSender(), nftAsset: nftAsset, nftTokenId: nftTokenId})
     );
   }
 
