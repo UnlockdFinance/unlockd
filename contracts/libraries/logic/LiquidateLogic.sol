@@ -43,6 +43,7 @@ library LiquidateLogic {
    * @param user The address of the user initiating the auction
    * @param reserve The address of the underlying asset of the reserve
    * @param bidPrice The start bid price of the underlying reserve
+   * @param auctionDuration Auction duration of the underlying reserve
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token id of the underlying NFT used as collateral
    * @param loanId The loan ID of the NFT loans
@@ -51,6 +52,7 @@ library LiquidateLogic {
     address user,
     address indexed reserve,
     uint256 bidPrice,
+    uint256 auctionDuration,
     address indexed nftAsset,
     uint256 nftTokenId,
     address indexed borrower,
@@ -176,10 +178,13 @@ library LiquidateLogic {
     // update interest rate according latest borrow amount (utilizaton)
     reserveData.updateInterestRates(loanData.reserveAsset, reserveData.bTokenAddress, 0, 0);
 
+    uint256 auctionDuration = nftData.configuration.getAuctionDuration() * 1 days;
+
     emit Auction(
       vars.initiator,
       loanData.reserveAsset,
       bidPrice,
+      auctionDuration,
       params.nftAsset,
       params.nftTokenId,
       loanData.borrower,
