@@ -8,6 +8,10 @@ import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesPro
 import {IReserveOracleGetter} from "../../interfaces/IReserveOracleGetter.sol";
 import {INFTOracleGetter} from "../../interfaces/INFTOracleGetter.sol";
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
+import {ILooksRareExchange} from "../../interfaces/ILooksRareExchange.sol";
+import {IWyvernExchange} from "../../interfaces/IWyvernExchange.sol";
+import {INFTXVaultFactory} from "../../interfaces/INFTXVaultFactory.sol";
+import {INFTXVault} from "../../interfaces/INFTXVault.sol";
 
 import {ReserveLogic} from "./ReserveLogic.sol";
 import {GenericLogic} from "./GenericLogic.sol";
@@ -40,7 +44,6 @@ library LiquidateLogic {
 
   /**
    * @dev Emitted when a borrower's loan is auctioned.
-   * @param user The address of the user initiating the auction
    * @param reserve The address of the underlying asset of the reserve
    * @param bidPrice The start bid price of the underlying reserve
    * @param auctionDuration Auction duration of the underlying reserve
@@ -49,7 +52,6 @@ library LiquidateLogic {
    * @param loanId The loan ID of the NFT loans
    **/
   event Auction(
-    address user,
     address indexed reserve,
     uint256 bidPrice,
     uint256 auctionDuration,
@@ -98,11 +100,27 @@ library LiquidateLogic {
     uint256 loanId
   );
 
+  /**
+   * @dev Emitted when a borrower's loan is liquidated on LooksRare.
+   * @param reserve The address of the underlying asset of the reserve
+   * @param repayAmount The amount of reserve repaid by the liquidator
+   * @param remainAmount The amount of reserve received by the borrower
+   * @param loanId The loan ID of the NFT loans
+   **/
+  event LiquidateLooksRare(
+    address indexed reserve,
+    uint256 repayAmount,
+    uint256 remainAmount,
+    address indexed nftAsset,
+    uint256 nftTokenId,
+    address indexed borrower,
+    uint256 loanId
+  );
+
   struct AuctionLocalVars {
     address loanAddress;
     address reserveOracle;
     address nftOracle;
-    address initiator;
     uint256 loanId;
     uint256 thresholdPrice;
     uint256 liquidatePrice;
@@ -125,7 +143,6 @@ library LiquidateLogic {
     DataTypes.ExecuteAuctionParams memory params
   ) external {
     AuctionLocalVars memory vars;
-    vars.initiator = params.initiator;
 
     vars.loanAddress = addressesProvider.getLendPoolLoan();
     vars.reserveOracle = addressesProvider.getReserveOracle();
@@ -168,7 +185,6 @@ library LiquidateLogic {
     }
 
     ILendPoolLoan(vars.loanAddress).auctionLoan(
-      vars.initiator,
       vars.loanId,
       bidPrice,
       vars.borrowAmount,
@@ -181,7 +197,6 @@ library LiquidateLogic {
     uint256 auctionDuration = nftData.configuration.getAuctionDuration() * 1 days;
 
     emit Auction(
-      vars.initiator,
       loanData.reserveAsset,
       bidPrice,
       auctionDuration,
@@ -311,9 +326,9 @@ library LiquidateLogic {
     return (vars.repayAmount + vars.bidFine);
   }
 
-  struct LiquidateLocalVars {
-    address initiator;
+  struct LiquidateLooksRareLocalVars {
     address poolLoan;
+    address exchange;
     address reserveOracle;
     address nftOracle;
     uint256 loanId;
@@ -330,15 +345,15 @@ library LiquidateLogic {
    * @param nftsData The state of all the nfts
    * @param params The additional parameters needed to execute the liquidate function
    */
-  function executeLiquidate(
+  function executeLiquidateLooksRare(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
-    DataTypes.ExecuteLiquidateParams memory params
+    DataTypes.ExecuteLiquidateLooksRareParams memory params
   ) external returns (uint256) {
-    LiquidateLocalVars memory vars;
-    vars.initiator = params.initiator;
+    LiquidateLooksRareLocalVars memory vars;
 
+    vars.exchange = addressesProvider.getLooksRareExchange();
     vars.poolLoan = addressesProvider.getLendPoolLoan();
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
@@ -370,18 +385,12 @@ library LiquidateLogic {
       vars.nftOracle
     );
 
-    // Last bid price can not cover borrow amount
-    if (loanData.bidPrice < vars.borrowAmount) {
-      vars.extraDebtAmount = vars.borrowAmount - loanData.bidPrice;
-      require(params.amount >= vars.extraDebtAmount, Errors.LP_AMOUNT_LESS_THAN_EXTRA_DEBT);
-    }
+    // Sell NFT on LooksRare
+    ILooksRareExchange(vars.exchange).matchBidWithTakerAsk(params.takerAsk, params.makerBid);
 
-    if (loanData.bidPrice > vars.borrowAmount) {
-      vars.remainAmount = loanData.bidPrice - vars.borrowAmount;
-    }
+    vars.remainAmount = params.makerBid.price - vars.borrowAmount;
 
     ILendPoolLoan(vars.poolLoan).liquidateLoan(
-      loanData.bidderAddress,
       vars.loanId,
       nftData.uNftAddress,
       vars.borrowAmount,
@@ -397,11 +406,6 @@ library LiquidateLogic {
     // update interest rate according latest borrow amount (utilizaton)
     reserveData.updateInterestRates(loanData.reserveAsset, reserveData.bTokenAddress, vars.borrowAmount, 0);
 
-    // transfer extra borrow amount from liquidator to lend pool
-    if (vars.extraDebtAmount > 0) {
-      IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, address(this), vars.extraDebtAmount);
-    }
-
     // transfer borrow amount from lend pool to bToken, repay debt
     IERC20Upgradeable(loanData.reserveAsset).safeTransfer(reserveData.bTokenAddress, vars.borrowAmount);
 
@@ -410,11 +414,7 @@ library LiquidateLogic {
       IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.borrower, vars.remainAmount);
     }
 
-    // transfer erc721 to bidder
-    IERC721Upgradeable(loanData.nftAsset).safeTransferFrom(address(this), loanData.bidderAddress, params.nftTokenId);
-
-    emit Liquidate(
-      vars.initiator,
+    emit LiquidateLooksRare(
       loanData.reserveAsset,
       vars.borrowAmount,
       vars.remainAmount,
@@ -424,6 +424,6 @@ library LiquidateLogic {
       vars.loanId
     );
 
-    return (vars.extraDebtAmount);
+    return (vars.remainAmount);
   }
 }

@@ -237,8 +237,6 @@ library ValidationLogic {
     require(nftData.configuration.getActive(), Errors.VL_NO_ACTIVE_NFT);
 
     require(loanData.state == DataTypes.LoanState.Auction, Errors.LPL_INVALID_LOAN_STATE);
-
-    require(loanData.bidderAddress != address(0), Errors.LPL_INVALID_BIDDER_ADDRESS);
   }
 
   /**

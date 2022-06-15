@@ -3,6 +3,7 @@ pragma solidity 0.8.4;
 
 import {ILendPoolAddressesProvider} from "./ILendPoolAddressesProvider.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
+import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
 
 interface ILendPool {
   /**
@@ -277,10 +278,11 @@ interface ILendPool {
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
-  function liquidate(
+  function liquidateLooksRare(
     address nftAsset,
     uint256 nftTokenId,
-    uint256 amount
+    OrderTypes.TakerOrder calldata takerAsk,
+    OrderTypes.MakerOrder calldata makerBid
   ) external returns (uint256);
 
   /**

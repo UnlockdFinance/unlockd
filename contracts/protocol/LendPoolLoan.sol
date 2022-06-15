@@ -186,7 +186,6 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
    * @inheritdoc ILendPoolLoan
    */
   function auctionLoan(
-    address initiator,
     uint256 loanId,
     uint256 bidPrice,
     uint256 borrowAmount,
@@ -203,7 +202,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     loan.bidBorrowAmount = borrowAmount;
     loan.bidPrice = bidPrice;
 
-    emit LoanAuctioned(initiator, loanId, loan.nftAsset, loan.nftTokenId, loan.bidBorrowAmount, borrowIndex, bidPrice);
+    emit LoanAuctioned(loanId, loan.nftAsset, loan.nftTokenId, loan.bidBorrowAmount, borrowIndex, bidPrice);
   }
 
   /**
@@ -241,7 +240,6 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
    * @inheritdoc ILendPoolLoan
    */
   function liquidateLoan(
-    address initiator,
     uint256 loanId,
     address uNftAddress,
     uint256 borrowAmount,
@@ -271,15 +269,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
 
     IERC721Upgradeable(loan.nftAsset).safeTransferFrom(address(this), _msgSender(), loan.nftTokenId);
 
-    emit LoanLiquidated(
-      initiator,
-      loanId,
-      loan.nftAsset,
-      loan.nftTokenId,
-      loan.reserveAsset,
-      borrowAmount,
-      borrowIndex
-    );
+    emit LoanLiquidated(loanId, loan.nftAsset, loan.nftTokenId, loan.reserveAsset, borrowAmount, borrowIndex);
   }
 
   function onERC721Received(

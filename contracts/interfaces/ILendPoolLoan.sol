@@ -56,10 +56,8 @@ interface ILendPoolLoan {
 
   /**
    * @dev Emitted when a loan is auction by the liquidator
-   * @param user The address initiating the action
    */
   event LoanAuctioned(
-    address indexed user,
     uint256 indexed loanId,
     address nftAsset,
     uint256 nftTokenId,
@@ -84,10 +82,8 @@ interface ILendPoolLoan {
 
   /**
    * @dev Emitted when a loan is liquidate by the liquidator
-   * @param user The address initiating the action
    */
   event LoanLiquidated(
-    address indexed user,
     uint256 indexed loanId,
     address nftAsset,
     uint256 nftTokenId,
@@ -156,12 +152,10 @@ interface ILendPoolLoan {
    * Requirements:
    *  - The loan must be in state Active
    *
-   * @param initiator The address of the user initiating the auction
    * @param loanId The loan getting auctioned
    * @param bidPrice The start bid price of this auction
    */
   function auctionLoan(
-    address initiator,
     uint256 loanId,
     uint256 bidPrice,
     uint256 borrowAmount,
@@ -190,12 +184,10 @@ interface ILendPoolLoan {
    *  - The caller must send in principal + interest
    *  - The loan must be in state Active
    *
-   * @param initiator The address of the user initiating the auction
    * @param loanId The loan getting burned
    * @param uNftAddress The address of uNFT
    */
   function liquidateLoan(
-    address initiator,
     uint256 loanId,
     address uNftAddress,
     uint256 borrowAmount,

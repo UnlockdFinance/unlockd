@@ -19,6 +19,7 @@ import {LiquidateLogic} from "../libraries/logic/LiquidateLogic.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
+import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
 import {LendPoolStorage} from "./LendPoolStorage.sol";
 import {LendPoolStorageExt} from "./LendPoolStorageExt.sol";
 
@@ -280,7 +281,7 @@ contract LendPool is
       _addressesProvider,
       _reserves,
       _nfts,
-      DataTypes.ExecuteAuctionParams({initiator: _msgSender(), nftAsset: nftAsset, nftTokenId: nftTokenId})
+      DataTypes.ExecuteAuctionParams({nftAsset: nftAsset, nftTokenId: nftTokenId})
     );
   }
 
@@ -320,21 +321,22 @@ contract LendPool is
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
-  function liquidate(
+  function liquidateLooksRare(
     address nftAsset,
     uint256 nftTokenId,
-    uint256 amount
+    OrderTypes.TakerOrder calldata takerAsk,
+    OrderTypes.MakerOrder calldata makerBid
   ) external override nonReentrant whenNotPaused returns (uint256) {
     return
-      LiquidateLogic.executeLiquidate(
+      LiquidateLogic.executeLiquidateLooksRare(
         _addressesProvider,
         _reserves,
         _nfts,
-        DataTypes.ExecuteLiquidateParams({
-          initiator: _msgSender(),
+        DataTypes.ExecuteLiquidateLooksRareParams({
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
-          amount: amount
+          takerAsk: takerAsk,
+          makerBid: makerBid
         })
       );
   }

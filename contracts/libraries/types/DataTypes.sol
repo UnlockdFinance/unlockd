@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
+import {OrderTypes} from "../looksrare/OrderTypes.sol";
+
 library DataTypes {
   struct ReserveData {
     //stores the reserve configuration
@@ -155,7 +157,6 @@ library DataTypes {
   }
 
   struct ExecuteAuctionParams {
-    address initiator;
     address nftAsset;
     uint256 nftTokenId;
   }
@@ -173,5 +174,12 @@ library DataTypes {
     address nftAsset;
     uint256 nftTokenId;
     uint256 amount;
+  }
+
+  struct ExecuteLiquidateLooksRareParams {
+    address nftAsset;
+    uint256 nftTokenId;
+    OrderTypes.TakerOrder takerAsk;
+    OrderTypes.MakerOrder makerBid;
   }
 }
