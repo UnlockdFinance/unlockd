@@ -16,6 +16,7 @@ import {IWrappedPunks} from "../interfaces/IWrappedPunks.sol";
 import {IPunkGateway} from "../interfaces/IPunkGateway.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
+import {WyvernExchange} from "../libraries/wyvernexchange/WyvernExchange.sol";
 import {IWETHGateway} from "../interfaces/IWETHGateway.sol";
 
 import {EmergencyTokenRecoveryUpgradeable} from "./EmergencyTokenRecoveryUpgradeable.sol";
@@ -266,6 +267,27 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     ILendPool cachedPool = _getLendPool();
 
     uint256 remainAmount = cachedPool.liquidateLooksRare(address(wrappedPunks), punkIndex, takerAsk, makerBid);
+
+    return (remainAmount);
+  }
+
+  function liquidateOpensea(
+    uint256 punkIndex,
+    WyvernExchange.Order calldata buyOrder,
+    WyvernExchange.Order calldata sellOrder,
+    uint8[2] calldata _vs,
+    bytes32[5] calldata _rssMetadata
+  ) external override nonReentrant returns (uint256) {
+    ILendPool cachedPool = _getLendPool();
+
+    uint256 remainAmount = cachedPool.liquidateOpensea(
+      address(wrappedPunks),
+      punkIndex,
+      buyOrder,
+      sellOrder,
+      _vs,
+      _rssMetadata
+    );
 
     return (remainAmount);
   }

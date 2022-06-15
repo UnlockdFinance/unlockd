@@ -4,6 +4,7 @@ pragma solidity 0.8.4;
 import {ILendPoolAddressesProvider} from "./ILendPoolAddressesProvider.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
+import {WyvernExchange} from "../libraries/wyvernexchange/WyvernExchange.sol";
 
 interface ILendPool {
   /**
@@ -273,8 +274,7 @@ interface ILendPool {
 
   /**
    * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The caller (liquidator) buy collateral asset of the user getting liquidated, and receives
-   *   the collateral asset
+   * - The collateral asset is sold on LooksRare
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
@@ -283,6 +283,21 @@ interface ILendPool {
     uint256 nftTokenId,
     OrderTypes.TakerOrder calldata takerAsk,
     OrderTypes.MakerOrder calldata makerBid
+  ) external returns (uint256);
+
+  /**
+   * @dev Function to liquidate a non-healthy position collateral-wise
+   * - The collateral asset is sold on Opensea
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   **/
+  function liquidateOpensea(
+    address nftAsset,
+    uint256 nftTokenId,
+    WyvernExchange.Order calldata buyOrder,
+    WyvernExchange.Order calldata sellOrder,
+    uint8[2] calldata _vs,
+    bytes32[5] calldata _rssMetadata
   ) external returns (uint256);
 
   /**

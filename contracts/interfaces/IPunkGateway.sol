@@ -2,6 +2,7 @@
 pragma solidity 0.8.4;
 
 import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
+import {WyvernExchange} from "../libraries/wyvernexchange/WyvernExchange.sol";
 
 interface IPunkGateway {
   /**
@@ -66,13 +67,25 @@ interface IPunkGateway {
   ) external returns (uint256);
 
   /**
-   * @notice liquidate a unhealth punk loan with ERC20 reserve
+   * @notice liquidate a unhealth punk loan on LooksRare
    * @param punkIndex The index of the CryptoPunk used as collteral
    **/
   function liquidateLooksRare(
     uint256 punkIndex,
     OrderTypes.TakerOrder calldata takerAsk,
     OrderTypes.MakerOrder calldata makerBid
+  ) external returns (uint256);
+
+  /**
+   * @notice liquidate a unhealth punk loan on Opensea
+   * @param punkIndex The index of the CryptoPunk used as collteral
+   **/
+  function liquidateOpensea(
+    uint256 punkIndex,
+    WyvernExchange.Order calldata buyOrder,
+    WyvernExchange.Order calldata sellOrder,
+    uint8[2] calldata _vs,
+    bytes32[5] calldata _rssMetadata
   ) external returns (uint256);
 
   /**

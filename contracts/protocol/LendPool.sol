@@ -20,6 +20,7 @@ import {ReserveConfiguration} from "../libraries/configuration/ReserveConfigurat
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
+import {WyvernExchange} from "../libraries/wyvernexchange/WyvernExchange.sol";
 import {LendPoolStorage} from "./LendPoolStorage.sol";
 import {LendPoolStorageExt} from "./LendPoolStorageExt.sol";
 
@@ -316,8 +317,7 @@ contract LendPool is
 
   /**
    * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The caller (liquidator) buy collateral asset of the user getting liquidated, and receives
-   *   the collateral asset
+   * - The collateral asset is sold on LooksRare
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
@@ -337,6 +337,36 @@ contract LendPool is
           nftTokenId: nftTokenId,
           takerAsk: takerAsk,
           makerBid: makerBid
+        })
+      );
+  }
+
+  /**
+   * @dev Function to liquidate a non-healthy position collateral-wise
+   * - The collateral asset is sold on Opensea
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   **/
+  function liquidateOpensea(
+    address nftAsset,
+    uint256 nftTokenId,
+    WyvernExchange.Order calldata buyOrder,
+    WyvernExchange.Order calldata sellOrder,
+    uint8[2] calldata _vs,
+    bytes32[5] calldata _rssMetadata
+  ) external override nonReentrant whenNotPaused returns (uint256) {
+    return
+      LiquidateLogic.executeLiquidateOpensea(
+        _addressesProvider,
+        _reserves,
+        _nfts,
+        DataTypes.ExecuteLiquidateOpenseaParams({
+          nftAsset: nftAsset,
+          nftTokenId: nftTokenId,
+          buyOrder: buyOrder,
+          sellOrder: sellOrder,
+          _vs: _vs,
+          _rssMetadata: _rssMetadata
         })
       );
   }
