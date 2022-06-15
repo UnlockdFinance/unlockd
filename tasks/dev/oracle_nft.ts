@@ -35,8 +35,16 @@ task("dev:deploy-oracle-nft", "Deploy nft oracle for dev environment")
 
     const nftOracleImpl = await deployNFTOracle(verify);
     await waitForTx(
-      await nftOracleImpl.initialize(await addressesProvider.getPoolAdmin(), 2e17, 1e17, 1800, 600, 1800)
+      await nftOracleImpl.initialize(
+        await addressesProvider.getPoolAdmin(),
+        "200000000000000000",
+        "10000000000000000000",
+        1800,
+        600,
+        1800
+      ) // Fix bug! 2e17 1e17
     );
+
     await waitForTx(await addressesProvider.setNFTOracle(nftOracleImpl.address));
     await addAssetsInNFTOracle(allNftAddresses, nftOracleImpl);
     await setPricesInNFTOracle(allNftPrices, allNftAddresses, nftOracleImpl);
