@@ -192,4 +192,9 @@ library DataTypes {
     uint8[2] _vs;
     bytes32[5] _rssMetadata;
   }
+
+  struct ExecuteLiquidateNFTXParams {
+    address nftAsset;
+    uint256 nftTokenId;
+  }
 }

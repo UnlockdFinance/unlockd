@@ -301,6 +301,14 @@ interface ILendPool {
   ) external returns (uint256);
 
   /**
+   * @dev Function to liquidate a non-healthy position collateral-wise
+   * - The collateral asset is sold on NFTX & Sushiswap
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   **/
+  function liquidateNFTX(address nftAsset, uint256 nftTokenId) external returns (uint256);
+
+  /**
    * @dev Validates and finalizes an bToken transfer
    * - Only callable by the overlying bToken of the `asset`
    * @param asset The address of the underlying asset of the bToken

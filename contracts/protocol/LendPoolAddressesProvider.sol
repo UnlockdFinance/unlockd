@@ -37,6 +37,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   bytes32 private constant LOOKSRARE_EXCHANGE = "LOOKSRARE_EXCHANGE";
   bytes32 private constant OPENSEA_WYVERN_EXCHANGE = "OPENSEA_WYVERN_EXCHANGE";
   bytes32 private constant NFTX_VAULT_FACTORY = "NFTX_VAULT_FACTORY";
+  bytes32 private constant SUSHI_SWAP_ROUTER = "SUSHI_SWAP_ROUTER";
 
   constructor(string memory marketId) {
     _setMarketId(marketId);
@@ -267,6 +268,15 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   function setNFTXVaultFactory(address factory) external override onlyOwner {
     _addresses[NFTX_VAULT_FACTORY] = factory;
     emit NFTXVaultFactoryUpdated(factory);
+  }
+
+  function getSushiSwapRouter() external view override returns (address) {
+    return getAddress(SUSHI_SWAP_ROUTER);
+  }
+
+  function setSushiSwapRouter(address router) external override onlyOwner {
+    _addresses[SUSHI_SWAP_ROUTER] = router;
+    emit SushiSwapRouterUpdated(router);
   }
 
   function getImplementation(address proxyAddress) external view onlyOwner returns (address) {

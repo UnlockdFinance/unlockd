@@ -6,15 +6,5 @@ pragma solidity 0.8.4;
  */
 interface INFTXVaultFactory {
   // Read functions.
-  function vault(uint256 vaultId) external view returns (address);
-
-  // Write functions.
-
-  function createVault(
-    string calldata name,
-    string calldata symbol,
-    address _assetAddress,
-    bool is1155,
-    bool allowAllItems
-  ) external returns (uint256);
+  function vaultsForAsset(address asset) external view returns (address[] memory);
 }

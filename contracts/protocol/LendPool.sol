@@ -371,6 +371,28 @@ contract LendPool is
       );
   }
 
+  /**
+   * @dev Function to liquidate a non-healthy position collateral-wise
+   * - The collateral asset is sold on Opensea
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   **/
+  function liquidateNFTX(address nftAsset, uint256 nftTokenId)
+    external
+    override
+    nonReentrant
+    whenNotPaused
+    returns (uint256)
+  {
+    return
+      LiquidateLogic.executeLiquidateNFTX(
+        _addressesProvider,
+        _reserves,
+        _nfts,
+        DataTypes.ExecuteLiquidateNFTXParams({nftAsset: nftAsset, nftTokenId: nftTokenId})
+      );
+  }
+
   function onERC721Received(
     address operator,
     address from,

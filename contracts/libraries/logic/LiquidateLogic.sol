@@ -9,7 +9,6 @@ import {IReserveOracleGetter} from "../../interfaces/IReserveOracleGetter.sol";
 import {INFTOracleGetter} from "../../interfaces/INFTOracleGetter.sol";
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
 import {ILooksRareExchange} from "../../interfaces/ILooksRareExchange.sol";
-import {IWyvernExchange} from "../../interfaces/IWyvernExchange.sol";
 import {INFTXVaultFactory} from "../../interfaces/INFTXVaultFactory.sol";
 import {INFTXVault} from "../../interfaces/INFTXVault.sol";
 
@@ -25,10 +24,12 @@ import {PercentageMath} from "../math/PercentageMath.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 import {WyvernExchange} from "../wyvernexchange/WyvernExchange.sol";
+import {NFTXHelper} from "../nftx/NFTXHelper.sol";
 
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
+import {IERC721MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721MetadataUpgradeable.sol";
 
 /**
  * @title LiquidateLogic library
@@ -126,6 +127,23 @@ library LiquidateLogic {
    * @param loanId The loan ID of the NFT loans
    **/
   event LiquidateOpensea(
+    address indexed reserve,
+    uint256 repayAmount,
+    uint256 remainAmount,
+    address indexed nftAsset,
+    uint256 nftTokenId,
+    address indexed borrower,
+    uint256 loanId
+  );
+
+  /**
+   * @dev Emitted when a borrower's loan is liquidated on NFTX.
+   * @param reserve The address of the underlying asset of the reserve
+   * @param repayAmount The amount of reserve repaid by the liquidator
+   * @param remainAmount The amount of reserve received by the borrower
+   * @param loanId The loan ID of the NFT loans
+   **/
+  event LiquidateNFTX(
     address indexed reserve,
     uint256 repayAmount,
     uint256 remainAmount,
@@ -504,13 +522,7 @@ library LiquidateLogic {
       vars.nftOracle
     );
 
-    fulfillOpenseaOrder(
-      IWyvernExchange(vars.exchange),
-      params.buyOrder,
-      params.sellOrder,
-      params._vs,
-      params._rssMetadata
-    );
+    WyvernExchange.fulfillOrder(vars.exchange, params.buyOrder, params.sellOrder, params._vs, params._rssMetadata);
 
     vars.remainAmount = params.sellOrder.basePrice - vars.borrowAmount;
 
@@ -551,75 +563,112 @@ library LiquidateLogic {
     return (vars.remainAmount);
   }
 
+  struct LiquidateNFTXLocalVars {
+    address poolLoan;
+    address vaultFactory;
+    address reserveOracle;
+    address nftOracle;
+    uint256 loanId;
+    uint256 borrowAmount;
+    uint256 extraDebtAmount;
+    uint256 remainAmount;
+    uint256 auctionEndTimestamp;
+  }
+
   /**
-   * @dev Fulfill the Opensea order
-   * @param buyOrder buy order
-   * @param sellOrder sell order
-   * @param _vs v of buy & sell order
-   * @param _rssMetadata r, s of buy & sell order
+   * @notice Implements the liquidate feature on NFTX. Through `liquidateNFTX()`, users liquidate assets in the protocol.
+   * @dev Emits the `LiquidateNFTX()` event.
+   * @param reservesData The state of all the reserves
+   * @param nftsData The state of all the nfts
+   * @param params The additional parameters needed to execute the liquidate function
    */
-  function fulfillOpenseaOrder(
-    IWyvernExchange exchange,
-    WyvernExchange.Order memory buyOrder,
-    WyvernExchange.Order memory sellOrder,
-    uint8[2] memory _vs,
-    bytes32[5] memory _rssMetadata
-  ) internal {
-    exchange.atomicMatch_(
-      [
-        buyOrder.exchange,
-        buyOrder.maker,
-        buyOrder.taker,
-        buyOrder.feeRecipient,
-        buyOrder.target,
-        buyOrder.staticTarget,
-        buyOrder.paymentToken,
-        sellOrder.exchange,
-        sellOrder.maker,
-        sellOrder.taker,
-        sellOrder.feeRecipient,
-        sellOrder.target,
-        sellOrder.staticTarget,
-        sellOrder.paymentToken
-      ],
-      [
-        buyOrder.makerRelayerFee,
-        buyOrder.takerRelayerFee,
-        buyOrder.makerProtocolFee,
-        buyOrder.takerProtocolFee,
-        buyOrder.basePrice,
-        buyOrder.extra,
-        buyOrder.listingTime,
-        buyOrder.expirationTime,
-        buyOrder.salt,
-        sellOrder.makerRelayerFee,
-        sellOrder.takerRelayerFee,
-        sellOrder.makerProtocolFee,
-        sellOrder.takerProtocolFee,
-        sellOrder.basePrice,
-        sellOrder.extra,
-        sellOrder.listingTime,
-        sellOrder.expirationTime,
-        sellOrder.salt
-      ],
-      [
-        uint8(buyOrder.feeMethod),
-        uint8(buyOrder.side),
-        uint8(buyOrder.saleKind),
-        uint8(buyOrder.howToCall),
-        uint8(sellOrder.feeMethod),
-        uint8(sellOrder.side),
-        uint8(sellOrder.saleKind),
-        uint8(sellOrder.howToCall)
-      ],
-      buyOrder.bCalldata,
-      sellOrder.bCalldata,
-      buyOrder.replacementPattern,
-      sellOrder.replacementPattern,
-      buyOrder.staticExtradata,
-      sellOrder.staticExtradata,
-      _vs,
-      _rssMetadata
+  function executeLiquidateNFTX(
+    ILendPoolAddressesProvider addressesProvider,
+    mapping(address => DataTypes.ReserveData) storage reservesData,
+    mapping(address => DataTypes.NftData) storage nftsData,
+    DataTypes.ExecuteLiquidateNFTXParams memory params
+  ) external returns (uint256) {
+    LiquidateNFTXLocalVars memory vars;
+
+    vars.vaultFactory = addressesProvider.getNFTXVaultFactory();
+    vars.poolLoan = addressesProvider.getLendPoolLoan();
+    vars.reserveOracle = addressesProvider.getReserveOracle();
+    vars.nftOracle = addressesProvider.getNFTOracle();
+
+    vars.loanId = ILendPoolLoan(vars.poolLoan).getCollateralLoanId(params.nftAsset, params.nftTokenId);
+    require(vars.loanId != 0, Errors.LP_NFT_IS_NOT_USED_AS_COLLATERAL);
+
+    DataTypes.LoanData memory loanData = ILendPoolLoan(vars.poolLoan).getLoan(vars.loanId);
+
+    DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
+    DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
+
+    ValidationLogic.validateLiquidate(reserveData, nftData, loanData);
+
+    vars.auctionEndTimestamp = loanData.bidStartTimestamp + (nftData.configuration.getAuctionDuration() * 1 days);
+    require(block.timestamp > vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_NOT_END);
+
+    // update state MUST BEFORE get borrow amount which is depent on latest borrow index
+    reserveData.updateState();
+
+    (vars.borrowAmount, , ) = GenericLogic.calculateLoanLiquidatePrice(
+      vars.loanId,
+      loanData.reserveAsset,
+      reserveData,
+      loanData.nftAsset,
+      nftData,
+      vars.poolLoan,
+      vars.reserveOracle,
+      vars.nftOracle
     );
+
+    // Sell NFT on NFTX
+    uint256[] memory tokenIds = new uint256[](1);
+    tokenIds[0] = params.nftTokenId;
+    uint256 sellPrice = NFTXHelper.sellNFTX(
+      addressesProvider,
+      params.nftAsset,
+      tokenIds,
+      loanData.reserveAsset,
+      vars.borrowAmount
+    );
+
+    vars.remainAmount = sellPrice - vars.borrowAmount;
+
+    ILendPoolLoan(vars.poolLoan).liquidateLoan(
+      vars.loanId,
+      nftData.uNftAddress,
+      vars.borrowAmount,
+      reserveData.variableBorrowIndex
+    );
+
+    IDebtToken(reserveData.debtTokenAddress).burn(
+      loanData.borrower,
+      vars.borrowAmount,
+      reserveData.variableBorrowIndex
+    );
+
+    // update interest rate according latest borrow amount (utilizaton)
+    reserveData.updateInterestRates(loanData.reserveAsset, reserveData.bTokenAddress, vars.borrowAmount, 0);
+
+    // transfer borrow amount from lend pool to bToken, repay debt
+    IERC20Upgradeable(loanData.reserveAsset).safeTransfer(reserveData.bTokenAddress, vars.borrowAmount);
+
+    // transfer remain amount to borrower
+    if (vars.remainAmount > 0) {
+      IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.borrower, vars.remainAmount);
+    }
+
+    emit LiquidateNFTX(
+      loanData.reserveAsset,
+      vars.borrowAmount,
+      vars.remainAmount,
+      loanData.nftAsset,
+      loanData.nftTokenId,
+      loanData.borrower,
+      vars.loanId
+    );
+
+    return (vars.remainAmount);
   }
 }

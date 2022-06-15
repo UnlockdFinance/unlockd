@@ -27,6 +27,7 @@ interface ILendPoolAddressesProvider {
   event LooksRareExchangeUpdated(address indexed newAddress);
   event OpenseaWyvernExchangeUpdated(address indexed newAddress);
   event NFTXVaultFactoryUpdated(address indexed newAddress);
+  event SushiSwapRouterUpdated(address indexed newAddress);
 
   function getMarketId() external view returns (string memory);
 
@@ -101,4 +102,8 @@ interface ILendPoolAddressesProvider {
   function getNFTXVaultFactory() external view returns (address);
 
   function setNFTXVaultFactory(address factory) external;
+
+  function getSushiSwapRouter() external view returns (address);
+
+  function setSushiSwapRouter(address router) external;
 }

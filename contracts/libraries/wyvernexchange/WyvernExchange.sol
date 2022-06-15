@@ -2,6 +2,7 @@
 pragma solidity 0.8.4;
 
 import "./SaleKindInterface.sol";
+import {IWyvernExchange} from "../../interfaces/IWyvernExchange.sol";
 
 library WyvernExchange {
   /**
@@ -83,5 +84,77 @@ library WyvernExchange {
     uint256 expirationTime;
     /* Order salt, used to prevent duplicate hashes. */
     uint256 salt;
+  }
+
+  /**
+   * @dev Fulfill the Opensea order
+   * @param buyOrder buy order
+   * @param sellOrder sell order
+   * @param _vs v of buy & sell order
+   * @param _rssMetadata r, s of buy & sell order
+   */
+  function fulfillOrder(
+    address exchange,
+    Order memory buyOrder,
+    Order memory sellOrder,
+    uint8[2] memory _vs,
+    bytes32[5] memory _rssMetadata
+  ) internal {
+    IWyvernExchange(exchange).atomicMatch_(
+      [
+        buyOrder.exchange,
+        buyOrder.maker,
+        buyOrder.taker,
+        buyOrder.feeRecipient,
+        buyOrder.target,
+        buyOrder.staticTarget,
+        buyOrder.paymentToken,
+        sellOrder.exchange,
+        sellOrder.maker,
+        sellOrder.taker,
+        sellOrder.feeRecipient,
+        sellOrder.target,
+        sellOrder.staticTarget,
+        sellOrder.paymentToken
+      ],
+      [
+        buyOrder.makerRelayerFee,
+        buyOrder.takerRelayerFee,
+        buyOrder.makerProtocolFee,
+        buyOrder.takerProtocolFee,
+        buyOrder.basePrice,
+        buyOrder.extra,
+        buyOrder.listingTime,
+        buyOrder.expirationTime,
+        buyOrder.salt,
+        sellOrder.makerRelayerFee,
+        sellOrder.takerRelayerFee,
+        sellOrder.makerProtocolFee,
+        sellOrder.takerProtocolFee,
+        sellOrder.basePrice,
+        sellOrder.extra,
+        sellOrder.listingTime,
+        sellOrder.expirationTime,
+        sellOrder.salt
+      ],
+      [
+        uint8(buyOrder.feeMethod),
+        uint8(buyOrder.side),
+        uint8(buyOrder.saleKind),
+        uint8(buyOrder.howToCall),
+        uint8(sellOrder.feeMethod),
+        uint8(sellOrder.side),
+        uint8(sellOrder.saleKind),
+        uint8(sellOrder.howToCall)
+      ],
+      buyOrder.bCalldata,
+      sellOrder.bCalldata,
+      buyOrder.replacementPattern,
+      sellOrder.replacementPattern,
+      buyOrder.staticExtradata,
+      sellOrder.staticExtradata,
+      _vs,
+      _rssMetadata
+    );
   }
 }
