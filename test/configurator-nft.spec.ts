@@ -120,7 +120,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
 
     const { ltv, liquidationBonus, liquidationThreshold } = await dataProvider.getNftConfigurationData(bayc.address);
 
-    expect(ltv).to.be.equal(8000);
+    expect(ltv).to.be.equal(4000);
     expect(liquidationThreshold).to.be.equal(8250);
     expect(liquidationBonus).to.be.equal(500);
   });

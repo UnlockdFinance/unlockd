@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
+import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
 import {IUNFT} from "../interfaces/IUNFT.sol";
 import {IUNFTRegistry} from "../interfaces/IUNFTRegistry.sol";
@@ -17,6 +18,7 @@ import {ConfigTypes} from "../libraries/types/ConfigTypes.sol";
 
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {IERC721Detailed} from "../interfaces/IERC721Detailed.sol";
 
 /**
  * @title LendPoolConfigurator contract
@@ -240,6 +242,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     for (uint256 i = 0; i < assets.length; i++) {
       DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfiguration(assets[i]);
 
+      // change the LTV passed to a calculation based on the NFT Collection - TESTMODE
+      uint256 _newLtv = getNewLtv(assets[i], ltv);
+      ltv = _newLtv;
+
       //validation of the parameters: the LTV can
       //only be lower or equal than the liquidation threshold
       //(otherwise a loan against the asset would cause instantaneous liquidation)
@@ -260,6 +266,19 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
 
       emit NftConfigurationChanged(assets[i], ltv, liquidationThreshold, liquidationBonus);
     }
+  }
+
+  /**
+   * @dev a Mock calculation for the NFT Price based on the collections
+   **/
+  function getNewLtv(address _asset, uint256 _ltv) internal view returns (uint256) {
+    uint256 _newLtv;
+    if (_ltv == 0) {
+      return _newLtv = _ltv;
+    } else {
+      _newLtv = 4000;
+    }
+    return _newLtv;
   }
 
   /**
