@@ -60,6 +60,19 @@ export const MOCK_NFT_AGGREGATORS_PRICES = {
   KONGZ: oneEther.multipliedBy("7.90").toFixed(),
 };
 
+export const MOCK_NFT_AGGREGATORS_MAXSUPPLY = {
+  WPUNKS: "10",
+  BAYC: "10",
+  DOODLE: "10",
+  COOL: "10",
+  MEEBITS: "10",
+  MAYC: "10",
+  WOW: "10",
+  CLONEX: "10",
+  AZUKI: "10",
+  KONGZ: "10",
+};
+
 export const MOCK_NFT_BASE_URIS = {
   WPUNKS: "https://wrappedpunks.com:3000/api/punks/metadata/",
   BAYC: "ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/",
