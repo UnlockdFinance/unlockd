@@ -268,6 +268,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   await waitForTx(await mockNftOracleImpl.initialize(await addressesProvider.getPoolAdmin()));
 
   //////////////////////////////////////////////////////////////////////////////
+
   console.log("-> Prepare Reserve pool...");
   const { ...tokensAddressesWithoutUsd } = allTokenAddresses;
   const allReservesAddresses = {

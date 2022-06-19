@@ -40,6 +40,7 @@ export const setAggregatorsInReserveOracle = async (
   }
 };
 
+// ASK WHY addAsset STILL HERE:
 export const addAssetsInNFTOracle = async (
   assetsAddresses: SymbolMap<tEthereumAddress>,
   nftOracleInstance: NFTOracle
