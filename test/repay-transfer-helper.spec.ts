@@ -28,7 +28,7 @@ makeSuite("Repay and transfer helper tests", async (testEnv) => {
       getReservesConfigByPool(UnlockdPools.proto)
     );
 
-    saveBaycAssetPrice = (await testEnv.nftOracle.getAssetPrice(testEnv.bayc.address)).toString();
+    saveBaycAssetPrice = (await testEnv.nftOracle.getNFTPrice(testEnv.bayc.address, testEnv.tokenIdTracker)).toString();
 
     repayAndTransferHelper = await new RepayAndTransferHelperFactory(await getDeploySigner()).deploy(
       testEnv.addressesProvider.address

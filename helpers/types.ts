@@ -375,6 +375,7 @@ export interface IMocksConfig {
   UNftSymbolPrefix: string;
   AllAssetsInitialPrices: iAssetBase<string>;
   AllNftsInitialPrices: iNftBase<string>;
+  AllNftsMaxSupply: iNftBase<string>;
 }
 
 export interface ICommonConfiguration {
