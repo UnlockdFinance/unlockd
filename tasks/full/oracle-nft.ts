@@ -57,8 +57,8 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
       const nftOracleImpl = await deployNFTOracle(verify);
       const initEncodedData = nftOracleImpl.interface.encodeFunctionData("initialize", [
         feedAdmin,
-        2e17,
-        1e17,
+        "200000000000000000",
+        "10000000000000000000",
         1800,
         600,
         21600,
