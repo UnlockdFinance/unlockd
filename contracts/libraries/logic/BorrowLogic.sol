@@ -175,6 +175,7 @@ library BorrowLogic {
       params.amount,
       reserveData,
       params.nftAsset,
+      params.nftTokenId,
       nftData,
       vars.loanAddress,
       vars.loanId,

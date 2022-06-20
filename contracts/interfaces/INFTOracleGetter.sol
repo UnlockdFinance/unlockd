@@ -9,5 +9,5 @@ interface INFTOracleGetter {
   /***********
     @dev returns the asset price in ETH
      */
-  function getAssetPrice(address asset) external view returns (uint256);
+  function getAssetPrice(address assetContract, uint256 tokenId) external view returns (uint256);
 }

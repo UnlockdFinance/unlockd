@@ -56,6 +56,7 @@ library GenericLogic {
     address reserveAddress,
     DataTypes.ReserveData storage reserveData,
     address nftAddress,
+    uint256 nftTokenId,
     DataTypes.NftData storage nftData,
     address loanAddress,
     uint256 loanId,
@@ -90,6 +91,7 @@ library GenericLogic {
       reserveAddress,
       reserveData,
       nftAddress,
+      nftTokenId,
       nftData,
       reserveOracle,
       nftOracle
@@ -131,6 +133,7 @@ library GenericLogic {
     address reserveAddress,
     DataTypes.ReserveData storage reserveData,
     address nftAddress,
+    uint256 nftTokenId,
     DataTypes.NftData storage nftData,
     address reserveOracle,
     address nftOracle
@@ -143,7 +146,7 @@ library GenericLogic {
     // calculate total collateral balance for the nft
     // all asset price has converted to ETH based, unit is in WEI (18 decimals)
 
-    vars.nftUnitPrice = INFTOracleGetter(nftOracle).getAssetPrice(nftAddress);
+    vars.nftUnitPrice = INFTOracleGetter(nftOracle).getAssetPrice(nftAddress, nftTokenId);
     vars.totalCollateralInETH = vars.nftUnitPrice;
 
     if (reserveAddress != address(0)) {
@@ -217,6 +220,7 @@ library GenericLogic {
     address reserveAsset,
     DataTypes.ReserveData storage reserveData,
     address nftAsset,
+    uint256 nftTokenId,
     DataTypes.NftData storage nftData,
     address poolLoan,
     address reserveOracle,
@@ -248,7 +252,7 @@ library GenericLogic {
 
     (vars.ltv, vars.liquidationThreshold, vars.liquidationBonus) = nftData.configuration.getCollateralParams();
 
-    vars.nftPriceInETH = INFTOracleGetter(nftOracle).getAssetPrice(nftAsset);
+    vars.nftPriceInETH = INFTOracleGetter(nftOracle).getAssetPrice(nftAsset, nftTokenId);
     vars.reservePriceInETH = IReserveOracleGetter(reserveOracle).getAssetPrice(reserveAsset);
 
     vars.nftPriceInReserve = ((10**vars.reserveDecimals) * vars.nftPriceInETH) / vars.reservePriceInETH;
