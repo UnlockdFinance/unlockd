@@ -389,12 +389,12 @@ before(async () => {
   const secondaryWallet = await getSecondSigner();
   const FORK = process.env.FORK;
 
-  if (FORK) {
-    await rawBRE.run("unlockd:mainnet", { skipRegistry: true });
-  } else {
-    console.log("-> Deploying test environment...");
-    await buildTestEnv(deployer, secondaryWallet);
-  }
+  // if (FORK) {
+  //   await rawBRE.run("unlockd:mainnet", { skipRegistry: true });
+  // } else {
+  console.log("-> Deploying test environment...");
+  await buildTestEnv(deployer, secondaryWallet);
+  // }
 
   console.log("-> Initialize make suite...");
   await initializeMakeSuite();
