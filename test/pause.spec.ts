@@ -164,7 +164,7 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     await bayc.connect(borrower.signer).setApprovalForAll(pool.address, true);
 
     //user 4 borrows
-    const loanData = await pool.getNftCollateralData(bayc.address, weth.address);
+    const loanData = await pool.getNftCollateralData(bayc.address, 101, weth.address);
 
     const wethPrice = await reserveOracle.getAssetPrice(weth.address);
 
@@ -178,9 +178,8 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
       .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", borrower.address, "0");
 
     // Drops HF below 1
-    const baycPrice = await nftOracle.getAssetPrice(bayc.address);
-    const latestTime = await nftOracle.getLatestTimestamp(bayc.address);
-    await nftOracle.setAssetData(bayc.address, new BigNumber(baycPrice.toString()).multipliedBy(0.5).toFixed(0));
+    const baycPrice = await nftOracle.getNFTPrice(bayc.address, 101);
+    await nftOracle.setNFTPrice(bayc.address, 101, new BigNumber(baycPrice.toString()).multipliedBy(0.5).toFixed(0));
 
     //mints usdc to the liquidator
     await weth.connect(liquidator.signer).mint(await convertToCurrencyDecimals(weth.address, "1000"));

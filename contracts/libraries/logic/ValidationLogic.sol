@@ -98,7 +98,6 @@ library ValidationLogic {
     address nftOracle
   ) external view {
     ValidateBorrowLocalVars memory vars;
-
     require(reserveData.bTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
     require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
     require(amount > 0, Errors.VL_INVALID_AMOUNT);
@@ -117,11 +116,9 @@ library ValidationLogic {
     require(vars.isActive, Errors.VL_NO_ACTIVE_RESERVE);
     require(!vars.isFrozen, Errors.VL_RESERVE_FROZEN);
     require(vars.borrowingEnabled, Errors.VL_BORROWING_NOT_ENABLED);
-
     (vars.nftIsActive, vars.nftIsFrozen) = nftData.configuration.getFlags();
     require(vars.nftIsActive, Errors.VL_NO_ACTIVE_NFT);
     require(!vars.nftIsFrozen, Errors.VL_NFT_FROZEN);
-
     (vars.currentLtv, vars.currentLiquidationThreshold, ) = nftData.configuration.getCollateralParams();
 
     (vars.userCollateralBalance, vars.userBorrowBalance, vars.healthFactor) = GenericLogic.calculateLoanData(
@@ -137,7 +134,6 @@ library ValidationLogic {
     );
 
     require(vars.userCollateralBalance > 0, Errors.VL_COLLATERAL_BALANCE_IS_0);
-
     require(
       vars.healthFactor > GenericLogic.HEALTH_FACTOR_LIQUIDATION_THRESHOLD,
       Errors.VL_HEALTH_FACTOR_LOWER_THAN_LIQUIDATION_THRESHOLD

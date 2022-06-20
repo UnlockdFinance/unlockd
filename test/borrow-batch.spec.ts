@@ -84,7 +84,7 @@ makeSuite("LendPool: Batch borrow test cases", (testEnv: TestEnv) => {
           "0"
         )
     );
-
+    console.log("arrived");
     const userBalanceAfterBorrow = await weth.balanceOf(borrower.address);
     expect(userBalanceAfterBorrow, "current weth balance shoud increase").to.be.eq(
       userBalanceBeforeBorrow.add(borrowAmount1).add(borrowAmount2)

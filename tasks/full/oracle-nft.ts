@@ -96,7 +96,7 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
         // only oracle owner can add assets
         const oracleOwnerAddress = await nftOracle.owner();
         const oracleOwnerSigner = DRE.ethers.provider.getSigner(oracleOwnerAddress);
-        await waitForTx(await nftOracle.connect(oracleOwnerSigner).setAssets(tokens));
+        await waitForTx(await nftOracle.connect(oracleOwnerSigner).setCollections(tokens));
       }
 
       // Register the proxy oracle on the addressesProvider

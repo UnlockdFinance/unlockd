@@ -61,16 +61,16 @@ export const MOCK_NFT_AGGREGATORS_PRICES = {
 };
 
 export const MOCK_NFT_AGGREGATORS_MAXSUPPLY = {
-  WPUNKS: "10",
-  BAYC: "10",
-  DOODLE: "10",
-  COOL: "10",
-  MEEBITS: "10",
-  MAYC: "10",
-  WOW: "10",
-  CLONEX: "10",
-  AZUKI: "10",
-  KONGZ: "10",
+  WPUNKS: "150", //10000
+  BAYC: "150", //10000
+  DOODLE: "150", //9999
+  COOL: "150", //9999
+  MEEBITS: "150", //20000
+  MAYC: "150", //19422
+  WOW: "150", //5555
+  CLONEX: "150", //19310
+  AZUKI: "150", //10000
+  KONGZ: "150", //14826
 };
 
 export const MOCK_NFT_BASE_URIS = {

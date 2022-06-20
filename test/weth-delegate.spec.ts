@@ -42,7 +42,7 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
       getReservesConfigByPool(UnlockdPools.proto)
     );
 
-    baycInitPrice = await testEnv.nftOracle.getAssetPrice(testEnv.bayc.address);
+    baycInitPrice = await testEnv.nftOracle.getNFTPrice(testEnv.bayc.address, testEnv.tokenIdTracker);
   });
   after("Reset", () => {
     // Reset BigNumber
