@@ -157,31 +157,28 @@ library BorrowLogic {
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();
-
     // Convert asset amount to ETH
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
     vars.loanAddress = addressesProvider.getLendPoolLoan();
 
     vars.loanId = ILendPoolLoan(vars.loanAddress).getCollateralLoanId(params.nftAsset, params.nftTokenId);
-
     vars.totalSupply = IERC721EnumerableUpgradeable(params.nftAsset).totalSupply();
     require(vars.totalSupply <= nftData.maxSupply, Errors.LP_NFT_SUPPLY_NUM_EXCEED_MAX_LIMIT);
     require(params.nftTokenId <= nftData.maxTokenId, Errors.LP_NFT_TOKEN_ID_EXCEED_MAX_LIMIT);
-
     ValidationLogic.validateBorrow(
       params.onBehalfOf,
       params.asset,
       params.amount,
       reserveData,
       params.nftAsset,
+      params.nftTokenId,
       nftData,
       vars.loanAddress,
       vars.loanId,
       vars.reserveOracle,
       vars.nftOracle
     );
-
     if (vars.loanId == 0) {
       IERC721Upgradeable(params.nftAsset).safeTransferFrom(vars.initiator, address(this), params.nftTokenId);
 

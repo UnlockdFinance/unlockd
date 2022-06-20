@@ -64,7 +64,7 @@ task("oracle-admin:set-nft-assets", "Set new nft asset to oracle")
       }
     }
 
-    await waitForTx(await nftOracle.connect(ownerSigner).setAssets(assetsArray));
+    await waitForTx(await nftOracle.connect(ownerSigner).setCollections(assetsArray));
 
     console.log("OK");
   });

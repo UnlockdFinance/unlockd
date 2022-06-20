@@ -242,7 +242,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
 
     // nft current state
     nftData.uNftAddress = baseData.uNftAddress;
-    nftData.priceInEth = nftOracle.getAssetPrice(nftData.underlyingAsset);
+    nftData.priceInEth = nftOracle.getNFTPrice(nftData.underlyingAsset, nftData.assetTokenId);
 
     nftData.totalCollateral = lendPoolLoan.getNftCollateralAmount(nftAsset);
 

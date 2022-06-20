@@ -368,7 +368,11 @@ interface ILendPool {
    * @return liquidationThreshold the liquidation threshold of the NFT
    * @return liquidationBonus the liquidation bonus of the NFT
    **/
-  function getNftCollateralData(address nftAsset, address reserveAsset)
+  function getNftCollateralData(
+    address nftAsset,
+    uint256 nftTokenId,
+    address reserveAsset
+  )
     external
     view
     returns (

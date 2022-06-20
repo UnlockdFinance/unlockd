@@ -6,6 +6,7 @@ import {
   ZERO_ADDRESS,
   MOCK_RESERVE_AGGREGATORS_PRICES,
   MOCK_NFT_AGGREGATORS_PRICES,
+  MOCK_NFT_AGGREGATORS_MAXSUPPLY
 } from '../../helpers/constants';
 import { ICommonConfiguration, eEthereumNetwork } from '../../helpers/types';
 
@@ -42,6 +43,9 @@ export const CommonsConfig: ICommonConfiguration = {
     },
     AllNftsInitialPrices: {
       ...MOCK_NFT_AGGREGATORS_PRICES,
+    },
+    AllNftsMaxSupply: {
+      ...MOCK_NFT_AGGREGATORS_MAXSUPPLY,
     },
   },
 
