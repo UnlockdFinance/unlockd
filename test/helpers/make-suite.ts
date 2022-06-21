@@ -84,6 +84,7 @@ export interface TestEnv {
   mockReserveOracle: MockReserveOracle;
   nftOracle: NFTOracle;
   mockNftOracle: MockNFTOracle;
+  mockNFT: MockNFT;
   dataProvider: UnlockdProtocolDataProvider;
   uiProvider: UiPoolDataProvider;
   walletProvider: WalletBalanceProvider;
