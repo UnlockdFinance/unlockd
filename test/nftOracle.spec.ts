@@ -65,7 +65,7 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
     const collectionMock = users[0].address;
 
     //await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
-    await expect(mockNftOracle.getNFTPrice(collectionMock, 2)).to.be.reverted; // With("PriceIsZero()")
+    await expect(mockNftOracle.getNFTPrice(collectionMock, 2)).to.be.revertedWith("PriceIsZero()");
   });
 
   it("Should be reverted as the collection has been deleted", async function () {
@@ -75,7 +75,9 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
     expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
 
     await mockNftOracle.removeCollection(collectionMock);
-    await expect(mockNftOracle.getNFTPrice(collectionMock, 1)).to.be.reverted; //With(`NonExistingCollection("${collectionMock}")`)
+    await expect(mockNftOracle.getNFTPrice(collectionMock, 1)).to.be.revertedWith(
+      `NonExistingCollection("${collectionMock}")`
+    );
   });
 
   it("Should be reverted as contract is paused", async function () {
@@ -86,7 +88,7 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
     expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
 
     await mockNftOracle.setPause(collectionMock, true);
-    await expect(mockNftOracle.setNFTPrice(collectionMock, 1, 1000)).to.be.reverted; // With("NFTPaused()")
+    await expect(mockNftOracle.setNFTPrice(collectionMock, 1, 1000)).to.be.revertedWith("NFTPaused()");
   });
 });
 
@@ -104,7 +106,7 @@ makeSuite("NFTOracle: Test Pause", (testEnv: TestEnv) => {
 
     await mockNftOracle.setPause(users[0].address, true);
 
-    await expect(mockNftOracle.setNFTPrice(users[0].address, 1, 410)).to.be.reverted; //With("NFTPaused()")
+    await expect(mockNftOracle.setNFTPrice(users[0].address, 1, 410)).to.be.revertedWith("NFTPaused()");
 
     await mockNftOracle.setNFTPrice(users[2].address, 1, 400);
     await mockNftOracle.setPause(users[0].address, false);
