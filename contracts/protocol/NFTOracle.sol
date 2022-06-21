@@ -141,6 +141,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     onlyExistingCollection(_collection)
     returns (uint256)
   {
+    if (nftPrices[_collection][_tokenId] == 0) revert PriceIsZero();
     return nftPrices[_collection][_tokenId];
   }
 
@@ -154,9 +155,11 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     uint256 collectionsLength = _collections.length;
     if (collectionsLength != _tokenIds.length) revert ArraysLengthInconsistent();
     uint256[] memory _nftPrices = new uint256[](collectionsLength);
+
     for (uint256 i = 0; i < collectionsLength; i++) {
-      _nftPrices[i] = nftPrices[_collections[i]][_tokenIds[i]];
+      _nftPrices[i] = getNFTPrice(_collections[i], _tokenIds[i]);
     }
+
     return _nftPrices;
   }
 
