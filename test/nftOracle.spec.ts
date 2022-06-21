@@ -16,6 +16,15 @@ makeSuite("NFTOracle", (testEnv: TestEnv) => {
     //const collectionMock = users[0].address;
   });
 
+  it("NFTOracle: Set Admin", async () => {
+    const { mockNftOracle, users } = testEnv;
+    const admin = await mockNftOracle.priceFeedAdmin();
+    await mockNftOracle.setPriceFeedAdmin(users[0].address);
+    expect(await mockNftOracle.priceFeedAdmin()).eq(users[0].address);
+    await mockNftOracle.setPriceFeedAdmin(admin);
+    expect(await mockNftOracle.priceFeedAdmin()).eq(admin);
+  });
+
   it("Should be reverted as NFTOracle is already initialized", async () => {
     const { mockNftOracle, users } = testEnv;
     const admin = await mockNftOracle.priceFeedAdmin();
@@ -30,19 +39,16 @@ makeSuite("NFTOracle", (testEnv: TestEnv) => {
     expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
   });
 
-  /// @notice Shouldn't this be explicitly thrown as error rather than '0'?
-  it("Should return a '0' as we are accessing a non-minted NFT", async function () {
+  it("Should be reverted as price is 0", async function () {
     const { mockNftOracle, users } = testEnv;
     const collectionMock = users[0].address;
-    //await mockNftOracle.addCollection(collectionMock);
     await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
-    expect(await mockNftOracle.getNFTPrice(collectionMock, 2)).to.eq(0);
+    await expect(mockNftOracle.getNFTPrice(collectionMock, 2)).to.be.revertedWith("PriceIsZero()");
   });
 
   it("Should be reverted as the collection has been deleted", async function () {
     const { mockNftOracle, users } = testEnv;
     const collectionMock = users[0].address;
-    //await mockNftOracle.addCollection(collectionMock);
     await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
     expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
 
@@ -50,7 +56,6 @@ makeSuite("NFTOracle", (testEnv: TestEnv) => {
     await expect(mockNftOracle.getNFTPrice(collectionMock, 1)).to.be.reverted;
   });
 
-  /// @dev Check whenNotPaused modifier on setters!
   it("Should be reverted as contract is paused", async function () {
     const { mockNftOracle, users } = testEnv;
     const collectionMock = users[0].address;

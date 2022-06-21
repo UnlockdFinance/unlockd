@@ -157,7 +157,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     uint256[] memory _nftPrices = new uint256[](collectionsLength);
 
     for (uint256 i = 0; i < collectionsLength; i++) {
-      _nftPrices[i] = getNFTPrice(_collections[i], _tokenIds[i]);
+      _nftPrices[i] = this.getNFTPrice(_collections[i], _tokenIds[i]);
     }
 
     return _nftPrices;
