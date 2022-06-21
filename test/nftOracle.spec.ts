@@ -25,18 +25,26 @@ makeSuite("NFTOracle: General functioning", (testEnv: TestEnv) => {
     expect(await mockNftOracle.priceFeedAdmin()).eq(admin);
   });
 
-  it("Should be reverted as NFTOracle is already initialized", async () => {
-    const { mockNftOracle, users } = testEnv;
-    const admin = await mockNftOracle.priceFeedAdmin();
-    await expect(mockNftOracle.initialize(admin)).to.be.revertedWith("Initializable: contract is already initialized");
-  });
-
   it("Should set and get the mocknft price at 1000", async function () {
     const { mockNftOracle, users } = testEnv;
     const collectionMock = users[0].address;
     await mockNftOracle.addCollection(collectionMock);
     await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
     expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
+  });
+});
+
+makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
+  before(async () => {
+    const { mockNftOracle, users } = testEnv;
+    const collectionMock = users[0].address;
+    await mockNftOracle.addCollection(collectionMock);
+  });
+
+  it("Should be reverted as NFTOracle is already initialized", async () => {
+    const { mockNftOracle, users } = testEnv;
+    const admin = await mockNftOracle.priceFeedAdmin();
+    await expect(mockNftOracle.initialize(admin)).to.be.revertedWith("Initializable: contract is already initialized");
   });
 
   it("Should be reverted as price is 0", async function () {
@@ -72,6 +80,7 @@ makeSuite("NFTOracle: General functioning", (testEnv: TestEnv) => {
 
 makeSuite("NFTOracle: Test Pause", (testEnv: TestEnv) => {
   before(async () => {});
+
   it("test pause", async () => {
     const { mockNftOracle, users } = testEnv;
     await mockNftOracle.addCollection(users[0].address);
