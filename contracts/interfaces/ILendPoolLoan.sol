@@ -92,6 +92,19 @@ interface ILendPoolLoan {
     uint256 borrowIndex
   );
 
+  /**
+   * @dev Emitted when a loan is liquidate on NFTX
+   */
+  event LoanLiquidatedNFTX(
+    uint256 indexed loanId,
+    address nftAsset,
+    uint256 nftTokenId,
+    address reserveAsset,
+    uint256 amount,
+    uint256 borrowIndex,
+    uint256 sellPrice
+  );
+
   function initNft(address nftAsset, address uNftAddress) external;
 
   /**
@@ -193,6 +206,25 @@ interface ILendPoolLoan {
     uint256 borrowAmount,
     uint256 borrowIndex
   ) external;
+
+  /**
+   * @dev Liquidate the given loan on NFTX
+   *
+   * Requirements:
+   *  - The caller must send in principal + interest
+   *  - The loan must be in state Auction
+   *
+   * @param loanId The loan getting burned
+   * @param uNftAddress The address of uNFT
+   */
+  function liquidateLoanNFTX(
+    uint256 loanId,
+    address uNftAddress,
+    uint256 borrowAmount,
+    uint256 borrowIndex,
+    address vaultFactoryAddress,
+    address sushiSwapRouterAddress
+  ) external returns (uint256 sellPrice);
 
   function borrowerOf(uint256 loanId) external view returns (address);
 

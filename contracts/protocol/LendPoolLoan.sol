@@ -8,6 +8,7 @@ import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvid
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
+import {NFTXHelper} from "../libraries/nftx/NFTXHelper.sol";
 
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {IERC721ReceiverUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
@@ -270,6 +271,64 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     IERC721Upgradeable(loan.nftAsset).safeTransferFrom(address(this), _msgSender(), loan.nftTokenId);
 
     emit LoanLiquidated(loanId, loan.nftAsset, loan.nftTokenId, loan.reserveAsset, borrowAmount, borrowIndex);
+  }
+
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
+  function liquidateLoanNFTX(
+    uint256 loanId,
+    address uNftAddress,
+    uint256 borrowAmount,
+    uint256 borrowIndex,
+    address vaultFactoryAddress,
+    address sushiSwapRouterAddress
+  ) external override onlyLendPool returns (uint256 sellPrice) {
+    // Must use storage to change state
+    DataTypes.LoanData storage loan = _loans[loanId];
+
+    // Ensure valid loan state
+    require(loan.state == DataTypes.LoanState.Auction, Errors.LPL_INVALID_LOAN_STATE);
+
+    // state changes and cleanup
+    // NOTE: these must be performed before assets are released to prevent reentrance
+    _loans[loanId].state = DataTypes.LoanState.Defaulted;
+    _loans[loanId].bidBorrowAmount = borrowAmount;
+
+    _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
+
+    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALIED_USER_NFT_AMOUNT);
+    _userNftCollateral[loan.borrower][loan.nftAsset] -= 1;
+
+    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALIED_NFT_AMOUNT);
+    _nftTotalCollateral[loan.nftAsset] -= 1;
+
+    // burn uNFT and sell NFT on NFTX
+    IUNFT(uNftAddress).burn(loan.nftTokenId);
+
+    // IERC721Upgradeable(loan.nftAsset).safeTransferFrom(address(this), _msgSender(), loan.nftTokenId);
+
+    // Sell NFT on NFTX
+    uint256[] memory tokenIds = new uint256[](1);
+    tokenIds[0] = loan.nftTokenId;
+    sellPrice = NFTXHelper.sellNFTX(
+      vaultFactoryAddress,
+      sushiSwapRouterAddress,
+      loan.nftAsset,
+      tokenIds,
+      loan.reserveAsset,
+      borrowAmount
+    );
+
+    emit LoanLiquidatedNFTX(
+      loanId,
+      loan.nftAsset,
+      loan.nftTokenId,
+      loan.reserveAsset,
+      borrowAmount,
+      borrowIndex,
+      sellPrice
+    );
   }
 
   function onERC721Received(

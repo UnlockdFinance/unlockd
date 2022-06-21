@@ -380,6 +380,11 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
 
   await waitForTx(await wethGateway.authorizeCallerWhitelist([punkGateway.address], true));
 
+  //////////////////////////////////////////////////////////////////////////////
+  console.log("-> Prepare NFTX & Sushiswap Router...");
+  await waitForTx(await addressesProvider.setNFTXVaultFactory("0xBE86f647b167567525cCAAfcd6f881F1Ee558216"));
+  await waitForTx(await addressesProvider.setSushiSwapRouter("0xd9e1ce17f2641f24ae83637ab66a2cca9c378b9f"));
+
   console.timeEnd("setup");
 };
 

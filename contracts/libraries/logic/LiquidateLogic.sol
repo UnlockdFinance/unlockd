@@ -519,6 +519,7 @@ library LiquidateLogic {
       loanData.reserveAsset,
       reserveData,
       loanData.nftAsset,
+      loanData.nftTokenId,
       nftData,
       vars.poolLoan,
       vars.reserveOracle,
@@ -569,6 +570,7 @@ library LiquidateLogic {
   struct LiquidateNFTXLocalVars {
     address poolLoan;
     address vaultFactory;
+    address sushiSwapRouter;
     address reserveOracle;
     address nftOracle;
     uint256 loanId;
@@ -594,6 +596,7 @@ library LiquidateLogic {
     LiquidateNFTXLocalVars memory vars;
 
     vars.vaultFactory = addressesProvider.getNFTXVaultFactory();
+    vars.sushiSwapRouter = addressesProvider.getSushiSwapRouter();
     vars.poolLoan = addressesProvider.getLendPoolLoan();
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
@@ -619,31 +622,23 @@ library LiquidateLogic {
       loanData.reserveAsset,
       reserveData,
       loanData.nftAsset,
+      loanData.nftTokenId,
       nftData,
       vars.poolLoan,
       vars.reserveOracle,
       vars.nftOracle
     );
 
-    // Sell NFT on NFTX
-    uint256[] memory tokenIds = new uint256[](1);
-    tokenIds[0] = params.nftTokenId;
-    uint256 sellPrice = NFTXHelper.sellNFTX(
-      addressesProvider,
-      params.nftAsset,
-      tokenIds,
-      loanData.reserveAsset,
-      vars.borrowAmount
-    );
-
-    vars.remainAmount = sellPrice - vars.borrowAmount;
-
-    ILendPoolLoan(vars.poolLoan).liquidateLoan(
+    uint256 sellPrice = ILendPoolLoan(vars.poolLoan).liquidateLoanNFTX(
       vars.loanId,
       nftData.uNftAddress,
       vars.borrowAmount,
-      reserveData.variableBorrowIndex
+      reserveData.variableBorrowIndex,
+      vars.vaultFactory,
+      vars.sushiSwapRouter
     );
+
+    vars.remainAmount = sellPrice - vars.borrowAmount;
 
     IDebtToken(reserveData.debtTokenAddress).burn(
       loanData.borrower,

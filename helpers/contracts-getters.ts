@@ -41,6 +41,9 @@ import {
 } from "../types";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { IERC721DetailedFactory } from "../types/IERC721DetailedFactory";
+import { INFTXVaultFactory } from "../types/INFTXVaultFactory";
+import { INFTXVaultFactoryFactory } from "../types/INFTXVaultFactoryFactory";
+import { IUniswapV2Router02Factory } from "../types/IUniswapV2Router02Factory";
 import { getEthersSigners, MockTokenMap, MockNftMap } from "./contracts-helpers";
 import { DRE, getDb, notFalsyOrZeroAddress, omit } from "./misc-utils";
 import { eContractid, PoolConfiguration, tEthereumAddress, TokenContractId, NftContractId } from "./types";
@@ -450,3 +453,12 @@ export const getUnlockdCollectorImpl = async (address?: tEthereumAddress) =>
     address || (await getDb(DRE.network.name).get(`${eContractid.UnlockdCollectorImpl}`).value()).address,
     await getDeploySigner()
   );
+
+export const getNFTXVaultFactory = async (address: tEthereumAddress) =>
+  await INFTXVaultFactoryFactory.connect(address, await getDeploySigner());
+
+export const getNFTXVault = async (address: tEthereumAddress) =>
+  await INFTXVaultFactory.connect(address, await getDeploySigner());
+
+export const getSushiSwapRouter = async (address: tEthereumAddress) =>
+  await IUniswapV2Router02Factory.connect(address, await getDeploySigner());
