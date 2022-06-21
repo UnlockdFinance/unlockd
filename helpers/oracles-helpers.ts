@@ -47,7 +47,7 @@ export const addAssetsInNFTOracle = async (
 ) => {
   for (const [assetSymbol, assetAddress] of Object.entries(assetsAddresses) as [string, tEthereumAddress][]) {
     console.log("addAssetsInNFTOracle", assetSymbol, assetAddress);
-    await waitForTx(await nftOracleInstance.addAsset(assetAddress));
+    //await waitForTx(await nftOracleInstance.addAsset(assetAddress));
   }
 };
 
@@ -64,7 +64,7 @@ export const setPricesInNFTOracle = async (
     }
     const [, price] = (Object.entries(prices) as [string, string][])[priceIndex];
     console.log("setPricesInNFTOracle", assetSymbol, assetAddress, price);
-    await waitForTx(await nftOracleInstance.setAssetData(assetAddress, price));
+    //await waitForTx(await nftOracleInstance.setAssetData(assetAddress, price));
   }
 };
 

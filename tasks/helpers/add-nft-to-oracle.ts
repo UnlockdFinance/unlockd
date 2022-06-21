@@ -35,7 +35,7 @@ task("add-nft-to-oracle", "Add new nft asset to oracle")
       throw Error("Invalid nft init price in pool config");
     }
 
-    await waitForTx(await nftOracle.connect(ownerSigner).addAsset(asset));
+    //await waitForTx(await nftOracle.connect(ownerSigner).addAsset(asset));
 
     //const latestTime = await getNowTimeInSeconds();
     //await waitForTx(await nftOracle.connect(adminSigner).setAssetData(asset, nftPrice));

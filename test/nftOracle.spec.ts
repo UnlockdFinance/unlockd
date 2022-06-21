@@ -9,6 +9,16 @@ import { ethers } from "hardhat";
      giving errors all the time.
 */
 
+makeSuite("NFTOracle", (testEnv: TestEnv) => {
+  before(async () => {});
+
+  it("Should be reverted as NFTOracle is already initialized", async () => {
+    const { mockNftOracle, users } = testEnv;
+    const admin = await mockNftOracle.priceFeedAdmin();
+    await expect(mockNftOracle.initialize(admin)).to.be.revertedWith("Initializable: contract is already initialized");
+  });
+});
+
 // describe("NFTOracle", function () {
 //     let Oraculo : NFTOracle__factory;
 //     let Mockfact : MockNFT__factory;
@@ -83,16 +93,6 @@ import { ethers } from "hardhat";
 
 //     });
 // });
-
-makeSuite("NFTOracle", (testEnv: TestEnv) => {
-  before(async () => {});
-
-  it("Should be reverted as NFTOracle is already initialized", async () => {
-    const { mockNftOracle, users } = testEnv;
-    const admin = await mockNftOracle.priceFeedAdmin();
-    await expect(mockNftOracle.initialize(admin)).to.be.revertedWith("Initializable: contract is already initialized");
-  });
-});
 
 // makeSuite("NFTOracle", (testEnv: TestEnv) => {
 //   before(async () => {});

@@ -240,9 +240,9 @@ export const setNftAssetPriceForDebt = async (
   }
 
   await advanceTimeAndBlock(100);
-  await waitForTx(await nftOracle.connect(priceAdmin).setAssetData(nftAsset, nftPrice.toFixed(0)));
+  //await waitForTx(await nftOracle.connect(priceAdmin).setAssetData(nftAsset, nftPrice.toFixed(0)));
   await advanceTimeAndBlock(200);
-  await waitForTx(await nftOracle.connect(priceAdmin).setAssetData(nftAsset, nftPrice.toFixed(0)));
+  //await waitForTx(await nftOracle.connect(priceAdmin).setAssetData(nftAsset, nftPrice.toFixed(0)));
 
   return { oldNftPrice: oldNftPrice.toString(), newNftPrice: nftPrice.toFixed(0) };
 };
@@ -258,9 +258,9 @@ export const setNftAssetPrice = async (testEnv: TestEnv, nftSymbol: string, pric
 
   const priceBN = new BigNumber(price).plus(1);
   await advanceTimeAndBlock(100);
-  await waitForTx(await nftOracle.connect(priceAdmin).setAssetData(nftAsset, priceBN.toFixed(0)));
+  //await waitForTx(await nftOracle.connect(priceAdmin).setAssetData(nftAsset, priceBN.toFixed(0)));
   await advanceTimeAndBlock(100);
-  await waitForTx(await nftOracle.connect(priceAdmin).setAssetData(nftAsset, priceBN.toFixed(0)));
+  //await waitForTx(await nftOracle.connect(priceAdmin).setAssetData(nftAsset, priceBN.toFixed(0)));
   return oldNftPrice.toString();
 };
 
