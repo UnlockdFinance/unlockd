@@ -96,7 +96,7 @@ export const CommonsConfig: ICommonConfiguration = {
 
   UNFTRegistry: {
     [eEthereumNetwork.coverage]: '',
-    [eEthereumNetwork.hardhat]: '',
+    [eEthereumNetwork.hardhat]: '0x6B8dcBD1bb131ED184221902df1Fe21019ccD7dc',
     [eEthereumNetwork.localhost]: '0xCE1e5D792d24F62b29D35DeB85eC04b1F66447b1',
     [eEthereumNetwork.develop]: '0xf440346C93868879B5D3b8e5f96fEc57D4f2dcdf',
     [eEthereumNetwork.kovan]: '0xC5d1624B46db4F3F628400C0F41c49220c210c3F',
@@ -122,7 +122,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: '',
     [eEthereumNetwork.localhost]: '',
   },
-
+ 
   ReserveOracle: {
     [eEthereumNetwork.coverage]: '',
     [eEthereumNetwork.hardhat]: '',
@@ -146,7 +146,11 @@ export const CommonsConfig: ICommonConfiguration = {
     // https://data.chain.link/ethereum/mainnet/crypto-eth
     // https://docs.chain.link/docs/ethereum-addresses/
     [eEthereumNetwork.coverage]: {},
-    [eEthereumNetwork.hardhat]: {},
+    [eEthereumNetwork.hardhat]: {
+      DAI: '0x74825DbC8BF76CC4e9494d0ecB210f676Efa001D',
+      USDC: '0xdCA36F27cbC4E38aE16C4E9f99D39b42337F6dcf',
+      USD: '0x8A753747A1Fa494EC906cE90E9f37563A8AF630e',
+    },
     [eEthereumNetwork.localhost]: {
       DAI: '0x10F6794a3Df86bD8B97c7d6D625BAB54677D443b',
       USDC: '0x2cC3790f7CF280fA898E4913CA980410cF38e53b',
@@ -232,7 +236,7 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   IncentivesController: {
     [eEthereumNetwork.coverage]: ZERO_ADDRESS,
-    [eEthereumNetwork.hardhat]: ZERO_ADDRESS,
+    [eEthereumNetwork.hardhat]: '0x294E11ac81ED4018d5dC0cc9618Ff2890acC8977',
     [eEthereumNetwork.localhost]: "0x1eaA4a267eDcde0eB5e08D08810Aa1696b123a2D",
     [eEthereumNetwork.develop]: '0x602bE80f0Bf54E0AffaCD794dfe3ac0f867F7581',
     [eEthereumNetwork.rinkeby]: '0xD800e97aE32b06C1e89ca5126c7bF6aEF89D6B24',

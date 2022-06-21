@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
 import { getParamPerNetwork, insertContractAddressInDb } from "../../helpers/contracts-helpers";
 import { deployUnlockdUpgradeableProxy, deployNFTOracle } from "../../helpers/contracts-deployments";
-import { ICommonConfiguration, eNetwork, eContractid } from "../../helpers/types";
+import { ICommonConfiguration, eNetwork, eContractid, tEthereumAddress } from "../../helpers/types";
 import { waitForTx, notFalsyOrZeroAddress } from "../../helpers/misc-utils";
 import { ConfigNames, loadPoolConfig, getGenesisPoolAdmin } from "../../helpers/configuration";
 import {
@@ -9,8 +9,10 @@ import {
   getLendPoolAddressesProvider,
   getUnlockdUpgradeableProxy,
   getUnlockdProxyAdminById,
+  getAllMockedNfts,
 } from "../../helpers/contracts-getters";
 import { NFTOracle, UnlockdUpgradeableProxy } from "../../types";
+import { addAssetsInNFTOraclewithSigner, setPricesInNFTOracleWithSigner } from "../../helpers/oracles-helpers";
 
 task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")
@@ -55,14 +57,7 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
       }) as string[];
 
       const nftOracleImpl = await deployNFTOracle(verify);
-      const initEncodedData = nftOracleImpl.interface.encodeFunctionData("initialize", [
-        feedAdmin,
-        2e17,
-        1e17,
-        1800,
-        600,
-        21600,
-      ]);
+      const initEncodedData = nftOracleImpl.interface.encodeFunctionData("initialize", [feedAdmin]);
 
       let nftOracle: NFTOracle;
       let nftOracleProxy: UnlockdUpgradeableProxy;
@@ -93,10 +88,43 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
 
         nftOracle = await getNFTOracle(nftOracleProxy.address);
 
+        const mockNfts = await getAllMockedNfts();
+
+        const allNftAddresses = Object.entries(mockNfts).reduce(
+          (accum: { [tokenSymbol: string]: tEthereumAddress }, [tokenSymbol, tokenContract]) => ({
+            ...accum,
+            [tokenSymbol]: tokenContract.address,
+          }),
+          {}
+        );
+
+        const allNftMaxSupply = Object.entries(poolConfig.Mocks.AllNftsMaxSupply).reduce(
+          (accum: { [tokenSymbol: string]: string }, [tokenSymbol, tokenMaxSupply]) => ({
+            ...accum,
+            [tokenSymbol]: tokenMaxSupply,
+          }),
+          {}
+        );
+
+        const allNftPrices = Object.entries(poolConfig.Mocks.AllNftsInitialPrices).reduce(
+          (accum: { [tokenSymbol: string]: string }, [tokenSymbol, tokenPrice]) => ({
+            ...accum,
+            [tokenSymbol]: tokenPrice,
+          }),
+          {}
+        );
         // only oracle owner can add assets
         const oracleOwnerAddress = await nftOracle.owner();
         const oracleOwnerSigner = DRE.ethers.provider.getSigner(oracleOwnerAddress);
-        await waitForTx(await nftOracle.connect(oracleOwnerSigner).setCollections(tokens));
+        // await waitForTx(await nftOracle.connect(oracleOwnerSigner).setCollections(tokens));
+        await addAssetsInNFTOraclewithSigner(allNftAddresses, nftOracle, oracleOwnerSigner);
+        await setPricesInNFTOracleWithSigner(
+          allNftPrices,
+          allNftAddresses,
+          allNftMaxSupply,
+          nftOracle,
+          oracleOwnerSigner
+        );
       }
 
       // Register the proxy oracle on the addressesProvider
