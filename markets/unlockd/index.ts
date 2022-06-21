@@ -46,7 +46,11 @@ export const UnlockdConfig: IUnlockdConfiguration = {
     WOW: strategyNft_WOW,
   },
   ReserveAssets: {
-    [eEthereumNetwork.hardhat]: {},
+    [eEthereumNetwork.hardhat]: {
+      WETH: '0xb49dBe8e2A5a140b3b810c33ac2ba4907A3CA95e',
+      DAI: '0x51EA2fEb1b1EB0891595f846456068D497734ca4', 
+      USDC: '0xB07416EFa22C8A502ff3845D3c0BdA400f929cB8',
+    },
     [eEthereumNetwork.coverage]: {},
     [eEthereumNetwork.localhost]: {
       WETH: '0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104',
@@ -73,7 +77,18 @@ export const UnlockdConfig: IUnlockdConfiguration = {
     },
   },
   NftsAssets: {
-    [eEthereumNetwork.hardhat]: {},
+    [eEthereumNetwork.hardhat]: {
+      WPUNKS: '0x74e4418A41169Fb951Ca886976ccd8b36968c4Ab',
+      BAYC: '0x588D1a07ccdb224cB28dCd8E3dD46E16B3a72b5e',
+      DOODLE: '0x10cACFfBf3Cdcfb365FDdC4795079417768BaA74',
+      COOL: '0x1F912E9b691858052196F11Aff9d8B6f89951AbD',
+      MEEBITS: '0xA1BaBAB6d6cf1DC9C87Be22D1d5142CF905016a4',
+      MAYC: '0x9C235dF4053a415f028b8386ed13ae8162843a6e',
+      WOW: '0xdfC14f7A536944467834EF7ce7b05a9a79BCDFaD',
+      CLONEX: '0xdd04ba0254972CC736F6966c496B4941f02BD816',
+      AZUKI: '0x050Cd8082B86c5F469e0ba72ef4400E5E454886D',
+      KONGZ: '0x8fC9F05f7B21346FD5E9Fa3C963d3941eb861940',
+    },
     [eEthereumNetwork.coverage]: {},
     [eEthereumNetwork.localhost]: {
       WPUNKS: '0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847',
