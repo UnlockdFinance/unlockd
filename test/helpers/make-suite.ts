@@ -25,6 +25,7 @@ import {
   getDebtToken,
   getWalletProvider,
   getUIPoolDataProvider,
+  getMockNFT,
 } from "../../helpers/contracts-getters";
 import { eEthereumNetwork, eNetwork, tEthereumAddress } from "../../helpers/types";
 import { LendPool } from "../../types/LendPool";

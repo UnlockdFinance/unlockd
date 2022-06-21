@@ -19,4 +19,10 @@ contract MockNFT is ERC721, Ownable {
     _tokenIdCounter.increment();
     _safeMint(to, tokenId);
   }
+
+  /* Type 'MockNFTOracle' is missing the following properties from type 'UNFT': 
+     approve, "approve(address,uint256)", 
+     balanceOf, "balanceOf(address)",
+     and 37 more.ts(2740)
+    */
 }
