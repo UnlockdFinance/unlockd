@@ -1,14 +1,7 @@
 import { TestEnv, makeSuite } from "./helpers/make-suite";
-
 const { expect } = require("chai");
 import { ethers } from "hardhat";
 import { MockNFTOracle, NFTOracle } from "../types";
-
-/*
-  >> I've had to comment all the old tests out as they
-     were using the old contract functions and thus 
-     giving errors all the time.
-*/
 
 makeSuite("NFTOracle: General functioning", (testEnv: TestEnv) => {
   before(async () => {});
@@ -30,7 +23,7 @@ makeSuite("NFTOracle: General functioning", (testEnv: TestEnv) => {
     expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
   });
 
-  it("Add Multi Assets", async () => {
+  it("Add 2 Multi Assets", async () => {
     const { mockNftOracle, users } = testEnv;
     const collection1 = users[1].address;
     const collection2 = users[2].address;
@@ -43,9 +36,24 @@ makeSuite("NFTOracle: General functioning", (testEnv: TestEnv) => {
     expect(await mockNftOracle.getNFTPrice(collection1, 1)).to.be.eq(100);
     expect(await mockNftOracle.getNFTPrice(collection2, 1)).to.be.eq(200);
   });
-});
 
-/// REVERT TEST:
+  it("Add 3 Multi Assets", async () => {
+    const { mockNftOracle, users } = testEnv;
+    const collection1 = users[1].address;
+    const collection2 = users[2].address;
+    const collection3 = users[3].address;
+
+    // await mockNftOracle.addCollection(collection1);
+    // await mockNftOracle.addCollection(collection2);
+    await mockNftOracle.addCollection(collection3);
+
+    await mockNftOracle.setMultipleNFTPrices([collection1, collection2, collection3], [1, 1, 1], [100, 200, 300]);
+
+    expect(await mockNftOracle.getNFTPrice(collection1, 1)).to.be.eq(100);
+    expect(await mockNftOracle.getNFTPrice(collection2, 1)).to.be.eq(200);
+    expect(await mockNftOracle.getNFTPrice(collection3, 1)).to.be.eq(300);
+  });
+});
 
 makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
   before(async () => {
@@ -63,8 +71,6 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
   it("Should be reverted as price is 0", async function () {
     const { mockNftOracle, users } = testEnv;
     const collectionMock = users[0].address;
-
-    //await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
     await expect(mockNftOracle.getNFTPrice(collectionMock, 2)).to.be.revertedWith("PriceIsZero()");
   });
 
@@ -89,6 +95,21 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
 
     await mockNftOracle.setPause(collectionMock, true);
     await expect(mockNftOracle.setNFTPrice(collectionMock, 1, 1000)).to.be.revertedWith("NFTPaused()");
+  });
+
+  it("Should be reverted as array lengths aren't matching (2 vs 3)", async function () {
+    const { mockNftOracle, users } = testEnv;
+    const collection1 = users[1].address;
+    const collection2 = users[2].address;
+    const collection3 = users[3].address;
+
+    await mockNftOracle.addCollection(collection1);
+    await mockNftOracle.addCollection(collection2);
+    await mockNftOracle.addCollection(collection3);
+
+    await expect(
+      mockNftOracle.setMultipleNFTPrices([collection1, collection2, collection3], [1, 1], [100, 200, 300])
+    ).to.be.revertedWith("ArraysLengthInconsistent()");
   });
 });
 
