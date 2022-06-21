@@ -16,7 +16,7 @@ makeSuite("NFTOracle", (testEnv: TestEnv) => {
     //const collectionMock = users[0].address;
   });
 
-  it("NFTOracle: Set Admin", async () => {
+  it("Set Admin correctly", async () => {
     const { mockNftOracle, users } = testEnv;
     const admin = await mockNftOracle.priceFeedAdmin();
     await mockNftOracle.setPriceFeedAdmin(users[0].address);
@@ -53,7 +53,9 @@ makeSuite("NFTOracle", (testEnv: TestEnv) => {
     expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
 
     await mockNftOracle.removeCollection(collectionMock);
-    await expect(mockNftOracle.getNFTPrice(collectionMock, 1)).to.be.reverted;
+    await expect(mockNftOracle.getNFTPrice(collectionMock, 1)).to.be.revertedWith(
+      `NonExistingCollection("${collectionMock}")`
+    );
   });
 
   it("Should be reverted as contract is paused", async function () {
@@ -64,7 +66,7 @@ makeSuite("NFTOracle", (testEnv: TestEnv) => {
     expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
 
     await mockNftOracle.setPause(collectionMock, true);
-    await expect(mockNftOracle.setNFTPrice(collectionMock, 1, 1000)).to.be.reverted;
+    await expect(mockNftOracle.setNFTPrice(collectionMock, 1, 1000)).to.be.revertedWith("NFTPaused()");
   });
 });
 
@@ -72,25 +74,6 @@ makeSuite("NFTOracle", (testEnv: TestEnv) => {
 
 // makeSuite("NFTOracle", (testEnv: TestEnv) => {
 //   before(async () => {});
-
-//   it("NFTOracle: Set Admin", async () => {
-//     const { mockNftOracle, users } = testEnv;
-//     const admin = await mockNftOracle.priceFeedAdmin();
-//     await mockNftOracle.setPriceFeedAdmin(users[0].address);
-//     expect(await mockNftOracle.priceFeedAdmin()).eq(users[0].address);
-//     await mockNftOracle.setPriceFeedAdmin(admin);
-//     expect(await mockNftOracle.priceFeedAdmin()).eq(admin);
-//   });
-
-//   it("NFTOracle: Add Asset", async () => {
-//     const { mockNftOracle, users } = testEnv;
-//     await mockNftOracle.addAsset(users[0].address);
-//     expect(await mockNftOracle.nftPriceFeedKeys(0)).eq(users[0].address);
-//     await expect(mockNftOracle.connect(users[1].signer).addAsset(users[1].address)).to.be.revertedWith(
-//       "Ownable: caller is not the owner"
-//     );
-//     await mockNftOracle.removeAsset(users[0].address);
-//   });
 
 //   it("NFTOracle: Add Multi Assets", async () => {
 //     const { mockNftOracle, users } = testEnv;
