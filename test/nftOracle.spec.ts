@@ -51,84 +51,17 @@ makeSuite("NFTOracle", (testEnv: TestEnv) => {
   });
 
   /// @dev Check whenNotPaused modifier on setters!
-  // it("Should be reverted as contract is paused", async function () {
-  //   const { mockNftOracle, users } = testEnv;
-  //   const collectionMock = users[0].address;
-  //   //await mockNftOracle.addCollection(collectionMock);
-  //   await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
-  //   expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
+  it("Should be reverted as contract is paused", async function () {
+    const { mockNftOracle, users } = testEnv;
+    const collectionMock = users[0].address;
+    await mockNftOracle.addCollection(collectionMock);
+    await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
+    expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
 
-  //   await mockNftOracle.setPause(collectionMock, true);
-  //   await expect(mockNftOracle.setNFTPrice(collectionMock, 1, 1000)).to.be.reverted;
-  // });
+    await mockNftOracle.setPause(collectionMock, true);
+    await expect(mockNftOracle.setNFTPrice(collectionMock, 1, 1000)).to.be.reverted;
+  });
 });
-
-// MY OLD VERSION:
-// describe("NFTOracle", function () {
-//     let Oraculo : NFTOracle__factory;
-//     let Mockfact : MockNFT__factory;
-//     let mockNftOracle : NFTOracle;
-//     let mocknft : MockNFT;
-//     let collectionMock : string;
-//     let address : string;
-//     let _admin : string;
-
-//     beforeEach(async () => {
-//         Oraculo = await ethers.getContractFactory("NFTOracle");
-//         mockNftOracle = await Oraculo.deploy();
-
-//         Mockfact = await ethers.getContractFactory("MockNFT");
-//         mocknft = await Mockfact.deploy();
-
-//         const [owner] = await ethers.getSigners();
-//         _admin = owner.address;
-
-//         await mockNftOracle.deployed();
-//         await mocknft.deployed();
-//         await mockNftOracle.initialize(_admin);
-
-//         /// @notice address of factory == collection address
-//         collectionMock = mocknft.address;
-//     });
-
-//     describe("NFTOracle - Correct use testing", function () {
-//       it("Should set and get the mocknft price at 1000", async function () {
-//         await mockNftOracle.addCollection(collectionMock);
-//         await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
-//         expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
-//       });
-//     });
-
-//     describe("NFTOracle - Error cases testing", function (){
-//       it("Should be reverted as collection hasn't been added yet", async function () {
-//         await expect(mockNftOracle.setNFTPrice(collectionMock, 1, 1000)).to.be.reverted;
-//       });
-
-//       /// @notice Shouldn't this be explicitly thrown as error rather than '0'?
-//       it("Should return a '0' as we are accessing a non-minted NFT", async function () {
-//         await mockNftOracle.addCollection(collectionMock);
-//         await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
-//         expect(await mockNftOracle.getNFTPrice(collectionMock, 2)).to.eq(0);
-//       });
-
-//       it("Should be reverted as the collection has been deleted", async function () {
-//         await mockNftOracle.addCollection(collectionMock);
-//         await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
-//         expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
-
-//         await mockNftOracle.removeCollection(collectionMock);
-//         await expect(mockNftOracle.getNFTPrice(collectionMock, 1)).to.be.reverted;
-//       });
-
-//       /// @dev Check whenNotPaused modifier on setters!
-//       it("Should be reverted as contract is paused", async function () {
-//         await mockNftOracle.addCollection(collectionMock);
-//         await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
-//         expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
-
-//         await mockNftOracle.setPause(collectionMock, true);
-//         await expect(mockNftOracle.setNFTPrice(collectionMock, 1, 1000)).to.be.reverted;
-//       });
 
 //     });
 // });
