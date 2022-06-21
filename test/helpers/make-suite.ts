@@ -84,7 +84,7 @@ export interface TestEnv {
   mockReserveOracle: MockReserveOracle;
   nftOracle: NFTOracle;
   mockNftOracle: MockNFTOracle;
-  mockNFT: MockNFT;
+  mockNFT: UNFT;
   dataProvider: UnlockdProtocolDataProvider;
   uiProvider: UiPoolDataProvider;
   walletProvider: WalletBalanceProvider;
@@ -180,6 +180,7 @@ export async function initializeMakeSuite() {
   testEnv.mockChainlinkOracle = await getMockChainlinkOracle();
   testEnv.mockReserveOracle = await getMockReserveOracle();
   testEnv.nftOracle = await getNFTOracle();
+  testEnv.mockNFT = await getMockNFT();
   testEnv.mockNftOracle = await getMockNFTOracle();
 
   testEnv.dataProvider = await getUnlockdProtocolDataProvider();

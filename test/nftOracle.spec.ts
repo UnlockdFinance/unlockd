@@ -20,8 +20,8 @@ makeSuite("NFTOracle", (testEnv: TestEnv) => {
   });
 
   it("Should set and get the mocknft price at 1000", async function () {
-    const { mockNftOracle, users } = testEnv;
-    const collectionMock = mockNftOracle.address;
+    const { mockNftOracle, users, mockNFT } = testEnv;
+    const collectionMock = mockNFT.address;
     await mockNftOracle.addCollection(collectionMock);
     await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
     expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
