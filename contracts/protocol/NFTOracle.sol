@@ -107,7 +107,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     address _collection,
     uint256 _tokenId,
     uint256 _price
-  ) external override onlyOwner whenNotPaused(_collection) {
+  ) external override onlyOwner {
     _setNFTPrice(_collection, _tokenId, _price);
   }
 
@@ -127,7 +127,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     address _collection,
     uint256 _tokenId,
     uint256 _price
-  ) internal onlyExistingCollection(_collection) {
+  ) internal onlyExistingCollection(_collection) whenNotPaused(_collection) {
     if (_price <= 0) revert PriceIsZero();
     nftPrices[_collection][_tokenId] = _price;
     collectionTokenIds[_collection].push(_tokenId);
