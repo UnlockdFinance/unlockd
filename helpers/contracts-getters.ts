@@ -129,11 +129,11 @@ export const getNFTOracle = async (address?: tEthereumAddress) =>
     await getDeploySigner()
   );
 
-export const getMockNFT = async (address?: tEthereumAddress) =>
-  await MockNFTOracleFactory.connect(
-    address || (await getDb(DRE.network.name).get(`${eContractid.MockNFT}`).value()).address,
-    await getDeploySigner()
-  );
+// export const getMockNFT = async (address?: tEthereumAddress) =>
+//   await MockNFTOracleFactory.connect(
+//     address || (await getDb(DRE.network.name).get(`${eContractid.MockNFT}`).value()).address,
+//     await getDeploySigner()
+//   );
 
 export const getNFTOracleImpl = async (address?: tEthereumAddress) =>
   await NFTOracleFactory.connect(

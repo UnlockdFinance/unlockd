@@ -19,15 +19,16 @@ makeSuite("NFTOracle", (testEnv: TestEnv) => {
     await expect(mockNftOracle.initialize(admin)).to.be.revertedWith("Initializable: contract is already initialized");
   });
 
-  it("Should set and get the mocknft price at 1000", async function () {
-    const { mockNftOracle, users, mockNFT } = testEnv;
-    const collectionMock = mockNFT.address;
-    await mockNftOracle.addCollection(collectionMock);
-    await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
-    expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
-  });
+  // it("Should set and get the mocknft price at 1000", async function () {
+  //   const { mockNftOracle, users, mockNFT } = testEnv;
+  //   const collectionMock = mockNFT.address;
+  //   await mockNftOracle.addCollection(collectionMock);
+  //   await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
+  //   expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
+  // });
 });
 
+// OLD VERSION:
 // describe("NFTOracle", function () {
 //     let Oraculo : NFTOracle__factory;
 //     let Mockfact : MockNFT__factory;

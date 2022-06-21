@@ -25,7 +25,6 @@ import {
   getDebtToken,
   getWalletProvider,
   getUIPoolDataProvider,
-  getMockNFT,
 } from "../../helpers/contracts-getters";
 import { eEthereumNetwork, eNetwork, tEthereumAddress } from "../../helpers/types";
 import { LendPool } from "../../types/LendPool";
@@ -85,7 +84,6 @@ export interface TestEnv {
   mockReserveOracle: MockReserveOracle;
   nftOracle: NFTOracle;
   mockNftOracle: MockNFTOracle;
-  mockNFT: UNFT;
   dataProvider: UnlockdProtocolDataProvider;
   uiProvider: UiPoolDataProvider;
   walletProvider: WalletBalanceProvider;
@@ -181,7 +179,7 @@ export async function initializeMakeSuite() {
   testEnv.mockChainlinkOracle = await getMockChainlinkOracle();
   testEnv.mockReserveOracle = await getMockReserveOracle();
   testEnv.nftOracle = await getNFTOracle();
-  testEnv.mockNFT = await getMockNFT();
+  //testEnv.mockNFT = await getMockNFT();
   testEnv.mockNftOracle = await getMockNFTOracle();
 
   testEnv.dataProvider = await getUnlockdProtocolDataProvider();
