@@ -2,6 +2,7 @@ import { TestEnv, makeSuite } from "./helpers/make-suite";
 
 const { expect } = require("chai");
 import { ethers } from "hardhat";
+import { MockNFTOracle, NFTOracle } from "../types";
 
 /*
   >> I've had to comment all the old tests out as they
@@ -10,12 +11,24 @@ import { ethers } from "hardhat";
 */
 
 makeSuite("NFTOracle", (testEnv: TestEnv) => {
+  let mockNftOracle: NFTOracle;
+  let collectionMock: string;
+  let users: string[];
+  let admin: string;
+
   before(async () => {});
 
   it("Should be reverted as NFTOracle is already initialized", async () => {
     const { mockNftOracle, users } = testEnv;
     const admin = await mockNftOracle.priceFeedAdmin();
     await expect(mockNftOracle.initialize(admin)).to.be.revertedWith("Initializable: contract is already initialized");
+  });
+
+  it("Should set and get the mocknft price at 1000", async function () {
+    const { mockNftOracle, users } = testEnv;
+    await mockNftOracle.addCollection(collectionMock);
+    await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
+    expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
   });
 });
 
@@ -44,12 +57,6 @@ makeSuite("NFTOracle", (testEnv: TestEnv) => {
 
 //         /// @notice address of factory == collection address
 //         collectionMock = mocknft.address;
-//     });
-
-//     describe("Initial values", function () {
-//       it("Should be reverted as NFTOracle is already initialized", async function () {
-//         await expect(nftoracle.initialize(_admin)).to.be.revertedWith('Initializable: contract is already initialized');
-//       });
 //     });
 
 //     describe("NFTOracle - Correct use testing", function () {
