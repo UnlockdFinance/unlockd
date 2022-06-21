@@ -11,7 +11,10 @@ import { MockNFTOracle, NFTOracle } from "../types";
 */
 
 makeSuite("NFTOracle", (testEnv: TestEnv) => {
-  before(async () => {});
+  before(async () => {
+    //const { mockNftOracle, users } = testEnv;
+    //const collectionMock = users[0].address;
+  });
 
   it("Should be reverted as NFTOracle is already initialized", async () => {
     const { mockNftOracle, users } = testEnv;
@@ -19,20 +22,52 @@ makeSuite("NFTOracle", (testEnv: TestEnv) => {
     await expect(mockNftOracle.initialize(admin)).to.be.revertedWith("Initializable: contract is already initialized");
   });
 
-  // it("Should set and get the mocknft price at 1000", async function () {
-  //   const { mockNftOracle, users, mockNFT } = testEnv;
-  //   const collectionMock = mockNFT.address;
-  //   await mockNftOracle.addCollection(collectionMock);
+  it("Should set and get the mocknft price at 1000", async function () {
+    const { mockNftOracle, users } = testEnv;
+    const collectionMock = users[0].address;
+    await mockNftOracle.addCollection(collectionMock);
+    await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
+    expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
+  });
+
+  /// @notice Shouldn't this be explicitly thrown as error rather than '0'?
+  it("Should return a '0' as we are accessing a non-minted NFT", async function () {
+    const { mockNftOracle, users } = testEnv;
+    const collectionMock = users[0].address;
+    //await mockNftOracle.addCollection(collectionMock);
+    await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
+    expect(await mockNftOracle.getNFTPrice(collectionMock, 2)).to.eq(0);
+  });
+
+  it("Should be reverted as the collection has been deleted", async function () {
+    const { mockNftOracle, users } = testEnv;
+    const collectionMock = users[0].address;
+    //await mockNftOracle.addCollection(collectionMock);
+    await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
+    expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
+
+    await mockNftOracle.removeCollection(collectionMock);
+    await expect(mockNftOracle.getNFTPrice(collectionMock, 1)).to.be.reverted;
+  });
+
+  /// @dev Check whenNotPaused modifier on setters!
+  // it("Should be reverted as contract is paused", async function () {
+  //   const { mockNftOracle, users } = testEnv;
+  //   const collectionMock = users[0].address;
+  //   //await mockNftOracle.addCollection(collectionMock);
   //   await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
   //   expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
+
+  //   await mockNftOracle.setPause(collectionMock, true);
+  //   await expect(mockNftOracle.setNFTPrice(collectionMock, 1, 1000)).to.be.reverted;
   // });
 });
 
-// OLD VERSION:
+// MY OLD VERSION:
 // describe("NFTOracle", function () {
 //     let Oraculo : NFTOracle__factory;
 //     let Mockfact : MockNFT__factory;
-//     let nftoracle : NFTOracle;
+//     let mockNftOracle : NFTOracle;
 //     let mocknft : MockNFT;
 //     let collectionMock : string;
 //     let address : string;
@@ -40,7 +75,7 @@ makeSuite("NFTOracle", (testEnv: TestEnv) => {
 
 //     beforeEach(async () => {
 //         Oraculo = await ethers.getContractFactory("NFTOracle");
-//         nftoracle = await Oraculo.deploy();
+//         mockNftOracle = await Oraculo.deploy();
 
 //         Mockfact = await ethers.getContractFactory("MockNFT");
 //         mocknft = await Mockfact.deploy();
@@ -48,9 +83,9 @@ makeSuite("NFTOracle", (testEnv: TestEnv) => {
 //         const [owner] = await ethers.getSigners();
 //         _admin = owner.address;
 
-//         await nftoracle.deployed();
+//         await mockNftOracle.deployed();
 //         await mocknft.deployed();
-//         await nftoracle.initialize(_admin);
+//         await mockNftOracle.initialize(_admin);
 
 //         /// @notice address of factory == collection address
 //         collectionMock = mocknft.address;
@@ -58,41 +93,41 @@ makeSuite("NFTOracle", (testEnv: TestEnv) => {
 
 //     describe("NFTOracle - Correct use testing", function () {
 //       it("Should set and get the mocknft price at 1000", async function () {
-//         await nftoracle.addCollection(collectionMock);
-//         await nftoracle.setNFTPrice(collectionMock, 1, 1000);
-//         expect(await nftoracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
+//         await mockNftOracle.addCollection(collectionMock);
+//         await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
+//         expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
 //       });
 //     });
 
 //     describe("NFTOracle - Error cases testing", function (){
 //       it("Should be reverted as collection hasn't been added yet", async function () {
-//         await expect(nftoracle.setNFTPrice(collectionMock, 1, 1000)).to.be.reverted;
+//         await expect(mockNftOracle.setNFTPrice(collectionMock, 1, 1000)).to.be.reverted;
 //       });
 
 //       /// @notice Shouldn't this be explicitly thrown as error rather than '0'?
 //       it("Should return a '0' as we are accessing a non-minted NFT", async function () {
-//         await nftoracle.addCollection(collectionMock);
-//         await nftoracle.setNFTPrice(collectionMock, 1, 1000);
-//         expect(await nftoracle.getNFTPrice(collectionMock, 2)).to.eq(0);
+//         await mockNftOracle.addCollection(collectionMock);
+//         await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
+//         expect(await mockNftOracle.getNFTPrice(collectionMock, 2)).to.eq(0);
 //       });
 
 //       it("Should be reverted as the collection has been deleted", async function () {
-//         await nftoracle.addCollection(collectionMock);
-//         await nftoracle.setNFTPrice(collectionMock, 1, 1000);
-//         expect(await nftoracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
+//         await mockNftOracle.addCollection(collectionMock);
+//         await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
+//         expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
 
-//         await nftoracle.removeCollection(collectionMock);
-//         await expect(nftoracle.getNFTPrice(collectionMock, 1)).to.be.reverted;
+//         await mockNftOracle.removeCollection(collectionMock);
+//         await expect(mockNftOracle.getNFTPrice(collectionMock, 1)).to.be.reverted;
 //       });
 
 //       /// @dev Check whenNotPaused modifier on setters!
 //       it("Should be reverted as contract is paused", async function () {
-//         await nftoracle.addCollection(collectionMock);
-//         await nftoracle.setNFTPrice(collectionMock, 1, 1000);
-//         expect(await nftoracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
+//         await mockNftOracle.addCollection(collectionMock);
+//         await mockNftOracle.setNFTPrice(collectionMock, 1, 1000);
+//         expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
 
-//         await nftoracle.setPause(collectionMock, true);
-//         await expect(nftoracle.setNFTPrice(collectionMock, 1, 1000)).to.be.reverted;
+//         await mockNftOracle.setPause(collectionMock, true);
+//         await expect(mockNftOracle.setNFTPrice(collectionMock, 1, 1000)).to.be.reverted;
 //       });
 
 //     });
