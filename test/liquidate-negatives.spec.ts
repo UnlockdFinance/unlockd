@@ -129,6 +129,8 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
       .percentMul(new BigNumber(5000)) // 50%
       .toFixed(0);
     await advanceTimeAndBlock(100);
+
+    // @dev: Ídem, de quin tokenID parlem?
     //await nftOracle.setAssetData(bayc.address, baycPrice);
     await advanceTimeAndBlock(200);
     //await nftOracle.setAssetData(bayc.address, baycPrice);
@@ -159,6 +161,7 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
       .toFixed(0);
 
     await advanceTimeAndBlock(100);
+    // @dev: quin token ID again?
     //await nftOracle.setAssetData(bayc.address, baycPrice);
     await advanceTimeAndBlock(200);
     //await nftOracle.setAssetData(bayc.address, baycPrice);
