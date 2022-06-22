@@ -79,6 +79,14 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
     await expect(mockNftOracle.initialize(admin)).to.be.revertedWith("Initializable: contract is already initialized");
   });
 
+  it("Should be reverted as it is a non-existing collection", async () => {
+    const { mockNftOracle, users } = testEnv;
+    const collection2 = users[2].address;
+    await expect(mockNftOracle.getNFTPrice(collection2, 1)).to.be.revertedWith(
+      `NonExistingCollection("${collection2}")`
+    );
+  });
+
   it("Should be reverted as price is 0", async function () {
     const { mockNftOracle, users } = testEnv;
     const collectionMock = users[0].address;
