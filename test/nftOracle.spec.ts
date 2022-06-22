@@ -43,15 +43,37 @@ makeSuite("NFTOracle: General functioning", (testEnv: TestEnv) => {
     const collection2 = users[2].address;
     const collection3 = users[3].address;
 
-    // await mockNftOracle.addCollection(collection1);
-    // await mockNftOracle.addCollection(collection2);
     await mockNftOracle.addCollection(collection3);
-
     await mockNftOracle.setMultipleNFTPrices([collection1, collection2, collection3], [1, 1, 1], [100, 200, 300]);
 
     expect(await mockNftOracle.getNFTPrice(collection1, 1)).to.be.eq(100);
     expect(await mockNftOracle.getNFTPrice(collection2, 1)).to.be.eq(200);
     expect(await mockNftOracle.getNFTPrice(collection3, 1)).to.be.eq(300);
+
+    const priceArray = await mockNftOracle.getMultipleNFTPrices([collection1, collection2, collection3], [1, 1, 1]);
+    expect(await parseInt(priceArray[0]["_hex"], 16)).to.be.eq(100);
+    expect(await parseInt(priceArray[1]["_hex"], 16)).to.be.eq(200);
+    expect(await parseInt(priceArray[2]["_hex"], 16)).to.be.eq(300);
+  });
+
+  it("Add 3 Multi Assets - BigNumbers", async () => {
+    const { mockNftOracle, users } = testEnv;
+    const collection1 = users[1].address;
+    const collection2 = users[2].address;
+    const collection3 = users[3].address;
+
+    const bigNumPrices = [BigInt(100000000000000), BigInt(200000000000000), BigInt(300000000000000)];
+
+    await mockNftOracle.setMultipleNFTPrices([collection1, collection2, collection3], [1, 1, 1], bigNumPrices);
+
+    expect(await mockNftOracle.getNFTPrice(collection1, 1)).to.be.eq(100000000000000);
+    expect(await mockNftOracle.getNFTPrice(collection2, 1)).to.be.eq(200000000000000);
+    expect(await mockNftOracle.getNFTPrice(collection3, 1)).to.be.eq(300000000000000);
+
+    const priceArray = await mockNftOracle.getMultipleNFTPrices([collection1, collection2, collection3], [1, 1, 1]);
+    expect(await parseInt(priceArray[0]["_hex"], 16)).to.be.eq(100000000000000);
+    expect(await parseInt(priceArray[1]["_hex"], 16)).to.be.eq(200000000000000);
+    expect(await parseInt(priceArray[2]["_hex"], 16)).to.be.eq(300000000000000);
   });
 
   it("Single asset price updates", async () => {
@@ -132,6 +154,7 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
 
     await mockNftOracle.setPause(collectionMock, true);
     await expect(mockNftOracle.setNFTPrice(collectionMock, 1, 1000)).to.be.revertedWith("NFTPaused()");
+    await mockNftOracle.setPause(collectionMock, false);
   });
 
   it("Should be reverted as array lengths aren't matching (2 vs 3)", async function () {
@@ -147,6 +170,16 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
     await expect(
       mockNftOracle.setMultipleNFTPrices([collection1, collection2, collection3], [1, 1], [100, 200, 300])
     ).to.be.revertedWith("ArraysLengthInconsistent()");
+  });
+
+  it("Testing overflows", async () => {
+    const { mockNftOracle, users } = testEnv;
+
+    // More money than there exists in the world:
+    await mockNftOracle.setNFTPrice(users[0].address, 1, BigInt("100000000000000000000000000000000000"));
+    expect(await mockNftOracle.getNFTPrice(users[0].address, 1)).to.be.eq(
+      BigInt("100000000000000000000000000000000000")
+    );
   });
 });
 
