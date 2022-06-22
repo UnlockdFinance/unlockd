@@ -280,9 +280,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     uint256 loanId,
     address uNftAddress,
     uint256 borrowAmount,
-    uint256 borrowIndex,
-    address vaultFactoryAddress,
-    address sushiSwapRouterAddress
+    uint256 borrowIndex
   ) external override onlyLendPool returns (uint256 sellPrice) {
     // Must use storage to change state
     DataTypes.LoanData storage loan = _loans[loanId];
@@ -306,16 +304,11 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     // burn uNFT and sell NFT on NFTX
     IUNFT(uNftAddress).burn(loan.nftTokenId);
 
-    // IERC721Upgradeable(loan.nftAsset).safeTransferFrom(address(this), _msgSender(), loan.nftTokenId);
-
     // Sell NFT on NFTX
-    uint256[] memory tokenIds = new uint256[](1);
-    tokenIds[0] = loan.nftTokenId;
     sellPrice = NFTXHelper.sellNFTX(
-      vaultFactoryAddress,
-      sushiSwapRouterAddress,
+      _addressesProvider,
       loan.nftAsset,
-      tokenIds,
+      loan.nftTokenId,
       loan.reserveAsset,
       borrowAmount
     );

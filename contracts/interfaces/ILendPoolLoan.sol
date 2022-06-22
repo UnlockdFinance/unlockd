@@ -221,9 +221,7 @@ interface ILendPoolLoan {
     uint256 loanId,
     address uNftAddress,
     uint256 borrowAmount,
-    uint256 borrowIndex,
-    address vaultFactoryAddress,
-    address sushiSwapRouterAddress
+    uint256 borrowIndex
   ) external returns (uint256 sellPrice);
 
   function borrowerOf(uint256 loanId) external view returns (address);

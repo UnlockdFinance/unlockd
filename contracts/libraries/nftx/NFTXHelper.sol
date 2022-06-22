@@ -1,80 +1,49 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
+import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
 import {INFTXVaultFactory} from "../../interfaces/INFTXVaultFactory.sol";
 import {INFTXVault} from "../../interfaces/INFTXVault.sol";
 import {IUniswapV2Router02} from "../../interfaces/IUniswapV2Router02.sol";
 
-import {IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
+import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
-import {console} from "hardhat/console.sol";
 
 library NFTXHelper {
-  function getHighestVault(
-    address vaultFactoryAddress,
-    address sushiSwapRouterAddress,
-    address nftAsset,
-    uint256[] memory tokenIds,
-    address reserveAsset
-  ) internal view returns (address) {
-    INFTXVaultFactory vaultFactory = INFTXVaultFactory(vaultFactoryAddress);
-    IUniswapV2Router02 sushiSwapRouter = IUniswapV2Router02(sushiSwapRouterAddress);
-
-    address[] memory vaults = vaultFactory.vaultsForAsset(nftAsset);
-
-    address vault;
-    uint256 vaultPriceInReserve = 0;
-    for (uint256 index = 0; index < vaults.length; index += 1) {
-      INFTXVault currentVault = INFTXVault(vaults[index]);
-
-      if (currentVault.allValidNFTs(tokenIds)) {
-        uint256 mintFee = currentVault.mintFee();
-
-        address[] memory swapPath = new address[](2);
-        swapPath[0] = address(currentVault);
-        swapPath[1] = reserveAsset;
-        uint256[] memory amounts = sushiSwapRouter.getAmountsOut(1, swapPath);
-
-        uint256 currentVaultPriceInReserve = amounts[1] * (1 ether - mintFee);
-        if (currentVaultPriceInReserve > vaultPriceInReserve) {
-          vault = address(currentVault);
-        }
-      }
-    }
-
-    return vault;
-  }
-
   function sellNFTX(
-    address vaultFactoryAddress,
-    address sushiSwapRouterAddress,
+    ILendPoolAddressesProvider addressesProvider,
     address nftAsset,
-    uint256[] memory tokenIds,
+    uint256 nftTokenId,
     address reserveAsset,
     uint256 borrowAmount
   ) internal returns (uint256) {
-    // address vault = getHighestVault(addressesProvider, nftAsset, tokenIds, reserveAsset);
-    INFTXVaultFactory vaultFactory = INFTXVaultFactory(vaultFactoryAddress);
-    address[] memory vaults = vaultFactory.vaultsForAsset(nftAsset);
-    address vault = vaults[0];
+    address vaultFactoryAddress = addressesProvider.getNFTXVaultFactory();
+    address sushiSwapRouterAddress = addressesProvider.getSushiSwapRouter();
+    address lendPoolAddress = addressesProvider.getLendPool();
 
-    require(vault != address(0), "NFTX: vault not available");
+    // Get NFTX Vault
+    address[] memory vaultAddresses = INFTXVaultFactory(vaultFactoryAddress).vaultsForAsset(nftAsset);
+    address vaultAddress = vaultAddresses[0];
+    require(vaultAddress != address(0), "NFTX: vault not available");
 
-    // Mint NFT
-    IERC721Upgradeable(nftAsset).setApprovalForAll(vault, true);
-    uint256 vaultAmount = INFTXVault(vault).mint(tokenIds, new uint256[](1));
+    // Deposit NFT to NFTX Vault
+    IERC721Upgradeable(nftAsset).setApprovalForAll(vaultAddress, true);
+    uint256[] memory tokenIds = new uint256[](1);
+    tokenIds[0] = nftTokenId;
+    INFTXVault(vaultAddress).mint(tokenIds, new uint256[](1));
+    uint256 depositAmount = IERC20Upgradeable(vaultAddress).balanceOf(address(this));
 
     // Swap on SushiSwap
-    IUniswapV2Router02 sushiSwapRouter = IUniswapV2Router02(sushiSwapRouterAddress);
+    IERC20Upgradeable(vaultAddress).approve(sushiSwapRouterAddress, depositAmount);
     address[] memory swapPath = new address[](2);
-    swapPath[0] = vault;
+    swapPath[0] = vaultAddress;
     swapPath[1] = reserveAsset;
-    uint256[] memory amounts = sushiSwapRouter.swapExactTokensForTokens(
-      10**IERC20MetadataUpgradeable(vault).decimals() * vaultAmount,
-      0,
+    uint256[] memory amounts = IUniswapV2Router02(sushiSwapRouterAddress).swapExactTokensForTokens(
+      depositAmount,
+      borrowAmount,
       swapPath,
-      address(this),
-      block.timestamp + 1000
+      lendPoolAddress,
+      block.timestamp
     );
 
     return amounts[1];

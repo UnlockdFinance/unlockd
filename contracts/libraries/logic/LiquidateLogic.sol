@@ -24,12 +24,13 @@ import {PercentageMath} from "../math/PercentageMath.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 import {WyvernExchange} from "../wyvernexchange/WyvernExchange.sol";
-import {NFTXHelper} from "../nftx/NFTXHelper.sol";
 
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {IERC721MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721MetadataUpgradeable.sol";
+
+import {console} from "hardhat/console.sol";
 
 /**
  * @title LiquidateLogic library
@@ -208,6 +209,8 @@ library LiquidateLogic {
       vars.reserveOracle,
       vars.nftOracle
     );
+
+    console.log(vars.loanId, vars.borrowAmount, vars.thresholdPrice, vars.liquidatePrice);
 
     // first time bid need to burn debt tokens and transfer reserve to bTokens
     if (loanData.state == DataTypes.LoanState.Active) {
@@ -569,8 +572,6 @@ library LiquidateLogic {
 
   struct LiquidateNFTXLocalVars {
     address poolLoan;
-    address vaultFactory;
-    address sushiSwapRouter;
     address reserveOracle;
     address nftOracle;
     uint256 loanId;
@@ -595,8 +596,6 @@ library LiquidateLogic {
   ) external returns (uint256) {
     LiquidateNFTXLocalVars memory vars;
 
-    vars.vaultFactory = addressesProvider.getNFTXVaultFactory();
-    vars.sushiSwapRouter = addressesProvider.getSushiSwapRouter();
     vars.poolLoan = addressesProvider.getLendPoolLoan();
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
@@ -633,9 +632,7 @@ library LiquidateLogic {
       vars.loanId,
       nftData.uNftAddress,
       vars.borrowAmount,
-      reserveData.variableBorrowIndex,
-      vars.vaultFactory,
-      vars.sushiSwapRouter
+      reserveData.variableBorrowIndex
     );
 
     vars.remainAmount = sellPrice - vars.borrowAmount;
