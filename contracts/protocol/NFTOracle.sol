@@ -7,6 +7,10 @@ import {INFTOracle} from "../interfaces/INFTOracle.sol";
 import {BlockContext} from "../utils/BlockContext.sol";
 
 contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
+  /// @dev When calling getPrice() of a non-minted tokenId it returns '0', shouldn't this revert with an error?
+  /// @notice The whenNotPaused modifier is not being used!
+  /// @notice INFTOracle.sol is not being used, it is redundant and it hasn't an implementation
+
   event CollectionAdded(address indexed collection);
   event CollectionRemoved(address indexed collection);
   event NFTPriceAdded(address indexed _collection, uint256 _tokenId, uint256 _price);
@@ -59,14 +63,14 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     _;
   }
 
-  function _whenNotPaused(address _contract) internal view {
-    bool _paused = collectionPaused[_contract];
-    if (_paused) revert NFTPaused();
-  }
-
   function initialize(address _admin) public initializer {
     __Ownable_init();
     priceFeedAdmin = _admin;
+  }
+
+  function _whenNotPaused(address _contract) internal view {
+    bool _paused = collectionPaused[_contract];
+    if (_paused) revert NFTPaused();
   }
 
   function setPriceFeedAdmin(address _admin) external onlyOwner {
@@ -123,7 +127,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     address _collection,
     uint256 _tokenId,
     uint256 _price
-  ) internal onlyExistingCollection(_collection) {
+  ) internal onlyExistingCollection(_collection) whenNotPaused(_collection) {
     if (_price <= 0) revert PriceIsZero();
     nftPrices[_collection][_tokenId] = _price;
     collectionTokenIds[_collection].push(_tokenId);
@@ -137,6 +141,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     onlyExistingCollection(_collection)
     returns (uint256)
   {
+    if (nftPrices[_collection][_tokenId] == 0) revert PriceIsZero();
     return nftPrices[_collection][_tokenId];
   }
 
@@ -149,10 +154,13 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   {
     uint256 collectionsLength = _collections.length;
     if (collectionsLength != _tokenIds.length) revert ArraysLengthInconsistent();
+
     uint256[] memory _nftPrices = new uint256[](collectionsLength);
+
     for (uint256 i = 0; i < collectionsLength; i++) {
-      _nftPrices[i] = nftPrices[_collections[i]][_tokenIds[i]];
+      _nftPrices[i] = this.getNFTPrice(_collections[i], _tokenIds[i]);
     }
+
     return _nftPrices;
   }
 
