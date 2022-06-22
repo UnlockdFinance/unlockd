@@ -204,6 +204,7 @@ export const setApprovalForAllExt = async (
 export const setNftAssetPriceForDebt = async (
   testEnv: TestEnv,
   nftSymbol: string,
+  tokenId: number,
   reserveSymbol: string,
   debtAmount: string,
   healthPercent: string
@@ -218,7 +219,7 @@ export const setNftAssetPriceForDebt = async (
   const reserveToken = await getIErc20Detailed(reserve);
   const reservePrice = await reserveOracle.getAssetPrice(reserve);
 
-  const oldNftPrice = await nftOracle.getAssetPrice(nftAsset);
+  const oldNftPrice = await nftOracle.getNFTPrice(nftAsset, 0);
 
   const debtAmountDecimals = await convertToCurrencyDecimals(reserve, debtAmount);
 
@@ -239,34 +240,34 @@ export const setNftAssetPriceForDebt = async (
     throw new Error("invalid zero nftPrice");
   }
 
-  await advanceTimeAndBlock(100);
-
-  // @dev: A la funció anterior nomes es pasava la address - Quin token ID es passa?
-  // await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, 0));
-  await advanceTimeAndBlock(200);
-
-  // @dev: ídem
-  //await waitForTx(await nftOracle.connect(priceAdmin).setAssetData(nftAsset, nftPrice.toFixed(0)));
+ await advanceTimeAndBlock(100);
+ await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, nftPrice.toFixed(0)));
+ await advanceTimeAndBlock(200);
+ await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, nftPrice.toFixed(0)));
 
   return { oldNftPrice: oldNftPrice.toString(), newNftPrice: nftPrice.toFixed(0) };
 };
 
-export const setNftAssetPrice = async (testEnv: TestEnv, nftSymbol: string, price: string): Promise<string> => {
+export const setNftAssetPrice = async (
+  testEnv: TestEnv,
+  nftSymbol: string,
+  tokenId: number,
+  price: string
+): Promise<string> => {
   const { nftOracle, dataProvider } = testEnv;
 
   const priceAdmin = await getEthersSignerByAddress(await nftOracle.priceFeedAdmin());
 
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
 
-  const oldNftPrice = await nftOracle.getAssetPrice(nftAsset);
+  const oldNftPrice = await nftOracle.getNFTPrice(nftAsset, 0);
 
   const priceBN = new BigNumber(price).plus(1);
+  
   await advanceTimeAndBlock(100);
-
-  // @dev: ídem, quin tokenID fiquem?
-  //await waitForTx(await nftOracle.connect(priceAdmin).setAssetData(nftAsset, priceBN.toFixed(0)));
+  await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, priceBN.toFixed(0)));
   await advanceTimeAndBlock(100);
-  //await waitForTx(await nftOracle.connect(priceAdmin).setAssetData(nftAsset, priceBN.toFixed(0)));
+  await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, priceBN.toFixed(0)));
   return oldNftPrice.toString();
 };
 

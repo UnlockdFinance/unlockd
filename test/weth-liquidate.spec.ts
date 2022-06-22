@@ -43,7 +43,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
       getReservesConfigByPool(UnlockdPools.proto)
     );
 
-    baycInitPrice = await testEnv.nftOracle.getAssetPrice(testEnv.bayc.address);
+    baycInitPrice = await testEnv.nftOracle.getNFTPrice(testEnv.bayc.address, testEnv.tokenIdTracker);
     depositSize = new BigNumber(baycInitPrice.toString()).multipliedBy(0.8).toFixed(0);
   });
   after("Reset configuration", async () => {
@@ -53,7 +53,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
       ROUNDING_MODE: BigNumber.ROUND_HALF_UP,
     });
 
-    await setNftAssetPrice(testEnv, "BAYC", baycInitPrice.toString());
+    await setNftAssetPrice(testEnv, "BAYC", 101, baycInitPrice.toString());
   });
 
   it("Borrow ETH and Liquidate it", async () => {
@@ -65,7 +65,8 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
 
     {
       const latestTime = await getNowTimeInSeconds();
-      //await waitForTx(await nftOracle.setAssetData(bayc.address, baycInitPrice));
+      const currTokenId = testEnv.tokenIdTracker;
+      await waitForTx(await nftOracle.setNFTPrice(bayc.address, currTokenId, baycInitPrice));
     }
 
     // Deposit with native ETH
@@ -87,7 +88,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
 
     const nftCfgData = await dataProvider.getNftConfigurationData(nftAsset);
 
-    const nftColDataBefore = await pool.getNftCollateralData(nftAsset, weth.address);
+    const nftColDataBefore = await pool.getNftCollateralData(nftAsset, tokenId, weth.address);
 
     const wethPrice = await reserveOracle.getAssetPrice(weth.address);
     const amountBorrow = await convertToCurrencyDecimals(
@@ -109,7 +110,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     // Drop the health factor below 1
     const nftDebtDataBefore = await pool.getNftDebtData(bayc.address, tokenId);
     const debAmountUnits = await convertToCurrencyUnits(weth.address, nftDebtDataBefore.totalDebt.toString());
-    await setNftAssetPriceForDebt(testEnv, "BAYC", "WETH", debAmountUnits, "80");
+    await setNftAssetPriceForDebt(testEnv, "BAYC", tokenIdNum, "WETH", debAmountUnits, "80");
 
     const nftDebtDataBeforeAuction = await pool.getNftDebtData(bayc.address, tokenId);
     expect(nftDebtDataBeforeAuction.healthFactor.toString()).to.be.bignumber.lt(oneEther.toFixed(0));
@@ -154,7 +155,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     const user3 = users[3];
     const liquidator = users[4];
 
-    await setNftAssetPrice(testEnv, "BAYC", baycInitPrice.toString());
+    await setNftAssetPrice(testEnv, "BAYC", 101, baycInitPrice.toString());
 
     // Deposit with native ETH
     await wethGateway.connect(depositor.signer).depositETH(depositor.address, "0", { value: depositSize });
@@ -174,7 +175,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
 
     const nftCfgData = await dataProvider.getNftConfigurationData(nftAsset);
 
-    const nftColDataBefore = await pool.getNftCollateralData(nftAsset, weth.address);
+    const nftColDataBefore = await pool.getNftCollateralData(nftAsset, tokenId, weth.address);
 
     const wethPrice = await reserveOracle.getAssetPrice(weth.address);
     const amountBorrow = await convertToCurrencyDecimals(
@@ -196,7 +197,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     // Drop the health factor below 1
     const nftDebtDataBefore = await pool.getNftDebtData(bayc.address, tokenId);
     const debAmountUnits = await convertToCurrencyUnits(weth.address, nftDebtDataBefore.totalDebt.toString());
-    await setNftAssetPriceForDebt(testEnv, "BAYC", "WETH", debAmountUnits, "80");
+    await setNftAssetPriceForDebt(testEnv, "BAYC", tokenIdNum, "WETH", debAmountUnits, "80");
 
     const nftDebtDataBeforeAuction = await pool.getNftDebtData(bayc.address, tokenId);
     expect(nftDebtDataBeforeAuction.healthFactor.toString()).to.be.bignumber.lt(oneEther.toFixed(0));
