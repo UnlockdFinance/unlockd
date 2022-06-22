@@ -53,6 +53,17 @@ makeSuite("NFTOracle: General functioning", (testEnv: TestEnv) => {
     expect(await mockNftOracle.getNFTPrice(collection2, 1)).to.be.eq(200);
     expect(await mockNftOracle.getNFTPrice(collection3, 1)).to.be.eq(300);
   });
+
+  it("Price updates", async () => {
+    const { mockNftOracle, users } = testEnv;
+    const collection1 = users[1].address;
+
+    await mockNftOracle.setNFTPrice(collection1, 1, 150);
+    expect(await mockNftOracle.getNFTPrice(collection1, 1)).to.be.eq(150);
+
+    await mockNftOracle.setNFTPrice(collection1, 1, 200);
+    expect(await mockNftOracle.getNFTPrice(collection1, 1)).to.be.eq(200);
+  });
 });
 
 makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
@@ -118,7 +129,7 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
 makeSuite("NFTOracle: Test Pause", (testEnv: TestEnv) => {
   before(async () => {});
 
-  it("test pause", async () => {
+  it("Should revert as collection is paused", async () => {
     const { mockNftOracle, users } = testEnv;
     await mockNftOracle.addCollection(users[0].address);
     await mockNftOracle.addCollection(users[1].address);
