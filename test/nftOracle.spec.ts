@@ -15,7 +15,7 @@ makeSuite("NFTOracle: General functioning", (testEnv: TestEnv) => {
     expect(await mockNftOracle.priceFeedAdmin()).eq(admin);
   });
 
-  it("Should set and get the mocknft price at 1000", async function () {
+  it("Set and get Mocknft price at 1000", async function () {
     const { mockNftOracle, users } = testEnv;
     const collectionMock = users[0].address;
     await mockNftOracle.addCollection(collectionMock);
@@ -54,7 +54,7 @@ makeSuite("NFTOracle: General functioning", (testEnv: TestEnv) => {
     expect(await mockNftOracle.getNFTPrice(collection3, 1)).to.be.eq(300);
   });
 
-  it("Price updates", async () => {
+  it("Single asset price updates", async () => {
     const { mockNftOracle, users } = testEnv;
     const collection1 = users[1].address;
 
@@ -63,6 +63,24 @@ makeSuite("NFTOracle: General functioning", (testEnv: TestEnv) => {
 
     await mockNftOracle.setNFTPrice(collection1, 1, 200);
     expect(await mockNftOracle.getNFTPrice(collection1, 1)).to.be.eq(200);
+  });
+
+  it("Multiple asset price updates", async () => {
+    const { mockNftOracle, users } = testEnv;
+    const collection1 = users[1].address;
+    const collection2 = users[2].address;
+
+    // Set and get first prices
+    await mockNftOracle.setNFTPrice(collection1, 1, 150);
+    expect(await mockNftOracle.getNFTPrice(collection1, 1)).to.be.eq(150);
+    await mockNftOracle.setNFTPrice(collection1, 1, 250);
+    expect(await mockNftOracle.getNFTPrice(collection1, 1)).to.be.eq(250);
+
+    // Set and get second prices
+    await mockNftOracle.setNFTPrice(collection1, 1, 200);
+    expect(await mockNftOracle.getNFTPrice(collection1, 1)).to.be.eq(200);
+    await mockNftOracle.setNFTPrice(collection1, 1, 100);
+    expect(await mockNftOracle.getNFTPrice(collection1, 1)).to.be.eq(100);
   });
 });
 
@@ -151,5 +169,46 @@ makeSuite("NFTOracle: Test Pause", (testEnv: TestEnv) => {
     await mockNftOracle.setNFTPrice(users[2].address, 1, 400);
     await mockNftOracle.setPause(users[0].address, false);
     await mockNftOracle.setNFTPrice(users[1].address, 1, 410);
+  });
+
+  it("Should revert on multi-paused collections", async () => {
+    const { mockNftOracle, users } = testEnv;
+    // await mockNftOracle.addCollection(users[1].address);
+    // await mockNftOracle.addCollection(users[2].address);
+    await mockNftOracle.addCollection(users[3].address);
+
+    // Set prices
+    await mockNftOracle.setNFTPrice(users[1].address, 1, 100);
+    await mockNftOracle.setNFTPrice(users[2].address, 1, 200);
+    await mockNftOracle.setNFTPrice(users[3].address, 1, 300);
+
+    // Get prices
+    expect(await mockNftOracle.getNFTPrice(users[1].address, 1)).to.be.eq(100);
+    expect(await mockNftOracle.getNFTPrice(users[2].address, 1)).to.be.eq(200);
+    expect(await mockNftOracle.getNFTPrice(users[3].address, 1)).to.be.eq(300);
+
+    // Pause Collection 1 and try to set a new price:
+    await mockNftOracle.setPause(users[1].address, true);
+    await expect(mockNftOracle.setNFTPrice(users[1].address, 1, 1000)).to.be.revertedWith("NFTPaused()");
+
+    // Unpause Collection 1 + set and get new price:
+    await mockNftOracle.setPause(users[1].address, false);
+    await mockNftOracle.setNFTPrice(users[1].address, 1, 1000);
+    expect(await mockNftOracle.getNFTPrice(users[1].address, 1)).to.be.eq(1000);
+
+    // Pause Collection 2 and 3 and try to set a new price:
+    await mockNftOracle.setPause(users[2].address, true);
+    await expect(mockNftOracle.setNFTPrice(users[2].address, 1, 2000)).to.be.revertedWith("NFTPaused()");
+    await mockNftOracle.setPause(users[3].address, true);
+    await expect(mockNftOracle.setNFTPrice(users[3].address, 1, 3000)).to.be.revertedWith("NFTPaused()");
+
+    // Unpause Collection 2 and 3 + set and get new price:
+    await mockNftOracle.setPause(users[2].address, false);
+    await mockNftOracle.setNFTPrice(users[2].address, 1, 2000);
+    expect(await mockNftOracle.getNFTPrice(users[2].address, 1)).to.be.eq(2000);
+
+    await mockNftOracle.setPause(users[3].address, false);
+    await mockNftOracle.setNFTPrice(users[3].address, 1, 3000);
+    expect(await mockNftOracle.getNFTPrice(users[3].address, 1)).to.be.eq(3000);
   });
 });
