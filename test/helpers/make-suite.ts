@@ -186,6 +186,7 @@ export async function initializeMakeSuite() {
   testEnv.mockChainlinkOracle = await getMockChainlinkOracle();
   testEnv.mockReserveOracle = await getMockReserveOracle();
   testEnv.nftOracle = await getNFTOracle();
+  //testEnv.mockNFT = await getMockNFT();
   testEnv.mockNftOracle = await getMockNFTOracle();
 
   testEnv.dataProvider = await getUnlockdProtocolDataProvider();

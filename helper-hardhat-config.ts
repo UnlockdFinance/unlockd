@@ -1,5 +1,5 @@
 // @ts-ignore
-import { HardhatNetworkForkingUserConfig, HardhatUserConfig } from "hardhat/types";
+import { HardhatNetworkForkingUserConfig, HardhatNetworkUserConfig, HardhatUserConfig } from "hardhat/types";
 import { eEthereumNetwork, iParamsPerNetwork } from "./helpers/types";
 
 require("dotenv").config();
@@ -9,7 +9,7 @@ const ALCHEMY_KEY = process.env.ALCHEMY_KEY || "";
 const TENDERLY_FORK_ID = process.env.TENDERLY_FORK_ID || "";
 const FORK = process.env.FORK || "";
 const FORK_BLOCK_NUMBER = process.env.FORK_BLOCK_NUMBER ? parseInt(process.env.FORK_BLOCK_NUMBER) : 0;
-
+const FORK_NETWORK = process.env.FORK || "";
 const GWEI = 1000 * 1000 * 1000;
 
 export const buildForkConfig = (): HardhatNetworkForkingUserConfig | undefined => {
@@ -18,6 +18,33 @@ export const buildForkConfig = (): HardhatNetworkForkingUserConfig | undefined =
     forkMode = {
       url: NETWORKS_RPC_URL[FORK],
     };
+    if (FORK_BLOCK_NUMBER || BLOCK_TO_FORK[FORK]) {
+      forkMode.blockNumber = FORK_BLOCK_NUMBER || BLOCK_TO_FORK[FORK];
+    }
+  }
+  return forkMode;
+};
+
+export const buildUnlockdForkConfig = (): HardhatNetworkForkingUserConfig | undefined => {
+  let forkMode;
+  if (FORK_NETWORK) {
+    switch(FORK_NETWORK){
+      case "MAINNET":
+        forkMode = {
+          url: ALCHEMY_KEY
+          ? `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_KEY}`
+          : `https://mainnet.infura.io/v3/${INFURA_KEY}`,
+        };
+      break;
+      case "RINKEBY":
+        forkMode = {
+          url: ALCHEMY_KEY
+          ? `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_KEY}`
+          : `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
+        };
+      break;
+    }
+    
     if (FORK_BLOCK_NUMBER || BLOCK_TO_FORK[FORK]) {
       forkMode.blockNumber = FORK_BLOCK_NUMBER || BLOCK_TO_FORK[FORK];
     }

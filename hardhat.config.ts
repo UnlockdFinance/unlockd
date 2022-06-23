@@ -5,10 +5,13 @@ import { HardhatUserConfig } from "hardhat/types";
 import { accounts } from "./test-wallets.js";
 import { eEthereumNetwork, eNetwork } from "./helpers/types";
 import { BUIDLEREVM_CHAINID, COVERAGE_CHAINID } from "./helpers/buidler-constants";
-import { NETWORKS_RPC_URL, NETWORKS_DEFAULT_GAS, BLOCK_TO_FORK, buildForkConfig } from "./helper-hardhat-config";
+import { NETWORKS_RPC_URL, NETWORKS_DEFAULT_GAS, BLOCK_TO_FORK, buildForkConfig, buildUnlockdForkConfig } from "./helper-hardhat-config";
 
 require("dotenv").config();
 
+
+const INFURA_KEY = process.env.INFURA_KEY || "";
+const ALCHEMY_KEY = process.env.ALCHEMY_KEY || "";
 import {bootstrap} from 'global-agent'
 if (process.env.GLOBAL_AGENT_HTTP_PROXY) {
   console.log("Enable Global Agent:", process.env.GLOBAL_AGENT_HTTP_PROXY);
@@ -123,7 +126,8 @@ const buidlerConfig: HardhatUserConfig = {
         privateKey: secretKey,
         balance: balance,
       })),
-      forking: buildForkConfig(),
+      forking: buildUnlockdForkConfig(),
+      
     },
     ganache: {
       hardfork: "istanbul",

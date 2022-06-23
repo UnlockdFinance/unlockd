@@ -128,6 +128,7 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
     const baycPrice = new BigNumber(poolLoanData.totalDebt.toString())
       .percentMul(new BigNumber(5000)) // 50%
       .toFixed(0);
+    
     await advanceTimeAndBlock(100);
     await nftOracle.setNFTPrice(bayc.address, 101, baycPrice);
     await advanceTimeAndBlock(200);

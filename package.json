@@ -37,6 +37,7 @@
     "unlockd:develop:full:migration": "npm run compile && npm run hardhat:develop -- unlockd:mainnet",
     "unlockd:rinkeby:full:migration": "npm run compile && npm run hardhat:rinkeby -- unlockd:mainnet",
     "unlockd:kovan:full:migration": "npm run compile && npm run hardhat:kovan -- unlockd:mainnet",
+    "unlockd:fork:full:migration": "npm run compile && npm run hardhat -- unlockd:mainnet",
     "unlockd:main:full:migration": "npm run compile && npm run hardhat:main -- unlockd:mainnet --verify",
     "develop:verify": "npm run hardhat:develop verify:general -- --all --pool Unlockd",
     "develop:verify:reserves": "npm run hardhat:develop verify:reserves -- --pool Unlockd",

@@ -262,7 +262,10 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     {}
   );
 
-  //////////////////////////////////////////////////////////////////////////////
+  // --------------------//
+  // ASK WHY 6 ARGUMENTS //
+  // ------------------- //
+
   console.log("-> Prepare nft oracle...");
   const nftOracleImpl = await deployNFTOracle();
   await waitForTx(await nftOracleImpl.initialize(await addressesProvider.getPoolAdmin()));
@@ -275,6 +278,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   await waitForTx(await mockNftOracleImpl.initialize(await addressesProvider.getPoolAdmin()));
 
   //////////////////////////////////////////////////////////////////////////////
+
   console.log("-> Prepare Reserve pool...");
   const { ...tokensAddressesWithoutUsd } = allTokenAddresses;
   const allReservesAddresses = {

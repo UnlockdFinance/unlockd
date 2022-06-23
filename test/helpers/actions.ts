@@ -240,10 +240,10 @@ export const setNftAssetPriceForDebt = async (
     throw new Error("invalid zero nftPrice");
   }
 
-  await advanceTimeAndBlock(100);
-  await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, nftPrice.toFixed(0)));
-  await advanceTimeAndBlock(200);
-  await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, nftPrice.toFixed(0)));
+ await advanceTimeAndBlock(100);
+ await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, nftPrice.toFixed(0)));
+ await advanceTimeAndBlock(200);
+ await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, nftPrice.toFixed(0)));
 
   return { oldNftPrice: oldNftPrice.toString(), newNftPrice: nftPrice.toFixed(0) };
 };
@@ -263,6 +263,7 @@ export const setNftAssetPrice = async (
   const oldNftPrice = await nftOracle.getNFTPrice(nftAsset, 0);
 
   const priceBN = new BigNumber(price).plus(1);
+  
   await advanceTimeAndBlock(100);
   await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, priceBN.toFixed(0)));
   await advanceTimeAndBlock(100);
