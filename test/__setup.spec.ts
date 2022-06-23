@@ -27,6 +27,8 @@ import {
   deployUiPoolDataProvider,
   deployMockChainlinkOracle,
   deployUnlockdLibraries,
+  deloyNFTXVaultFactory,
+  deploySushiSwapRouter,
 } from "../helpers/contracts-deployments";
 import { Signer } from "ethers";
 import { eContractid, tEthereumAddress, UnlockdPools } from "../helpers/types";
@@ -386,8 +388,12 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
 
   //////////////////////////////////////////////////////////////////////////////
   console.log("-> Prepare NFTX & Sushiswap Router...");
-  await waitForTx(await addressesProvider.setNFTXVaultFactory("0xBE86f647b167567525cCAAfcd6f881F1Ee558216"));
-  await waitForTx(await addressesProvider.setSushiSwapRouter("0xd9e1ce17f2641f24ae83637ab66a2cca9c378b9f"));
+
+  const nftxVaultFactory = await deloyNFTXVaultFactory();
+  await waitForTx(await addressesProvider.setNFTXVaultFactory(nftxVaultFactory.address));
+
+  const sushiSwapRouter = await deploySushiSwapRouter();
+  await waitForTx(await addressesProvider.setSushiSwapRouter(sushiSwapRouter.address));
 
   console.timeEnd("setup");
 };
@@ -398,12 +404,12 @@ before(async () => {
   const secondaryWallet = await getSecondSigner();
   const FORK = process.env.FORK;
 
-  // if (FORK) {
-  //   await rawBRE.run("unlockd:mainnet", { skipRegistry: true });
-  // } else {
-  console.log("-> Deploying test environment...");
-  await buildTestEnv(deployer, secondaryWallet);
-  // }
+  if (FORK) {
+    await rawBRE.run("unlockd:mainnet", { skipRegistry: true });
+  } else {
+    console.log("-> Deploying test environment...");
+    await buildTestEnv(deployer, secondaryWallet);
+  }
 
   console.log("-> Initialize make suite...");
   await initializeMakeSuite();

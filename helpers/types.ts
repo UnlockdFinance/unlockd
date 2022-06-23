@@ -83,6 +83,9 @@ export enum eContractid {
   TimelockControllerFast = "TimelockControllerFast",
   TimelockControllerSlow = "TimelockControllerSlow",
   RepayAndTransferHelper = "RepayAndTransferHelper",
+  NFTXVaultFactory = "NFTXVaultFactory",
+  UniswapV2Factory = "UniswapV2Factory",
+  SushiSwapRouter = "SushiSwapRouter",
 }
 
 export enum ProtocolLoanState {
@@ -422,6 +425,9 @@ export interface ICommonConfiguration {
 
   OracleQuoteCurrency: string;
   OracleQuoteUnit: string;
+
+  NFTXVaultFactory?: iParamsPerNetwork<tEthereumAddress>;
+  SushiSwapRouter?: iParamsPerNetwork<tEthereumAddress>;
 }
 
 export interface IUnlockdConfiguration extends ICommonConfiguration {

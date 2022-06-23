@@ -2,7 +2,7 @@
 pragma solidity 0.8.4;
 
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
-import {INFTXVaultFactory} from "../../interfaces/INFTXVaultFactory.sol";
+import {INFTXVaultFactoryV2} from "../../interfaces/INFTXVaultFactoryV2.sol";
 import {INFTXVault} from "../../interfaces/INFTXVault.sol";
 import {IUniswapV2Router02} from "../../interfaces/IUniswapV2Router02.sol";
 
@@ -22,7 +22,7 @@ library NFTXHelper {
     address lendPoolAddress = addressesProvider.getLendPool();
 
     // Get NFTX Vault
-    address[] memory vaultAddresses = INFTXVaultFactory(vaultFactoryAddress).vaultsForAsset(nftAsset);
+    address[] memory vaultAddresses = INFTXVaultFactoryV2(vaultFactoryAddress).vaultsForAsset(nftAsset);
     address vaultAddress = vaultAddresses[0];
     require(vaultAddress != address(0), "NFTX: vault not available");
 

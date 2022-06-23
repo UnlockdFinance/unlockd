@@ -65,7 +65,7 @@ import {
 } from "../../types";
 import { MockChainlinkOracle } from "../../types/MockChainlinkOracle";
 import { USD_ADDRESS } from "../../helpers/constants";
-import { INFTXVaultFactory } from "../../types/INFTXVaultFactory";
+import { INFTXVaultFactoryV2 } from "../../types/INFTXVaultFactoryV2";
 import { IUniswapV2Router02 } from "../../types/IUniswapV2Router02";
 
 chai.use(bignumberChai());
@@ -114,7 +114,7 @@ export interface TestEnv {
   roundIdTracker: number;
   nowTimeTracker: number;
 
-  nftxVaultFactory: INFTXVaultFactory;
+  nftxVaultFactory: INFTXVaultFactoryV2;
   sushiSwapRouter: IUniswapV2Router02;
 }
 
@@ -257,8 +257,8 @@ export async function initializeMakeSuite() {
   testEnv.nowTimeTracker = Number(await getNowTimeInSeconds());
 
   // NFTXVaultFactory, Sushiswap Router
-  testEnv.nftxVaultFactory = await getNFTXVaultFactory("0xBE86f647b167567525cCAAfcd6f881F1Ee558216");
-  testEnv.sushiSwapRouter = await getSushiSwapRouter("0xd9e1ce17f2641f24ae83637ab66a2cca9c378b9f");
+  testEnv.nftxVaultFactory = await getNFTXVaultFactory();
+  testEnv.sushiSwapRouter = await getSushiSwapRouter();
 }
 
 const setSnapshot = async () => {
@@ -271,8 +271,12 @@ const revertHead = async () => {
   await evmRevert(buidlerevmSnapshotId);
 };
 
-export function makeSuite(name: string, tests: (testEnv: TestEnv) => void, only?: boolean) {
-  (only ? describe.only : describe)(name, () => {
+export function makeSuite(
+  name: string,
+  tests: (testEnv: TestEnv) => void,
+  { only, skip }: { only?: boolean; skip?: boolean } = { only: false, skip: false }
+) {
+  (only ? describe.only : skip ? describe.skip : describe)(name, () => {
     before(async () => {
       await setSnapshot();
     });

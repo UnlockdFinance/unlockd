@@ -9,7 +9,7 @@ import {IReserveOracleGetter} from "../../interfaces/IReserveOracleGetter.sol";
 import {INFTOracleGetter} from "../../interfaces/INFTOracleGetter.sol";
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
 import {ILooksRareExchange} from "../../interfaces/ILooksRareExchange.sol";
-import {INFTXVaultFactory} from "../../interfaces/INFTXVaultFactory.sol";
+import {INFTXVaultFactoryV2} from "../../interfaces/INFTXVaultFactoryV2.sol";
 import {INFTXVault} from "../../interfaces/INFTXVault.sol";
 
 import {ReserveLogic} from "./ReserveLogic.sol";
@@ -29,8 +29,6 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {IERC721MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721MetadataUpgradeable.sol";
-
-import {console} from "hardhat/console.sol";
 
 /**
  * @title LiquidateLogic library
@@ -209,8 +207,6 @@ library LiquidateLogic {
       vars.reserveOracle,
       vars.nftOracle
     );
-
-    console.log(vars.loanId, vars.borrowAmount, vars.thresholdPrice, vars.liquidatePrice);
 
     // first time bid need to burn debt tokens and transfer reserve to bTokens
     if (loanData.state == DataTypes.LoanState.Active) {
