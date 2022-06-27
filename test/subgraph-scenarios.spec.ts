@@ -44,7 +44,7 @@ makeSuite("Subgraph tests", async (testEnv) => {
       getReservesConfigByPool(UnlockdPools.proto)
     );
 
-    saveBaycAssetPrice = (await testEnv.nftOracle.getAssetPrice(testEnv.bayc.address)).toString();
+    saveBaycAssetPrice = (await testEnv.nftOracle.getNFTPrice(testEnv.bayc.address, testEnv.tokenIdTracker)).toString();
   });
   after("Reset", () => {
     // Reset BigNumber
@@ -112,7 +112,7 @@ makeSuite("Subgraph tests", async (testEnv) => {
     await mintERC20(testEnv, liquidator, "WETH", "100");
     await approveERC20(testEnv, liquidator, "WETH");
 
-    const { oldNftPrice, newNftPrice } = await setNftAssetPriceForDebt(testEnv, "BAYC", "WETH", "10", "95");
+    const { oldNftPrice, newNftPrice } = await setNftAssetPriceForDebt(testEnv, "BAYC", tokenIdNum, "WETH", "10", "95");
     const auctionPrice = new BigNumber(newNftPrice).multipliedBy(1.1).toFixed(0);
     const auctionAmount = await convertToCurrencyUnits(weth.address, auctionPrice);
 
@@ -132,7 +132,7 @@ makeSuite("Subgraph tests", async (testEnv) => {
     const borrower = users[1];
     const liquidator = users[2];
 
-    await setNftAssetPrice(testEnv, "BAYC", saveBaycAssetPrice);
+    await setNftAssetPrice(testEnv, "BAYC", 101, saveBaycAssetPrice);
 
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
@@ -148,7 +148,7 @@ makeSuite("Subgraph tests", async (testEnv) => {
     await mintERC20(testEnv, liquidator, "WETH", "100");
     await approveERC20(testEnv, liquidator, "WETH");
 
-    const { oldNftPrice, newNftPrice } = await setNftAssetPriceForDebt(testEnv, "BAYC", "WETH", "10", "95");
+    const { oldNftPrice, newNftPrice } = await setNftAssetPriceForDebt(testEnv, "BAYC", tokenIdNum, "WETH", "10", "95");
     const auctionPrice = new BigNumber(newNftPrice).multipliedBy(1.1).toFixed(0);
     const auctionAmount = await convertToCurrencyUnits(weth.address, auctionPrice);
 

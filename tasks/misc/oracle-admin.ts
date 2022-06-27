@@ -64,7 +64,7 @@ task("oracle-admin:set-nft-assets", "Set new nft asset to oracle")
       }
     }
 
-    await waitForTx(await nftOracle.connect(ownerSigner).setAssets(assetsArray));
+    await waitForTx(await nftOracle.connect(ownerSigner).setCollections(assetsArray));
 
     console.log("OK");
   });
@@ -105,7 +105,7 @@ task("oracle-admin:feed-init-nft-price", "Doing oracle admin task")
     for (const nftSymbol of Object.keys(nftsAssets)) {
       const price = MOCK_NFT_AGGREGATORS_PRICES[nftSymbol];
       console.log(`setAssetData:(${nftSymbol}, ${price})`);
-      await waitForTx(await nftOracleProxy.connect(feedAdminSigner).setAssetData(nftsAssets[nftSymbol], price));
+      //await waitForTx(await nftOracleProxy.connect(feedAdminSigner).setAssetData(nftsAssets[nftSymbol], price));
     }
   });
 

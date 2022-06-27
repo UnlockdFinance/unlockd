@@ -4324,7 +4324,7 @@ ethers@^4.0.32, ethers@^4.0.40:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@^5.0.1, ethers@^5.0.13, ethers@^5.0.19, ethers@^5.0.2, ethers@^5.4.7, ethers@^5.5.2:
+ethers@^5.0.1, ethers@^5.0.13, ethers@^5.0.2, ethers@^5.4.7, ethers@^5.5.2:
   version "5.5.2"
   resolved "https://registry.npmjs.org/ethers/-/ethers-5.5.2.tgz"
   integrity sha512-EF5W+6Wwcu6BqVwpgmyR5U2+L4c1FQzlM/02dkZOugN3KF0cG9bzHZP+TDJglmPm2/IzCEJDT7KBxzayk7SAHw==

@@ -41,7 +41,7 @@ makeSuite("DataProvider", (testEnv) => {
     await bayc.connect(borrower.signer).setApprovalForAll(pool.address, true);
 
     //Borrower borrows
-    const loanColDataBefore = await pool.getNftCollateralData(bayc.address, weth.address);
+    const loanColDataBefore = await pool.getNftCollateralData(bayc.address, 101, weth.address);
 
     const wethPrice = await reserveOracle.getAssetPrice(weth.address);
 

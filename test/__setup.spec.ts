@@ -75,6 +75,7 @@ const ALL_ASSETS_INITIAL_PRICES = UnlockdConfig.Mocks.AllAssetsInitialPrices;
 const USD_ADDRESS = UnlockdConfig.ProtocolGlobalParams.UsdAddress;
 
 const ALL_NFTS_INITIAL_PRICES = UnlockdConfig.Mocks.AllNftsInitialPrices;
+const ALL_NFTS_MAX_SUPPLY = UnlockdConfig.Mocks.AllNftsMaxSupply;
 
 const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   console.time("setup");
@@ -244,6 +245,15 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     }),
     {}
   );
+
+  const allNftMaxSupply = Object.entries(ALL_NFTS_MAX_SUPPLY).reduce(
+    (accum: { [tokenSymbol: string]: string }, [tokenSymbol, tokenMaxSupply]) => ({
+      ...accum,
+      [tokenSymbol]: tokenMaxSupply,
+    }),
+    {}
+  );
+
   const allNftPrices = Object.entries(ALL_NFTS_INITIAL_PRICES).reduce(
     (accum: { [tokenSymbol: string]: string }, [tokenSymbol, tokenPrice]) => ({
       ...accum,
@@ -252,37 +262,23 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     {}
   );
 
-  //////////////////////////////////////////////////////////////////////////////
+  // --------------------//
+  // ASK WHY 6 ARGUMENTS //
+  // ------------------- //
+
   console.log("-> Prepare nft oracle...");
   const nftOracleImpl = await deployNFTOracle();
-  await waitForTx(
-    await nftOracleImpl.initialize(
-      await addressesProvider.getPoolAdmin(),
-      "20000000000000000000",
-      "10000000000000000000",
-      1,
-      1,
-      100
-    )
-  );
+  await waitForTx(await nftOracleImpl.initialize(await addressesProvider.getPoolAdmin()));
   await waitForTx(await addressesProvider.setNFTOracle(nftOracleImpl.address));
   await addAssetsInNFTOracle(allNftAddresses, nftOracleImpl);
-  await setPricesInNFTOracle(allNftPrices, allNftAddresses, nftOracleImpl);
+  await setPricesInNFTOracle(allNftPrices, allNftAddresses, allNftMaxSupply, nftOracleImpl);
 
   console.log("-> Prepare mock nft oracle...");
   const mockNftOracleImpl = await deployMockNFTOracle();
-  await waitForTx(
-    await mockNftOracleImpl.initialize(
-      await addressesProvider.getPoolAdmin(),
-      "20000000000000000000",
-      "10000000000000000000",
-      1,
-      1,
-      100
-    )
-  );
+  await waitForTx(await mockNftOracleImpl.initialize(await addressesProvider.getPoolAdmin()));
 
   //////////////////////////////////////////////////////////////////////////////
+
   console.log("-> Prepare Reserve pool...");
   const { ...tokensAddressesWithoutUsd } = allTokenAddresses;
   const allReservesAddresses = {

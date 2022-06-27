@@ -19,11 +19,12 @@ contract MockNFTOracle is NFTOracle {
   }
 
   // Override BlockContext here
-  function _blockTimestamp() internal view override returns (uint256) {
+  /// @notice Override gives an error
+  function _blockTimestamp() internal view returns (uint256) {
     return timestamp;
   }
 
-  function _blockNumber() internal view override returns (uint256) {
+  function _blockNumber() internal view returns (uint256) {
     return number;
   }
 }

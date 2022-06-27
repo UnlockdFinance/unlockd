@@ -39,6 +39,7 @@ interface IUiPoolDataProvider {
 
   struct AggregatedNftData {
     address underlyingAsset;
+    uint256 assetTokenId;
     string name;
     string symbol;
     uint256 ltv;

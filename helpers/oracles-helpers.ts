@@ -40,19 +40,32 @@ export const setAggregatorsInReserveOracle = async (
   }
 };
 
+// ASK WHY addAsset STILL HERE:
 export const addAssetsInNFTOracle = async (
   assetsAddresses: SymbolMap<tEthereumAddress>,
   nftOracleInstance: NFTOracle
 ) => {
   for (const [assetSymbol, assetAddress] of Object.entries(assetsAddresses) as [string, tEthereumAddress][]) {
     console.log("addAssetsInNFTOracle", assetSymbol, assetAddress);
-    await waitForTx(await nftOracleInstance.addAsset(assetAddress));
+    await waitForTx(await nftOracleInstance.addCollection(assetAddress));
+  }
+};
+
+export const addAssetsInNFTOraclewithSigner = async (
+  assetsAddresses: SymbolMap<tEthereumAddress>,
+  nftOracleInstance: NFTOracle,
+  oracleOwnerSigner: any
+) => {
+  for (const [assetSymbol, assetAddress] of Object.entries(assetsAddresses) as [string, tEthereumAddress][]) {
+    console.log("addAssetsInNFTOracle", assetSymbol, assetAddress);
+    await waitForTx(await nftOracleInstance.connect(oracleOwnerSigner).addCollection(assetAddress));
   }
 };
 
 export const setPricesInNFTOracle = async (
   prices: SymbolMap<string>,
   assetsAddresses: SymbolMap<tEthereumAddress>,
+  assetsMaxSupply: SymbolMap<string>,
   nftOracleInstance: NFTOracle
 ) => {
   for (const [assetSymbol, assetAddress] of Object.entries(assetsAddresses) as [string, string][]) {
@@ -63,7 +76,43 @@ export const setPricesInNFTOracle = async (
     }
     const [, price] = (Object.entries(prices) as [string, string][])[priceIndex];
     console.log("setPricesInNFTOracle", assetSymbol, assetAddress, price);
-    await waitForTx(await nftOracleInstance.setAssetData(assetAddress, price));
+    const maxSupplyIndex = Object.keys(assetsMaxSupply).findIndex((value) => value === assetSymbol);
+    if (maxSupplyIndex == undefined) {
+      console.log("can not find max supply for asset", assetSymbol, assetAddress);
+      continue;
+    }
+    const [, maxSupply] = (Object.entries(assetsMaxSupply) as [string, string][])[maxSupplyIndex];
+    const tokenIds = [...Array(parseInt(maxSupply)).keys()];
+    tokenIds.map(async (tokenId) => await waitForTx(await nftOracleInstance.setNFTPrice(assetAddress, tokenId, price)));
+  }
+};
+
+export const setPricesInNFTOracleWithSigner = async (
+  prices: SymbolMap<string>,
+  assetsAddresses: SymbolMap<tEthereumAddress>,
+  assetsMaxSupply: SymbolMap<string>,
+  nftOracleInstance: NFTOracle,
+  oracleOwnerSigner: any
+) => {
+  for (const [assetSymbol, assetAddress] of Object.entries(assetsAddresses) as [string, string][]) {
+    const priceIndex = Object.keys(prices).findIndex((value) => value === assetSymbol);
+    if (priceIndex == undefined) {
+      console.log("can not find price for asset", assetSymbol, assetAddress);
+      continue;
+    }
+    const [, price] = (Object.entries(prices) as [string, string][])[priceIndex];
+    console.log("setPricesInNFTOracle", assetSymbol, assetAddress, price);
+    const maxSupplyIndex = Object.keys(assetsMaxSupply).findIndex((value) => value === assetSymbol);
+    if (maxSupplyIndex == undefined) {
+      console.log("can not find max supply for asset", assetSymbol, assetAddress);
+      continue;
+    }
+    const [, maxSupply] = (Object.entries(assetsMaxSupply) as [string, string][])[maxSupplyIndex];
+    const tokenIds = [...Array(parseInt(maxSupply)).keys()];
+    tokenIds.map(
+      async (tokenId) =>
+        await waitForTx(await nftOracleInstance.connect(oracleOwnerSigner).setNFTPrice(assetAddress, tokenId, price))
+    );
   }
 };
 

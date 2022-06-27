@@ -25,6 +25,14 @@ task("dev:deploy-oracle-nft", "Deploy nft oracle for dev environment")
       {}
     );
 
+    const allNftMaxSupply = Object.entries(poolConfig.Mocks.AllNftsMaxSupply).reduce(
+      (accum: { [tokenSymbol: string]: string }, [tokenSymbol, tokenMaxSupply]) => ({
+        ...accum,
+        [tokenSymbol]: tokenMaxSupply,
+      }),
+      {}
+    );
+
     const allNftPrices = Object.entries(poolConfig.Mocks.AllNftsInitialPrices).reduce(
       (accum: { [tokenSymbol: string]: string }, [tokenSymbol, tokenPrice]) => ({
         ...accum,
@@ -35,9 +43,10 @@ task("dev:deploy-oracle-nft", "Deploy nft oracle for dev environment")
 
     const nftOracleImpl = await deployNFTOracle(verify);
     await waitForTx(
-      await nftOracleImpl.initialize(await addressesProvider.getPoolAdmin(), 2e17, 1e17, 1800, 600, 1800)
+      await nftOracleImpl.initialize(await addressesProvider.getPoolAdmin()) // Fix bug! 2e17 1e17
     );
+
     await waitForTx(await addressesProvider.setNFTOracle(nftOracleImpl.address));
     await addAssetsInNFTOracle(allNftAddresses, nftOracleImpl);
-    await setPricesInNFTOracle(allNftPrices, allNftAddresses, nftOracleImpl);
+    await setPricesInNFTOracle(allNftPrices, allNftAddresses, allNftMaxSupply, nftOracleImpl);
   });

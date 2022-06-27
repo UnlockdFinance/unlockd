@@ -7,22 +7,24 @@ pragma solidity 0.8.4;
 interface INFTOracle {
   /* CAUTION: Price uint is ETH based (WEI, 18 decimals) */
   // get asset price
-  function getAssetPrice(address _nftContract) external view returns (uint256);
+  function getNFTPrice(address _collection, uint256 _tokenId) external view returns (uint256);
 
-  // get latest timestamp
-  function getLatestTimestamp(address _nftContract) external view returns (uint256);
+  function getMultipleNFTPrices(address[] calldata _collections, uint256[] calldata _tokenIds)
+    external
+    view
+    returns (uint256[] memory);
 
-  // get previous price with _back rounds
-  function getPreviousPrice(address _nftContract, uint256 _numOfRoundBack) external view returns (uint256);
+  function setNFTPrice(
+    address _collection,
+    uint256 _tokenId,
+    uint256 _price
+  ) external;
 
-  // get previous timestamp with _back rounds
-  function getPreviousTimestamp(address _nftContract, uint256 _numOfRoundBack) external view returns (uint256);
-
-  function setAssetData(address _nftContract, uint256 _price) external;
-
-  function setMultipleAssetsData(address[] calldata _nftContracts, uint256[] calldata _prices) external;
+  function setMultipleNFTPrices(
+    address[] calldata _collections,
+    uint256[] calldata _tokenIds,
+    uint256[] calldata _prices
+  ) external;
 
   function setPause(address _nftContract, bool val) external;
-
-  function setTwapInterval(uint256 _twapInterval) external;
 }

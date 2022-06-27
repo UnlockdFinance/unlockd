@@ -438,7 +438,11 @@ contract LendPool is
    * @return liquidationThreshold the liquidation threshold of the NFT
    * @return liquidationBonus the liquidation bonus of the NFT
    **/
-  function getNftCollateralData(address nftAsset, address reserveAsset)
+  function getNftCollateralData(
+    address nftAsset,
+    uint256 nftTokenId,
+    address reserveAsset
+  )
     external
     view
     override
@@ -462,6 +466,7 @@ contract LendPool is
       reserveAsset,
       reserveData,
       nftAsset,
+      nftTokenId,
       nftData,
       _addressesProvider.getReserveOracle(),
       _addressesProvider.getNFTOracle()
@@ -513,6 +518,7 @@ contract LendPool is
       reserveAsset,
       reserveData,
       nftAsset,
+      nftTokenId,
       nftData,
       _addressesProvider.getReserveOracle(),
       _addressesProvider.getNFTOracle()
@@ -612,6 +618,7 @@ contract LendPool is
       loanData.reserveAsset,
       reserveData,
       loanData.nftAsset,
+      loanData.nftTokenId,
       nftData,
       vars.poolLoan,
       _addressesProvider.getReserveOracle(),
