@@ -45,7 +45,7 @@ task("dev:pool-auction", "Doing WETH auction task")
 
     const amountDecimals = await convertToCurrencyDecimals(loanData.reserveAsset, amount);
 
-    await waitForTx(await lendPool.auction(token, id, amountDecimals, signerAddress));
+    await waitForTx(await lendPool.auction(token, id));
 
     console.log("OK");
   });

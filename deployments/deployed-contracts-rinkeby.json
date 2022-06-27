@@ -54,15 +54,15 @@
     "deployer": "0xafF5C36642385b6c7Aaf7585eC785aB2316b5db6"
   },
   "UNFT": {
-    "address": "0x7354784A7A705963b484Fed3a903FF8c9b6Ec617",
-    "deployer": "0xafF5C36642385b6c7Aaf7585eC785aB2316b5db6"
+    "address": "0x407800F32D7149F64157c2031E923BD99fB5bba0",
+    "deployer": "0x0E5031750e0d499608d2Dd98CBd924da05F2D498"
   },
   "UNFTRegistryImpl": {
-    "address": "0x05ef86a5B21B0420436a1d941D9C2D19b2982195"
+    "address": "0xE0CE933aE9d68Ce0116BF6da7959Cd464344D346"
   },
   "UNFTRegistry": {
-    "address": "0x683f73Ddb5272049e392603d55593511Fd503D61",
-    "deployer": "0xafF5C36642385b6c7Aaf7585eC785aB2316b5db6"
+    "address": "0x38b9ACfdFCB9072CBEE195172AEC60ED14880327",
+    "deployer": "0x0E5031750e0d499608d2Dd98CBd924da05F2D498"
   },
   "ReserveLogic": {
     "address": "0xD1e1B9aa5E555E8e47daD3FB4dD700Bd0b63DdcF",

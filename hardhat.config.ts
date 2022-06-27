@@ -126,7 +126,7 @@ const buidlerConfig: HardhatUserConfig = {
         privateKey: secretKey,
         balance: balance,
       })),
-      forking: buildUnlockdForkConfig(),
+      forking: buildForkConfig(),
       
     },
     ganache: {

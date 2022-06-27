@@ -21,6 +21,8 @@ makeSuite(
     before("Before liquidation: set config", async () => {
       BigNumber.config({ DECIMAL_PLACES: 0, ROUNDING_MODE: BigNumber.ROUND_DOWN });
 
+      console.log(testEnv.nftOracle, testEnv.bayc.address);
+
       baycInitPrice = await testEnv.nftOracle.getNFTPrice(testEnv.bayc.address, 101);
     });
 
