@@ -16,7 +16,7 @@ import {
 } from "../../helpers/contracts-getters";
 import { MintableERC721 } from "../../types";
 
-task("dev:deploy-mock-bnft-registry", "Deploy bnft registry for dev enviroment")
+task("dev:deploy-mock-unft-registry", "Deploy bnft registry for dev enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .setAction(async ({ verify, pool }, localBRE) => {
@@ -45,7 +45,7 @@ task("dev:deploy-mock-bnft-registry", "Deploy bnft registry for dev enviroment")
     );
   });
 
-task("dev:deploy-mock-bnft-tokens", "Deploy bnft tokens for dev enviroment")
+task("dev:deploy-mock-unft-tokens", "Deploy bnft tokens for dev enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .setAction(async ({ verify, pool }, localBRE) => {

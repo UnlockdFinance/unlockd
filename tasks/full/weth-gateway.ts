@@ -41,11 +41,13 @@ task(`full:deploy-weth-gateway`, `Deploys the WETHGateway contract`)
       addressesProvider.address,
       weth,
     ]);
+    // const initEncodedData = '0x';
 
     let wethGateWay: WETHGateway;
     let wethGatewayProxy: UnlockdUpgradeableProxy;
 
-    const wethGatewayAddress = undefined; //await addressesProvider.getAddress(ADDRESS_ID_WETH_GATEWAY);
+    //  const wethGatewayAddress = undefined;
+    const wethGatewayAddress = await addressesProvider.getAddress(ADDRESS_ID_WETH_GATEWAY);
 
     if (wethGatewayAddress != undefined && notFalsyOrZeroAddress(wethGatewayAddress)) {
       console.log("Upgrading exist WETHGateway proxy to new implementation...");
