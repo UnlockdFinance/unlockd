@@ -73,6 +73,11 @@ export const UnlockdConfig: IUnlockdConfiguration = {
       DAI: '0x8072A2f4c4dDB4F20c70Aa72eA3C5C76e2AEa027',
       USDC: '0x2abD41624249d852bC1A72Fe25189A63aF1eD3f6',
     },
+    [eEthereumNetwork.goerli]: {
+      //WETH: ,
+      //DAI: ,
+      //USDC: ,
+    },
     [eEthereumNetwork.main]: {
       WETH: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
     },
@@ -135,6 +140,7 @@ export const UnlockdConfig: IUnlockdConfiguration = {
       AZUKI: '0xCFf21a8f7485B4a4f5efE13751245ad115031953',
       KONGZ: '0x1E363B7369fedf20b1fd5d2f4Ad2dD184BFC9596',
     },
+    [eEthereumNetwork.goerli]: {},
     [eEthereumNetwork.main]: {
       WPUNKS: '0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6',
       BAYC: '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d',

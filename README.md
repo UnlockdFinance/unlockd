@@ -154,10 +154,10 @@ npx hardhat --network localhost "dev:deploy-mock-unft-registry" --pool Unlockd
 npx hardhat --network localhost "dev:deploy-mock-unft-tokens" --pool Unlockd
 ```
 
-### Rinkeby full deployment
+### Rinkeby mock deployment (a full deployment may not run because of ERC20 and ERC721 Reserves)
 ```
 # In one terminal
-npm run unlockd:rinkeby:full:migration
+npm run unlockd:rinkeby:mock:migration
 ```
 
 ## Interact with Unlockd in Mainnet via console

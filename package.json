@@ -14,6 +14,7 @@
     "hardhat:develop": "hardhat --network develop",
     "hardhat:rinkeby": "hardhat --network rinkeby",
     "hardhat:kovan": "hardhat --network kovan",
+    "hardhat:goerli": "hardhat --network goerli",
     "hardhat:main": "hardhat --network main",
     "size": "npm run compile && npm run hardhat size-contracts",
     "compile": "SKIP_LOAD=true hardhat compile",
@@ -33,9 +34,13 @@
     "ci:clean": "hardhat clean && rm -rf ./artifacts ./cache ./types",
     "unlockd:hardhat:dev:migration": "npm run compile && npm run hardhat -- unlockd:dev",
     "unlockd:localhost:dev:migration": "npm run compile && npm run hardhat:localhost -- unlockd:dev",
+    "unlockd:rinkeby:mock:migration": "npm run compile && npm run hardhat:rinkeby -- unlockd:mock",
+    "unlockd:goerli:mock:migration": "npm run compile && npm run hardhat:goerli -- unlockd:mock",
+    "unlockd:kovan:mock:migration": "npm run compile && npm run hardhat:kovan -- unlockd:mock",
     "unlockd:localhost:full:migration": "npm run compile && npm run hardhat:localhost -- unlockd:mainnet",
     "unlockd:develop:full:migration": "npm run compile && npm run hardhat:develop -- unlockd:mainnet",
     "unlockd:rinkeby:full:migration": "npm run compile && npm run hardhat:rinkeby -- unlockd:mainnet",
+    "unlockd:goerli:full:migration": "npm run compile && npm run hardhat:goerli -- unlockd:mainnet",
     "unlockd:kovan:full:migration": "npm run compile && npm run hardhat:kovan -- unlockd:mainnet",
     "unlockd:fork:full:migration": "npm run compile && npm run hardhat -- unlockd:mainnet",
     "unlockd:main:full:migration": "npm run compile && npm run hardhat:main -- unlockd:mainnet --verify",
@@ -51,6 +56,10 @@
     "kovan:verify:reserves": "npm run hardhat:kovan verify:reserves -- --pool Unlockd",
     "kovan:print-contracts": "npm run hardhat:kovan -- print-contracts",
     "kovan:print-config": "hardhat --network kovan print-config --pool Unlockd",
+    "goerli:verify": "npm run hardhat:goerli verify:general -- --all --pool Unlockd",
+    "goerli:verify:reserves": "npm run hardhat:goerli verify:reserves -- --pool Unlockd",
+    "goerli:print-contracts": "npm run hardhat:goerli -- print-contracts",
+    "goerli:print-config": "hardhat --network goerli print-config --pool Unlockd",
     "main:verify": "npm run hardhat:main verify:general -- --all --pool Unlockd",
     "main:verify:reserves": "npm run hardhat:main verify:reserves -- --pool Unlockd",
     "main:print-contracts": "npm run hardhat:main -- print-contracts",
@@ -110,6 +119,7 @@
     }
   },
   "dependencies": {
+    "@ethersproject/units": "^5.6.1",
     "global-agent": "^3.0.0"
   }
 }
