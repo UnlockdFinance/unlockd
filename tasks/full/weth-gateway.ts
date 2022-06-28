@@ -67,7 +67,7 @@ task(`full:deploy-weth-gateway`, `Deploys the WETHGateway contract`)
         eContractid.WETHGateway,
         proxyAdmin.address,
         wethGatewayImpl.address,
-        initEncodedData,
+        initEncodedData.toString(),
         verify
       );
 

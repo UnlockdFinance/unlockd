@@ -171,16 +171,16 @@
     "deployer": "0xAa3777F59260b8bD003e850E321AdBc576115b06"
   },
   "WETHGatewayImpl": {
-    "address": "0xB021874C9A5dD0bDC39DE15F72E847D693b023cC"
+    "address": "0x8C9c2ef4075da060904dC8B6dEb7347f8A3dFA1f"
   },
   "WETHGateway": {
     "address": "0x5148Dce137d8E46Bb53d118eEF6729c05d12CdF9"
   },
   "PunkGatewayImpl": {
-    "address": "0x516BC4Ab187a2C5C14237194B8b6f20771D82F7A"
+    "address": "0x008619df634526c9b06C0083d5c0f33c12feD299"
   },
   "PunkGateway": {
-    "address": "0x1f0e9308680359c3d72F30D2c683f83ddD4A9346",
+    "address": "0x442aCFD51fF8C30F8A5d2863AF5541e28A037a5F",
     "deployer": "0xAa3777F59260b8bD003e850E321AdBc576115b06"
   },
   "UnlockdProtocolDataProvider": {
