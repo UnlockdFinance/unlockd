@@ -43,6 +43,13 @@ export const buildUnlockdForkConfig = (): HardhatNetworkForkingUserConfig | unde
           : `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
         };
       break;
+      case "GOERLI":
+        forkMode = {
+          url: ALCHEMY_KEY
+          ? `https://eth-goerli.alchemyapi.io/v2/${ALCHEMY_KEY}`
+          : `https://goerli.infura.io/v3/${INFURA_KEY}`,
+        };
+      break;
     }
     
     if (FORK_BLOCK_NUMBER || BLOCK_TO_FORK[FORK]) {
@@ -62,6 +69,9 @@ export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
   [eEthereumNetwork.kovan]: ALCHEMY_KEY
     ? `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_KEY}`
     : `https://kovan.infura.io/v3/${INFURA_KEY}`,
+  [eEthereumNetwork.goerli]: ALCHEMY_KEY
+    ? `https://eth-goerli.alchemyapi.io/v2/${ALCHEMY_KEY}`
+    : `https://goerli.infura.io/v3/${INFURA_KEY}`,
   [eEthereumNetwork.main]: ALCHEMY_KEY
     ? `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_KEY}`
     : `https://mainnet.infura.io/v3/${INFURA_KEY}`,
@@ -74,6 +84,7 @@ export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number> = {
   [eEthereumNetwork.develop]: 65 * GWEI,
   [eEthereumNetwork.rinkeby]: 65 * GWEI,
   [eEthereumNetwork.kovan]: 65 * GWEI,
+  [eEthereumNetwork.goerli]: 65 * GWEI,
   [eEthereumNetwork.main]: 65 * GWEI,
   [eEthereumNetwork.coverage]: 65 * GWEI,
   [eEthereumNetwork.hardhat]: 65 * GWEI,
@@ -82,6 +93,7 @@ export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number> = {
 
 export const BLOCK_TO_FORK: iParamsPerNetwork<number | undefined> = {
   [eEthereumNetwork.main]: 13623705,
+  [eEthereumNetwork.goerli]: 0,
   [eEthereumNetwork.rinkeby]: 0,
   [eEthereumNetwork.kovan]: 0,
   [eEthereumNetwork.develop]: 0,

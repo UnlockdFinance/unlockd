@@ -13,6 +13,7 @@ export enum eEthereumNetwork {
   develop = "develop",
   rinkeby = "rinkeby",
   kovan = "kovan",
+  goerli = "goerli",
   main = "main",
 }
 
@@ -350,6 +351,7 @@ export interface iEthereumParamsPerNetwork<T> {
   [eEthereumNetwork.develop]: T;
   [eEthereumNetwork.rinkeby]: T;
   [eEthereumNetwork.kovan]: T;
+  [eEthereumNetwork.goerli]: T;
   [eEthereumNetwork.main]: T;
 }
 
