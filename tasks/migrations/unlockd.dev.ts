@@ -26,10 +26,10 @@ task("unlockd:dev", "Deploy development enviroment")
 
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy mock bnft registry");
-    await localBRE.run("dev:deploy-mock-bnft-registry", { verify, pool: POOL_NAME });
+    await localBRE.run("dev:deploy-mock-unft-registry", { verify, pool: POOL_NAME });
 
     console.log("\n\nDeploy mock bnft tokens");
-    await localBRE.run("dev:deploy-mock-bnft-tokens", { verify, pool: POOL_NAME });
+    await localBRE.run("dev:deploy-mock-unft-tokens", { verify, pool: POOL_NAME });
 
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy proxy admin");

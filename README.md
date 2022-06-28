@@ -148,10 +148,10 @@ npx hardhat --network localhost "dev:deploy-mock-nfts"
 npx hardhat --network localhost "dev:deploy-mock-aggregators" --pool Unlockd
 # then update pool config reserve aggregators address
 
-npx hardhat --network localhost "dev:deploy-mock-bnft-registry" --pool Unlockd
+npx hardhat --network localhost "dev:deploy-mock-unft-registry" --pool Unlockd
 # then update pool config bnft registry address
 
-npx hardhat --network localhost "dev:deploy-mock-bnft-tokens" --pool Unlockd
+npx hardhat --network localhost "dev:deploy-mock-unft-tokens" --pool Unlockd
 ```
 
 ### Rinkeby full deployment
