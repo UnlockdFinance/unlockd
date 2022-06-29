@@ -1544,6 +1544,347 @@ address      | The UNFT registry address |
 This function returns the UNFTRegistry address stored in the addresses provider
 It should:
 1. Return the UNFTRegistry address stored in the addresses provider
+## LendPoolLoan (LendPoolLoan.sol)
+The LendPoolLoan contract implements the basic loan actions (such as creating, updating, repaying, auctioning, or liquidating a loan). It also implements useful loan getters.
+### View methods
+#### borrowerOf()
+```
+  function borrowerOf(uint256 loanId) external view override returns (address)
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| loanId         | uint256       | The loan ID |
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The loan borrower |
+
+This function returns the borrower of a specific loan
+It should:
+1. Return the corresponding borrower to the loan with ID `loanId` 
+#### getCollateralLoanId()
+```
+function getCollateralLoanId(address nftAsset, uint256 nftTokenId) external view override returns (uint256)
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| nftAsset         | address       | The address of the underlying NFT asset |
+| nftTokenId         | uint256       | The id of the underlying NFT asset |
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+uint256      | The corresponding token loan |
+
+This function returns the loan corresponding to a specific NFT 
+It should:
+1. Return the loan corresponding to a specific NFT
+#### getLoan()
+```
+function getLoan(uint256 loanId) external view override returns (DataTypes.LoanData memory loanData)
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| loanId         | uint256       | The loan ID |
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+DataTypes.LoanData      | The data for the requested loan |
+
+This function returns the data for a specific loan
+It should:
+1. Return the data for the loan with a loan ID equal to `loanId`
+#### getLoanCollateralAndReserve()
+```
+function getLoanCollateralAndReserve(uint256 loanId)
+    external
+    view
+    override
+    returns (
+      address nftAsset,
+      uint256 nftTokenId,
+      address reserveAsset,
+      uint256 scaledAmount
+    )
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| loanId         | uint256       | The loan ID |
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The underlying NFT asset address |
+uint256      | The token Id for the NFT |
+address      | The underlying reserve address |
+uint256      | The loan scaled amount |
+This function returns the corresponding collateral and reserve for a requested loan
+It should:
+1. Return the collateral and reserve corresponding for the loan with loan Id equal to `loanId``
+#### getLoanCollateralAndReserve()
+```
+function getLoanReserveBorrowAmount(uint256 loanId) external view override returns (address, uint256)
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| loanId         | uint256       | The loan ID |
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The reserve asset address |
+uint256      | The loan borrowed amount |
+This function returns the corresponding reserve address and borrowed amount for a requested loan
+It should:
+1. Return the reserve address and borrowed amount for the loan with loan Id equal to `loanId`
+#### getLoanReserveBorrowScaledAmount()
+```
+function getLoanReserveBorrowScaledAmount(uint256 loanId) external view override returns (address, uint256)
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| loanId         | uint256       | The loan ID |
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The reserve asset address |
+uint256      | The scaled loan borrowed amount |
+This function returns the corresponding reserve address and the __scaled__ borrowed amount for a requested loan
+It should:
+1. Return the reserve address and __scaled__ borrowed amount for the loan with loan Id equal to `loanId`
+#### getLoanHighestBid()
+```
+function getLoanHighestBid(uint256 loanId) external view override returns (address, uint256)
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| loanId         | uint256       | The loan ID |
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The reserve asset address |
+uint256      | The bid price |
+This function returns the corresponding reserve address and bid price for a requested loan
+It should:
+1. Return the reserve address and bid price for the loan with loan Id equal to `loanId`
+#### getNftCollateralAmount()
+```
+function getNftCollateralAmount(address nftAsset) external view override returns (uint256)
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| nftAsset         | address       | The underlying NFT asset |
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+uint256      | The total collateral |
+This function returns the total collateral amount for an NFT asset
+It should:
+1. Return the the total collateral amount for the requested `nftAsset`
+#### getUserNftCollateralAmount()
+```
+function getUserNftCollateralAmount(address user, address nftAsset) external view override returns (uint256)
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| user         | address       | The user address|
+| nftAsset         | address       | The underlying NFT asset |
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+uint256      | The total collateral for the user|
+This function returns the total collateral amount for an NFT asset and a specific user
+It should:
+1. Return the the total collateral amount for the requested `nftAsset` and the specified `user`
+### State Changing Functions
+#### initialize()
+```
+function initialize(ILendPoolAddressesProvider provider) public initializer
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| provider         | ILendPoolAddressesProvider       | The address of the addresses provider |  
+This function initializes the proxy contract.
+It should:  
+1. Initialize the proxy contract
+2. Avoid having a loan ID equal to 0
+#### initNft()
+```
+function initNft(address nftAsset, address uNftAddress) external override onlyLendPool
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| nftAsset         | address       | The address of the underlying NFT |  
+| uNftAddress         | address       | The address of the uNFT |  
+This function sets approval for the uNFTs with the nft asset as the caller
+It should:  
+1. Assing full approval rights for the `uNftAddress` asset, having the `nftAsset`address as the caller
+#### createLoan()
+```
+ function createLoan(
+    address initiator,
+    address onBehalfOf,
+    address nftAsset,
+    uint256 nftTokenId,
+    address uNftAddress,
+    address reserveAsset,
+    uint256 amount,
+    uint256 borrowIndex
+  ) external override onlyLendPool returns (uint256)
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| initiator         | address       | The address of the user initiating the borrow |  
+| onBehalfOf         | address       | The address receiving the loan |  
+| nftAsset         | address       | The address of the underlying NFT |  
+| nftTokenId         | uint256       | The token ID of the uNFT |  
+| uNftAddress         | address       | The address of the underlying uNFT |  
+| reserveAsset         | address       | The address of the underlying reserve asset |  
+| amount         | uint256       | The loan amount |  
+| borrowIndex         | uint256       | The index to get the scaled loan amount |  
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+uint256      | The loan ID |
+This function creates and stores a loan object with some params
+It should:  
+1. Create and store a LoanData object with the information specified as parameter
+2. Transfer underlying `nftAsset` to the lendpool
+3. Mint uNFT to `onBehalfOf`
+4. Update the user collateral
+5. Update the NFT total collateral
+#### updateLoan()
+```
+ function updateLoan(
+    address initiator,
+    uint256 loanId,
+    uint256 amountAdded,
+    uint256 amountTaken,
+    uint256 borrowIndex
+  ) external override onlyLendPool
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| initiator         | address       | The address of the user updating the loan |  
+| loanId         | uint256       | The loan ID |  
+| amountAdded         | uint256       | The amount added to the loan |  
+| amountTaken         | uint256       | The amount taken from the loan | 
+| borrowIndex         | uint256       | The index to get the scaled loan amount |  
+This function updates the given loan with the specified params
+It should:  
+1. Get a scaled loan amount if the `amountAdded` or the `amountTaken` is greater than 0
+2. Revert if the specified loan with `loanId`is inactive
+3. Update the loan status with the specified params
+#### repayLoan()
+```
+ function repayLoan(
+    address initiator,
+    uint256 loanId,
+    address uNftAddress,
+    uint256 amount,
+    uint256 borrowIndex
+  ) external override onlyLendPool
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| initiator         | address       | The address of the user repaying the loan |  
+| loanId         | uint256       | The loan ID |  
+| uNftAddress         | address       | The uNFT address |  
+| amount         | uint256       | The amount to repay the loan | 
+| borrowIndex         | uint256       | The index to get the scaled loan amount |  
+This function repays the given loan with the specified params
+It should:  
+1. Revert if the specified loan with `loanId`is inactive
+2. Set the loan state to repaid
+3. Burn the uNFT
+4. Transfer the collateralized NFT to the user
+#### auctionLoan()
+```
+ function auctionLoan(
+    address initiator,
+    uint256 loanId,
+    address onBehalfOf,
+    uint256 bidPrice,
+    uint256 borrowAmount,
+    uint256 borrowIndex
+  ) external override onlyLendPool
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| initiator         | address       | The address of the user initiating the auction |  
+| loanId         | uint256       | The loan getting auctioned |  
+| onBehalfOf         | address       | The address possessing the loan |  
+| bidPrice         | uint256       | The bid price | 
+| borrowAmount         | uint256       | The borrow amount |  
+| borrowIndex         | uint256       | The index to get the scaled loan amount |  
+This function allows to auction the given loan
+It should:  
+1. Revert if the specified loan with `loanId`is inactive
+2. Update the auction status with the specified parameters
+#### redeemLoan()
+```
+ function redeemLoan(
+    address initiator,
+    uint256 loanId,
+    uint256 amountTaken,
+    uint256 borrowIndex
+  ) external override onlyLendPool
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| initiator         | address       | The address of the user initiating the redeem |  
+| loanId         | uint256       | The loan getting redeemed |  
+| amountTaken         | uint256       | The amount to redeem |  
+| borrowIndex         | uint256       | The index to get the scaled loan amount |  
+This function allows to redeem the given loan with some params
+It should:  
+1. Revert if the specified loan with `loanId`is inactive
+2. Revert if the `amountTaken` is invalid
+3. Redeem the loan and reset its status
+#### liquidateLoan()
+```
+ function liquidateLoan(
+    address initiator,
+    uint256 loanId,
+    address uNftAddress,
+    uint256 borrowAmount,
+    uint256 borrowIndex
+  ) external override onlyLendPool
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| initiator         | address       | The liquidator |  
+| loanId         | uint256       | The loan getting liquidated |  
+| uNftAddress         | address       | The uNFT address |  
+| borrowAmount         | uint256       | The amount to liquidate |  
+| borrowIndex         | uint256       | The index to get the scaled loan amount |  
+This function allows a user to liquidate a loan
+It should:  
+1. Revert if the specified loan with `loanId`is inactive
+2. Burn the uNFT with `uNftAddress`
+3. Transfer the underlying NFT asset to user
+### Internal Functions
+#### _getLendPool()
+```
+function _getLendPool() internal view returns (ILendPool)
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+ILendPool     | The protocol lend pool  |
+
+This function returns the lend pool given from the addresses provider
+It should:
+1. Return the protocol's LendPool 
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
