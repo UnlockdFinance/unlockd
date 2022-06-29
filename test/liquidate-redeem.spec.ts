@@ -112,7 +112,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.1).toFixed(0);
 
-    await pool.connect(liquidator.signer).auction(bayc.address, "101", auctionPrice, liquidator.address);
+    await pool.connect(liquidator.signer).auction(bayc.address, "101");
 
     // check result
     const lendPoolBalanceAfter = await weth.balanceOf(pool.address);
@@ -303,7 +303,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "102");
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.1).toFixed(0);
 
-    await pool.connect(liquidator.signer).auction(bayc.address, "102", auctionPrice, liquidator.address);
+    await pool.connect(liquidator.signer).auction(bayc.address, "102");
 
     // check result
     const lendpoolBalanceAfter = await usdc.balanceOf(pool.address);

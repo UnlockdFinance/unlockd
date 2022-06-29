@@ -116,9 +116,9 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
 
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
 
-    await expect(
-      pool.connect(user2.signer).auction(bayc.address, "101", liquidatePrice, user2.address)
-    ).to.be.revertedWith(ProtocolErrors.LP_BORROW_NOT_EXCEED_LIQUIDATION_THRESHOLD);
+    await expect(pool.connect(user2.signer).auction(bayc.address, "101")).to.be.revertedWith(
+      ProtocolErrors.LP_BORROW_NOT_EXCEED_LIQUIDATION_THRESHOLD
+    );
   });
 
   it("Drop loan health factor below 1", async () => {
@@ -128,7 +128,7 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
     const baycPrice = new BigNumber(poolLoanData.totalDebt.toString())
       .percentMul(new BigNumber(5000)) // 50%
       .toFixed(0);
-    
+
     await advanceTimeAndBlock(100);
     await nftOracle.setNFTPrice(bayc.address, 101, baycPrice);
     await advanceTimeAndBlock(200);
@@ -141,9 +141,9 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
 
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
 
-    await expect(
-      pool.connect(user2.signer).auction(bayc.address, "101", liquidatePrice, user2.address)
-    ).to.be.revertedWith(ProtocolErrors.LPL_BID_PRICE_LESS_THAN_BORROW);
+    await expect(pool.connect(user2.signer).auction(bayc.address, "101")).to.be.revertedWith(
+      ProtocolErrors.LPL_BID_PRICE_LESS_THAN_BORROW
+    );
   });
 
   it("User 2 auction price is less than liquidate price", async () => {
@@ -168,9 +168,9 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
 
     const auctionPriceFail = new BigNumber(liquidatePrice.toString()).multipliedBy(0.8).toFixed(0);
 
-    await expect(
-      pool.connect(user2.signer).auction(bayc.address, "101", auctionPriceFail, user2.address)
-    ).to.be.revertedWith(ProtocolErrors.LPL_BID_PRICE_LESS_THAN_LIQUIDATION_PRICE);
+    await expect(pool.connect(user2.signer).auction(bayc.address, "101")).to.be.revertedWith(
+      ProtocolErrors.LPL_BID_PRICE_LESS_THAN_LIQUIDATION_PRICE
+    );
   });
 
   it("User 2 auction price is enough to cover borrow and liqudiate price", async () => {
@@ -180,7 +180,7 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
 
     const auctionPriceOk = new BigNumber(liquidatePrice.toString()).multipliedBy(1.5).toFixed(0);
-    await waitForTx(await pool.connect(user2.signer).auction(bayc.address, "101", auctionPriceOk, user2.address));
+    await waitForTx(await pool.connect(user2.signer).auction(bayc.address, "101"));
   });
 
   it("User 3 auction price is lesser than user 2", async () => {
@@ -190,9 +190,9 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.2).toFixed(0);
 
-    await expect(
-      pool.connect(user3.signer).auction(bayc.address, "101", auctionPrice, user3.address)
-    ).to.be.revertedWith(ProtocolErrors.LPL_BID_PRICE_LESS_THAN_HIGHEST_PRICE);
+    await expect(pool.connect(user3.signer).auction(bayc.address, "101")).to.be.revertedWith(
+      ProtocolErrors.LPL_BID_PRICE_LESS_THAN_HIGHEST_PRICE
+    );
   });
 
   it("User 2 liquidate before auction duration is end", async () => {
@@ -287,8 +287,8 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(2.0).toFixed(0);
 
-    await expect(
-      pool.connect(user2.signer).auction(bayc.address, "101", auctionPrice, user2.address)
-    ).to.be.revertedWith(ProtocolErrors.LPL_BID_AUCTION_DURATION_HAS_END);
+    await expect(pool.connect(user2.signer).auction(bayc.address, "101")).to.be.revertedWith(
+      ProtocolErrors.LPL_BID_AUCTION_DURATION_HAS_END
+    );
   });
 });

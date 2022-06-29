@@ -133,9 +133,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
 
     const { liquidatePrice } = await pool.getNftLiquidatePrice(wrappedPunk.address, punkIndex);
     const liquidateAmount = liquidatePrice.add(liquidatePrice.mul(5).div(100));
-    await waitForTx(
-      await punkGateway.connect(liquidator.signer).auction(punkIndex, liquidateAmount, liquidator.address)
-    );
+    await waitForTx(await punkGateway.connect(liquidator.signer).auction(punkIndex));
 
     await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
 
@@ -226,9 +224,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
 
     const { liquidatePrice } = await pool.getNftLiquidatePrice(wrappedPunk.address, punkIndex);
     const liquidateAmount = liquidatePrice.add(liquidatePrice.mul(5).div(100));
-    await waitForTx(
-      await punkGateway.connect(liquidator.signer).auction(punkIndex, liquidateAmount, liquidator.address)
-    );
+    await waitForTx(await punkGateway.connect(liquidator.signer).auction(punkIndex));
 
     // Redeem loan
     await advanceTimeAndBlock(100);

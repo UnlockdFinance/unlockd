@@ -189,9 +189,9 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     await configurator.connect(emergencyAdminSigner).setPoolPause(true);
 
     // Do auction
-    await expect(
-      pool.connect(liquidator.signer).auction(bayc.address, "101", amountBorrow, liquidator.address)
-    ).revertedWith(ProtocolErrors.LP_IS_PAUSED);
+    await expect(pool.connect(liquidator.signer).auction(bayc.address, "101")).revertedWith(
+      ProtocolErrors.LP_IS_PAUSED
+    );
 
     // Do redeem
     await expect(pool.connect(liquidator.signer).redeem(bayc.address, "101", "1", "1")).revertedWith(

@@ -75,7 +75,7 @@ makeSuite("PunkGateway: Delegate", (testEnv: TestEnv) => {
     const tokenId = tokenIdNum.toString();
 
     console.log("auction");
-    await expect(punkGateway.connect(hacker.signer).auction(tokenId, "1000000", liquidator.address)).to.be.revertedWith(
+    await expect(punkGateway.connect(hacker.signer).auction(tokenId)).to.be.revertedWith(
       ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST
     );
 
