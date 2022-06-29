@@ -326,6 +326,7 @@ uint256     | The max number of NFTs |
 This function returns the maximum number of NFTs supported to be listed in this LendPool
 It should:
 1. Return the maximum number of NFTs
+
 ### State Changing Functions
 #### initialize()
 ```
@@ -485,33 +486,643 @@ function auction(
 ```  
 | Parameter name| Type          |  Description        |
 | ------------- | ------------- |    ------------- |
-| nftAsset         | address       | The array of addresses of the underlying assets to repay |
-| nftTokenId         | uint256      | The array of token IDs of the underlying assets to repay |
-| bidPrice         | uint256       | The array of amounts to repay for each asset |
-| onBehalfOf         | uint256       | The array of amounts to repay for each asset |
+| nftAsset         | address       | The address of the underlying NFT used as collateral |
+| nftTokenId         | uint256      | The token ID of the underlying NFT used as collateral |
+| bidPrice         | uint256       | The bid price of the bidder want to buy underlying NFT |
+| onBehalfOf         | uint256       | Address of the user who will get the underlying NFT, same as msg.sender if the user wants to receive them on his own wallet, or a different address if the beneficiary of NFT is a different wallet |
+This function allows the auction a non-healthy position collateral-wise
+It should:
+1. Allow a bidder to buy collateral asset of the user getting liquidated
+2. Allow liquidate logic to validate and execute the bidding
+#### redeem()
+```
+function redeem(
+    address nftAsset,
+    uint256 nftTokenId,
+    uint256 amount,
+    uint256 bidFine
+  ) external override nonReentrant whenNotPaused returns (uint256)
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| nftAsset         | address       | The address of the underlying NFT used as collateral |
+| nftTokenId         | uint256      | The token ID of the underlying NFT used as collateral |
+| amount         | uint256       | The amount to repay the debt |
+| bidFine         | uint256       | The amount of bid fine |
 Returns:
 Type          |  Description        |
 ------------- |    ------------- |
-uint256[]     | The repaid amount |
-bool[]     | The updated status of each of the repayments |
-This function repays several borrowed `amounts` on multiple reserves, burning the equivalent loans owned.
+uint256     | The penalty fine of the loan |
+This function allows the redeem of a NFT loan which state is in Auction
 It should:
-1. Allow a user to repay multiple borrowed amounts
-2. Allow the borrow logic to validate and execute the repayments
-3. Return the paid amounts and the update status for each NFT
+1. Allow a user to redeem an auctioned NFT loan
+2. Allow the liquidate logic to validate and execute the bidding
+3. Return the penalty fine
+#### liquidate()
+```
+function liquidate(
+    address nftAsset,
+    uint256 nftTokenId,
+    uint256 amount
+  ) external override nonReentrant whenNotPaused returns (uint256)
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| nftAsset         | address       | The address of the underlying NFT to be liquidated |
+| nftTokenId         | uint256      | The token ID of the underlying NFT to be liquidated |
+| amount         | uint256       | The amount to pay for the collateral |
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+uint256     | The extra debt amount |
+This function should liquidate a non-healthy position collateral-wise
+It should:
+1. Allow the caller (liquidator) buy collateral asset of the user getting liquidated, and receive the collateral asset
+2. Allow the liquidate logic to validate and execute the liquidation
+#### onERC721Received()
+```
+function onERC721Received(
+    address operator,
+    address from,
+    uint256 tokenId,
+    bytes calldata data
+  ) external pure override returns (bytes4)
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| operator         | address       | The address which called `safeTransferFrom` function |
+| from         | address      | The address which previously owned the token |
+| tokenId         | uint256       | The NFT ID which is being transferred |
+| data         | bytes       | Additional data with no specified format |
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+bytes4     | The function signature |
+This function should handle the receipt of an NFT
+It should:
+1. Allow receiving an NFT
+#### finalizeTransfer()
+```
+function finalizeTransfer(
+    address asset,
+    address from,
+    address to,
+    uint256 amount,
+    uint256 balanceFromBefore,
+    uint256 balanceToBefore
+  ) external view override whenNotPaused
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| asset         | address       | The address of the underlying asset of the uToken |
+| from         | address       | The user from which the uToken are transferred |
+| to         | address       | The user receiving the uTokens |
+| amount         | uint256       | The amount being transferred/withdrawn |
+| balanceFromBefore         | uint256       | The uToken balance of the `from` user before the transfer |
+| balanceToBefore         | uint256       | The uToken balance of the `to` user before the transfer |
 
+This function validates and finalizes an uToken transfer
+It should:
+1. Only be callable by the overlying uToken of the `asset`
+2. Allow the valitadion logic to validate the transfer
+#### setPause()
+```
+function setPause(bool val) external override onlyLendPoolConfigurator
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| val         | bool       | The bool value to pause/unpause the pool |
+This function pauses/unpauses the pool
+It should:
+1. Pause the pool if the `val` parameter is true
+1. Unpause the pool if the `val` parameter is false
+#### setMaxNumberOfReserves()
+```
+function setMaxNumberOfReserves(uint256 val) external override onlyLendPoolConfigurator
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| val         | uint256       | The number to set the max number of reserves |
+This function sets a maximum number of reserves
+It should:
+1. Set the maximum number of reserves of the protocol to the specified `val` parameter value
+#### setMaxNumberOfNfts()
+```
+function setMaxNumberOfNfts(uint256 val) external override onlyLendPoolConfigurator
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| val         | uint256       | The number to set the max number of NFTs |
+This function sets a maximum number of NFTs
+It should:
+1. Set the maximum number of NFTs of the protocol to the specified `val` parameter value
+#### initReserve()
+```
+function initReserve(
+    address asset,
+    address uTokenAddress,
+    address debtTokenAddress,
+    address interestRateAddress
+  ) external override onlyLendPoolConfigurator
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| asset         | address       | The address of the underlying asset of the reserve |
+| uTokenAddress         | address       | The address of the uToken that will be assigned to the reserve |
+| debtTokenAddress         | address       | The address of the debtToken that will be assigned to the reserve |
+| interestRateAddress         | address       | The address of the interest rate strategy contract |
+This function initializes a reserve, activating it, assigning an uToken and nft loan and an interest rate strategy
+It should:
+1. Initialize the reserve
+2. Activate the reserve
+3. Assign a uToken, NFT loan and an interest rate strategy
+4. Add the reserve to the list of reserves of the protocol
+#### initNft()
+```
+function initNft(address asset, address uNftAddress) external override onlyLendPoolConfigurator
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| asset         | address       | The address of the underlying asset of the NFT |
+| uNftAddress         | address       | The address of the uNFT that will be assigned to the NFT |
+This function initializes an NFT, activating it, assigning an uNftAsset, an NFT loan and an interest rate strategy
+It should:
+1. Initialize the NFT
+2. Activate the NFT
+3. Assign a uNFTToken, NFT loan and an interest rate strategy
+4. Add the NFT to the list of NFT contracts of the protocol
+#### setReserveInterestRateAddress()
+```
+function setReserveInterestRateAddress(address asset, address rateAddress)
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| asset         | address       | The address of the underlying asset of the reserve |
+| rateAddress         | address       | The address of the interest rate strategy contract |
+This function updates the address of the interest rate strategy contract
+It should:
+1. Update the address of the interest rate strategy contract to the `rateAddress`address parameter
+#### setNftConfiguration()
+```
+function setNftConfiguration(address asset, uint256 configuration) external override onlyLendPoolConfigurator
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| asset         | address       | The address of the NFT asset |
+| configuration         | address       | The new configuration bitmap |
+This function sets the configuration bitmap of the NFT as a whole
+It should:
+1. Update the NFT `asset` configuration bitmap to the specified `configuration`parameter
+#### setNftMaxSupplyAndTokenId()
+```
+function setNftMaxSupplyAndTokenId(
+    address asset,
+    uint256 maxSupply,
+    uint256 maxTokenId
+  ) external override onlyLendPoolConfigurator
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| asset         | address       | The address of the NFT asset |
+| maxSupply         | uint256       | The max supply value |
+| maxTokenId         | uint256       | The max token ID value |
+This function sets a max supply and max token ID for an asset
+It should:
+1. Update the asset's max supply to `maxSupply`parameter
+2. Update the asset's max token ID to `maxTokenId`parameter
+### Internal Functions
+#### _addReserveToList()
+```
+function _addReserveToList(address asset) internal
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| asset         | address       | The address of the reserve asset |
+This function adds a reserve to the protocol's list of reserves
+It should:
+1. Add the `asset` to the list of reserves
+2. Only be called by the `initReserve()` function
+#### _addNftToList()
+```
+function _addNftToList(address asset) internal
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| asset         | address       | The address of the NFT asset |
+This function adds an NFT to the protocol's list of NFTs
+It should:
+1. Add the `asset` to the list of NFTs
+2. Only be called by the `initNFT()` function
+#### _verifyCallResult()
+```
+function _verifyCallResult(
+    bool success,
+    bytes memory returndata,
+    string memory errorMessage
+  ) internal pure returns (bytes memory)
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| success         | bool       | The address of the NFT asset |
+| returnData         | bytes       | The return data|
+| errorMessage         | string       | An error message |
+This function verifies that a low level call to smart-contract was successful
+It should:
+1. Verify a low-level call
+2. Return the return data if `success` is true
+3. Look for a revert reason if the `success`parameter is false  
 
+## LendPoolAddressesProvider (LendPoolAddressesProvider.sol)
+The LendPool Addresses Provider contract is the main registry of addresses part of or connected to the protocol, including permissioned roles. It also acts as a factory of proxies and admin of those, so with right to change its implementations. It is owned by the Unlockd governance
+### View methods
+#### getMarketId()
+```
+function getMarketId() external view override returns (string memory)
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+string      | The market id|
 
+This function returns the id of the Unlockd market to which this contracts points to
+It should:
+1. Return the market ID
+#### getAddress()
+```
+function getAddress(bytes32 id) public view override returns (address)
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| id         | bytes32       | The id of the address to fetch |
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The requested address|
 
+This function returns an address by id
+It should:
+1. Return the address mapped to the `id` passed as parameter
+#### getLendPool()
+```
+function getLendPool() external view override returns (address)
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The lendpool proxy address|
 
+This function returns the address of the LendPool proxy
+It should:
+1. Return the LendPool proxy address
+#### getLendPoolConfigurator()
+```
+function getLendPoolConfigurator() external view override returns (address)
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The lendpool configurator proxy address|
 
+This function returns the address of the LendPoolConfigurator proxy
+It should:
+1. Return the LendPoolConfigurator address
+#### getPoolAdmin()
+```
+function getPoolAdmin() external view override returns (address)
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The lendpool admin address|
 
+This function returns the address of the LendPool admin
+It should:
+1. Return the LendPool admin address
+#### getEmergencyAdmin()
+```
+function getEmergencyAdmin() external view override returns (address)
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The emergency admin address|
 
+This function returns the address of the emergency admin
+It should:
+1. Return the emergency admin address
+#### getReserveOracle()
+```
+function getReserveOracle() external view override returns (address)
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The reserve oracle address|
 
+This function returns the address of the reserve oracle contract
+It should:
+1. Return the reserve oracle address
+#### getNFTOracle()
+```
+function getNFTOracle() external view override returns (address)
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The NFT oracle address|
 
+This function returns the address of the NFT oracle contract
+It should:
+1. Return the NFT oracle address
+#### getLendPoolLoan()
+```
+function getLendPoolLoan() external view override returns (address) 
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The LendPool loan address|
 
+This function returns the address of the LendPool loan contract
+It should:
+1. Return the LendPool loan address
+#### getUNFTRegistry()
+```
+function getUNFTRegistry() external view override returns (address) 
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The UNFT registry address|
 
+This function returns the address of the UNFT registry contract
+It should:
+1. Return the UNFT registry address
+#### getIncentivesController()
+```
+function getIncentivesController() external view override returns (address)
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The Incentives Controller address|
 
+This function returns the address of the Incentives Controller contract
+It should:
+1. Return the Incentives Controller address
+#### getUIDataProvider()
+```
+function getUIDataProvider() external view override returns (address)
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The UIDataProvider address|
+
+This function returns the address of the UIDataProvider contract
+It should:
+1. Return the UIDataProvider address
+#### getUnlockdDataProvider()
+```
+function getUnlockdDataProvider() external view override returns (address)
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The UnlockdDataProvider address|
+
+This function returns the address of the UnlockdDataProvider contract
+It should:
+1. Return the UnlockdDataProvider address
+#### getWalletBalanceProvider()
+```
+function getWalletBalanceProvider() external view override returns (address)
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The WalletBalanceProvider address|
+
+This function returns the address of the WalletBalanceProvider contract
+It should:
+1. Return the WalletBalanceProvider address
+#### getImplementation()
+```
+function getImplementation(address proxyAddress) external view onlyOwner returns (address)
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| proxyAddress         | address       | The address of the proxy contract|
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The address of the implementation contract|
+
+This function returns the address of the implementation contract that the `proxyAddress`is currrently pointing to
+It should:
+1. Return the implementation contract address
+### State Changing Functions
+#### setMarketId()
+```
+function setMarketId(string memory marketId) external override onlyOwner
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| marketId         | string       | The market ID |  
+This function allows to set the market which this LendPoolAddressesProvider represents
+It should:  
+1. Set the market ID to the `marketId`parameter
+#### setAddressAsProxy()
+```
+function setAddressAsProxy(
+    bytes32 id,
+    address implementationAddress,
+    bytes memory encodedCallData
+  ) external override onlyOwner
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| id         | bytes32       | The id of the registered proxy| 
+| implementationAddress         | address       | The address of the implementation contract |  
+| encodedCallData         | bytes       | The calldata to be called |  
+This is a general function to update the implementation of a proxy registered with certain `id`. If there is no proxy registered, it will instantiate one and set as implementation the `implementationAddress`
+It should:  
+1. Update the implementation of the proxied contract calling `_updateImpl()`
+2. Call the calldata if the length of `encodedCallData`is greater than 0
+#### setAddress()
+```
+function setAddress(bytes32 id, address newAddress) external override onlyOwner
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| id         | bytes32       | The id of the contract| 
+| newAddress         | address       | The new address to be set |  
+
+This function sets an address for an id replacing the address saved in the addresses map
+It should:  
+1. Update the addresses map, mapping the `id`to `newAddress`
+#### setLendPoolImpl()
+```
+function setLendPoolImpl(address pool, bytes memory encodedCallData) external override onlyOwner
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| pool         | address       | The new LendPool address| 
+| encodedCallData         | bytes       | The calldata to be called |  
+
+This function updates the implementation of the LendPool, or creates the proxy setting the new `pool` implementation on the first time calling it
+It should:  
+1. Update the Lendpool implementation to the specified by `pool`
+2. Call the calldata if the length of `encodedCallData`is greater than 0
+#### setLendPoolConfiguratorImpl()
+```
+function setLendPoolConfiguratorImpl(address configurator, bytes memory encodedCallData) external override onlyOwner
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| configurator         | address       | The new LendPoolConfigurator address| 
+| encodedCallData         | bytes       | The calldata to be called |  
+
+This function updates the implementation of the LendPoolConfigurator, or creates the proxy setting the new `configurator` implementation on the first time calling it
+It should:  
+1. Update the LendpoolConfigurator implementation to the specified by `configurator`
+2. Call the calldata if the length of `encodedCallData`is greater than 0
+#### setPoolAdmin()
+```
+function setPoolAdmin(address admin) external override onlyOwner 
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| admin         | address       | The new pool admin address|
+
+This function updates the pool admin address
+It should:  
+1. Update the PoolAdmin address to `admin`
+#### setEmergencyAdmin()
+```
+function setEmergencyAdmin(address emergencyAdmin) external override onlyOwner 
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| emergencyAdmin         | address       | The new pool emergency admin address|
+
+This function updates the pool emergency admin address
+It should:  
+1. Update the EmergencyAdmin address to `emergencyAdmin`
+#### setReserveOracle()
+```
+function setReserveOracle(address reserveOracle) external override onlyOwner 
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| reserveOracle         | address       | The new reserve oracle contract address|
+
+This function updates the reserve oracle contract address
+It should:  
+1. Update the ReserveOracle contract address to `reserveOracle`
+#### setNFTOracle()
+```
+ function setNFTOracle(address nftOracle) external override onlyOwner
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| nftOracle         | address       | The new NFT oracle contract address|
+
+This function updates the NFT oracle contract address
+It should:  
+1. Update the NFTOracle contract address to `nftOracle`
+#### setLendPoolLoanImpl()
+```
+function setLendPoolLoanImpl(address loanAddress, bytes memory encodedCallData) external override onlyOwner
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| loanAddress         | address       | The LendPool loan contract address|
+| encodedCallData     | bytes       | The calldata to be called |
+
+This function updates the LendPool loan contract address
+It should:  
+1. Update the LendPoolLoan contract address to `loanAddress`
+2. Call the calldata if the length of `encodedCallData`is greater than 0
+#### setUNFTRegistry()
+```
+function setUNFTRegistry(address factory) external override onlyOwner
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| factory         | address       | The UNFT registry contract address|
+
+This function updates the UNFT registry contract address
+It should:  
+1. Update the UNFTRegistry contract address to `factory`
+#### setIncentivesController()
+```
+function setIncentivesController(address controller) external override onlyOwner
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| controller         | address       | The Incentives Controller contract address|
+
+This function updates the Incentives Controller contract address
+It should:  
+1. Update the IncentivesController contract address to `controller`
+#### setUIDataProvider()
+```
+function setUIDataProvider(address provider) external override onlyOwner
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| provider         | address       | The UIDataProvider contract address|
+
+This function updates the UIDataProvider contract address
+It should:  
+1. Update the UIDataProvider contract address to `provider`
+#### setUnlockdDataProvider()
+```
+function setUnlockdDataProvider(address provider) external override onlyOwner
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| provider         | address       | The UnlockdDataProvider contract address|
+
+This function updates the UnlockdDataProvider contract address
+It should:  
+1. Update the UnlockdDataProvider contract address to `provider`
+#### setWalletBalanceProvider()
+```
+function setWalletBalanceProvider(address provider) external override onlyOwner
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| provider         | address       | The WalletBalanceProvider contract address|
+
+This function updates the WalletBalanceProvider contract address
+It should:  
+1. Update the WalletBalanceProvider contract address to `provider`
+### Internal Functions
+#### _updateImpl()
+```
+function _updateImpl(bytes32 id, address newAddress) internal
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| id         | bytes32       | The id of the proxy to be updated|
+| newAddress         | address       | The new implementation address|
+This function updates the implementation of a specific proxied component of the protocol
+It should:  
+1. Create the proxy setting `newAdress` as implementation and calls the initialize() function on the proxy if there is no proxy registered in the given `id`
+2. Update the implementation to `newAddress` and call the encoded method function via upgradeToAndCall() in the proxy if there is already a proxy registered in the given `id`
+#### _setMarketId()
+```
+function _setMarketId(string memory marketId) internal
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| marketId         | string       | The id of the market|
+This function allows to internally set the market which this LendPoolAddressesProvider represents
+It should:  
+1. Set the market ID to the `marketId` parameter
+2. Only be called by the constructor and `setMarkedId()`
 
 
 
