@@ -671,15 +671,11 @@ export const auction = async (
   amountToAuction = "0x" + new BigNumber(amountToAuction).toString(16);
 
   if (isFirstTime && expectedResult === "success") {
-    const txResult = await waitForTx(
-      await pool.connect(user.signer).auction(nftAsset, nftTokenId, amountToAuction, onBehalfOf.address)
-    );
+    const txResult = await waitForTx(await pool.connect(user.signer).auction(nftAsset, nftTokenId));
 
     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
   } else if (expectedResult === "success") {
-    const txResult = await waitForTx(
-      await pool.connect(user.signer).auction(nftAsset, nftTokenId, amountToAuction, onBehalfOf.address)
-    );
+    const txResult = await waitForTx(await pool.connect(user.signer).auction(nftAsset, nftTokenId));
 
     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
 
@@ -735,10 +731,7 @@ export const auction = async (
     expectEqual(userDataAfter, expectedUserData);
     expectEqual(loanDataAfter, expectedLoanData);
   } else if (expectedResult === "revert") {
-    await expect(
-      pool.connect(user.signer).auction(nftAsset, nftTokenId, amountToAuction, onBehalfOf.address),
-      revertMessage
-    ).to.be.reverted;
+    await expect(pool.connect(user.signer).auction(nftAsset, nftTokenId), revertMessage).to.be.reverted;
   }
 };
 
