@@ -47,6 +47,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
 
   /**
    * @dev Initializes reserves in batch
+   * @param input the input array with data to initialize each reserve
    **/
   function batchInitReserve(ConfigTypes.InitReserveInput[] calldata input) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
@@ -55,6 +56,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     }
   }
 
+  /**
+   * @dev Initializes NFTs in batch
+   * @param input the input array with data to initialize each NFT
+   **/
   function batchInitNft(ConfigTypes.InitNftInput[] calldata input) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     IUNFTRegistry cachedRegistry = _getUNFTRegistry();
@@ -65,7 +70,8 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   }
 
   /**
-   * @dev Updates the bToken implementation for the reserve
+   * @dev Updates the uToken implementation for the reserve
+   * @param inputs the inputs array with data to update each UToken
    **/
   function updateBToken(ConfigTypes.UpdateBTokenInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
@@ -86,6 +92,11 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     }
   }
 
+  /**
+   * @dev Enables or disables borrowing on each reserve
+   * @param assets the assets to update the flag to
+   * @param flag the flag to set to the each reserve
+   **/
   function setBorrowingFlagOnReserve(address[] calldata assets, bool flag) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     for (uint256 i = 0; i < assets.length; i++) {
@@ -107,6 +118,11 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     }
   }
 
+  /**
+   * @dev Activates or deactivates each reserve
+   * @param assets the assets to update the flag to
+   * @param flag the flag to set to the each reserve
+   **/
   function setActiveFlagOnReserve(address[] calldata assets, bool flag) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     for (uint256 i = 0; i < assets.length; i++) {
@@ -126,6 +142,11 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     }
   }
 
+  /**
+   * @dev Freezes or unfreezes each reserve
+   * @param assets the assets to update the flag to
+   * @param flag the flag to set to the each reserve
+   **/
   function setFreezeFlagOnReserve(address[] calldata assets, bool flag) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     for (uint256 i = 0; i < assets.length; i++) {
@@ -173,6 +194,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     }
   }
 
+  /**
+   * @dev Configures reserves in batch
+   * @param inputs the input array with data to configure each reserve
+   **/
   function batchConfigReserve(ConfigReserveInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     for (uint256 i = 0; i < inputs.length; i++) {
@@ -186,6 +211,11 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     }
   }
 
+  /**
+   * @dev Activates or deactivates each NFT
+   * @param assets the NFTs to update the flag to
+   * @param flag the flag to set to the each NFT
+   **/
   function setActiveFlagOnNft(address[] calldata assets, bool flag) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     for (uint256 i = 0; i < assets.length; i++) {
@@ -205,6 +235,11 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     }
   }
 
+  /**
+   * @dev Freezes or unfreezes each NFT
+   * @param assets the assets to update the flag to
+   * @param flag the flag to set to the each NFT
+   **/
   function setFreezeFlagOnNft(address[] calldata assets, bool flag) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     for (uint256 i = 0; i < assets.length; i++) {
@@ -264,9 +299,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
 
   /**
    * @dev Configures the NFT auction parameters
-   * @param assets The address of the underlying asset of the reserve
-   * @param redeemDuration The threshold at which loans using this asset as collateral will be considered undercollateralized
-   * @param auctionDuration The bonus liquidators receive to liquidate this asset.
+   * @param assets The address of the underlying NFT asset
+   * @param redeemDuration The max duration for the redeem
+   * @param auctionDuration The auction duration
+   * @param redeemFine The fine for the redeem
    **/
   function configureNftAsAuction(
     address[] calldata assets,
@@ -292,6 +328,11 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     }
   }
 
+  /**
+   * @dev Configures the redeem threshold
+   * @param assets The address of the underlying NFT asset
+   * @param redeemThreshold The threshold for the redeem
+   **/
   function setNftRedeemThreshold(address[] calldata assets, uint256 redeemThreshold) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     for (uint256 i = 0; i < assets.length; i++) {
@@ -305,6 +346,11 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     }
   }
 
+  /**
+   * @dev Configures the minimum fine for the underlying assets
+   * @param assets The address of the underlying NFT asset
+   * @param minBidFine The minimum bid fine value
+   **/
   function setNftMinBidFine(address[] calldata assets, uint256 minBidFine) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     for (uint256 i = 0; i < assets.length; i++) {
@@ -318,6 +364,12 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     }
   }
 
+  /**
+   * @dev Configures the maximum supply and token Id for the underlying NFT assets
+   * @param assets The address of the underlying NFT assets
+   * @param maxSupply The max supply value
+   * @param maxTokenId The max token Id value
+   **/
   function setNftMaxSupplyAndTokenId(
     address[] calldata assets,
     uint256 maxSupply,
@@ -331,6 +383,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     }
   }
 
+  /**
+   * @dev Configures NFTs in batch
+   * @param inputs the input array with data to configure each NFT asset
+   **/
   function batchConfigNft(ConfigNftInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     for (uint256 i = 0; i < inputs.length; i++) {
@@ -383,6 +439,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     }
   }
 
+  /**
+   * @dev sets the max amount of reserves
+   * @param newVal the new value to set as the max reserves
+   **/
   function setMaxNumberOfReserves(uint256 newVal) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     //default value is 32
@@ -391,6 +451,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     cachedPool.setMaxNumberOfReserves(newVal);
   }
 
+  /**
+   * @dev sets the max amount of NFTs
+   * @param newVal the new value to set as the max NFTs
+   **/
   function setMaxNumberOfNfts(uint256 newVal) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     //default value is 256
@@ -408,6 +472,11 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     cachedPool.setPause(val);
   }
 
+  /**
+   * @dev Returns the token implementation contract address
+   * @param proxyAddress  The address of the proxy contract
+   * @return The address of the token implementation contract
+   **/
   function getTokenImplementation(address proxyAddress) external view onlyPoolAdmin returns (address) {
     return ConfiguratorLogic.getTokenImplementation(proxyAddress);
   }

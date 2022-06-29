@@ -1123,6 +1123,451 @@ This function allows to internally set the market which this LendPoolAddressesPr
 It should:  
 1. Set the market ID to the `marketId` parameter
 2. Only be called by the constructor and `setMarkedId()`
+## LendPoolAddressesProviderRegistry (LendPoolAddressesProviderRegistry.sol)
+The LendPool Addresses Provider Registry contract is the main registry of LendPoolAddressesProvider of multiple Unlockd protocol's markets. It is used for indexing purposes of Unlockd protocol's markets. The id assigned to a LendPoolAddressesProvider refers to the market it is connected with, for example with `1` for the Unlockd main market and `2` for the next created
+### View methods
+#### getAddressesProvidersList()
+```
+function getAddressesProvidersList() external view override returns (address[] memory)
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address[]      | The list of addresses provider|
+
+This function returns the list of registered addresses provider
+It should:
+1. Return the list of addresses provider, potentially containing address(0) elements
+#### getAddressesProviderIdByAddress()
+```
+function getAddressesProviderIdByAddress(address addressesProvider) external view override returns (uint256)
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+uint256      | The id of the LendPoolAddressesProvider|
+
+This function returns the id on a registered LendPoolAddressesProvider
+It should:
+1. Return the id on a registered LendPoolAddressesProvider
+2. Return 0 if the LendPoolAddressesProvider is not registered
+### State Changing Functions
+#### registerAddressesProvider()
+```
+function registerAddressesProvider(address provider, uint256 id) external override onlyOwner
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| provider         | address       | The address of the new LendPoolAddressesProvider|
+| id         | uint256       | The id for the new LendPoolAddressesProvider, referring to the market it belongs to |
+This function registers an addresses provider
+It should:  
+1. Register the `provider` address with an `id` as reference to the market it belongs to
+#### unregisterAddressesProvider()
+```
+function unregisterAddressesProvider(address provider) external override onlyOwner
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| provider         | address       | The address of the LendPoolAddressesProvider|
+This function removes a LendPoolAddressesProvider from the list of registered addresses provider
+It should:  
+1. Remove a LendPoolAddressesProvider from the list of registered AddressesProviders
+### Internal Functions
+#### _addToAddressesProvidersList()
+```
+function _addToAddressesProvidersList(address provider) internal
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| provider         | address       | The address of the LendPoolAddressesProvider|
+This function adds an addresses provider to the protocol's addresses providers list
+It should:  
+1. Add a LendPoolAddressProvider to the addresses providers list
+2. Only be called by the `registerAddressesProvider()` function
+
+## LendPoolConfigurator (LendPoolConfigurator.sol)
+The LendPoolConfigurator contract implements the basic configuration methods in order to be able to ineract with the Unlockd protocol.
+### View methods
+#### getTokenImplementation()
+```
+function getTokenImplementation(address proxyAddress) external view onlyPoolAdmin returns (address)
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| proxyAddress         | address       | The address of the proxy contract |
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The address of the token implementation contract |
+
+This function returns the address of the token implementation contract that the `proxyAddress`is currrently pointing to
+It should:
+1. Return the token implementation contract address
+### State Changing Functions
+#### initialize()
+```
+function initialize(ILendPoolAddressesProvider provider) public initializer
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| provider         | ILendPoolAddressesProvider       | The address of the addresses provider |  
+This function initializes the proxy contract.
+It should:  
+1. Set the LendPoolConfigurator addresses provider address to `provider`parameter address
+#### batchInitReserve()
+```
+function batchInitReserve(ConfigTypes.InitReserveInput[] calldata input) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| input         | ConfigTypes.InitReserveInput[]       | The input array with data to initialize each reserve |  
+This function initializes reserves in batch
+It should:  
+1. Initialize an array of reserves
+#### batchInitNft()
+```
+function batchInitNft(ConfigTypes.InitNftInput[] calldata input) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| input         | ConfigTypes.InitNftInput[]       | The input array with data to initialize each NFT |  
+This function initializes NFTs in batch
+It should:  
+1. Initialize an array of NFTs 
+#### updateUToken()
+```
+function updateUToken(ConfigTypes.UpdateUTokenInput[] calldata inputs) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| inputs         | ConfigTypes.UpdateUTokenInput[]       | The inputs array with data to update each UToken |  
+This function updates UTokens in batch
+It should:  
+1.  Update the uToken implementation for each reserve
+#### updateDebtToken()
+```
+function updateDebtToken(ConfigTypes.UpdateDebtTokenInput[] calldata inputs) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| inputs         | ConfigTypes.UpdateDebtTokenInput[]       | The inputs array with data to update each debt token |  
+This function updates the debt tokens in batch
+It should:  
+1.  Update the debt token implementation for each reserve
+#### setBorrowingFlagOnReserve()
+```
+function setBorrowingFlagOnReserve(address[] calldata assets, bool flag) external onlyPoolAdmin 
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| assets         | address[]       | The address of the underlying asset of the reserve |
+| flag         | bool      | The borrowing flag to set to the reserve |  
+This function updates the borrowing flag to each reserve, enabling or disabling borrowing for each one of the reserves
+It should:  
+1.  Enable borrowing for each reserve if `flag` is equal to true
+2.  Disable borrowing for each reserve if `flag` is equal to false
+#### setActiveFlagOnReserve()
+```
+function setActiveFlagOnReserve(address[] calldata assets, bool flag) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| assets         | address[]       | The address of the underlying asset of the reserve |
+| flag         | bool      | The active flag to set to the reserve |  
+This function updates the active flag to each reserve, enabling or disabling each one of the reserves
+It should:  
+1.  Activate  each reserve if `flag` is equal to true
+2.  Deactivate each reserve if `flag` is equal to false
+#### setFreezeFlagOnReserve()
+```
+function setFreezeFlagOnReserve(address[] calldata assets, bool flag) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| assets         | address[]       | The address of the underlying asset of the reserve |
+| flag         | bool      | The freeze flag to set to the reserve |  
+This function updates the freeze flag to each reserve, freezing or unfreezing each one of the reserves
+It should:  
+1.  Freeze  each reserve if `flag` is equal to true 
+2.  Unfreeze each reserve if `flag` is equal to false
+#### setReserveFactor()
+```
+function setReserveFactor(address[] calldata assets, uint256 reserveFactor) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| assets         | address[]       | The address of the underlying asset of the reserve |
+| reserveFactor         | uint256      | The new reserve factor of the reserve  |  
+This function updates the reserve factor of a reserve
+It should:  
+1.  Update the reserve factor for each reserve, setting the new factor to `reserveFactor`
+#### setReserveInterestRateAddress()
+```
+function setReserveInterestRateAddress(address[] calldata assets, address rateAddress) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| assets         | address[]       | The addresses of the underlying asset of the reserve |
+| rateAddress         | uint256      | The new address of the interest strategy contract  |  
+This function sets the interest rate strategy of a reserve
+It should:  
+1.  Set the interest rate strategy for each reserve, setting the new rate strategy to the  `rateAddress` contract
+1.  Update the reserve factor for each reserve, setting the new factor to `reserveFactor`
+#### batchConfigReserve()
+```
+function batchConfigReserve(ConfigReserveInput[] calldata inputs) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| inputs         | ConfigReserveInput[]       | the input array with data to configure each reserve |
+
+This function configures reserves in batch
+It should:  
+1.  Set the reserve configuration for each reserve to the `inputs` data
+#### setActiveFlagOnNft()
+```
+function setActiveFlagOnNft(address[] calldata assets, bool flag) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| assets         | address[]       | The address of the underlying NFT asset |
+| flag         | bool      | The active flag to set to the NFT |  
+This function updates the active flag to each NFT, enabling or disabling each one of the NFTs
+It should:  
+1.  Activate  each NFT if `flag` is equal to true
+2.  Deactivate each NFT if `flag` is equal to false
+#### setFreezeFlagOnNft()
+```
+function setFreezeFlagOnNft(address[] calldata assets, bool flag) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| assets         | address[]       | The address of the underlying NFT asset |
+| flag         | bool      | The active flag to set to the NFT |  
+This function updates the freeze flag to each reserve, freezing or unfreezing each one of the NFTs
+It should:  
+1.  Freeze  each NFT if `flag` is equal to true 
+2.  Unfreeze each NFT if `flag` is equal to false
+#### setFreezeFlagOnNft()
+```
+function setFreezeFlagOnNft(address[] calldata assets, bool flag) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| assets         | address[]       | The address of the underlying NFT asset |
+| flag         | bool      | The active flag to set to the NFT |  
+This function updates the freeze flag to each reserve, freezing or unfreezing each one of the NFTs
+It should:  
+1.  Freeze  each NFT if `flag` is equal to true 
+2.  Unfreeze each NFT if `flag` is equal to false
+#### configureNftAsCollateral()
+```
+function configureNftAsCollateral(
+    address[] calldata assets,
+    uint256 ltv,
+    uint256 liquidationThreshold,
+    uint256 liquidationBonus
+  ) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| assets         | address[]       | The address of the underlying asset of the reserve |
+| ltv         | uint256      | The loan to value of the asset when used as NFT |  
+| liquidationThreshold         | uint256      | The threshold at which loans using this asset as collateral will be considered undercollateralized |  
+| liquidationBonus         | uint256      | The bonus liquidators receive to liquidate this asset. The values is always below 100%. A value of 5% means the liquidator will receive a 5% bonus |  
+This function configures the NFT collateralization parameters
+It should:  
+1.  Change the NFT configuration to set the collateralization parameters
+2.  Revert if the `ltv` is lower than or equal to the `liquidationThreshold`
+#### configureNftAsAuction()
+```
+function configureNftAsAuction(
+    address[] calldata assets,
+    uint256 redeemDuration,
+    uint256 auctionDuration,
+    uint256 redeemFine
+  ) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| assets         | address[]       | The address of the underlying NFT assets |
+| redeemDuration         | uint256      | The max duration for the redeem |  
+| auctionDuration         | uint256      | The auction duration |  
+| redeemFine         | uint256      | The fine for the redeem |  
+This function configures the NFT auction parameters
+It should:  
+1.  Add the configuration to each of the `assets`
+2.  Revert if the `redeemDuration` is lower than the `auctionDuration`
+#### setNftRedeemThreshold()
+```
+function setNftRedeemThreshold(address[] calldata assets, uint256 redeemThreshold) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| assets         | address[]       | The address of the underlying NFT ssets |
+| redeemThreshold         | uint256      | The threshold for the redeem |  
+
+This function configures the redeem threshold
+It should:  
+1.  Set the redeem threshold for the underlying `assets` to the `redeemThreshold`value
+#### setNftMinBidFine()
+```
+function setNftMinBidFine(address[] calldata assets, uint256 minBidFine) external onlyPoolAdmin 
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| assets         | address[]       | The address of the underlying NFT assets |
+| minBidFine         | uint256      | The minimum bid fine value |  
+
+This function configures the minimum bid fine
+It should:  
+1.  Set the minimum bid fine for the underlying `assets` to the `minBidFine` value
+#### setNftMaxSupplyAndTokenId()
+```
+function setNftMaxSupplyAndTokenId(
+    address[] calldata assets,
+    uint256 maxSupply,
+    uint256 maxTokenId
+  ) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| assets         | address[]       | The address of the underlying NFT assets |
+| maxSupply         | uint256      | The max supply value |  
+| maxTokenId         | uint256      | The max token ID value |  
+This function configures the maximum supply and token Id for the underlying NFT assets
+It should:  
+1.  Set the maximum supply for the underlying NFT `assets` to the `maxSupply` value
+2.  Set the maximum tokenc Id for the underlying NFT `assets` to the `maxTokenId` value
+#### batchConfigNft()
+```
+function batchConfigNft(ConfigNftInput[] calldata inputs) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| inputs         | ConfigNftInput[]       | The input array with data to configure each NFT |
+
+This function configures NFTs in batch
+It should:  
+1.  Set the NFT configuration for each NFT asset to the `inputs` data
+#### setMaxNumberOfReserves()
+```
+function setMaxNumberOfReserves(uint256 newVal) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| newVal         | uint256       | The value to set as the max reserves |
+
+This function sets the max amount of reserves
+It should:  
+1.  Set the max number of reserves in the protocol to the `newVal`parameter
+2.  Revert if `newVal`is lower than the previous max reserves amount in the protocol
+#### setMaxNumberOfNfts()
+```
+function setMaxNumberOfNfts(uint256 newVal) external onlyPoolAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| newVal         | uint256       | The value to set as the max NFTs |
+
+This function sets the max amount of NFTs
+It should:  
+1.  Set the max number of NFTs in the protocol to the `newVal`parameter
+2.  Revert if `newVal`is lower than the previous max NFTs amount in the protocol
+#### setPoolPause()
+```
+function setPoolPause(bool val) external onlyEmergencyAdmin
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| val         | bool       | The boolean to set the pause status |
+
+This function pauses or unpauses all the actions of the protocol, including uToken transfers
+It should:  
+1.  Pause the protocol actions if `val` is true
+2.  Unpause the protocol actions if `val` is true
+## Internal Functions
+#### _checkReserveNoLiquidity()
+```
+function _checkReserveNoLiquidity(address asset) internal view
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| asset         | address       | The address of the underlying reserve asset |
+This function checks the liquidity of reserves
+It should:
+1. Revert if there is liquidity on the reserve
+#### _checkNftNoLiquidity()
+```
+function _checkNftNoLiquidity(address asset) internal view
+```
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| asset         | address       | The address of the underlying NFT asset |
+This function checks the liquidity of the NFT
+It should:
+1. Revert if the collateral amount for the asset is not 0
+#### _getLendPool()
+```
+function _getLendPool() internal view returns (ILendPool)
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The lendpool address |
+
+This function returns the LendPool address stored in the addresses provider
+It should:
+1. Return the LendPool address stored in the addresses provider
+#### _getLendPool()
+```
+function _getLendPoolLoan() internal view returns (ILendPoolLoan)
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The lendpool loan address |
+
+This function returns the LendPoolLoan address stored in the addresses provider
+It should:
+1. Return the LendPoolLoan address stored in the addresses provider
+#### _getUNFTRegistry()
+```
+  function _getUNFTRegistry() internal view returns (IUNFTRegistry)
+```
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+address      | The UNFT registry address |
+
+This function returns the UNFTRegistry address stored in the addresses provider
+It should:
+1. Return the UNFTRegistry address stored in the addresses provider
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
