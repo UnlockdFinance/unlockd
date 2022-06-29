@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
-import {IBToken} from "../../interfaces/IBToken.sol";
+import {IUToken} from "../../interfaces/IUToken.sol";
 import {IDebtToken} from "../../interfaces/IDebtToken.sol";
 import {IInterestRate} from "../../interfaces/IInterestRate.sol";
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
@@ -158,7 +158,7 @@ library LiquidateLogic {
       vars.nftOracle
     );
 
-    // first time bid need to burn debt tokens and transfer reserve to bTokens
+    // first time bid need to burn debt tokens and transfer reserve to uTokens
     if (loanData.state == DataTypes.LoanState.Active) {
       // loan's accumulated debt must exceed threshold (heath factor below 1.0)
       require(vars.borrowAmount > vars.thresholdPrice, Errors.LP_BORROW_NOT_EXCEED_LIQUIDATION_THRESHOLD);
@@ -198,7 +198,7 @@ library LiquidateLogic {
     }
 
     // update interest rate according latest borrow amount (utilizaton)
-    reserveData.updateInterestRates(loanData.reserveAsset, reserveData.bTokenAddress, 0, 0);
+    reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, 0, 0);
 
     emit Auction(
       vars.initiator,
@@ -309,12 +309,12 @@ library LiquidateLogic {
     IDebtToken(reserveData.debtTokenAddress).burn(loanData.borrower, vars.repayAmount, reserveData.variableBorrowIndex);
 
     // update interest rate according latest borrow amount (utilizaton)
-    reserveData.updateInterestRates(loanData.reserveAsset, reserveData.bTokenAddress, vars.repayAmount, 0);
+    reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.repayAmount, 0);
 
-    // transfer repay amount from borrower to bToken
+    // transfer repay amount from borrower to uToken
     IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(
       vars.initiator,
-      reserveData.bTokenAddress,
+      reserveData.uTokenAddress,
       vars.repayAmount
     );
 
@@ -429,15 +429,15 @@ library LiquidateLogic {
     );
 
     // update interest rate according latest borrow amount (utilizaton)
-    reserveData.updateInterestRates(loanData.reserveAsset, reserveData.bTokenAddress, vars.borrowAmount, 0);
+    reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.borrowAmount, 0);
 
     // transfer extra borrow amount from liquidator to lend pool
     if (vars.extraDebtAmount > 0) {
       IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, address(this), vars.extraDebtAmount);
     }
 
-    // transfer borrow amount from lend pool to bToken, repay debt
-    IERC20Upgradeable(loanData.reserveAsset).safeTransfer(reserveData.bTokenAddress, vars.borrowAmount);
+    // transfer borrow amount from lend pool to uToken, repay debt
+    IERC20Upgradeable(loanData.reserveAsset).safeTransfer(reserveData.uTokenAddress, vars.borrowAmount);
 
     // transfer remain amount to borrower
     if (vars.remainAmount > 0) {

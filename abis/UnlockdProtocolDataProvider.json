@@ -76,12 +76,12 @@
           },
           {
             "internalType": "string",
-            "name": "bTokenSymbol",
+            "name": "uTokenSymbol",
             "type": "string"
           },
           {
             "internalType": "address",
-            "name": "bTokenAddress",
+            "name": "uTokenAddress",
             "type": "address"
           },
           {
@@ -494,12 +494,12 @@
           },
           {
             "internalType": "string",
-            "name": "bTokenSymbol",
+            "name": "uTokenSymbol",
             "type": "string"
           },
           {
             "internalType": "address",
-            "name": "bTokenAddress",
+            "name": "uTokenAddress",
             "type": "address"
           },
           {
@@ -538,7 +538,7 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "currentBTokenBalance",
+        "name": "currentUTokenBalance",
         "type": "uint256"
       },
       {

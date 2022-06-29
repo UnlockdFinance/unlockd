@@ -16,8 +16,8 @@ import { ICommonConfiguration, eEthereumNetwork } from '../../helpers/types';
 
 export const CommonsConfig: ICommonConfiguration = {
   MarketId: 'Commons',
-  BTokenNamePrefix: 'Unlockd interest bearing',
-  BTokenSymbolPrefix: 'unlockd',
+  UTokenNamePrefix: 'Unlockd interest bearing',
+  UTokenSymbolPrefix: 'unlockd',
   DebtTokenNamePrefix: 'Unlockd debt bearing',
   DebtTokenSymbolPrefix: "unlockdDebt",
 

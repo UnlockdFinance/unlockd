@@ -15,7 +15,7 @@ library DataTypes {
     uint128 currentVariableBorrowRate;
     uint40 lastUpdateTimestamp;
     //tokens addresses
-    address bTokenAddress;
+    address uTokenAddress;
     address debtTokenAddress;
     //address of the interest rate strategy
     address interestRateAddress;

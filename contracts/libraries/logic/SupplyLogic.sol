@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
-import {IBToken} from "../../interfaces/IBToken.sol";
+import {IUToken} from "../../interfaces/IUToken.sol";
 
 import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
@@ -26,7 +26,7 @@ library SupplyLogic {
    * @param user The address initiating the deposit
    * @param amount The amount deposited
    * @param reserve The address of the underlying asset of the reserve
-   * @param onBehalfOf The beneficiary of the deposit, receiving the bTokens
+   * @param onBehalfOf The beneficiary of the deposit, receiving the uTokens
    * @param referral The referral code used
    **/
   event Deposit(
@@ -39,7 +39,7 @@ library SupplyLogic {
 
   /**
    * @dev Emitted on withdraw()
-   * @param user The address initiating the withdrawal, owner of bTokens
+   * @param user The address initiating the withdrawal, owner of uTokens
    * @param reserve The address of the underlyng asset being withdrawn
    * @param amount The amount to be withdrawn
    * @param to Address that will receive the underlying
@@ -59,17 +59,17 @@ library SupplyLogic {
     require(params.onBehalfOf != address(0), Errors.VL_INVALID_ONBEHALFOF_ADDRESS);
 
     DataTypes.ReserveData storage reserve = reservesData[params.asset];
-    address bToken = reserve.bTokenAddress;
-    require(bToken != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
+    address uToken = reserve.uTokenAddress;
+    require(uToken != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
     ValidationLogic.validateDeposit(reserve, params.amount);
 
     reserve.updateState();
-    reserve.updateInterestRates(params.asset, bToken, params.amount, 0);
+    reserve.updateInterestRates(params.asset, uToken, params.amount, 0);
 
-    IERC20Upgradeable(params.asset).safeTransferFrom(params.initiator, bToken, params.amount);
+    IERC20Upgradeable(params.asset).safeTransferFrom(params.initiator, uToken, params.amount);
 
-    IBToken(bToken).mint(params.onBehalfOf, params.amount, reserve.liquidityIndex);
+    IUToken(uToken).mint(params.onBehalfOf, params.amount, reserve.liquidityIndex);
 
     emit Deposit(params.initiator, params.asset, params.amount, params.onBehalfOf, params.referralCode);
   }
@@ -87,10 +87,10 @@ library SupplyLogic {
     require(params.to != address(0), Errors.VL_INVALID_TARGET_ADDRESS);
 
     DataTypes.ReserveData storage reserve = reservesData[params.asset];
-    address bToken = reserve.bTokenAddress;
-    require(bToken != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
+    address uToken = reserve.uTokenAddress;
+    require(uToken != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
-    uint256 userBalance = IBToken(bToken).balanceOf(params.initiator);
+    uint256 userBalance = IUToken(uToken).balanceOf(params.initiator);
 
     uint256 amountToWithdraw = params.amount;
 
@@ -102,9 +102,9 @@ library SupplyLogic {
 
     reserve.updateState();
 
-    reserve.updateInterestRates(params.asset, bToken, 0, amountToWithdraw);
+    reserve.updateInterestRates(params.asset, uToken, 0, amountToWithdraw);
 
-    IBToken(bToken).burn(params.initiator, params.to, amountToWithdraw, reserve.liquidityIndex);
+    IUToken(uToken).burn(params.initiator, params.to, amountToWithdraw, reserve.liquidityIndex);
 
     emit Withdraw(params.initiator, params.asset, amountToWithdraw, params.to);
 

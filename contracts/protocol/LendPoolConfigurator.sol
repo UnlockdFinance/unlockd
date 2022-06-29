@@ -65,13 +65,13 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   }
 
   /**
-   * @dev Updates the bToken implementation for the reserve
+   * @dev Updates the uToken implementation for the reserve
    **/
-  function updateBToken(ConfigTypes.UpdateBTokenInput[] calldata inputs) external onlyPoolAdmin {
+  function updateUToken(ConfigTypes.UpdateUTokenInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
 
     for (uint256 i = 0; i < inputs.length; i++) {
-      ConfiguratorLogic.executeUpdateBToken(cachedPool, inputs[i]);
+      ConfiguratorLogic.executeUpdateUToken(cachedPool, inputs[i]);
     }
   }
 
@@ -400,7 +400,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   }
 
   /**
-   * @dev pauses or unpauses all the actions of the protocol, including bToken transfers
+   * @dev pauses or unpauses all the actions of the protocol, including uToken transfers
    * @param val true if protocol needs to be paused, false otherwise
    **/
   function setPoolPause(bool val) external onlyEmergencyAdmin {
@@ -415,7 +415,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function _checkReserveNoLiquidity(address asset) internal view {
     DataTypes.ReserveData memory reserveData = _getLendPool().getReserveData(asset);
 
-    uint256 availableLiquidity = IERC20Upgradeable(asset).balanceOf(reserveData.bTokenAddress);
+    uint256 availableLiquidity = IERC20Upgradeable(asset).balanceOf(reserveData.uTokenAddress);
 
     require(availableLiquidity == 0 && reserveData.currentLiquidityRate == 0, Errors.LPC_RESERVE_LIQUIDITY_NOT_0);
   }

@@ -10,7 +10,7 @@ import {IWETHGateway} from "../interfaces/IWETHGateway.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
-import {IBToken} from "../interfaces/IBToken.sol";
+import {IUToken} from "../interfaces/IUToken.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 
 import {EmergencyTokenRecoveryUpgradeable} from "./EmergencyTokenRecoveryUpgradeable.sol";
@@ -106,7 +106,7 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     _checkValidCallerAndOnBehalfOf(to);
 
     ILendPool cachedPool = _getLendPool();
-    IBToken bWETH = IBToken(cachedPool.getReserveData(address(WETH)).bTokenAddress);
+    IUToken bWETH = IUToken(cachedPool.getReserveData(address(WETH)).uTokenAddress);
 
     uint256 userBalance = bWETH.balanceOf(msg.sender);
     uint256 amountToWithdraw = amount;

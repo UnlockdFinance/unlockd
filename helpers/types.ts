@@ -52,7 +52,7 @@ export enum eContractid {
   UnlockdProxyAdminPool = "UnlockdProxyAdminPool", //LendPool Contracts, etc Oracle(Reserve, NFT)
   UnlockdProxyAdminFund = "UnlockdProxyAdminFund", //Treasury Fundings, etc Collector
   WalletBalanceProvider = "WalletBalanceProvider",
-  BToken = "BToken",
+  UToken = "UToken",
   DebtToken = "DebtToken",
   UNFT = "UNFT",
   MockUNFT = "MockUNFT",
@@ -145,7 +145,7 @@ export enum ProtocolErrors {
   LP_INVALIED_USER_NFT_AMOUNT = "407",
   LP_INCONSISTENT_PARAMS = "408",
   LP_NFT_IS_NOT_USED_AS_COLLATERAL = "409",
-  LP_CALLER_MUST_BE_AN_BTOKEN = "410",
+  LP_CALLER_MUST_BE_AN_UTOKEN = "410",
   LP_INVALIED_NFT_AMOUNT = "411",
   LP_NFT_HAS_USED_AS_COLLATERAL = "412",
   LP_DELEGATE_CALL_FAILED = "413",
@@ -293,7 +293,7 @@ export enum NftContractId {
 }
 
 export interface IReserveParams extends IReserveBorrowParams, IReserveCollateralParams {
-  bTokenImpl: eContractid;
+  uTokenImpl: eContractid;
   reserveFactor: string;
   strategy: IInterestRateStrategyParams;
 }
@@ -382,8 +382,8 @@ export interface IMocksConfig {
 
 export interface ICommonConfiguration {
   MarketId: string;
-  BTokenNamePrefix: string;
-  BTokenSymbolPrefix: string;
+  UTokenNamePrefix: string;
+  UTokenSymbolPrefix: string;
   DebtTokenNamePrefix: string;
   DebtTokenSymbolPrefix: string;
 

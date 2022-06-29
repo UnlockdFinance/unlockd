@@ -20,7 +20,7 @@ interface IInterestRate {
 
   function calculateInterestRates(
     address reserve,
-    address bToken,
+    address uToken,
     uint256 liquidityAdded,
     uint256 liquidityTaken,
     uint256 totalVariableDebt,

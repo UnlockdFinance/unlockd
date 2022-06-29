@@ -3,9 +3,9 @@ pragma solidity 0.8.4;
 
 interface IWETHGateway {
   /**
-   * @dev deposits WETH into the reserve, using native ETH. A corresponding amount of the overlying asset (bTokens)
+   * @dev deposits WETH into the reserve, using native ETH. A corresponding amount of the overlying asset (uTokens)
    * is minted.
-   * @param onBehalfOf address of the user who will receive the bTokens representing the deposit
+   * @param onBehalfOf address of the user who will receive the uTokens representing the deposit
    * @param referralCode integrators are assigned a referral code and can potentially receive rewards.
    **/
   function depositETH(address onBehalfOf, uint16 referralCode) external payable;

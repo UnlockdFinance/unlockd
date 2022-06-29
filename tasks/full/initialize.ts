@@ -38,8 +38,8 @@ task("full:initialize-lend-pool", "Initialize lend pool configuration.")
       await initReservesByHelper(
         poolConfig.ReservesConfig,
         reserveAssets,
-        poolConfig.BTokenNamePrefix,
-        poolConfig.BTokenSymbolPrefix,
+        poolConfig.UTokenNamePrefix,
+        poolConfig.UTokenSymbolPrefix,
         poolConfig.DebtTokenNamePrefix,
         poolConfig.DebtTokenSymbolPrefix,
         admin,

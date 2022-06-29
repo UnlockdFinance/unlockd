@@ -4,7 +4,7 @@ import {
   getIErc20Detailed,
   getMintableERC20,
   getMintableERC721,
-  getBToken,
+  getUToken,
   getLendPoolLoanProxy,
   getDeploySigner,
   getDebtToken,
@@ -54,7 +54,7 @@ export const getReserveData = async (
     lastUpdateTimestamp: new BigNumber(reserveData.lastUpdateTimestamp),
     scaledVariableDebt: new BigNumber(scaledVariableDebt.toString()),
     address: reserve,
-    bTokenAddress: tokenAddresses.bTokenAddress,
+    uTokenAddress: tokenAddresses.uTokenAddress,
     symbol,
     decimals,
   };
@@ -84,17 +84,17 @@ export const getUserData = async (
   user: tEthereumAddress,
   sender?: tEthereumAddress
 ): Promise<UserReserveData> => {
-  const [userData, scaledBTokenBalance] = await Promise.all([
+  const [userData, scaledUTokenBalance] = await Promise.all([
     helper.getUserReserveData(reserve, user),
-    getBTokenUserData(reserve, user, helper),
+    getUTokenUserData(reserve, user, helper),
   ]);
 
   const token = await getMintableERC20(reserve);
   const walletBalance = new BigNumber((await token.balanceOf(sender || user)).toString());
 
   return {
-    scaledBTokenBalance: new BigNumber(scaledBTokenBalance),
-    currentBTokenBalance: new BigNumber(userData.currentBTokenBalance.toString()),
+    scaledUTokenBalance: new BigNumber(scaledUTokenBalance),
+    currentUTokenBalance: new BigNumber(userData.currentUTokenBalance.toString()),
     currentVariableDebt: new BigNumber(userData.currentVariableDebt.toString()),
     scaledVariableDebt: new BigNumber(userData.scaledVariableDebt.toString()),
     liquidityRate: new BigNumber(userData.liquidityRate.toString()),
@@ -163,12 +163,12 @@ export const getNftAddressFromSymbol = async (symbol: string) => {
   return token.address;
 };
 
-const getBTokenUserData = async (reserve: string, user: string, dataProvider: UnlockdProtocolDataProvider) => {
-  const { bTokenAddress } = await dataProvider.getReserveTokenData(reserve);
+const getUTokenUserData = async (reserve: string, user: string, dataProvider: UnlockdProtocolDataProvider) => {
+  const { uTokenAddress } = await dataProvider.getReserveTokenData(reserve);
 
-  const bToken = await getBToken(bTokenAddress);
+  const uToken = await getUToken(uTokenAddress);
 
-  const scaledBalance = await bToken.scaledBalanceOf(user);
+  const scaledBalance = await uToken.scaledBalanceOf(user);
   return scaledBalance.toString();
 };
 

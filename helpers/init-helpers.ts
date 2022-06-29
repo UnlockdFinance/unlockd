@@ -14,9 +14,9 @@ import { BigNumberish } from "ethers";
 import { ConfigNames } from "./configuration";
 import { deployRateStrategy } from "./contracts-deployments";
 
-export const getBTokenExtraParams = async (bTokenName: string, tokenAddress: tEthereumAddress) => {
-  //console.log(bTokenName);
-  switch (bTokenName) {
+export const getUTokenExtraParams = async (uTokenName: string, tokenAddress: tEthereumAddress) => {
+  //console.log(uTokenName);
+  switch (uTokenName) {
     default:
       return "0x10";
   }
@@ -25,8 +25,8 @@ export const getBTokenExtraParams = async (bTokenName: string, tokenAddress: tEt
 export const initReservesByHelper = async (
   reservesParams: iMultiPoolsAssets<IReserveParams>,
   tokenAddresses: { [symbol: string]: tEthereumAddress },
-  bTokenNamePrefix: string,
-  bTokenSymbolPrefix: string,
+  uTokenNamePrefix: string,
+  uTokenSymbolPrefix: string,
   debtTokenNamePrefix: string,
   debtTokenSymbolPrefix: string,
   admin: tEthereumAddress,
@@ -43,15 +43,15 @@ export const initReservesByHelper = async (
   let reserveSymbols: string[] = [];
 
   let initInputParams: {
-    bTokenImpl: string;
+    uTokenImpl: string;
     debtTokenImpl: string;
     underlyingAssetDecimals: BigNumberish;
     interestRateAddress: string;
     underlyingAsset: string;
     treasury: string;
     underlyingAssetName: string;
-    bTokenName: string;
-    bTokenSymbol: string;
+    uTokenName: string;
+    uTokenSymbol: string;
     debtTokenName: string;
     debtTokenSymbol: string;
   }[] = [];
@@ -73,7 +73,7 @@ export const initReservesByHelper = async (
       console.log(`- Skipping init of ${symbol} due token address is not set at markets config`);
       continue;
     }
-    const { strategy, bTokenImpl, reserveDecimals } = params;
+    const { strategy, uTokenImpl, reserveDecimals } = params;
     const { optimalUtilizationRate, baseVariableBorrowRate, variableRateSlope1, variableRateSlope2 } = strategy;
     if (!strategyAddresses[strategy.name]) {
       // Strategy does not exist, create a new one
@@ -92,23 +92,23 @@ export const initReservesByHelper = async (
     }
     // Prepare input parameters
     reserveSymbols.push(symbol);
-    const bTokenImplContractAddr = await getContractAddressWithJsonFallback(bTokenImpl, poolName);
+    const uTokenImplContractAddr = await getContractAddressWithJsonFallback(uTokenImpl, poolName);
     const debtTokenImplContractAddr = await getContractAddressWithJsonFallback(eContractid.DebtToken, poolName);
     const initParam = {
-      bTokenImpl: bTokenImplContractAddr,
+      uTokenImpl: uTokenImplContractAddr,
       debtTokenImpl: debtTokenImplContractAddr,
       underlyingAssetDecimals: reserveDecimals,
       interestRateAddress: strategyAddresses[strategy.name],
       underlyingAsset: tokenAddresses[symbol],
       treasury: treasuryAddress,
       underlyingAssetName: symbol,
-      bTokenName: `${bTokenNamePrefix} ${symbol}`,
-      bTokenSymbol: `${bTokenSymbolPrefix}${symbol}`,
+      uTokenName: `${uTokenNamePrefix} ${symbol}`,
+      uTokenSymbol: `${uTokenSymbolPrefix}${symbol}`,
       debtTokenName: `${debtTokenNamePrefix} ${symbol}`,
       debtTokenSymbol: `${debtTokenSymbolPrefix}${symbol}`,
     };
     initInputParams.push(initParam);
-    //console.log("initInputParams:", symbol, bTokenImpl, initParam);
+    //console.log("initInputParams:", symbol, uTokenImpl, initParam);
   }
 
   // Deploy init reserves per chunks

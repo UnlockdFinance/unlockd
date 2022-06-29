@@ -2,7 +2,7 @@ import { task } from "hardhat/config";
 import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import {
   getUnlockdProtocolDataProvider,
-  getBToken,
+  getUToken,
   getDebtToken,
   getIErc20Detailed,
   getLendPoolAddressesProvider,
@@ -26,18 +26,18 @@ task("print-reserve", "Print data of specified reserve and user")
     const uiDataProvider = await getUIPoolDataProvider(await addressProvider.getUIDataProvider());
 
     const reserveToken = await protocolDataProvider.getReserveTokenData(asset);
-    const bTokenContract = await getBToken(reserveToken.bTokenAddress);
-    const bTokenTotalSupply = await bTokenContract.totalSupply();
+    const uTokenContract = await getUToken(reserveToken.uTokenAddress);
+    const uTokenTotalSupply = await uTokenContract.totalSupply();
     const debtTokenContract = await getDebtToken(reserveToken.debtTokenAddress);
     const debtTokenTotalSupply = await debtTokenContract.totalSupply();
     const underlyingContract = await getIErc20Detailed(asset);
-    const underlyingBalance = await underlyingContract.balanceOf(reserveToken.bTokenAddress);
+    const underlyingBalance = await underlyingContract.balanceOf(reserveToken.uTokenAddress);
 
     console.log(`- reserve token`);
     console.log(`  - underlyingSymbol:`, await underlyingContract.symbol());
     console.log(`  - underlyingDecimals:`, await underlyingContract.decimals());
     console.log(`  - underlyingBalance:`, underlyingBalance.toString());
-    console.log(`  - bTokenTotalSupply:`, bTokenTotalSupply.toString());
+    console.log(`  - uTokenTotalSupply:`, uTokenTotalSupply.toString());
     console.log(`  - debtTokenTotalSupply:`, debtTokenTotalSupply.toString());
 
     const reserveData = await protocolDataProvider.getReserveData(asset);
@@ -60,7 +60,7 @@ task("print-reserve", "Print data of specified reserve and user")
       const userReserveData = await protocolDataProvider.getUserReserveData(asset, user);
 
       console.log(`- user reserve data`);
-      const userReserveFields = ["currentBTokenBalance", "currentVariableDebt", "scaledVariableDebt"];
+      const userReserveFields = ["currentUTokenBalance", "currentVariableDebt", "scaledVariableDebt"];
       userReserveFields.forEach((field, index) => {
         console.log(`  - ${field}:`, userReserveData[field].toString());
       });
