@@ -281,6 +281,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.develop]: '',
     [eEthereumNetwork.rinkeby]: '0xbbc53022Af15Bb973AD906577c84784c47C14371',
     [eEthereumNetwork.kovan]: '',
+    [eEthereumNetwork.goerli]: ZERO_ADDRESS,
     [eEthereumNetwork.main]: '0xBE86f647b167567525cCAAfcd6f881F1Ee558216',
   },
   SushiSwapRouter: {
@@ -290,6 +291,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.develop]: '',
     [eEthereumNetwork.rinkeby]: '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506',
     [eEthereumNetwork.kovan]: '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506',
+    [eEthereumNetwork.goerli]: ZERO_ADDRESS,
     [eEthereumNetwork.main]: '0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F',
   },
 };
