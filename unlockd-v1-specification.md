@@ -249,6 +249,7 @@ function getNftLiquidatePrice(address nftAsset, uint256 nftTokenId)
 | ------------- | ------------- |    ------------- |
 | nftAsset         | address       | The address of the NFT asset |
 | nftTokenId         | address       | The token ID of the NFT |
+
 Returns:
 Type          |  Description        |
 ------------- |    ------------- |
@@ -325,6 +326,192 @@ uint256     | The max number of NFTs |
 This function returns the maximum number of NFTs supported to be listed in this LendPool
 It should:
 1. Return the maximum number of NFTs
+### State Changing Functions
+#### initialize()
+```
+function initialize(ILendPoolAddressesProvider provider) public initializer
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| provider         | ILendPoolAddressesProvider       | The address of the addresses provider |  
+This function initializes the proxy contract.
+It should:  
+1. Set the max number of reserves to 32
+2. Set the max number of NFTs to 256
+3. Set the addresses provider to the address passed as parameter
+#### deposit()
+```
+function deposit(
+    address asset,
+    uint256 amount,
+    address onBehalfOf,
+    uint16 referralCode
+  ) external override nonReentrant whenNotPaused
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| asset         | address       | The address of the underlying asset to deposit |
+| amount         | uint256       | The amount to be deposited |
+| onBehalfOf         | address       | The address that will receive the uTokens, same as msg.sender if the user wants to receive them on his own wallet, or a different address if the beneficiary of bTokens is a different wallet |
+| referralCode         | uint16       | Code used to register the integrator originating the operation, for potential rewards. |
+This function deposits an `amount` of underlying asset into a reserve, receiving uTokens in return.
+It should:  
+1. Execute the deposit of the amount of underlying asset into a reserve
+2. Return uTokens to the depositor if the deposit is succesful
+#### withdraw()
+```
+function withdraw(
+    address asset,
+    uint256 amount,
+    address to
+  ) external override nonReentrant whenNotPaused returns (uint256)
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| asset         | address       | The address of the underlying asset to withdraw |
+| amount         | uint256       | The underlying amount to be withdrawn |
+| to         | address       | The address that will receive the underlying, same as msg.sender if the user wants to receive it on his own wallet, or a different address if the beneficiary of bTokens is a different wallet |
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+uint256     | The final amount withdrawn |
+This function withdraws an `amount` of underlying asset from the reserve, burning the equivalent uTokens owned in return.
+It should:  
+1. Execute the withdraw of the amount of underlying asset 
+2. Allow the supply logic to validate and execute the withdrawal
+3. Return the final amount withdrawn
+#### borrow()
+```
+function borrow(
+    address asset,
+    uint256 amount,
+    address nftAsset,
+    uint256 nftTokenId,
+    address onBehalfOf,
+    uint16 referralCode
+  ) external override nonReentrant whenNotPaused
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| asset         | address       | The address of the underlying asset to borrow |
+| amount         | uint256       | The amount to be borrowed |
+| nftAsset         | address       | The address of the underlying nft used as collateral |
+| nftTokenId         | uint256       | The token ID of the underlying nft used as collateral |
+| onBehalfOf         | address       | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral |
+| referralCode         | uint16       | Code used to register the integrator originating the operation, for potential rewards. 0 if the action is executed directly by the user, without any middle-man |
+This function allows users to borrow a specific `amount` of the reserve underlying asset.
+It should: 
+1. Allow a user to borrow an amount of tokens from the reserve
+2. Deposit an NFT asset as collateral
+3. Allow the borrow logic to validate the borrow
+#### batchBorrow()
+```
+function batchBorrow(
+    address[] calldata assets,
+    uint256[] calldata amounts,
+    address[] calldata nftAssets,
+    uint256[] calldata nftTokenIds,
+    address onBehalfOf,
+    uint16 referralCode
+  ) external override nonReentrant whenNotPaused
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| assets         | address[]       | The array of addresses of the underlying assets to borrow |
+| amounts         | uint256[]       | The array of amounts from each reserve to be borrowed |
+| nftAssets         | address[]       | The array of addresses of the underlying nfts used as collateral |
+| nftTokenIds         | uint256[]       | The array of token IDs of the underlying nfts used as collateral |
+| onBehalfOf         | address       | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral |
+| referralCode         | uint16       | Code used to register the integrator originating the operation, for potential rewards. 0 if the action is executed directly by the user, without any middle-man |
+This function allows users to borrow multiple `amounts` of the reserves underlying assets, adding several NFTs as collateral.
+It should: 
+1. Allow a user to borrow from multiple reserves 
+2. Deposit multiple NFT assets as collateral
+3. Allow the borrow logic to validate the batch borrow
+#### repay()
+```
+function repay(
+    address nftAsset,
+    uint256 nftTokenId,
+    uint256 amount
+  ) external override nonReentrant whenNotPaused returns (uint256, bool)
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| nftAsset         | address       | The address of the underlying NFT used as collateral |
+| nftTokenId         | uint256       | The token ID of the underlying NFT used as collateral |
+| amount         | uint256       | The amount to repay |
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+uint256     | The repay amount |
+bool     | The updated status of the repayment |
+This function repays a borrowed `amount` on a specific reserve, burning the equivalent loan owned.
+It should:
+1. Allow a user to repay a borrowed amount
+2. Allow the borrow logic to validate and execute the repayment
+3. Return the paid amount and the update status
+#### batchRepay()
+```
+function batchRepay(
+    address[] calldata nftAssets,
+    uint256[] calldata nftTokenIds,
+    uint256[] calldata amounts
+  ) external override nonReentrant whenNotPaused returns (uint256[] memory, bool[] memory)
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| nftAssets         | address[]       | The array of addresses of the underlying assets to repay |
+| nftTokenIds         | uint256[]       | The array of token IDs of the underlying assets to repay |
+| amounts         | uint256[]       | The array of amounts to repay for each asset |
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+uint256[]     | The repaid amount |
+bool[]     | The updated status of each of the repayments |
+This function repays several borrowed `amounts` on multiple reserves, burning the equivalent loans owned.
+It should:
+1. Allow a user to repay multiple borrowed amounts
+2. Allow the borrow logic to validate and execute the repayments
+3. Return the paid amounts and the update status for each NFT
+#### auction()
+```
+function auction(
+    address nftAsset,
+    uint256 nftTokenId,
+    uint256 bidPrice,
+    address onBehalfOf
+  ) external override nonReentrant whenNotPaused
+```  
+| Parameter name| Type          |  Description        |
+| ------------- | ------------- |    ------------- |
+| nftAsset         | address       | The array of addresses of the underlying assets to repay |
+| nftTokenId         | uint256      | The array of token IDs of the underlying assets to repay |
+| bidPrice         | uint256       | The array of amounts to repay for each asset |
+| onBehalfOf         | uint256       | The array of amounts to repay for each asset |
+Returns:
+Type          |  Description        |
+------------- |    ------------- |
+uint256[]     | The repaid amount |
+bool[]     | The updated status of each of the repayments |
+This function repays several borrowed `amounts` on multiple reserves, burning the equivalent loans owned.
+It should:
+1. Allow a user to repay multiple borrowed amounts
+2. Allow the borrow logic to validate and execute the repayments
+3. Return the paid amounts and the update status for each NFT
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
