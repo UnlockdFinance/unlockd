@@ -979,7 +979,7 @@
           },
           {
             "internalType": "address",
-            "name": "bTokenAddress",
+            "name": "uTokenAddress",
             "type": "address"
           },
           {
@@ -1084,7 +1084,7 @@
       },
       {
         "internalType": "address",
-        "name": "bTokenAddress",
+        "name": "uTokenAddress",
         "type": "address"
       },
       {

@@ -20,8 +20,8 @@ contract UnlockdProtocolDataProvider {
   struct ReserveTokenData {
     string tokenSymbol;
     address tokenAddress;
-    string bTokenSymbol;
-    address bTokenAddress;
+    string uTokenSymbol;
+    address uTokenAddress;
     string debtTokenSymbol;
     address debtTokenAddress;
   }
@@ -48,8 +48,8 @@ contract UnlockdProtocolDataProvider {
       reservesTokens[i] = ReserveTokenData({
         tokenSymbol: IERC20Detailed(reserves[i]).symbol(),
         tokenAddress: reserves[i],
-        bTokenSymbol: IERC20Detailed(reserveData.bTokenAddress).symbol(),
-        bTokenAddress: reserveData.bTokenAddress,
+        uTokenSymbol: IERC20Detailed(reserveData.uTokenAddress).symbol(),
+        uTokenAddress: reserveData.uTokenAddress,
         debtTokenSymbol: IERC20Detailed(reserveData.debtTokenAddress).symbol(),
         debtTokenAddress: reserveData.debtTokenAddress
       });
@@ -64,8 +64,8 @@ contract UnlockdProtocolDataProvider {
       ReserveTokenData({
         tokenSymbol: IERC20Detailed(asset).symbol(),
         tokenAddress: asset,
-        bTokenSymbol: IERC20Detailed(reserveData.bTokenAddress).symbol(),
-        bTokenAddress: reserveData.bTokenAddress,
+        uTokenSymbol: IERC20Detailed(reserveData.uTokenAddress).symbol(),
+        uTokenAddress: reserveData.uTokenAddress,
         debtTokenSymbol: IERC20Detailed(reserveData.debtTokenAddress).symbol(),
         debtTokenAddress: reserveData.debtTokenAddress
       });
@@ -165,7 +165,7 @@ contract UnlockdProtocolDataProvider {
     DataTypes.ReserveData memory reserve = ILendPool(ADDRESSES_PROVIDER.getLendPool()).getReserveData(asset);
 
     return (
-      IERC20Detailed(asset).balanceOf(reserve.bTokenAddress),
+      IERC20Detailed(asset).balanceOf(reserve.uTokenAddress),
       IERC20Detailed(reserve.debtTokenAddress).totalSupply(),
       reserve.currentLiquidityRate,
       reserve.currentVariableBorrowRate,
@@ -179,7 +179,7 @@ contract UnlockdProtocolDataProvider {
     external
     view
     returns (
-      uint256 currentBTokenBalance,
+      uint256 currentUTokenBalance,
       uint256 currentVariableDebt,
       uint256 scaledVariableDebt,
       uint256 liquidityRate
@@ -187,7 +187,7 @@ contract UnlockdProtocolDataProvider {
   {
     DataTypes.ReserveData memory reserve = ILendPool(ADDRESSES_PROVIDER.getLendPool()).getReserveData(asset);
 
-    currentBTokenBalance = IERC20Detailed(reserve.bTokenAddress).balanceOf(user);
+    currentUTokenBalance = IERC20Detailed(reserve.uTokenAddress).balanceOf(user);
     currentVariableDebt = IERC20Detailed(reserve.debtTokenAddress).balanceOf(user);
     scaledVariableDebt = IDebtToken(reserve.debtTokenAddress).scaledBalanceOf(user);
     liquidityRate = reserve.currentLiquidityRate;

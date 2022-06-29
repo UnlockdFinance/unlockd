@@ -21,7 +21,7 @@
         "type": "address"
       }
     ],
-    "name": "BTokenUpgraded",
+    "name": "UTokenUpgraded",
     "type": "event"
   },
   {
@@ -360,7 +360,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "bToken",
+        "name": "uToken",
         "type": "address"
       },
       {
@@ -532,7 +532,7 @@
         "components": [
           {
             "internalType": "address",
-            "name": "bTokenImpl",
+            "name": "uTokenImpl",
             "type": "address"
           },
           {
@@ -567,12 +567,12 @@
           },
           {
             "internalType": "string",
-            "name": "bTokenName",
+            "name": "uTokenName",
             "type": "string"
           },
           {
             "internalType": "string",
-            "name": "bTokenSymbol",
+            "name": "uTokenSymbol",
             "type": "string"
           },
           {
@@ -928,12 +928,12 @@
             "type": "bytes"
           }
         ],
-        "internalType": "struct ConfigTypes.UpdateBTokenInput[]",
+        "internalType": "struct ConfigTypes.UpdateUTokenInput[]",
         "name": "inputs",
         "type": "tuple[]"
       }
     ],
-    "name": "updateBToken",
+    "name": "updateUToken",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

@@ -12,7 +12,7 @@ interface ILendPool {
    * @param user The address initiating the deposit
    * @param amount The amount deposited
    * @param reserve The address of the underlying asset of the reserve
-   * @param onBehalfOf The beneficiary of the deposit, receiving the bTokens
+   * @param onBehalfOf The beneficiary of the deposit, receiving the uTokens
    * @param referral The referral code used
    **/
   event Deposit(
@@ -25,7 +25,7 @@ interface ILendPool {
 
   /**
    * @dev Emitted on withdraw()
-   * @param user The address initiating the withdrawal, owner of bTokens
+   * @param user The address initiating the withdrawal, owner of uTokens
    * @param reserve The address of the underlyng asset being withdrawn
    * @param amount The amount to be withdrawn
    * @param to Address that will receive the underlying
@@ -162,12 +162,12 @@ interface ILendPool {
   );
 
   /**
-   * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying bTokens.
+   * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying uTokens.
    * - E.g. User deposits 100 USDC and gets in return 100 bUSDC
    * @param reserve The address of the underlying asset to deposit
    * @param amount The amount to be deposited
-   * @param onBehalfOf The address that will receive the bTokens, same as msg.sender if the user
-   *   wants to receive them on his own wallet, or a different address if the beneficiary of bTokens
+   * @param onBehalfOf The address that will receive the uTokens, same as msg.sender if the user
+   *   wants to receive them on his own wallet, or a different address if the beneficiary of uTokens
    *   is a different wallet
    * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
    *   0 if the action is executed directly by the user, without any middle-man
@@ -180,11 +180,11 @@ interface ILendPool {
   ) external;
 
   /**
-   * @dev Withdraws an `amount` of underlying asset from the reserve, burning the equivalent bTokens owned
+   * @dev Withdraws an `amount` of underlying asset from the reserve, burning the equivalent uTokens owned
    * E.g. User has 100 bUSDC, calls withdraw() and receives 100 USDC, burning the 100 bUSDC
    * @param reserve The address of the underlying asset to withdraw
    * @param amount The underlying amount to be withdrawn
-   *   - Send the value type(uint256).max in order to withdraw the whole bToken balance
+   *   - Send the value type(uint256).max in order to withdraw the whole uToken balance
    * @param to Address that will receive the underlying, same as msg.sender if the user
    *   wants to receive it on his own wallet, or a different address if the beneficiary is a
    *   different wallet
@@ -309,14 +309,14 @@ interface ILendPool {
   function liquidateNFTX(address nftAsset, uint256 nftTokenId) external returns (uint256);
 
   /**
-   * @dev Validates and finalizes an bToken transfer
-   * - Only callable by the overlying bToken of the `asset`
-   * @param asset The address of the underlying asset of the bToken
-   * @param from The user from which the bTokens are transferred
-   * @param to The user receiving the bTokens
+   * @dev Validates and finalizes an uToken transfer
+   * - Only callable by the overlying uToken of the `asset`
+   * @param asset The address of the underlying asset of the uToken
+   * @param from The user from which the uTokens are transferred
+   * @param to The user receiving the uTokens
    * @param amount The amount being transferred/withdrawn
-   * @param balanceFromBefore The bToken balance of the `from` user before the transfer
-   * @param balanceToBefore The bToken balance of the `to` user before the transfer
+   * @param balanceFromBefore The uToken balance of the `from` user before the transfer
+   * @param balanceToBefore The uToken balance of the `to` user before the transfer
    */
   function finalizeTransfer(
     address asset,
@@ -452,7 +452,7 @@ interface ILendPool {
 
   function initReserve(
     address asset,
-    address bTokenAddress,
+    address uTokenAddress,
     address debtTokenAddress,
     address interestRateAddress
   ) external;

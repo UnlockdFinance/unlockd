@@ -4,7 +4,7 @@ import "./helpers/utils/math";
 import { insertContractAddressInDb, registerContractInJsonDb } from "../helpers/contracts-helpers";
 import {
   deployLendPoolAddressesProvider,
-  deployBTokenImplementations,
+  deployUTokenImplementations,
   deployLendPoolConfigurator,
   deployLendPool,
   deployLendPoolLoan,
@@ -292,18 +292,18 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     ...config.ReservesConfig,
   };
 
-  console.log("-> Prepare BToken impl contract...");
-  await deployBTokenImplementations(ConfigNames.Unlockd, reservesParams, false);
+  console.log("-> Prepare UToken impl contract...");
+  await deployUTokenImplementations(ConfigNames.Unlockd, reservesParams, false);
 
   console.log("-> Prepare Reserve init and configure...");
-  const { BTokenNamePrefix, BTokenSymbolPrefix, DebtTokenNamePrefix, DebtTokenSymbolPrefix } = config;
+  const { UTokenNamePrefix, UTokenSymbolPrefix, DebtTokenNamePrefix, DebtTokenSymbolPrefix } = config;
   const treasuryAddress = await getTreasuryAddress(config);
 
   await initReservesByHelper(
     reservesParams,
     allReservesAddresses,
-    BTokenNamePrefix,
-    BTokenSymbolPrefix,
+    UTokenNamePrefix,
+    UTokenSymbolPrefix,
     DebtTokenNamePrefix,
     DebtTokenSymbolPrefix,
     poolAdmin,

@@ -4,7 +4,7 @@ import {
   getLendPool,
   getLendPoolAddressesProvider,
   getUnlockdProtocolDataProvider,
-  getBToken,
+  getUToken,
   getUNFT,
   getMintableERC20,
   getMintableERC721,
@@ -32,7 +32,7 @@ import { eEthereumNetwork, eNetwork, tEthereumAddress } from "../../helpers/type
 import { LendPool } from "../../types/LendPool";
 import { UnlockdProtocolDataProvider } from "../../types/UnlockdProtocolDataProvider";
 import { MintableERC20 } from "../../types/MintableERC20";
-import { BToken } from "../../types/BToken";
+import { UToken } from "../../types/UToken";
 import { MintableERC721 } from "../../types/MintableERC721";
 import { UNFT } from "../../types/UNFT";
 import { LendPoolConfigurator } from "../../types/LendPoolConfigurator";
@@ -93,11 +93,11 @@ export interface TestEnv {
   walletProvider: WalletBalanceProvider;
   mockIncentivesController: MockIncentivesController;
   weth: WETH9Mocked;
-  bWETH: BToken;
+  bWETH: UToken;
   dai: MintableERC20;
-  bDai: BToken;
+  bDai: UToken;
   usdc: MintableERC20;
-  bUsdc: BToken;
+  bUsdc: UToken;
   //wpunks: WPUNKSMocked;
   bPUNK: UNFT;
   bayc: MintableERC721;
@@ -140,11 +140,11 @@ const testEnv: TestEnv = {
   nftOracle: {} as NFTOracle,
   mockChainlinkOracle: {} as MockChainlinkOracle,
   weth: {} as WETH9Mocked,
-  bWETH: {} as BToken,
+  bWETH: {} as UToken,
   dai: {} as MintableERC20,
-  bDai: {} as BToken,
+  bDai: {} as UToken,
   usdc: {} as MintableERC20,
-  bUsdc: {} as BToken,
+  bUsdc: {} as UToken,
   //wpunks: WPUNKSMocked,
   bPUNK: {} as UNFT,
   bayc: {} as MintableERC721,
@@ -197,16 +197,16 @@ export async function initializeMakeSuite() {
 
   // Reserve Tokens
   const allReserveTokens = await testEnv.dataProvider.getAllReservesTokenDatas();
-  const bDaiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.bTokenAddress;
-  const bUsdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.bTokenAddress;
-  const bWEthAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.bTokenAddress;
+  const bDaiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.uTokenAddress;
+  const bUsdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.uTokenAddress;
+  const bWEthAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.uTokenAddress;
 
   const daiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.tokenAddress;
   const usdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.tokenAddress;
   const wethAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.tokenAddress;
 
   if (!bDaiAddress || !bUsdcAddress || !bWEthAddress) {
-    console.error("Invalid BTokens", bDaiAddress, bUsdcAddress, bWEthAddress);
+    console.error("Invalid UTokens", bDaiAddress, bUsdcAddress, bWEthAddress);
     process.exit(1);
   }
   if (!daiAddress || !usdcAddress || !wethAddress) {
@@ -214,9 +214,9 @@ export async function initializeMakeSuite() {
     process.exit(1);
   }
 
-  testEnv.bDai = await getBToken(bDaiAddress);
-  testEnv.bUsdc = await getBToken(bUsdcAddress);
-  testEnv.bWETH = await getBToken(bWEthAddress);
+  testEnv.bDai = await getUToken(bDaiAddress);
+  testEnv.bUsdc = await getUToken(bUsdcAddress);
+  testEnv.bWETH = await getUToken(bWEthAddress);
 
   testEnv.dai = await getMintableERC20(daiAddress);
   testEnv.usdc = await getMintableERC20(usdcAddress);

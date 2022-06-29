@@ -118,12 +118,12 @@ contract LendPool is
   }
 
   /**
-   * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying bTokens.
+   * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying uTokens.
    * - E.g. User deposits 100 USDC and gets in return 100 bUSDC
    * @param asset The address of the underlying asset to deposit
    * @param amount The amount to be deposited
-   * @param onBehalfOf The address that will receive the bTokens, same as msg.sender if the user
-   *   wants to receive them on his own wallet, or a different address if the beneficiary of bTokens
+   * @param onBehalfOf The address that will receive the uTokens, same as msg.sender if the user
+   *   wants to receive them on his own wallet, or a different address if the beneficiary of uTokens
    *   is a different wallet
    * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
    *   0 if the action is executed directly by the user, without any middle-man
@@ -147,11 +147,11 @@ contract LendPool is
   }
 
   /**
-   * @dev Withdraws an `amount` of underlying asset from the reserve, burning the equivalent bTokens owned
+   * @dev Withdraws an `amount` of underlying asset from the reserve, burning the equivalent uTokens owned
    * E.g. User has 100 bUSDC, calls withdraw() and receives 100 USDC, burning the 100 bUSDC
    * @param asset The address of the underlying asset to withdraw
    * @param amount The underlying amount to be withdrawn
-   *   - Send the value type(uint256).max in order to withdraw the whole bToken balance
+   *   - Send the value type(uint256).max in order to withdraw the whole uToken balance
    * @param to Address that will receive the underlying, same as msg.sender if the user
    *   wants to receive it on his own wallet, or a different address if the beneficiary is a
    *   different wallet
@@ -672,14 +672,14 @@ contract LendPool is
   }
 
   /**
-   * @dev Validates and finalizes an bToken transfer
-   * - Only callable by the overlying bToken of the `asset`
-   * @param asset The address of the underlying asset of the bToken
-   * @param from The user from which the bToken are transferred
-   * @param to The user receiving the bTokens
+   * @dev Validates and finalizes an uToken transfer
+   * - Only callable by the overlying uToken of the `asset`
+   * @param asset The address of the underlying asset of the uToken
+   * @param from The user from which the uToken are transferred
+   * @param to The user receiving the uTokens
    * @param amount The amount being transferred/withdrawn
-   * @param balanceFromBefore The bToken balance of the `from` user before the transfer
-   * @param balanceToBefore The bToken balance of the `to` user before the transfer
+   * @param balanceFromBefore The uToken balance of the `from` user before the transfer
+   * @param balanceToBefore The uToken balance of the `to` user before the transfer
    */
   function finalizeTransfer(
     address asset,
@@ -697,7 +697,7 @@ contract LendPool is
     balanceToBefore;
 
     DataTypes.ReserveData storage reserve = _reserves[asset];
-    require(_msgSender() == reserve.bTokenAddress, Errors.LP_CALLER_MUST_BE_AN_BTOKEN);
+    require(_msgSender() == reserve.uTokenAddress, Errors.LP_CALLER_MUST_BE_AN_UTOKEN);
 
     ValidationLogic.validateTransfer(from, reserve);
   }
@@ -777,22 +777,22 @@ contract LendPool is
   }
 
   /**
-   * @dev Initializes a reserve, activating it, assigning an bToken and nft loan and an
+   * @dev Initializes a reserve, activating it, assigning an uToken and nft loan and an
    * interest rate strategy
    * - Only callable by the LendPoolConfigurator contract
    * @param asset The address of the underlying asset of the reserve
-   * @param bTokenAddress The address of the bToken that will be assigned to the reserve
+   * @param uTokenAddress The address of the uToken that will be assigned to the reserve
    * @param debtTokenAddress The address of the debtToken that will be assigned to the reserve
    * @param interestRateAddress The address of the interest rate strategy contract
    **/
   function initReserve(
     address asset,
-    address bTokenAddress,
+    address uTokenAddress,
     address debtTokenAddress,
     address interestRateAddress
   ) external override onlyLendPoolConfigurator {
     require(AddressUpgradeable.isContract(asset), Errors.LP_NOT_CONTRACT);
-    _reserves[asset].init(bTokenAddress, debtTokenAddress, interestRateAddress);
+    _reserves[asset].init(uTokenAddress, debtTokenAddress, interestRateAddress);
     _addReserveToList(asset);
   }
 

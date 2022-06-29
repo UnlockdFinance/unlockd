@@ -20,7 +20,7 @@ import {
   MintableERC20Factory,
   MintableERC721,
   MintableERC721Factory,
-  BTokenFactory,
+  UTokenFactory,
   DebtTokenFactory,
   UNFTFactory,
   UNFTRegistryFactory,
@@ -377,8 +377,8 @@ export const deployInterestRate = async (args: [tEthereumAddress, string, string
 export const deployGenericDebtToken = async (verify?: boolean) =>
   withSaveAndVerify(await new DebtTokenFactory(await getDeploySigner()).deploy(), eContractid.DebtToken, [], verify);
 
-export const deployGenericBTokenImpl = async (verify: boolean) =>
-  withSaveAndVerify(await new BTokenFactory(await getDeploySigner()).deploy(), eContractid.BToken, [], verify);
+export const deployGenericUTokenImpl = async (verify: boolean) =>
+  withSaveAndVerify(await new UTokenFactory(await getDeploySigner()).deploy(), eContractid.UToken, [], verify);
 
 export const deployGenericUNFTImpl = async (verify: boolean) =>
   withSaveAndVerify(await new UNFTFactory(await getDeploySigner()).deploy(), eContractid.UNFT, [], verify);
@@ -453,18 +453,18 @@ export const deploySelfdestructTransferMock = async (verify?: boolean) =>
     verify
   );
 
-export const chooseBTokenDeployment = (id: eContractid) => {
+export const chooseUTokenDeployment = (id: eContractid) => {
   switch (id) {
-    case eContractid.BToken:
-      return deployGenericBTokenImpl;
-    //case eContractid.DelegationAwareBToken:
-    //  return deployDelegationAwareBTokenImpl;
+    case eContractid.UToken:
+      return deployGenericUTokenImpl;
+    //case eContractid.DelegationAwareUToken:
+    //  return deployDelegationAwareUTokenImpl;
     default:
-      throw Error(`Missing bToken implementation deployment script for: ${id}`);
+      throw Error(`Missing uToken implementation deployment script for: ${id}`);
   }
 };
 
-export const deployBTokenImplementations = async (
+export const deployUTokenImplementations = async (
   pool: ConfigNames,
   reservesConfig: { [key: string]: IReserveParams },
   verify = false
@@ -472,10 +472,10 @@ export const deployBTokenImplementations = async (
   const poolConfig = loadPoolConfig(pool);
   const network = <eNetwork>DRE.network.name;
 
-  // Obtain the different BToken implementations of all reserves inside the Market config
+  // Obtain the different UToken implementations of all reserves inside the Market config
   const tokenImplementations = [
     ...Object.entries(reservesConfig).reduce<Set<eContractid>>((acc, [, entry]) => {
-      acc.add(entry.bTokenImpl);
+      acc.add(entry.uTokenImpl);
       return acc;
     }, new Set<eContractid>()),
   ];
@@ -483,8 +483,8 @@ export const deployBTokenImplementations = async (
   for (let x = 0; x < tokenImplementations.length; x++) {
     const tokenAddress = getOptionalParamAddressPerNetwork(poolConfig[tokenImplementations[x].toString()], network);
     if (!notFalsyOrZeroAddress(tokenAddress)) {
-      const deployImplementationMethod = chooseBTokenDeployment(tokenImplementations[x]);
-      console.log(`Deploying BToken implementation`, tokenImplementations[x]);
+      const deployImplementationMethod = chooseUTokenDeployment(tokenImplementations[x]);
+      console.log(`Deploying UToken implementation`, tokenImplementations[x]);
       await deployImplementationMethod(verify);
     }
   }

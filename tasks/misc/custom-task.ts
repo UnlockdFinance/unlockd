@@ -18,7 +18,7 @@ import {
   getAllMockedNfts,
   getAllMockedTokens,
   getUnlockdProtocolDataProvider,
-  getBToken,
+  getUToken,
   getCryptoPunksMarket,
   getDebtToken,
   getDeploySigner,
@@ -127,7 +127,7 @@ task("dev:deposit-eth", "Doing custom task")
     }
 
     const wethResData = await lendPool.getReserveData(weth.address);
-    const bWeth = await getBToken(wethResData.bTokenAddress);
+    const bWeth = await getUToken(wethResData.uTokenAddress);
 
     await waitForTx(await wethGateway.depositETH(await signer.getAddress(), "0", { value: amountDecimals }));
 
@@ -162,7 +162,7 @@ task("dev:withdraw-eth", "Doing custom task")
     }
 
     const wethResData = await lendPool.getReserveData(weth.address);
-    const bWeth = await getBToken(wethResData.bTokenAddress);
+    const bWeth = await getUToken(wethResData.uTokenAddress);
     const allowance = await bWeth.allowance(signerAddress, wethGateway.address);
     if (allowance.lt(amountDecimals)) {
       await waitForTx(await bWeth.approve(wethGateway.address, MAX_UINT_AMOUNT));

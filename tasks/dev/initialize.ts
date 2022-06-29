@@ -35,8 +35,8 @@ task("dev:initialize-lend-pool", "Initialize lend pool configuration.")
     const network = <eNetwork>localBRE.network.name;
     const poolConfig = loadPoolConfig(pool);
     const {
-      BTokenNamePrefix,
-      BTokenSymbolPrefix,
+      UTokenNamePrefix,
+      UTokenSymbolPrefix,
       DebtTokenNamePrefix,
       DebtTokenSymbolPrefix,
       ReservesConfig,
@@ -60,8 +60,8 @@ task("dev:initialize-lend-pool", "Initialize lend pool configuration.")
     await initReservesByHelper(
       ReservesConfig,
       allTokenAddresses,
-      BTokenNamePrefix,
-      BTokenSymbolPrefix,
+      UTokenNamePrefix,
+      UTokenSymbolPrefix,
       DebtTokenNamePrefix,
       DebtTokenSymbolPrefix,
       admin,

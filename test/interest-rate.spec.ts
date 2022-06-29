@@ -6,7 +6,7 @@ import { APPROVAL_AMOUNT_LENDING_POOL, PERCENTAGE_FACTOR, RAY } from "../helpers
 import { rateStrategyStableOne } from "../markets/unlockd/rateStrategies";
 
 import { strategyDAI } from "../markets/unlockd/reservesConfigs";
-import { BToken, InterestRate, MintableERC20 } from "../types";
+import { UToken, InterestRate, MintableERC20 } from "../types";
 import BigNumber from "bignumber.js";
 import "./helpers/utils/math";
 
@@ -15,7 +15,7 @@ const { expect } = require("chai");
 makeSuite("Interest rate tests", (testEnv: TestEnv) => {
   let rateInstance: InterestRate;
   let dai: MintableERC20;
-  let bDai: BToken;
+  let bDai: UToken;
 
   before(async () => {
     dai = testEnv.dai;

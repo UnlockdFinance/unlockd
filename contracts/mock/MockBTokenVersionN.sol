@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
-import "../protocol/BToken.sol";
+import "../protocol/UToken.sol";
 
-contract MockBTokenVersionN is BToken {
+contract MockUTokenVersionN is UToken {
   uint256 public dummy1;
   uint256 public dummy2;
 
