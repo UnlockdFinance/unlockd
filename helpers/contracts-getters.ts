@@ -1,7 +1,7 @@
 import { Signer, ethers } from "ethers";
 import {
   UnlockdProtocolDataProviderFactory,
-  BTokenFactory,
+  UTokenFactory,
   DebtTokenFactory,
   UNFTFactory,
   UNFTRegistryFactory,
@@ -153,9 +153,9 @@ export const getMockNFTOracle = async (address?: tEthereumAddress) =>
     await getDeploySigner()
   );
 
-export const getBToken = async (address?: tEthereumAddress) =>
-  await BTokenFactory.connect(
-    address || (await getDb(DRE.network.name).get(`${eContractid.BToken}`).value()).address,
+export const getUToken = async (address?: tEthereumAddress) =>
+  await UTokenFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.UToken}`).value()).address,
     await getDeploySigner()
   );
 

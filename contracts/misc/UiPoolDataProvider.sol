@@ -9,7 +9,7 @@ import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
 import {IReserveOracleGetter} from "../interfaces/IReserveOracleGetter.sol";
 import {INFTOracleGetter} from "../interfaces/INFTOracleGetter.sol";
-import {IBToken} from "../interfaces/IBToken.sol";
+import {IUToken} from "../interfaces/IUToken.sol";
 import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
@@ -120,12 +120,12 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     reserveData.liquidityRate = baseData.currentLiquidityRate;
     reserveData.variableBorrowRate = baseData.currentVariableBorrowRate;
     reserveData.lastUpdateTimestamp = baseData.lastUpdateTimestamp;
-    reserveData.bTokenAddress = baseData.bTokenAddress;
+    reserveData.uTokenAddress = baseData.uTokenAddress;
     reserveData.debtTokenAddress = baseData.debtTokenAddress;
     reserveData.interestRateAddress = baseData.interestRateAddress;
     reserveData.priceInEth = reserveOracle.getAssetPrice(reserveData.underlyingAsset);
 
-    reserveData.availableLiquidity = IERC20Detailed(reserveData.underlyingAsset).balanceOf(reserveData.bTokenAddress);
+    reserveData.availableLiquidity = IERC20Detailed(reserveData.underlyingAsset).balanceOf(reserveData.uTokenAddress);
     reserveData.totalVariableDebt = IDebtToken(reserveData.debtTokenAddress).totalSupply();
 
     // reserve configuration
@@ -149,7 +149,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
   ) internal view {
     // user reserve data
     userReserveData.underlyingAsset = reserveAsset;
-    userReserveData.bTokenBalance = IBToken(baseData.bTokenAddress).balanceOf(user);
+    userReserveData.uTokenBalance = IUToken(baseData.uTokenAddress).balanceOf(user);
     userReserveData.variableDebt = IDebtToken(baseData.debtTokenAddress).balanceOf(user);
   }
 

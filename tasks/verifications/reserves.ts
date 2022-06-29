@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
 import { loadPoolConfig, ConfigNames, getTreasuryAddress } from "../../helpers/configuration";
 import {
-  getBToken,
+  getUToken,
   getDebtToken,
   getInterestRate,
   getLendPoolAddressesProvider,
@@ -26,12 +26,12 @@ task("verify:reserves", "Verify reserves contracts at Etherscan")
 
     const lendPoolConfigurator = await getLendPoolConfiguratorProxy(await addressesProvider.getLendPoolConfigurator());
 
-    // Generic bToken implementation
-    const bTokenImpl = await getBToken();
-    console.log("\n- Verifying BToken implementation...\n");
-    await verifyContract(eContractid.BToken, bTokenImpl, []);
+    // Generic uToken implementation
+    const uTokenImpl = await getUToken();
+    console.log("\n- Verifying UToken implementation...\n");
+    await verifyContract(eContractid.UToken, uTokenImpl, []);
 
-    // Generic bToken implementation
+    // Generic uToken implementation
     console.log("\n- Verifying DebtToken implementation...\n");
     const debtTokenImpl = await getDebtToken();
     await verifyContract(eContractid.DebtToken, debtTokenImpl, []);
@@ -45,36 +45,36 @@ task("verify:reserves", "Verify reserves contracts at Etherscan")
         throw `ReservesConfig not found for ${token} token`;
       }
 
-      const { bTokenAddress, debtTokenAddress, interestRateAddress } = await lendPoolProxy.getReserveData(tokenAddress);
+      const { uTokenAddress, debtTokenAddress, interestRateAddress } = await lendPoolProxy.getReserveData(tokenAddress);
 
       const { optimalUtilizationRate, baseVariableBorrowRate, variableRateSlope1, variableRateSlope2 } =
         tokenConfig[1].strategy;
 
-      const bTokenContract = await getBToken(bTokenAddress);
+      const uTokenContract = await getUToken(uTokenAddress);
 
-      // Proxy bToken
-      console.log("\n- Verifying bToken proxy...\n");
-      const bTokenInitEncodeData = bTokenImpl.interface.encodeFunctionData("initialize", [
+      // Proxy uToken
+      console.log("\n- Verifying uToken proxy...\n");
+      const uTokenInitEncodeData = uTokenImpl.interface.encodeFunctionData("initialize", [
         addressesProvider.address,
-        await bTokenContract.RESERVE_TREASURY_ADDRESS(),
-        await bTokenContract.UNDERLYING_ASSET_ADDRESS(),
-        await bTokenContract.decimals(),
-        await bTokenContract.name(),
-        await bTokenContract.symbol(),
+        await uTokenContract.RESERVE_TREASURY_ADDRESS(),
+        await uTokenContract.UNDERLYING_ASSET_ADDRESS(),
+        await uTokenContract.decimals(),
+        await uTokenContract.name(),
+        await uTokenContract.symbol(),
       ]);
-      await verifyContract(eContractid.UnlockdUpgradeableProxy, await getUnlockdUpgradeableProxy(bTokenAddress), [
-        bTokenImpl.address,
+      await verifyContract(eContractid.UnlockdUpgradeableProxy, await getUnlockdUpgradeableProxy(uTokenAddress), [
+        uTokenImpl.address,
         lendPoolConfigurator.address,
-        bTokenInitEncodeData,
+        uTokenInitEncodeData,
       ]);
 
       // Proxy debtToken
       const debtTokenInitEncodeData = debtTokenImpl.interface.encodeFunctionData("initialize", [
         addressesProvider.address,
-        await bTokenContract.UNDERLYING_ASSET_ADDRESS(),
-        await bTokenContract.decimals(),
-        await bTokenContract.name(),
-        await bTokenContract.symbol(),
+        await uTokenContract.UNDERLYING_ASSET_ADDRESS(),
+        await uTokenContract.decimals(),
+        await uTokenContract.name(),
+        await uTokenContract.symbol(),
       ]);
       console.log("\n- Verifying debtToken proxy...\n");
       await verifyContract(eContractid.UnlockdUpgradeableProxy, await getUnlockdUpgradeableProxy(debtTokenAddress), [

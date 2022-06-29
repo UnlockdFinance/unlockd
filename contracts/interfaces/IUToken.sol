@@ -8,13 +8,13 @@ import {IScaledBalanceToken} from "./IScaledBalanceToken.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 
-interface IBToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgradeable {
+interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgradeable {
   /**
-   * @dev Emitted when an bToken is initialized
+   * @dev Emitted when an uToken is initialized
    * @param underlyingAsset The address of the underlying asset
    * @param pool The address of the associated lending pool
    * @param treasury The address of the treasury
-   * @param incentivesController The address of the incentives controller for this bToken
+   * @param incentivesController The address of the incentives controller for this uToken
    **/
   event Initialized(
     address indexed underlyingAsset,
@@ -24,18 +24,18 @@ interface IBToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   );
 
   /**
-   * @dev Initializes the bToken
-   * @param addressProvider The address of the address provider where this bToken will be used
-   * @param treasury The address of the Unlockd treasury, receiving the fees on this bToken
-   * @param underlyingAsset The address of the underlying asset of this bToken
+   * @dev Initializes the uToken
+   * @param addressProvider The address of the address provider where this uToken will be used
+   * @param treasury The address of the Unlockd treasury, receiving the fees on this uToken
+   * @param underlyingAsset The address of the underlying asset of this uToken
    */
   function initialize(
     ILendPoolAddressesProvider addressProvider,
     address treasury,
     address underlyingAsset,
-    uint8 bTokenDecimals,
-    string calldata bTokenName,
-    string calldata bTokenSymbol
+    uint8 uTokenDecimals,
+    string calldata uTokenName,
+    string calldata uTokenSymbol
   ) external;
 
   /**
@@ -47,7 +47,7 @@ interface IBToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   event Mint(address indexed from, uint256 value, uint256 index);
 
   /**
-   * @dev Mints `amount` bTokens to `user`
+   * @dev Mints `amount` uTokens to `user`
    * @param user The address receiving the minted tokens
    * @param amount The amount of tokens getting minted
    * @param index The new liquidity index of the reserve
@@ -60,8 +60,8 @@ interface IBToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   ) external returns (bool);
 
   /**
-   * @dev Emitted after bTokens are burned
-   * @param from The owner of the bTokens, getting them burned
+   * @dev Emitted after uTokens are burned
+   * @param from The owner of the uTokens, getting them burned
    * @param target The address that will receive the underlying
    * @param value The amount being burned
    * @param index The new liquidity index of the reserve
@@ -78,8 +78,8 @@ interface IBToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   event BalanceTransfer(address indexed from, address indexed to, uint256 value, uint256 index);
 
   /**
-   * @dev Burns bTokens from `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
-   * @param user The owner of the bTokens, getting them burned
+   * @dev Burns uTokens from `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
+   * @param user The owner of the uTokens, getting them burned
    * @param receiverOfUnderlying The address that will receive the underlying
    * @param amount The amount being burned
    * @param index The new liquidity index of the reserve
@@ -92,7 +92,7 @@ interface IBToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   ) external;
 
   /**
-   * @dev Mints bTokens to the reserve treasury
+   * @dev Mints uTokens to the reserve treasury
    * @param amount The amount of tokens getting minted
    * @param index The new liquidity index of the reserve
    */
@@ -113,7 +113,7 @@ interface IBToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   function getIncentivesController() external view returns (IIncentivesController);
 
   /**
-   * @dev Returns the address of the underlying asset of this bToken
+   * @dev Returns the address of the underlying asset of this uToken
    **/
   function UNDERLYING_ASSET_ADDRESS() external view returns (address);
 }

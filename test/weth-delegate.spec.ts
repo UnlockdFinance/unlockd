@@ -98,8 +98,8 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
       await wethGateway.connect(depositor.signer).depositETH(depositor.address, "0", { value: depositSize })
     );
 
-    const bTokensBalance = await bWETH.balanceOf(depositor.address);
-    expect(bTokensBalance, "bTokensBalance not gte depositSize").to.be.gte(depositSize);
+    const uTokensBalance = await bWETH.balanceOf(depositor.address);
+    expect(uTokensBalance, "uTokensBalance not gte depositSize").to.be.gte(depositSize);
 
     // Delegates borrowing power of WETH to WETHGateway
     const reserveData = await pool.getReserveData(weth.address);
@@ -153,8 +153,8 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
       await wethGateway.connect(depositor.signer).depositETH(depositor.address, "0", { value: depositSize })
     );
 
-    const bTokensBalance = await bWETH.balanceOf(depositor.address);
-    expect(bTokensBalance, "bTokensBalance not gte depositSize").to.be.gte(depositSize);
+    const uTokensBalance = await bWETH.balanceOf(depositor.address);
+    expect(uTokensBalance, "uTokensBalance not gte depositSize").to.be.gte(depositSize);
 
     // Delegates borrowing power of WETH to WETHGateway
     const reserveData = await pool.getReserveData(weth.address);

@@ -52,7 +52,7 @@ task("print-config", "Print config of all reserves and nfts")
     console.log(`  - Paused: ${await lendPoolProxy.paused()}`);
 
     const reserveFields = ["decimals", "reserveFactor", "borrowingEnabled", "isActive", "isFrozen"];
-    const reserveTokensFields = ["bTokenSymbol", "bTokenAddress", "debtTokenSymbol", "debtTokenAddress"];
+    const reserveTokensFields = ["uTokenSymbol", "uTokenAddress", "debtTokenSymbol", "debtTokenAddress"];
     const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network as eNetwork);
     for (const [symbol, address] of Object.entries(reserveAssets)) {
       console.log(`- ${symbol} reserve config`);

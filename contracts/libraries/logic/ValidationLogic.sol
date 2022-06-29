@@ -98,7 +98,7 @@ library ValidationLogic {
     address nftOracle
   ) external view {
     ValidateBorrowLocalVars memory vars;
-    require(reserveData.bTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
+    require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
     require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
     require(amount > 0, Errors.VL_INVALID_AMOUNT);
 
@@ -160,7 +160,7 @@ library ValidationLogic {
     uint256 borrowAmount
   ) external view {
     require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
-    require(reserveData.bTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
+    require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
 
@@ -186,7 +186,7 @@ library ValidationLogic {
     uint256 bidPrice
   ) internal view {
     require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
-    require(reserveData.bTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
+    require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
 
@@ -212,7 +212,7 @@ library ValidationLogic {
     uint256 amount
   ) external view {
     require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
-    require(reserveData.bTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
+    require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
 
@@ -237,7 +237,7 @@ library ValidationLogic {
     DataTypes.LoanData memory loanData
   ) internal view {
     require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
-    require(reserveData.bTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
+    require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
 
@@ -249,8 +249,8 @@ library ValidationLogic {
   }
 
   /**
-   * @dev Validates an bToken transfer
-   * @param from The user from which the bTokens are being transferred
+   * @dev Validates an uToken transfer
+   * @param from The user from which the uTokens are being transferred
    * @param reserveData The state of the reserve
    */
   function validateTransfer(address from, DataTypes.ReserveData storage reserveData) internal pure {

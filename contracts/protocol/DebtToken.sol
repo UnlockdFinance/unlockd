@@ -172,7 +172,7 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
   }
 
   /**
-   * @dev Returns the address of the underlying asset of this bToken
+   * @dev Returns the address of the underlying asset of this uToken
    **/
   function UNDERLYING_ASSET_ADDRESS() public view returns (address) {
     return _underlyingAsset;

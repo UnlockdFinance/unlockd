@@ -1,6 +1,6 @@
 {
   "MockChainlinkOracle": {
-    "address": "0x696460Da8BB7D6eb25CFA403b1B01687DC830A95",
+    "address": "0xB0a1A2aD4089523f532e23C17Ce8aAbc58f4e796",
     "deployer": "0xAa3777F59260b8bD003e850E321AdBc576115b06"
   },
   "WETH": {
@@ -148,7 +148,7 @@
   "LendPoolLoan": {
     "address": "0x145237eaf8ff5D1426CA9b59A30049f5B16535a4"
   },
-  "BToken": {
+  "UToken": {
     "address": "0x99E1259D858b35BF39382D74657d8c5f42aDbff9",
     "deployer": "0xAa3777F59260b8bD003e850E321AdBc576115b06"
   },

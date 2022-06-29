@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
 import {
-  deployBTokenImplementations,
+  deployUTokenImplementations,
   deployLendPool,
   deployLendPoolConfigurator,
   deployLendPoolLoan,
@@ -67,7 +67,7 @@ task("dev:deploy-lend-pool", "Deploy lend pool for dev enviroment")
     await insertContractAddressInDb(eContractid.LendPoolLoan, lendPoolLoanProxy.address);
 
     // Generic UNFT Implementation at here
-    await deployBTokenImplementations(pool, poolConfig.ReservesConfig, verify);
+    await deployUTokenImplementations(pool, poolConfig.ReservesConfig, verify);
 
     // Generic UNFT Implementation in UNFT step, not here
     //await deployUNFTImplementations(pool, poolConfig.NftsConfig, verify);

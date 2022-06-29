@@ -5,18 +5,18 @@ import { deployContract, getContract } from "../helpers/contracts-helpers";
 import { MAX_UINT_AMOUNT, ZERO_ADDRESS } from "../helpers/constants";
 import {
   getDeploySigner,
-  getBToken,
+  getUToken,
   getLendPoolLoanProxy,
   getDebtToken,
   getUnlockdUpgradeableProxy,
 } from "../helpers/contracts-getters";
-import { BTokenFactory, LendPoolLoanFactory, LendPoolLoan, BToken, DebtToken, DebtTokenFactory } from "../types";
+import { UTokenFactory, LendPoolLoanFactory, LendPoolLoan, UToken, DebtToken, DebtTokenFactory } from "../types";
 import { BytesLike } from "@ethersproject/bytes";
 
 makeSuite("Upgradeability", (testEnv: TestEnv) => {
   const { CALLER_NOT_POOL_ADMIN } = ProtocolErrors;
   let debtDai: DebtToken;
-  let newBTokenInstance: BToken;
+  let newUTokenInstance: UToken;
   let newDebtTokenInstance: DebtToken;
   let newLoanInstance: LendPoolLoan;
 
@@ -25,51 +25,51 @@ makeSuite("Upgradeability", (testEnv: TestEnv) => {
     const debtDaiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.debtTokenAddress;
     debtDai = await getDebtToken(debtDaiAddress);
 
-    newBTokenInstance = await new BTokenFactory(await getDeploySigner()).deploy();
+    newUTokenInstance = await new UTokenFactory(await getDeploySigner()).deploy();
     newDebtTokenInstance = await new DebtTokenFactory(await getDeploySigner()).deploy();
 
     newLoanInstance = await new LendPoolLoanFactory(await getDeploySigner()).deploy();
   });
 
-  it("Tries to update the DAI BToken implementation with a different address than the configuator", async () => {
+  it("Tries to update the DAI UToken implementation with a different address than the configuator", async () => {
     const { dai, configurator, users, mockIncentivesController } = testEnv;
 
-    const updateBTokenInputParams: {
+    const updateUTokenInputParams: {
       asset: string;
       implementation: string;
       encodedCallData: BytesLike;
     }[] = [
       {
         asset: dai.address,
-        implementation: newBTokenInstance.address,
+        implementation: newUTokenInstance.address,
         encodedCallData: [],
       },
     ];
-    await expect(configurator.connect(users[1].signer).updateBToken(updateBTokenInputParams)).to.be.revertedWith(
+    await expect(configurator.connect(users[1].signer).updateUToken(updateUTokenInputParams)).to.be.revertedWith(
       CALLER_NOT_POOL_ADMIN
     );
   });
 
-  it("Upgrades the DAI BToken implementation ", async () => {
+  it("Upgrades the DAI UToken implementation ", async () => {
     const { dai, configurator, dataProvider } = testEnv;
 
-    const { bTokenAddress } = await dataProvider.getReserveTokenData(dai.address);
+    const { uTokenAddress } = await dataProvider.getReserveTokenData(dai.address);
 
-    const updateBTokenInputParams: {
+    const updateUTokenInputParams: {
       asset: string;
       implementation: string;
       encodedCallData: BytesLike;
     }[] = [
       {
         asset: dai.address,
-        implementation: newBTokenInstance.address,
+        implementation: newUTokenInstance.address,
         encodedCallData: [],
       },
     ];
-    await configurator.updateBToken(updateBTokenInputParams);
+    await configurator.updateUToken(updateUTokenInputParams);
 
-    const checkImpl = await configurator.getTokenImplementation(bTokenAddress);
-    expect(checkImpl).to.be.eq(newBTokenInstance.address, "Invalid token implementation");
+    const checkImpl = await configurator.getTokenImplementation(uTokenAddress);
+    expect(checkImpl).to.be.eq(newUTokenInstance.address, "Invalid token implementation");
   });
 
   it("Tries to update the DAI DebtToken implementation with a different address than the configuator", async () => {
@@ -82,7 +82,7 @@ makeSuite("Upgradeability", (testEnv: TestEnv) => {
     }[] = [
       {
         asset: dai.address,
-        implementation: newBTokenInstance.address,
+        implementation: newUTokenInstance.address,
         encodedCallData: [],
       },
     ];

@@ -1,8 +1,8 @@
 import BigNumber from "bignumber.js";
 
 export interface UserReserveData {
-  scaledBTokenBalance: BigNumber;
-  currentBTokenBalance: BigNumber;
+  scaledUTokenBalance: BigNumber;
+  currentUTokenBalance: BigNumber;
   currentVariableDebt: BigNumber;
   scaledVariableDebt: BigNumber;
   liquidityRate: BigNumber;
@@ -22,7 +22,7 @@ export interface ReserveData {
   utilizationRate: BigNumber;
   liquidityIndex: BigNumber;
   variableBorrowIndex: BigNumber;
-  bTokenAddress: string;
+  uTokenAddress: string;
   lastUpdateTimestamp: BigNumber;
   liquidityRate: BigNumber;
   [key: string]: BigNumber | string;

@@ -5,7 +5,7 @@ import {
   insertContractAddressInDb,
 } from "../../helpers/contracts-helpers";
 import {
-  deployBTokenImplementations,
+  deployUTokenImplementations,
   deployLendPool,
   deployLendPoolLoan,
   deployLendPoolConfigurator,
@@ -99,8 +99,8 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       // Pause market during deployment
       await waitForTx(await lendPoolConfiguratorProxy.connect(admin).setPoolPause(true));
 
-      // Generic BToken & DebtToken Implementation in Pool
-      await deployBTokenImplementations(pool, poolConfig.ReservesConfig, verify);
+      // Generic UToken & DebtToken Implementation in Pool
+      await deployUTokenImplementations(pool, poolConfig.ReservesConfig, verify);
 
       // Generic UNFT Implementation in UNFT step, not here
       //await deployUNFTImplementations(pool, poolConfig.NftsConfig, verify);

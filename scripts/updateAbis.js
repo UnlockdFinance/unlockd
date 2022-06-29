@@ -10,7 +10,7 @@ const protocolContractList = [
   "InterestRate",
   "ReserveOracle",
   "NFTOracle",
-  "BToken",
+  "UToken",
   "DebtToken",
   "PunkGateway",
   "WETHGateway",

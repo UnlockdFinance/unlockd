@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
-import {IBToken} from "../../interfaces/IBToken.sol";
+import {IUToken} from "../../interfaces/IUToken.sol";
 import {IDebtToken} from "../../interfaces/IDebtToken.sol";
 import {IInterestRate} from "../../interfaces/IInterestRate.sol";
 import {ReserveConfiguration} from "../configuration/ReserveConfiguration.sol";
@@ -142,21 +142,21 @@ library ReserveLogic {
   /**
    * @dev Initializes a reserve
    * @param reserve The reserve object
-   * @param bTokenAddress The address of the overlying bToken contract
+   * @param uTokenAddress The address of the overlying uToken contract
    * @param debtTokenAddress The address of the overlying debtToken contract
    * @param interestRateAddress The address of the interest rate strategy contract
    **/
   function init(
     DataTypes.ReserveData storage reserve,
-    address bTokenAddress,
+    address uTokenAddress,
     address debtTokenAddress,
     address interestRateAddress
   ) external {
-    require(reserve.bTokenAddress == address(0), Errors.RL_RESERVE_ALREADY_INITIALIZED);
+    require(reserve.uTokenAddress == address(0), Errors.RL_RESERVE_ALREADY_INITIALIZED);
 
     reserve.liquidityIndex = uint128(WadRayMath.ray());
     reserve.variableBorrowIndex = uint128(WadRayMath.ray());
-    reserve.bTokenAddress = bTokenAddress;
+    reserve.uTokenAddress = uTokenAddress;
     reserve.debtTokenAddress = debtTokenAddress;
     reserve.interestRateAddress = interestRateAddress;
   }
@@ -177,7 +177,7 @@ library ReserveLogic {
   function updateInterestRates(
     DataTypes.ReserveData storage reserve,
     address reserveAddress,
-    address bTokenAddress,
+    address uTokenAddress,
     uint256 liquidityAdded,
     uint256 liquidityTaken
   ) internal {
@@ -192,7 +192,7 @@ library ReserveLogic {
 
     (vars.newLiquidityRate, vars.newVariableRate) = IInterestRate(reserve.interestRateAddress).calculateInterestRates(
       reserveAddress,
-      bTokenAddress,
+      uTokenAddress,
       liquidityAdded,
       liquidityTaken,
       vars.totalVariableDebt,
@@ -259,7 +259,7 @@ library ReserveLogic {
     vars.amountToMint = vars.totalDebtAccrued.percentMul(vars.reserveFactor);
 
     if (vars.amountToMint != 0) {
-      IBToken(reserve.bTokenAddress).mintToTreasury(vars.amountToMint, newLiquidityIndex);
+      IUToken(reserve.uTokenAddress).mintToTreasury(vars.amountToMint, newLiquidityIndex);
     }
   }
 

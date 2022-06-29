@@ -24,13 +24,13 @@ interface ILendPoolConfigurator {
   /**
    * @dev Emitted when a reserve is initialized.
    * @param asset The address of the underlying asset of the reserve
-   * @param bToken The address of the associated bToken contract
+   * @param uToken The address of the associated uToken contract
    * @param debtToken The address of the associated debtToken contract
    * @param interestRateAddress The address of the interest rate strategy for the reserve
    **/
   event ReserveInitialized(
     address indexed asset,
-    address indexed bToken,
+    address indexed uToken,
     address debtToken,
     address interestRateAddress
   );
@@ -153,12 +153,12 @@ interface ILendPoolConfigurator {
   event NftMaxSupplyAndTokenIdChanged(address indexed asset, uint256 maxSupply, uint256 maxTokenId);
 
   /**
-   * @dev Emitted when an bToken implementation is upgraded
+   * @dev Emitted when an uToken implementation is upgraded
    * @param asset The address of the underlying asset of the reserve
-   * @param proxy The bToken proxy address
-   * @param implementation The new bToken implementation
+   * @param proxy The uToken proxy address
+   * @param implementation The new uToken implementation
    **/
-  event BTokenUpgraded(address indexed asset, address indexed proxy, address indexed implementation);
+  event UTokenUpgraded(address indexed asset, address indexed proxy, address indexed implementation);
 
   /**
    * @dev Emitted when the implementation of a debt token is upgraded

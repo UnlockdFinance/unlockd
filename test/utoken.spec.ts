@@ -7,7 +7,7 @@ import { makeSuite, TestEnv } from "./helpers/make-suite";
 import { CommonsConfig } from "../markets/unlockd/commons";
 import { waitForTx } from "../helpers/misc-utils";
 
-makeSuite("BToken", (testEnv: TestEnv) => {
+makeSuite("UToken", (testEnv: TestEnv) => {
   const { INVALID_FROM_BALANCE_AFTER_TRANSFER, INVALID_TO_BALANCE_AFTER_TRANSFER } = ProtocolErrors;
 
   afterEach("Reset", () => {
@@ -19,11 +19,11 @@ makeSuite("BToken", (testEnv: TestEnv) => {
 
     const symbol = await dai.symbol();
     const bSymbol = await bDai.symbol();
-    expect(bSymbol).to.be.equal(CommonsConfig.BTokenSymbolPrefix + symbol);
+    expect(bSymbol).to.be.equal(CommonsConfig.UTokenSymbolPrefix + symbol);
 
     //const name = await dai.name();
     const bName = await bDai.name();
-    expect(bName).to.be.equal(CommonsConfig.BTokenNamePrefix + " " + symbol);
+    expect(bName).to.be.equal(CommonsConfig.UTokenNamePrefix + " " + symbol);
 
     const decimals = await dai.decimals();
     const bDecimals = await bDai.decimals();

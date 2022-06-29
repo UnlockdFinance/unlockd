@@ -31,7 +31,7 @@ import {
 
 import { convertToCurrencyDecimals, getEthersSignerByAddress } from "../../helpers/contracts-helpers";
 import {
-  getBToken,
+  getUToken,
   getMintableERC20,
   getMintableERC721,
   getLendPoolLoanProxy,
@@ -53,7 +53,7 @@ import {
 import chai from "chai";
 import { ReserveData, UserReserveData, LoanData } from "./utils/interfaces";
 import { ContractReceipt } from "ethers";
-import { BToken } from "../../types/BToken";
+import { UToken } from "../../types/UToken";
 import { tEthereumAddress } from "../../helpers/types";
 
 const { expect } = chai;
@@ -66,7 +66,7 @@ const almostEqualOrEqual = function (
   const keys = Object.keys(actual);
 
   keys.forEach((key) => {
-    if (key === "lastUpdateTimestamp" || key === "symbol" || key === "bTokenAddress" || key === "decimals") {
+    if (key === "lastUpdateTimestamp" || key === "symbol" || key === "uTokenAddress" || key === "decimals") {
       // skipping consistency check on accessory data
       return;
     }
@@ -240,10 +240,10 @@ export const setNftAssetPriceForDebt = async (
     throw new Error("invalid zero nftPrice");
   }
 
- await advanceTimeAndBlock(100);
- await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, nftPrice.toFixed(0)));
- await advanceTimeAndBlock(200);
- await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, nftPrice.toFixed(0)));
+  await advanceTimeAndBlock(100);
+  await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, nftPrice.toFixed(0)));
+  await advanceTimeAndBlock(200);
+  await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, nftPrice.toFixed(0)));
 
   return { oldNftPrice: oldNftPrice.toString(), newNftPrice: nftPrice.toFixed(0) };
 };
@@ -263,7 +263,7 @@ export const setNftAssetPrice = async (
   const oldNftPrice = await nftOracle.getNFTPrice(nftAsset, 0);
 
   const priceBN = new BigNumber(price).plus(1);
-  
+
   await advanceTimeAndBlock(100);
   await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, priceBN.toFixed(0)));
   await advanceTimeAndBlock(100);
@@ -376,7 +376,7 @@ export const withdraw = async (
   const { pool } = testEnv;
 
   const {
-    bTokenInstance,
+    uTokenInstance,
     reserve,
     userData: userDataBefore,
     reserveData: reserveDataBefore,
@@ -928,7 +928,7 @@ interface ActionData {
   reserve: string;
   reserveData: ReserveData;
   userData: UserReserveData;
-  bTokenInstance: BToken;
+  uTokenInstance: UToken;
 }
 
 const getDataBeforeAction = async (
@@ -939,12 +939,12 @@ const getDataBeforeAction = async (
   const reserve = await getReserveAddressFromSymbol(reserveSymbol);
 
   const { reserveData, userData } = await getContractsData(reserve, user, testEnv);
-  const bTokenInstance = await getBToken(reserveData.bTokenAddress);
+  const uTokenInstance = await getUToken(reserveData.uTokenAddress);
   return {
     reserve,
     reserveData,
     userData,
-    bTokenInstance,
+    uTokenInstance,
   };
 };
 

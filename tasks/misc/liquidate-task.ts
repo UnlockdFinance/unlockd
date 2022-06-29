@@ -10,7 +10,7 @@ import {
 import { MAX_UINT_AMOUNT } from "../../helpers/constants";
 import {
   getUnlockdProtocolDataProvider,
-  getBToken,
+  getUToken,
   getDeploySigner,
   getLendPool,
   getLendPoolAddressesProvider,
