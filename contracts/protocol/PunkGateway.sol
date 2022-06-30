@@ -292,6 +292,14 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (remainAmount);
   }
 
+  function liquidateNFTX(uint256 punkIndex) external override nonReentrant returns (uint256) {
+    ILendPool cachedPool = _getLendPool();
+
+    uint256 remainAmount = cachedPool.liquidateNFTX(address(wrappedPunks), punkIndex);
+
+    return (remainAmount);
+  }
+
   function borrowETH(
     uint256 amount,
     uint256 punkIndex,

@@ -128,47 +128,12 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
   });
 
   it("WETH - Liquidates the borrow on NFTX", async () => {
-    const { deployer, weth, bayc, users, pool, dataProvider, nftxVaultFactory, sushiSwapRouter } = testEnv;
+    const { weth, bayc, users, pool, dataProvider, nftxVaultFactory } = testEnv;
     const liquidator = users[3];
     const borrower = users[1];
 
-    // Create NFTX Vault for bayc
-    await nftxVaultFactory.createVault("Unlockd Mock BAYC", "BAYC", bayc.address, false, true);
     const vaultsForAssets = await nftxVaultFactory.vaultsForAsset(bayc.address);
     const nftxVault = await getNFTXVault(vaultsForAssets[0]);
-
-    // Mint BAYC tokens to owner
-    await bayc.connect(deployer.signer).mint("1");
-    await bayc.connect(deployer.signer).mint("2");
-    await bayc.connect(deployer.signer).mint("3");
-    await bayc.connect(deployer.signer).mint("4");
-    await bayc.connect(deployer.signer).mint("5");
-
-    // Deposit 5 BAYC tokens to vault
-    await bayc.setApprovalForAll(nftxVault.address, true);
-    await nftxVault.connect(deployer.signer).mint([1, 2, 3, 4, 5], []);
-    const nftxTokenAmount = await convertToCurrencyDecimals(nftxVault.address, "4");
-
-    // Deposit 600000 WETH to owner
-    const lpWETHAmount = await convertToCurrencyDecimals(weth.address, "600000");
-    await weth.connect(deployer.signer).mint(lpWETHAmount);
-
-    // Provide liquidity to SushiSwap - Price is 150000 WETH
-    await nftxVault.connect(deployer.signer).approve(sushiSwapRouter.address, nftxTokenAmount);
-    await weth.connect(deployer.signer).approve(sushiSwapRouter.address, lpWETHAmount);
-
-    await sushiSwapRouter
-      .connect(deployer.signer)
-      .addLiquidity(
-        nftxVault.address,
-        weth.address,
-        nftxTokenAmount,
-        lpWETHAmount,
-        0,
-        0,
-        deployer.address,
-        new Date().getTime() + 10000
-      );
 
     const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
 
@@ -330,47 +295,12 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
   });
 
   it("USDC - Liquidates the borrow on NFTX", async () => {
-    const { deployer, usdc, bayc, users, pool, dataProvider, nftxVaultFactory, sushiSwapRouter } = testEnv;
+    const { usdc, bayc, users, pool, dataProvider, nftxVaultFactory } = testEnv;
     const liquidator = users[4];
     const borrower = users[1];
 
-    // Create NFTX Vault for bayc
-    await nftxVaultFactory.createVault("Unlockd Mock BAYC", "BAYC", bayc.address, false, true);
     const vaultsForAssets = await nftxVaultFactory.vaultsForAsset(bayc.address);
     const nftxVault = await getNFTXVault(vaultsForAssets[0]);
-
-    // Mint BAYC tokens to owner
-    await bayc.connect(deployer.signer).mint("6");
-    await bayc.connect(deployer.signer).mint("7");
-    await bayc.connect(deployer.signer).mint("8");
-    await bayc.connect(deployer.signer).mint("9");
-    await bayc.connect(deployer.signer).mint("10");
-
-    // Deposit 5 BAYC tokens to vault
-    await bayc.setApprovalForAll(nftxVault.address, true);
-    await nftxVault.connect(deployer.signer).mint([6, 7, 8, 9, 10], []);
-    const nftxTokenAmount = await convertToCurrencyDecimals(nftxVault.address, "4");
-
-    // Deposit 600000 USDC to owner
-    const lpUSDCAmount = await convertToCurrencyDecimals(usdc.address, "600000");
-    await usdc.connect(deployer.signer).mint(lpUSDCAmount);
-
-    // Provide liquidity to SushiSwap - Price is 150000 USDC
-    await nftxVault.connect(deployer.signer).approve(sushiSwapRouter.address, nftxTokenAmount);
-    await usdc.connect(deployer.signer).approve(sushiSwapRouter.address, lpUSDCAmount);
-
-    await sushiSwapRouter
-      .connect(deployer.signer)
-      .addLiquidity(
-        nftxVault.address,
-        usdc.address,
-        nftxTokenAmount,
-        lpUSDCAmount,
-        0,
-        0,
-        deployer.address,
-        new Date().getTime() + 10000
-      );
 
     const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
 

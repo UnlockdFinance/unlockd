@@ -8,9 +8,6 @@ import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesPro
 import {IReserveOracleGetter} from "../../interfaces/IReserveOracleGetter.sol";
 import {INFTOracleGetter} from "../../interfaces/INFTOracleGetter.sol";
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
-import {ILooksRareExchange} from "../../interfaces/ILooksRareExchange.sol";
-import {INFTXVaultFactoryV2} from "../../interfaces/INFTXVaultFactoryV2.sol";
-import {INFTXVault} from "../../interfaces/INFTXVault.sol";
 
 import {ReserveLogic} from "./ReserveLogic.sol";
 import {GenericLogic} from "./GenericLogic.sol";
@@ -23,7 +20,6 @@ import {WadRayMath} from "../math/WadRayMath.sol";
 import {PercentageMath} from "../math/PercentageMath.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
-import {WyvernExchange} from "../wyvernexchange/WyvernExchange.sol";
 
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
@@ -365,7 +361,6 @@ library LiquidateLogic {
 
   struct LiquidateLooksRareLocalVars {
     address poolLoan;
-    address exchange;
     address reserveOracle;
     address nftOracle;
     uint256 loanId;
@@ -390,7 +385,6 @@ library LiquidateLogic {
   ) external returns (uint256) {
     LiquidateLooksRareLocalVars memory vars;
 
-    vars.exchange = addressesProvider.getLooksRareExchange();
     vars.poolLoan = addressesProvider.getLendPoolLoan();
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
@@ -423,17 +417,15 @@ library LiquidateLogic {
       vars.nftOracle
     );
 
-    // Sell NFT on LooksRare
-    ILooksRareExchange(vars.exchange).matchBidWithTakerAsk(params.takerAsk, params.makerBid);
-
-    vars.remainAmount = params.makerBid.price - vars.borrowAmount;
-
-    ILendPoolLoan(vars.poolLoan).liquidateLoan(
+    uint256 sellPrice = ILendPoolLoan(vars.poolLoan).liquidateLoanLooksRare(
       vars.loanId,
       nftData.uNftAddress,
       vars.borrowAmount,
-      reserveData.variableBorrowIndex
+      reserveData.variableBorrowIndex,
+      params
     );
+
+    vars.remainAmount = sellPrice - vars.borrowAmount;
 
     IDebtToken(reserveData.debtTokenAddress).burn(
       loanData.borrower,
@@ -444,7 +436,7 @@ library LiquidateLogic {
     // update interest rate according latest borrow amount (utilizaton)
     reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.borrowAmount, 0);
 
-    // transfer borrow amount from lend pool to bToken, repay debt
+    // transfer borrow amount from lend pool to uToken, repay debt
     IERC20Upgradeable(loanData.reserveAsset).safeTransfer(reserveData.uTokenAddress, vars.borrowAmount);
 
     // transfer remain amount to borrower
@@ -467,7 +459,6 @@ library LiquidateLogic {
 
   struct LiquidateOpenseaLocalVars {
     address poolLoan;
-    address exchange;
     address reserveOracle;
     address nftOracle;
     uint256 loanId;
@@ -492,7 +483,6 @@ library LiquidateLogic {
   ) external returns (uint256) {
     LiquidateOpenseaLocalVars memory vars;
 
-    vars.exchange = addressesProvider.getOpenseaWyvernExchange();
     vars.poolLoan = addressesProvider.getLendPoolLoan();
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
@@ -525,16 +515,15 @@ library LiquidateLogic {
       vars.nftOracle
     );
 
-    WyvernExchange.fulfillOrder(vars.exchange, params.buyOrder, params.sellOrder, params._vs, params._rssMetadata);
-
-    vars.remainAmount = params.sellOrder.basePrice - vars.borrowAmount;
-
-    ILendPoolLoan(vars.poolLoan).liquidateLoan(
+    uint256 sellPrice = ILendPoolLoan(vars.poolLoan).liquidateLoanOpensea(
       vars.loanId,
       nftData.uNftAddress,
       vars.borrowAmount,
-      reserveData.variableBorrowIndex
+      reserveData.variableBorrowIndex,
+      params
     );
+
+    vars.remainAmount = sellPrice - vars.borrowAmount;
 
     IDebtToken(reserveData.debtTokenAddress).burn(
       loanData.borrower,

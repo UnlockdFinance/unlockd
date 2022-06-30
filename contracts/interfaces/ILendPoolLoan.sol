@@ -81,17 +81,29 @@ interface ILendPoolLoan {
   );
 
   /**
-   * @dev Emitted when a loan is liquidate by the liquidator
+   * @dev Emitted when a loan is liquidate on LooksRare
    */
-  event LoanLiquidated(
+  event LoanLiquidatedLooksRare(
     uint256 indexed loanId,
     address nftAsset,
     uint256 nftTokenId,
     address reserveAsset,
     uint256 amount,
-    uint256 borrowIndex
+    uint256 borrowIndex,
+    uint256 sellPrice
   );
-
+  /**
+   * @dev Emitted when a loan is liquidate on Opensea
+   */
+  event LoanLiquidatedOpensea(
+    uint256 indexed loanId,
+    address nftAsset,
+    uint256 nftTokenId,
+    address reserveAsset,
+    uint256 amount,
+    uint256 borrowIndex,
+    uint256 sellPrice
+  );
   /**
    * @dev Emitted when a loan is liquidate on NFTX
    */
@@ -191,21 +203,40 @@ interface ILendPoolLoan {
   ) external;
 
   /**
-   * @dev Liquidate the given loan
+   * @dev Liquidate the given loan on LooksRare
    *
    * Requirements:
    *  - The caller must send in principal + interest
-   *  - The loan must be in state Active
+   *  - The loan must be in state Auction
    *
    * @param loanId The loan getting burned
    * @param uNftAddress The address of uNFT
    */
-  function liquidateLoan(
+  function liquidateLoanLooksRare(
     uint256 loanId,
     address uNftAddress,
     uint256 borrowAmount,
-    uint256 borrowIndex
-  ) external;
+    uint256 borrowIndex,
+    DataTypes.ExecuteLiquidateLooksRareParams memory params
+  ) external returns (uint256 sellPrice);
+
+  /**
+   * @dev Liquidate the given loan on Opensea
+   *
+   * Requirements:
+   *  - The caller must send in principal + interest
+   *  - The loan must be in state Auction
+   *
+   * @param loanId The loan getting burned
+   * @param uNftAddress The address of uNFT
+   */
+  function liquidateLoanOpensea(
+    uint256 loanId,
+    address uNftAddress,
+    uint256 borrowAmount,
+    uint256 borrowIndex,
+    DataTypes.ExecuteLiquidateOpenseaParams memory params
+  ) external returns (uint256 sellPrice);
 
   /**
    * @dev Liquidate the given loan on NFTX

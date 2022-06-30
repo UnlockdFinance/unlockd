@@ -251,7 +251,7 @@ export async function initializeMakeSuite() {
   testEnv.punkGateway = await getPunkGateway();
 
   testEnv.tokenIdTracker = 100;
-  testEnv.punkIndexTracker = 0;
+  testEnv.punkIndexTracker = 100;
 
   testEnv.roundIdTracker = 1;
   testEnv.nowTimeTracker = Number(await getNowTimeInSeconds());

@@ -50,6 +50,7 @@ import {
   configureReservesByHelper,
   initNftsByHelper,
   configureNftsByHelper,
+  initNFTXByHelper,
 } from "../helpers/init-helpers";
 import UnlockdConfig from "../markets/unlockd";
 import {
@@ -394,6 +395,8 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
 
   const sushiSwapRouter = await deploySushiSwapRouter();
   await waitForTx(await addressesProvider.setSushiSwapRouter(sushiSwapRouter.address));
+
+  await initNFTXByHelper();
 
   console.timeEnd("setup");
 };

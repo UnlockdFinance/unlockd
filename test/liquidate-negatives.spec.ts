@@ -10,7 +10,7 @@ const chai = require("chai");
 
 const { expect } = chai;
 
-makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
+makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
   before("Before liquidation: set config", () => {
     BigNumber.config({ DECIMAL_PLACES: 0, ROUNDING_MODE: BigNumber.ROUND_DOWN });
   });
@@ -53,7 +53,7 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
     const { configurator, bayc, pool, users } = testEnv;
     const user1 = users[1];
 
-    await expect(pool.connect(user1.signer).liquidate(bayc.address, "102", "0")).to.be.revertedWith(
+    await expect(pool.connect(user1.signer).liquidateNFTX(bayc.address, "102")).to.be.revertedWith(
       ProtocolErrors.LP_NFT_IS_NOT_USED_AS_COLLATERAL
     );
   });
@@ -135,7 +135,7 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
     await nftOracle.setNFTPrice(bayc.address, 101, baycPrice);
   });
 
-  it("User 2 auction price is unable to cover borrow", async () => {
+  it.skip("User 2 auction price is unable to cover borrow", async () => {
     const { bayc, pool, users } = testEnv;
     const user2 = users[2];
 
@@ -146,7 +146,7 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
     );
   });
 
-  it("User 2 auction price is less than liquidate price", async () => {
+  it.skip("User 2 auction price is less than liquidate price", async () => {
     const { weth, bayc, nftOracle, pool, users } = testEnv;
     const user2 = users[2];
 
@@ -173,7 +173,7 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
     );
   });
 
-  it("User 2 auction price is enough to cover borrow and liqudiate price", async () => {
+  it("User 2 auction", async () => {
     const { bayc, pool, users } = testEnv;
     const user2 = users[2];
 
@@ -183,7 +183,7 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
     await waitForTx(await pool.connect(user2.signer).auction(bayc.address, "101"));
   });
 
-  it("User 3 auction price is lesser than user 2", async () => {
+  it.skip("User 3 auction price is lesser than user 2", async () => {
     const { bayc, pool, users } = testEnv;
     const user3 = users[3];
 
@@ -199,7 +199,7 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
     const { bayc, pool, users } = testEnv;
     const user2 = users[2];
 
-    await expect(pool.connect(user2.signer).liquidate(bayc.address, "101", "0")).to.be.revertedWith(
+    await expect(pool.connect(user2.signer).liquidateNFTX(bayc.address, "101")).to.be.revertedWith(
       ProtocolErrors.LPL_BID_AUCTION_DURATION_NOT_END
     );
   });
@@ -251,12 +251,21 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
     );
   });
 
-  it("Ends redeem duration", async () => {
+  it.skip("Ends redeem duration", async () => {
     const { bayc, dataProvider } = testEnv;
 
     const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
 
     await increaseTime(nftCfgData.redeemDuration.mul(ONE_DAY).add(100).toNumber());
+  });
+
+  it("Ends auction duration", async () => {
+    const { bayc, dataProvider } = testEnv;
+
+    const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
+    // const deltaDuration = nftCfgData.auctionDuration.sub(nftCfgData.redeemDuration);
+
+    await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
   });
 
   it("User 1 redeem after duration is end", async () => {
@@ -268,7 +277,7 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
 
     await expect(
       pool.connect(user1.signer).redeem(bayc.address, "101", redeemAmount, nftAuctionData.bidFine)
-    ).to.be.revertedWith(ProtocolErrors.LPL_BID_REDEEM_DURATION_HAS_END);
+    ).to.be.revertedWith(ProtocolErrors.LPL_BID_AUCTION_DURATION_HAS_END);
   });
 
   it("Ends auction duration", async () => {
@@ -280,7 +289,7 @@ makeSuite("LendPool: Liquidation negtive test cases", (testEnv) => {
     await increaseTime(deltaDuration.mul(ONE_DAY).add(100).toNumber());
   });
 
-  it("User 3 auction after duration is end", async () => {
+  it.skip("User 3 auction after duration is end", async () => {
     const { bayc, pool, users } = testEnv;
     const user2 = users[2];
 
