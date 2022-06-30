@@ -6,7 +6,7 @@ import { accounts } from "./test-wallets.js";
 import { eEthereumNetwork, eNetwork } from "./helpers/types";
 import { BUIDLEREVM_CHAINID, COVERAGE_CHAINID } from "./helpers/buidler-constants";
 import { NETWORKS_RPC_URL, NETWORKS_DEFAULT_GAS, BLOCK_TO_FORK, buildForkConfig, buildUnlockdForkConfig } from "./helper-hardhat-config";
-
+import 'solidity-docgen';
 require("dotenv").config();
 
 

@@ -6,6 +6,11 @@ pragma solidity 0.8.4;
  * @notice Interface for the IFlashLoanReceiver.
  * @author UNLOCKD
  * @dev implement this interface to develop a flashloan-compatible flashLoanReceiver contract
+ * @param asset the asset to execute the flash loan with
+ * @param tokenIds implement this interface to develop a flashloan-compatible flashLoanReceiver contract
+ * @param initiator the flash loan  initiator
+ * @param operator the flash loan  operator
+ * @param params flash loan calldata params
  **/
 interface IFlashLoanReceiver {
   function executeOperation(

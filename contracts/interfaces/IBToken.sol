@@ -28,6 +28,9 @@ interface IBToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
    * @param addressProvider The address of the address provider where this bToken will be used
    * @param treasury The address of the Unlockd treasury, receiving the fees on this bToken
    * @param underlyingAsset The address of the underlying asset of this bToken
+   * @param bTokenDecimals The amount of token decimals
+   * @param bTokenName The name of the token
+   * @param bTokenSymbol The token symbol
    */
   function initialize(
     ILendPoolAddressesProvider addressProvider,

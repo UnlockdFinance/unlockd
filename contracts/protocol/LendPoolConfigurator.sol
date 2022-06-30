@@ -41,6 +41,11 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     _;
   }
 
+  /**
+   * @dev Function is invoked by the proxy contract when the LendPoolConfigurator contract is added to the
+   * LendPoolAddressesProvider of the market.
+   * @param provider The address of the LendPoolAddressesProvider
+   **/
   function initialize(ILendPoolAddressesProvider provider) public initializer {
     _addressesProvider = provider;
   }
@@ -83,6 +88,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
 
   /**
    * @dev Updates the debt token implementation for the asset
+   * @param inputs the inputs array with data to update each debt token
    **/
   function updateDebtToken(ConfigTypes.UpdateDebtTokenInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
@@ -481,6 +487,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     return ConfiguratorLogic.getTokenImplementation(proxyAddress);
   }
 
+  /**
+   * @dev Checks the liquidity of reserves
+   * @param asset  The address of the underlying reserve asset
+   **/
   function _checkReserveNoLiquidity(address asset) internal view {
     DataTypes.ReserveData memory reserveData = _getLendPool().getReserveData(asset);
 
@@ -489,20 +499,33 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     require(availableLiquidity == 0 && reserveData.currentLiquidityRate == 0, Errors.LPC_RESERVE_LIQUIDITY_NOT_0);
   }
 
+  /**
+   * @dev Checks the liquidity of NFTs
+   * @param asset  The address of the underlying NFT asset
+   **/
   function _checkNftNoLiquidity(address asset) internal view {
     uint256 collateralAmount = _getLendPoolLoan().getNftCollateralAmount(asset);
 
     require(collateralAmount == 0, Errors.LPC_NFT_LIQUIDITY_NOT_0);
   }
 
+  /**
+   * @dev Returns the LendPool address stored in the addresses provider
+   **/
   function _getLendPool() internal view returns (ILendPool) {
     return ILendPool(_addressesProvider.getLendPool());
   }
 
+  /**
+   * @dev Returns the LendPoolLoan address stored in the addresses provider
+   **/
   function _getLendPoolLoan() internal view returns (ILendPoolLoan) {
     return ILendPoolLoan(_addressesProvider.getLendPoolLoan());
   }
 
+  /**
+   * @dev Returns the UNFTRegistry address stored in the addresses provider
+   **/
   function _getUNFTRegistry() internal view returns (IUNFTRegistry) {
     return IUNFTRegistry(_addressesProvider.getUNFTRegistry());
   }
