@@ -62,6 +62,13 @@ library ConfiguratorLogic {
    **/
   event DebtTokenUpgraded(address indexed asset, address indexed proxy, address indexed implementation);
 
+  /**
+   * @notice Initializes a reserve
+   * @dev Emits the `ReserveInitialized()` event.
+   * @param addressProvider The addresses provider
+   * @param cachePool The lend pool
+   * @param input The data to initialize the reserve
+   */
   function executeInitReserve(
     ILendPoolAddressesProvider addressProvider,
     ILendPool cachePool,
@@ -111,6 +118,13 @@ library ConfiguratorLogic {
     );
   }
 
+  /**
+   * @notice Initializes an NFT
+   * @dev Emits the `NftInitialized()` event.
+   * @param pool_ The lend pool
+   * @param registry_ The UNFT Registry
+   * @param input The data to initialize the NFT
+   */
   function executeInitNft(
     ILendPool pool_,
     IUNFTRegistry registry_,
@@ -132,6 +146,12 @@ library ConfiguratorLogic {
     emit NftInitialized(input.underlyingAsset, uNftProxy);
   }
 
+  /**
+   * @notice Updates the uToken
+   * @dev Emits the `UTokenUpgraded()` event.
+   * @param cachedPool The lend pool
+   * @param input The data to initialize the uToken
+   */
   function executeUpdateBToken(ILendPool cachedPool, ConfigTypes.UpdateBTokenInput calldata input) external {
     DataTypes.ReserveData memory reserveData = cachedPool.getReserveData(input.asset);
 
@@ -140,6 +160,12 @@ library ConfiguratorLogic {
     emit BTokenUpgraded(input.asset, reserveData.bTokenAddress, input.implementation);
   }
 
+  /**
+   * @notice Updates the debt token
+   * @dev Emits the `DebtTokenUpgraded()` event.
+   * @param cachedPool The lend pool
+   * @param input The data to initialize the debt token
+   */
   function executeUpdateDebtToken(ILendPool cachedPool, ConfigTypes.UpdateDebtTokenInput calldata input) external {
     DataTypes.ReserveData memory reserveData = cachedPool.getReserveData(input.asset);
 
@@ -148,17 +174,32 @@ library ConfiguratorLogic {
     emit DebtTokenUpgraded(input.asset, reserveData.debtTokenAddress, input.implementation);
   }
 
+  /**
+   * @notice Gets the token implementation contract
+   * @param proxyAddress The proxy contract to fetch the implementation from
+   */
   function getTokenImplementation(address proxyAddress) external view returns (address) {
     UnlockdUpgradeableProxy proxy = UnlockdUpgradeableProxy(payable(proxyAddress));
     return proxy.getImplementation();
   }
 
+  /**
+   * @notice Initializes the proxy contract
+   * @param proxyAddress The proxy contract
+   * @param initParams The initial params to set in the initialization
+   */
   function _initTokenWithProxy(address implementation, bytes memory initParams) internal returns (address) {
     UnlockdUpgradeableProxy proxy = new UnlockdUpgradeableProxy(implementation, address(this), initParams);
 
     return address(proxy);
   }
 
+  /**
+   * @notice Upgrades the implementation contract for the proxy
+   * @param proxyAddress The proxy contract
+   * @param implementation The new implementation contract
+   * @param encodedCallData calldata to be executed
+   */
   function _upgradeTokenImplementation(
     address proxyAddress,
     address implementation,

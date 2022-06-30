@@ -1,6 +1,6 @@
 # Unlockd protocol 1.0.0 specification
 
-## Table of contents
+## Table of contents 
 1.  [Unlockd Protocol](#unlockd-protocol)
 1.  [Architecture](#architecture)
 1.  [Contracts](#contracts)
