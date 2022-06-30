@@ -118,7 +118,7 @@ const buidlerConfig: HardhatUserConfig = {
       hardfork: "london",
       blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,
       gas: DEFAULT_BLOCK_GAS_LIMIT,
-      gasPrice: NETWORKS_DEFAULT_GAS[eEthereumNetwork.hardhat],
+      // gasPrice: NETWORKS_DEFAULT_GAS[eEthereumNetwork.hardhat],
       allowUnlimitedContractSize: UNLIMITED_BYTECODE_SIZE,
       chainId: BUIDLEREVM_CHAINID,
       throwOnTransactionFailures: true,
@@ -127,7 +127,7 @@ const buidlerConfig: HardhatUserConfig = {
         privateKey: secretKey,
         balance: balance,
       })),
-      forking: buildUnlockdForkConfig(),
+      forking: buildForkConfig(),
       
     },
     ganache: {

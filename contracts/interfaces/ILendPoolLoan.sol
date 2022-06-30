@@ -56,19 +56,14 @@ interface ILendPoolLoan {
 
   /**
    * @dev Emitted when a loan is auction by the liquidator
-   * @param user The address initiating the action
    */
   event LoanAuctioned(
-    address indexed user,
     uint256 indexed loanId,
     address nftAsset,
     uint256 nftTokenId,
     uint256 amount,
     uint256 borrowIndex,
-    address bidder,
-    uint256 price,
-    address previousBidder,
-    uint256 previousPrice
+    uint256 price
   );
 
   /**
@@ -86,17 +81,40 @@ interface ILendPoolLoan {
   );
 
   /**
-   * @dev Emitted when a loan is liquidate by the liquidator
-   * @param user The address initiating the action
+   * @dev Emitted when a loan is liquidate on LooksRare
    */
-  event LoanLiquidated(
-    address indexed user,
+  event LoanLiquidatedLooksRare(
     uint256 indexed loanId,
     address nftAsset,
     uint256 nftTokenId,
     address reserveAsset,
     uint256 amount,
-    uint256 borrowIndex
+    uint256 borrowIndex,
+    uint256 sellPrice
+  );
+  /**
+   * @dev Emitted when a loan is liquidate on Opensea
+   */
+  event LoanLiquidatedOpensea(
+    uint256 indexed loanId,
+    address nftAsset,
+    uint256 nftTokenId,
+    address reserveAsset,
+    uint256 amount,
+    uint256 borrowIndex,
+    uint256 sellPrice
+  );
+  /**
+   * @dev Emitted when a loan is liquidate on NFTX
+   */
+  event LoanLiquidatedNFTX(
+    uint256 indexed loanId,
+    address nftAsset,
+    uint256 nftTokenId,
+    address reserveAsset,
+    uint256 amount,
+    uint256 borrowIndex,
+    uint256 sellPrice
   );
 
   function initNft(address nftAsset, address uNftAddress) external;
@@ -157,17 +175,13 @@ interface ILendPoolLoan {
    * @dev Auction the given loan
    *
    * Requirements:
-   *  - The price must be greater than current highest price
-   *  - The loan must be in state Active or Auction
+   *  - The loan must be in state Active
    *
-   * @param initiator The address of the user initiating the auction
    * @param loanId The loan getting auctioned
-   * @param bidPrice The bid price of this auction
+   * @param bidPrice The start bid price of this auction
    */
   function auctionLoan(
-    address initiator,
     uint256 loanId,
-    address onBehalfOf,
     uint256 bidPrice,
     uint256 borrowAmount,
     uint256 borrowIndex
@@ -189,23 +203,57 @@ interface ILendPoolLoan {
   ) external;
 
   /**
-   * @dev Liquidate the given loan
+   * @dev Liquidate the given loan on LooksRare
    *
    * Requirements:
    *  - The caller must send in principal + interest
-   *  - The loan must be in state Active
+   *  - The loan must be in state Auction
    *
-   * @param initiator The address of the user initiating the auction
    * @param loanId The loan getting burned
    * @param uNftAddress The address of uNFT
    */
-  function liquidateLoan(
-    address initiator,
+  function liquidateLoanLooksRare(
+    uint256 loanId,
+    address uNftAddress,
+    uint256 borrowAmount,
+    uint256 borrowIndex,
+    DataTypes.ExecuteLiquidateLooksRareParams memory params
+  ) external returns (uint256 sellPrice);
+
+  /**
+   * @dev Liquidate the given loan on Opensea
+   *
+   * Requirements:
+   *  - The caller must send in principal + interest
+   *  - The loan must be in state Auction
+   *
+   * @param loanId The loan getting burned
+   * @param uNftAddress The address of uNFT
+   */
+  function liquidateLoanOpensea(
+    uint256 loanId,
+    address uNftAddress,
+    uint256 borrowAmount,
+    uint256 borrowIndex,
+    DataTypes.ExecuteLiquidateOpenseaParams memory params
+  ) external returns (uint256 sellPrice);
+
+  /**
+   * @dev Liquidate the given loan on NFTX
+   *
+   * Requirements:
+   *  - The caller must send in principal + interest
+   *  - The loan must be in state Auction
+   *
+   * @param loanId The loan getting burned
+   * @param uNftAddress The address of uNFT
+   */
+  function liquidateLoanNFTX(
     uint256 loanId,
     address uNftAddress,
     uint256 borrowAmount,
     uint256 borrowIndex
-  ) external;
+  ) external returns (uint256 sellPrice);
 
   function borrowerOf(uint256 loanId) external view returns (address);
 

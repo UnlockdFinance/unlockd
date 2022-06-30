@@ -62,19 +62,6 @@ interface IWETHGateway {
   ) external payable returns (uint256[] memory, bool[] memory);
 
   /**
-   * @dev auction a borrow on the WETH reserve
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param nftTokenId The token ID of the underlying NFT used as collateral
-   * @param onBehalfOf Address of the user who will receive the underlying NFT used as collateral.
-   * Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral.
-   */
-  function auctionETH(
-    address nftAsset,
-    uint256 nftTokenId,
-    address onBehalfOf
-  ) external payable;
-
-  /**
    * @dev redeems a borrow on the WETH reserve
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
@@ -87,11 +74,4 @@ interface IWETHGateway {
     uint256 amount,
     uint256 bidFine
   ) external payable returns (uint256);
-
-  /**
-   * @dev liquidates a borrow on the WETH reserve
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param nftTokenId The token ID of the underlying NFT used as collateral
-   */
-  function liquidateETH(address nftAsset, uint256 nftTokenId) external payable returns (uint256);
 }

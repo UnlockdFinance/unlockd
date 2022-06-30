@@ -75,11 +75,6 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
     await expect(
       wethGateway.connect(hacker.signer).borrowETH(borrowSize2, nftAsset, tokenId, borrower.address, "0")
     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
-
-    console.log("auctionETH");
-    await expect(
-      wethGateway.connect(hacker.signer).auctionETH(nftAsset, tokenId, liquidator.address, { value: depositSize })
-    ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
   });
 
   it("Borrower try to Borrow more ETH to different onBehalf (should revert)", async () => {

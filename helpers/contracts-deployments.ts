@@ -59,6 +59,9 @@ import {
   GenericLogicFactory,
   ConfiguratorLogicFactory,
   RepayAndTransferHelperFactory,
+  NFTXVaultFactoryV2Factory,
+  UniswapV2FactoryFactory,
+  UniswapV2Router02Factory,
 } from "../types";
 import {
   withSaveAndVerify,
@@ -71,6 +74,7 @@ import {
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { LendPoolLibraryAddresses } from "../types/LendPoolFactory";
 import { eNetwork } from "./types";
+import { ZERO_ADDRESS } from "./constants";
 
 const readArtifact = async (id: string) => {
   return (DRE as HardhatRuntimeEnvironment).artifacts.readArtifact(id);
@@ -617,3 +621,40 @@ export const deployRepayAndTransferHelper = async (addressesProvider: string, ve
     [addressesProvider],
     verify
   );
+
+export const deloyNFTXVaultFactory = async (verify?: boolean) => {
+  const deployer = await getDeploySigner();
+  const deployerAddress = await deployer.getAddress();
+
+  return withSaveAndVerify(
+    await new NFTXVaultFactoryV2Factory(deployer).deploy(deployerAddress),
+    eContractid.NFTXVaultFactory,
+    [deployerAddress],
+    verify
+  );
+};
+
+const deployUniswapV2Factory = async (verify?: boolean) => {
+  const deployer = await getDeploySigner();
+  const deployerAddress = await deployer.getAddress();
+
+  return withSaveAndVerify(
+    await new UniswapV2FactoryFactory(deployer).deploy(deployerAddress),
+    eContractid.UniswapV2Factory,
+    [deployerAddress],
+    verify
+  );
+};
+
+export const deploySushiSwapRouter = async (verify?: boolean) => {
+  const deployer = await getDeploySigner();
+
+  const uniswapV2Factory = await deployUniswapV2Factory();
+
+  return withSaveAndVerify(
+    await new UniswapV2Router02Factory(deployer).deploy(uniswapV2Factory.address, ZERO_ADDRESS),
+    eContractid.SushiSwapRouter,
+    [uniswapV2Factory.address, ZERO_ADDRESS],
+    verify
+  );
+};

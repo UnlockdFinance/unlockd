@@ -25,6 +25,8 @@ import {
   getDebtToken,
   getWalletProvider,
   getUIPoolDataProvider,
+  getNFTXVaultFactory,
+  getSushiSwapRouter,
 } from "../../helpers/contracts-getters";
 import { eEthereumNetwork, eNetwork, tEthereumAddress } from "../../helpers/types";
 import { LendPool } from "../../types/LendPool";
@@ -63,6 +65,8 @@ import {
 } from "../../types";
 import { MockChainlinkOracle } from "../../types/MockChainlinkOracle";
 import { USD_ADDRESS } from "../../helpers/constants";
+import { INFTXVaultFactoryV2 } from "../../types/INFTXVaultFactoryV2";
+import { IUniswapV2Router02 } from "../../types/IUniswapV2Router02";
 
 chai.use(bignumberChai());
 chai.use(almostEqual());
@@ -109,6 +113,9 @@ export interface TestEnv {
 
   roundIdTracker: number;
   nowTimeTracker: number;
+
+  nftxVaultFactory: INFTXVaultFactoryV2;
+  sushiSwapRouter: IUniswapV2Router02;
 }
 
 let buidlerevmSnapshotId: string = "0x1";
@@ -244,10 +251,14 @@ export async function initializeMakeSuite() {
   testEnv.punkGateway = await getPunkGateway();
 
   testEnv.tokenIdTracker = 100;
-  testEnv.punkIndexTracker = 0;
+  testEnv.punkIndexTracker = 100;
 
   testEnv.roundIdTracker = 1;
   testEnv.nowTimeTracker = Number(await getNowTimeInSeconds());
+
+  // NFTXVaultFactory, Sushiswap Router
+  testEnv.nftxVaultFactory = await getNFTXVaultFactory();
+  testEnv.sushiSwapRouter = await getSushiSwapRouter();
 }
 
 const setSnapshot = async () => {
@@ -260,8 +271,12 @@ const revertHead = async () => {
   await evmRevert(buidlerevmSnapshotId);
 };
 
-export function makeSuite(name: string, tests: (testEnv: TestEnv) => void) {
-  describe(name, () => {
+export function makeSuite(
+  name: string,
+  tests: (testEnv: TestEnv) => void,
+  { only, skip }: { only?: boolean; skip?: boolean } = { only: false, skip: false }
+) {
+  (only ? describe.only : skip ? describe.skip : describe)(name, () => {
     before(async () => {
       await setSnapshot();
     });

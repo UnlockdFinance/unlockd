@@ -671,15 +671,11 @@ export const auction = async (
   amountToAuction = "0x" + new BigNumber(amountToAuction).toString(16);
 
   if (isFirstTime && expectedResult === "success") {
-    const txResult = await waitForTx(
-      await pool.connect(user.signer).auction(nftAsset, nftTokenId, amountToAuction, onBehalfOf.address)
-    );
+    const txResult = await waitForTx(await pool.connect(user.signer).auction(nftAsset, nftTokenId));
 
     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
   } else if (expectedResult === "success") {
-    const txResult = await waitForTx(
-      await pool.connect(user.signer).auction(nftAsset, nftTokenId, amountToAuction, onBehalfOf.address)
-    );
+    const txResult = await waitForTx(await pool.connect(user.signer).auction(nftAsset, nftTokenId));
 
     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
 
@@ -735,10 +731,7 @@ export const auction = async (
     expectEqual(userDataAfter, expectedUserData);
     expectEqual(loanDataAfter, expectedLoanData);
   } else if (expectedResult === "revert") {
-    await expect(
-      pool.connect(user.signer).auction(nftAsset, nftTokenId, amountToAuction, onBehalfOf.address),
-      revertMessage
-    ).to.be.reverted;
+    await expect(pool.connect(user.signer).auction(nftAsset, nftTokenId), revertMessage).to.be.reverted;
   }
 };
 
@@ -836,7 +829,7 @@ export const redeem = async (
   }
 };
 
-export const liquidate = async (
+export const liquidateNFTX = async (
   testEnv: TestEnv,
   user: SignerWithAddress,
   nftSymbol: string,
@@ -858,7 +851,7 @@ export const liquidate = async (
   } = await getContractsDataWithLoan(reserveAsset, borrower, nftAsset, nftTokenId, "0", testEnv, user.address);
 
   if (expectedResult === "success") {
-    const txResult = await waitForTx(await pool.connect(user.signer).liquidate(nftAsset, nftTokenId, amount));
+    const txResult = await waitForTx(await pool.connect(user.signer).liquidateNFTX(nftAsset, nftTokenId));
 
     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
 

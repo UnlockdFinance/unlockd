@@ -77,7 +77,8 @@ export const CommonsConfig: ICommonConfiguration = {
   // If PoolAdmin/emergencyAdmin is set, will take priority over PoolAdminIndex/emergencyAdminIndex
   PoolAdmin: {
     [eEthereumNetwork.coverage]: undefined,
-    [eEthereumNetwork.hardhat]: '0x5b69e6884c70f42819fb35bf3c25578ee11aaa15',
+    // [eEthereumNetwork.hardhat]: '0x5b69e6884c70f42819fb35bf3c25578ee11aaa15',
+    [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.develop]: '0xad93fB0e59eC703422dD38dCb7AcB8e323C8cc5B',
     [eEthereumNetwork.kovan]: '0x249D0dF00d8ca96952A9fc29ddD3199bD035A05B',
@@ -85,9 +86,10 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.goerli]: undefined,
     [eEthereumNetwork.main]: '0x868964fa49a6fd6e116FE82c8f4165904406f479',
   },
-  PoolAdminIndex: 1,
+  PoolAdminIndex: 0,
   EmergencyAdmin: {
-    [eEthereumNetwork.hardhat]: '0x51d25beeef0193c96cfda7fff9bd7411c2bdbdd3',
+    // [eEthereumNetwork.hardhat]: '0x51d25beeef0193c96cfda7fff9bd7411c2bdbdd3',
+    [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.coverage]: undefined,
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.develop]: '0x14048d069A5E821eB82E01a275fdfC915C5BcfC4',
@@ -96,11 +98,11 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.goerli]: undefined,
     [eEthereumNetwork.main]: '0x2CFa21b4dEc4409670899d05b8644e9C432250de',
   },
-  EmergencyAdminIndex: 2,
+  EmergencyAdminIndex: 1,
 
   UNFTRegistry: { /// Add contract From U
     [eEthereumNetwork.coverage]: '',
-    [eEthereumNetwork.hardhat]: '0xB873F088EB721261bc88BbC739B5C794e02e414b',
+    [eEthereumNetwork.hardhat]: '0x38b9ACfdFCB9072CBEE195172AEC60ED14880327',
     [eEthereumNetwork.localhost]: '0xCE1e5D792d24F62b29D35DeB85eC04b1F66447b1',
     [eEthereumNetwork.develop]: '0xf440346C93868879B5D3b8e5f96fEc57D4f2dcdf',
     [eEthereumNetwork.kovan]: '0xC5d1624B46db4F3F628400C0F41c49220c210c3F',
@@ -271,5 +273,25 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.kovan]: '0x0c5E94DC433A0c67Bbc25801759284A6e1Dd85Bb',
     [eEthereumNetwork.goerli]: ZERO_ADDRESS,
     [eEthereumNetwork.main]: '0x26FC1f11E612366d3367fc0cbFfF9e819da91C8d',
+  },
+  NFTXVaultFactory: {
+    [eEthereumNetwork.coverage]: ZERO_ADDRESS,
+    [eEthereumNetwork.hardhat]: '',
+    [eEthereumNetwork.localhost]: '',
+    [eEthereumNetwork.develop]: '',
+    [eEthereumNetwork.rinkeby]: '0xbbc53022Af15Bb973AD906577c84784c47C14371',
+    [eEthereumNetwork.kovan]: '',
+    [eEthereumNetwork.goerli]: ZERO_ADDRESS,
+    [eEthereumNetwork.main]: '0xBE86f647b167567525cCAAfcd6f881F1Ee558216',
+  },
+  SushiSwapRouter: {
+    [eEthereumNetwork.coverage]: ZERO_ADDRESS,
+    [eEthereumNetwork.hardhat]: '',
+    [eEthereumNetwork.localhost]: '',
+    [eEthereumNetwork.develop]: '',
+    [eEthereumNetwork.rinkeby]: '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506',
+    [eEthereumNetwork.kovan]: '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506',
+    [eEthereumNetwork.goerli]: ZERO_ADDRESS,
+    [eEthereumNetwork.main]: '0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F',
   },
 };

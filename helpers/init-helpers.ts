@@ -8,8 +8,25 @@ import {
   tEthereumAddress,
 } from "./types";
 import { chunk, waitForTx } from "./misc-utils";
-import { getLendPoolAddressesProvider, getLendPoolConfiguratorProxy } from "./contracts-getters";
-import { getContractAddressWithJsonFallback, rawInsertContractAddressInDb } from "./contracts-helpers";
+import {
+  getCryptoPunksMarket,
+  getDeploySigner,
+  getLendPoolAddressesProvider,
+  getLendPoolConfiguratorProxy,
+  getMintableERC20,
+  getMintableERC721,
+  getNFTXVault,
+  getNFTXVaultFactory,
+  getSushiSwapRouter,
+  getUnlockdProtocolDataProvider,
+  getWETHMocked,
+  getWrappedPunk,
+} from "./contracts-getters";
+import {
+  convertToCurrencyDecimals,
+  getContractAddressWithJsonFallback,
+  rawInsertContractAddressInDb,
+} from "./contracts-helpers";
 import { BigNumberish } from "ethers";
 import { ConfigNames } from "./configuration";
 import { deployRateStrategy } from "./contracts-deployments";
@@ -376,4 +393,164 @@ export const configureNftsByHelper = async (
       console.log(`  - batchConfigNft for: ${chunkedSymbols[chunkIndex].join(", ")}`);
     }
   }
+};
+
+export const initNFTXByHelper = async () => {
+  const deployer = await getDeploySigner();
+
+  const dataProvider = await getUnlockdProtocolDataProvider();
+  const allReserveTokens = await dataProvider.getAllReservesTokenDatas();
+  const usdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.tokenAddress;
+  const wethAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.tokenAddress;
+
+  if (!usdcAddress || !wethAddress) {
+    console.error("Invalid Reserve Tokens", usdcAddress, wethAddress);
+    process.exit(1);
+  }
+
+  const usdc = await getMintableERC20(usdcAddress);
+  const weth = await getWETHMocked(wethAddress);
+
+  const allUNftTokens = await dataProvider.getAllNftsTokenDatas();
+
+  const wpunksAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.nftAddress;
+  const baycAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "BAYC")?.nftAddress;
+
+  if (!baycAddress || !wpunksAddress) {
+    console.error("Invalid NFT Tokens", baycAddress, wpunksAddress);
+    process.exit(1);
+  }
+
+  const bayc = await getMintableERC721(baycAddress);
+
+  const cryptoPunksMarket = await getCryptoPunksMarket();
+  const wrappedPunk = await getWrappedPunk();
+  await waitForTx(await wrappedPunk.connect(deployer).registerProxy());
+  const wrappedPunkProxy = await wrappedPunk.proxyInfo(await deployer.getAddress());
+
+  const nftxVaultFactory = await getNFTXVaultFactory();
+  const sushiSwapRouter = await getSushiSwapRouter();
+
+  // Create NFTX Vault for bayc
+  console.log("- Creating & depositing into BAYC NFTX Vault");
+  await nftxVaultFactory.createVault("Unlockd Mock BAYC", "BAYC", bayc.address, false, true);
+  const vaultsForAssets = await nftxVaultFactory.vaultsForAsset(bayc.address);
+  const nftxVault = await getNFTXVault(vaultsForAssets[0]);
+
+  const baycTokenIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  // Mint BAYC tokens to owner
+  for (const baycTokenId of baycTokenIds) {
+    await bayc.connect(deployer).mint(baycTokenId);
+  }
+
+  // Deposit 10 BAYC tokens to vault
+  await bayc.setApprovalForAll(nftxVault.address, true);
+  await nftxVault.connect(deployer).mint(baycTokenIds, []);
+
+  const nftxTokenAmount = await convertToCurrencyDecimals(nftxVault.address, "4");
+
+  console.log("- Configuring BAYC/USDC Pool on SushiSwap");
+  // Deposit 600000 USDC to owner
+  let lpUSDCAmount = await convertToCurrencyDecimals(usdc.address, "600000");
+  await usdc.connect(deployer).mint(lpUSDCAmount);
+
+  // Provide liquidity to SushiSwap - Price is 15000 USDC
+  await nftxVault.connect(deployer).approve(sushiSwapRouter.address, nftxTokenAmount);
+  await usdc.connect(deployer).approve(sushiSwapRouter.address, lpUSDCAmount);
+
+  await sushiSwapRouter
+    .connect(deployer)
+    .addLiquidity(
+      nftxVault.address,
+      usdc.address,
+      nftxTokenAmount,
+      lpUSDCAmount,
+      0,
+      0,
+      await deployer.getAddress(),
+      new Date().getTime() + 10000
+    );
+
+  console.log("- Configuring BAYC/WETH Pool on SushiSwap");
+  // Deposit 400 WETH to owner
+  const lpWETHAmount = await convertToCurrencyDecimals(weth.address, "400");
+  await weth.connect(deployer).mint(lpWETHAmount);
+
+  // Provide liquidity to SushiSwap - Price is 100 WETH
+  await nftxVault.connect(deployer).approve(sushiSwapRouter.address, nftxTokenAmount);
+  await weth.connect(deployer).approve(sushiSwapRouter.address, lpWETHAmount);
+
+  await sushiSwapRouter
+    .connect(deployer)
+    .addLiquidity(
+      nftxVault.address,
+      weth.address,
+      nftxTokenAmount,
+      lpWETHAmount,
+      0,
+      0,
+      await deployer.getAddress(),
+      new Date().getTime() + 10000
+    );
+
+  // Create NFTX Vault for WPUNKS
+  console.log("- Creating & depositing into WPUNKS NFTX Vault");
+  await nftxVaultFactory.createVault("Unlockd Mock WPUNKS", "WPUNKS", wrappedPunk.address, false, true);
+  const wrappedPunkVaultsForAssets = await nftxVaultFactory.vaultsForAsset(wrappedPunk.address);
+  const wrappedPunkVault = await getNFTXVault(wrappedPunkVaultsForAssets[0]);
+
+  // Mint WPUNKS tokens to owner
+  const wrappedPunkTokenIds = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  for (const wrappedPunkTokenId of wrappedPunkTokenIds) {
+    await waitForTx(await cryptoPunksMarket.connect(deployer).getPunk(wrappedPunkTokenId));
+    await waitForTx(await cryptoPunksMarket.transferPunk(wrappedPunkProxy, wrappedPunkTokenId));
+    await waitForTx(await wrappedPunk.connect(deployer).mint(wrappedPunkTokenId));
+  }
+
+  // Deposit 10 WPUNKS tokens to vault
+  await wrappedPunk.setApprovalForAll(wrappedPunkVault.address, true);
+  await wrappedPunkVault.connect(deployer).mint(wrappedPunkTokenIds, []);
+
+  console.log("- Configuring WPUNKS/USDC Pool on SushiSwap");
+  // Deposit 60000 USDC to owner
+  lpUSDCAmount = await convertToCurrencyDecimals(usdc.address, "60000");
+  await usdc.connect(deployer).mint(lpUSDCAmount);
+
+  // Provide liquidity to SushiSwap - Price is 15000 USDC
+  await wrappedPunkVault.connect(deployer).approve(sushiSwapRouter.address, nftxTokenAmount);
+  await usdc.connect(deployer).approve(sushiSwapRouter.address, lpUSDCAmount);
+
+  await sushiSwapRouter
+    .connect(deployer)
+    .addLiquidity(
+      wrappedPunkVault.address,
+      usdc.address,
+      nftxTokenAmount,
+      lpUSDCAmount,
+      0,
+      0,
+      await deployer.getAddress(),
+      new Date().getTime() + 10000
+    );
+
+  console.log("- Configuring WPUNKS/WETH Pool on SushiSwap");
+  // Deposit 400 WETH to owner
+  await weth.connect(deployer).mint(lpWETHAmount);
+
+  // Provide liquidity to SushiSwap - Price is 100 WETH
+  await wrappedPunkVault.connect(deployer).approve(sushiSwapRouter.address, nftxTokenAmount);
+  await weth.connect(deployer).approve(sushiSwapRouter.address, lpWETHAmount);
+
+  await sushiSwapRouter
+    .connect(deployer)
+    .addLiquidity(
+      wrappedPunkVault.address,
+      weth.address,
+      nftxTokenAmount,
+      lpWETHAmount,
+      0,
+      0,
+      await deployer.getAddress(),
+      new Date().getTime() + 10000
+    );
 };

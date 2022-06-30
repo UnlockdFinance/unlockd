@@ -480,7 +480,8 @@ export const calcExpectedUserDataAfterAuction = (
   txTimestamp: BigNumber,
   currentTimestamp: BigNumber
 ): UserReserveData => {
-  const amountAuctionBN = new BigNumber(amountToAuction);
+  // const amountAuctionBN = new BigNumber(amountToAuction);
+  const amountAuctionBN = new BigNumber(0);
   const amountRedeemBN = new BigNumber(0); // just reuse repay calculation logic
 
   const expectedUserData = calcExpectedUserDataAfterRepay(
@@ -532,9 +533,8 @@ export const calcExpectedUserDataAfterRedeem = (
 
   // walletBalance is about liquidator(user), not borrower
   // borrower's wallet not changed, but we check liquidator's wallet
-  expectedUserData.walletBalance = userDataBeforeAction.walletBalance
-    .minus(new BigNumber(amountToRedeem))
-    .minus(bidFine);
+  expectedUserData.walletBalance = userDataBeforeAction.walletBalance.minus(new BigNumber(amountToRedeem));
+  // .minus(bidFine);
   return expectedUserData;
 };
 
@@ -693,8 +693,9 @@ export const calcExpectedLoanDataAfterAuction = (
 
   expectedLoanData.state = new BigNumber(ProtocolLoanState.Auction);
 
-  expectedLoanData.bidderAddress = onBehalfOf;
-  expectedLoanData.bidPrice = new BigNumber(amountToAuction);
+  // expectedLoanData.bidderAddress = onBehalfOf;
+  // expectedLoanData.bidPrice = new BigNumber(amountToAuction);
+  expectedLoanData.bidPrice = new BigNumber(0);
   expectedLoanData.bidFine = loanDataAfterAction.bidFine;
 
   const borrowAmount = calcExpectedLoanBorrowBalance(reserveDataBeforeAction, loanDataBeforeAction, currentTimestamp);

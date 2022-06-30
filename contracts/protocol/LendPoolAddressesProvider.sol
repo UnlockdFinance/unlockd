@@ -34,6 +34,10 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   bytes32 private constant UNLOCKD_DATA_PROVIDER = "UNLOCKD_DATA_PROVIDER";
   bytes32 private constant UI_DATA_PROVIDER = "UI_DATA_PROVIDER";
   bytes32 private constant WALLET_BALANCE_PROVIDER = "WALLET_BALANCE_PROVIDER";
+  bytes32 private constant LOOKSRARE_EXCHANGE = "LOOKSRARE_EXCHANGE";
+  bytes32 private constant OPENSEA_WYVERN_EXCHANGE = "OPENSEA_WYVERN_EXCHANGE";
+  bytes32 private constant NFTX_VAULT_FACTORY = "NFTX_VAULT_FACTORY";
+  bytes32 private constant SUSHI_SWAP_ROUTER = "SUSHI_SWAP_ROUTER";
 
   constructor(string memory marketId) {
     _setMarketId(marketId);
@@ -237,6 +241,42 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   function setWalletBalanceProvider(address provider) external override onlyOwner {
     _addresses[WALLET_BALANCE_PROVIDER] = provider;
     emit WalletBalanceProviderUpdated(provider);
+  }
+
+  function getLooksRareExchange() external view override returns (address) {
+    return getAddress(LOOKSRARE_EXCHANGE);
+  }
+
+  function setLooksRareExchange(address exchange) external override onlyOwner {
+    _addresses[LOOKSRARE_EXCHANGE] = exchange;
+    emit LooksRareExchangeUpdated(exchange);
+  }
+
+  function getOpenseaWyvernExchange() external view override returns (address) {
+    return getAddress(OPENSEA_WYVERN_EXCHANGE);
+  }
+
+  function setOpenseaWyvernExchange(address exchange) external override onlyOwner {
+    _addresses[OPENSEA_WYVERN_EXCHANGE] = exchange;
+    emit OpenseaWyvernExchangeUpdated(exchange);
+  }
+
+  function getNFTXVaultFactory() external view override returns (address) {
+    return getAddress(NFTX_VAULT_FACTORY);
+  }
+
+  function setNFTXVaultFactory(address factory) external override onlyOwner {
+    _addresses[NFTX_VAULT_FACTORY] = factory;
+    emit NFTXVaultFactoryUpdated(factory);
+  }
+
+  function getSushiSwapRouter() external view override returns (address) {
+    return getAddress(SUSHI_SWAP_ROUTER);
+  }
+
+  function setSushiSwapRouter(address router) external override onlyOwner {
+    _addresses[SUSHI_SWAP_ROUTER] = router;
+    emit SushiSwapRouterUpdated(router);
   }
 
   function getImplementation(address proxyAddress) external view onlyOwner returns (address) {
