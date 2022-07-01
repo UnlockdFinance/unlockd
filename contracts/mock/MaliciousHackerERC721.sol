@@ -47,8 +47,6 @@ contract MaliciousHackerERC721 is IERC721Receiver {
     address to;
     uint16 referralCode;
     uint256 amount;
-    uint256 bidPrice;
-    uint256 bidFine;
   }
 
   function onERC721Received(
@@ -70,8 +68,6 @@ contract MaliciousHackerERC721 is IERC721Receiver {
     vars.to = msg.sender;
     vars.referralCode = 0;
     vars.amount = 1 ether;
-    vars.bidPrice = 2 ether;
-    vars.bidFine = 0.1 ether;
 
     if (_simulateAction == ACTION_DEPOSIT) {
       _pool.deposit(vars.reserves[0], vars.amount, vars.onBehalfOf, vars.referralCode);
@@ -84,7 +80,7 @@ contract MaliciousHackerERC721 is IERC721Receiver {
     } else if (_simulateAction == ACTION_AUCTION) {
       _pool.auction(vars.nfts[0], tokenId);
     } else if (_simulateAction == ACTION_REDEEM) {
-      _pool.redeem(vars.nfts[0], tokenId, vars.amount, vars.bidFine);
+      _pool.redeem(vars.nfts[0], tokenId, vars.amount);
     } else if (_simulateAction == ACTION_LIQUIDATE_NFTX) {
       _pool.liquidateNFTX(vars.nfts[0], tokenId);
     }

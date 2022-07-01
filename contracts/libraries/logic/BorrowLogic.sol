@@ -25,6 +25,8 @@ import {ReserveLogic} from "./ReserveLogic.sol";
 import {GenericLogic} from "./GenericLogic.sol";
 import {ValidationLogic} from "./ValidationLogic.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title BorrowLogic library
  * @author Unlockd

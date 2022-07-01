@@ -202,10 +202,8 @@ contract UnlockdProtocolDataProvider {
     address reserveAsset;
     uint256 scaledAmount;
     uint256 currentAmount;
-    uint256 bidStartTimestamp;
-    address bidderAddress;
-    uint256 bidPrice;
-    uint256 bidBorrowAmount;
+    uint256 auctionStartTimestamp;
+    uint256 minBidPrice;
   }
 
   function getLoanDataByCollateral(address nftAsset, uint256 nftTokenId)
@@ -234,9 +232,7 @@ contract UnlockdProtocolDataProvider {
     (, loanData.currentAmount) = ILendPoolLoan(ADDRESSES_PROVIDER.getLendPoolLoan()).getLoanReserveBorrowAmount(
       loan.loanId
     );
-    loanData.bidStartTimestamp = loan.bidStartTimestamp;
-    loanData.bidderAddress = loan.bidderAddress;
-    loanData.bidPrice = loan.bidPrice;
-    loanData.bidBorrowAmount = loan.bidBorrowAmount;
+    loanData.auctionStartTimestamp = loan.auctionStartTimestamp;
+    loanData.minBidPrice = loan.minBidPrice;
   }
 }

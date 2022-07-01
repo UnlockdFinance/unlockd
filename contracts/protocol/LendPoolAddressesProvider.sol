@@ -274,6 +274,15 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
     return getAddress(SUSHI_SWAP_ROUTER);
   }
 
+  function getLendPoolLiquidator() external view override returns (address) {
+    return getAddress(LEND_POOL_LIQUIDATOR);
+  }
+
+  function setLendPoolLiquidator(address liquidator) external override onlyOwner {
+    _addresses[LEND_POOL_LIQUIDATOR] = liquidator;
+    emit LendPoolLiquidatorUpdated(liquidator);
+  }
+
   function setSushiSwapRouter(address router) external override onlyOwner {
     _addresses[SUSHI_SWAP_ROUTER] = router;
     emit SushiSwapRouterUpdated(router);

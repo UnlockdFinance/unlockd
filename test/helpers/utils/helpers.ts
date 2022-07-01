@@ -136,10 +136,7 @@ export const getLoanData = async (
     reserveAsset: loanData.reserveAsset,
     scaledAmount: new BigNumber(loanData.scaledAmount.toString()),
     currentAmount: new BigNumber(loanData.currentAmount.toString()),
-    bidderAddress: loanData.bidderAddress,
-    bidPrice: new BigNumber(loanData.bidPrice.toString()),
-    bidBorrowAmount: new BigNumber(loanData.bidBorrowAmount.toString()),
-    bidFine: new BigNumber(auctionData.bidFine.toString()),
+    minBidPrice: new BigNumber(loanData.minBidPrice.toString()),
     nftCfgRedeemFine: new BigNumber(nftCfgData.redeemFine.toString()),
     nftCfgMinBidFine: new BigNumber(nftCfgData.minBidFine.toString()),
   };

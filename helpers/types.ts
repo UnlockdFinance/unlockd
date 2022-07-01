@@ -409,6 +409,8 @@ export interface ICommonConfiguration {
   PoolAdminIndex: number;
   EmergencyAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
   EmergencyAdminIndex: number;
+  LendPoolLiquidator: iParamsPerNetwork<tEthereumAddress | undefined>;
+  LendPoolLiquidatorIndex: number;
 
   ReserveAggregators: iParamsPerNetwork<ITokenAddress>;
   ReserveAssets: iParamsPerNetwork<SymbolMap<tEthereumAddress>>;

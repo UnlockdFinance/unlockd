@@ -95,12 +95,21 @@ contract LendPool is
     _;
   }
 
+  modifier onlyLendPoolLiquidator() {
+    _onlyLendPoolLiquidator();
+    _;
+  }
+
   function _whenNotPaused() internal view {
     require(!_paused, Errors.LP_IS_PAUSED);
   }
 
   function _onlyLendPoolConfigurator() internal view {
     require(_addressesProvider.getLendPoolConfigurator() == _msgSender(), Errors.LP_CALLER_NOT_LEND_POOL_CONFIGURATOR);
+  }
+
+  function _onlyLendPoolLiquidator() internal view {
+    require(_addressesProvider.getLendPoolLiquidator() == _msgSender(), Errors.LP_CALLER_NOT_LEND_POOL_LIQUIDATOR);
   }
 
   /**
@@ -277,12 +286,18 @@ contract LendPool is
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
-  function auction(address nftAsset, uint256 nftTokenId) external override nonReentrant whenNotPaused {
+  function auction(address nftAsset, uint256 nftTokenId)
+    external
+    override
+    nonReentrant
+    onlyLendPoolLiquidator
+    whenNotPaused
+  {
     LiquidateLogic.executeAuction(
       _addressesProvider,
       _reserves,
       _nfts,
-      DataTypes.ExecuteAuctionParams({nftAsset: nftAsset, nftTokenId: nftTokenId})
+      DataTypes.ExecuteAuctionParams({initiator: _msgSender(), nftAsset: nftAsset, nftTokenId: nftTokenId})
     );
   }
 
@@ -292,13 +307,11 @@ contract LendPool is
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    * @param amount The amount to repay the debt
-   * @param bidFine The amount of bid fine
    **/
   function redeem(
     address nftAsset,
     uint256 nftTokenId,
-    uint256 amount,
-    uint256 bidFine
+    uint256 amount
   ) external override nonReentrant whenNotPaused returns (uint256) {
     return
       LiquidateLogic.executeRedeem(
@@ -309,8 +322,7 @@ contract LendPool is
           initiator: _msgSender(),
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
-          amount: amount,
-          bidFine: bidFine
+          amount: amount
         })
       );
   }
@@ -326,7 +338,7 @@ contract LendPool is
     uint256 nftTokenId,
     OrderTypes.TakerOrder calldata takerAsk,
     OrderTypes.MakerOrder calldata makerBid
-  ) external override nonReentrant whenNotPaused returns (uint256) {
+  ) external override nonReentrant onlyLendPoolLiquidator whenNotPaused returns (uint256) {
     return
       LiquidateLogic.executeLiquidateLooksRare(
         _addressesProvider,
@@ -354,7 +366,7 @@ contract LendPool is
     WyvernExchange.Order calldata sellOrder,
     uint8[2] calldata _vs,
     bytes32[5] calldata _rssMetadata
-  ) external override nonReentrant whenNotPaused returns (uint256) {
+  ) external override nonReentrant onlyLendPoolLiquidator whenNotPaused returns (uint256) {
     return
       LiquidateLogic.executeLiquidateOpensea(
         _addressesProvider,
@@ -381,6 +393,7 @@ contract LendPool is
     external
     override
     nonReentrant
+    onlyLendPoolLiquidator
     whenNotPaused
     returns (uint256)
   {
@@ -389,7 +402,7 @@ contract LendPool is
         _addressesProvider,
         _reserves,
         _nfts,
-        DataTypes.ExecuteLiquidateNFTXParams({nftAsset: nftAsset, nftTokenId: nftTokenId})
+        DataTypes.ExecuteLiquidateNFTXParams({initiator: _msgSender(), nftAsset: nftAsset, nftTokenId: nftTokenId})
       );
   }
 
@@ -583,10 +596,9 @@ contract LendPool is
    * @param nftAsset The address of the NFT
    * @param nftTokenId The token id of the NFT
    * @return loanId the loan id of the NFT
-   * @return bidderAddress the highest bidder address of the loan
-   * @return bidPrice the highest bid price in Reserve of the loan
-   * @return bidBorrowAmount the borrow amount in Reserve of the loan
-   * @return bidFine the penalty fine of the loan
+   * @return auctionStartTimestamp the timestamp of auction start
+   * @return reserveAsset the reserve asset of buy offers
+   * @return minBidPrice the min bid price of the auction
    **/
   function getNftAuctionData(address nftAsset, uint256 nftTokenId)
     external
@@ -594,33 +606,20 @@ contract LendPool is
     override
     returns (
       uint256 loanId,
-      address bidderAddress,
-      uint256 bidPrice,
-      uint256 bidBorrowAmount,
-      uint256 bidFine
+      uint256 auctionStartTimestamp,
+      address reserveAsset,
+      uint256 minBidPrice
     )
   {
-    DataTypes.NftData storage nftData = _nfts[nftAsset];
     ILendPoolLoan poolLoan = ILendPoolLoan(_addressesProvider.getLendPoolLoan());
 
     loanId = poolLoan.getCollateralLoanId(nftAsset, nftTokenId);
     if (loanId != 0) {
       DataTypes.LoanData memory loan = ILendPoolLoan(_addressesProvider.getLendPoolLoan()).getLoan(loanId);
-      DataTypes.ReserveData storage reserveData = _reserves[loan.reserveAsset];
 
-      bidderAddress = loan.bidderAddress;
-      bidPrice = loan.bidPrice;
-      bidBorrowAmount = loan.bidBorrowAmount;
-
-      (, bidFine) = GenericLogic.calculateLoanBidFine(
-        loan.reserveAsset,
-        reserveData,
-        nftAsset,
-        nftData,
-        loan,
-        address(poolLoan),
-        _addressesProvider.getReserveOracle()
-      );
+      auctionStartTimestamp = loan.auctionStartTimestamp;
+      reserveAsset = loan.reserveAsset;
+      minBidPrice = loan.minBidPrice;
     }
   }
 

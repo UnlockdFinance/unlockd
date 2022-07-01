@@ -306,8 +306,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
       (loanData.liquidatePrice, ) = lendPool.getNftLiquidatePrice(nftAssets[i], nftTokenIds[i]);
 
       // NFT auction data
-      (, loanData.bidderAddress, loanData.bidPrice, loanData.bidBorrowAmount, loanData.bidFine) = lendPool
-        .getNftAuctionData(nftAssets[i], nftTokenIds[i]);
+      (, , , loanData.minBidPrice) = lendPool.getNftAuctionData(nftAssets[i], nftTokenIds[i]);
     }
 
     return loansData;

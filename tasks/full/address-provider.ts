@@ -2,7 +2,13 @@ import { task } from "hardhat/config";
 import { formatEther } from "ethers/lib/utils";
 import { deployLendPoolAddressesProvider } from "../../helpers/contracts-deployments";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
-import { ConfigNames, loadPoolConfig, getGenesisPoolAdmin, getEmergencyAdmin } from "../../helpers/configuration";
+import {
+  ConfigNames,
+  loadPoolConfig,
+  getGenesisPoolAdmin,
+  getEmergencyAdmin,
+  getLendPoolLiquidator,
+} from "../../helpers/configuration";
 import { getDeploySigner } from "../../helpers/contracts-getters";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { eNetwork } from "../../helpers/types";
@@ -35,6 +41,7 @@ task("full:deploy-address-provider", "Deploy address provider for full enviromen
     // Set pool admins
     await waitForTx(await addressesProvider.setPoolAdmin(await getGenesisPoolAdmin(poolConfig)));
     await waitForTx(await addressesProvider.setEmergencyAdmin(await getEmergencyAdmin(poolConfig)));
+    await waitForTx(await addressesProvider.setLendPoolLiquidator(await getLendPoolLiquidator(poolConfig)));
 
     console.log("Pool Admin", await addressesProvider.getPoolAdmin());
     console.log("Emergency Admin", await addressesProvider.getEmergencyAdmin());

@@ -1,6 +1,11 @@
 import { task } from "hardhat/config";
 import { checkVerification } from "../../helpers/etherscan-verification";
-import { ConfigNames, getEmergencyAdmin, getGenesisPoolAdmin } from "../../helpers/configuration";
+import {
+  ConfigNames,
+  getEmergencyAdmin,
+  getGenesisPoolAdmin,
+  getLendPoolLiquidator,
+} from "../../helpers/configuration";
 import { printContracts } from "../../helpers/misc-utils";
 import { getDeploySigner } from "../../helpers/contracts-getters";
 import { formatEther } from "@ethersproject/units";
@@ -19,6 +24,7 @@ task("unlockd:mainnet", "Deploy full enviroment")
     const deployerSigner = await getDeploySigner();
     const poolAdminSigner = await getEthersSignerByAddress(await getGenesisPoolAdmin(poolConfig));
     const emergencyAdminSigner = await getEthersSignerByAddress(await getEmergencyAdmin(poolConfig));
+    const lendPoolLiquidatorSigner = await getEthersSignerByAddress(await getLendPoolLiquidator(poolConfig));
 
     console.log(
       "Deployer:",
@@ -116,5 +122,11 @@ task("unlockd:mainnet", "Deploy full enviroment")
       await emergencyAdminSigner.getAddress(),
       "Balance:",
       formatEther(await emergencyAdminSigner.getBalance())
+    );
+    console.log(
+      "LendPoolLiquidator:",
+      await lendPoolLiquidatorSigner.getAddress(),
+      "Balance:",
+      formatEther(await lendPoolLiquidatorSigner.getBalance())
     );
   });

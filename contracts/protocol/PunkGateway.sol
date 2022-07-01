@@ -235,11 +235,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     cachedPool.auction(address(wrappedPunks), punkIndex);
   }
 
-  function redeem(
-    uint256 punkIndex,
-    uint256 amount,
-    uint256 bidFine
-  ) external override nonReentrant returns (uint256) {
+  function redeem(uint256 punkIndex, uint256 amount) external override nonReentrant returns (uint256) {
     ILendPool cachedPool = _getLendPool();
     ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
 
@@ -248,12 +244,12 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
 
     DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
 
-    IERC20Upgradeable(loan.reserveAsset).transferFrom(msg.sender, address(this), (amount + bidFine));
+    IERC20Upgradeable(loan.reserveAsset).transferFrom(msg.sender, address(this), amount);
 
-    uint256 paybackAmount = cachedPool.redeem(address(wrappedPunks), punkIndex, amount, bidFine);
+    uint256 paybackAmount = cachedPool.redeem(address(wrappedPunks), punkIndex, amount);
 
-    if ((amount + bidFine) > paybackAmount) {
-      IERC20Upgradeable(loan.reserveAsset).safeTransfer(msg.sender, ((amount + bidFine) - paybackAmount));
+    if (amount > paybackAmount) {
+      IERC20Upgradeable(loan.reserveAsset).safeTransfer(msg.sender, (amount - paybackAmount));
     }
 
     return paybackAmount;
@@ -401,11 +397,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (paybackAmount, burn);
   }
 
-  function redeemETH(
-    uint256 punkIndex,
-    uint256 amount,
-    uint256 bidFine
-  ) external payable override nonReentrant returns (uint256) {
+  function redeemETH(uint256 punkIndex, uint256 amount) external payable override nonReentrant returns (uint256) {
     ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
 
     uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
@@ -413,7 +405,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
 
     //DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
 
-    uint256 paybackAmount = _wethGateway.redeemETH{value: msg.value}(address(wrappedPunks), punkIndex, amount, bidFine);
+    uint256 paybackAmount = _wethGateway.redeemETH{value: msg.value}(address(wrappedPunks), punkIndex, amount);
 
     // refund remaining dust eth
     if (msg.value > paybackAmount) {

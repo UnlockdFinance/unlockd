@@ -66,12 +66,10 @@ interface IWETHGateway {
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    * @param amount The amount to repay the debt
-   * @param bidFine The amount of bid fine
    */
   function redeemETH(
     address nftAsset,
     uint256 nftTokenId,
-    uint256 amount,
-    uint256 bidFine
+    uint256 amount
   ) external payable returns (uint256);
 }

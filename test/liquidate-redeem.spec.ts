@@ -92,8 +92,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
   });
 
   it("WETH - Auctions the borrow", async () => {
-    const { weth, bayc, bBAYC, users, pool, dataProvider } = testEnv;
-    const liquidator = users[3];
+    const { weth, bayc, bBAYC, users, pool, dataProvider, liquidator } = testEnv;
     const borrower = users[1];
 
     //mints WETH to the liquidator
@@ -109,9 +108,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     // accurate borrow index, increment interest to loanDataBefore.scaledAmount
     await increaseTime(100);
 
-    const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
-    const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.1).toFixed(0);
-
+    await bayc.connect(liquidator.signer).setApprovalForAll(pool.address, true);
     await pool.connect(liquidator.signer).auction(bayc.address, "101");
 
     // check result
@@ -122,12 +119,11 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Auction, "Invalid loan state after auction");
 
     const tokenOwner = await bayc.ownerOf("101");
-    expect(tokenOwner).to.be.equal(bBAYC.address, "Invalid token owner after redeem");
+    expect(tokenOwner).to.be.equal(liquidator.address, "Invalid token owner after redeem");
   });
 
   it("WETH - Redeems the borrow", async () => {
-    const { weth, bayc, bBAYC, users, pool, dataProvider } = testEnv;
-    const liquidator = users[3];
+    const { weth, bayc, bBAYC, users, pool, dataProvider, liquidator } = testEnv;
     const borrower = users[1];
 
     //mints WETH to the borrower
@@ -152,9 +148,8 @@ makeSuite("LendPool: Redeem", (testEnv) => {
 
     const debtDataBeforeRedeem = await pool.getNftDebtData(bayc.address, "101");
     const repayDebtAmount = new BigNumber(debtDataBeforeRedeem.totalDebt.toString()).multipliedBy(0.6).toFixed(0);
-    const bidFineAmount = new BigNumber(auctionDataBefore.bidFine.toString()).multipliedBy(1.1).toFixed(0);
 
-    await pool.connect(borrower.signer).redeem(bayc.address, "101", repayDebtAmount, bidFineAmount);
+    await pool.connect(borrower.signer).redeem(bayc.address, "101", repayDebtAmount);
 
     // check result
     const tokenOwner = await bayc.ownerOf("101");
@@ -277,8 +272,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
   });
 
   it("USDC - Auctions the borrow", async () => {
-    const { usdc, bayc, bBAYC, users, pool, dataProvider } = testEnv;
-    const liquidator = users[3];
+    const { usdc, bayc, bBAYC, users, pool, dataProvider, liquidator } = testEnv;
     const borrower = users[1];
 
     await advanceTimeAndBlock(100);
@@ -294,9 +288,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     // accurate borrow index, increment interest to loanDataBefore.scaledAmount
     await increaseTime(100);
 
-    const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "102");
-    const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.1).toFixed(0);
-
+    await bayc.connect(liquidator.signer).setApprovalForAll(pool.address, true);
     await pool.connect(liquidator.signer).auction(bayc.address, "102");
 
     // check result
@@ -304,7 +296,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     expect(lendpoolBalanceAfter).to.be.equal(lendPoolBalanceBefore, "Invalid lend pool balance after auction");
 
     const tokenOwner = await bayc.ownerOf("102");
-    expect(tokenOwner).to.be.equal(bBAYC.address, "Invalid token owner after redeem");
+    expect(tokenOwner).to.be.equal(liquidator.address, "Invalid token owner after redeem");
 
     /*
     const nftColData = await testEnv.pool.getNftCollateralData(bayc.address, usdc.address);
@@ -348,9 +340,8 @@ makeSuite("LendPool: Redeem", (testEnv) => {
 
     const debtDataBeforeRedeem = await pool.getNftDebtData(bayc.address, "102");
     const repayDebtAmount = new BigNumber(debtDataBeforeRedeem.totalDebt.toString()).multipliedBy(0.6).toFixed(0);
-    const bidFineAmount = new BigNumber(auctionDataBefore.bidFine.toString()).multipliedBy(1.1).toFixed(0);
 
-    await pool.connect(borrower.signer).redeem(bayc.address, "102", repayDebtAmount, bidFineAmount);
+    await pool.connect(borrower.signer).redeem(bayc.address, "102", repayDebtAmount);
 
     // check result
     const tokenOwner = await bayc.ownerOf("102");
