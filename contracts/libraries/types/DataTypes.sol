@@ -152,7 +152,6 @@ library DataTypes {
   }
 
   struct ExecuteAuctionParams {
-    address initiator;
     address nftAsset;
     uint256 nftTokenId;
   }
@@ -188,7 +187,6 @@ library DataTypes {
   }
 
   struct ExecuteLiquidateNFTXParams {
-    address initiator;
     address nftAsset;
     uint256 nftTokenId;
   }

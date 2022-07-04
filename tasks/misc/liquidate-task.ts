@@ -73,12 +73,12 @@ task("dev:pool-redeem", "Doing WETH redeem task")
 
     const auctionData = await lendPool.getNftAuctionData(token, id);
 
-    await waitForTx(await lendPool.redeem(token, id, amountDecimals, auctionData.bidFine));
+    await waitForTx(await lendPool.redeem(token, id, amountDecimals));
 
     console.log("OK");
   });
 
-task("dev:pool-liquidate", "Doing WETH liquidate task")
+task("dev:pool-liquidate-nftx", "Doing WETH liquidate NFTX task")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .addParam("token", "Address of ERC721")
   .addParam("id", "Token ID of ERC721")
@@ -96,7 +96,7 @@ task("dev:pool-liquidate", "Doing WETH liquidate task")
 
     const wethGateway = await getWETHGateway();
 
-    await waitForTx(await lendPool.liquidate(token, id, 0));
+    await waitForTx(await lendPool.liquidateNFTX(token, id));
 
     console.log("OK");
   });
@@ -120,7 +120,7 @@ task("dev:weth-auction", "Doing WETH auction task")
 
     const amountDecimals = await convertToCurrencyDecimals(weth.address, amount);
 
-    await waitForTx(await wethGateway.auctionETH(token, id, signerAddress, { value: amountDecimals }));
+    await waitForTx(await wethGateway.auction(token, id));
 
     console.log("OK");
   });
@@ -146,14 +146,14 @@ task("dev:weth-redeem", "Doing WETH redeem task")
 
     const auctionData = await lendPool.getNftAuctionData(token, id);
 
-    const sendValue = amountDecimals.add(auctionData.bidFine);
+    const sendValue = amountDecimals;
 
-    await waitForTx(await wethGateway.redeemETH(token, id, amountDecimals, auctionData.bidFine, { value: sendValue }));
+    await waitForTx(await wethGateway.redeemETH(token, id, amountDecimals, { value: sendValue }));
 
     console.log("OK");
   });
 
-task("dev:weth-liquidate", "Doing WETH liquidate task")
+task("dev:weth-liquidate-nftx", "Doing WETH liquidate NFTX task")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .addParam("token", "Address of ERC721")
   .addParam("id", "Token ID of ERC721")
@@ -163,28 +163,17 @@ task("dev:weth-liquidate", "Doing WETH liquidate task")
     const addressesProvider = await getLendPoolAddressesProvider();
     const dataProvider = await getUnlockdProtocolDataProvider(await addressesProvider.getUnlockdDataProvider());
     const loanData = await dataProvider.getLoanDataByCollateral(token, id);
-    let extraAmount = new BigNumber(0);
-    if (loanData.currentAmount.gt(loanData.bidPrice)) {
-      extraAmount = new BigNumber(loanData.currentAmount.sub(loanData.bidPrice).toString()).multipliedBy(1.1);
-    }
-    console.log(
-      "currentAmount:",
-      loanData.currentAmount.toString(),
-      "bidPrice:",
-      loanData.bidPrice.toString(),
-      "extraAmount:",
-      extraAmount.toFixed(0)
-    );
+    console.log("currentAmount:", loanData.currentAmount.toString());
 
     const wethGateway = await getWETHGateway();
 
-    await waitForTx(await wethGateway.liquidateETH(token, id, { value: extraAmount.toFixed(0) }));
+    await waitForTx(await wethGateway.liquidateNFTX(token, id));
 
     console.log("OK");
   });
 
 // PunkGateway liquidate with ETH tasks
-task("dev:punk-auction-eth", "Doing CryptoPunks auction ETH task")
+task("dev:punk-auction", "Doing CryptoPunks auction ETH task")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .addParam("id", "Token ID of CryptoPunks")
   .addParam("amount", "Amount to auction, like 0.01")
@@ -201,7 +190,7 @@ task("dev:punk-auction-eth", "Doing CryptoPunks auction ETH task")
 
     const amountDecimals = await convertToCurrencyDecimals(weth.address, amount);
 
-    await waitForTx(await punkGateway.auctionETH(id, signerAddress, { value: amountDecimals }));
+    await waitForTx(await punkGateway.auction(id));
 
     console.log("OK");
   });
@@ -231,14 +220,14 @@ task("dev:punk-redeem-eth", "Doing CryptoPunks redeem ETH task")
 
     const auctionData = await lendPool.getNftAuctionData(wpunksAddress, id);
 
-    const sendValue = amountDecimals.add(auctionData.bidFine);
+    const sendValue = amountDecimals;
 
-    await waitForTx(await punkGateway.redeemETH(id, amountDecimals, auctionData.bidFine, { value: sendValue }));
+    await waitForTx(await punkGateway.redeemETH(id, amountDecimals, { value: sendValue }));
 
     console.log("OK");
   });
 
-task("dev:punk-liquidate-eth", "Doing CryptoPunks liquidate ETH task")
+task("dev:punk-liquidate-nftx", "Doing CryptoPunks liquidate NFTX task")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .addParam("id", "Token ID of CryptoPunks")
   .setAction(async ({ pool, token, id }, DRE) => {
@@ -246,7 +235,7 @@ task("dev:punk-liquidate-eth", "Doing CryptoPunks liquidate ETH task")
 
     const punkGateway = await getPunkGateway();
 
-    await waitForTx(await punkGateway.liquidateETH(id));
+    await waitForTx(await punkGateway.liquidateNFTX(id));
 
     console.log("OK");
   });

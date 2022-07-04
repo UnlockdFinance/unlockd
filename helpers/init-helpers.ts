@@ -512,8 +512,8 @@ export const initNFTXByHelper = async () => {
   await wrappedPunkVault.connect(deployer).mint(wrappedPunkTokenIds, []);
 
   console.log("- Configuring WPUNKS/USDC Pool on SushiSwap");
-  // Deposit 60000 USDC to owner
-  lpUSDCAmount = await convertToCurrencyDecimals(usdc.address, "60000");
+  // Deposit 600000 USDC to owner
+  lpUSDCAmount = await convertToCurrencyDecimals(usdc.address, "600000");
   await usdc.connect(deployer).mint(lpUSDCAmount);
 
   // Provide liquidity to SushiSwap - Price is 15000 USDC

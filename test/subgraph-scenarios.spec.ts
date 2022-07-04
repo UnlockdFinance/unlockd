@@ -127,10 +127,9 @@ makeSuite("Subgraph tests", async (testEnv) => {
     await redeem(testEnv, borrower, "BAYC", tokenId, "-1", "success", "");
   });
 
-  it.skip("borrow-auction-liquidate", async () => {
-    const { users, pool, weth } = testEnv;
+  it("borrow-auction-liquidate", async () => {
+    const { users, pool, weth, liquidator } = testEnv;
     const borrower = users[1];
-    const liquidator = users[2];
 
     await setNftAssetPrice(testEnv, "BAYC", 101, saveBaycAssetPrice);
 

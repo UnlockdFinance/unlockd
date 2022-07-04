@@ -151,9 +151,9 @@ library LiquidateLogic {
 
   struct AuctionLocalVars {
     address loanAddress;
-    address initiator;
     address reserveOracle;
     address nftOracle;
+    address liquidator;
     uint256 loanId;
     uint256 thresholdPrice;
     uint256 liquidatePrice;
@@ -180,7 +180,7 @@ library LiquidateLogic {
     vars.loanAddress = addressesProvider.getLendPoolLoan();
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
-    vars.initiator = params.initiator;
+    vars.liquidator = addressesProvider.getLendPoolLiquidator();
 
     vars.loanId = ILendPoolLoan(vars.loanAddress).getCollateralLoanId(params.nftAsset, params.nftTokenId);
     require(vars.loanId != 0, Errors.LP_NFT_IS_NOT_USED_AS_COLLATERAL);
@@ -231,7 +231,7 @@ library LiquidateLogic {
     reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, 0, 0);
 
     // transfer erc721 to liquidator
-    IERC721Upgradeable(loanData.nftAsset).safeTransferFrom(address(this), vars.initiator, params.nftTokenId);
+    IERC721Upgradeable(loanData.nftAsset).safeTransferFrom(address(this), vars.liquidator, params.nftTokenId);
 
     uint256 auctionDuration = nftData.configuration.getAuctionDuration() * 1 days;
 
@@ -555,10 +555,10 @@ library LiquidateLogic {
   }
 
   struct LiquidateNFTXLocalVars {
-    address initiator;
     address poolLoan;
     address reserveOracle;
     address nftOracle;
+    address liquidator;
     uint256 loanId;
     uint256 borrowAmount;
     uint256 extraDebtAmount;
@@ -580,11 +580,11 @@ library LiquidateLogic {
     DataTypes.ExecuteLiquidateNFTXParams memory params
   ) external returns (uint256) {
     LiquidateNFTXLocalVars memory vars;
-    vars.initiator = params.initiator;
 
     vars.poolLoan = addressesProvider.getLendPoolLoan();
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
+    vars.liquidator = addressesProvider.getLendPoolLiquidator();
 
     vars.loanId = ILendPoolLoan(vars.poolLoan).getCollateralLoanId(params.nftAsset, params.nftTokenId);
     require(vars.loanId != 0, Errors.LP_NFT_IS_NOT_USED_AS_COLLATERAL);
@@ -600,7 +600,7 @@ library LiquidateLogic {
     require(block.timestamp > vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_NOT_END);
 
     // Transfer NFT from liquidator to the pool
-    IERC721Upgradeable(params.nftAsset).safeTransferFrom(vars.initiator, address(this), params.nftTokenId);
+    IERC721Upgradeable(params.nftAsset).safeTransferFrom(vars.liquidator, address(this), params.nftTokenId);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();

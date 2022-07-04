@@ -34,7 +34,7 @@ contract MintableERC20 is ERC20 {
    */
   function mint(uint256 value) public returns (bool) {
     mintValues[_msgSender()] += value;
-    require(mintValues[_msgSender()] < (1000000 * (10**_decimals)), "exceed mint limit");
+    require(mintValues[_msgSender()] < (10000000 * (10**_decimals)), "exceed mint limit");
 
     _mint(_msgSender(), value);
     return true;

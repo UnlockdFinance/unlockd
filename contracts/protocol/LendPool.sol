@@ -64,6 +64,9 @@ contract LendPool is
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
   using NftConfiguration for DataTypes.NftConfigurationMap;
 
+  bytes32 public constant ADDRESS_ID_WETH_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000001;
+  bytes32 public constant ADDRESS_ID_PUNK_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000002;
+
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
    * Calling a `nonReentrant` function from another `nonReentrant`
@@ -95,8 +98,8 @@ contract LendPool is
     _;
   }
 
-  modifier onlyLendPoolLiquidator() {
-    _onlyLendPoolLiquidator();
+  modifier onlyLendPoolLiquidatorOrGateway() {
+    _onlyLendPoolLiquidatorOrGateway();
     _;
   }
 
@@ -108,8 +111,13 @@ contract LendPool is
     require(_addressesProvider.getLendPoolConfigurator() == _msgSender(), Errors.LP_CALLER_NOT_LEND_POOL_CONFIGURATOR);
   }
 
-  function _onlyLendPoolLiquidator() internal view {
-    require(_addressesProvider.getLendPoolLiquidator() == _msgSender(), Errors.LP_CALLER_NOT_LEND_POOL_LIQUIDATOR);
+  function _onlyLendPoolLiquidatorOrGateway() internal view {
+    require(
+      _addressesProvider.getLendPoolLiquidator() == _msgSender() ||
+        _addressesProvider.getAddress(ADDRESS_ID_WETH_GATEWAY) == _msgSender() ||
+        _addressesProvider.getAddress(ADDRESS_ID_PUNK_GATEWAY) == _msgSender(),
+      Errors.LP_CALLER_NOT_LEND_POOL_LIQUIDATOR_NOR_GATEWAY
+    );
   }
 
   /**
@@ -290,14 +298,14 @@ contract LendPool is
     external
     override
     nonReentrant
-    onlyLendPoolLiquidator
+    onlyLendPoolLiquidatorOrGateway
     whenNotPaused
   {
     LiquidateLogic.executeAuction(
       _addressesProvider,
       _reserves,
       _nfts,
-      DataTypes.ExecuteAuctionParams({initiator: _msgSender(), nftAsset: nftAsset, nftTokenId: nftTokenId})
+      DataTypes.ExecuteAuctionParams({nftAsset: nftAsset, nftTokenId: nftTokenId})
     );
   }
 
@@ -338,7 +346,7 @@ contract LendPool is
     uint256 nftTokenId,
     OrderTypes.TakerOrder calldata takerAsk,
     OrderTypes.MakerOrder calldata makerBid
-  ) external override nonReentrant onlyLendPoolLiquidator whenNotPaused returns (uint256) {
+  ) external override nonReentrant onlyLendPoolLiquidatorOrGateway whenNotPaused returns (uint256) {
     return
       LiquidateLogic.executeLiquidateLooksRare(
         _addressesProvider,
@@ -366,7 +374,7 @@ contract LendPool is
     WyvernExchange.Order calldata sellOrder,
     uint8[2] calldata _vs,
     bytes32[5] calldata _rssMetadata
-  ) external override nonReentrant onlyLendPoolLiquidator whenNotPaused returns (uint256) {
+  ) external override nonReentrant onlyLendPoolLiquidatorOrGateway whenNotPaused returns (uint256) {
     return
       LiquidateLogic.executeLiquidateOpensea(
         _addressesProvider,
@@ -393,7 +401,7 @@ contract LendPool is
     external
     override
     nonReentrant
-    onlyLendPoolLiquidator
+    onlyLendPoolLiquidatorOrGateway
     whenNotPaused
     returns (uint256)
   {
@@ -402,7 +410,7 @@ contract LendPool is
         _addressesProvider,
         _reserves,
         _nfts,
-        DataTypes.ExecuteLiquidateNFTXParams({initiator: _msgSender(), nftAsset: nftAsset, nftTokenId: nftTokenId})
+        DataTypes.ExecuteLiquidateNFTXParams({nftAsset: nftAsset, nftTokenId: nftTokenId})
       );
   }
 
