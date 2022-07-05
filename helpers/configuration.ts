@@ -88,6 +88,17 @@ export const getEmergencyAdmin = async (config: ICommonConfiguration): Promise<t
   return addressList[addressIndex];
 };
 
+export const getLendPoolLiquidator = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
+  const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
+  const targetAddress = getParamPerNetwork(config.LendPoolLiquidator, <eNetwork>currentNetwork);
+  if (targetAddress) {
+    return targetAddress;
+  }
+  const addressList = await getEthersSignersAddresses();
+  const addressIndex = config.LendPoolLiquidatorIndex;
+  return addressList[addressIndex];
+};
+
 export const getTreasuryAddress = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
   const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
   return getParamPerNetwork(config.ReserveFactorTreasuryAddress, <eNetwork>currentNetwork);

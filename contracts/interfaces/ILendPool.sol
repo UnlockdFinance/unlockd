@@ -263,13 +263,11 @@ interface ILendPool {
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    * @param amount The amount to repay the debt
-   * @param bidFine The amount of bid fine
    **/
   function redeem(
     address nftAsset,
     uint256 nftTokenId,
-    uint256 amount,
-    uint256 bidFine
+    uint256 amount
   ) external returns (uint256);
 
   /**
@@ -413,20 +411,18 @@ interface ILendPool {
    * @param nftAsset The address of the NFT
    * @param nftTokenId The token id of the NFT
    * @return loanId the loan id of the NFT
-   * @return bidderAddress the highest bidder address of the loan
-   * @return bidPrice the highest bid price in Reserve of the loan
-   * @return bidBorrowAmount the borrow amount in Reserve of the loan
-   * @return bidFine the penalty fine of the loan
+   * @return auctionStartTimestamp the timestamp of auction start
+   * @return reserveAsset the reserve asset of buy offers
+   * @return minBidPrice the min bid price of the auction
    **/
   function getNftAuctionData(address nftAsset, uint256 nftTokenId)
     external
     view
     returns (
       uint256 loanId,
-      address bidderAddress,
-      uint256 bidPrice,
-      uint256 bidBorrowAmount,
-      uint256 bidFine
+      uint256 auctionStartTimestamp,
+      address reserveAsset,
+      uint256 minBidPrice
     );
 
   function getNftLiquidatePrice(address nftAsset, uint256 nftTokenId)

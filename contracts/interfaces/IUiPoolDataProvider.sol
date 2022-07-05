@@ -72,10 +72,7 @@ interface IUiPoolDataProvider {
     uint256 availableBorrowsInReserve;
     uint256 healthFactor;
     uint256 liquidatePrice;
-    address bidderAddress;
-    uint256 bidPrice;
-    uint256 bidBorrowAmount;
-    uint256 bidFine;
+    uint256 minBidPrice;
   }
 
   function getReservesList(ILendPoolAddressesProvider provider) external view returns (address[] memory);

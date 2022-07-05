@@ -49,11 +49,10 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     await weth.connect(user3.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
   });
 
-  it("User 1 liquidate on a non-existent NFT", async () => {
-    const { configurator, bayc, pool, users } = testEnv;
-    const user1 = users[1];
+  it("Liquidator liquidateNFTX on a non-existent NFT", async () => {
+    const { bayc, pool, liquidator } = testEnv;
 
-    await expect(pool.connect(user1.signer).liquidateNFTX(bayc.address, "102")).to.be.revertedWith(
+    await expect(pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "102")).to.be.revertedWith(
       ProtocolErrors.LP_NFT_IS_NOT_USED_AS_COLLATERAL
     );
   });
@@ -110,13 +109,10 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     await configurator.activateReserve(weth.address);
   });
 */
-  it("User 2 auction on a loan health factor above 1", async () => {
-    const { bayc, pool, users } = testEnv;
-    const user2 = users[2];
+  it("Liquidator auction on a loan health factor above 1", async () => {
+    const { bayc, pool, liquidator } = testEnv;
 
-    const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
-
-    await expect(pool.connect(user2.signer).auction(bayc.address, "101")).to.be.revertedWith(
+    await expect(pool.connect(liquidator.signer).auction(bayc.address, "101")).to.be.revertedWith(
       ProtocolErrors.LP_BORROW_NOT_EXCEED_LIQUIDATION_THRESHOLD
     );
   });
@@ -135,87 +131,21 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     await nftOracle.setNFTPrice(bayc.address, 101, baycPrice);
   });
 
-  it.skip("User 2 auction price is unable to cover borrow", async () => {
-    const { bayc, pool, users } = testEnv;
-    const user2 = users[2];
+  it("Liquidator opens an auction", async () => {
+    const { bayc, pool, liquidator } = testEnv;
 
-    const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
+    await bayc.connect(liquidator.signer).setApprovalForAll(pool.address, true);
+    await waitForTx(await pool.connect(liquidator.signer).auction(bayc.address, "101"));
 
-    await expect(pool.connect(user2.signer).auction(bayc.address, "101")).to.be.revertedWith(
-      ProtocolErrors.LPL_BID_PRICE_LESS_THAN_BORROW
-    );
+    const tokenOwner = await bayc.ownerOf("101");
+    expect(tokenOwner).to.be.equal(liquidator.address, "Invalid token owner after auction");
   });
 
-  it.skip("User 2 auction price is less than liquidate price", async () => {
-    const { weth, bayc, nftOracle, pool, users } = testEnv;
-    const user2 = users[2];
+  it("Liquidator liquidates before auction duration is end", async () => {
+    const { bayc, pool, liquidator } = testEnv;
 
-    const nftColData = await pool.getNftCollateralData(bayc.address, 101, weth.address);
-    const nftDebtData = await pool.getNftDebtData(bayc.address, "101");
-    // Price * LH / Debt = HF => Price * LH = Debt * HF => Price = Debt * HF / LH
-    // LH is 2 decimals
-    const baycPrice = new BigNumber(nftDebtData.totalDebt.toString())
-      .percentMul(new BigNumber(9500)) //95%
-      .percentDiv(new BigNumber(nftColData.liquidationThreshold.toString()))
-      .toFixed(0);
-
-    await advanceTimeAndBlock(100);
-    await nftOracle.setNFTPrice(bayc.address, 101, baycPrice);
-    await advanceTimeAndBlock(200);
-    await nftOracle.setNFTPrice(bayc.address, 101, baycPrice);
-
-    const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
-
-    const auctionPriceFail = new BigNumber(liquidatePrice.toString()).multipliedBy(0.8).toFixed(0);
-
-    await expect(pool.connect(user2.signer).auction(bayc.address, "101")).to.be.revertedWith(
-      ProtocolErrors.LPL_BID_PRICE_LESS_THAN_LIQUIDATION_PRICE
-    );
-  });
-
-  it("User 2 auction", async () => {
-    const { bayc, pool, users } = testEnv;
-    const user2 = users[2];
-
-    const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
-
-    const auctionPriceOk = new BigNumber(liquidatePrice.toString()).multipliedBy(1.5).toFixed(0);
-    await waitForTx(await pool.connect(user2.signer).auction(bayc.address, "101"));
-  });
-
-  it.skip("User 3 auction price is lesser than user 2", async () => {
-    const { bayc, pool, users } = testEnv;
-    const user3 = users[3];
-
-    const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
-    const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.2).toFixed(0);
-
-    await expect(pool.connect(user3.signer).auction(bayc.address, "101")).to.be.revertedWith(
-      ProtocolErrors.LPL_BID_PRICE_LESS_THAN_HIGHEST_PRICE
-    );
-  });
-
-  it("User 2 liquidate before auction duration is end", async () => {
-    const { bayc, pool, users } = testEnv;
-    const user2 = users[2];
-
-    await expect(pool.connect(user2.signer).liquidateNFTX(bayc.address, "101")).to.be.revertedWith(
+    await expect(pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "101")).to.be.revertedWith(
       ProtocolErrors.LPL_BID_AUCTION_DURATION_NOT_END
-    );
-  });
-
-  it("User 1 redeem but bidFine is not fullfil to borrow amount of user 2 auction", async () => {
-    const { bayc, pool, users } = testEnv;
-    const user1 = users[1];
-    const user3 = users[3];
-
-    // user 1 want redeem and query the bid fine
-    const nftAuctionData = await pool.getNftAuctionData(bayc.address, "101");
-    const redeemAmount = nftAuctionData.bidBorrowAmount;
-    const badBidFine = new BigNumber(nftAuctionData.bidFine.toString()).multipliedBy(0.9).toFixed(0);
-
-    await expect(pool.connect(user1.signer).redeem(bayc.address, "101", redeemAmount, badBidFine)).to.be.revertedWith(
-      ProtocolErrors.LPL_BID_INVALID_BID_FINE
     );
   });
 
@@ -226,11 +156,11 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
 
     // user 1 want redeem and query the bid fine (user 2 bid price)
     const nftAuctionData = await pool.getNftAuctionData(bayc.address, "101");
-    const redeemAmount = nftAuctionData.bidBorrowAmount.div(2);
+    const redeemAmount = nftAuctionData.minBidPrice.div(2);
 
-    const badBidFine = new BigNumber(nftAuctionData.bidFine.toString()).multipliedBy(1.1).toFixed(0);
+    // const badBidFine = new BigNumber(nftAuctionData.bidFine.toString()).multipliedBy(1.1).toFixed(0);
 
-    await expect(pool.connect(user1.signer).redeem(bayc.address, "101", redeemAmount, badBidFine)).to.be.revertedWith(
+    await expect(pool.connect(user1.signer).redeem(bayc.address, "101", redeemAmount)).to.be.revertedWith(
       ProtocolErrors.LP_AMOUNT_LESS_THAN_REDEEM_THRESHOLD
     );
   });
@@ -242,21 +172,13 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
 
     // user 1 want redeem and query the bid fine (user 2 bid price)
     const nftAuctionData = await pool.getNftAuctionData(bayc.address, "101");
-    const redeemAmount = nftAuctionData.bidBorrowAmount.mul(2);
+    const redeemAmount = nftAuctionData.minBidPrice.mul(2);
 
-    const badBidFine = new BigNumber(nftAuctionData.bidFine.toString()).multipliedBy(1.1).toFixed(0);
+    // const badBidFine = new BigNumber(nftAuctionData.bidFine.toString()).multipliedBy(1.1).toFixed(0);
 
-    await expect(pool.connect(user1.signer).redeem(bayc.address, "101", redeemAmount, badBidFine)).to.be.revertedWith(
+    await expect(pool.connect(user1.signer).redeem(bayc.address, "101", redeemAmount)).to.be.revertedWith(
       ProtocolErrors.LP_AMOUNT_GREATER_THAN_MAX_REPAY
     );
-  });
-
-  it.skip("Ends redeem duration", async () => {
-    const { bayc, dataProvider } = testEnv;
-
-    const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
-
-    await increaseTime(nftCfgData.redeemDuration.mul(ONE_DAY).add(100).toNumber());
   });
 
   it("Ends auction duration", async () => {
@@ -273,30 +195,9 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     const user1 = users[1];
 
     const nftAuctionData = await pool.getNftAuctionData(bayc.address, "101");
-    const redeemAmount = nftAuctionData.bidBorrowAmount.div(2);
+    const redeemAmount = nftAuctionData.minBidPrice.div(2);
 
-    await expect(
-      pool.connect(user1.signer).redeem(bayc.address, "101", redeemAmount, nftAuctionData.bidFine)
-    ).to.be.revertedWith(ProtocolErrors.LPL_BID_AUCTION_DURATION_HAS_END);
-  });
-
-  it("Ends auction duration", async () => {
-    const { bayc, dataProvider } = testEnv;
-
-    const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
-    const deltaDuration = nftCfgData.auctionDuration.sub(nftCfgData.redeemDuration);
-
-    await increaseTime(deltaDuration.mul(ONE_DAY).add(100).toNumber());
-  });
-
-  it.skip("User 3 auction after duration is end", async () => {
-    const { bayc, pool, users } = testEnv;
-    const user2 = users[2];
-
-    const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
-    const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(2.0).toFixed(0);
-
-    await expect(pool.connect(user2.signer).auction(bayc.address, "101")).to.be.revertedWith(
+    await expect(pool.connect(user1.signer).redeem(bayc.address, "101", redeemAmount)).to.be.revertedWith(
       ProtocolErrors.LPL_BID_AUCTION_DURATION_HAS_END
     );
   });

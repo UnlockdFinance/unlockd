@@ -5,6 +5,8 @@ import {ERC721HolderUpgradeable} from "@openzeppelin/contracts-upgradeable/token
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 
 import {Errors} from "../libraries/helpers/Errors.sol";
+import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
+import {WyvernExchange} from "../libraries/wyvernexchange/WyvernExchange.sol";
 import {IWETH} from "../interfaces/IWETH.sol";
 import {IWETHGateway} from "../interfaces/IWETHGateway.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
@@ -238,11 +240,25 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (paybackAmount, burn);
   }
 
+  function auction(address nftAsset, uint256 nftTokenId) external override nonReentrant {
+    require(_addressProvider.getLendPoolLiquidator() == _msgSender(), Errors.CALLER_NOT_POOL_LIQUIDATOR);
+
+    ILendPool cachedPool = _getLendPool();
+    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
+
+    uint256 loanId = cachedPoolLoan.getCollateralLoanId(nftAsset, nftTokenId);
+    require(loanId > 0, "collateral loan id not exist");
+
+    DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
+    require(loan.reserveAsset == address(WETH), "loan reserve not WETH");
+
+    cachedPool.auction(nftAsset, nftTokenId);
+  }
+
   function redeemETH(
     address nftAsset,
     uint256 nftTokenId,
-    uint256 amount,
-    uint256 bidFine
+    uint256 amount
   ) external payable override nonReentrant returns (uint256) {
     ILendPool cachedPool = _getLendPool();
     ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
@@ -253,11 +269,11 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
     require(loan.reserveAsset == address(WETH), "loan reserve not WETH");
 
-    require(msg.value >= (amount + bidFine), "msg.value is less than redeem amount");
+    require(msg.value >= amount, "msg.value is less than redeem amount");
 
     WETH.deposit{value: msg.value}();
 
-    uint256 paybackAmount = cachedPool.redeem(nftAsset, nftTokenId, amount, bidFine);
+    uint256 paybackAmount = cachedPool.redeem(nftAsset, nftTokenId, amount);
 
     // refund remaining dust eth
     if (msg.value > paybackAmount) {
@@ -266,6 +282,69 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     }
 
     return paybackAmount;
+  }
+
+  function liquidateLooksRare(
+    address nftAsset,
+    uint256 nftTokenId,
+    OrderTypes.TakerOrder calldata takerAsk,
+    OrderTypes.MakerOrder calldata makerBid
+  ) external override nonReentrant returns (uint256) {
+    require(_addressProvider.getLendPoolLiquidator() == _msgSender(), Errors.CALLER_NOT_POOL_LIQUIDATOR);
+
+    ILendPool cachedPool = _getLendPool();
+    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
+
+    uint256 loanId = cachedPoolLoan.getCollateralLoanId(nftAsset, nftTokenId);
+    require(loanId > 0, "collateral loan id not exist");
+
+    DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
+    require(loan.reserveAsset == address(WETH), "loan reserve not WETH");
+
+    uint256 remainAmount = cachedPool.liquidateLooksRare(nftAsset, nftTokenId, takerAsk, makerBid);
+
+    return (remainAmount);
+  }
+
+  function liquidateOpensea(
+    address nftAsset,
+    uint256 nftTokenId,
+    WyvernExchange.Order calldata buyOrder,
+    WyvernExchange.Order calldata sellOrder,
+    uint8[2] calldata _vs,
+    bytes32[5] calldata _rssMetadata
+  ) external override nonReentrant returns (uint256) {
+    require(_addressProvider.getLendPoolLiquidator() == _msgSender(), Errors.CALLER_NOT_POOL_LIQUIDATOR);
+
+    ILendPool cachedPool = _getLendPool();
+    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
+
+    uint256 loanId = cachedPoolLoan.getCollateralLoanId(nftAsset, nftTokenId);
+    require(loanId > 0, "collateral loan id not exist");
+
+    DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
+    require(loan.reserveAsset == address(WETH), "loan reserve not WETH");
+
+    uint256 remainAmount = cachedPool.liquidateOpensea(nftAsset, nftTokenId, buyOrder, sellOrder, _vs, _rssMetadata);
+
+    return (remainAmount);
+  }
+
+  function liquidateNFTX(address nftAsset, uint256 nftTokenId) external override nonReentrant returns (uint256) {
+    require(_addressProvider.getLendPoolLiquidator() == _msgSender(), Errors.CALLER_NOT_POOL_LIQUIDATOR);
+
+    ILendPool cachedPool = _getLendPool();
+    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
+
+    uint256 loanId = cachedPoolLoan.getCollateralLoanId(nftAsset, nftTokenId);
+    require(loanId > 0, "collateral loan id not exist");
+
+    DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
+    require(loan.reserveAsset == address(WETH), "loan reserve not WETH");
+
+    uint256 extraAmount = cachedPool.liquidateNFTX(nftAsset, nftTokenId);
+
+    return (extraAmount);
   }
 
   /**

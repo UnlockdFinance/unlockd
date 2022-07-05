@@ -99,6 +99,18 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.main]: '0x2CFa21b4dEc4409670899d05b8644e9C432250de',
   },
   EmergencyAdminIndex: 1,
+  LendPoolLiquidator: {
+    [eEthereumNetwork.coverage]: undefined,
+    // [eEthereumNetwork.hardhat]: '0x5b69e6884c70f42819fb35bf3c25578ee11aaa15',
+    [eEthereumNetwork.hardhat]: undefined,
+    [eEthereumNetwork.localhost]: undefined,
+    [eEthereumNetwork.develop]: '0xad93fB0e59eC703422dD38dCb7AcB8e323C8cc5B',
+    [eEthereumNetwork.kovan]: '0x249D0dF00d8ca96952A9fc29ddD3199bD035A05B',
+    [eEthereumNetwork.rinkeby]: '0xAa3777F59260b8bD003e850E321AdBc576115b06', // Primary account
+    [eEthereumNetwork.goerli]: undefined,
+    [eEthereumNetwork.main]: '0x868964fa49a6fd6e116FE82c8f4165904406f479',
+  },
+  LendPoolLiquidatorIndex: 0,
 
   UNFTRegistry: { /// Add contract From U
     [eEthereumNetwork.coverage]: '',

@@ -20,6 +20,7 @@ library Errors {
   string public constant INVALID_FROM_BALANCE_AFTER_TRANSFER = "102";
   string public constant INVALID_TO_BALANCE_AFTER_TRANSFER = "103";
   string public constant CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST = "104";
+  string public constant CALLER_NOT_POOL_LIQUIDATOR = "105";
 
   //math library erros
   string public constant MATH_MULTIPLICATION_OVERFLOW = "200";
@@ -67,6 +68,7 @@ library Errors {
   string public constant LP_AMOUNT_GREATER_THAN_MAX_REPAY = "416";
   string public constant LP_NFT_TOKEN_ID_EXCEED_MAX_LIMIT = "417";
   string public constant LP_NFT_SUPPLY_NUM_EXCEED_MAX_LIMIT = "418";
+  string public constant LP_CALLER_NOT_LEND_POOL_LIQUIDATOR_NOR_GATEWAY = "419";
 
   //lend pool loan errors
   string public constant LPL_INVALID_LOAN_STATE = "480";
