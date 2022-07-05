@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
-import {IBToken} from "../../interfaces/IBToken.sol";
+import {IUToken} from "../../interfaces/IUToken.sol";
 import {IDebtToken} from "../../interfaces/IDebtToken.sol";
 import {ILendPool} from "../../interfaces/ILendPool.sol";
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
@@ -28,13 +28,13 @@ library ConfiguratorLogic {
   /**
    * @dev Emitted when a reserve is initialized.
    * @param asset The address of the underlying asset of the reserve
-   * @param bToken The address of the associated bToken contract
+   * @param uToken The address of the associated uToken contract
    * @param debtToken The address of the associated debtToken contract
    * @param interestRateAddress The address of the interest rate strategy for the reserve
    **/
   event ReserveInitialized(
     address indexed asset,
-    address indexed bToken,
+    address indexed uToken,
     address debtToken,
     address interestRateAddress
   );
@@ -47,12 +47,12 @@ library ConfiguratorLogic {
   event NftInitialized(address indexed asset, address indexed uNft);
 
   /**
-   * @dev Emitted when an bToken implementation is upgraded
+   * @dev Emitted when an uToken implementation is upgraded
    * @param asset The address of the underlying asset of the reserve
-   * @param proxy The bToken proxy address
-   * @param implementation The new bToken implementation
+   * @param proxy The uToken proxy address
+   * @param implementation The new uToken implementation
    **/
-  event BTokenUpgraded(address indexed asset, address indexed proxy, address indexed implementation);
+  event UTokenUpgraded(address indexed asset, address indexed proxy, address indexed implementation);
 
   /**
    * @dev Emitted when the implementation of a debt token is upgraded
@@ -74,16 +74,16 @@ library ConfiguratorLogic {
     ILendPool cachePool,
     ConfigTypes.InitReserveInput calldata input
   ) external {
-    address bTokenProxyAddress = _initTokenWithProxy(
-      input.bTokenImpl,
+    address uTokenProxyAddress = _initTokenWithProxy(
+      input.uTokenImpl,
       abi.encodeWithSelector(
-        IBToken.initialize.selector,
+        IUToken.initialize.selector,
         addressProvider,
         input.treasury,
         input.underlyingAsset,
         input.underlyingAssetDecimals,
-        input.bTokenName,
-        input.bTokenSymbol
+        input.uTokenName,
+        input.uTokenSymbol
       )
     );
 
@@ -99,7 +99,7 @@ library ConfiguratorLogic {
       )
     );
 
-    cachePool.initReserve(input.underlyingAsset, bTokenProxyAddress, debtTokenProxyAddress, input.interestRateAddress);
+    cachePool.initReserve(input.underlyingAsset, uTokenProxyAddress, debtTokenProxyAddress, input.interestRateAddress);
 
     DataTypes.ReserveConfigurationMap memory currentConfig = cachePool.getReserveConfiguration(input.underlyingAsset);
 
@@ -112,7 +112,7 @@ library ConfiguratorLogic {
 
     emit ReserveInitialized(
       input.underlyingAsset,
-      bTokenProxyAddress,
+      uTokenProxyAddress,
       debtTokenProxyAddress,
       input.interestRateAddress
     );
@@ -152,12 +152,12 @@ library ConfiguratorLogic {
    * @param cachedPool The lend pool
    * @param input The data to initialize the uToken
    */
-  function executeUpdateBToken(ILendPool cachedPool, ConfigTypes.UpdateBTokenInput calldata input) external {
+  function executeUpdateUToken(ILendPool cachedPool, ConfigTypes.UpdateUTokenInput calldata input) external {
     DataTypes.ReserveData memory reserveData = cachedPool.getReserveData(input.asset);
 
-    _upgradeTokenImplementation(reserveData.bTokenAddress, input.implementation, input.encodedCallData);
+    _upgradeTokenImplementation(reserveData.uTokenAddress, input.implementation, input.encodedCallData);
 
-    emit BTokenUpgraded(input.asset, reserveData.bTokenAddress, input.implementation);
+    emit UTokenUpgraded(input.asset, reserveData.uTokenAddress, input.implementation);
   }
 
   /**

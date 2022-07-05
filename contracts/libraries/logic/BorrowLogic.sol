@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
-import {IBToken} from "../../interfaces/IBToken.sol";
+import {IUToken} from "../../interfaces/IUToken.sol";
 import {IDebtToken} from "../../interfaces/IDebtToken.sol";
 import {IInterestRate} from "../../interfaces/IInterestRate.sol";
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
@@ -210,9 +210,9 @@ library BorrowLogic {
     );
 
     // update interest rate according latest borrow amount (utilizaton)
-    reserveData.updateInterestRates(params.asset, reserveData.bTokenAddress, 0, params.amount);
+    reserveData.updateInterestRates(params.asset, reserveData.uTokenAddress, 0, params.amount);
 
-    IBToken(reserveData.bTokenAddress).transferUnderlyingTo(vars.initiator, params.amount);
+    IUToken(reserveData.uTokenAddress).transferUnderlyingTo(vars.initiator, params.amount);
 
     emit Borrow(
       vars.initiator,
@@ -343,12 +343,12 @@ library BorrowLogic {
     IDebtToken(reserveData.debtTokenAddress).burn(loanData.borrower, vars.repayAmount, reserveData.variableBorrowIndex);
 
     // update interest rate according latest borrow amount (utilizaton)
-    reserveData.updateInterestRates(loanData.reserveAsset, reserveData.bTokenAddress, vars.repayAmount, 0);
+    reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.repayAmount, 0);
 
-    // transfer repay amount to bToken
+    // transfer repay amount to uToken
     IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(
       vars.initiator,
-      reserveData.bTokenAddress,
+      reserveData.uTokenAddress,
       vars.repayAmount
     );
 

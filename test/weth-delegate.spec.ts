@@ -75,11 +75,6 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
     await expect(
       wethGateway.connect(hacker.signer).borrowETH(borrowSize2, nftAsset, tokenId, borrower.address, "0")
     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
-
-    console.log("auctionETH");
-    await expect(
-      wethGateway.connect(hacker.signer).auctionETH(nftAsset, tokenId, liquidator.address, { value: depositSize })
-    ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
   });
 
   it("Borrower try to Borrow more ETH to different onBehalf (should revert)", async () => {
@@ -98,8 +93,8 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
       await wethGateway.connect(depositor.signer).depositETH(depositor.address, "0", { value: depositSize })
     );
 
-    const bTokensBalance = await bWETH.balanceOf(depositor.address);
-    expect(bTokensBalance, "bTokensBalance not gte depositSize").to.be.gte(depositSize);
+    const uTokensBalance = await bWETH.balanceOf(depositor.address);
+    expect(uTokensBalance, "uTokensBalance not gte depositSize").to.be.gte(depositSize);
 
     // Delegates borrowing power of WETH to WETHGateway
     const reserveData = await pool.getReserveData(weth.address);
@@ -153,8 +148,8 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
       await wethGateway.connect(depositor.signer).depositETH(depositor.address, "0", { value: depositSize })
     );
 
-    const bTokensBalance = await bWETH.balanceOf(depositor.address);
-    expect(bTokensBalance, "bTokensBalance not gte depositSize").to.be.gte(depositSize);
+    const uTokensBalance = await bWETH.balanceOf(depositor.address);
+    expect(uTokensBalance, "uTokensBalance not gte depositSize").to.be.gte(depositSize);
 
     // Delegates borrowing power of WETH to WETHGateway
     const reserveData = await pool.getReserveData(weth.address);

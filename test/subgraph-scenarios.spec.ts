@@ -3,7 +3,7 @@ import {
   configuration as actionsConfiguration,
   increaseAuctionDuration,
   increaseRedeemDuration,
-  liquidate,
+  liquidateNFTX,
   redeem,
   setNftAssetPrice,
   setNftAssetPriceForDebt,
@@ -127,7 +127,7 @@ makeSuite("Subgraph tests", async (testEnv) => {
     await redeem(testEnv, borrower, "BAYC", tokenId, "-1", "success", "");
   });
 
-  it("borrow-auction-liquidate", async () => {
+  it.skip("borrow-auction-liquidate", async () => {
     const { users, pool, weth } = testEnv;
     const borrower = users[1];
     const liquidator = users[2];
@@ -156,7 +156,7 @@ makeSuite("Subgraph tests", async (testEnv) => {
 
     await increaseAuctionDuration(testEnv, "BAYC", true);
 
-    // liquidate
-    await liquidate(testEnv, liquidator, "BAYC", tokenId, "0", "success", "");
+    // liquidateNFTX
+    await liquidateNFTX(testEnv, liquidator, "BAYC", tokenId, "0", "success", "");
   });
 });

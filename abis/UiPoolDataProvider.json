@@ -246,7 +246,7 @@
           },
           {
             "internalType": "address",
-            "name": "bTokenAddress",
+            "name": "uTokenAddress",
             "type": "address"
           },
           {
@@ -298,7 +298,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "bTokenBalance",
+            "name": "uTokenBalance",
             "type": "uint256"
           },
           {
@@ -605,7 +605,7 @@
           },
           {
             "internalType": "address",
-            "name": "bTokenAddress",
+            "name": "uTokenAddress",
             "type": "address"
           },
           {
@@ -717,7 +717,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "bTokenBalance",
+            "name": "uTokenBalance",
             "type": "uint256"
           },
           {

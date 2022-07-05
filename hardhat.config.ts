@@ -112,12 +112,13 @@ const buidlerConfig: HardhatUserConfig = {
     develop: getCommonNetworkConfig(eEthereumNetwork.develop, 4),
     rinkeby: getCommonNetworkConfig(eEthereumNetwork.rinkeby, 4),
     kovan: getCommonNetworkConfig(eEthereumNetwork.kovan, 42),
+    goerli: getCommonNetworkConfig(eEthereumNetwork.goerli, 5),
     main: getCommonNetworkConfig(eEthereumNetwork.main, 1),
     hardhat: {
       hardfork: "london",
       blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,
       gas: DEFAULT_BLOCK_GAS_LIMIT,
-      gasPrice: NETWORKS_DEFAULT_GAS[eEthereumNetwork.hardhat],
+      // gasPrice: NETWORKS_DEFAULT_GAS[eEthereumNetwork.hardhat],
       allowUnlimitedContractSize: UNLIMITED_BYTECODE_SIZE,
       chainId: BUIDLEREVM_CHAINID,
       throwOnTransactionFailures: true,
@@ -126,7 +127,7 @@ const buidlerConfig: HardhatUserConfig = {
         privateKey: secretKey,
         balance: balance,
       })),
-      forking: buildUnlockdForkConfig(),
+      forking: buildForkConfig(),
       
     },
     ganache: {

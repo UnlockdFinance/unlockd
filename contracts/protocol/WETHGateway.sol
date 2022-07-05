@@ -10,7 +10,7 @@ import {IWETHGateway} from "../interfaces/IWETHGateway.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
-import {IBToken} from "../interfaces/IBToken.sol";
+import {IUToken} from "../interfaces/IUToken.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 
 import {EmergencyTokenRecoveryUpgradeable} from "./EmergencyTokenRecoveryUpgradeable.sol";
@@ -135,7 +135,7 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     _checkValidCallerAndOnBehalfOf(to);
 
     ILendPool cachedPool = _getLendPool();
-    IBToken bWETH = IBToken(cachedPool.getReserveData(address(WETH)).bTokenAddress);
+    IUToken bWETH = IUToken(cachedPool.getReserveData(address(WETH)).uTokenAddress);
 
     uint256 userBalance = bWETH.balanceOf(msg.sender);
     uint256 amountToWithdraw = amount;
@@ -287,32 +287,6 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (paybackAmount, burn);
   }
 
-  /**
-   * @inheritdoc IWETHGateway
-   */
-  function auctionETH(
-    address nftAsset,
-    uint256 nftTokenId,
-    address onBehalfOf
-  ) external payable override nonReentrant {
-    _checkValidCallerAndOnBehalfOf(onBehalfOf);
-
-    ILendPool cachedPool = _getLendPool();
-    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
-
-    uint256 loanId = cachedPoolLoan.getCollateralLoanId(nftAsset, nftTokenId);
-    require(loanId > 0, "collateral loan id not exist");
-
-    DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
-    require(loan.reserveAsset == address(WETH), "loan reserve not WETH");
-
-    WETH.deposit{value: msg.value}();
-    cachedPool.auction(nftAsset, nftTokenId, msg.value, onBehalfOf);
-  }
-
-  /**
-   * @inheritdoc IWETHGateway
-   */
   function redeemETH(
     address nftAsset,
     uint256 nftTokenId,
@@ -341,33 +315,6 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     }
 
     return paybackAmount;
-  }
-
-  /**
-   * @inheritdoc IWETHGateway
-   */
-  function liquidateETH(address nftAsset, uint256 nftTokenId) external payable override nonReentrant returns (uint256) {
-    ILendPool cachedPool = _getLendPool();
-    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
-
-    uint256 loanId = cachedPoolLoan.getCollateralLoanId(nftAsset, nftTokenId);
-    require(loanId > 0, "collateral loan id not exist");
-
-    DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
-    require(loan.reserveAsset == address(WETH), "loan reserve not WETH");
-
-    if (msg.value > 0) {
-      WETH.deposit{value: msg.value}();
-    }
-
-    uint256 extraAmount = cachedPool.liquidate(nftAsset, nftTokenId, msg.value);
-
-    if (msg.value > extraAmount) {
-      WETH.withdraw(msg.value - extraAmount);
-      _safeTransferETH(msg.sender, msg.value - extraAmount);
-    }
-
-    return (extraAmount);
   }
 
   /**

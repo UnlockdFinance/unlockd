@@ -24,6 +24,10 @@ interface ILendPoolAddressesProvider {
   event UIDataProviderUpdated(address indexed newAddress);
   event UnlockdDataProviderUpdated(address indexed newAddress);
   event WalletBalanceProviderUpdated(address indexed newAddress);
+  event LooksRareExchangeUpdated(address indexed newAddress);
+  event OpenseaWyvernExchangeUpdated(address indexed newAddress);
+  event NFTXVaultFactoryUpdated(address indexed newAddress);
+  event SushiSwapRouterUpdated(address indexed newAddress);
 
   /**
    * @dev Returns the id of the Unlockd market to which this contracts points to
@@ -214,4 +218,20 @@ interface ILendPoolAddressesProvider {
    * @param provider the WalletBalanceProvider address
    **/
   function setWalletBalanceProvider(address provider) external;
+
+  function getOpenseaWyvernExchange() external view returns (address);
+
+  function setOpenseaWyvernExchange(address exchange) external;
+
+  function getLooksRareExchange() external view returns (address);
+
+  function setLooksRareExchange(address exchange) external;
+
+  function getNFTXVaultFactory() external view returns (address);
+
+  function setNFTXVaultFactory(address factory) external;
+
+  function getSushiSwapRouter() external view returns (address);
+
+  function setSushiSwapRouter(address router) external;
 }

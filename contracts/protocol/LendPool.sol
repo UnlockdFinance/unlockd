@@ -19,6 +19,8 @@ import {LiquidateLogic} from "../libraries/logic/LiquidateLogic.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
+import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
+import {WyvernExchange} from "../libraries/wyvernexchange/WyvernExchange.sol";
 import {LendPoolStorage} from "./LendPoolStorage.sol";
 import {LendPoolStorageExt} from "./LendPoolStorageExt.sol";
 
@@ -288,31 +290,16 @@ contract LendPool is
 
   /**
    * @dev Function to auction a non-healthy position collateral-wise
-   * - The bidder want to buy collateral asset of the user getting liquidated
+   * - The collateral asset of the user getting liquidated is auctioned on Looksrare & Opensea
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
-   * @param bidPrice The bid price of the bidder want to buy underlying NFT
-   * @param onBehalfOf Address of the user who will get the underlying NFT, same as msg.sender if the user
-   *   wants to receive them on his own wallet, or a different address if the beneficiary of NFT
-   *   is a different wallet
    **/
-  function auction(
-    address nftAsset,
-    uint256 nftTokenId,
-    uint256 bidPrice,
-    address onBehalfOf
-  ) external override nonReentrant whenNotPaused {
+  function auction(address nftAsset, uint256 nftTokenId) external override nonReentrant whenNotPaused {
     LiquidateLogic.executeAuction(
       _addressesProvider,
       _reserves,
       _nfts,
-      DataTypes.ExecuteAuctionParams({
-        initiator: _msgSender(),
-        nftAsset: nftAsset,
-        nftTokenId: nftTokenId,
-        bidPrice: bidPrice,
-        onBehalfOf: onBehalfOf
-      })
+      DataTypes.ExecuteAuctionParams({nftAsset: nftAsset, nftTokenId: nftTokenId})
     );
   }
 
@@ -347,27 +334,79 @@ contract LendPool is
 
   /**
    * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The caller (liquidator) buy collateral asset of the user getting liquidated, and receives
-   *   the collateral asset
+   * - The collateral asset is sold on LooksRare
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
-  function liquidate(
+  function liquidateLooksRare(
     address nftAsset,
     uint256 nftTokenId,
-    uint256 amount
+    OrderTypes.TakerOrder calldata takerAsk,
+    OrderTypes.MakerOrder calldata makerBid
   ) external override nonReentrant whenNotPaused returns (uint256) {
     return
-      LiquidateLogic.executeLiquidate(
+      LiquidateLogic.executeLiquidateLooksRare(
         _addressesProvider,
         _reserves,
         _nfts,
-        DataTypes.ExecuteLiquidateParams({
-          initiator: _msgSender(),
+        DataTypes.ExecuteLiquidateLooksRareParams({
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
-          amount: amount
+          takerAsk: takerAsk,
+          makerBid: makerBid
         })
+      );
+  }
+
+  /**
+   * @dev Function to liquidate a non-healthy position collateral-wise
+   * - The collateral asset is sold on Opensea
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   **/
+  function liquidateOpensea(
+    address nftAsset,
+    uint256 nftTokenId,
+    WyvernExchange.Order calldata buyOrder,
+    WyvernExchange.Order calldata sellOrder,
+    uint8[2] calldata _vs,
+    bytes32[5] calldata _rssMetadata
+  ) external override nonReentrant whenNotPaused returns (uint256) {
+    return
+      LiquidateLogic.executeLiquidateOpensea(
+        _addressesProvider,
+        _reserves,
+        _nfts,
+        DataTypes.ExecuteLiquidateOpenseaParams({
+          nftAsset: nftAsset,
+          nftTokenId: nftTokenId,
+          buyOrder: buyOrder,
+          sellOrder: sellOrder,
+          _vs: _vs,
+          _rssMetadata: _rssMetadata
+        })
+      );
+  }
+
+  /**
+   * @dev Function to liquidate a non-healthy position collateral-wise
+   * - The collateral asset is sold on Opensea
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   **/
+  function liquidateNFTX(address nftAsset, uint256 nftTokenId)
+    external
+    override
+    nonReentrant
+    whenNotPaused
+    returns (uint256)
+  {
+    return
+      LiquidateLogic.executeLiquidateNFTX(
+        _addressesProvider,
+        _reserves,
+        _nfts,
+        DataTypes.ExecuteLiquidateNFTXParams({nftAsset: nftAsset, nftTokenId: nftTokenId})
       );
   }
 
@@ -680,7 +719,7 @@ contract LendPool is
     balanceToBefore;
 
     DataTypes.ReserveData storage reserve = _reserves[asset];
-    require(_msgSender() == reserve.bTokenAddress, Errors.LP_CALLER_MUST_BE_AN_BTOKEN);
+    require(_msgSender() == reserve.uTokenAddress, Errors.LP_CALLER_MUST_BE_AN_UTOKEN);
 
     ValidationLogic.validateTransfer(from, reserve);
   }

@@ -418,17 +418,17 @@
       },
       {
         "internalType": "uint8",
-        "name": "bTokenDecimals",
+        "name": "uTokenDecimals",
         "type": "uint8"
       },
       {
         "internalType": "string",
-        "name": "bTokenName",
+        "name": "uTokenName",
         "type": "string"
       },
       {
         "internalType": "string",
-        "name": "bTokenSymbol",
+        "name": "uTokenSymbol",
         "type": "string"
       }
     ],

@@ -5,9 +5,13 @@ import {IUNFT} from "../interfaces/IUNFT.sol";
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
+import {ILooksRareExchange} from "../interfaces/ILooksRareExchange.sol";
+
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
+import {NFTXHelper} from "../libraries/nftx/NFTXHelper.sol";
+import {WyvernExchange} from "../libraries/wyvernexchange/WyvernExchange.sol";
 
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {IERC721ReceiverUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
@@ -186,47 +190,23 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
    * @inheritdoc ILendPoolLoan
    */
   function auctionLoan(
-    address initiator,
     uint256 loanId,
-    address onBehalfOf,
     uint256 bidPrice,
     uint256 borrowAmount,
     uint256 borrowIndex
   ) external override onlyLendPool {
     // Must use storage to change state
     DataTypes.LoanData storage loan = _loans[loanId];
-    address previousBidder = loan.bidderAddress;
-    uint256 previousPrice = loan.bidPrice;
 
     // Ensure valid loan state
-    if (loan.bidStartTimestamp == 0) {
-      require(loan.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
+    require(loan.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
 
-      loan.state = DataTypes.LoanState.Auction;
-      loan.bidStartTimestamp = block.timestamp;
-      loan.firstBidderAddress = onBehalfOf;
-    } else {
-      require(loan.state == DataTypes.LoanState.Auction, Errors.LPL_INVALID_LOAN_STATE);
-
-      require(bidPrice > loan.bidPrice, Errors.LPL_BID_PRICE_LESS_THAN_HIGHEST_PRICE);
-    }
-
+    loan.state = DataTypes.LoanState.Auction;
+    loan.bidStartTimestamp = block.timestamp;
     loan.bidBorrowAmount = borrowAmount;
-    loan.bidderAddress = onBehalfOf;
     loan.bidPrice = bidPrice;
 
-    emit LoanAuctioned(
-      initiator,
-      loanId,
-      loan.nftAsset,
-      loan.nftTokenId,
-      loan.bidBorrowAmount,
-      borrowIndex,
-      onBehalfOf,
-      bidPrice,
-      previousBidder,
-      previousPrice
-    );
+    emit LoanAuctioned(loanId, loan.nftAsset, loan.nftTokenId, loan.bidBorrowAmount, borrowIndex, bidPrice);
   }
 
   /**
@@ -263,13 +243,13 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   /**
    * @inheritdoc ILendPoolLoan
    */
-  function liquidateLoan(
-    address initiator,
+  function liquidateLoanLooksRare(
     uint256 loanId,
     address uNftAddress,
     uint256 borrowAmount,
-    uint256 borrowIndex
-  ) external override onlyLendPool {
+    uint256 borrowIndex,
+    DataTypes.ExecuteLiquidateLooksRareParams memory params
+  ) external override onlyLendPool returns (uint256 sellPrice) {
     // Must use storage to change state
     DataTypes.LoanData storage loan = _loans[loanId];
 
@@ -289,19 +269,118 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALIED_NFT_AMOUNT);
     _nftTotalCollateral[loan.nftAsset] -= 1;
 
-    // burn uNFT and transfer underlying NFT asset to user
+    // burn uNFT and sell NFT on LooksRare
     IUNFT(uNftAddress).burn(loan.nftTokenId);
 
-    IERC721Upgradeable(loan.nftAsset).safeTransferFrom(address(this), _msgSender(), loan.nftTokenId);
+    address exchange = _addressesProvider.getLooksRareExchange();
+    ILooksRareExchange(exchange).matchBidWithTakerAsk(params.takerAsk, params.makerBid);
+    sellPrice = params.makerBid.price;
 
-    emit LoanLiquidated(
-      initiator,
+    emit LoanLiquidatedLooksRare(
       loanId,
       loan.nftAsset,
       loan.nftTokenId,
       loan.reserveAsset,
       borrowAmount,
-      borrowIndex
+      borrowIndex,
+      sellPrice
+    );
+  }
+
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
+  function liquidateLoanOpensea(
+    uint256 loanId,
+    address uNftAddress,
+    uint256 borrowAmount,
+    uint256 borrowIndex,
+    DataTypes.ExecuteLiquidateOpenseaParams memory params
+  ) external override onlyLendPool returns (uint256 sellPrice) {
+    // Must use storage to change state
+    DataTypes.LoanData storage loan = _loans[loanId];
+
+    // Ensure valid loan state
+    require(loan.state == DataTypes.LoanState.Auction, Errors.LPL_INVALID_LOAN_STATE);
+
+    // state changes and cleanup
+    // NOTE: these must be performed before assets are released to prevent reentrance
+    _loans[loanId].state = DataTypes.LoanState.Defaulted;
+    _loans[loanId].bidBorrowAmount = borrowAmount;
+
+    _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
+
+    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALIED_USER_NFT_AMOUNT);
+    _userNftCollateral[loan.borrower][loan.nftAsset] -= 1;
+
+    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALIED_NFT_AMOUNT);
+    _nftTotalCollateral[loan.nftAsset] -= 1;
+
+    // burn uNFT and sell NFT on Opensea
+    IUNFT(uNftAddress).burn(loan.nftTokenId);
+    address exchange = _addressesProvider.getOpenseaWyvernExchange();
+    WyvernExchange.fulfillOrder(exchange, params.buyOrder, params.sellOrder, params._vs, params._rssMetadata);
+    sellPrice = params.buyOrder.basePrice;
+
+    emit LoanLiquidatedOpensea(
+      loanId,
+      loan.nftAsset,
+      loan.nftTokenId,
+      loan.reserveAsset,
+      borrowAmount,
+      borrowIndex,
+      sellPrice
+    );
+  }
+
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
+  function liquidateLoanNFTX(
+    uint256 loanId,
+    address uNftAddress,
+    uint256 borrowAmount,
+    uint256 borrowIndex
+  ) external override onlyLendPool returns (uint256 sellPrice) {
+    // Must use storage to change state
+    DataTypes.LoanData storage loan = _loans[loanId];
+
+    // Ensure valid loan state
+    require(loan.state == DataTypes.LoanState.Auction, Errors.LPL_INVALID_LOAN_STATE);
+
+    // state changes and cleanup
+    // NOTE: these must be performed before assets are released to prevent reentrance
+    _loans[loanId].state = DataTypes.LoanState.Defaulted;
+    _loans[loanId].bidBorrowAmount = borrowAmount;
+
+    _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
+
+    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALIED_USER_NFT_AMOUNT);
+    _userNftCollateral[loan.borrower][loan.nftAsset] -= 1;
+
+    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALIED_NFT_AMOUNT);
+    _nftTotalCollateral[loan.nftAsset] -= 1;
+
+    // burn uNFT and sell NFT on NFTX
+    IUNFT(uNftAddress).burn(loan.nftTokenId);
+
+    // Sell NFT on NFTX
+    sellPrice = NFTXHelper.sellNFTX(
+      _addressesProvider,
+      loan.nftAsset,
+      loan.nftTokenId,
+      loan.reserveAsset,
+      borrowAmount
+    );
+
+    emit LoanLiquidatedNFTX(
+      loanId,
+      loan.nftAsset,
+      loan.nftTokenId,
+      loan.reserveAsset,
+      borrowAmount,
+      borrowIndex,
+      sellPrice
     );
   }
 

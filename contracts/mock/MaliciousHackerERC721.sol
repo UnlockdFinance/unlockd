@@ -21,7 +21,9 @@ contract MaliciousHackerERC721 is IERC721Receiver {
   uint256 public constant ACTION_REPAY = 4;
   uint256 public constant ACTION_AUCTION = 5;
   uint256 public constant ACTION_REDEEM = 6;
-  uint256 public constant ACTION_LIQUIDATE = 7;
+  uint256 public constant ACTION_LIQUIDATE_LOOKSRARE = 7;
+  uint256 public constant ACTION_LIQUIDATE_OPENSEA = 8;
+  uint256 public constant ACTION_LIQUIDATE_NFTX = 9;
 
   constructor(address pool_) {
     _pool = ILendPool(pool_);
@@ -80,11 +82,11 @@ contract MaliciousHackerERC721 is IERC721Receiver {
     } else if (_simulateAction == ACTION_REPAY) {
       _pool.repay(vars.nfts[0], tokenId, vars.amount);
     } else if (_simulateAction == ACTION_AUCTION) {
-      _pool.auction(vars.nfts[0], tokenId, vars.bidPrice, vars.onBehalfOf);
+      _pool.auction(vars.nfts[0], tokenId);
     } else if (_simulateAction == ACTION_REDEEM) {
       _pool.redeem(vars.nfts[0], tokenId, vars.amount, vars.bidFine);
-    } else if (_simulateAction == ACTION_LIQUIDATE) {
-      _pool.liquidate(vars.nfts[0], tokenId, vars.amount);
+    } else if (_simulateAction == ACTION_LIQUIDATE_NFTX) {
+      _pool.liquidateNFTX(vars.nfts[0], tokenId);
     }
 
     return IERC721Receiver.onERC721Received.selector;

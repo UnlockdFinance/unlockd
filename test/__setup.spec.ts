@@ -4,7 +4,7 @@ import "./helpers/utils/math";
 import { insertContractAddressInDb, registerContractInJsonDb } from "../helpers/contracts-helpers";
 import {
   deployLendPoolAddressesProvider,
-  deployBTokenImplementations,
+  deployUTokenImplementations,
   deployLendPoolConfigurator,
   deployLendPool,
   deployLendPoolLoan,
@@ -27,6 +27,8 @@ import {
   deployUiPoolDataProvider,
   deployMockChainlinkOracle,
   deployUnlockdLibraries,
+  deloyNFTXVaultFactory,
+  deploySushiSwapRouter,
 } from "../helpers/contracts-deployments";
 import { Signer } from "ethers";
 import { eContractid, tEthereumAddress, UnlockdPools } from "../helpers/types";
@@ -48,6 +50,7 @@ import {
   configureReservesByHelper,
   initNftsByHelper,
   configureNftsByHelper,
+  initNFTXByHelper,
 } from "../helpers/init-helpers";
 import UnlockdConfig from "../markets/unlockd";
 import {
@@ -290,18 +293,18 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     ...config.ReservesConfig,
   };
 
-  console.log("-> Prepare BToken impl contract...");
-  await deployBTokenImplementations(ConfigNames.Unlockd, reservesParams, false);
+  console.log("-> Prepare UToken impl contract...");
+  await deployUTokenImplementations(ConfigNames.Unlockd, reservesParams, false);
 
   console.log("-> Prepare Reserve init and configure...");
-  const { BTokenNamePrefix, BTokenSymbolPrefix, DebtTokenNamePrefix, DebtTokenSymbolPrefix } = config;
+  const { UTokenNamePrefix, UTokenSymbolPrefix, DebtTokenNamePrefix, DebtTokenSymbolPrefix } = config;
   const treasuryAddress = await getTreasuryAddress(config);
 
   await initReservesByHelper(
     reservesParams,
     allReservesAddresses,
-    BTokenNamePrefix,
-    BTokenSymbolPrefix,
+    UTokenNamePrefix,
+    UTokenSymbolPrefix,
     DebtTokenNamePrefix,
     DebtTokenSymbolPrefix,
     poolAdmin,
@@ -383,6 +386,17 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   await insertContractAddressInDb(eContractid.PunkGateway, punkGateway.address);
 
   await waitForTx(await wethGateway.authorizeCallerWhitelist([punkGateway.address], true));
+
+  //////////////////////////////////////////////////////////////////////////////
+  console.log("-> Prepare NFTX & Sushiswap Router...");
+
+  const nftxVaultFactory = await deloyNFTXVaultFactory();
+  await waitForTx(await addressesProvider.setNFTXVaultFactory(nftxVaultFactory.address));
+
+  const sushiSwapRouter = await deploySushiSwapRouter();
+  await waitForTx(await addressesProvider.setSushiSwapRouter(sushiSwapRouter.address));
+
+  await initNFTXByHelper();
 
   console.timeEnd("setup");
 };

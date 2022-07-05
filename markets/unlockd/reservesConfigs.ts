@@ -14,7 +14,7 @@ export const strategyBUSD: IReserveParams = {
   liquidationBonus: '0',
   borrowingEnabled: true,
   reserveDecimals: '18',
-  bTokenImpl: eContractid.BToken,
+  uTokenImpl: eContractid.UToken,
   reserveFactor: '3000'
 };
 
@@ -25,7 +25,7 @@ export const strategyDAI: IReserveParams = {
   liquidationBonus: '500',
   borrowingEnabled: true,
   reserveDecimals: '18',
-  bTokenImpl: eContractid.BToken,
+  uTokenImpl: eContractid.UToken,
   reserveFactor: '3000'
 };
 
@@ -36,7 +36,7 @@ export const strategyUSDC: IReserveParams = {
   liquidationBonus: '500',
   borrowingEnabled: true,
   reserveDecimals: '6',
-  bTokenImpl: eContractid.BToken,
+  uTokenImpl: eContractid.UToken,
   reserveFactor: '3000'
 };
 
@@ -47,7 +47,7 @@ export const strategyUSDT: IReserveParams = {
   liquidationBonus: '500',
   borrowingEnabled: true,
   reserveDecimals: '6',
-  bTokenImpl: eContractid.BToken,
+  uTokenImpl: eContractid.UToken,
   reserveFactor: '3000'
 };
 
@@ -58,6 +58,6 @@ export const strategyWETH: IReserveParams = {
   liquidationBonus: '500',
   borrowingEnabled: true,
   reserveDecimals: '18',
-  bTokenImpl: eContractid.BToken,
+  uTokenImpl: eContractid.UToken,
   reserveFactor: '3000'
 };

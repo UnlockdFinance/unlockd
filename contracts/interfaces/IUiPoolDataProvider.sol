@@ -20,7 +20,7 @@ interface IUiPoolDataProvider {
     uint128 liquidityRate;
     uint128 variableBorrowRate;
     uint40 lastUpdateTimestamp;
-    address bTokenAddress;
+    address uTokenAddress;
     address debtTokenAddress;
     address interestRateAddress;
     //
@@ -33,7 +33,7 @@ interface IUiPoolDataProvider {
 
   struct UserReserveData {
     address underlyingAsset;
-    uint256 bTokenBalance;
+    uint256 uTokenBalance;
     uint256 variableDebt;
   }
 

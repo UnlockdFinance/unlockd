@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
+import {OrderTypes} from "../looksrare/OrderTypes.sol";
+import {WyvernExchange} from "../wyvernexchange/WyvernExchange.sol";
+
 library DataTypes {
   struct ReserveData {
     //stores the reserve configuration
@@ -15,7 +18,7 @@ library DataTypes {
     uint128 currentVariableBorrowRate;
     uint40 lastUpdateTimestamp;
     //tokens addresses
-    address bTokenAddress;
+    address uTokenAddress;
     address debtTokenAddress;
     //address of the interest rate strategy
     address interestRateAddress;
@@ -155,11 +158,8 @@ library DataTypes {
   }
 
   struct ExecuteAuctionParams {
-    address initiator;
     address nftAsset;
     uint256 nftTokenId;
-    uint256 bidPrice;
-    address onBehalfOf;
   }
 
   struct ExecuteRedeemParams {
@@ -175,5 +175,26 @@ library DataTypes {
     address nftAsset;
     uint256 nftTokenId;
     uint256 amount;
+  }
+
+  struct ExecuteLiquidateLooksRareParams {
+    address nftAsset;
+    uint256 nftTokenId;
+    OrderTypes.TakerOrder takerAsk;
+    OrderTypes.MakerOrder makerBid;
+  }
+
+  struct ExecuteLiquidateOpenseaParams {
+    address nftAsset;
+    uint256 nftTokenId;
+    WyvernExchange.Order buyOrder;
+    WyvernExchange.Order sellOrder;
+    uint8[2] _vs;
+    bytes32[5] _rssMetadata;
+  }
+
+  struct ExecuteLiquidateNFTXParams {
+    address nftAsset;
+    uint256 nftTokenId;
   }
 }

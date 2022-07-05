@@ -4,7 +4,7 @@ pragma solidity 0.8.4;
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
 import {ILendPoolConfigurator} from "../interfaces/ILendPoolConfigurator.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
-import {IBToken} from "../interfaces/IBToken.sol";
+import {IUToken} from "../interfaces/IUToken.sol";
 import {IIncentivesController} from "../interfaces/IIncentivesController.sol";
 import {IncentivizedERC20} from "./IncentivizedERC20.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
@@ -15,11 +15,11 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 /**
- * @title ERC20 BToken
+ * @title ERC20 UToken
  * @dev Implementation of the interest bearing token for the Unlockd protocol
  * @author Unlockd
  */
-contract BToken is Initializable, IBToken, IncentivizedERC20 {
+contract UToken is Initializable, IUToken, IncentivizedERC20 {
   using WadRayMath for uint256;
   using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -38,20 +38,20 @@ contract BToken is Initializable, IBToken, IncentivizedERC20 {
   }
 
   /**
-   * @dev Initializes the bToken
-   * @param addressProvider The address of the address provider where this bToken will be used
-   * @param treasury The address of the Unlockd treasury, receiving the fees on this bToken
-   * @param underlyingAsset The address of the underlying asset of this bToken
+   * @dev Initializes the uToken
+   * @param addressProvider The address of the address provider where this uToken will be used
+   * @param treasury The address of the Unlockd treasury, receiving the fees on this uToken
+   * @param underlyingAsset The address of the underlying asset of this uToken
    */
   function initialize(
     ILendPoolAddressesProvider addressProvider,
     address treasury,
     address underlyingAsset,
-    uint8 bTokenDecimals,
-    string calldata bTokenName,
-    string calldata bTokenSymbol
+    uint8 uTokenDecimals,
+    string calldata uTokenName,
+    string calldata uTokenSymbol
   ) external override initializer {
-    __IncentivizedERC20_init(bTokenName, bTokenSymbol, bTokenDecimals);
+    __IncentivizedERC20_init(uTokenName, uTokenSymbol, uTokenDecimals);
 
     _treasury = treasury;
     _underlyingAsset = underlyingAsset;
@@ -67,9 +67,9 @@ contract BToken is Initializable, IBToken, IncentivizedERC20 {
   }
 
   /**
-   * @dev Burns bTokens from `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
+   * @dev Burns uTokens from `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
    * - Only callable by the LendPool, as extra state updates there need to be managed
-   * @param user The owner of the bTokens, getting them burned
+   * @param user The owner of the uTokens, getting them burned
    * @param receiverOfUnderlying The address that will receive the underlying
    * @param amount The amount being burned
    * @param index The new liquidity index of the reserve
@@ -90,7 +90,7 @@ contract BToken is Initializable, IBToken, IncentivizedERC20 {
   }
 
   /**
-   * @dev Mints `amount` bTokens to `user`
+   * @dev Mints `amount` uTokens to `user`
    * - Only callable by the LendPool, as extra state updates there need to be managed
    * @param user The address receiving the minted tokens
    * @param amount The amount of tokens getting minted
@@ -116,7 +116,7 @@ contract BToken is Initializable, IBToken, IncentivizedERC20 {
   }
 
   /**
-   * @dev Mints bTokens to the reserve treasury
+   * @dev Mints uTokens to the reserve treasury
    * - Only callable by the LendPool
    * @param amount The amount of tokens getting minted
    * @param index The new liquidity index of the reserve
@@ -169,7 +169,7 @@ contract BToken is Initializable, IBToken, IncentivizedERC20 {
   }
 
   /**
-   * @dev calculates the total supply of the specific bToken
+   * @dev calculates the total supply of the specific uToken
    * since the balance of every single user increases over time, the total supply
    * does that too.
    * @return the current total supply
@@ -194,21 +194,21 @@ contract BToken is Initializable, IBToken, IncentivizedERC20 {
   }
 
   /**
-   * @dev Returns the address of the Unlockd treasury, receiving the fees on this bToken
+   * @dev Returns the address of the Unlockd treasury, receiving the fees on this uToken
    **/
   function RESERVE_TREASURY_ADDRESS() public view returns (address) {
     return _treasury;
   }
 
   /**
-   * @dev Returns the address of the underlying asset of this bToken
+   * @dev Returns the address of the underlying asset of this uToken
    **/
   function UNDERLYING_ASSET_ADDRESS() public view override returns (address) {
     return _underlyingAsset;
   }
 
   /**
-   * @dev Returns the address of the lending pool where this bToken is used
+   * @dev Returns the address of the lending pool where this uToken is used
    **/
   function POOL() public view returns (ILendPool) {
     return _getLendPool();
@@ -235,7 +235,7 @@ contract BToken is Initializable, IBToken, IncentivizedERC20 {
   /**
    * @dev Transfers the underlying asset to `target`. Used by the LendPool to transfer
    * assets in borrow(), withdraw() and flashLoan()
-   * @param target The recipient of the bTokens
+   * @param target The recipient of the uTokens
    * @param amount The amount getting transferred
    * @return The amount transferred
    **/
@@ -253,7 +253,7 @@ contract BToken is Initializable, IBToken, IncentivizedERC20 {
   }
 
   /**
-   * @dev Transfers the bTokens between two users. Validates the transfer
+   * @dev Transfers the uTokens between two users. Validates the transfer
    * (ie checks for valid HF after the transfer) if required
    * @param from The source address
    * @param to The destination address

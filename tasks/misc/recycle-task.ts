@@ -5,7 +5,7 @@ import { oneEther } from "../../helpers/constants";
 import {
   getAllMockedNfts,
   getAllMockedTokens,
-  getBToken,
+  getUToken,
   getDeploySigner,
   getLendPool,
   getLendPoolAddressesProvider,
@@ -32,7 +32,7 @@ task("dev:recycle-pool-eths", "Doing recycle all ETHs in pool task")
     const wethGateway = await getWETHGateway();
 
     const wethReserveData = await lendPool.getReserveData(weth.address);
-    const bwethToken = await getBToken(wethReserveData.bTokenAddress);
+    const bwethToken = await getUToken(wethReserveData.uTokenAddress);
     const availableBalance = await weth.balanceOf(bwethToken.address);
     console.log("Available Balance:", availableBalance.toString());
     if (new BigNumber(availableBalance.toString()).lt(oneEther.div(100))) {

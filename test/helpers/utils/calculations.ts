@@ -35,13 +35,13 @@ export const calcExpectedUserDataAfterDeposit = (
 
   expectedUserData.liquidityRate = reserveDataAfterAction.liquidityRate;
 
-  expectedUserData.scaledBTokenBalance = calcExpectedScaledBTokenBalance(
+  expectedUserData.scaledUTokenBalance = calcExpectedScaledUTokenBalance(
     userDataBeforeAction,
     reserveDataAfterAction.liquidityIndex,
     new BigNumber(amountDeposited),
     new BigNumber(0)
   );
-  expectedUserData.currentBTokenBalance = calcExpectedBTokenBalance(
+  expectedUserData.currentUTokenBalance = calcExpectedUTokenBalance(
     reserveDataBeforeAction,
     userDataBeforeAction,
     txTimestamp
@@ -70,20 +70,20 @@ export const calcExpectedUserDataAfterWithdraw = (
 ): UserReserveData => {
   const expectedUserData = <UserReserveData>{};
 
-  const bTokenBalance = calcExpectedBTokenBalance(reserveDataBeforeAction, userDataBeforeAction, txTimestamp);
+  const uTokenBalance = calcExpectedUTokenBalance(reserveDataBeforeAction, userDataBeforeAction, txTimestamp);
 
   if (amountWithdrawn == MAX_UINT_AMOUNT) {
-    amountWithdrawn = bTokenBalance.toFixed(0);
+    amountWithdrawn = uTokenBalance.toFixed(0);
   }
 
-  expectedUserData.scaledBTokenBalance = calcExpectedScaledBTokenBalance(
+  expectedUserData.scaledUTokenBalance = calcExpectedScaledUTokenBalance(
     userDataBeforeAction,
     reserveDataAfterAction.liquidityIndex,
     new BigNumber(0),
     new BigNumber(amountWithdrawn)
   );
 
-  expectedUserData.currentBTokenBalance = bTokenBalance.minus(amountWithdrawn);
+  expectedUserData.currentUTokenBalance = uTokenBalance.minus(amountWithdrawn);
 
   expectedUserData.scaledVariableDebt = userDataBeforeAction.scaledVariableDebt;
 
@@ -152,7 +152,7 @@ export const calcExpectedReserveDataAfterWithdraw = (
   expectedReserveData.address = reserveDataBeforeAction.address;
 
   if (amountWithdrawn == MAX_UINT_AMOUNT) {
-    amountWithdrawn = calcExpectedBTokenBalance(reserveDataBeforeAction, userDataBeforeAction, txTimestamp).toFixed();
+    amountWithdrawn = calcExpectedUTokenBalance(reserveDataBeforeAction, userDataBeforeAction, txTimestamp).toFixed();
   }
 
   expectedReserveData.availableLiquidity = new BigNumber(reserveDataBeforeAction.availableLiquidity).minus(
@@ -405,13 +405,13 @@ export const calcExpectedUserDataAfterBorrow = (
 
   expectedUserData.liquidityRate = expectedDataAfterAction.liquidityRate;
 
-  expectedUserData.currentBTokenBalance = calcExpectedBTokenBalance(
+  expectedUserData.currentUTokenBalance = calcExpectedUTokenBalance(
     expectedDataAfterAction,
     userDataBeforeAction,
     currentTimestamp
   );
 
-  expectedUserData.scaledBTokenBalance = userDataBeforeAction.scaledBTokenBalance;
+  expectedUserData.scaledUTokenBalance = userDataBeforeAction.scaledUTokenBalance;
 
   expectedUserData.walletBalance = userDataBeforeAction.walletBalance.plus(amountBorrowed);
 
@@ -452,12 +452,12 @@ export const calcExpectedUserDataAfterRepay = (
 
   expectedUserData.liquidityRate = expectedDataAfterAction.liquidityRate;
 
-  expectedUserData.currentBTokenBalance = calcExpectedBTokenBalance(
+  expectedUserData.currentUTokenBalance = calcExpectedUTokenBalance(
     reserveDataBeforeAction,
     userDataBeforeAction,
     txTimestamp
   );
-  expectedUserData.scaledBTokenBalance = userDataBeforeAction.scaledBTokenBalance;
+  expectedUserData.scaledUTokenBalance = userDataBeforeAction.scaledUTokenBalance;
 
   if (user === onBehalfOf) {
     expectedUserData.walletBalance = userDataBeforeAction.walletBalance.minus(totalRepaidBN);
@@ -480,7 +480,8 @@ export const calcExpectedUserDataAfterAuction = (
   txTimestamp: BigNumber,
   currentTimestamp: BigNumber
 ): UserReserveData => {
-  const amountAuctionBN = new BigNumber(amountToAuction);
+  // const amountAuctionBN = new BigNumber(amountToAuction);
+  const amountAuctionBN = new BigNumber(0);
   const amountRedeemBN = new BigNumber(0); // just reuse repay calculation logic
 
   const expectedUserData = calcExpectedUserDataAfterRepay(
@@ -532,9 +533,8 @@ export const calcExpectedUserDataAfterRedeem = (
 
   // walletBalance is about liquidator(user), not borrower
   // borrower's wallet not changed, but we check liquidator's wallet
-  expectedUserData.walletBalance = userDataBeforeAction.walletBalance
-    .minus(new BigNumber(amountToRedeem))
-    .minus(bidFine);
+  expectedUserData.walletBalance = userDataBeforeAction.walletBalance.minus(new BigNumber(amountToRedeem));
+  // .minus(bidFine);
   return expectedUserData;
 };
 
@@ -693,8 +693,9 @@ export const calcExpectedLoanDataAfterAuction = (
 
   expectedLoanData.state = new BigNumber(ProtocolLoanState.Auction);
 
-  expectedLoanData.bidderAddress = onBehalfOf;
-  expectedLoanData.bidPrice = new BigNumber(amountToAuction);
+  // expectedLoanData.bidderAddress = onBehalfOf;
+  // expectedLoanData.bidPrice = new BigNumber(amountToAuction);
+  expectedLoanData.bidPrice = new BigNumber(0);
   expectedLoanData.bidFine = loanDataAfterAction.bidFine;
 
   const borrowAmount = calcExpectedLoanBorrowBalance(reserveDataBeforeAction, loanDataBeforeAction, currentTimestamp);
@@ -787,23 +788,23 @@ export const calcExpectedLoanDataAfterLiquidate = (
   return expectedLoanData;
 };
 
-const calcExpectedScaledBTokenBalance = (
+const calcExpectedScaledUTokenBalance = (
   userDataBeforeAction: UserReserveData,
   index: BigNumber,
   amountAdded: BigNumber,
   amountTaken: BigNumber
 ) => {
-  return userDataBeforeAction.scaledBTokenBalance.plus(amountAdded.rayDiv(index)).minus(amountTaken.rayDiv(index));
+  return userDataBeforeAction.scaledUTokenBalance.plus(amountAdded.rayDiv(index)).minus(amountTaken.rayDiv(index));
 };
 
-export const calcExpectedBTokenBalance = (
+export const calcExpectedUTokenBalance = (
   reserveData: ReserveData,
   userData: UserReserveData,
   currentTimestamp: BigNumber
 ) => {
   const index = calcExpectedReserveNormalizedIncome(reserveData, currentTimestamp);
 
-  const { scaledBTokenBalance: scaledBalanceBeforeAction } = userData;
+  const { scaledUTokenBalance: scaledBalanceBeforeAction } = userData;
 
   return scaledBalanceBeforeAction.rayMul(index);
 };

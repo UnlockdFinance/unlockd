@@ -227,8 +227,8 @@ makeSuite("DataProvider", (testEnv) => {
       expect(depositorBalances[1][assetIndex]).to.be.equal(0); // all weth has deposited
 
       const tokenData = await dataProvider.getReserveTokenData(depositorBalances[0][assetIndex]);
-      const bTokenBalance = await walletProvider.balanceOfReserve(depositor.address, tokenData.bTokenAddress);
-      expect(bTokenBalance).to.be.gt(0); // all weth has deposited
+      const uTokenBalance = await walletProvider.balanceOfReserve(depositor.address, tokenData.uTokenAddress);
+      expect(uTokenBalance).to.be.gt(0); // all weth has deposited
     }
 
     {
