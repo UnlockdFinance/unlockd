@@ -220,6 +220,17 @@ interface ILendPool {
     uint16 referralCode
   ) external;
 
+  /**
+   * @dev Allows users to borrow a specific `amount` of the reserve underlying asset array
+   * @param assets The array of addresses of the underlying asset to borrow
+   * @param amounts The array of amounts to be borrowed
+   * @param nftAssets The array of addresses of the underlying nft used as collateral
+   * @param nftTokenIds The token ID of the underlying nft used as collateral
+   * @param onBehalfOf Address of the user who will receive the loan. Should be the address of the borrower itself
+   * calling the function if he wants to borrow against his own collateral
+   * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
+   *   0 if the action is executed directly by the user, without any middle-man
+   **/
   function batchBorrow(
     address[] calldata assets,
     uint256[] calldata amounts,
@@ -243,6 +254,12 @@ interface ILendPool {
     uint256 amount
   ) external returns (uint256, bool);
 
+  /**
+   * @notice Repays a borrowed `amounts` on a specific array of reserves, burning the equivalent loan owned
+   * @param nftAssets The array of addresses of the underlying NFT used as collateral
+   * @param nftTokenIds The array of token IDs of the underlying NFT used as collateral
+   * @param amounts The array of amounts to repay
+   **/
   function batchRepay(
     address[] calldata nftAssets,
     uint256[] calldata nftTokenIds,
@@ -325,8 +342,18 @@ interface ILendPool {
     uint256 balanceToBefore
   ) external view;
 
+  /**
+   * @dev Returns the configuration of the reserve
+   * @param asset The address of the underlying asset of the reserve
+   * @return The configuration of the reserve
+   **/
   function getReserveConfiguration(address asset) external view returns (DataTypes.ReserveConfigurationMap memory);
 
+  /**
+   * @dev Returns the configuration of the NFT
+   * @param asset The address of the asset of the NFT
+   * @return The configuration of the NFT
+   **/
   function getNftConfiguration(address asset) external view returns (DataTypes.NftConfigurationMap memory);
 
   /**
@@ -350,8 +377,17 @@ interface ILendPool {
    **/
   function getReserveData(address asset) external view returns (DataTypes.ReserveData memory);
 
+  /**
+   * @dev Returns the list of the initialized reserves
+   * @return the list of initialized reserves
+   **/
   function getReservesList() external view returns (address[] memory);
 
+  /**
+   * @dev Returns the state and configuration of the nft
+   * @param asset The address of the underlying asset of the nft
+   * @return The status of the nft
+   **/
   function getNftData(address asset) external view returns (DataTypes.NftData memory);
 
   /**
@@ -425,6 +461,11 @@ interface ILendPool {
       uint256 minBidPrice
     );
 
+  /**
+   * @dev Returns the state and configuration of the nft
+   * @param nftAsset The address of the underlying asset of the nft
+   * @param nftAsset The token ID of the asset
+   **/
   function getNftLiquidatePrice(address nftAsset, uint256 nftTokenId)
     external
     view
@@ -444,8 +485,20 @@ interface ILendPool {
    */
   function paused() external view returns (bool);
 
+  /**
+   * @dev Returns the cached LendPoolAddressesProvider connected to this contract
+   **/
   function getAddressesProvider() external view returns (ILendPoolAddressesProvider);
 
+  /**
+   * @dev Initializes a reserve, activating it, assigning an uToken and nft loan and an
+   * interest rate strategy
+   * - Only callable by the LendPoolConfigurator contract
+   * @param asset The address of the underlying asset of the reserve
+   * @param uTokenAddress The address of the uToken that will be assigned to the reserve
+   * @param debtTokenAddress The address of the debtToken that will be assigned to the reserve
+   * @param interestRateAddress The address of the interest rate strategy contract
+   **/
   function initReserve(
     address asset,
     address uTokenAddress,
@@ -453,25 +506,69 @@ interface ILendPool {
     address interestRateAddress
   ) external;
 
+  /**
+   * @dev Initializes a nft, activating it, assigning nft loan and an
+   * interest rate strategy
+   * - Only callable by the LendPoolConfigurator contract
+   * @param asset The address of the underlying asset of the nft
+   **/
   function initNft(address asset, address uNftAddress) external;
 
+  /**
+   * @dev Updates the address of the interest rate strategy contract
+   * - Only callable by the LendPoolConfigurator contract
+   * @param asset The address of the underlying asset of the reserve
+   * @param rateAddress The address of the interest rate strategy contract
+   **/
   function setReserveInterestRateAddress(address asset, address rateAddress) external;
 
+  /**
+   * @dev Sets the configuration bitmap of the reserve as a whole
+   * - Only callable by the LendPoolConfigurator contract
+   * @param asset The address of the underlying asset of the reserve
+   * @param configuration The new configuration bitmap
+   **/
   function setReserveConfiguration(address asset, uint256 configuration) external;
 
+  /**
+   * @dev Sets the configuration bitmap of the NFT as a whole
+   * - Only callable by the LendPoolConfigurator contract
+   * @param asset The address of the asset of the NFT
+   * @param configuration The new configuration bitmap
+   **/
   function setNftConfiguration(address asset, uint256 configuration) external;
 
+  /**
+   * @dev Sets the max supply and token ID for a given asset
+   * @param asset The address to set the data
+   * @param maxSupply The max supply value
+   * @param maxTokenId The max token ID value
+   **/
   function setNftMaxSupplyAndTokenId(
     address asset,
     uint256 maxSupply,
     uint256 maxTokenId
   ) external;
 
+  /**
+   * @dev Sets the max number of reserves in the protocol
+   * @param val the value to set the max number of reserves
+   **/
   function setMaxNumberOfReserves(uint256 val) external;
 
+  /**
+   * @dev Sets the max number of NFTs in the protocol
+   * @param val the value to set the max number of NFTs
+   **/
   function setMaxNumberOfNfts(uint256 val) external;
 
+  /**
+   * @dev Returns the maximum number of reserves supported to be listed in this LendPool
+   */
   function getMaxNumberOfReserves() external view returns (uint256);
 
+  /**
+   * @dev Returns the maximum number of nfts supported to be listed in this LendPool
+   */
   function getMaxNumberOfNfts() external view returns (uint256);
 }

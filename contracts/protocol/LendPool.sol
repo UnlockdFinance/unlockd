@@ -223,6 +223,17 @@ contract LendPool is
     );
   }
 
+  /**
+   * @dev Allows users to borrow a specific `amount` of the reserve underlying asset array
+   * @param assets The array of addresses of the underlying asset to borrow
+   * @param amounts The array of amounts to be borrowed
+   * @param nftAssets The array of addresses of the underlying nft used as collateral
+   * @param nftTokenIds The token ID of the underlying nft used as collateral
+   * @param onBehalfOf Address of the user who will receive the loan. Should be the address of the borrower itself
+   * calling the function if he wants to borrow against his own collateral
+   * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
+   *   0 if the action is executed directly by the user, without any middle-man
+   **/
   function batchBorrow(
     address[] calldata assets,
     uint256[] calldata amounts,
@@ -269,6 +280,12 @@ contract LendPool is
       );
   }
 
+  /**
+   * @notice Repays a borrowed `amounts` on a specific array of reserves, burning the equivalent loan owned
+   * @param nftAssets The array of addresses of the underlying NFT used as collateral
+   * @param nftTokenIds The array of token IDs of the underlying NFT used as collateral
+   * @param amounts The array of amounts to repay
+   **/
   function batchRepay(
     address[] calldata nftAssets,
     uint256[] calldata nftTokenIds,
@@ -480,7 +497,7 @@ contract LendPool is
   /**
    * @dev Returns the state and configuration of the nft
    * @param asset The address of the underlying asset of the nft
-   * @return The state of the nft
+   * @return The status of the nft
    **/
   function getNftData(address asset) external view override returns (DataTypes.NftData memory) {
     return _nfts[asset];
@@ -640,6 +657,11 @@ contract LendPool is
     uint256 remainAmount;
   }
 
+  /**
+   * @dev Returns the state and configuration of the nft
+   * @param nftAsset The address of the underlying asset of the nft
+   * @param nftTokenId The token ID of the asset
+   **/
   function getNftLiquidatePrice(address nftAsset, uint256 nftTokenId)
     external
     view
@@ -761,6 +783,10 @@ contract LendPool is
     return _addressesProvider;
   }
 
+  /**
+   * @dev Sets the max number of reserves in the protocol
+   * @param val the value to set the max number of reserves
+   **/
   function setMaxNumberOfReserves(uint256 val) external override onlyLendPoolConfigurator {
     _maxNumberOfReserves = val;
   }
@@ -772,6 +798,10 @@ contract LendPool is
     return _maxNumberOfReserves;
   }
 
+  /**
+   * @dev Sets the max number of NFTs in the protocol
+   * @param val the value to set the max number of NFTs
+   **/
   function setMaxNumberOfNfts(uint256 val) external override onlyLendPoolConfigurator {
     _maxNumberOfNfts = val;
   }
@@ -854,6 +884,12 @@ contract LendPool is
     _nfts[asset].configuration.data = configuration;
   }
 
+  /**
+   * @dev Sets the max supply and token ID for a given asset
+   * @param asset The address to set the data
+   * @param maxSupply The max supply value
+   * @param maxTokenId The max token ID value
+   **/
   function setNftMaxSupplyAndTokenId(
     address asset,
     uint256 maxSupply,

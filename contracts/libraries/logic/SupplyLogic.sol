@@ -75,7 +75,7 @@ library SupplyLogic {
   }
 
   /**
-   * @notice Implements the supply feature. Through `withdraw()`, users withdraw assets from the protocol.
+   * @notice Implements the withdraw feature. Through `withdraw()`, users withdraw assets from the protocol.
    * @dev Emits the `Withdraw()` event.
    * @param reservesData The state of all the reserves
    * @param params The additional parameters needed to execute the withdraw function

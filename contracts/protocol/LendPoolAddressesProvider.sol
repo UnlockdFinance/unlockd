@@ -112,6 +112,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    * @dev Updates the implementation of the LendPool, or creates the proxy
    * setting the new `pool` implementation on the first time calling it
    * @param pool The new LendPool implementation
+   * @param encodedCallData calldata to execute
    **/
   function setLendPoolImpl(address pool, bytes memory encodedCallData) external override onlyOwner {
     _updateImpl(LEND_POOL, pool);
@@ -134,6 +135,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    * @dev Updates the implementation of the LendPoolConfigurator, or creates the proxy
    * setting the new `configurator` implementation on the first time calling it
    * @param configurator The new LendPoolConfigurator implementation
+   * @param encodedCallData calldata to execute
    **/
   function setLendPoolConfiguratorImpl(address configurator, bytes memory encodedCallData) external override onlyOwner {
     _updateImpl(LEND_POOL_CONFIGURATOR, configurator);
@@ -145,50 +147,86 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   }
 
   /**
-   * @dev The functions below are getters/setters of addresses that are outside the context
-   * of the protocol hence the upgradable proxy pattern is not used
+   * @dev returns the address of the LendPool admin
+   * @return the LendPoolAdmin address
    **/
-
   function getPoolAdmin() external view override returns (address) {
     return getAddress(POOL_ADMIN);
   }
 
+  /**
+   * @dev sets the address of the LendPool admin
+   * @param admin the LendPoolAdmin address
+   **/
   function setPoolAdmin(address admin) external override onlyOwner {
     _addresses[POOL_ADMIN] = admin;
     emit ConfigurationAdminUpdated(admin);
   }
 
+  /**
+   * @dev returns the address of the emergency admin
+   * @return the EmergencyAdmin address
+   **/
   function getEmergencyAdmin() external view override returns (address) {
     return getAddress(EMERGENCY_ADMIN);
   }
 
+  /**
+   * @dev sets the address of the emergency admin
+   * @param emergencyAdmin the EmergencyAdmin address
+   **/
   function setEmergencyAdmin(address emergencyAdmin) external override onlyOwner {
     _addresses[EMERGENCY_ADMIN] = emergencyAdmin;
     emit EmergencyAdminUpdated(emergencyAdmin);
   }
 
+  /**
+   * @dev returns the address of the reserve oracle
+   * @return the ReserveOracle address
+   **/
   function getReserveOracle() external view override returns (address) {
     return getAddress(RESERVE_ORACLE);
   }
 
+  /**
+   * @dev sets the address of the reserve oracle
+   * @param reserveOracle the ReserveOracle address
+   **/
   function setReserveOracle(address reserveOracle) external override onlyOwner {
     _addresses[RESERVE_ORACLE] = reserveOracle;
     emit ReserveOracleUpdated(reserveOracle);
   }
 
+  /**
+   * @dev returns the address of the NFT oracle
+   * @return the NFTOracle address
+   **/
   function getNFTOracle() external view override returns (address) {
     return getAddress(NFT_ORACLE);
   }
 
+  /**
+   * @dev sets the address of the NFT oracle
+   * @param nftOracle the NFTOracle address
+   **/
   function setNFTOracle(address nftOracle) external override onlyOwner {
     _addresses[NFT_ORACLE] = nftOracle;
     emit NftOracleUpdated(nftOracle);
   }
 
+  /**
+   * @dev returns the address of the lendpool loan
+   * @return the LendPoolLoan address
+   **/
   function getLendPoolLoan() external view override returns (address) {
     return getAddress(LEND_POOL_LOAN);
   }
 
+  /**
+   * @dev sets the address of the lendpool loan
+   * @param loanAddress the LendPoolLoan address
+   * @param encodedCallData calldata to execute
+   **/
   function setLendPoolLoanImpl(address loanAddress, bytes memory encodedCallData) external override onlyOwner {
     _updateImpl(LEND_POOL_LOAN, loanAddress);
     emit LendPoolLoanUpdated(loanAddress, encodedCallData);
@@ -198,46 +236,86 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
     }
   }
 
+  /**
+   * @dev returns the address of the UNFT Registry
+   * @return the UNFTRegistry address
+   **/
   function getUNFTRegistry() external view override returns (address) {
     return getAddress(UNFT_REGISTRY);
   }
 
+  /**
+   * @dev sets the address of the UNFT registry
+   * @param factory the UNFTRegistry address
+   **/
   function setUNFTRegistry(address factory) external override onlyOwner {
     _addresses[UNFT_REGISTRY] = factory;
     emit UNFTRegistryUpdated(factory);
   }
 
+  /**
+   * @dev returns the address of the incentives controller
+   * @return the IncentivesController address
+   **/
   function getIncentivesController() external view override returns (address) {
     return getAddress(INCENTIVES_CONTROLLER);
   }
 
+  /**
+   * @dev sets the address of the incentives controller
+   * @param controller the IncentivesController address
+   **/
   function setIncentivesController(address controller) external override onlyOwner {
     _addresses[INCENTIVES_CONTROLLER] = controller;
     emit IncentivesControllerUpdated(controller);
   }
 
+  /**
+   * @dev returns the address of the UI data provider
+   * @return the UIDataProvider address
+   **/
   function getUIDataProvider() external view override returns (address) {
     return getAddress(UI_DATA_PROVIDER);
   }
 
+  /**
+   * @dev sets the address of the UI data provider
+   * @param provider the UIDataProvider address
+   **/
   function setUIDataProvider(address provider) external override onlyOwner {
     _addresses[UI_DATA_PROVIDER] = provider;
     emit UIDataProviderUpdated(provider);
   }
 
+  /**
+   * @dev returns the address of the Unlockd data provider
+   * @return the UnlockdDataProvider address
+   **/
   function getUnlockdDataProvider() external view override returns (address) {
     return getAddress(UNLOCKD_DATA_PROVIDER);
   }
 
+  /**
+   * @dev sets the address of the Unlockd data provider
+   * @param provider the UnlockdDataProvider address
+   **/
   function setUnlockdDataProvider(address provider) external override onlyOwner {
     _addresses[UNLOCKD_DATA_PROVIDER] = provider;
     emit UnlockdDataProviderUpdated(provider);
   }
 
+  /**
+   * @dev returns the address of the wallet balance provider
+   * @return the WalletBalanceProvider address
+   **/
   function getWalletBalanceProvider() external view override returns (address) {
     return getAddress(WALLET_BALANCE_PROVIDER);
   }
 
+  /**
+   * @dev sets the address of the wallet balance provider
+   * @param provider the WalletBalanceProvider address
+   **/
   function setWalletBalanceProvider(address provider) external override onlyOwner {
     _addresses[WALLET_BALANCE_PROVIDER] = provider;
     emit WalletBalanceProviderUpdated(provider);
@@ -321,6 +399,10 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
     }
   }
 
+  /**
+   * @dev Allows to set the market which this LendPoolAddressesProvider represents
+   * @param marketId The market id
+   */
   function _setMarketId(string memory marketId) internal {
     _marketId = marketId;
     emit MarketIdSet(marketId);

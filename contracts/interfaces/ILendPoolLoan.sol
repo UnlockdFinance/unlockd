@@ -123,6 +123,12 @@ interface ILendPoolLoan {
    * @dev Create store a loan object with some params
    * @param initiator The address of the user initiating the borrow
    * @param onBehalfOf The address receiving the loan
+   * @param nftAsset The address of the underlying NFT asset
+   * @param nftTokenId The token Id of the underlying NFT asset
+   * @param uNftAddress The address of the uNFT token
+   * @param reserveAsset The address of the underlying reserve asset
+   * @param amount The loan amount
+   * @param borrowIndex The index to get the scaled loan amount
    */
   function createLoan(
     address initiator,
@@ -141,7 +147,11 @@ interface ILendPoolLoan {
    * Requirements:
    *  - The caller must be a holder of the loan
    *  - The loan must be in state Active
-   * @param initiator The address of the user initiating the borrow
+   * @param initiator The address of the user updating the loan
+   * @param loanId The loan ID
+   * @param amountAdded The amount added to the loan
+   * @param amountTaken The amount taken from the loan
+   * @param borrowIndex The index to get the scaled loan amount
    */
   function updateLoan(
     address initiator,
@@ -162,6 +172,8 @@ interface ILendPoolLoan {
    * @param initiator The address of the user initiating the repay
    * @param loanId The loan getting burned
    * @param uNftAddress The address of uNFT
+   * @param amount The amount repaid
+   * @param borrowIndex The index to get the scaled loan amount
    */
   function repayLoan(
     address initiator,
@@ -196,6 +208,9 @@ interface ILendPoolLoan {
    *  - The caller must be a holder of the loan
    *  - The loan must be in state Auction
    * @param initiator The address of the user initiating the borrow
+   * @param loanId The loan getting redeemed
+   * @param amountTaken The taken amount
+   * @param borrowIndex The index to get the scaled loan amount
    */
   function redeemLoan(
     address initiator,
@@ -214,6 +229,8 @@ interface ILendPoolLoan {
    *
    * @param loanId The loan getting burned
    * @param uNftAddress The address of uNFT
+   * @param borrowAmount The borrow amount
+   * @param borrowIndex The index to get the scaled loan amount
    */
   function liquidateLoanLooksRare(
     uint256 loanId,
@@ -256,12 +273,29 @@ interface ILendPoolLoan {
     uint256 borrowIndex
   ) external returns (uint256 sellPrice);
 
+  /**
+   *  @dev returns the borrower of a specific loan
+   * param loanId the loan to get the borrower from
+   */
   function borrowerOf(uint256 loanId) external view returns (address);
 
+  /**
+   *  @dev returns the loan corresponding to a specific NFT
+   * param nftAsset the underlying NFT asset
+   * param tokenId the underlying token ID for the NFT
+   */
   function getCollateralLoanId(address nftAsset, uint256 nftTokenId) external view returns (uint256);
 
+  /**
+   *  @dev returns the loan corresponding to a specific loan Id
+   * param loanId the loan Id
+   */
   function getLoan(uint256 loanId) external view returns (DataTypes.LoanData memory loanData);
 
+  /**
+   *  @dev returns the collateral and reserve corresponding to a specific loan
+   * param loanId the loan Id
+   */
   function getLoanCollateralAndReserve(uint256 loanId)
     external
     view
@@ -272,13 +306,30 @@ interface ILendPoolLoan {
       uint256 scaledAmount
     );
 
+  /**
+   *  @dev returns the reserve and borrow __scaled__ amount corresponding to a specific loan
+   * param loanId the loan Id
+   */
   function getLoanReserveBorrowScaledAmount(uint256 loanId) external view returns (address, uint256);
 
+  /**
+   *  @dev returns the reserve and borrow  amount corresponding to a specific loan
+   * param loanId the loan Id
+   */
   function getLoanReserveBorrowAmount(uint256 loanId) external view returns (address, uint256);
 
   function getLoanMinBidPrice(uint256 loanId) external view returns (uint256);
 
+  /**
+   *  @dev returns the collateral amount for a given NFT
+   * param nftAsset the underlying NFT asset
+   */
   function getNftCollateralAmount(address nftAsset) external view returns (uint256);
 
+  /**
+   *  @dev returns the collateral amount for a given NFT and a specific user
+   * param user the user
+   * param nftAsset the underlying NFT asset
+   */
   function getUserNftCollateralAmount(address user, address nftAsset) external view returns (uint256);
 }
