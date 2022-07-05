@@ -86,7 +86,7 @@ contract InterestRate is IInterestRate {
   /**
    * @dev Calculates the interest rates depending on the reserve's state and configurations
    * @param reserve The address of the reserve
-   * @param bToken The uToken address
+   * @param uToken The uToken address
    * @param liquidityAdded The liquidity added during the operation
    * @param liquidityTaken The liquidity taken during the operation
    * @param totalVariableDebt The total borrowed from the reserve at a variable rate

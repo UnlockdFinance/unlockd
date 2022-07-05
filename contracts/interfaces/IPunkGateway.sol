@@ -69,7 +69,6 @@ interface IPunkGateway {
   /**
    * @notice auction a unhealth punk loan with ERC20 reserve
    * @param punkIndex The index of the CryptoPunk used as collateral
-   * @param bidPrice The bid price
    **/
   function auction(uint256 punkIndex) external;
 

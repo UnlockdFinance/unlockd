@@ -499,7 +499,7 @@ interface ILendPool {
    * interest rate strategy
    * - Only callable by the LendPoolConfigurator contract
    * @param asset The address of the underlying asset of the reserve
-   * @param bTokenAddress The address of the uToken that will be assigned to the reserve
+   * @param uTokenAddress The address of the uToken that will be assigned to the reserve
    * @param debtTokenAddress The address of the debtToken that will be assigned to the reserve
    * @param interestRateAddress The address of the interest rate strategy contract
    **/

@@ -190,7 +190,6 @@ interface ILendPoolLoan {
    *  - The loan must be in state Active
    *
    * @param loanId The loan getting auctioned
-   * @param onBehalfOf The bidding address
    * @param bidPrice The bid price of this auction
    * @param borrowAmount The borrow amount
    * @param borrowIndex The index to get the scaled loan amount
