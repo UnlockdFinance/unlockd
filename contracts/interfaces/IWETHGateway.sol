@@ -39,7 +39,7 @@ interface IWETHGateway {
    * @dev borrows multiple amounts of WETH, unwraps to ETH and send both the ETH and DebtTokens to msg.sender, via `approveDelegation` and onBehalf argument in `LendPool.borrow`.
    * @param amounts the amount of ETH to borrow
    * @param nftAssets The array of addresses of the underlying NFTs used as collateral
-   * @param nftTokenId The array of token IDs of the underlying NFTs used as collateral
+   * @param nftTokenIds The array of token IDs of the underlying NFTs used as collateral
    * @param onBehalfOf Address of the user who will receive the loans. Should be the address of the borrower itself
    * calling the function if he wants to borrow against his own collateral, or the address of the credit delegator
    * if he has been given credit delegation allowance

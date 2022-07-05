@@ -114,7 +114,7 @@ interface ILendPoolAddressesProvider {
 
   /**
    * @dev sets the address of the emergency admin
-   * @param emergencyAdmin the EmergencyAdmin address
+   * @param admin the EmergencyAdmin address
    **/
   function setEmergencyAdmin(address admin) external;
 
@@ -150,7 +150,7 @@ interface ILendPoolAddressesProvider {
 
   /**
    * @dev sets the address of the lendpool loan
-   * @param loanAddress the LendPoolLoan address
+   * @param loan the LendPoolLoan address
    * @param encodedCallData calldata to execute
    **/
   function setLendPoolLoanImpl(address loan, bytes memory encodedCallData) external;

@@ -403,7 +403,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   }
 
   /**
-   * @inheritdoc ILendPoolLoan
+   * @dev returns the LendPool address
    */
   function _getLendPool() internal view returns (ILendPool) {
     return ILendPool(_addressesProvider.getLendPool());

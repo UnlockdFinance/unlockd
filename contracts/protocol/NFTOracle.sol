@@ -14,7 +14,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   event CollectionAdded(address indexed collection);
   /**
    * @dev Emitted when a collection is removed from the oracle
-   * @param _collection The removed collection
+   * @param collection The removed collection
    **/
   event CollectionRemoved(address indexed collection);
   /**
@@ -79,7 +79,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   /**
    * @dev Function is invoked by the proxy contract when the NFTOracle contract is added to the
    * LendPoolAddressesProvider of the market.
-   * @param provider The address of the LendPoolAddressesProvider
+   * @param _admin The admin address
    **/
   function initialize(address _admin) public initializer {
     __Ownable_init();

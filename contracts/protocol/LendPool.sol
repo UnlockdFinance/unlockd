@@ -614,8 +614,7 @@ contract LendPool is
   /**
    * @dev Returns the state and configuration of the nft
    * @param nftAsset The address of the underlying asset of the nft
-   * @param nftAsset The token ID of the asset
-   * @return The NFT liquidate price
+   * @param nftTokenId The token ID of the asset
    **/
   function getNftLiquidatePrice(address nftAsset, uint256 nftTokenId)
     external

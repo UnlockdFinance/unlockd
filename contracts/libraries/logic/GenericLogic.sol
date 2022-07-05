@@ -317,11 +317,9 @@ library GenericLogic {
    * @param reserveAsset The underlying asset of the reserve
    * @param reserveData the reserve data
    * @param nftAsset the underlying NFT asset
-   * @param nftTokenId the NFT token Id
    * @param nftData The NFT data
    * @param poolLoan The pool loan address
    * @param reserveOracle The price oracle address of reserve
-   * @param nftOracle The price oracle address of nft
    * @return The borrow amount, threshold price and liquidation price
    **/
   function calculateLoanBidFine(

@@ -27,7 +27,7 @@ interface IPunkGateway {
   /**
    * @dev Allows users to borrow a specific `amount` of multiple reserve underlying assets, provided that the borrower
    * already deposited enough collateral
-   * @param reserveAssest The array of addresses of the underlying assets to borrow
+   * @param reserveAssets The array of addresses of the underlying assets to borrow
    * @param amounts The array of amounts to be borrowed
    * @param punkIndexs The array of indexes of the CryptoPunks used as collateral
    * @param onBehalfOf Address of the user who will receive the loan. Should be the address of the borrower itself

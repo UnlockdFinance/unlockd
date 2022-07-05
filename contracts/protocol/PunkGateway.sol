@@ -59,7 +59,6 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
   /**
    * @dev Function is invoked by the proxy contract when the PunkGateway contract is added to the
    * LendPoolAddressesProvider of the market.
-   * @param provider The address of the LendPoolAddressesProvider
    **/
   function initialize(
     address addressProvider,

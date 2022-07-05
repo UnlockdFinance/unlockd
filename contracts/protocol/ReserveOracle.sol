@@ -92,7 +92,7 @@ contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext
   }
 
   /**
-   * @inheritdoc INFTOracle
+   * @inheritdoc IReserveOracleGetter
    */
   function getAssetPrice(address _priceFeedKey) external view override returns (uint256) {
     if (_priceFeedKey == weth) {
@@ -122,7 +122,7 @@ contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext
   }
 
   /**
-   * @inheritdoc INFTOracle
+   * @inheritdoc IReserveOracleGetter
    */
   function getTwapPrice(address _priceFeedKey, uint256 _interval) external view override returns (uint256) {
     require(isExistedKey(_priceFeedKey), "ReserveOracle: key not existed");

@@ -455,7 +455,6 @@ interface ILendPool {
    * @dev Returns the state and configuration of the nft
    * @param nftAsset The address of the underlying asset of the nft
    * @param nftAsset The token ID of the asset
-   * @return The NFT liquidate price
    **/
   function getNftLiquidatePrice(address nftAsset, uint256 nftTokenId)
     external
@@ -486,7 +485,7 @@ interface ILendPool {
    * interest rate strategy
    * - Only callable by the LendPoolConfigurator contract
    * @param asset The address of the underlying asset of the reserve
-   * @param uTokenAddress The address of the uToken that will be assigned to the reserve
+   * @param bTokenAddress The address of the uToken that will be assigned to the reserve
    * @param debtTokenAddress The address of the debtToken that will be assigned to the reserve
    * @param interestRateAddress The address of the interest rate strategy contract
    **/

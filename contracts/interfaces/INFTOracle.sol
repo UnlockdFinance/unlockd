@@ -50,7 +50,7 @@ interface INFTOracle {
   /**
   @dev sets the pause status of the NFT oracle
   @param _nftContract the of NFT collection
-  @param _val the value to set the pausing status (true for paused, false for unpaused)
+  @param val the value to set the pausing status (true for paused, false for unpaused)
    */
   function setPause(address _nftContract, bool val) external;
 }

@@ -185,7 +185,7 @@ library ConfiguratorLogic {
 
   /**
    * @notice Initializes the proxy contract
-   * @param proxyAddress The proxy contract
+   * @param implementation The proxy contract
    * @param initParams The initial params to set in the initialization
    */
   function _initTokenWithProxy(address implementation, bytes memory initParams) internal returns (address) {

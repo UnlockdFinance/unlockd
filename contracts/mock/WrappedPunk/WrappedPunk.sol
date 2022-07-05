@@ -57,7 +57,7 @@ contract WrappedPunk is IWrappedPunks, Ownable, ERC721Enumerable, Pausable {
 
   /**
    * @dev Mints a wrapped punk
-   * @punkIndex the punk index of the punk to be minted
+   * @param punkIndex the punk index of the punk to be minted
    */
   function mint(uint256 punkIndex) public override whenNotPaused {
     address sender = _msgSender();
@@ -71,7 +71,7 @@ contract WrappedPunk is IWrappedPunks, Ownable, ERC721Enumerable, Pausable {
 
   /**
    * @dev Burns a specific wrapped punk
-   * @punkIndex the punk index of the punk to be minted
+   * @param punkIndex the punk index of the punk to be minted
    */
   function burn(uint256 punkIndex) public override whenNotPaused {
     address sender = _msgSender();
