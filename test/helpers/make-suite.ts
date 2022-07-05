@@ -27,6 +27,7 @@ import {
   getUIPoolDataProvider,
   getNFTXVaultFactory,
   getSushiSwapRouter,
+  getLendPoolLiquidatorSigner,
 } from "../../helpers/contracts-getters";
 import { eEthereumNetwork, eNetwork, tEthereumAddress } from "../../helpers/types";
 import { LendPool } from "../../types/LendPool";
@@ -83,6 +84,7 @@ export interface TestEnv {
   pool: LendPool;
   loan: LendPoolLoan;
   configurator: LendPoolConfigurator;
+  liquidator: SignerWithAddress;
   reserveOracle: ReserveOracle;
   mockChainlinkOracle: MockChainlinkOracle;
   mockReserveOracle: MockReserveOracle;
@@ -130,6 +132,7 @@ const testEnv: TestEnv = {
   pool: {} as LendPool,
   loan: {} as LendPoolLoan,
   configurator: {} as LendPoolConfigurator,
+  liquidator: {} as SignerWithAddress,
   dataProvider: {} as UnlockdProtocolDataProvider,
   uiProvider: {} as UiPoolDataProvider,
   walletProvider: {} as WalletBalanceProvider,
@@ -171,6 +174,7 @@ export async function initializeMakeSuite() {
     });
   }
   testEnv.deployer = deployer;
+  testEnv.liquidator = deployer;
 
   testEnv.bnftRegistry = await getUNFTRegistryProxy();
 

@@ -190,13 +190,13 @@ interface ILendPoolLoan {
    *  - The loan must be in state Active
    *
    * @param loanId The loan getting auctioned
-   * @param bidPrice The bid price of this auction
-   * @param borrowAmount The borrow amount
-   * @param borrowIndex The index to get the scaled loan amount
+   * @param uNftAddress The address of uNFT
+   * @param minBidPrice The start bid price of this auction
    */
   function auctionLoan(
     uint256 loanId,
-    uint256 bidPrice,
+    address uNftAddress,
+    uint256 minBidPrice,
     uint256 borrowAmount,
     uint256 borrowIndex
   ) external;
@@ -215,6 +215,7 @@ interface ILendPoolLoan {
   function redeemLoan(
     address initiator,
     uint256 loanId,
+    address uNftAddress,
     uint256 amountTaken,
     uint256 borrowIndex
   ) external;
@@ -265,11 +266,9 @@ interface ILendPoolLoan {
    *  - The loan must be in state Auction
    *
    * @param loanId The loan getting burned
-   * @param uNftAddress The address of uNFT
    */
   function liquidateLoanNFTX(
     uint256 loanId,
-    address uNftAddress,
     uint256 borrowAmount,
     uint256 borrowIndex
   ) external returns (uint256 sellPrice);
@@ -319,11 +318,7 @@ interface ILendPoolLoan {
    */
   function getLoanReserveBorrowAmount(uint256 loanId) external view returns (address, uint256);
 
-  /**
-   *  @dev returns the highest bid for a given loan
-   * param loanId the loan Id
-   */
-  function getLoanHighestBid(uint256 loanId) external view returns (address, uint256);
+  function getLoanMinBidPrice(uint256 loanId) external view returns (uint256);
 
   /**
    *  @dev returns the collateral amount for a given NFT

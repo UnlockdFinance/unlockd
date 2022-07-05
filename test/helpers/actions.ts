@@ -765,12 +765,8 @@ export const redeem = async (
   }
   amountToRedeem = "0x" + new BigNumber(amountToRedeem).toString(16);
 
-  let bidFineAmount = loanDataBefore.bidBorrowAmount.multipliedBy(1.1).toFixed(0);
-
   if (expectedResult === "success") {
-    const txResult = await waitForTx(
-      await pool.connect(user.signer).redeem(nftAsset, nftTokenId, amountToRedeem, bidFineAmount)
-    );
+    const txResult = await waitForTx(await pool.connect(user.signer).redeem(nftAsset, nftTokenId, amountToRedeem));
 
     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
 
@@ -824,8 +820,7 @@ export const redeem = async (
     expectEqual(userDataAfter, expectedUserData);
     expectEqual(loanDataAfter, expectedLoanData);
   } else if (expectedResult === "revert") {
-    await expect(pool.connect(user.signer).redeem(nftAsset, nftTokenId, amountToRedeem, bidFineAmount), revertMessage)
-      .to.be.reverted;
+    await expect(pool.connect(user.signer).redeem(nftAsset, nftTokenId, amountToRedeem), revertMessage).to.be.reverted;
   }
 };
 

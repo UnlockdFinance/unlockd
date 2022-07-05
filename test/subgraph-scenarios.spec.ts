@@ -94,9 +94,8 @@ makeSuite("Subgraph tests", async (testEnv) => {
   });
 
   it("borrow-auction-redeem", async () => {
-    const { users, pool, weth, bayc } = testEnv;
+    const { users, pool, weth, bayc, liquidator } = testEnv;
     const borrower = users[1];
-    const liquidator = users[2];
 
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
@@ -116,6 +115,7 @@ makeSuite("Subgraph tests", async (testEnv) => {
     const auctionPrice = new BigNumber(newNftPrice).multipliedBy(1.1).toFixed(0);
     const auctionAmount = await convertToCurrencyUnits(weth.address, auctionPrice);
 
+    await bayc.connect(liquidator.signer).setApprovalForAll(pool.address, true);
     await auction(testEnv, liquidator, "BAYC", tokenId, auctionAmount.toString(), liquidator, true, "success", "");
 
     await increaseRedeemDuration(testEnv, "BAYC", false);
@@ -127,10 +127,9 @@ makeSuite("Subgraph tests", async (testEnv) => {
     await redeem(testEnv, borrower, "BAYC", tokenId, "-1", "success", "");
   });
 
-  it.skip("borrow-auction-liquidate", async () => {
-    const { users, pool, weth } = testEnv;
+  it("borrow-auction-liquidate", async () => {
+    const { users, pool, weth, liquidator } = testEnv;
     const borrower = users[1];
-    const liquidator = users[2];
 
     await setNftAssetPrice(testEnv, "BAYC", 101, saveBaycAssetPrice);
 

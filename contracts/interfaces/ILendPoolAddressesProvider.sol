@@ -28,6 +28,7 @@ interface ILendPoolAddressesProvider {
   event OpenseaWyvernExchangeUpdated(address indexed newAddress);
   event NFTXVaultFactoryUpdated(address indexed newAddress);
   event SushiSwapRouterUpdated(address indexed newAddress);
+  event LendPoolLiquidatorUpdated(address indexed newAddress);
 
   /**
    * @dev Returns the id of the Unlockd market to which this contracts points to
@@ -234,4 +235,8 @@ interface ILendPoolAddressesProvider {
   function getSushiSwapRouter() external view returns (address);
 
   function setSushiSwapRouter(address router) external;
+
+  function getLendPoolLiquidator() external view returns (address);
+
+  function setLendPoolLiquidator(address liquidator) external;
 }

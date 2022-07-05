@@ -140,10 +140,9 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
   });
 
   it("LiquidateNFTX", async () => {
-    const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, dataProvider } = testEnv;
+    const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, dataProvider, liquidator } = testEnv;
     const depositor = users[3];
     const borrower = users[4];
-    const liquidator = users[5];
     const emergencyAdminSigner = await getEmergencyAdminSigner();
 
     //user 3 mints WETH to depositor
@@ -194,7 +193,7 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     );
 
     // Do redeem
-    await expect(pool.connect(liquidator.signer).redeem(bayc.address, "101", "1", "1")).revertedWith(
+    await expect(pool.connect(liquidator.signer).redeem(bayc.address, "101", "1")).revertedWith(
       ProtocolErrors.LP_IS_PAUSED
     );
 

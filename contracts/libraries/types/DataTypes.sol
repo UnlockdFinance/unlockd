@@ -97,15 +97,9 @@ library DataTypes {
     //scaled borrow amount. Expressed in ray
     uint256 scaledAmount;
     //start time of first bid time
-    uint256 bidStartTimestamp;
-    //bidder address of higest bid
-    address bidderAddress;
-    //price of higest bid
-    uint256 bidPrice;
-    //borrow amount of loan
-    uint256 bidBorrowAmount;
-    //bidder address of first bid
-    address firstBidderAddress;
+    uint256 auctionStartTimestamp;
+    //min bid price
+    uint256 minBidPrice;
   }
 
   struct ExecuteDepositParams {
@@ -167,7 +161,6 @@ library DataTypes {
     address nftAsset;
     uint256 nftTokenId;
     uint256 amount;
-    uint256 bidFine;
   }
 
   struct ExecuteLiquidateParams {

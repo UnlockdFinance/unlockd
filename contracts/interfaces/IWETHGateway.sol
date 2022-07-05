@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
+import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
+import {WyvernExchange} from "../libraries/wyvernexchange/WyvernExchange.sol";
+
 interface IWETHGateway {
   /**
    * @dev deposits WETH into the reserve, using native ETH. A corresponding amount of the overlying asset (uTokens)
@@ -78,16 +81,54 @@ interface IWETHGateway {
   ) external payable returns (uint256[] memory, bool[] memory);
 
   /**
+   * @dev auction a borrow on the WETH reserve
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   */
+  function auction(address nftAsset, uint256 nftTokenId) external;
+
+  /**
    * @dev redeems a borrow on the WETH reserve
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    * @param amount The amount to repay the debt
-   * @param bidFine The amount of bid fine
    */
   function redeemETH(
     address nftAsset,
     uint256 nftTokenId,
-    uint256 amount,
-    uint256 bidFine
+    uint256 amount
   ) external payable returns (uint256);
+
+  /**
+   * @dev liquidates a borrow on the WETH reserve on LooksRare
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   */
+  function liquidateLooksRare(
+    address nftAsset,
+    uint256 nftTokenId,
+    OrderTypes.TakerOrder calldata takerAsk,
+    OrderTypes.MakerOrder calldata makerBid
+  ) external returns (uint256);
+
+  /**
+   * @dev liquidates a borrow on the WETH reserve on Opensea
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   */
+  function liquidateOpensea(
+    address nftAsset,
+    uint256 nftTokenId,
+    WyvernExchange.Order calldata buyOrder,
+    WyvernExchange.Order calldata sellOrder,
+    uint8[2] calldata _vs,
+    bytes32[5] calldata _rssMetadata
+  ) external returns (uint256);
+
+  /**
+   * @dev liquidates a borrow on the WETH reserve on NFTX
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   */
+  function liquidateNFTX(address nftAsset, uint256 nftTokenId) external returns (uint256);
 }

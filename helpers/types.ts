@@ -111,6 +111,7 @@ export enum ProtocolErrors {
   INVALID_FROM_BALANCE_AFTER_TRANSFER = "102",
   INVALID_TO_BALANCE_AFTER_TRANSFER = "103",
   CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST = "104",
+  CALLER_NOT_POOL_LIQUIDATOR = "105",
 
   //math library erros
   MATH_MULTIPLICATION_OVERFLOW = "200",
@@ -409,6 +410,8 @@ export interface ICommonConfiguration {
   PoolAdminIndex: number;
   EmergencyAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
   EmergencyAdminIndex: number;
+  LendPoolLiquidator: iParamsPerNetwork<tEthereumAddress | undefined>;
+  LendPoolLiquidatorIndex: number;
 
   ReserveAggregators: iParamsPerNetwork<ITokenAddress>;
   ReserveAssets: iParamsPerNetwork<SymbolMap<tEthereumAddress>>;
