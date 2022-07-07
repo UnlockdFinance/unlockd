@@ -75,78 +75,39 @@ interface IUiPoolDataProvider {
     uint256 minBidPrice;
   }
 
-  /**
-   * @dev Gets the list of reserves from the protocol
-   * @param provider the addresses provider
-   **/
   function getReservesList(ILendPoolAddressesProvider provider) external view returns (address[] memory);
 
-  /**
-   * @dev Gets aggregated data from the reserves
-   * @param provider the addresses provider
-   **/
   function getSimpleReservesData(ILendPoolAddressesProvider provider)
     external
     view
     returns (AggregatedReserveData[] memory);
 
-  /**
-   * @dev Gets reserve data for a specific user
-   * @param provider the addresses provider
-   * @param user the user to fetch the data
-   **/
   function getUserReservesData(ILendPoolAddressesProvider provider, address user)
     external
     view
     returns (UserReserveData[] memory);
 
-  /**
-   * @dev Gets full (aggregated and user) data from the reserves
-   * @param provider the addresses provider
-   * @param user the user to fetch the data
-   **/
+  // generic method with full data
   function getReservesData(ILendPoolAddressesProvider provider, address user)
     external
     view
     returns (AggregatedReserveData[] memory, UserReserveData[] memory);
 
-  /**
-   * @dev Gets the list of NFTs in the protocol
-   * @param provider the addresses provider
-   **/
   function getNftsList(ILendPoolAddressesProvider provider) external view returns (address[] memory);
 
-  /**
-   * @dev Gets aggregated data from the NFTs
-   * @param provider the addresses provider
-   **/
   function getSimpleNftsData(ILendPoolAddressesProvider provider) external view returns (AggregatedNftData[] memory);
 
-  /**
-   * @dev Gets NFTs data for a specific user
-   * @param provider the addresses provider
-   * @param user the user to fetch the data
-   **/
   function getUserNftsData(ILendPoolAddressesProvider provider, address user)
     external
     view
     returns (UserNftData[] memory);
 
-  /**
-   * @dev Gets full (aggregated and user) data from the NFTs
-   * @param provider the addresses provider
-   * @param user the user to fetch the data
-   **/
+  // generic method with full data
   function getNftsData(ILendPoolAddressesProvider provider, address user)
     external
     view
     returns (AggregatedNftData[] memory, UserNftData[] memory);
 
-  /**
-   * @dev Gets loans aggregated data
-   * @param nftAssets the array of NFT assets to check the loans from
-   * @param nftTokenIds the array of token Ids
-   **/
   function getSimpleLoansData(
     ILendPoolAddressesProvider provider,
     address[] memory nftAssets,

@@ -120,7 +120,6 @@
   },
   "dependencies": {
     "@ethersproject/units": "^5.6.1",
-    "global-agent": "^3.0.0",
-    "solidity-docgen": "^0.6.0-beta.17"
+    "global-agent": "^3.0.0"
   }
 }

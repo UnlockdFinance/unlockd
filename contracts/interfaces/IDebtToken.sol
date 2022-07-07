@@ -59,7 +59,6 @@ interface IDebtToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUp
   /**
    * @dev Mints debt token to the `user` address
    * @param user The address receiving the borrowed underlying
-   * @param onBehalfOf The beneficiary of the mint
    * @param amount The amount of debt being minted
    * @param index The variable debt index of the reserve
    * @return `true` if the the previous balance of the user is 0
@@ -82,7 +81,6 @@ interface IDebtToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUp
   /**
    * @dev Burns user variable debt
    * @param user The user which debt is burnt
-   * @param amount The amount to be burnt
    * @param index The variable debt index of the reserve
    **/
   function burn(

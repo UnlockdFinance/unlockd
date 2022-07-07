@@ -135,9 +135,6 @@ contract UNFT is ERC721EnumerableUpgradeable, IUNFT {
     return IERC721MetadataUpgradeable(_underlyingAsset).tokenURI(tokenId);
   }
 
-  /**
-   * @dev See {ERC721EnumerableUpgradeable}.
-   */
   function onERC721Received(
     address operator,
     address from,
@@ -170,9 +167,6 @@ contract UNFT is ERC721EnumerableUpgradeable, IUNFT {
     revert("APPROVAL_NOT_SUPPORTED");
   }
 
-  /**
-   * @dev See {ERC721EnumerableUpgradeable}.
-   */
   function setApprovalForAll(address operator, bool approved)
     public
     virtual
@@ -183,9 +177,6 @@ contract UNFT is ERC721EnumerableUpgradeable, IUNFT {
     revert("APPROVAL_NOT_SUPPORTED");
   }
 
-  /**
-   * @dev See {ERC721EnumerableUpgradeable}.
-   */
   function transferFrom(
     address from,
     address to,
@@ -197,9 +188,6 @@ contract UNFT is ERC721EnumerableUpgradeable, IUNFT {
     revert("TRANSFER_NOT_SUPPORTED");
   }
 
-  /**
-   * @dev See {ERC721EnumerableUpgradeable}.
-   */
   function safeTransferFrom(
     address from,
     address to,
@@ -211,9 +199,6 @@ contract UNFT is ERC721EnumerableUpgradeable, IUNFT {
     revert("TRANSFER_NOT_SUPPORTED");
   }
 
-  /**
-   * @dev See {ERC721EnumerableUpgradeable}.
-   */
   function safeTransferFrom(
     address from,
     address to,
@@ -227,9 +212,6 @@ contract UNFT is ERC721EnumerableUpgradeable, IUNFT {
     revert("TRANSFER_NOT_SUPPORTED");
   }
 
-  /**
-   * @dev See {ERC721EnumerableUpgradeable}.
-   */
   function _transfer(
     address from,
     address to,

@@ -7,26 +7,13 @@ import {INFTOracle} from "../interfaces/INFTOracle.sol";
 import {BlockContext} from "../utils/BlockContext.sol";
 
 contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
-  /**
-   * @dev Emitted when a collection is added to the oracle
-   * @param collection The added collection
-   **/
+  /// @dev When calling getPrice() of a non-minted tokenId it returns '0', shouldn't this revert with an error?
+  /// @notice The whenNotPaused modifier is not being used!
+  /// @notice INFTOracle.sol is not being used, it is redundant and it hasn't an implementation
+
   event CollectionAdded(address indexed collection);
-  /**
-   * @dev Emitted when a collection is removed from the oracle
-   * @param collection The removed collection
-   **/
   event CollectionRemoved(address indexed collection);
-  /**
-   * @dev Emitted when a price is added for an NFT asset
-   * @param _collection The NFT collection
-   * @param _tokenId The NFT token Id
-   **/
   event NFTPriceAdded(address indexed _collection, uint256 _tokenId, uint256 _price);
-  /**
-   * @dev Emitted when the admin has been updated
-   * @param admin The new admin
-   **/
   event FeedAdminUpdated(address indexed admin);
 
   error NotAdmin();
@@ -76,82 +63,46 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     _;
   }
 
-  /**
-   * @dev Function is invoked by the proxy contract when the NFTOracle contract is added to the
-   * LendPoolAddressesProvider of the market.
-   * @param _admin The admin address
-   **/
   function initialize(address _admin) public initializer {
     __Ownable_init();
     priceFeedAdmin = _admin;
   }
 
-  /**
-   * @dev checks whether the NFT oracle is paused
-   * @param _contract The NFTOracle address
-   **/
   function _whenNotPaused(address _contract) internal view {
     bool _paused = collectionPaused[_contract];
     if (_paused) revert NFTPaused();
   }
 
-  /**
-  @dev sets the price feed admin of the oracle
-  @param _admin the address to become the admin
-   */
   function setPriceFeedAdmin(address _admin) external onlyOwner {
     priceFeedAdmin = _admin;
     emit FeedAdminUpdated(_admin);
   }
 
-  /**
-  @dev adds multiple collections to the oracle
-  @param _collections the array NFT collections to add
-   */
   function setCollections(address[] calldata _collections) external onlyOwner {
     for (uint256 i = 0; i < _collections.length; i++) {
       _addCollection(_collections[i]);
     }
   }
 
-  /**
-  @dev adds a collection to the oracle
-  @param _collection the NFT collection to add
-   */
   function addCollection(address _collection) external onlyOwner {
     _addCollection(_collection);
   }
 
-  /**
-  @dev adds a collection to the oracle
-  @param _collection the NFT collection to add
-   */
   function _addCollection(address _collection) internal onlyNonExistingCollection(_collection) {
     collections[_collection] = true;
     emit CollectionAdded(_collection);
   }
 
-  /**
-  @dev removes a collection from the oracle
-  @param _collection the NFT collection to remove
-   */
   function removeCollection(address _collection) external onlyOwner {
     _removeCollection(_collection);
   }
 
-  /**
-  @dev removes a collection from the oracle
-  @param _collection the NFT collection to remove
-   */
   function _removeCollection(address _collection) internal onlyExistingCollection(_collection) {
     delete collections[_collection];
     delete collectionTokenIds[_collection];
     emit CollectionRemoved(_collection);
   }
 
-  /**
-   * @inheritdoc INFTOracle
-   */
   function setNFTPrice(
     address _collection,
     uint256 _tokenId,
@@ -160,9 +111,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     _setNFTPrice(_collection, _tokenId, _price);
   }
 
-  /**
-   * @inheritdoc INFTOracle
-   */
   function setMultipleNFTPrices(
     address[] calldata _collections,
     uint256[] calldata _tokenIds,
@@ -175,12 +123,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     }
   }
 
-  /**
-  @dev sets the price for a given NFT 
-  @param _collection the NFT collection
-  @param _tokenId the NFT token Id
-  @param _price the price to set to the token
-   */
   function _setNFTPrice(
     address _collection,
     uint256 _tokenId,
@@ -192,9 +134,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     emit NFTPriceAdded(_collection, _tokenId, _price);
   }
 
-  /**
-   * @inheritdoc INFTOracle
-   */
   function getNFTPrice(address _collection, uint256 _tokenId)
     external
     view
@@ -206,9 +145,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     return nftPrices[_collection][_tokenId];
   }
 
-  /**
-   * @inheritdoc INFTOracle
-   */
   function getMultipleNFTPrices(address[] calldata _collections, uint256[] calldata _tokenIds)
     external
     view
@@ -228,9 +164,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     return _nftPrices;
   }
 
-  /**
-   * @inheritdoc INFTOracle
-   */
   function setPause(address _collection, bool paused) external override onlyOwner {
     collectionPaused[_collection] = paused;
   }

@@ -31,25 +31,15 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     nftOracle = _nftOracle;
   }
 
-  /**
-   * @dev Gets the strategy slopes for a specified interest rate
-   * @param interestRate the interest rate to get the strategy slope from
-   **/
   function getInterestRateStrategySlopes(InterestRate interestRate) internal view returns (uint256, uint256) {
     return (interestRate.variableRateSlope1(), interestRate.variableRateSlope2());
   }
 
-  /**
-   * @inheritdoc IUiPoolDataProvider
-   */
   function getReservesList(ILendPoolAddressesProvider provider) public view override returns (address[] memory) {
     ILendPool lendPool = ILendPool(provider.getLendPool());
     return lendPool.getReservesList();
   }
 
-  /**
-   * @inheritdoc IUiPoolDataProvider
-   */
   function getSimpleReservesData(ILendPoolAddressesProvider provider)
     public
     view
@@ -71,9 +61,6 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     return (reservesData);
   }
 
-  /**
-   * @inheritdoc IUiPoolDataProvider
-   */
   function getUserReservesData(ILendPoolAddressesProvider provider, address user)
     external
     view
@@ -94,9 +81,6 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     return (userReservesData);
   }
 
-  /**
-   * @inheritdoc IUiPoolDataProvider
-   */
   function getReservesData(ILendPoolAddressesProvider provider, address user)
     external
     view
@@ -123,12 +107,6 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     return (reservesData, userReservesData);
   }
 
-  /**
-   * @dev fills the specified reserve data
-   * @param reserveData the reserve data to be updated
-   * @param reserveAsset the asset from the reserve
-   * @param baseData the base data
-   **/
   function _fillReserveData(
     AggregatedReserveData memory reserveData,
     address reserveAsset,
@@ -163,13 +141,6 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     );
   }
 
-  /**
-   * @dev fills the specified user reserve data
-   * @param userReserveData the reserve data to be updated
-   * @param user the user related to the reserve
-   * @param reserveAsset the asset from the reserve
-   * @param baseData the base data
-   **/
   function _fillUserReserveData(
     UserReserveData memory userReserveData,
     address user,
@@ -182,17 +153,11 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     userReserveData.variableDebt = IDebtToken(baseData.debtTokenAddress).balanceOf(user);
   }
 
-  /**
-   * @inheritdoc IUiPoolDataProvider
-   */
   function getNftsList(ILendPoolAddressesProvider provider) external view override returns (address[] memory) {
     ILendPool lendPool = ILendPool(provider.getLendPool());
     return lendPool.getNftsList();
   }
 
-  /**
-   * @inheritdoc IUiPoolDataProvider
-   */
   function getSimpleNftsData(ILendPoolAddressesProvider provider)
     external
     view
@@ -215,9 +180,6 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     return (nftsData);
   }
 
-  /**
-   * @inheritdoc IUiPoolDataProvider
-   */
   function getUserNftsData(ILendPoolAddressesProvider provider, address user)
     external
     view
@@ -241,9 +203,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     return (userNftsData);
   }
 
-  /**
-   * @inheritdoc IUiPoolDataProvider
-   */
+  // generic method with full data
   function getNftsData(ILendPoolAddressesProvider provider, address user)
     external
     view
@@ -272,13 +232,6 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     return (nftsData, userNftsData);
   }
 
-  /**
-   * @dev fills the specified  NFT data
-   * @param nftData the NFT data to be updated
-   * @param nftAsset the NFT to be updated
-   * @param baseData the base data
-   * @param lendPoolLoan the LendPoolLoan contract address
-   **/
   function _fillNftData(
     AggregatedNftData memory nftData,
     address nftAsset,
@@ -307,14 +260,6 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     nftData.minBidFine = baseData.configuration.getMinBidFineMemory();
   }
 
-  /**
-   * @dev fills the specified user data for a specific user and NFT
-   * @param userNftData the NFT data to be updated
-   * @param user the NFT to be updated
-   * @param nftAsset the NFT to be updated
-   * @param baseData the data to fetch the uNFT
-   * @param lendPoolLoan the LendPoolLoan contract address
-   **/
   function _fillUserNftData(
     UserNftData memory userNftData,
     address user,
@@ -330,9 +275,6 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     userNftData.totalCollateral = lendPoolLoan.getUserNftCollateralAmount(user, nftAsset);
   }
 
-  /**
-   * @inheritdoc IUiPoolDataProvider
-   */
   function getSimpleLoansData(
     ILendPoolAddressesProvider provider,
     address[] memory nftAssets,

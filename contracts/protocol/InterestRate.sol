@@ -67,18 +67,10 @@ contract InterestRate is IInterestRate {
     return _variableRateSlope2;
   }
 
-  /**
-   * @dev Get the variable borrow rate
-   * @return the base variable borrow rate
-   **/
   function baseVariableBorrowRate() external view override returns (uint256) {
     return _baseVariableBorrowRate;
   }
 
-  /**
-   * @dev Get the maximum variable borrow rate
-   * @return the maximum variable borrow rate
-   **/
   function getMaxVariableBorrowRate() external view override returns (uint256) {
     return _baseVariableBorrowRate + (_variableRateSlope1) + (_variableRateSlope2);
   }
@@ -86,7 +78,6 @@ contract InterestRate is IInterestRate {
   /**
    * @dev Calculates the interest rates depending on the reserve's state and configurations
    * @param reserve The address of the reserve
-   * @param uToken The uToken address
    * @param liquidityAdded The liquidity added during the operation
    * @param liquidityTaken The liquidity taken during the operation
    * @param totalVariableDebt The total borrowed from the reserve at a variable rate

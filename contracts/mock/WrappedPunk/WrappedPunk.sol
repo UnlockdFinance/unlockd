@@ -33,7 +33,7 @@ contract WrappedPunk is IWrappedPunks, Ownable, ERC721Enumerable, Pausable {
   }
 
   /**
-   * @dev Registers the proxy contract
+   * @dev Registers proxy
    */
   function registerProxy() public override {
     address sender = _msgSender();
@@ -48,8 +48,7 @@ contract WrappedPunk is IWrappedPunks, Ownable, ERC721Enumerable, Pausable {
   }
 
   /**
-   * @dev Gets the proxy address
-   * @param user the user address
+   * @dev Gets proxy address
    */
   function proxyInfo(address user) public view override returns (address) {
     return _proxies[user];
@@ -57,7 +56,6 @@ contract WrappedPunk is IWrappedPunks, Ownable, ERC721Enumerable, Pausable {
 
   /**
    * @dev Mints a wrapped punk
-   * @param punkIndex the punk index of the punk to be minted
    */
   function mint(uint256 punkIndex) public override whenNotPaused {
     address sender = _msgSender();
@@ -71,7 +69,6 @@ contract WrappedPunk is IWrappedPunks, Ownable, ERC721Enumerable, Pausable {
 
   /**
    * @dev Burns a specific wrapped punk
-   * @param punkIndex the punk index of the punk to be minted
    */
   function burn(uint256 punkIndex) public override whenNotPaused {
     address sender = _msgSender();
@@ -84,9 +81,6 @@ contract WrappedPunk is IWrappedPunks, Ownable, ERC721Enumerable, Pausable {
     _punkContract.transferPunk(sender, punkIndex);
   }
 
-  /**
-   * @dev Returns the base URI
-   */
   function _baseURI() internal view virtual override returns (string memory) {
     return "https://wrappedpunks.com:3000/api/punks/metadata/";
   }

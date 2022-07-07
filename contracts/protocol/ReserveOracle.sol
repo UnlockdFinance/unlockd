@@ -24,11 +24,6 @@ contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext
     weth = _weth;
   }
 
-  /**
-   * @notice sets the aggregators and pricefeedkeys
-   * @param _priceFeedKeys the array of pricefeed keys
-   * @param _aggregators the array of aggregators
-   **/
   function setAggregators(address[] calldata _priceFeedKeys, address[] calldata _aggregators) external onlyOwner {
     require(_priceFeedKeys.length == _aggregators.length, "ReserveOracle: INCONSISTENT_PARAMS_LENGTH");
     for (uint256 i = 0; i < _priceFeedKeys.length; i++) {
@@ -36,20 +31,10 @@ contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext
     }
   }
 
-  /**
-   * @notice adds a single aggregator
-   * @param _priceFeedKey the pricefeed key
-   * @param _aggregator the aggregator to add
-   **/
   function addAggregator(address _priceFeedKey, address _aggregator) external onlyOwner {
     _addAggregator(_priceFeedKey, _aggregator);
   }
 
-  /**
-   * @notice adds a single aggregator
-   * @param _priceFeedKey the pricefeed key
-   * @param _aggregator the aggregator to add
-   **/
   function _addAggregator(address _priceFeedKey, address _aggregator) internal {
     requireNonEmptyAddress(_priceFeedKey);
     requireNonEmptyAddress(_aggregator);
@@ -60,10 +45,6 @@ contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext
     emit AggregatorAdded(_priceFeedKey, address(_aggregator));
   }
 
-  /**
-   * @notice removes a single aggregator
-   * @param _priceFeedKey the pricefeed key of the aggregator to remove
-   **/
   function removeAggregator(address _priceFeedKey) external onlyOwner {
     address aggregator = address(priceFeedMap[_priceFeedKey]);
     requireNonEmptyAddress(aggregator);
@@ -83,17 +64,10 @@ contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext
     }
   }
 
-  /**
-   * @notice returns an aggregator gicen a pricefeed key
-   * @param _priceFeedKey the pricefeed key of the aggregator to fetch
-   **/
   function getAggregator(address _priceFeedKey) public view returns (AggregatorV3Interface) {
     return priceFeedMap[_priceFeedKey];
   }
 
-  /**
-   * @inheritdoc IReserveOracleGetter
-   */
   function getAssetPrice(address _priceFeedKey) external view override returns (uint256) {
     if (_priceFeedKey == weth) {
       return 1 ether;
@@ -108,10 +82,6 @@ contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext
     return formatDecimals(uint256(_price), decimals);
   }
 
-  /**
-   * @notice returns the aggregator's latest timestamp
-   * @param _priceFeedKey the pricefeed key of the aggregator to fetch
-   **/
   function getLatestTimestamp(address _priceFeedKey) public view returns (uint256) {
     AggregatorV3Interface aggregator = getAggregator(_priceFeedKey);
     requireNonEmptyAddress(address(aggregator));
@@ -121,9 +91,6 @@ contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext
     return timestamp;
   }
 
-  /**
-   * @inheritdoc IReserveOracleGetter
-   */
   function getTwapPrice(address _priceFeedKey, uint256 _interval) external view override returns (uint256) {
     require(isExistedKey(_priceFeedKey), "ReserveOracle: key not existed");
     require(_interval != 0, "ReserveOracle: interval can't be 0");
@@ -178,10 +145,6 @@ contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext
     return weightedPrice / _interval;
   }
 
-  /**
-   * @notice checks if a pricefeed key exists
-   * @param _priceFeedKey the pricefeed key to check
-   **/
   function isExistedKey(address _priceFeedKey) private view returns (bool) {
     uint256 length = priceFeedKeys.length;
     for (uint256 i = 0; i < length; i++) {
@@ -192,26 +155,14 @@ contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext
     return false;
   }
 
-  /**
-   * @notice checks if an address is 0
-   * @param _addr the address to check
-   **/
   function requireNonEmptyAddress(address _addr) internal pure {
     require(_addr != address(0), "ReserveOracle: empty address");
   }
 
-  /**
-   * @notice formats a price to the given decimals
-   * @param _price the price to format
-   * @param _decimals the decimals to format the price to
-   **/
   function formatDecimals(uint256 _price, uint8 _decimals) internal pure returns (uint256) {
     return (_price * TOKEN_DIGIT) / (10**uint256(_decimals));
   }
 
-  /**
-   * @notice returns the price feed length
-   **/
   function getPriceFeedLength() public view returns (uint256 length) {
     return priceFeedKeys.length;
   }

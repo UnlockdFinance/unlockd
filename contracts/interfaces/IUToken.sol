@@ -24,13 +24,10 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   );
 
   /**
-   * @dev Initializes the bToken
-   * @param addressProvider The address of the address provider where this bToken will be used
-   * @param treasury The address of the Unlockd treasury, receiving the fees on this bToken
-   * @param underlyingAsset The address of the underlying asset of this bToken
-   * @param uTokenDecimals The amount of token decimals
-   * @param uTokenName The name of the token
-   * @param uTokenSymbol The token symbol
+   * @dev Initializes the uToken
+   * @param addressProvider The address of the address provider where this uToken will be used
+   * @param treasury The address of the Unlockd treasury, receiving the fees on this uToken
+   * @param underlyingAsset The address of the underlying asset of this uToken
    */
   function initialize(
     ILendPoolAddressesProvider addressProvider,
