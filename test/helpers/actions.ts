@@ -263,7 +263,6 @@ export const setNftAssetPrice = async (
   const oldNftPrice = await nftOracle.getNFTPrice(nftAsset, 0);
 
   const priceBN = new BigNumber(price).plus(1);
-
   await advanceTimeAndBlock(100);
   await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, priceBN.toFixed(0)));
   await advanceTimeAndBlock(100);
