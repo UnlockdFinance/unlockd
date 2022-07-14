@@ -4,7 +4,6 @@ pragma solidity 0.8.4;
 import {ILendPoolAddressesProvider} from "./ILendPoolAddressesProvider.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
-import {WyvernExchange} from "../libraries/wyvernexchange/WyvernExchange.sol";
 
 interface ILendPool {
   /**

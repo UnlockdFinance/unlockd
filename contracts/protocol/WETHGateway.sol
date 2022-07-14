@@ -6,7 +6,6 @@ import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC7
 
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
-import {WyvernExchange} from "../libraries/wyvernexchange/WyvernExchange.sol";
 import {IWETH} from "../interfaces/IWETH.sol";
 import {IWETHGateway} from "../interfaces/IWETHGateway.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";

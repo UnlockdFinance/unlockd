@@ -2,7 +2,6 @@
 pragma solidity 0.8.4;
 
 import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
-import {WyvernExchange} from "../libraries/wyvernexchange/WyvernExchange.sol";
 
 interface IWETHGateway {
   /**

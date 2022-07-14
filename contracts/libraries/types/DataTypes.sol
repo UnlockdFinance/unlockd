@@ -2,7 +2,6 @@
 pragma solidity 0.8.4;
 
 import {OrderTypes} from "../looksrare/OrderTypes.sol";
-import {WyvernExchange} from "../wyvernexchange/WyvernExchange.sol";
 
 library DataTypes {
   struct ReserveData {

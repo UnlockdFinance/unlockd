@@ -16,7 +16,6 @@ import {IWrappedPunks} from "../interfaces/IWrappedPunks.sol";
 import {IPunkGateway} from "../interfaces/IPunkGateway.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
-import {WyvernExchange} from "../libraries/wyvernexchange/WyvernExchange.sol";
 import {IWETHGateway} from "../interfaces/IWETHGateway.sol";
 
 import {EmergencyTokenRecoveryUpgradeable} from "./EmergencyTokenRecoveryUpgradeable.sol";

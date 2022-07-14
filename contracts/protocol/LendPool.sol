@@ -20,7 +20,6 @@ import {ReserveConfiguration} from "../libraries/configuration/ReserveConfigurat
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
-import {WyvernExchange} from "../libraries/wyvernexchange/WyvernExchange.sol";
 import {LendPoolStorage} from "./LendPoolStorage.sol";
 import {LendPoolStorageExt} from "./LendPoolStorageExt.sol";
 

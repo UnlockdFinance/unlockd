@@ -11,7 +11,6 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {NFTXHelper} from "../libraries/nftx/NFTXHelper.sol";
-import {WyvernExchange} from "../libraries/wyvernexchange/WyvernExchange.sol";
 
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {IERC721ReceiverUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
