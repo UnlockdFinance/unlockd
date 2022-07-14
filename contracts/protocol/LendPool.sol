@@ -370,24 +370,14 @@ contract LendPool is
   function liquidateOpensea(
     address nftAsset,
     uint256 nftTokenId,
-    WyvernExchange.Order calldata buyOrder,
-    WyvernExchange.Order calldata sellOrder,
-    uint8[2] calldata _vs,
-    bytes32[5] calldata _rssMetadata
+    uint256 priceInEth
   ) external override nonReentrant onlyLendPoolLiquidatorOrGateway whenNotPaused returns (uint256) {
     return
       LiquidateLogic.executeLiquidateOpensea(
         _addressesProvider,
         _reserves,
         _nfts,
-        DataTypes.ExecuteLiquidateOpenseaParams({
-          nftAsset: nftAsset,
-          nftTokenId: nftTokenId,
-          buyOrder: buyOrder,
-          sellOrder: sellOrder,
-          _vs: _vs,
-          _rssMetadata: _rssMetadata
-        })
+        DataTypes.ExecuteLiquidateOpenseaParams({nftAsset: nftAsset, nftTokenId: nftTokenId, priceInEth: priceInEth})
       );
   }
 

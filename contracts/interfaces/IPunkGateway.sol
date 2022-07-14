@@ -75,13 +75,7 @@ interface IPunkGateway {
    * @notice liquidate a unhealth punk loan on Opensea
    * @param punkIndex The index of the CryptoPunk used as collteral
    **/
-  function liquidateOpensea(
-    uint256 punkIndex,
-    WyvernExchange.Order calldata buyOrder,
-    WyvernExchange.Order calldata sellOrder,
-    uint8[2] calldata _vs,
-    bytes32[5] calldata _rssMetadata
-  ) external returns (uint256);
+  function liquidateOpensea(uint256 punkIndex, uint256 priceInEth) external returns (uint256);
 
   /**
    * @notice liquidate a unhealth punk loan on NFTX

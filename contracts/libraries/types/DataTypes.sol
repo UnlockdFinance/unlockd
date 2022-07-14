@@ -180,10 +180,7 @@ library DataTypes {
   struct ExecuteLiquidateOpenseaParams {
     address nftAsset;
     uint256 nftTokenId;
-    WyvernExchange.Order buyOrder;
-    WyvernExchange.Order sellOrder;
-    uint8[2] _vs;
-    bytes32[5] _rssMetadata;
+    uint256 priceInEth;
   }
 
   struct ExecuteLiquidateNFTXParams {

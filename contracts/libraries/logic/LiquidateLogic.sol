@@ -20,6 +20,7 @@ import {WadRayMath} from "../math/WadRayMath.sol";
 import {PercentageMath} from "../math/PercentageMath.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
+import {SushiSwapHelper} from "../sushiswap/SushiSwapHelper.sol";
 
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
@@ -514,21 +515,30 @@ library LiquidateLogic {
       vars.nftOracle
     );
 
-    uint256 sellPrice = ILendPoolLoan(vars.poolLoan).liquidateLoanOpensea(
-      vars.loanId,
-      nftData.uNftAddress,
-      vars.borrowAmount,
-      reserveData.variableBorrowIndex,
-      params
+    ILendPoolLoan(vars.poolLoan).liquidateLoanOpensea(vars.loanId, vars.borrowAmount, reserveData.variableBorrowIndex);
+
+    // Swap ETH to Reserve Asset
+    uint256 priceInReserve = SushiSwapHelper.swapExactETHForTokens(
+      addressesProvider,
+      params.priceInEth,
+      loanData.reserveAsset
     );
 
-    vars.remainAmount = sellPrice - vars.borrowAmount;
+    // TODO! Fee mechanism
+
+    if (priceInReserve > vars.borrowAmount) {
+      vars.remainAmount = priceInReserve - vars.borrowAmount;
+    }
 
     IDebtToken(reserveData.debtTokenAddress).burn(
       loanData.borrower,
       vars.borrowAmount,
       reserveData.variableBorrowIndex
     );
+
+    if (priceInReserve < vars.borrowAmount) {
+      vars.borrowAmount = priceInReserve;
+    }
 
     // update interest rate according latest borrow amount (utilizaton)
     reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.borrowAmount, 0);
@@ -617,19 +627,27 @@ library LiquidateLogic {
       vars.nftOracle
     );
 
-    uint256 sellPrice = ILendPoolLoan(vars.poolLoan).liquidateLoanNFTX(
+    uint256 priceInReserve = ILendPoolLoan(vars.poolLoan).liquidateLoanNFTX(
       vars.loanId,
       vars.borrowAmount,
       reserveData.variableBorrowIndex
     );
 
-    vars.remainAmount = sellPrice - vars.borrowAmount;
+    // TODO! Fee mechanism
+
+    if (priceInReserve > vars.borrowAmount) {
+      vars.remainAmount = priceInReserve - vars.borrowAmount;
+    }
 
     IDebtToken(reserveData.debtTokenAddress).burn(
       loanData.borrower,
       vars.borrowAmount,
       reserveData.variableBorrowIndex
     );
+
+    if (priceInReserve < vars.borrowAmount) {
+      vars.borrowAmount = priceInReserve;
+    }
 
     // update interest rate according latest borrow amount (utilizaton)
     reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.borrowAmount, 0);

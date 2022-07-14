@@ -309,10 +309,7 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
   function liquidateOpensea(
     address nftAsset,
     uint256 nftTokenId,
-    WyvernExchange.Order calldata buyOrder,
-    WyvernExchange.Order calldata sellOrder,
-    uint8[2] calldata _vs,
-    bytes32[5] calldata _rssMetadata
+    uint256 priceInEth
   ) external override nonReentrant returns (uint256) {
     require(_addressProvider.getLendPoolLiquidator() == _msgSender(), Errors.CALLER_NOT_POOL_LIQUIDATOR);
 
@@ -325,7 +322,7 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
     require(loan.reserveAsset == address(WETH), "loan reserve not WETH");
 
-    uint256 remainAmount = cachedPool.liquidateOpensea(nftAsset, nftTokenId, buyOrder, sellOrder, _vs, _rssMetadata);
+    uint256 remainAmount = cachedPool.liquidateOpensea(nftAsset, nftTokenId, priceInEth);
 
     return (remainAmount);
   }
