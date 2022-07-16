@@ -463,4 +463,8 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   function _getLendPool() internal view returns (ILendPool) {
     return ILendPool(_addressesProvider.getLendPool());
   }
+
+  function getLoanIdTracker() external view override returns (uint256) {
+    return _loanIdTracker;
+  }
 }

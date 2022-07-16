@@ -281,4 +281,6 @@ interface ILendPoolLoan {
   function getNftCollateralAmount(address nftAsset) external view returns (uint256);
 
   function getUserNftCollateralAmount(address user, address nftAsset) external view returns (uint256);
+
+  function getLoanIdTracker() external view override returns (uint256);
 }
