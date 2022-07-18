@@ -2,6 +2,7 @@
 pragma solidity 0.8.4;
 
 import {DataTypes} from "../libraries/types/DataTypes.sol";
+import {CountersUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 
 interface ILendPoolLoan {
   /**
@@ -281,4 +282,6 @@ interface ILendPoolLoan {
   function getNftCollateralAmount(address nftAsset) external view returns (uint256);
 
   function getUserNftCollateralAmount(address user, address nftAsset) external view returns (uint256);
+
+  function getLoanIdTracker() external view returns (CountersUpgradeable.Counter memory);
 }
