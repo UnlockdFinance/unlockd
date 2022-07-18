@@ -431,8 +431,8 @@ export interface ICommonConfiguration {
   OracleQuoteCurrency: string;
   OracleQuoteUnit: string;
 
-  NFTXVaultFactory?: iParamsPerNetwork<tEthereumAddress>;
-  SushiSwapRouter?: iParamsPerNetwork<tEthereumAddress>;
+  NFTXVaultFactory: iParamsPerNetwork<tEthereumAddress>;
+  SushiSwapRouter: iParamsPerNetwork<tEthereumAddress>;
 }
 
 export interface IUnlockdConfiguration extends ICommonConfiguration {

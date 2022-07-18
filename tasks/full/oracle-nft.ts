@@ -25,7 +25,7 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
       await DRE.run("set-DRE");
       const network = <eNetwork>DRE.network.name;
       const poolConfig = loadPoolConfig(pool);
-      const { NftsAssets } = poolConfig as ICommonConfiguration;
+      const { NftsAssets, NFTXVaultFactory, SushiSwapRouter } = poolConfig as ICommonConfiguration;
 
       const nftOracleAddress = getParamPerNetwork(poolConfig.NFTOracle, network);
 
@@ -56,8 +56,21 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
         return tokenAddress;
       }) as string[];
 
+      const nftxVaultFactory = getParamPerNetwork(NFTXVaultFactory, network);
+      if (nftxVaultFactory == undefined || !notFalsyOrZeroAddress(nftxVaultFactory)) {
+        throw Error("Invalid NFTX Vault Factory address in config");
+      }
+      const sushiSwapRouter = getParamPerNetwork(SushiSwapRouter, network);
+      if (sushiSwapRouter == undefined || !notFalsyOrZeroAddress(sushiSwapRouter)) {
+        throw Error("Invalid SushiSwap Router address in config");
+      }
+
       const nftOracleImpl = await deployNFTOracle(verify);
-      const initEncodedData = nftOracleImpl.interface.encodeFunctionData("initialize", [feedAdmin]);
+      const initEncodedData = nftOracleImpl.interface.encodeFunctionData("initialize", [
+        feedAdmin,
+        nftxVaultFactory,
+        sushiSwapRouter,
+      ]);
 
       let nftOracle: NFTOracle;
       let nftOracleProxy: UnlockdUpgradeableProxy;
