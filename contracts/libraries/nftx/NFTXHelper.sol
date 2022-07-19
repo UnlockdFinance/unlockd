@@ -14,8 +14,7 @@ library NFTXHelper {
     ILendPoolAddressesProvider addressesProvider,
     address nftAsset,
     uint256 nftTokenId,
-    address reserveAsset,
-    uint256 borrowAmount
+    address reserveAsset
   ) internal returns (uint256) {
     address vaultFactoryAddress = addressesProvider.getNFTXVaultFactory();
     address sushiSwapRouterAddress = addressesProvider.getSushiSwapRouter();

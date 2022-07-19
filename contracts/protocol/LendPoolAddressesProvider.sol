@@ -35,7 +35,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   bytes32 private constant UI_DATA_PROVIDER = "UI_DATA_PROVIDER";
   bytes32 private constant WALLET_BALANCE_PROVIDER = "WALLET_BALANCE_PROVIDER";
   bytes32 private constant LOOKSRARE_EXCHANGE = "LOOKSRARE_EXCHANGE";
-  bytes32 private constant OPENSEA_WYVERN_EXCHANGE = "OPENSEA_WYVERN_EXCHANGE";
+  bytes32 private constant OPENSEA_SEAPORT = "OPENSEA_SEAPORT";
   bytes32 private constant NFTX_VAULT_FACTORY = "NFTX_VAULT_FACTORY";
   bytes32 private constant SUSHI_SWAP_ROUTER = "SUSHI_SWAP_ROUTER";
 
@@ -252,13 +252,13 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
     emit LooksRareExchangeUpdated(exchange);
   }
 
-  function getOpenseaWyvernExchange() external view override returns (address) {
-    return getAddress(OPENSEA_WYVERN_EXCHANGE);
+  function getOpenseaSeaport() external view override returns (address) {
+    return getAddress(OPENSEA_SEAPORT);
   }
 
-  function setOpenseaWyvernExchange(address exchange) external override onlyOwner {
-    _addresses[OPENSEA_WYVERN_EXCHANGE] = exchange;
-    emit OpenseaWyvernExchangeUpdated(exchange);
+  function setOpenseaSeaport(address exchange) external override onlyOwner {
+    _addresses[OPENSEA_SEAPORT] = exchange;
+    emit OpenseaSeaportUpdated(exchange);
   }
 
   function getNFTXVaultFactory() external view override returns (address) {

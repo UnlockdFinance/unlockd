@@ -16,7 +16,6 @@ import {IWrappedPunks} from "../interfaces/IWrappedPunks.sol";
 import {IPunkGateway} from "../interfaces/IPunkGateway.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
-import {WyvernExchange} from "../libraries/wyvernexchange/WyvernExchange.sol";
 import {IWETHGateway} from "../interfaces/IWETHGateway.sol";
 
 import {EmergencyTokenRecoveryUpgradeable} from "./EmergencyTokenRecoveryUpgradeable.sol";
@@ -275,13 +274,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (remainAmount);
   }
 
-  function liquidateOpensea(
-    uint256 punkIndex,
-    WyvernExchange.Order calldata buyOrder,
-    WyvernExchange.Order calldata sellOrder,
-    uint8[2] calldata _vs,
-    bytes32[5] calldata _rssMetadata
-  ) external override nonReentrant returns (uint256) {
+  function liquidateOpensea(uint256 punkIndex, uint256 priceInEth) external override nonReentrant returns (uint256) {
     require(_addressProvider.getLendPoolLiquidator() == _msgSender(), Errors.CALLER_NOT_POOL_LIQUIDATOR);
 
     ILendPool cachedPool = _getLendPool();
@@ -290,14 +283,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
     require(loanId != 0, "PunkGateway: no loan with such punkIndex");
 
-    uint256 remainAmount = cachedPool.liquidateOpensea(
-      address(wrappedPunks),
-      punkIndex,
-      buyOrder,
-      sellOrder,
-      _vs,
-      _rssMetadata
-    );
+    uint256 remainAmount = cachedPool.liquidateOpensea(address(wrappedPunks), punkIndex, priceInEth);
 
     return (remainAmount);
   }

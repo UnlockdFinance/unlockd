@@ -25,7 +25,7 @@ interface ILendPoolAddressesProvider {
   event UnlockdDataProviderUpdated(address indexed newAddress);
   event WalletBalanceProviderUpdated(address indexed newAddress);
   event LooksRareExchangeUpdated(address indexed newAddress);
-  event OpenseaWyvernExchangeUpdated(address indexed newAddress);
+  event OpenseaSeaportUpdated(address indexed newAddress);
   event NFTXVaultFactoryUpdated(address indexed newAddress);
   event SushiSwapRouterUpdated(address indexed newAddress);
   event LendPoolLiquidatorUpdated(address indexed newAddress);
@@ -92,9 +92,9 @@ interface ILendPoolAddressesProvider {
 
   function setWalletBalanceProvider(address provider) external;
 
-  function getOpenseaWyvernExchange() external view returns (address);
+  function getOpenseaSeaport() external view returns (address);
 
-  function setOpenseaWyvernExchange(address exchange) external;
+  function setOpenseaSeaport(address exchange) external;
 
   function getLooksRareExchange() external view returns (address);
 
