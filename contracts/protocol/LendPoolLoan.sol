@@ -11,7 +11,6 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {NFTXHelper} from "../libraries/nftx/NFTXHelper.sol";
-import {WyvernExchange} from "../libraries/wyvernexchange/WyvernExchange.sol";
 
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {IERC721ReceiverUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
@@ -301,11 +300,9 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
    */
   function liquidateLoanOpensea(
     uint256 loanId,
-    address uNftAddress,
     uint256 borrowAmount,
-    uint256 borrowIndex,
-    DataTypes.ExecuteLiquidateOpenseaParams memory params
-  ) external override onlyLendPool returns (uint256 sellPrice) {
+    uint256 borrowIndex
+  ) external override onlyLendPool {
     // Must use storage to change state
     DataTypes.LoanData storage loan = _loans[loanId];
 
@@ -324,21 +321,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALIED_NFT_AMOUNT);
     _nftTotalCollateral[loan.nftAsset] -= 1;
 
-    // burn uNFT and sell NFT on Opensea
-    IUNFT(uNftAddress).burn(loan.nftTokenId);
-    address exchange = _addressesProvider.getOpenseaWyvernExchange();
-    WyvernExchange.fulfillOrder(exchange, params.buyOrder, params.sellOrder, params._vs, params._rssMetadata);
-    sellPrice = params.buyOrder.basePrice;
-
-    emit LoanLiquidatedOpensea(
-      loanId,
-      loan.nftAsset,
-      loan.nftTokenId,
-      loan.reserveAsset,
-      borrowAmount,
-      borrowIndex,
-      sellPrice
-    );
+    emit LoanLiquidatedOpensea(loanId, loan.nftAsset, loan.nftTokenId, loan.reserveAsset, borrowAmount, borrowIndex);
   }
 
   /**
@@ -371,13 +354,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     IERC721Upgradeable(loan.nftAsset).safeTransferFrom(_msgSender(), address(this), loan.nftTokenId);
 
     // Sell NFT on NFTX
-    sellPrice = NFTXHelper.sellNFTX(
-      _addressesProvider,
-      loan.nftAsset,
-      loan.nftTokenId,
-      loan.reserveAsset,
-      borrowAmount
-    );
+    sellPrice = NFTXHelper.sellNFTX(_addressesProvider, loan.nftAsset, loan.nftTokenId, loan.reserveAsset);
 
     emit LoanLiquidatedNFTX(
       loanId,
@@ -462,5 +439,9 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
 
   function _getLendPool() internal view returns (ILendPool) {
     return ILendPool(_addressesProvider.getLendPool());
+  }
+
+  function getLoanIdTracker() external view override returns (CountersUpgradeable.Counter memory) {
+    return _loanIdTracker;
   }
 }

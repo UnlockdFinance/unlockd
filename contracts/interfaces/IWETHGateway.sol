@@ -2,7 +2,6 @@
 pragma solidity 0.8.4;
 
 import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
-import {WyvernExchange} from "../libraries/wyvernexchange/WyvernExchange.sol";
 
 interface IWETHGateway {
   /**
@@ -103,10 +102,7 @@ interface IWETHGateway {
   function liquidateOpensea(
     address nftAsset,
     uint256 nftTokenId,
-    WyvernExchange.Order calldata buyOrder,
-    WyvernExchange.Order calldata sellOrder,
-    uint8[2] calldata _vs,
-    bytes32[5] calldata _rssMetadata
+    uint256 priceInEth
   ) external returns (uint256);
 
   /**
