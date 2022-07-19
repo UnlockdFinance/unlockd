@@ -43,7 +43,7 @@ library NFTXHelper {
         swapPath[1] = reserveAsset;
         uint256[] memory amounts = IUniswapV2Router02(sushiSwapRouterAddress).swapExactTokensForTokens(
           depositAmount,
-          borrowAmount,
+          0,
           swapPath,
           lendPoolAddress,
           block.timestamp
