@@ -13,6 +13,7 @@ import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
 import {IUToken} from "../interfaces/IUToken.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
+import "hardhat/console.sol";
 
 import {EmergencyTokenRecoveryUpgradeable} from "./EmergencyTokenRecoveryUpgradeable.sol";
 
@@ -53,14 +54,20 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
    * @param weth Address of the Wrapped Ether contract
    **/
   function initialize(address addressProvider, address weth) public initializer {
+    console.log("INIT");
     __ERC721Holder_init();
-    __EmergencyTokenRecovery_init();
+    console.log("INIT 1");
 
+    __EmergencyTokenRecovery_init();
+    console.log("INIT 2");
     _addressProvider = ILendPoolAddressesProvider(addressProvider);
 
+    console.log("AddressProvider =>", _addressProvider);
     WETH = IWETH(weth);
 
+    console.log("WETH =>", WETH);
     WETH.approve(address(_getLendPool()), type(uint256).max);
+    console.log("Approve WETH ");
   }
 
   function _getLendPool() internal view returns (ILendPool) {

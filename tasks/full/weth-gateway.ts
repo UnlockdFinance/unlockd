@@ -39,7 +39,7 @@ task(`full:deploy-weth-gateway`, `Deploys the WETHGateway contract`)
     const wethGatewayImpl = await deployWETHGateway(verify);
     const initEncodedData = wethGatewayImpl.interface.encodeFunctionData("initialize", [
       addressesProvider.address,
-      weth,
+      "0x37F9A15422AC08cEe0BEcD6aEeb0351A07ebe4cc",
     ]);
     // const initEncodedData = '0x';
 

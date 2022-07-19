@@ -59,7 +59,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.develop]: '0x740A26A9aa27e193C8d15d75A1ca1C19AE735c21',
     [eEthereumNetwork.kovan]: '0x8da1Cb92f02f5c441A275036Ed26BB03ad6C40Cb',
-    [eEthereumNetwork.rinkeby]:'0x53CE9aDbAe504D49c2Dd404BD326Fc943E10Fa27', //UnlockdProxyAdminPool
+    [eEthereumNetwork.rinkeby]:'0xeA5508832354ebe7B117a470D887D82E24d0B420', //UnlockdProxyAdminPool
     [eEthereumNetwork.goerli]: undefined,
     [eEthereumNetwork.main]: '0x501c991E0D31D408c25bCf00da27BdF2759A394a',
   },
@@ -69,7 +69,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.develop]: '0x0B815174656df530906CC39E983431f0Ec442C59',
     [eEthereumNetwork.kovan]: '0x4C8FA526099383508D1AdAE511EaEc7D587DB99b',
-    [eEthereumNetwork.rinkeby]: '0xc7e7e01Fb9BB3CB40402dF863aAf48e3AB0154f4', //  UnlockdProxyAdminFund
+    [eEthereumNetwork.rinkeby]: '0x087144F81791Fd6497E9536f8d8df1afD3E3AA36', //  UnlockdProxyAdminFund
     [eEthereumNetwork.goerli]: undefined,
     [eEthereumNetwork.main]: '0x2A71a0F5cef1fFc519027AD12f19453110e70666',
   },
@@ -118,7 +118,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.localhost]: '0xCE1e5D792d24F62b29D35DeB85eC04b1F66447b1',
     [eEthereumNetwork.develop]: '0xf440346C93868879B5D3b8e5f96fEc57D4f2dcdf',
     [eEthereumNetwork.kovan]: '0xC5d1624B46db4F3F628400C0F41c49220c210c3F',
-    [eEthereumNetwork.rinkeby]: '0xDDf31Fc5cd071BB0D86233C5DCe4b3D2e94426cF',
+    [eEthereumNetwork.rinkeby]: '0x82655f36DCaa9A2DeFAd5a57949B060832f0883A',
     [eEthereumNetwork.goerli]: '',
     [eEthereumNetwork.main]: '0x79d922DD382E42A156bC0A354861cDBC4F09110d',
   },
@@ -129,7 +129,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.localhost]: '',
     [eEthereumNetwork.develop]: '',
     [eEthereumNetwork.kovan]: '',
-    [eEthereumNetwork.rinkeby]: '0x177394C6Fe89AdC41062442481B890b95Fa12079', // LendPoolAddressesProviderRegistry address from deployed address-provider
+    [eEthereumNetwork.rinkeby]: '0x6517Ad574709e80d030F7f89BFE0b9BD555FE067', // LendPoolAddressesProviderRegistry address from deployed address-provider
     [eEthereumNetwork.goerli]: '',
     [eEthereumNetwork.main]: '',
   },
@@ -190,9 +190,12 @@ export const CommonsConfig: ICommonConfiguration = {
       USD: '0x9326BFA02ADD2366b30bacB125260Af641031331', //ETH - USD
     },
     [eEthereumNetwork.rinkeby]: {
-      DAI: '0x0755b3F98A94De666Ee6200B4492368b45b01751',
-      USDC: '0x8Da13c8BBfaf73A56455176483961F726cc9B10B',
-      USD: '0x8A753747A1Fa494EC906cE90E9f37563A8AF630e', //ETH - USD Error deploying it to Rinkeby Network
+      USD: '0x720e9e2ba84A000e76b5298F07858D746cF47c17',
+      DAI: '0x26F779D74a55E76042C88FDd1B5f65c690F7A56c',
+      USDC: '0xB64E6131D5B1950436d54611555D442C98C685cb'
+      // DAI: '0x0755b3F98A94De666Ee6200B4492368b45b01751',
+      // USDC: '0x8Da13c8BBfaf73A56455176483961F726cc9B10B',
+      // USD: '0x8A753747A1Fa494EC906cE90E9f37563A8AF630e', //ETH - USD Error deploying it to Rinkeby Network
     },
     [eEthereumNetwork.goerli]: {},
     [eEthereumNetwork.main]: {
@@ -240,7 +243,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: '0xb49dBe8e2A5a140b3b810c33ac2ba4907A3CA95e', // deployed in local evm
     [eEthereumNetwork.localhost]: '0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104',
     [eEthereumNetwork.develop]: '0x3C73A32C11E20101be3D5ff2F67Af15a4ACbF298',
-    [eEthereumNetwork.rinkeby]: '0xde785DDFA5d1B4d92A1fa485B736832be92802EF',
+    [eEthereumNetwork.rinkeby]: '0xE0f47ceab359C7922C93e8A053B5B3E533CA91b8',
     [eEthereumNetwork.kovan]: '0x2F4dA7F22E603aac1A9840D384d63c91a40ddD8D',
     [eEthereumNetwork.goerli]: '',
     [eEthereumNetwork.main]: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -250,8 +253,8 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: '0x6389eA3Cf6dE815ba76d7Cf4C6Db6A7093471bcb', // deployed in local evm
     [eEthereumNetwork.localhost]: '0xb2f97A3c2E48cd368901657e31Faaa93035CE390',
     [eEthereumNetwork.develop]: '0xE159fC1226dbCe3e9d511e884a067D09C3290B9E',
-    [eEthereumNetwork.rinkeby]: '0x3764897Cf108D1Cd110c096442adF66bEedDFF42',
-    [eEthereumNetwork.kovan]: '0xc667A10012209D8Fccc85aF7a913d8bBd26c18a7',
+    [eEthereumNetwork.rinkeby]: '0x9929F58678b55b81603C8a106223D56F239eaeAe',
+    [eEthereumNetwork.kovan]: '',
     [eEthereumNetwork.goerli]: '',
     [eEthereumNetwork.main]: '0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb',
   },
@@ -260,7 +263,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: '0x74e4418A41169Fb951Ca886976ccd8b36968c4Ab', // deployed in local evm
     [eEthereumNetwork.localhost]: '0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847',
     [eEthereumNetwork.develop]: '0xcDbBC001976F79db2fC1ECfd140031fE970CeaEc',
-    [eEthereumNetwork.rinkeby]: '0xA471BF0B95216E7C0b89b910Fd4615E8b5572FBA',
+    [eEthereumNetwork.rinkeby]: '0x705fAE3c7ed8e6EDC5483b0670087a80E726Eb28',
     [eEthereumNetwork.kovan]: '0x8Ffc30191AdF56C3Bb06BD03A358fdBfA2C06f63',
     [eEthereumNetwork.goerli]: '',
     [eEthereumNetwork.main]: '0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6',
@@ -291,7 +294,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: '',
     [eEthereumNetwork.localhost]: '',
     [eEthereumNetwork.develop]: '',
-    [eEthereumNetwork.rinkeby]: '0xbbc53022Af15Bb973AD906577c84784c47C14371',
+    [eEthereumNetwork.rinkeby]: '0x400fbf2287d31D3e650e1C47d1614bE7B07478a0',
     [eEthereumNetwork.kovan]: '',
     [eEthereumNetwork.goerli]: ZERO_ADDRESS,
     [eEthereumNetwork.main]: '0xBE86f647b167567525cCAAfcd6f881F1Ee558216',
@@ -301,7 +304,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: '',
     [eEthereumNetwork.localhost]: '',
     [eEthereumNetwork.develop]: '',
-    [eEthereumNetwork.rinkeby]: '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506',
+    [eEthereumNetwork.rinkeby]: '0xabcF544BC4630F648fE41C20c72E0226E01E060E',
     [eEthereumNetwork.kovan]: '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506',
     [eEthereumNetwork.goerli]: ZERO_ADDRESS,
     [eEthereumNetwork.main]: '0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F',
