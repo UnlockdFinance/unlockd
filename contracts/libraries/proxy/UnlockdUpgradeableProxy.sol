@@ -16,6 +16,9 @@ contract UnlockdUpgradeableProxy is TransparentUpgradeableProxy {
     _;
   }
 
+  /**
+  @dev Returns the implementation contract for the proxy
+   */
   function getImplementation() external view OnlyAdmin returns (address) {
     return _getImplementation();
   }
