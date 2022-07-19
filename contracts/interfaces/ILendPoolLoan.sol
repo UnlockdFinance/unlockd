@@ -102,8 +102,7 @@ interface ILendPoolLoan {
     uint256 nftTokenId,
     address reserveAsset,
     uint256 amount,
-    uint256 borrowIndex,
-    uint256 sellPrice
+    uint256 borrowIndex
   );
   /**
    * @dev Emitted when a loan is liquidate on NFTX
@@ -232,15 +231,12 @@ interface ILendPoolLoan {
    *  - The loan must be in state Auction
    *
    * @param loanId The loan getting burned
-   * @param uNftAddress The address of uNFT
    */
   function liquidateLoanOpensea(
     uint256 loanId,
-    address uNftAddress,
     uint256 borrowAmount,
-    uint256 borrowIndex,
-    DataTypes.ExecuteLiquidateOpenseaParams memory params
-  ) external returns (uint256 sellPrice);
+    uint256 borrowIndex
+  ) external;
 
   /**
    * @dev Liquidate the given loan on NFTX
