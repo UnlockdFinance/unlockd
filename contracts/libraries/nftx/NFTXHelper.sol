@@ -9,7 +9,20 @@ import {IUniswapV2Router02} from "../../interfaces/IUniswapV2Router02.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 
+/**
+ * @title NFTXHelper library
+ * @author Unlockd
+ * @notice Implements NFTX selling logic
+ */
 library NFTXHelper {
+  /**
+   * @dev Sells an asset in an NFTX liquid market
+   * @param addressesProvider The addresses provider
+   * @param nftAsset The underlying NFT address
+   * @param nftTokenId The underlying NFT token Id
+   * @param reserveAsset The reserve asset to exchange for the NFT
+   * @param borrowAmount The user borrow amount
+   */
   function sellNFTX(
     ILendPoolAddressesProvider addressesProvider,
     address nftAsset,
