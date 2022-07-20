@@ -54,20 +54,20 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
    * @param weth Address of the Wrapped Ether contract
    **/
   function initialize(address addressProvider, address weth) public initializer {
-    console.log("INIT");
+    //console.log("INIT");
     __ERC721Holder_init();
-    console.log("INIT 1");
+    //console.log("INIT 1");
 
     __EmergencyTokenRecovery_init();
-    console.log("INIT 2");
+    //console.log("INIT 2");
     _addressProvider = ILendPoolAddressesProvider(addressProvider);
 
-    console.log("AddressProvider =>", _addressProvider);
+    //console.log("AddressProvider =>", _addressProvider);
     WETH = IWETH(weth);
 
-    console.log("WETH =>", WETH);
+    //console.log("WETH =>", WETH);
     WETH.approve(address(_getLendPool()), type(uint256).max);
-    console.log("Approve WETH ");
+    //console.log("Approve WETH ");
   }
 
   function _getLendPool() internal view returns (ILendPool) {
