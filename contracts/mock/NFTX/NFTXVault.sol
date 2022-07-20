@@ -63,7 +63,7 @@ contract NFTXVault is INFTXVault, ERC20, IERC721Receiver {
     return _mintFee;
   }
 
-  function allValidNFTs(uint256[] memory) public view virtual returns (bool) {
+  function allValidNFTs(uint256[] memory) public view virtual override returns (bool) {
     return true;
   }
 

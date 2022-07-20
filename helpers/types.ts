@@ -275,6 +275,7 @@ export interface iNftBase<T> {
   CLONEX: T;
   AZUKI: T;
   KONGZ: T;
+  LAND: T;
 }
 
 export type iMultiPoolsNfts<T> = iNftCommon<T> | iUnlockdPoolNfts<T>;
@@ -294,6 +295,7 @@ export enum NftContractId {
   CLONEX = "CLONEX",
   AZUKI = "AZUKI",
   KONGZ = "KONGZ",
+  LAND = "LAND",
 }
 
 export interface IReserveParams extends IReserveBorrowParams, IReserveCollateralParams {
@@ -431,8 +433,8 @@ export interface ICommonConfiguration {
   OracleQuoteCurrency: string;
   OracleQuoteUnit: string;
 
-  NFTXVaultFactory?: iParamsPerNetwork<tEthereumAddress>;
-  SushiSwapRouter?: iParamsPerNetwork<tEthereumAddress>;
+  NFTXVaultFactory: iParamsPerNetwork<tEthereumAddress>;
+  SushiSwapRouter: iParamsPerNetwork<tEthereumAddress>;
 }
 
 export interface IUnlockdConfiguration extends ICommonConfiguration {

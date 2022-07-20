@@ -27,7 +27,7 @@ import {
   deployUiPoolDataProvider,
   deployMockChainlinkOracle,
   deployUnlockdLibraries,
-  deloyNFTXVaultFactory,
+  deployNFTXVaultFactory,
   deploySushiSwapRouter,
 } from "../helpers/contracts-deployments";
 import { Signer } from "ethers";
@@ -276,20 +276,41 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     {}
   );
 
+  //////////////////////////////////////////////////////////////////////////////
+  console.log("-> Prepare NFTX & Sushiswap Router...");
+
+  const nftxVaultFactory = await deployNFTXVaultFactory();
+  await waitForTx(await addressesProvider.setNFTXVaultFactory(nftxVaultFactory.address));
+
+  const sushiSwapRouter = await deploySushiSwapRouter();
+  await waitForTx(await addressesProvider.setSushiSwapRouter(sushiSwapRouter.address));
+
   // --------------------//
   // ASK WHY 6 ARGUMENTS //
   // ------------------- //
 
   console.log("-> Prepare nft oracle...");
   const nftOracleImpl = await deployNFTOracle();
-  await waitForTx(await nftOracleImpl.initialize(await addressesProvider.getPoolAdmin()));
+  await waitForTx(
+    await nftOracleImpl.initialize(
+      await addressesProvider.getPoolAdmin(),
+      nftxVaultFactory.address,
+      sushiSwapRouter.address
+    )
+  );
   await waitForTx(await addressesProvider.setNFTOracle(nftOracleImpl.address));
   await addAssetsInNFTOracle(allNftAddresses, nftOracleImpl);
   await setPricesInNFTOracle(allNftPrices, allNftAddresses, allNftMaxSupply, nftOracleImpl);
 
   console.log("-> Prepare mock nft oracle...");
   const mockNftOracleImpl = await deployMockNFTOracle();
-  await waitForTx(await mockNftOracleImpl.initialize(await addressesProvider.getPoolAdmin()));
+  await waitForTx(
+    await mockNftOracleImpl.initialize(
+      await addressesProvider.getPoolAdmin(),
+      nftxVaultFactory.address,
+      sushiSwapRouter.address
+    )
+  );
 
   //////////////////////////////////////////////////////////////////////////////
 
@@ -397,15 +418,6 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   await insertContractAddressInDb(eContractid.PunkGateway, punkGateway.address);
 
   await waitForTx(await wethGateway.authorizeCallerWhitelist([punkGateway.address], true));
-
-  //////////////////////////////////////////////////////////////////////////////
-  console.log("-> Prepare NFTX & Sushiswap Router...");
-
-  const nftxVaultFactory = await deloyNFTXVaultFactory();
-  await waitForTx(await addressesProvider.setNFTXVaultFactory(nftxVaultFactory.address));
-
-  const sushiSwapRouter = await deploySushiSwapRouter();
-  await waitForTx(await addressesProvider.setSushiSwapRouter(sushiSwapRouter.address));
 
   await initNFTXByHelper();
 
