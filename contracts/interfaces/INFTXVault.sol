@@ -11,4 +11,6 @@ interface INFTXVault is IERC20 {
     uint256[] calldata tokenIds,
     uint256[] calldata amounts /* ignored for ERC721 vaults */
   ) external returns (uint256);
+
+  function allValidNFTs(uint256[] calldata tokenIds) external view returns (bool);
 }

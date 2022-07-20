@@ -116,7 +116,9 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
   it("Should be reverted as NFTOracle is already initialized", async () => {
     const { mockNftOracle, users } = testEnv;
     const admin = await mockNftOracle.priceFeedAdmin();
-    await expect(mockNftOracle.initialize(admin)).to.be.revertedWith("Initializable: contract is already initialized");
+    await expect(mockNftOracle.initialize(admin, admin, admin)).to.be.revertedWith(
+      "Initializable: contract is already initialized"
+    );
   });
 
   it("Should be reverted as it is a non-existing collection", async () => {

@@ -33,31 +33,39 @@ library NFTXHelper {
     address sushiSwapRouterAddress = addressesProvider.getSushiSwapRouter();
     address lendPoolAddress = addressesProvider.getLendPool();
 
-    // Get NFTX Vault
+    // Get NFTX Vaults for the asset
     address[] memory vaultAddresses = INFTXVaultFactoryV2(vaultFactoryAddress).vaultsForAsset(nftAsset);
-    address vaultAddress = vaultAddresses[0];
-    require(vaultAddress != address(0), "NFTX: vault not available");
 
-    // Deposit NFT to NFTX Vault
-    IERC721Upgradeable(nftAsset).setApprovalForAll(vaultAddress, true);
     uint256[] memory tokenIds = new uint256[](1);
     tokenIds[0] = nftTokenId;
-    INFTXVault(vaultAddress).mint(tokenIds, new uint256[](1));
-    uint256 depositAmount = IERC20Upgradeable(vaultAddress).balanceOf(address(this));
 
-    // Swap on SushiSwap
-    IERC20Upgradeable(vaultAddress).approve(sushiSwapRouterAddress, depositAmount);
-    address[] memory swapPath = new address[](2);
-    swapPath[0] = vaultAddress;
-    swapPath[1] = reserveAsset;
-    uint256[] memory amounts = IUniswapV2Router02(sushiSwapRouterAddress).swapExactTokensForTokens(
-      depositAmount,
-      0,
-      swapPath,
-      lendPoolAddress,
-      block.timestamp
-    );
+    for (uint256 i = 0; i < vaultAddresses.length; i += 1) {
+      address vaultAddress = vaultAddresses[i];
+      INFTXVault nftxVault = INFTXVault(vaultAddress);
 
-    return amounts[1];
+      if (nftxVault.allValidNFTs(tokenIds)) {
+        // Deposit NFT to NFTX Vault
+        IERC721Upgradeable(nftAsset).setApprovalForAll(vaultAddress, true);
+        nftxVault.mint(tokenIds, new uint256[](1));
+        uint256 depositAmount = IERC20Upgradeable(vaultAddress).balanceOf(address(this));
+
+        // Swap on SushiSwap
+        IERC20Upgradeable(vaultAddress).approve(sushiSwapRouterAddress, depositAmount);
+        address[] memory swapPath = new address[](2);
+        swapPath[0] = vaultAddress;
+        swapPath[1] = reserveAsset;
+        uint256[] memory amounts = IUniswapV2Router02(sushiSwapRouterAddress).swapExactTokensForTokens(
+          depositAmount,
+          0,
+          swapPath,
+          lendPoolAddress,
+          block.timestamp
+        );
+
+        return amounts[1];
+      }
+    }
+
+    revert("NFTX: vault not available");
   }
 }
