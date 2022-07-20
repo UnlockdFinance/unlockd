@@ -3,7 +3,11 @@ pragma solidity 0.8.4;
 
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 import {INFTOracle} from "../interfaces/INFTOracle.sol";
+import {INFTXVaultFactoryV2} from "../interfaces/INFTXVaultFactoryV2.sol";
+import {INFTXVault} from "../interfaces/INFTXVault.sol";
+import {IUniswapV2Router02} from "../interfaces/IUniswapV2Router02.sol";
 import {BlockContext} from "../utils/BlockContext.sol";
 
 contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
@@ -32,6 +36,9 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
 
   address public priceFeedAdmin;
   mapping(address => bool) public collectionPaused;
+
+  address public nftxVaultFactory;
+  address public sushiswapRouter;
 
   modifier onlyAdmin() {
     if (_msgSender() != priceFeedAdmin) revert NotAdmin();
@@ -63,9 +70,15 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     _;
   }
 
-  function initialize(address _admin) public initializer {
+  function initialize(
+    address _admin,
+    address _nftxVaultFactory,
+    address _sushiswapRouter
+  ) public initializer {
     __Ownable_init();
     priceFeedAdmin = _admin;
+    nftxVaultFactory = _nftxVaultFactory;
+    sushiswapRouter = _sushiswapRouter;
   }
 
   function _whenNotPaused(address _contract) internal view {
@@ -166,5 +179,30 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
 
   function setPause(address _collection, bool paused) external override onlyOwner {
     collectionPaused[_collection] = paused;
+  }
+
+  function getNFTPriceNFTX(address _collection, uint256 _tokenId) external view override returns (uint256) {
+    // Get NFTX Vaults for asset
+    address[] memory vaultAddresses = INFTXVaultFactoryV2(nftxVaultFactory).vaultsForAsset(_collection);
+
+    uint256[] memory tokenIds = new uint256[](1);
+    tokenIds[0] = _tokenId;
+
+    for (uint256 i = 0; i < vaultAddresses.length; i += 1) {
+      INFTXVault nftxVault = INFTXVault(vaultAddresses[i]);
+      if (nftxVault.allValidNFTs(tokenIds)) {
+        // Swap path is NFTX Vault -> WETH
+        address[] memory swapPath = new address[](2);
+        swapPath[0] = address(nftxVault);
+        swapPath[1] = IUniswapV2Router02(sushiswapRouter).WETH();
+
+        // Get the price from sushiswap
+        uint256 amountIn = 1**IERC20MetadataUpgradeable(address(nftxVault)).decimals();
+        uint256[] memory amounts = IUniswapV2Router02(sushiswapRouter).getAmountsOut(amountIn, swapPath);
+        return amounts[1];
+      }
+    }
+
+    revert PriceIsZero();
   }
 }

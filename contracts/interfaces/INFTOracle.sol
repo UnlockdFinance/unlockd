@@ -27,4 +27,8 @@ interface INFTOracle {
   ) external;
 
   function setPause(address _nftContract, bool val) external;
+
+  /* CAUTION: Price uint is ETH based (WEI, 18 decimals) */
+  // get asset price from NFTX
+  function getNFTPriceNFTX(address _collection, uint256 _tokenId) external view returns (uint256);
 }
