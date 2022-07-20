@@ -18,6 +18,7 @@ import {
   strategyNft_MEEBITS,
   strategyNft_WOW,
   strategyNft_WPUNKS,
+  strategyNft_LAND,
 } from './nftsConfigs';
 
 // ----------------
@@ -44,6 +45,7 @@ export const UnlockdConfig: IUnlockdConfiguration = {
     COOL: strategyNft_COOL,
     MEEBITS: strategyNft_MEEBITS,
     WOW: strategyNft_WOW,
+    LAND: strategyNft_LAND,
   },
 
   ReserveAssets: {
@@ -115,6 +117,7 @@ export const UnlockdConfig: IUnlockdConfiguration = {
       CLONEX: '0xA446Ab62fb4bdCEdAF69259354ad0C1C7ccb87ff',
       AZUKI: '0x048e8A2738F4d292Cf30e8468066ce930dFBDAfa',
       KONGZ: '0x65217942f01E563e5F292ba0C7285D0ce85fDE1e',
+      LAND: '',
     },
     [eEthereumNetwork.kovan]: {
       WPUNKS: '0x8Ffc30191AdF56C3Bb06BD03A358fdBfA2C06f63',
@@ -145,7 +148,7 @@ export const UnlockdConfig: IUnlockdConfiguration = {
     [eEthereumNetwork.main]: {
       WPUNKS: '0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6',
       BAYC: '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d',
-      LAND: '0xF87E31492Faf9A91B02Ee0dEAAd50d51d56D5d4d',
+      // LAND: '0xF87E31492Faf9A91B02Ee0dEAAd50d51d56D5d4d',
     },
   },
 };

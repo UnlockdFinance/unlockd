@@ -232,7 +232,7 @@ export const CommonsConfig: ICommonConfiguration = {
       // CLONEX: '0xdd04ba0254972CC736F6966c496B4941f02BD816',
       // AZUKI: '0x050Cd8082B86c5F469e0ba72ef4400E5E454886D',
       // KONGZ: '0x8fC9F05f7B21346FD5E9Fa3C963d3941eb861940',
-      // LAND: '0x0eA6Aa8695Ea90fF8646C93B5A118b4b20c35Eff'
+      // LAND: '0xF87E31492Faf9A91B02Ee0dEAAd50d51d56D5d4d',
     },
     [eEthereumNetwork.kovan]: {},
     [eEthereumNetwork.develop]: {},
