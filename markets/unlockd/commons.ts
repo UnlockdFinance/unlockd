@@ -232,6 +232,7 @@ export const CommonsConfig: ICommonConfiguration = {
       // CLONEX: '0xdd04ba0254972CC736F6966c496B4941f02BD816',
       // AZUKI: '0x050Cd8082B86c5F469e0ba72ef4400E5E454886D',
       // KONGZ: '0x8fC9F05f7B21346FD5E9Fa3C963d3941eb861940',
+      // LAND: '0x0eA6Aa8695Ea90fF8646C93B5A118b4b20c35Eff'
     },
     [eEthereumNetwork.kovan]: {},
     [eEthereumNetwork.develop]: {},
@@ -243,7 +244,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: '0xb49dBe8e2A5a140b3b810c33ac2ba4907A3CA95e', // deployed in local evm
     [eEthereumNetwork.localhost]: '0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104',
     [eEthereumNetwork.develop]: '0x3C73A32C11E20101be3D5ff2F67Af15a4ACbF298',
-    [eEthereumNetwork.rinkeby]: '0xE0f47ceab359C7922C93e8A053B5B3E533CA91b8',
+    [eEthereumNetwork.rinkeby]: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
     [eEthereumNetwork.kovan]: '0x2F4dA7F22E603aac1A9840D384d63c91a40ddD8D',
     [eEthereumNetwork.goerli]: '',
     [eEthereumNetwork.main]: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
