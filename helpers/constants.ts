@@ -58,6 +58,7 @@ export const MOCK_NFT_AGGREGATORS_PRICES = {
   CLONEX: oneEther.multipliedBy("11.95").toFixed(),
   AZUKI: oneEther.multipliedBy("10.50").toFixed(),
   KONGZ: oneEther.multipliedBy("7.90").toFixed(),
+  LAND: oneEther.multipliedBy("2.16").toFixed(),
 };
 
 export const MOCK_NFT_AGGREGATORS_MAXSUPPLY = {
@@ -71,6 +72,7 @@ export const MOCK_NFT_AGGREGATORS_MAXSUPPLY = {
   CLONEX: "150", //19310
   AZUKI: "150", //10000
   KONGZ: "150", //14826
+  LAND: "150", //90000
 };
 
 export const MOCK_NFT_BASE_URIS = {
@@ -84,4 +86,5 @@ export const MOCK_NFT_BASE_URIS = {
   CLONEX: "https://clonex-assets.rtfkt.com/",
   AZUKI: "https://ikzttp.mypinata.cloud/ipfs/QmQFkLSQysj94s5GvTHPyzTxrawwtjgiiYS2TBLgrvw8CW/",
   KONGZ: "https://kongz.herokuapp.com/api/metadata/",
+  LAND: "https://market.decentraland.org/contracts/0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d/tokens/",
 };
