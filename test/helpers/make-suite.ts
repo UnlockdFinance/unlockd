@@ -104,6 +104,7 @@ export interface TestEnv {
   bPUNK: UNFT;
   bayc: MintableERC721;
   bBAYC: UNFT;
+  //LAND: UNFT;
   addressesProvider: LendPoolAddressesProvider;
   wethGateway: WETHGateway;
   tokenIdTracker: number;
@@ -152,6 +153,7 @@ const testEnv: TestEnv = {
   bPUNK: {} as UNFT,
   bayc: {} as MintableERC721,
   bBAYC: {} as UNFT,
+  // LAND: {} as UNFT,
   addressesProvider: {} as LendPoolAddressesProvider,
   wethGateway: {} as WETHGateway,
   //wpunksGateway: {} as WPUNKSGateway,
@@ -232,9 +234,10 @@ export async function initializeMakeSuite() {
   //console.log("allUNftTokens", allUNftTokens);
   const bPunkAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.uNftAddress;
   const bByacAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "BAYC")?.uNftAddress;
-
   const wpunksAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.nftAddress;
   const baycAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "BAYC")?.nftAddress;
+
+  //const landAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "LAND")?.uNftAddress;
 
   if (!bByacAddress || !bPunkAddress) {
     console.error("Invalid UNFT Tokens", bByacAddress, bPunkAddress);

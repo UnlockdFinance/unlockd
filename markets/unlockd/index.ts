@@ -139,11 +139,13 @@ export const UnlockdConfig: IUnlockdConfiguration = {
       CLONEX: '0x5d4902fc7425B5660b5EeA3b40aCDd9443B4e206',
       AZUKI: '0x8453d7709F7124ab428b7d9BC1c6ea65804ce05C',
       KONGZ: '0x78EEed79Abcc9814eDB1015eC2665c7C427C26C6',
+      LAND: '0x0eA6Aa8695Ea90fF8646C93B5A118b4b20c35Eff', // Mock proxy Address
     },
     [eEthereumNetwork.goerli]: {},
     [eEthereumNetwork.main]: {
       WPUNKS: '0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6',
       BAYC: '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d',
+      LAND: '0xF87E31492Faf9A91B02Ee0dEAAd50d51d56D5d4d',
     },
   },
 };

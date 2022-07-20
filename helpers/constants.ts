@@ -47,6 +47,7 @@ export const MOCK_RESERVE_AGGREGATORS_PRICES = {
 
 //Price source: https://nftpricefloor.com/
 //Price source: https://opensea.io/
+//Taken the floor price at time of look-up
 export const MOCK_NFT_AGGREGATORS_PRICES = {
   WPUNKS: oneEther.multipliedBy("66.99").toFixed(),
   BAYC: oneEther.multipliedBy("52.77").toFixed(),
@@ -58,19 +59,21 @@ export const MOCK_NFT_AGGREGATORS_PRICES = {
   CLONEX: oneEther.multipliedBy("11.95").toFixed(),
   AZUKI: oneEther.multipliedBy("10.50").toFixed(),
   KONGZ: oneEther.multipliedBy("7.90").toFixed(),
+  LAND: oneEther.multipliedBy("2.16").toFixed(),
 };
 
 export const MOCK_NFT_AGGREGATORS_MAXSUPPLY = {
-  WPUNKS: "150", //10000
-  BAYC: "150", //10000
-  DOODLE: "150", //9999
-  COOL: "150", //9999
-  MEEBITS: "150", //20000
-  MAYC: "150", //19422
-  WOW: "150", //5555
-  CLONEX: "150", //19310
-  AZUKI: "150", //10000
-  KONGZ: "150", //14826
+  WPUNKS: "150",  //10000   ok
+  BAYC: "150",    //10000   ok
+  DOODLE: "150",  //9999    ok
+  COOL: "150",    //9999    --
+  MEEBITS: "150", //20000   --
+  MAYC: "150",    //19422   ok
+  WOW: "150",     //5555    --
+  CLONEX: "150",  //19310   ok
+  AZUKI: "150",   //10000   ok
+  KONGZ: "150",   //14826   XX
+  LAND: "150",    //90000   ok
 };
 
 export const MOCK_NFT_BASE_URIS = {
@@ -84,4 +87,5 @@ export const MOCK_NFT_BASE_URIS = {
   CLONEX: "https://clonex-assets.rtfkt.com/",
   AZUKI: "https://ikzttp.mypinata.cloud/ipfs/QmQFkLSQysj94s5GvTHPyzTxrawwtjgiiYS2TBLgrvw8CW/",
   KONGZ: "https://kongz.herokuapp.com/api/metadata/",
+  LAND: "https://market.decentraland.org/contracts/0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d/tokens/",
 };
