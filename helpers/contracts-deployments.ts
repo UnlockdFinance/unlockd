@@ -622,7 +622,7 @@ export const deployRepayAndTransferHelper = async (addressesProvider: string, ve
     verify
   );
 
-export const deloyNFTXVaultFactory = async (verify?: boolean) => {
+export const deployNFTXVaultFactory = async (verify?: boolean) => {
   const deployer = await getDeploySigner();
   const deployerAddress = await deployer.getAddress();
 

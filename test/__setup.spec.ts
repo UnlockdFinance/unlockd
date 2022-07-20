@@ -27,7 +27,7 @@ import {
   deployUiPoolDataProvider,
   deployMockChainlinkOracle,
   deployUnlockdLibraries,
-  deloyNFTXVaultFactory,
+  deployNFTXVaultFactory,
   deploySushiSwapRouter,
 } from "../helpers/contracts-deployments";
 import { Signer } from "ethers";
@@ -279,7 +279,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   //////////////////////////////////////////////////////////////////////////////
   console.log("-> Prepare NFTX & Sushiswap Router...");
 
-  const nftxVaultFactory = await deloyNFTXVaultFactory();
+  const nftxVaultFactory = await deployNFTXVaultFactory();
   await waitForTx(await addressesProvider.setNFTXVaultFactory(nftxVaultFactory.address));
 
   const sushiSwapRouter = await deploySushiSwapRouter();
