@@ -71,9 +71,9 @@ export const UnlockdConfig: IUnlockdConfiguration = {
       USDC: '0x0bb5261d7b100bcfAe9976aFFFae50B7dDaBa176',
     },
     [eEthereumNetwork.rinkeby]: {
-      WETH: '0x368407140296808624d2D3C500B7F1D9485eBf23',
-      DAI: '0x8072A2f4c4dDB4F20c70Aa72eA3C5C76e2AEa027',
-      USDC: '0x2abD41624249d852bC1A72Fe25189A63aF1eD3f6',
+      WETH: '0x9e83fb6D3751fefd56973Baa635bF87D38d9725e',
+      DAI: '0xE9B8ecC4432Bf6aB35D3229f8fc8c2068dB8d3C8',
+      USDC: '0x167e8298F12f97A7fF5ba7cb13991Daa7FD15036',
     },
     [eEthereumNetwork.goerli]: {
       //WETH: ,
@@ -85,7 +85,7 @@ export const UnlockdConfig: IUnlockdConfiguration = {
     },
   },
   NftsAssets: {
-    [eEthereumNetwork.hardhat]: {
+    [eEthereumNetwork.hardhat]: { //dev:deploy-mock-nfts
       // WPUNKS: '0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847',
       // BAYC: '0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457',
       // DOODLE: '0x2F7f69a3cd22FcfFB5E0C0fB7Ae5Eb278b3919Ff',
@@ -132,17 +132,17 @@ export const UnlockdConfig: IUnlockdConfiguration = {
       KONGZ: '0xb08AD9349f7e38414aDA9CeC0a4A803019cAB795',
     },
     [eEthereumNetwork.rinkeby]: {
-      WPUNKS: '0xA471BF0B95216E7C0b89b910Fd4615E8b5572FBA',
-      BAYC: '0xb3e295C8A76e5Dc73FC874e7F442b2a3C8FdbA1C',
-      DOODLE: '0x2Aa1e17e4C04284a88b592E9b102Dcd241216e9C',
-      COOL: '0x44B176ddFb37BaF0d899E3d61D6E9569E827fc30',
-      MEEBITS: '0x456d8B6c2E1891db3a7041D3E864144D5A0e389A',
-      MAYC: '0x865be4B44eDF3598742D2B7D03e83B6Ca8B7058F',
-      WOW: '0xF02Bae6F461a55851602f908a1cbD30b44270f4E',
-      CLONEX: '0xD12Ed68a2e7700F15DBC94ED78F68FBef2c8385B',
-      AZUKI: '0xCFf21a8f7485B4a4f5efE13751245ad115031953',
-      KONGZ: '0x1E363B7369fedf20b1fd5d2f4Ad2dD184BFC9596',
-      LAND: '0x0ea6aa8695ea90ff8646c93b5a118b4b20c35eff', // Proxy collection, not official
+      WPUNKS: '0x80906E6f7963f5095A7967AaECADe2E5dC60d8c0',
+      BAYC: '0x94eeA2EDCa63840E3CC8275D600E1Fe9baA63D6c',
+      DOODLE: '0x0cd6543dE09dE88Ea394B84Bf3Ba37D1353A564a',
+      COOL: '0xECA2eB09635968C43Cda7A8E78A1F1592e686682',
+      MEEBITS: '0x56290e5339149703B01242f0C8f0b34072F15E03',
+      MAYC: '0x8982C3c7cc928d3aD0BEc640909feaD21993D8Ea',
+      WOW: '0x1eDDbE1164B277007002c04d99380c532e9A487c',
+      CLONEX: '0xF0E211947F551E2cC358bd38074cef7a8E455fC3',
+      AZUKI: '0x4F06A210e57A7C2A7173e89CCdaabA8B48d123BC',
+      KONGZ: '0x89c2b78877768f89BaE678C3fAdCa999628F049A',
+      LAND: '0xB0147824c5BacdC5c9553b6DaF1102902eDcFE82', // Proxy collection, not official
     },
     [eEthereumNetwork.goerli]: {},
     [eEthereumNetwork.main]: {

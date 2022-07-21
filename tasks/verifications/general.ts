@@ -41,7 +41,6 @@ task("verify:general", "Verify general contracts at Etherscan")
     const { MarketId, CryptoPunksMarket, WrappedPunkToken } = poolConfig as ICommonConfiguration;
 
     const unlockdCollectorImpl = await getUnlockdCollectorImpl();
-
     const providerRegistry = await getLendPoolAddressesProviderRegistry();
     const addressesProvider = await getLendPoolAddressesProvider();
 
