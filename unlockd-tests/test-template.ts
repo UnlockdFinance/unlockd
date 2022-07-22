@@ -1,18 +1,28 @@
-import { task } from "hardhat/config";
-import { Contract, providers, utils, Wallet } from "ethers";
-import dotenv from 'dotenv';
+import {lendPoolContract, erc20Contract } from "./constants";
 import {getWallet } from "./helpers/config"; 
-import addressesProviderArtifact from '../artifacts/contracts/protocol/LendPoolAddressesProvider.sol/LendPoolAddressesProvider.json'; //import the required contract abis
-dotenv.config();
+import deployments from "../deployments/deployed-contracts-rinkeby.json"
 
 const testFunction = async () => {
-    //Get the signer address
+
     const wallet = await getWallet();
-    //the desired contract (example with the addresses provider: params are => (contract_address, abi, wallet) )
-    const addressesProviderContract = new Contract('0xc6F5b7A8dF08D7aeC8fc0B24011661599eFc8ca8', addressesProviderArtifact.abi, wallet);
-    //call the required function
-    const result = await addressesProviderContract.getNFTOracle();
-    console.log(result);
+    //const al = await erc20Contract.allowance("0x94aBa23b9Bbfe7bb62A9eB8b1215D72b5f6F33a1", "0xE5564C8aAD053fBb83C22C249F8c86d61247117d");
+    //console.log(al);
+    
+    const ap = await erc20Contract.connect(wallet).approve(deployments.LendPool.address, "100000000000000000000000"); // 100k
+    await ap.wait();
+    console.log(ap);
+    
+    const dep = await lendPoolContract.connect(wallet).deposit(
+        deployments.DAI.address, "100000000000000000000000", "0x94aBa23b9Bbfe7bb62A9eB8b1215D72b5f6F33a1", 0
+    );
+    await dep.wait();
+    console.log(dep);
+
+    const wit = await lendPoolContract.connect(wallet).withdraw(
+        deployments.DAI.address, "50000000000000000000000", "0x94aBa23b9Bbfe7bb62A9eB8b1215D72b5f6F33a1"
+    );
+    await wit.wait();
+    console.log(wit);
     
 };
 testFunction().catch((error) => {
