@@ -32,6 +32,22 @@ const withdraw = async (wallet: Wallet, asset: string, amount: BigNumber, to: st
 const borrow = async (wallet: Wallet, asset: string, amount: BigNumber, nftAsset: string, nftTokenId: number, onBehalfOf: string) => {
     return await Contracts.lendPool.connect(wallet).borrow(asset, amount, nftAsset, nftTokenId, onBehalfOf, 0);
 }
+
+const getCollateralData = async (wallet: Wallet, collection: string, nftTokenId: number, reserve: string) => {
+    return await Contracts.lendPool.connect(wallet).getNftCollateralData(collection, nftTokenId, reserve);
+}
+
+const getDebtData = async (wallet: Wallet, collection: string, nftTokenId: number) => {
+    return await Contracts.lendPool.connect(wallet).getNftDebtData(collection, nftTokenId);
+}
+//Lendpool loan
+const getLoanIdTracker = async (wallet: Wallet) => {
+    return await Contracts.lendPoolLoan.connect(wallet).getLoanIdTracker();
+}
+const getLoan = async (wallet: Wallet, loanId: number) => {
+    return await Contracts.lendPoolLoan.connect(wallet).getLoan(loanId);
+}
+
 //Nftoracle
 const getNftPrice = async(wallet: Wallet, collection: string, tokenid: number) => {
     return await Contracts.nftOracle.connect(wallet).getNFTPrice(collection, tokenid);
@@ -63,8 +79,14 @@ export const Functions = {
         getLendPool: getLendPool,
         deposit: deposit,
         withdraw: withdraw,
-        borrow: borrow
+        borrow: borrow,
+        getCollateralData: getCollateralData,
+        getDebtData: getDebtData
 
+    },
+    LENDPOOL_LOAN: {
+        getLoanIdTracker: getLoanIdTracker,
+        getLoan: getLoan
     },
     NFTORACLE: {
         getNftPrice: getNftPrice,

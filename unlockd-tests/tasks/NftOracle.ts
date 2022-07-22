@@ -10,7 +10,7 @@ task("nftoracle:getnftprice", "User 0 Deposits {amount} {reserve} in an empty re
 .setAction( async ({collection, tokenid}) => {
     const wallet = await getUserWallet();  
     const price = await Functions.NFTORACLE.getNftPrice(wallet, collection, tokenid);
-    console.log();
+    console.log(parseUnits(price.toString()));
    
 }); 
 
@@ -21,9 +21,7 @@ task("nftoracle:setnftprice", "User 0 Deposits {amount} {reserve} in an empty re
 .addParam("price", "The asset price")
 .setAction( async ({collection, tokenid, price}) => {
     const wallet = await getOwnerWallet();  
-    console.log("owner: ", wallet.address);
     price = await parseUnits(price.toString())    
-    console.log(price);
     await Functions.NFTORACLE.setNftPrice(wallet, collection, tokenid, price);
    
 }); 
