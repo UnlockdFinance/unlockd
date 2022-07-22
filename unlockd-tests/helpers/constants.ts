@@ -1,7 +1,5 @@
-import { task } from "hardhat/config";
-import { Contract, providers, utils, Wallet } from "ethers";
+import { Contract} from "ethers";
 import dotenv from 'dotenv';
-import {getWallet } from "./config"; 
 //Protocol imports
 import debtTokenArtifact from "../../artifacts/contracts/protocol/DebtToken.sol/DebtToken.json";
 import interestRateArtifact from "../../artifacts/contracts/protocol/interestRate.sol/interestRate.json";
@@ -19,11 +17,12 @@ import uTokenArtifact from "../../artifacts/contracts/protocol/uToken.sol/uToken
 import wethGatewayArtifact from "../../artifacts/contracts/protocol/wethGateway.sol/wethGateway.json";
 //Mock imports
 import erc20Artifact from "../../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
+import erc721Artifact from "../../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
 import deployments from "../../deployments/deployed-contracts-rinkeby.json"
 
 dotenv.config();
 
-
+ 
 
 // Protocol
 const debtTokenContract = new Contract(deployments.DebtToken.address, debtTokenArtifact.abi);
@@ -63,9 +62,11 @@ export const Contracts = {
 // Mocks
 const daiContract = new Contract(deployments.DAI.address, erc20Artifact.abi);
 const usdcContract = new Contract(deployments.USDC.address, erc20Artifact.abi);
+const baycContract = new Contract(deployments.BAYC.address, erc721Artifact.abi);
  
 export const MockContracts = {
     DAI: daiContract,
-    USDC: usdcContract
+    USDC: usdcContract,
+    BAYC: baycContract,
 }
 
