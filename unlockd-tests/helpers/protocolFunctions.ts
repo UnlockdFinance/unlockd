@@ -40,6 +40,10 @@ const getCollateralData = async (wallet: Wallet, collection: string, nftTokenId:
 const getDebtData = async (wallet: Wallet, collection: string, nftTokenId: number) => {
     return await Contracts.lendPool.connect(wallet).getNftDebtData(collection, nftTokenId);
 }
+
+const redeem = async (wallet: Wallet, collection: string, nftTokenId: number, amount: number) => {
+    return await Contracts.lendPool.connect(wallet).redeem(collection, nftTokenId, amount);
+}
 //Lendpool loan
 const getLoanIdTracker = async (wallet: Wallet) => {
     return await Contracts.lendPoolLoan.connect(wallet).getLoanIdTracker();
@@ -81,7 +85,8 @@ export const Functions = {
         withdraw: withdraw,
         borrow: borrow,
         getCollateralData: getCollateralData,
-        getDebtData: getDebtData
+        getDebtData: getDebtData,
+        redeem: redeem
 
     },
     LENDPOOL_LOAN: {
