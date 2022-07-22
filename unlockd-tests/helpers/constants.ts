@@ -58,11 +58,14 @@ export const Contracts = {
     uToken: uTokenContract,
     wethGateway: wethGatewayContract,
 }
+
+
 // Mocks
-export const daiContract = new Contract(deployments.DAI.address, erc20Artifact.abi);
-export const usdcContract = new Contract(deployments.USDC.address, erc20Artifact.abi);
+const daiContract = new Contract(deployments.DAI.address, erc20Artifact.abi);
+const usdcContract = new Contract(deployments.USDC.address, erc20Artifact.abi);
  
 export const MockContracts = {
     DAI: daiContract,
     USDC: usdcContract
 }
+

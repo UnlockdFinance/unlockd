@@ -1,5 +1,6 @@
-import {Contracts} from './constants';
+
 import { Wallet, Contract, BigNumber } from "ethers";
+import { Contracts } from "./constants";
 
 
 const approve = async (wallet: Wallet, token: Contract, spender: string, amount: string) => {
@@ -10,7 +11,11 @@ const approve = async (wallet: Wallet, token: Contract, spender: string, amount:
 const deposit = async (wallet: Wallet, asset: string, amount: BigNumber, onBehalfOf: string) => {
     const tx = await Contracts.lendPool.connect(wallet).deposit(asset, amount, onBehalfOf, 0);
     await tx.wait();
+}
 
+const withdraw = async (wallet: Wallet, asset: string, amount: BigNumber, to: string) => {
+    const tx = await Contracts.lendPool.connect(wallet).withdraw(asset, amount, to);
+    await tx.wait();
 }
 
 const getLendPool = async (wallet: Wallet) => {
@@ -31,6 +36,7 @@ export const Functions = {
     LENDPOOL: {
         getLendPool: getLendPool,
         deposit: deposit,
+        withdraw: withdraw
 
     }
 }
