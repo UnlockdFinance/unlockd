@@ -69,13 +69,25 @@ task("lendpool:getdebtdata", "Returns debt data")
 }); 
 
 //Redeem 
-task("lendpool:redeem-full-loan", "Redeems a loan")
+task("lendpool:redeem", "Redeems a loan")
 .addParam("collection", "NFT collection address") 
 .addParam("tokenid", "nft token id")  
-.addParam("amount", "Amount to redeem")  
+.addParam("amount", "Amount to redeem")   
 .setAction( async ({collection, tokenid, amount}) => {
     const wallet = await getUserWallet();  
     amount = await parseUnits(amount.toString())    
-    const debtData = await Functions.LENDPOOL.redeem(wallet, collection, tokenid, amount);
-    console.log(debtData);
+    await Functions.LENDPOOL.redeem(wallet, collection, tokenid, amount);
+    
+});  
+
+//Repay loan 
+task("lendpool:repay", "Redeems a loan")
+.addParam("collection", "NFT collection address") 
+.addParam("tokenid", "nft token id")  
+.addParam("amount", "Amount to repay")  
+.setAction( async ({collection, tokenid, amount}) => {
+    const wallet = await getUserWallet();  
+    amount = await parseUnits(amount.toString())    
+    await Functions.LENDPOOL.repay(wallet, collection, tokenid, amount);
+    
 });  
