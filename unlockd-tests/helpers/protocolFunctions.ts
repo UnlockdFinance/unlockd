@@ -63,6 +63,11 @@ const getNFTOracleOwner = async(wallet: Wallet) => {
     return await Contracts.nftOracle.connect(wallet).owner();
 }
 
+// Reserve Oracle
+const getAssetPrice = async (wallet: Wallet, asset: string) => {
+    return await Contracts.reserveOracle.connect(wallet).getAssetPrice(asset);
+}
+
 //Addresses provider
 
 const getLendPool = async (wallet: Wallet) => { 
@@ -97,5 +102,8 @@ export const Functions = {
         getNftPrice: getNftPrice,
         setNftPrice: setNftPrice,
         getNFTOracleOwner: getNFTOracleOwner
+    },
+    RESERVEORACLE: {
+        getAssetPrice: getAssetPrice,
     }
 }
