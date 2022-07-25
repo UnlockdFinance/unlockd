@@ -13,7 +13,7 @@ task("nftoracle:getnftprice", "User 0 Deposits {amount} {reserve} in an empty re
     console.log(parseUnits(price.toString()));
    
 }); 
-
+ 
 //Set NFT price
 task("nftoracle:setnftprice", "User 0 Deposits {amount} {reserve} in an empty reserve")
 .addParam("collection", "The collection address") 
@@ -22,14 +22,14 @@ task("nftoracle:setnftprice", "User 0 Deposits {amount} {reserve} in an empty re
 .setAction( async ({collection, tokenid, price}) => {
     const wallet = await getOwnerWallet();  
     price = await parseUnits(price.toString(), 18)  
-  
+    console.log("New price: ", price);
     await Functions.NFTORACLE.setNftPrice(wallet, collection, tokenid, price);
    
-}); 
+});  
 
 //Get NFT owner
 task("nftoracle:getoracleowner", "User 0 Deposits {amount} {reserve} in an empty reserve")
-.setAction( async ({collection, tokenid, price}) => {
+.setAction( async () => {
     const wallet = await getUserWallet();  
     const owner = await Functions.NFTORACLE.getNFTOracleOwner(wallet);
     console.log(owner);

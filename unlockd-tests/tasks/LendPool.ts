@@ -50,17 +50,17 @@ task("lendpool:borrow", "User 0 Withdraws {amount} {reserve} from the reserves")
 }); 
 //Borrowing 
 task("lendpool:getcollateraldata", "Returns collateral data")
-.addParam("collection", "NFT collection name") 
+.addParam("collection", "NFT collection address") 
 .addParam("tokenid", "nft token id")  
 .addParam("reserve", "reserve") //must be set to 'DAI' or 'USDC'
 .setAction( async ({collection, tokenid, reserve}) => {
     const wallet = await getUserWallet();  
     const collateralData = await Functions.LENDPOOL.getCollateralData(wallet, collection, tokenid, reserve);
     console.log(collateralData);
-}); 
+});   
 //Borrowing 
 task("lendpool:getdebtdata", "Returns debt data")
-.addParam("collection", "NFT collection name") 
+.addParam("collection", "NFT collection address") 
 .addParam("tokenid", "nft token id")  
 .setAction( async ({collection, tokenid}) => {
     const wallet = await getUserWallet();  
@@ -70,7 +70,7 @@ task("lendpool:getdebtdata", "Returns debt data")
 
 //Redeem 
 task("lendpool:redeem-full-loan", "Redeems a loan")
-.addParam("collection", "NFT collection name") 
+.addParam("collection", "NFT collection address") 
 .addParam("tokenid", "nft token id")  
 .addParam("amount", "Amount to redeem")  
 .setAction( async ({collection, tokenid, amount}) => {
@@ -78,4 +78,4 @@ task("lendpool:redeem-full-loan", "Redeems a loan")
     amount = await parseUnits(amount.toString())    
     const debtData = await Functions.LENDPOOL.redeem(wallet, collection, tokenid, amount);
     console.log(debtData);
-}); 
+});  
