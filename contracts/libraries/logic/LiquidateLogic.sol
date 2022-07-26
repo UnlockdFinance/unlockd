@@ -459,7 +459,6 @@ library LiquidateLogic {
 
   struct LiquidateOpenseaLocalVars {
     address poolLoan;
-    address poolConfigurator;
     address reserveOracle;
     address nftOracle;
     address liquidator;
