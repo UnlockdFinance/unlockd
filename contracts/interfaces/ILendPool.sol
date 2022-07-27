@@ -75,17 +75,17 @@ interface ILendPool {
 
   /**
    * @dev Emitted when a borrower's loan is auctioned.
-   * @param user The address of the user initiating the auction
    * @param reserve The address of the underlying asset of the reserve
    * @param bidPrice The start bid price of the underlying reserve
+   * @param auctionDuration Auction duration of the underlying reserve
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token id of the underlying NFT used as collateral
    * @param loanId The loan ID of the NFT loans
    **/
   event Auction(
-    address user,
     address indexed reserve,
     uint256 bidPrice,
+    uint256 auctionDuration,
     address indexed nftAsset,
     uint256 nftTokenId,
     address indexed borrower,
@@ -122,6 +122,57 @@ interface ILendPool {
    **/
   event Liquidate(
     address user,
+    address indexed reserve,
+    uint256 repayAmount,
+    uint256 remainAmount,
+    address indexed nftAsset,
+    uint256 nftTokenId,
+    address indexed borrower,
+    uint256 loanId
+  );
+
+  /**
+   * @dev Emitted when a borrower's loan is liquidated on LooksRare.
+   * @param reserve The address of the underlying asset of the reserve
+   * @param repayAmount The amount of reserve repaid by the liquidator
+   * @param remainAmount The amount of reserve received by the borrower
+   * @param loanId The loan ID of the NFT loans
+   **/
+  event LiquidateLooksRare(
+    address indexed reserve,
+    uint256 repayAmount,
+    uint256 remainAmount,
+    address indexed nftAsset,
+    uint256 nftTokenId,
+    address indexed borrower,
+    uint256 loanId
+  );
+
+  /**
+   * @dev Emitted when a borrower's loan is liquidated on Opensea.
+   * @param reserve The address of the underlying asset of the reserve
+   * @param repayAmount The amount of reserve repaid by the liquidator
+   * @param remainAmount The amount of reserve received by the borrower
+   * @param loanId The loan ID of the NFT loans
+   **/
+  event LiquidateOpensea(
+    address indexed reserve,
+    uint256 repayAmount,
+    uint256 remainAmount,
+    address indexed nftAsset,
+    uint256 nftTokenId,
+    address indexed borrower,
+    uint256 loanId
+  );
+
+  /**
+   * @dev Emitted when a borrower's loan is liquidated on NFTX.
+   * @param reserve The address of the underlying asset of the reserve
+   * @param repayAmount The amount of reserve repaid by the liquidator
+   * @param remainAmount The amount of reserve received by the borrower
+   * @param loanId The loan ID of the NFT loans
+   **/
+  event LiquidateNFTX(
     address indexed reserve,
     uint256 repayAmount,
     uint256 remainAmount,
