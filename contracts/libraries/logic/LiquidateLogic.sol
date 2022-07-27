@@ -161,6 +161,11 @@ library LiquidateLogic {
     uint256 borrowAmount;
     uint256 auctionEndTimestamp;
     uint256 minBidDelta;
+    uint256 minBidPrice;
+    uint256 minBidPriceInETH;
+    uint256 reserveDecimals;
+    uint256 reserveUnit;
+    uint256 reserveUnitPrice;
   }
 
   /**
@@ -214,16 +219,21 @@ library LiquidateLogic {
       require(vars.borrowAmount > vars.thresholdPrice, Errors.LP_BORROW_NOT_EXCEED_LIQUIDATION_THRESHOLD);
     }
 
-    uint256 minBidPrice = vars.borrowAmount;
+    vars.minBidPrice = vars.borrowAmount;
 
     if (vars.liquidatePrice > vars.borrowAmount) {
-      minBidPrice = vars.liquidatePrice;
+      vars.minBidPrice = vars.liquidatePrice;
     }
+
+    vars.reserveDecimals = reserveData.configuration.getDecimals();
+    vars.reserveUnit = 10**vars.reserveDecimals;
+    vars.reserveUnitPrice = IReserveOracleGetter(vars.reserveOracle).getAssetPrice(loanData.reserveAsset);
+    vars.minBidPriceInETH = (vars.minBidPrice * vars.reserveUnitPrice) / vars.reserveUnit;
 
     ILendPoolLoan(vars.loanAddress).auctionLoan(
       vars.loanId,
       nftData.uNftAddress,
-      minBidPrice,
+      vars.minBidPrice,
       vars.borrowAmount,
       reserveData.variableBorrowIndex
     );
@@ -238,7 +248,7 @@ library LiquidateLogic {
 
     emit Auction(
       loanData.reserveAsset,
-      minBidPrice,
+      vars.minBidPriceInETH,
       auctionDuration,
       params.nftAsset,
       params.nftTokenId,
@@ -461,8 +471,10 @@ library LiquidateLogic {
     address poolLoan;
     address reserveOracle;
     address nftOracle;
+    address liquidator;
     uint256 loanId;
     uint256 borrowAmount;
+    uint256 feeAmount;
     uint256 extraDebtAmount;
     uint256 remainAmount;
     uint256 auctionEndTimestamp;
@@ -486,6 +498,7 @@ library LiquidateLogic {
     vars.poolLoan = addressesProvider.getLendPoolLoan();
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
+    vars.liquidator = addressesProvider.getLendPoolLiquidator();
 
     vars.loanId = ILendPoolLoan(vars.poolLoan).getCollateralLoanId(params.nftAsset, params.nftTokenId);
     require(vars.loanId != 0, Errors.LP_NFT_IS_NOT_USED_AS_COLLATERAL);
@@ -524,10 +537,18 @@ library LiquidateLogic {
       loanData.reserveAsset
     );
 
-    // TODO! Fee mechanism
+    // Liquidation Fee
+    vars.feeAmount = priceInReserve.percentMul(params.liquidateFeePercentage);
+    priceInReserve = priceInReserve - vars.feeAmount;
 
+    // Remaining Amount
     if (priceInReserve > vars.borrowAmount) {
       vars.remainAmount = priceInReserve - vars.borrowAmount;
+    }
+
+    // Extra Debt Amount
+    if (priceInReserve < vars.borrowAmount) {
+      vars.extraDebtAmount = vars.borrowAmount - priceInReserve;
     }
 
     IDebtToken(reserveData.debtTokenAddress).burn(
@@ -546,10 +567,15 @@ library LiquidateLogic {
     // transfer borrow amount from lend pool to bToken, repay debt
     IERC20Upgradeable(loanData.reserveAsset).safeTransfer(reserveData.uTokenAddress, vars.borrowAmount);
 
+    // transfer fee amount from lend pool to liquidator
+    IERC20Upgradeable(loanData.reserveAsset).safeTransfer(vars.liquidator, vars.feeAmount);
+
     // transfer remain amount to borrower
     if (vars.remainAmount > 0) {
       IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.borrower, vars.remainAmount);
     }
+
+    // TODO: transfer extra debt from protocol treasury
 
     emit LiquidateOpensea(
       loanData.reserveAsset,
@@ -573,6 +599,7 @@ library LiquidateLogic {
     uint256 borrowAmount;
     uint256 extraDebtAmount;
     uint256 remainAmount;
+    uint256 feeAmount;
     uint256 auctionEndTimestamp;
   }
 
@@ -633,10 +660,18 @@ library LiquidateLogic {
       reserveData.variableBorrowIndex
     );
 
-    // TODO! Fee mechanism
+    // Liquidation Fee
+    vars.feeAmount = priceInReserve.percentMul(params.liquidateFeePercentage);
+    priceInReserve = priceInReserve - vars.feeAmount;
 
+    // Remaining Amount
     if (priceInReserve > vars.borrowAmount) {
       vars.remainAmount = priceInReserve - vars.borrowAmount;
+    }
+
+    // Extra Debt Amount
+    if (priceInReserve < vars.borrowAmount) {
+      vars.extraDebtAmount = vars.borrowAmount - priceInReserve;
     }
 
     IDebtToken(reserveData.debtTokenAddress).burn(
@@ -655,10 +690,15 @@ library LiquidateLogic {
     // transfer borrow amount from lend pool to uToken, repay debt
     IERC20Upgradeable(loanData.reserveAsset).safeTransfer(reserveData.uTokenAddress, vars.borrowAmount);
 
+    // transfer fee amount from lend pool to liquidator
+    IERC20Upgradeable(loanData.reserveAsset).safeTransfer(vars.liquidator, vars.feeAmount);
+
     // transfer remain amount to borrower
     if (vars.remainAmount > 0) {
       IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.borrower, vars.remainAmount);
     }
+
+    // TODO: transfer extra debt from protocol treasury
 
     emit LiquidateNFTX(
       loanData.reserveAsset,

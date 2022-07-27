@@ -180,10 +180,12 @@ library DataTypes {
     address nftAsset;
     uint256 nftTokenId;
     uint256 priceInEth;
+    uint256 liquidateFeePercentage;
   }
 
   struct ExecuteLiquidateNFTXParams {
     address nftAsset;
     uint256 nftTokenId;
+    uint256 liquidateFeePercentage;
   }
 }
