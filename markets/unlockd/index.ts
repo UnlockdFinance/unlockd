@@ -132,19 +132,6 @@ export const UnlockdConfig: IUnlockdConfiguration = {
       KONGZ: '0xb08AD9349f7e38414aDA9CeC0a4A803019cAB795',
     },
     [eEthereumNetwork.rinkeby]: {
-<<<<<<< HEAD
-      WPUNKS: '0xA471BF0B95216E7C0b89b910Fd4615E8b5572FBA',
-      BAYC: '0xb3e295C8A76e5Dc73FC874e7F442b2a3C8FdbA1C',
-      DOODLE: '0x2Aa1e17e4C04284a88b592E9b102Dcd241216e9C',
-      COOL: '0x44B176ddFb37BaF0d899E3d61D6E9569E827fc30',
-      MEEBITS: '0x456d8B6c2E1891db3a7041D3E864144D5A0e389A',
-      MAYC: '0x865be4B44eDF3598742D2B7D03e83B6Ca8B7058F',
-      WOW: '0xF02Bae6F461a55851602f908a1cbD30b44270f4E',
-      CLONEX: '0xD12Ed68a2e7700F15DBC94ED78F68FBef2c8385B',
-      AZUKI: '0xCFf21a8f7485B4a4f5efE13751245ad115031953',
-      KONGZ: '0x1E363B7369fedf20b1fd5d2f4Ad2dD184BFC9596',
-      LAND: '0x0ea6aa8695ea90ff8646c93b5a118b4b20c35eff', // Proxy collection, not official
-=======
       WPUNKS: '0x80906E6f7963f5095A7967AaECADe2E5dC60d8c0',
       BAYC: '0x94eeA2EDCa63840E3CC8275D600E1Fe9baA63D6c',
       DOODLE: '0x0cd6543dE09dE88Ea394B84Bf3Ba37D1353A564a',
@@ -156,7 +143,6 @@ export const UnlockdConfig: IUnlockdConfiguration = {
       AZUKI: '0x4F06A210e57A7C2A7173e89CCdaabA8B48d123BC',
       KONGZ: '0x89c2b78877768f89BaE678C3fAdCa999628F049A',
       LAND: '0xB0147824c5BacdC5c9553b6DaF1102902eDcFE82', // Proxy collection, not official
->>>>>>> master
     },
     [eEthereumNetwork.goerli]: {},
     [eEthereumNetwork.main]: {
