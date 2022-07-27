@@ -127,7 +127,7 @@ makeSuite("Subgraph tests", async (testEnv) => {
     await redeem(testEnv, borrower, "BAYC", tokenId, "-1", "success", "");
   });
 
-  it("borrow-auction-liquidate", async () => {
+  it.skip("borrow-auction-liquidate", async () => {
     const { users, pool, weth, liquidator } = testEnv;
     const borrower = users[1];
 
