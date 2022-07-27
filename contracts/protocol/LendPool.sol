@@ -129,6 +129,7 @@ contract LendPool is
   function initialize(ILendPoolAddressesProvider provider) public initializer {
     _maxNumberOfReserves = 32;
     _maxNumberOfNfts = 256;
+    _liquidateFeePercentage = 250;
 
     _addressesProvider = provider;
   }
@@ -376,7 +377,12 @@ contract LendPool is
         _addressesProvider,
         _reserves,
         _nfts,
-        DataTypes.ExecuteLiquidateOpenseaParams({nftAsset: nftAsset, nftTokenId: nftTokenId, priceInEth: priceInEth})
+        DataTypes.ExecuteLiquidateOpenseaParams({
+          nftAsset: nftAsset,
+          nftTokenId: nftTokenId,
+          priceInEth: priceInEth,
+          liquidateFeePercentage: _liquidateFeePercentage
+        })
       );
   }
 
@@ -399,7 +405,11 @@ contract LendPool is
         _addressesProvider,
         _reserves,
         _nfts,
-        DataTypes.ExecuteLiquidateNFTXParams({nftAsset: nftAsset, nftTokenId: nftTokenId})
+        DataTypes.ExecuteLiquidateNFTXParams({
+          nftAsset: nftAsset,
+          nftTokenId: nftTokenId,
+          liquidateFeePercentage: _liquidateFeePercentage
+        })
       );
   }
 
@@ -770,6 +780,17 @@ contract LendPool is
    */
   function getMaxNumberOfNfts() public view override returns (uint256) {
     return _maxNumberOfNfts;
+  }
+
+  function setLiquidateFeePercentage(uint256 percentage) external override onlyLendPoolConfigurator {
+    _liquidateFeePercentage = percentage;
+  }
+
+  /**
+   * @dev Returns the liquidate fee percentage
+   */
+  function getLiquidateFeePercentage() public view override returns (uint256) {
+    return _liquidateFeePercentage;
   }
 
   /**

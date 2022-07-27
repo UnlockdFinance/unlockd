@@ -399,6 +399,11 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     cachedPool.setMaxNumberOfNfts(newVal);
   }
 
+  function setLiquidationFeePercentage(uint256 newVal) external onlyPoolAdmin {
+    ILendPool cachedPool = _getLendPool();
+    cachedPool.setLiquidateFeePercentage(newVal);
+  }
+
   /**
    * @dev pauses or unpauses all the actions of the protocol, including uToken transfers
    * @param val true if protocol needs to be paused, false otherwise
