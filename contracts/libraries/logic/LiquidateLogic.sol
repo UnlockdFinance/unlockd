@@ -161,6 +161,11 @@ library LiquidateLogic {
     uint256 borrowAmount;
     uint256 auctionEndTimestamp;
     uint256 minBidDelta;
+    uint256 minBidPrice;
+    uint256 minBidPriceInETH;
+    uint256 reserveDecimals;
+    uint256 reserveUnit;
+    uint256 reserveUnitPrice;
   }
 
   /**
@@ -214,16 +219,21 @@ library LiquidateLogic {
       require(vars.borrowAmount > vars.thresholdPrice, Errors.LP_BORROW_NOT_EXCEED_LIQUIDATION_THRESHOLD);
     }
 
-    uint256 minBidPrice = vars.borrowAmount;
+    vars.minBidPrice = vars.borrowAmount;
 
     if (vars.liquidatePrice > vars.borrowAmount) {
-      minBidPrice = vars.liquidatePrice;
+      vars.minBidPrice = vars.liquidatePrice;
     }
+
+    vars.reserveDecimals = reserveData.configuration.getDecimals();
+    vars.reserveUnit = 10**vars.reserveDecimals;
+    vars.reserveUnitPrice = IReserveOracleGetter(vars.reserveOracle).getAssetPrice(loanData.reserveAsset);
+    vars.minBidPriceInETH = (vars.minBidPrice * vars.reserveUnitPrice) / vars.reserveUnit;
 
     ILendPoolLoan(vars.loanAddress).auctionLoan(
       vars.loanId,
       nftData.uNftAddress,
-      minBidPrice,
+      vars.minBidPrice,
       vars.borrowAmount,
       reserveData.variableBorrowIndex
     );
@@ -238,7 +248,7 @@ library LiquidateLogic {
 
     emit Auction(
       loanData.reserveAsset,
-      minBidPrice,
+      vars.minBidPriceInETH,
       auctionDuration,
       params.nftAsset,
       params.nftTokenId,
