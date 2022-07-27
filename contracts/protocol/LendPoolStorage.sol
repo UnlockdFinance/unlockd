@@ -26,6 +26,8 @@ contract LendPoolStorage {
   uint256 internal _maxNumberOfReserves;
   uint256 internal _maxNumberOfNfts;
 
+  uint256 internal _liquidateFeePercentage;
+
   // !!! Never add new variable at here, because this contract is inherited by LendPool !!!
   // !!! Add new variable at LendPool directly !!!
 }

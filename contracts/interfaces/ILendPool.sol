@@ -518,7 +518,11 @@ interface ILendPool {
 
   function setMaxNumberOfNfts(uint256 val) external;
 
+  function setLiquidateFeePercentage(uint256 percentage) external;
+
   function getMaxNumberOfReserves() external view returns (uint256);
 
   function getMaxNumberOfNfts() external view returns (uint256);
+
+  function getLiquidateFeePercentage() external view returns (uint256);
 }
