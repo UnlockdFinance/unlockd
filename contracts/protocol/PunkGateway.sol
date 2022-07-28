@@ -57,6 +57,10 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     _status = _NOT_ENTERED;
   }
 
+  /**
+   * @dev Function is invoked by the proxy contract when the PunkGateway contract is added to the
+   * LendPoolAddressesProvider of the market.
+   **/
   function initialize(
     address addressProvider,
     address wethGateway,
@@ -78,30 +82,53 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     IERC721Upgradeable(address(wrappedPunks)).setApprovalForAll(address(_wethGateway), true);
   }
 
+  /**
+   * @notice Returns the LendPool address
+   **/
   function _getLendPool() internal view returns (ILendPool) {
     return ILendPool(_addressProvider.getLendPool());
   }
 
+  /**
+   * @notice Returns the LendPoolLoan address
+   **/
   function _getLendPoolLoan() internal view returns (ILendPoolLoan) {
     return ILendPoolLoan(_addressProvider.getLendPoolLoan());
   }
 
+  /**
+   * @notice Approves the lendpool for given tokens
+   * @param tokens the array of tokens
+   **/
   function authorizeLendPoolERC20(address[] calldata tokens) external nonReentrant onlyOwner {
     for (uint256 i = 0; i < tokens.length; i++) {
       IERC20Upgradeable(tokens[i]).approve(address(_getLendPool()), type(uint256).max);
     }
   }
 
+  /**
+   * @notice Authorizes/unauthorizes an array of callers to the whitelist
+   * @param callers the array of callers
+   * @param callers the authorization status
+   **/
   function authorizeCallerWhitelist(address[] calldata callers, bool flag) external nonReentrant onlyOwner {
     for (uint256 i = 0; i < callers.length; i++) {
       _callerWhitelists[callers[i]] = flag;
     }
   }
 
+  /**
+   * @notice Checks if caller is whitelisted
+   * @param caller caller address
+   **/
   function isCallerInWhitelist(address caller) external view returns (bool) {
     return _callerWhitelists[caller];
   }
 
+  /**
+   * @notice Checks the onBehalfOf address is valid for a given callet
+   * @param onBehalfOf the allowed address
+   **/
   function _checkValidCallerAndOnBehalfOf(address onBehalfOf) internal view {
     require(
       (onBehalfOf == _msgSender()) || (_callerWhitelists[_msgSender()] == true),
@@ -109,6 +136,11 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     );
   }
 
+  /**
+   * @notice Deposits a punk given its index
+   * - E.g. User repays 100 USDC, burning loan and receives collateral asset
+   * @param punkIndex The index of the CryptoPunk to deposit
+   **/
   function _depositPunk(uint256 punkIndex) internal {
     ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
 
@@ -126,6 +158,9 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     wrappedPunks.mint(punkIndex);
   }
 
+  /**
+   * @inheritdoc IPunkGateway
+   */
   function borrow(
     address reserveAsset,
     uint256 amount,
@@ -143,6 +178,9 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     IERC20Upgradeable(reserveAsset).transfer(onBehalfOf, amount);
   }
 
+  /**
+   * @inheritdoc IPunkGateway
+   */
   function batchBorrow(
     address[] calldata reserveAssets,
     uint256[] calldata amounts,
@@ -176,10 +214,16 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     punks.transferPunk(onBehalfOf, punkIndex);
   }
 
+  /**
+   * @inheritdoc IPunkGateway
+   */
   function repay(uint256 punkIndex, uint256 amount) external override nonReentrant returns (uint256, bool) {
     return _repay(punkIndex, amount);
   }
 
+  /**
+   * @inheritdoc IPunkGateway
+   */
   function batchRepay(uint256[] calldata punkIndexs, uint256[] calldata amounts)
     external
     override
@@ -198,6 +242,13 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (repayAmounts, repayAlls);
   }
 
+  /**
+   * @notice Repays a borrowed `amount` on a specific punk, burning the equivalent loan owned
+   * - E.g. User repays 100 USDC, burning loan and receives collateral asset
+   * @param punkIndex The index of the CryptoPunk used as collateral
+   * @param amount The amount to repay
+   * @return The final amount repaid, loan is burned or not
+   **/
   function _repay(uint256 punkIndex, uint256 amount) internal returns (uint256, bool) {
     ILendPool cachedPool = _getLendPool();
     ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
@@ -224,6 +275,10 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (paybackAmount, burn);
   }
 
+  /**
+   * @notice Start an auction on a specific punk
+   * @param punkIndex The index of the CryptoPunk to set in auction
+   **/
   function auction(uint256 punkIndex) external override nonReentrant {
     require(_addressProvider.getLendPoolLiquidator() == _msgSender(), Errors.CALLER_NOT_POOL_LIQUIDATOR);
 
@@ -236,6 +291,11 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     cachedPool.auction(address(wrappedPunks), punkIndex);
   }
 
+  /**
+   * @notice Redeem loan for a specific punk in auction
+   * @param punkIndex The index of the CryptoPunk to redeem
+   * @param amount amount to pay for the redeem
+   **/
   function redeem(uint256 punkIndex, uint256 amount) external override nonReentrant returns (uint256) {
     ILendPool cachedPool = _getLendPool();
     ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
@@ -288,6 +348,10 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (remainAmount);
   }
 
+  /**
+   * @notice Liquidate punk in NFTX
+   * @param punkIndex The index of the CryptoPunk to liquidate
+   **/
   function liquidateNFTX(uint256 punkIndex) external override nonReentrant returns (uint256) {
     require(_addressProvider.getLendPoolLiquidator() == _msgSender(), Errors.CALLER_NOT_POOL_LIQUIDATOR);
 
@@ -302,6 +366,9 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (remainAmount);
   }
 
+  /**
+   * @inheritdoc IPunkGateway
+   */
   function borrowETH(
     uint256 amount,
     uint256 punkIndex,
@@ -314,6 +381,9 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     _wethGateway.borrowETH(amount, address(wrappedPunks), punkIndex, onBehalfOf, referralCode);
   }
 
+  /**
+   * @inheritdoc IPunkGateway
+   */
   function batchBorrowETH(
     uint256[] calldata amounts,
     uint256[] calldata punkIndexs,
@@ -333,6 +403,9 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     _wethGateway.batchBorrowETH(amounts, nftAssets, punkIndexs, onBehalfOf, referralCode);
   }
 
+  /**
+   * @inheritdoc IPunkGateway
+   */
   function repayETH(uint256 punkIndex, uint256 amount) external payable override nonReentrant returns (uint256, bool) {
     (uint256 paybackAmount, bool burn) = _repayETH(punkIndex, amount, 0);
 
@@ -344,6 +417,9 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (paybackAmount, burn);
   }
 
+  /**
+   * @inheritdoc IPunkGateway
+   */
   function batchRepayETH(uint256[] calldata punkIndexs, uint256[] calldata amounts)
     external
     payable
@@ -370,6 +446,14 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (repayAmounts, repayAlls);
   }
 
+  /**
+   * @notice Repays a borrowed `amount` on a specific punk with native ETH
+   * - E.g. User repays 100 ETH, burning loan and receives collateral asset
+   * @param punkIndex The index of the CryptoPunk to repay
+   * @param amount The amount to repay
+   * @param accAmount The accumulated amount
+   * @return The final amount repaid, loan is burned or not
+   **/
   function _repayETH(
     uint256 punkIndex,
     uint256 amount,
@@ -403,6 +487,9 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (paybackAmount, burn);
   }
 
+  /**
+   * @inheritdoc IPunkGateway
+   */
   function redeemETH(uint256 punkIndex, uint256 amount) external payable override nonReentrant returns (uint256) {
     ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
 

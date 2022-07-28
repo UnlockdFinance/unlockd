@@ -19,25 +19,40 @@ contract UNFTRegistry is IUNFTRegistry, Initializable, OwnableUpgradeable {
   address public uNftGenericImpl;
   mapping(address => string) public customSymbols;
 
+  /**
+   * @inheritdoc IUNFTRegistry
+   */
   function getUNFTAddresses(address nftAsset) external view override returns (address uNftProxy, address uNftImpl) {
     uNftProxy = uNftProxys[nftAsset];
     uNftImpl = uNftImpls[nftAsset];
   }
 
+  /**
+   * @inheritdoc IUNFTRegistry
+   */
   function getUNFTAddressesByIndex(uint16 index) external view override returns (address uNftProxy, address uNftImpl) {
     require(index < uNftAssetLists.length, "UNFTR: invalid index");
     uNftProxy = uNftProxys[uNftAssetLists[index]];
     uNftImpl = uNftImpls[uNftAssetLists[index]];
   }
 
+  /**
+   * @inheritdoc IUNFTRegistry
+   */
   function getUNFTAssetList() external view override returns (address[] memory) {
     return uNftAssetLists;
   }
 
+  /**
+   * @inheritdoc IUNFTRegistry
+   */
   function allUNFTAssetLength() external view override returns (uint256) {
     return uNftAssetLists.length;
   }
 
+  /**
+   * @inheritdoc IUNFTRegistry
+   */
   function initialize(
     address genericImpl,
     string memory namePrefix_,
@@ -56,7 +71,7 @@ contract UNFTRegistry is IUNFTRegistry, Initializable, OwnableUpgradeable {
   }
 
   /**
-   * @dev See {IUNFTRegistry-createUNFT}.
+   * @inheritdoc IUNFTRegistry
    */
   function createUNFT(address nftAsset) external override returns (address uNftProxy) {
     _requireAddressIsERC721(nftAsset);
@@ -69,7 +84,7 @@ contract UNFTRegistry is IUNFTRegistry, Initializable, OwnableUpgradeable {
   }
 
   /**
-   * @dev See {IUNFTRegistry-setUNFTGenericImpl}.
+   * @inheritdoc IUNFTRegistry
    */
   function setUNFTGenericImpl(address genericImpl) external override onlyOwner {
     require(genericImpl != address(0), "UNFTR: impl is zero address");
@@ -79,7 +94,7 @@ contract UNFTRegistry is IUNFTRegistry, Initializable, OwnableUpgradeable {
   }
 
   /**
-   * @dev See {IUNFTRegistry-createUNFTWithImpl}.
+   * @inheritdoc IUNFTRegistry
    */
   function createUNFTWithImpl(address nftAsset, address uNftImpl)
     external
@@ -97,7 +112,7 @@ contract UNFTRegistry is IUNFTRegistry, Initializable, OwnableUpgradeable {
   }
 
   /**
-   * @dev See {IUNFTRegistry-upgradeUNFTWithImpl}.
+   * @inheritdoc IUNFTRegistry
    */
   function upgradeUNFTWithImpl(
     address nftAsset,
@@ -121,7 +136,7 @@ contract UNFTRegistry is IUNFTRegistry, Initializable, OwnableUpgradeable {
   }
 
   /**
-   * @dev See {IUNFTRegistry-addCustomeSymbols}.
+   * @inheritdoc IUNFTRegistry
    */
   function addCustomeSymbols(address[] memory nftAssets_, string[] memory symbols_) external override onlyOwner {
     require(nftAssets_.length == symbols_.length, "UNFTR: inconsistent parameters");
@@ -131,6 +146,11 @@ contract UNFTRegistry is IUNFTRegistry, Initializable, OwnableUpgradeable {
     }
   }
 
+  /**
+   * @dev creates the proxy and inits it with an implementation contract
+   * @param nftAsset the underlying NFT asset
+   * @param uNftImpl the uNFT implementation contract address
+   */
   function _createProxyAndInitWithImpl(address nftAsset, address uNftImpl) internal returns (address uNftProxy) {
     bytes memory initParams = _buildInitParams(nftAsset);
 
@@ -143,6 +163,10 @@ contract UNFTRegistry is IUNFTRegistry, Initializable, OwnableUpgradeable {
     uNftAssetLists.push(nftAsset);
   }
 
+  /**
+   * @dev builds the initial params for the uNFT contract
+   * @param nftAsset the underlying NFT asset to build the params to
+   */
   function _buildInitParams(address nftAsset) internal view returns (bytes memory initParams) {
     string memory nftSymbol = customSymbols[nftAsset];
     if (bytes(nftSymbol).length == 0) {
@@ -154,6 +178,10 @@ contract UNFTRegistry is IUNFTRegistry, Initializable, OwnableUpgradeable {
     initParams = abi.encodeWithSelector(IUNFT.initialize.selector, nftAsset, uNftName, uNftSymbol);
   }
 
+  /**
+   * @dev checks if the address is an ERC721 token
+   * @param nftAsset the asset to be checked
+   */
   function _requireAddressIsERC721(address nftAsset) internal view {
     require(nftAsset != address(0), "UNFTR: asset is zero address");
     require(AddressUpgradeable.isContract(nftAsset), "UNFTR: asset is not contract");

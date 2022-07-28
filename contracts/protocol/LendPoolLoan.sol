@@ -380,18 +380,30 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     return IERC721ReceiverUpgradeable.onERC721Received.selector;
   }
 
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
   function borrowerOf(uint256 loanId) external view override returns (address) {
     return _loans[loanId].borrower;
   }
 
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
   function getCollateralLoanId(address nftAsset, uint256 nftTokenId) external view override returns (uint256) {
     return _nftToLoanIds[nftAsset][nftTokenId];
   }
 
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
   function getLoan(uint256 loanId) external view override returns (DataTypes.LoanData memory loanData) {
     return _loans[loanId];
   }
 
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
   function getLoanCollateralAndReserve(uint256 loanId)
     external
     view
@@ -411,6 +423,9 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     );
   }
 
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
   function getLoanReserveBorrowAmount(uint256 loanId) external view override returns (address, uint256) {
     uint256 scaledAmount = _loans[loanId].scaledAmount;
     if (scaledAmount == 0) {
@@ -421,26 +436,44 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     return (_loans[loanId].reserveAsset, amount);
   }
 
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
   function getLoanReserveBorrowScaledAmount(uint256 loanId) external view override returns (address, uint256) {
     return (_loans[loanId].reserveAsset, _loans[loanId].scaledAmount);
   }
 
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
   function getLoanMinBidPrice(uint256 loanId) external view override returns (uint256) {
     return _loans[loanId].minBidPrice;
   }
 
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
   function getNftCollateralAmount(address nftAsset) external view override returns (uint256) {
     return _nftTotalCollateral[nftAsset];
   }
 
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
   function getUserNftCollateralAmount(address user, address nftAsset) external view override returns (uint256) {
     return _userNftCollateral[user][nftAsset];
   }
 
+  /**
+   * @dev returns the LendPool address
+   */
   function _getLendPool() internal view returns (ILendPool) {
     return ILendPool(_addressesProvider.getLendPool());
   }
 
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
   function getLoanIdTracker() external view override returns (CountersUpgradeable.Counter memory) {
     return _loanIdTracker;
   }
