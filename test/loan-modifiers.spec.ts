@@ -31,12 +31,19 @@ makeSuite("LendPoolLoan: Modifiers", (testEnv: TestEnv) => {
 
   it("Tries to invoke auctionLoan not being the Pool", async () => {
     const { deployer, bayc, bBAYC, bWETH, loan } = testEnv;
-    await expect(loan.auctionLoan("1", bBAYC.address, "1", "1", "1")).to.be.revertedWith(CT_CALLER_MUST_BE_LEND_POOL);
+    await expect(loan.auctionLoan(deployer.address, "1", deployer.address, "1", "0", "0")).to.be.revertedWith(
+      CT_CALLER_MUST_BE_LEND_POOL
+    );
   });
 
   it("Tries to invoke redeemLoan not being the Pool", async () => {
     const { deployer, bayc, bBAYC, bWETH, loan } = testEnv;
-    await expect(loan.redeemLoan(deployer.address, "1", bBAYC.address, "1", "1")).to.be.revertedWith(
+    await expect(loan.redeemLoan(deployer.address, "1", "1", "1")).to.be.revertedWith(CT_CALLER_MUST_BE_LEND_POOL);
+  });
+
+  it("Tries to invoke liquidateLoan not being the Pool", async () => {
+    const { deployer, bayc, bBAYC, bWETH, loan } = testEnv;
+    await expect(loan.liquidateLoan(deployer.address, "1", bBAYC.address, "1", "1")).to.be.revertedWith(
       CT_CALLER_MUST_BE_LEND_POOL
     );
   });

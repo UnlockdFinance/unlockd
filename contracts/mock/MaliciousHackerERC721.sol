@@ -21,9 +21,8 @@ contract MaliciousHackerERC721 is IERC721Receiver {
   uint256 public constant ACTION_REPAY = 4;
   uint256 public constant ACTION_AUCTION = 5;
   uint256 public constant ACTION_REDEEM = 6;
-  uint256 public constant ACTION_LIQUIDATE_LOOKSRARE = 7;
-  uint256 public constant ACTION_LIQUIDATE_OPENSEA = 8;
-  uint256 public constant ACTION_LIQUIDATE_NFTX = 9;
+  uint256 public constant ACTION_LIQUIDATE_OPENSEA = 7;
+  uint256 public constant ACTION_LIQUIDATE_NFTX = 8;
 
   constructor(address pool_) {
     _pool = ILendPool(pool_);
@@ -47,6 +46,8 @@ contract MaliciousHackerERC721 is IERC721Receiver {
     address to;
     uint16 referralCode;
     uint256 amount;
+    uint256 bidPrice;
+    uint256 bidFine;
   }
 
   function onERC721Received(
@@ -78,9 +79,9 @@ contract MaliciousHackerERC721 is IERC721Receiver {
     } else if (_simulateAction == ACTION_REPAY) {
       _pool.repay(vars.nfts[0], tokenId, vars.amount);
     } else if (_simulateAction == ACTION_AUCTION) {
-      _pool.auction(vars.nfts[0], tokenId);
+      _pool.auction(vars.nfts[0], tokenId, vars.bidPrice, vars.onBehalfOf);
     } else if (_simulateAction == ACTION_REDEEM) {
-      _pool.redeem(vars.nfts[0], tokenId, vars.amount);
+      _pool.redeem(vars.nfts[0], tokenId, vars.amount, vars.bidFine);
     } else if (_simulateAction == ACTION_LIQUIDATE_NFTX) {
       _pool.liquidateNFTX(vars.nfts[0], tokenId);
     }

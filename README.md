@@ -149,7 +149,7 @@ npx hardhat --network localhost "dev:deploy-mock-aggregators" --pool Unlockd
 # then update pool config reserve aggregators address
 
 npx hardhat --network localhost "dev:deploy-mock-unft-registry" --pool Unlockd
-# then update pool config bnft registry address
+# then update pool config unft registry address
 
 npx hardhat --network localhost "dev:deploy-mock-unft-tokens" --pool Unlockd
 ```

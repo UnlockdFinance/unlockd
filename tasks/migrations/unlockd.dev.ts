@@ -25,10 +25,10 @@ task("unlockd:dev", "Deploy development enviroment")
     await localBRE.run("dev:deploy-mock-nfts", { verify });
 
     //////////////////////////////////////////////////////////////////////////
-    console.log("\n\nDeploy mock bnft registry");
+    console.log("\n\nDeploy mock unft registry");
     await localBRE.run("dev:deploy-mock-unft-registry", { verify, pool: POOL_NAME });
 
-    console.log("\n\nDeploy mock bnft tokens");
+    console.log("\n\nDeploy mock unft tokens");
     await localBRE.run("dev:deploy-mock-unft-tokens", { verify, pool: POOL_NAME });
 
     //////////////////////////////////////////////////////////////////////////

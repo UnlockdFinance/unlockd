@@ -115,9 +115,9 @@ export const deployLendPoolLoan = async (verify?: boolean) => {
 };
 
 export const deployUNFTRegistry = async (verify?: boolean) => {
-  const bnftRegistryImpl = await new UNFTRegistryFactory(await getDeploySigner()).deploy();
-  await insertContractAddressInDb(eContractid.UNFTRegistryImpl, bnftRegistryImpl.address);
-  return withSaveAndVerify(bnftRegistryImpl, eContractid.UNFTRegistry, [], verify);
+  const unftRegistryImpl = await new UNFTRegistryFactory(await getDeploySigner()).deploy();
+  await insertContractAddressInDb(eContractid.UNFTRegistryImpl, unftRegistryImpl.address);
+  return withSaveAndVerify(unftRegistryImpl, eContractid.UNFTRegistry, [], verify);
 };
 
 export const deployReserveLogicLibrary = async (verify?: boolean) =>

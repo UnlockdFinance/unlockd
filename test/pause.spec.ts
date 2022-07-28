@@ -139,10 +139,11 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     await configurator.connect(emergencyAdminSigner).setPoolPause(false);
   });
 
-  it("LiquidateNFTX", async () => {
-    const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, dataProvider, liquidator } = testEnv;
+  it("Liquidate", async () => {
+    const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, dataProvider } = testEnv;
     const depositor = users[3];
     const borrower = users[4];
+    const liquidator = users[5];
     const emergencyAdminSigner = await getEmergencyAdminSigner();
 
     //user 3 mints WETH to depositor
@@ -163,7 +164,7 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     await bayc.connect(borrower.signer).setApprovalForAll(pool.address, true);
 
     //user 4 borrows
-    const loanData = await pool.getNftCollateralData(bayc.address, 101, weth.address);
+    const loanData = await pool.getNftCollateralData(bayc.address, "101", weth.address);
 
     const wethPrice = await reserveOracle.getAssetPrice(weth.address);
 
@@ -177,7 +178,7 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
       .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", borrower.address, "0");
 
     // Drops HF below 1
-    const baycPrice = await nftOracle.getNFTPrice(bayc.address, 101);
+    const baycPrice = await nftOracle.getNFTPrice(bayc.address, "101");
     await nftOracle.setNFTPrice(bayc.address, 101, new BigNumber(baycPrice.toString()).multipliedBy(0.5).toFixed(0));
 
     //mints usdc to the liquidator
@@ -188,17 +189,74 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     await configurator.connect(emergencyAdminSigner).setPoolPause(true);
 
     // Do auction
-    await expect(pool.connect(liquidator.signer).auction(bayc.address, "101")).revertedWith(
-      ProtocolErrors.LP_IS_PAUSED
-    );
+    await expect(
+      pool.connect(liquidator.signer).auction(bayc.address, "101", amountBorrow, liquidator.address)
+    ).revertedWith(ProtocolErrors.LP_IS_PAUSED);
 
     // Do redeem
-    await expect(pool.connect(liquidator.signer).redeem(bayc.address, "101", "1")).revertedWith(
+    await expect(pool.connect(liquidator.signer).redeem(bayc.address, "101", "1", "1")).revertedWith(
       ProtocolErrors.LP_IS_PAUSED
     );
 
     // Do liquidation
-    await expect(pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "101")).revertedWith(
+    await expect(pool.connect(liquidator.signer).liquidate(bayc.address, "101", "0")).revertedWith(
+      ProtocolErrors.LP_IS_PAUSED
+    );
+
+    // Unpause pool
+    await configurator.connect(emergencyAdminSigner).setPoolPause(false);
+  });
+
+  it("LiquidateNFTX", async () => {
+    const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, dataProvider, liquidator } = testEnv;
+    const depositor = users[3];
+    const borrower = users[4];
+    const emergencyAdminSigner = await getEmergencyAdminSigner();
+
+    //user 3 mints WETH to depositor
+    await weth.connect(depositor.signer).mint(await convertToCurrencyDecimals(weth.address, "1000"));
+
+    //user 3 approve protocol to access depositor wallet
+    await weth.connect(depositor.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+
+    //user 3 deposits 1000 WETH
+    const amountDeposit = await convertToCurrencyDecimals(weth.address, "1000");
+
+    await pool.connect(depositor.signer).deposit(weth.address, amountDeposit, depositor.address, "0");
+
+    //user 4 mints BAYC to borrower
+    await bayc.connect(borrower.signer).mint("102");
+
+    //user 4 approve protocol to access borrower wallet
+    await bayc.connect(borrower.signer).setApprovalForAll(pool.address, true);
+
+    //user 4 borrows
+    const loanData = await pool.getNftCollateralData(bayc.address, 102, weth.address);
+
+    const wethPrice = await reserveOracle.getAssetPrice(weth.address);
+
+    const amountBorrow = await convertToCurrencyDecimals(
+      weth.address,
+      new BigNumber(loanData.availableBorrowsInETH.toString()).div(wethPrice.toString()).multipliedBy(0.2).toFixed(0)
+    );
+
+    await pool
+      .connect(borrower.signer)
+      .borrow(weth.address, amountBorrow.toString(), bayc.address, "102", borrower.address, "0");
+
+    // Drops HF below 1
+    const baycPrice = await nftOracle.getNFTPrice(bayc.address, 102);
+    await nftOracle.setNFTPrice(bayc.address, 102, new BigNumber(baycPrice.toString()).multipliedBy(0.5).toFixed(0));
+
+    //mints usdc to the liquidator
+    await weth.connect(liquidator.signer).mint(await convertToCurrencyDecimals(weth.address, "1000"));
+    await weth.connect(liquidator.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+
+    // Pause pool
+    await configurator.connect(emergencyAdminSigner).setPoolPause(true);
+
+    // Do liquidation
+    await expect(pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "102")).revertedWith(
       ProtocolErrors.LP_IS_PAUSED
     );
 

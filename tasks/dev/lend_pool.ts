@@ -26,8 +26,8 @@ task("dev:deploy-lend-pool", "Deploy lend pool for dev enviroment")
     const addressesProvider = await getLendPoolAddressesProvider();
     const poolConfig = loadPoolConfig(pool);
 
-    const bnftRegistryProxy = await getUNFTRegistryProxy();
-    await waitForTx(await addressesProvider.setUNFTRegistry(bnftRegistryProxy.address));
+    const unftRegistryProxy = await getUNFTRegistryProxy();
+    await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
 
     ////////////////////////////////////////////////////////////////////////////
     console.log("Deploying new libraries implementation...");

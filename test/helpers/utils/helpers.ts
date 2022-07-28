@@ -72,7 +72,7 @@ export const getNftData = async (helper: UnlockdProtocolDataProvider, nftAsset: 
   return {
     redeemFine: new BigNumber(nftData.redeemFine.toString()),
     address: nftAsset,
-    bnftTokenAddress: tokenAddresses.uNftAddress,
+    unftTokenAddress: tokenAddresses.uNftAddress,
     symbol,
   };
 };
@@ -136,7 +136,10 @@ export const getLoanData = async (
     reserveAsset: loanData.reserveAsset,
     scaledAmount: new BigNumber(loanData.scaledAmount.toString()),
     currentAmount: new BigNumber(loanData.currentAmount.toString()),
-    minBidPrice: new BigNumber(loanData.minBidPrice.toString()),
+    bidderAddress: loanData.bidderAddress,
+    bidPrice: new BigNumber(loanData.bidPrice.toString()),
+    bidBorrowAmount: new BigNumber(loanData.bidBorrowAmount.toString()),
+    bidFine: new BigNumber(auctionData.bidFine.toString()),
     nftCfgRedeemFine: new BigNumber(nftCfgData.redeemFine.toString()),
     nftCfgMinBidFine: new BigNumber(nftCfgData.minBidFine.toString()),
   };
