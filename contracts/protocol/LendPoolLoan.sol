@@ -343,6 +343,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
    */
   function liquidateLoanNFTX(
     uint256 loanId,
+    address uNftAddress,
     uint256 borrowAmount,
     uint256 borrowIndex
   ) external override onlyLendPool returns (uint256 sellPrice) {
@@ -364,8 +365,11 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALIED_NFT_AMOUNT);
     _nftTotalCollateral[loan.nftAsset] -= 1;
 
+    // burn uNFT and sell underlying NFT on NFTX
+    IUNFT(uNftAddress).burn(loan.nftTokenId);
+
     // transfer underlying NFT asset to pool and sell on NFTX
-    IERC721Upgradeable(loan.nftAsset).safeTransferFrom(_msgSender(), address(this), loan.nftTokenId);
+    require(IERC721Upgradeable(loan.nftAsset).ownerOf(loan.nftTokenId) == address(this), "Invalid Call");
 
     // Sell NFT on NFTX
     sellPrice = NFTXHelper.sellNFTX(_addressesProvider, loan.nftAsset, loan.nftTokenId, loan.reserveAsset);

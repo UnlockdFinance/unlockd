@@ -705,6 +705,7 @@ library LiquidateLogic {
 
     uint256 priceInReserve = ILendPoolLoan(vars.poolLoan).liquidateLoanNFTX(
       vars.loanId,
+      nftData.uNftAddress,
       vars.borrowAmount,
       reserveData.variableBorrowIndex
     );

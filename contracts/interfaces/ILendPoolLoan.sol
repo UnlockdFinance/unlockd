@@ -258,6 +258,7 @@ interface ILendPoolLoan {
    */
   function liquidateLoanNFTX(
     uint256 loanId,
+    address uNftAddress,
     uint256 borrowAmount,
     uint256 borrowIndex
   ) external returns (uint256 sellPrice);
