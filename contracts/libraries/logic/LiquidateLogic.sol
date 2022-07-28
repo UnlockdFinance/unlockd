@@ -660,6 +660,7 @@ library LiquidateLogic {
       reserveData.variableBorrowIndex
     );
 
+<<<<<<< HEAD
     // Liquidation Fee
     vars.feeAmount = priceInReserve.percentMul(params.liquidateFeePercentage);
     priceInReserve = priceInReserve - vars.feeAmount;
@@ -673,6 +674,13 @@ library LiquidateLogic {
     if (priceInReserve < vars.borrowAmount) {
       vars.extraDebtAmount = vars.borrowAmount - priceInReserve;
     }
+=======
+    // TODO! Fee mechanism
+
+    if (priceInReserve > vars.borrowAmount) {
+      vars.remainAmount = priceInReserve - vars.borrowAmount;
+    }
+>>>>>>> origin/development__documentation
 
     IDebtToken(reserveData.debtTokenAddress).burn(
       loanData.borrower,
