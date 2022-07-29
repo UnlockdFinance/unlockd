@@ -32,9 +32,9 @@ task("add-nft-to-pool", "Add and config new nft asset to lend pool")
       await addressesProvider.getLendPoolConfigurator()
     );
 
-    const bnftRegistryProxyAddress = await addressesProvider.getUNFTRegistry();
-    const bnftRegistry = await getUNFTRegistryProxy(bnftRegistryProxyAddress);
-    const { uNftProxy } = await bnftRegistry.getUNFTAddresses(asset);
+    const unftRegistryProxyAddress = await addressesProvider.getUNFTRegistry();
+    const unftRegistry = await getUNFTRegistryProxy(unftRegistryProxyAddress);
+    const { uNftProxy } = await unftRegistry.getUNFTAddresses(asset);
     if (uNftProxy == undefined || !notFalsyOrZeroAddress(uNftProxy)) {
       throw new Error("The UNFT of asset is not created");
     }

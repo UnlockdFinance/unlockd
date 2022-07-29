@@ -177,11 +177,13 @@ library ValidationLogic {
    * @dev Validates the auction action
    * @param reserveData The reserve data of the principal
    * @param nftData The nft data of the underlying nft
+   * @param bidPrice Total variable debt balance of the user
    **/
   function validateAuction(
     DataTypes.ReserveData storage reserveData,
     DataTypes.NftData storage nftData,
-    DataTypes.LoanData memory loanData
+    DataTypes.LoanData memory loanData,
+    uint256 bidPrice
   ) internal view {
     require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
     require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
@@ -190,7 +192,12 @@ library ValidationLogic {
 
     require(nftData.configuration.getActive(), Errors.VL_NO_ACTIVE_NFT);
 
-    require(loanData.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
+    require(
+      loanData.state == DataTypes.LoanState.Active || loanData.state == DataTypes.LoanState.Auction,
+      Errors.LPL_INVALID_LOAN_STATE
+    );
+
+    require(bidPrice > 0, Errors.VL_INVALID_AMOUNT);
   }
 
   /**
@@ -235,6 +242,27 @@ library ValidationLogic {
     require(nftData.configuration.getActive(), Errors.VL_NO_ACTIVE_NFT);
 
     require(loanData.state == DataTypes.LoanState.Auction, Errors.LPL_INVALID_LOAN_STATE);
+  }
+
+  /**
+   * @dev Validates the liquidation NFTX action
+   * @param reserveData The reserve data of the principal
+   * @param nftData The data of the underlying NFT
+   * @param loanData The loan data of the underlying NFT
+   **/
+  function validateLiquidateNFTX(
+    DataTypes.ReserveData storage reserveData,
+    DataTypes.NftData storage nftData,
+    DataTypes.LoanData memory loanData
+  ) internal view {
+    require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
+    require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
+
+    require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
+
+    require(nftData.configuration.getActive(), Errors.VL_NO_ACTIVE_NFT);
+
+    require(loanData.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
   }
 
   /**

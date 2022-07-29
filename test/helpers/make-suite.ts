@@ -80,7 +80,7 @@ export interface SignerWithAddress {
 export interface TestEnv {
   deployer: SignerWithAddress;
   users: SignerWithAddress[];
-  bnftRegistry: UNFTRegistry;
+  unftRegistry: UNFTRegistry;
   pool: LendPool;
   loan: LendPoolLoan;
   configurator: LendPoolConfigurator;
@@ -128,7 +128,7 @@ const setBuidlerevmSnapshotId = (id: string) => {
 const testEnv: TestEnv = {
   deployer: {} as SignerWithAddress,
   users: [] as SignerWithAddress[],
-  bnftRegistry: {} as UNFTRegistry,
+  unftRegistry: {} as UNFTRegistry,
   pool: {} as LendPool,
   loan: {} as LendPoolLoan,
   configurator: {} as LendPoolConfigurator,
@@ -176,7 +176,7 @@ export async function initializeMakeSuite() {
   testEnv.deployer = deployer;
   testEnv.liquidator = deployer;
 
-  testEnv.bnftRegistry = await getUNFTRegistryProxy();
+  testEnv.unftRegistry = await getUNFTRegistryProxy();
 
   testEnv.pool = await getLendPool();
 
