@@ -16,7 +16,7 @@ import {
 } from "../../helpers/contracts-getters";
 import { MintableERC721 } from "../../types";
 
-task("dev:deploy-mock-unft-registry", "Deploy bnft registry for dev enviroment")
+task("dev:deploy-mock-unft-registry", "Deploy unft registry for dev enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .setAction(async ({ verify, pool }, localBRE) => {
@@ -26,26 +26,26 @@ task("dev:deploy-mock-unft-registry", "Deploy bnft registry for dev enviroment")
 
     const poolConfig = loadPoolConfig(pool);
 
-    const bnftGenericImpl = await deployGenericUNFTImpl(verify);
+    const unftGenericImpl = await deployGenericUNFTImpl(verify);
 
-    const bnftRegistryImpl = await deployUNFTRegistry(verify);
+    const unftRegistryImpl = await deployUNFTRegistry(verify);
 
-    const initEncodedData = bnftRegistryImpl.interface.encodeFunctionData("initialize", [
-      bnftGenericImpl.address,
+    const initEncodedData = unftRegistryImpl.interface.encodeFunctionData("initialize", [
+      unftGenericImpl.address,
       poolConfig.Mocks.UNftNamePrefix,
       poolConfig.Mocks.UNftSymbolPrefix,
     ]);
 
-    const bnftRegistryProxy = await deployUnlockdUpgradeableProxy(
+    const unftRegistryProxy = await deployUnlockdUpgradeableProxy(
       eContractid.UNFTRegistry,
       proxyAdminAddress,
-      bnftRegistryImpl.address,
+      unftRegistryImpl.address,
       initEncodedData,
       verify
     );
   });
 
-task("dev:deploy-mock-unft-tokens", "Deploy bnft tokens for dev enviroment")
+task("dev:deploy-mock-unft-tokens", "Deploy unft tokens for dev enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .setAction(async ({ verify, pool }, localBRE) => {
@@ -53,13 +53,13 @@ task("dev:deploy-mock-unft-tokens", "Deploy bnft tokens for dev enviroment")
 
     const poolConfig = loadPoolConfig(pool);
 
-    const bnftRegistryProxy = await getUNFTRegistryProxy();
+    const unftRegistryProxy = await getUNFTRegistryProxy();
 
     const mockedNfts = await getConfigMockedNfts(poolConfig);
 
     for (const [nftSymbol, mockedNft] of Object.entries(mockedNfts) as [string, MintableERC721][]) {
-      await waitForTx(await bnftRegistryProxy.createUNFT(mockedNft.address));
-      const { uNftProxy } = await bnftRegistryProxy.getUNFTAddresses(mockedNft.address);
+      await waitForTx(await unftRegistryProxy.createUNFT(mockedNft.address));
+      const { uNftProxy } = await unftRegistryProxy.getUNFTAddresses(mockedNft.address);
       console.log("UNFT Token:", nftSymbol, uNftProxy);
     }
   });

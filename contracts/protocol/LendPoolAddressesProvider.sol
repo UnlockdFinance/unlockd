@@ -34,7 +34,6 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   bytes32 private constant UNLOCKD_DATA_PROVIDER = "UNLOCKD_DATA_PROVIDER";
   bytes32 private constant UI_DATA_PROVIDER = "UI_DATA_PROVIDER";
   bytes32 private constant WALLET_BALANCE_PROVIDER = "WALLET_BALANCE_PROVIDER";
-  bytes32 private constant LOOKSRARE_EXCHANGE = "LOOKSRARE_EXCHANGE";
   bytes32 private constant OPENSEA_SEAPORT = "OPENSEA_SEAPORT";
   bytes32 private constant NFTX_VAULT_FACTORY = "NFTX_VAULT_FACTORY";
   bytes32 private constant SUSHI_SWAP_ROUTER = "SUSHI_SWAP_ROUTER";
@@ -322,24 +321,6 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
     emit WalletBalanceProviderUpdated(provider);
   }
 
-  /**
-   * @inheritdoc ILendPoolAddressesProvider
-   */
-  function getLooksRareExchange() external view override returns (address) {
-    return getAddress(LOOKSRARE_EXCHANGE);
-  }
-
-  /**
-   * @inheritdoc ILendPoolAddressesProvider
-   */
-  function setLooksRareExchange(address exchange) external override onlyOwner {
-    _addresses[LOOKSRARE_EXCHANGE] = exchange;
-    emit LooksRareExchangeUpdated(exchange);
-  }
-
-  /**
-   * @inheritdoc ILendPoolAddressesProvider
-   */
   function getOpenseaSeaport() external view override returns (address) {
     return getAddress(OPENSEA_SEAPORT);
   }

@@ -92,7 +92,8 @@ makeSuite("LendPool: Redeem", (testEnv) => {
   });
 
   it("WETH - Auctions the borrow", async () => {
-    const { weth, bayc, bBAYC, users, pool, dataProvider, liquidator } = testEnv;
+    const { weth, bayc, bBAYC, users, pool, dataProvider } = testEnv;
+    const liquidator = users[3];
     const borrower = users[1];
 
     //mints WETH to the liquidator
@@ -108,22 +109,28 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     // accurate borrow index, increment interest to loanDataBefore.scaledAmount
     await increaseTime(100);
 
-    await bayc.connect(liquidator.signer).setApprovalForAll(pool.address, true);
-    await pool.connect(liquidator.signer).auction(bayc.address, "101");
+    const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
+    const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.1).toFixed(0);
+
+    await pool.connect(liquidator.signer).auction(bayc.address, "101", auctionPrice, liquidator.address);
 
     // check result
     const lendPoolBalanceAfter = await weth.balanceOf(pool.address);
-    expect(lendPoolBalanceAfter).to.be.equal(lendPoolBalanceBefore, "Invalid lend pool balance after auction");
+    expect(lendPoolBalanceAfter).to.be.equal(
+      lendPoolBalanceBefore.add(auctionPrice),
+      "Invalid lend pool balance after auction"
+    );
 
     const loanDataAfter = await dataProvider.getLoanDataByLoanId(loanDataBefore.loanId);
     expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Auction, "Invalid loan state after auction");
 
     const tokenOwner = await bayc.ownerOf("101");
-    expect(tokenOwner).to.be.equal(liquidator.address, "Invalid token owner after redeem");
+    expect(tokenOwner).to.be.equal(bBAYC.address, "Invalid token owner after redeem");
   });
 
   it("WETH - Redeems the borrow", async () => {
-    const { weth, bayc, bBAYC, users, pool, dataProvider, liquidator } = testEnv;
+    const { weth, bayc, bBAYC, users, pool, dataProvider } = testEnv;
+    const liquidator = users[3];
     const borrower = users[1];
 
     //mints WETH to the borrower
@@ -148,15 +155,19 @@ makeSuite("LendPool: Redeem", (testEnv) => {
 
     const debtDataBeforeRedeem = await pool.getNftDebtData(bayc.address, "101");
     const repayDebtAmount = new BigNumber(debtDataBeforeRedeem.totalDebt.toString()).multipliedBy(0.6).toFixed(0);
+    const bidFineAmount = new BigNumber(auctionDataBefore.bidFine.toString()).multipliedBy(1.1).toFixed(0);
 
-    await pool.connect(borrower.signer).redeem(bayc.address, "101", repayDebtAmount);
+    await pool.connect(borrower.signer).redeem(bayc.address, "101", repayDebtAmount, bidFineAmount);
 
     // check result
     const tokenOwner = await bayc.ownerOf("101");
     expect(tokenOwner).to.be.equal(bBAYC.address, "Invalid token owner after redeem");
 
     const liquidatorBalanceAfter = await weth.balanceOf(liquidator.address);
-    expect(liquidatorBalanceAfter).to.be.gte(liquidatorBalanceBefore, "Invalid liquidator balance after redeem");
+    expect(liquidatorBalanceAfter).to.be.gte(
+      liquidatorBalanceBefore.add(auctionDataBefore.bidFine),
+      "Invalid liquidator balance after redeem"
+    );
 
     const loanDataAfter = await dataProvider.getLoanDataByLoanId(loanDataBefore.loanId);
     expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Active, "Invalid loan state after redeem");
@@ -272,7 +283,8 @@ makeSuite("LendPool: Redeem", (testEnv) => {
   });
 
   it("USDC - Auctions the borrow", async () => {
-    const { usdc, bayc, bBAYC, users, pool, dataProvider, liquidator } = testEnv;
+    const { usdc, bayc, bBAYC, users, pool, dataProvider } = testEnv;
+    const liquidator = users[3];
     const borrower = users[1];
 
     await advanceTimeAndBlock(100);
@@ -288,15 +300,20 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     // accurate borrow index, increment interest to loanDataBefore.scaledAmount
     await increaseTime(100);
 
-    await bayc.connect(liquidator.signer).setApprovalForAll(pool.address, true);
-    await pool.connect(liquidator.signer).auction(bayc.address, "102");
+    const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "102");
+    const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.1).toFixed(0);
+
+    await pool.connect(liquidator.signer).auction(bayc.address, "102", auctionPrice, liquidator.address);
 
     // check result
     const lendpoolBalanceAfter = await usdc.balanceOf(pool.address);
-    expect(lendpoolBalanceAfter).to.be.equal(lendPoolBalanceBefore, "Invalid lend pool balance after auction");
+    expect(lendpoolBalanceAfter).to.be.equal(
+      lendPoolBalanceBefore.add(auctionPrice),
+      "Invalid lend pool balance after auction"
+    );
 
     const tokenOwner = await bayc.ownerOf("102");
-    expect(tokenOwner).to.be.equal(liquidator.address, "Invalid token owner after redeem");
+    expect(tokenOwner).to.be.equal(bBAYC.address, "Invalid token owner after redeem");
 
     /*
     const nftColData = await testEnv.pool.getNftCollateralData(bayc.address, usdc.address);
@@ -340,15 +357,19 @@ makeSuite("LendPool: Redeem", (testEnv) => {
 
     const debtDataBeforeRedeem = await pool.getNftDebtData(bayc.address, "102");
     const repayDebtAmount = new BigNumber(debtDataBeforeRedeem.totalDebt.toString()).multipliedBy(0.6).toFixed(0);
+    const bidFineAmount = new BigNumber(auctionDataBefore.bidFine.toString()).multipliedBy(1.1).toFixed(0);
 
-    await pool.connect(borrower.signer).redeem(bayc.address, "102", repayDebtAmount);
+    await pool.connect(borrower.signer).redeem(bayc.address, "102", repayDebtAmount, bidFineAmount);
 
     // check result
     const tokenOwner = await bayc.ownerOf("102");
     expect(tokenOwner).to.be.equal(bBAYC.address, "Invalid token owner after redeem");
 
     const liquidatorBalanceAfter = await usdc.balanceOf(liquidator.address);
-    expect(liquidatorBalanceAfter).to.be.gte(liquidatorBalanceBefore, "Invalid liquidator balance after redeem");
+    expect(liquidatorBalanceAfter).to.be.gte(
+      liquidatorBalanceBefore.add(auctionDataBefore.bidFine),
+      "Invalid liquidator balance after redeem"
+    );
 
     const loanDataAfter = await dataProvider.getLoanDataByLoanId(loanDataBefore.loanId);
     expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Active, "Invalid loan state after redeem");

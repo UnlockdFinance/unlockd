@@ -62,9 +62,10 @@ makeSuite("PunkGateway: Delegate", (testEnv: TestEnv) => {
   });
 
   it("Hacker try to auction and delegate different onBehalf (should revert)", async () => {
-    const { users, punkGateway, weth, liquidator } = testEnv;
+    const { users, punkGateway, weth } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
+    const liquidator = users[2];
     const hacker = users[3];
     const borrowSize1 = parseEther("1");
     const borrowSize2 = parseEther("2");
@@ -74,8 +75,13 @@ makeSuite("PunkGateway: Delegate", (testEnv: TestEnv) => {
     const tokenId = tokenIdNum.toString();
 
     console.log("auction");
-    await expect(punkGateway.connect(hacker.signer).auction(tokenId)).to.be.revertedWith(
-      ProtocolErrors.CALLER_NOT_POOL_LIQUIDATOR
+    await expect(punkGateway.connect(hacker.signer).auction(tokenId, "1000000", liquidator.address)).to.be.revertedWith(
+      ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST
     );
+
+    console.log("auctionETH");
+    await expect(
+      punkGateway.connect(hacker.signer).auctionETH(tokenId, liquidator.address, { value: depositSize })
+    ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
   });
 });

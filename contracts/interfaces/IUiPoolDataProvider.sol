@@ -72,7 +72,10 @@ interface IUiPoolDataProvider {
     uint256 availableBorrowsInReserve;
     uint256 healthFactor;
     uint256 liquidatePrice;
-    uint256 minBidPrice;
+    address bidderAddress;
+    uint256 bidPrice;
+    uint256 bidBorrowAmount;
+    uint256 bidFine;
   }
 
   /**

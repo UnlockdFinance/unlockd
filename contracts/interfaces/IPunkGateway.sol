@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
-import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
-
 interface IPunkGateway {
   /**
    * @dev Allows users to borrow a specific `amount` of the reserve underlying asset, provided that the borrower
@@ -67,26 +65,36 @@ interface IPunkGateway {
 
   /**
    * @notice auction a unhealth punk loan with ERC20 reserve
+<<<<<<< HEAD
    * @param punkIndex The index of the CryptoPunk used as collateral
+=======
+   * @param punkIndex The index of the CryptoPunk used as collteral
+   * @param bidPrice The bid price
+>>>>>>> development
    **/
-  function auction(uint256 punkIndex) external;
+  function auction(
+    uint256 punkIndex,
+    uint256 bidPrice,
+    address onBehalfOf
+  ) external;
 
   /**
    * @notice redeem a unhealth punk loan with ERC20 reserve
    * @param punkIndex The index of the CryptoPunk used as collateral
    * @param amount The amount to repay the debt
+   * @param bidFine The amount of bid fine
    **/
-  function redeem(uint256 punkIndex, uint256 amount) external returns (uint256);
+  function redeem(
+    uint256 punkIndex,
+    uint256 amount,
+    uint256 bidFine
+  ) external returns (uint256);
 
   /**
-   * @notice liquidate a unhealth punk loan on LooksRare
-   * @param punkIndex The index of the CryptoPunk used as collateral
+   * @notice liquidate a unhealth punk loan with ERC20 reserve
+   * @param punkIndex The index of the CryptoPunk used as collteral
    **/
-  function liquidateLooksRare(
-    uint256 punkIndex,
-    OrderTypes.TakerOrder calldata takerAsk,
-    OrderTypes.MakerOrder calldata makerBid
-  ) external returns (uint256);
+  function liquidate(uint256 punkIndex, uint256 amount) external returns (uint256);
 
   /**
    * @notice liquidate a unhealth punk loan on Opensea
@@ -159,9 +167,28 @@ interface IPunkGateway {
     returns (uint256[] memory, bool[] memory);
 
   /**
+   * @notice auction a unhealth punk loan with native ETH
+   * @param punkIndex The index of the CryptoPunk to repay
+   * @param onBehalfOf Address of the user who will receive the CryptoPunk. Should be the address of the user itself
+   * calling the function if he wants to get collateral
+   **/
+  function auctionETH(uint256 punkIndex, address onBehalfOf) external payable;
+
+  /**
    * @notice liquidate a unhealth punk loan with native ETH
    * @param punkIndex The index of the CryptoPunk to repay
    * @param amount The amount to repay the debt
+   * @param bidFine The amount of bid fine
    **/
-  function redeemETH(uint256 punkIndex, uint256 amount) external payable returns (uint256);
+  function redeemETH(
+    uint256 punkIndex,
+    uint256 amount,
+    uint256 bidFine
+  ) external payable returns (uint256);
+
+  /**
+   * @notice liquidate a unhealth punk loan with native ETH
+   * @param punkIndex The index of the CryptoPunk to repay
+   **/
+  function liquidateETH(uint256 punkIndex) external payable returns (uint256);
 }

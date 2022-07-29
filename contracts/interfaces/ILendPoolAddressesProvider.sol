@@ -24,7 +24,6 @@ interface ILendPoolAddressesProvider {
   event UIDataProviderUpdated(address indexed newAddress);
   event UnlockdDataProviderUpdated(address indexed newAddress);
   event WalletBalanceProviderUpdated(address indexed newAddress);
-  event LooksRareExchangeUpdated(address indexed newAddress);
   event OpenseaSeaportUpdated(address indexed newAddress);
   event NFTXVaultFactoryUpdated(address indexed newAddress);
   event SushiSwapRouterUpdated(address indexed newAddress);
@@ -231,20 +230,6 @@ interface ILendPoolAddressesProvider {
    **/
   function setOpenseaSeaport(address exchange) external;
 
-  /**
-   * @dev returns the address of the LooksRare exchange contract
-   **/
-  function getLooksRareExchange() external view returns (address);
-
-  /**
-   * @dev sets the address of the LooksRare contract
-   * @param exchange the LooksRare address
-   **/
-  function setLooksRareExchange(address exchange) external;
-
-  /**
-   * @dev returns the address of the NFTXVault Factory contract
-   **/
   function getNFTXVaultFactory() external view returns (address);
 
   /**
