@@ -239,7 +239,7 @@ contract UnlockdProtocolDataProvider {
 
   /**
    * @dev Returns the loan data for a specific NFT used as collateral
-   * @param asset The NFT address
+   * @param nftAsset The NFT address
    * @param nftTokenId The token ID for the NFT
    */
   function getLoanDataByCollateral(address nftAsset, uint256 nftTokenId)

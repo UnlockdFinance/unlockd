@@ -398,7 +398,8 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   }
 
   /**
-   * @inheritdoc ILendPoolAddressesProvider
+   * @dev Returns the implementation contract pointed by a proxy
+   * @param proxyAddress the proxy to request the implementation from
    */
   function getImplementation(address proxyAddress) external view onlyOwner returns (address) {
     UnlockdUpgradeableProxy proxy = UnlockdUpgradeableProxy(payable(proxyAddress));

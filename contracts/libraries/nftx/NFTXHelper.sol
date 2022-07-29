@@ -21,7 +21,6 @@ library NFTXHelper {
    * @param nftAsset The underlying NFT address
    * @param nftTokenId The underlying NFT token Id
    * @param reserveAsset The reserve asset to exchange for the NFT
-   * @param borrowAmount The user borrow amount
    */
   function sellNFTX(
     ILendPoolAddressesProvider addressesProvider,
