@@ -1,7 +1,27 @@
-# Unlockd documentation
+# Unlockd Protocol Specification
+## Table of contents
 
+1.  [Introduction](#introduction)
+2.  [Contracts](#contracts)
+    1.  [Protocol Contracts](#protocol-contracts)
+    1.  [Logic Libraries](#logic-libraries)
+    1.  [Helper Contracts](#helper-contracts)
+    1.  [Interfaces](#interfaces)
+    1.  [Configuration Libraries](#configuration-libraries)
+    1.  [Types](#types)
+1.  [Contract Interactions and use cases](#contract-interactions-and-use-cases)
+    1.  [Deposit](#deposit)
+    1.  [Withdraw](#withdraw)
+    1.  [Borrow](#borrow)
+    1.  [Repay](#repay)
+    1.  [Redeem](#redeem)
+    1.  [Liquidate](#Liquidate)
+# Introduction to Unlockd
+This documentation describes the public infraastructure we are building, the Unlockd protocol.
+Unlockd is a decentralized non-custodial liquidity protocol where users can participate as depositors or borrowers. Depositors provide liquidity in the form of ERC-20 tokens in order to earn a passive income, while borrowers are able to receive overcollateralized loans by setting their NFT assets as collateral.
+The protocol is, at its core, a set of smart contracts deployed to the Ethereum Mainnet, that enable borrowers to unlock the liquidity of their NFT assets by providing them as collateral
 # Contracts
-# Protocol Contracts    
+## **Protocol Contracts**    
 
 ## LendPool
 
@@ -7166,7 +7186,7 @@ fallback() external payable
 
 _Revert fallback calls_
 
-# Logic Libraries
+## **Logic Libraries**
 
 ## BorrowLogic
 
@@ -8380,7 +8400,7 @@ _Validates an uToken transfer_
 | from | address | The user from which the uTokens are being transferred |
 | reserveData | struct DataTypes.ReserveData | The state of the reserve |
 
-# Helper Contracts
+## **Helper Contracts**
 ## NFTXHelper
 
 Implements NFTX selling logic
@@ -8408,7 +8428,7 @@ _Sells an asset in an NFTX liquid market_
 function swapExactETHForTokens(contract ILendPoolAddressesProvider addressesProvider, uint256 amountInEth, address reserveAsset) internal returns (uint256)
 ```
 
-# Interfaces
+## **Interfaces**
 ## IDebtToken
 
 Defines the basic interface for a debt token.
@@ -12245,7 +12265,7 @@ Cancel an arbitrary number of orders. Note that only the offerer
 | ---- | ---- | ----------- |
 | cancelled | bool | A boolean indicating whether the supplied orders have                   been successfully cancelled. |
 
-# Configuration Libraries
+## **Configuration Libraries**
 ## NftConfiguration
 
 Implements the bitmap logic to handle the NFT configuration
@@ -13306,7 +13326,7 @@ _Gets the configuration flags of the reserve from a memory object_
 | [3] | bool |  |
 
 
-# Types
+## **Types**
 ## OrderTypes
 
 _https://github.com/LooksRare/contracts-exchange-v1/blob/master/contracts/libraries/OrderTypes.sol_
@@ -13606,3 +13626,11 @@ struct ExecuteLiquidateNFTXParams {
 }
 ```
 
+# Contract interactions and use cases
+## Deposit
+
+## Withdraw
+## Borrow
+## Repay
+## Redeem
+## Liquidate
