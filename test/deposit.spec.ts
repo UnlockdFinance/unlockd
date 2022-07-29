@@ -58,7 +58,7 @@ makeSuite("LendPool: Deposit", (testEnv: TestEnv) => {
     expect(checkResult).to.be.equal(true, "IncentivesController not called");
   });
 
-  it("User 1 deposits 1000 DAI after user 0", async () => {
+  /*it("User 1 deposits 1000 DAI after user 0", async () => {
     const { users } = testEnv;
     const user1 = users[1];
 
@@ -145,5 +145,5 @@ makeSuite("LendPool: Deposit", (testEnv: TestEnv) => {
     await setApprovalForAll(testEnv, user2, "BAYC");
 
     await borrow(testEnv, user2, "WETH", "0.01", "BAYC", "101", user2.address, "", "success", "");
-  });
+  }); */
 });

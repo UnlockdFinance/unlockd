@@ -57,6 +57,97 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
   });
 
   it("Borrow ETH and Liquidate it", async () => {
+    const { users, wethGateway, pool, loan, reserveOracle, nftOracle, weth, bWETH, bayc, dataProvider } = testEnv;
+    const depositor = users[0];
+    const user = users[1];
+    const user3 = users[3];
+    const liquidator = users[4];
+
+    const tokenIdNum = testEnv.tokenIdTracker++;
+    const tokenId = tokenIdNum.toString();
+
+    {
+      const latestTime = await getNowTimeInSeconds();
+      await waitForTx(await nftOracle.setNFTPrice(bayc.address, tokenId, baycInitPrice));
+    }
+
+    // Deposit with native ETH
+    console.log("depositETH:", depositSize);
+    await wethGateway.connect(depositor.signer).depositETH(depositor.address, "0", { value: depositSize });
+
+    // Delegates borrowing power of WETH to WETHGateway
+    const reserveData = await pool.getReserveData(weth.address);
+    const debtToken = await getDebtToken(reserveData.debtTokenAddress);
+    await waitForTx(await debtToken.connect(user.signer).approveDelegation(wethGateway.address, MAX_UINT_AMOUNT));
+
+    // Start loan
+    const nftAsset = await getNftAddressFromSymbol("BAYC");
+    await mintERC721(testEnv, user, "BAYC", tokenId);
+    await setApprovalForAll(testEnv, user, "BAYC");
+    await setApprovalForAllWETHGateway(testEnv, user, "BAYC");
+
+    const nftCfgData = await dataProvider.getNftConfigurationData(nftAsset);
+
+    const nftColDataBefore = await pool.getNftCollateralData(nftAsset, tokenId, weth.address);
+
+    const wethPrice = await reserveOracle.getAssetPrice(weth.address);
+    const amountBorrow = await convertToCurrencyDecimals(
+      weth.address,
+      new BigNumber(nftColDataBefore.availableBorrowsInETH.toString())
+        .div(wethPrice.toString())
+        .multipliedBy(0.95)
+        .toFixed(0)
+    );
+
+    // Borrow with NFT
+    console.log("borrowETH:", amountBorrow);
+    await waitForTx(
+      await wethGateway.connect(user.signer).borrowETH(amountBorrow, nftAsset, tokenId, user.address, "0")
+    );
+    const nftDebtDataAfterBorrow = await pool.getNftDebtData(bayc.address, tokenId);
+    expect(nftDebtDataAfterBorrow.healthFactor.toString()).to.be.bignumber.gt(oneEther.toFixed(0));
+
+    // Drop the health factor below 1
+    const nftDebtDataBefore = await pool.getNftDebtData(bayc.address, tokenId);
+    const debAmountUnits = await convertToCurrencyUnits(weth.address, nftDebtDataBefore.totalDebt.toString());
+    await setNftAssetPriceForDebt(testEnv, "BAYC", tokenIdNum, "WETH", debAmountUnits, "80");
+
+    const nftDebtDataBeforeAuction = await pool.getNftDebtData(bayc.address, tokenId);
+    expect(nftDebtDataBeforeAuction.healthFactor.toString()).to.be.bignumber.lt(oneEther.toFixed(0));
+
+    // Liquidate ETH loan with native ETH
+    const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, tokenId);
+    const auctionAmountSend = new BigNumber(liquidatePrice.toString()).multipliedBy(1.05).toFixed(0);
+    console.log("auctionETH:", liquidatePrice.toString(), auctionAmountSend);
+    await waitForTx(
+      await wethGateway
+        .connect(liquidator.signer)
+        .auctionETH(nftAsset, tokenId, liquidator.address, { value: auctionAmountSend })
+    );
+
+    await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
+
+    await increaseTime(new BigNumber(ONE_DAY).multipliedBy(365).toNumber()); // accrue more interest, debt exceed bid price
+
+    const loanDataBeforeLiquidate = await dataProvider.getLoanDataByCollateral(nftAsset, tokenId);
+    const extraAmount = new BigNumber(
+      loanDataBeforeLiquidate.currentAmount.sub(loanDataBeforeLiquidate.bidPrice).toString()
+    )
+      .multipliedBy(1.1)
+      .toFixed(0);
+    console.log("liquidateETH:", "extraAmount:", extraAmount);
+    await waitForTx(
+      await wethGateway.connect(liquidator.signer).liquidateETH(nftAsset, tokenId, { value: extraAmount })
+    );
+
+    const loanDataAfter = await dataProvider.getLoanDataByLoanId(nftDebtDataBeforeAuction.loanId);
+    expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Defaulted, "Invalid loan state after liquidation");
+
+    const tokenOwner = await bayc.ownerOf(tokenId);
+    expect(tokenOwner).to.be.equal(liquidator.address, "Invalid token owner after liquidation");
+  });
+
+  it("Borrow ETH and Liquidate it on NFTX", async () => {
     const {
       users,
       wethGateway,
@@ -126,12 +217,6 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
 
     const nftDebtDataBeforeAuction = await pool.getNftDebtData(bayc.address, tokenId);
     expect(nftDebtDataBeforeAuction.healthFactor.toString()).to.be.bignumber.lt(oneEther.toFixed(0));
-
-    // Liquidate ETH loan with native ETH
-    const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, tokenId);
-    console.log("auction:", liquidatePrice.toString());
-    await bayc.connect(liquidator.signer).setApprovalForAll(pool.address, true);
-    await waitForTx(await wethGateway.connect(liquidator.signer).auction(nftAsset, tokenId));
 
     await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
 
@@ -219,18 +304,25 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
 
     // Liquidate ETH loan with native ETH
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, tokenId);
-    console.log("auction:", liquidatePrice);
-    await bayc.connect(liquidator.signer).setApprovalForAll(pool.address, true);
-    await waitForTx(await wethGateway.connect(liquidator.signer).auction(nftAsset, tokenId));
+    const liquidateAmountSend = liquidatePrice.add(liquidatePrice.mul(5).div(100));
+    console.log("auctionETH:", liquidatePrice, liquidateAmountSend);
+    await waitForTx(
+      await wethGateway
+        .connect(liquidator.signer)
+        .auctionETH(nftAsset, tokenId, liquidator.address, { value: liquidateAmountSend })
+    );
 
     // Redeem ETH loan with native ETH
     await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).sub(100).toNumber());
     const auctionData = await pool.getNftAuctionData(nftAsset, tokenId);
-    const repayAmount = new BigNumber(auctionData.minBidPrice.toString()).multipliedBy(0.51).toFixed(0);
-    const redeemAmountSend = new BigNumber(repayAmount).toFixed(0);
+    const bidFineAmount = new BigNumber(auctionData.bidFine.toString()).multipliedBy(1.1).toFixed(0);
+    const repayAmount = new BigNumber(auctionData.bidBorrowAmount.toString()).multipliedBy(0.51).toFixed(0);
+    const redeemAmountSend = new BigNumber(repayAmount).plus(bidFineAmount).toFixed(0);
     console.log("redeemETH:", redeemAmountSend.toString());
     await waitForTx(
-      await wethGateway.connect(user.signer).redeemETH(nftAsset, tokenId, repayAmount, { value: redeemAmountSend })
+      await wethGateway
+        .connect(user.signer)
+        .redeemETH(nftAsset, tokenId, repayAmount, bidFineAmount, { value: redeemAmountSend })
     );
 
     const loanDataAfterRedeem = await dataProvider.getLoanDataByLoanId(nftDebtDataAfterBorrow.loanId);

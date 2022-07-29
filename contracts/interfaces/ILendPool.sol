@@ -3,7 +3,6 @@ pragma solidity 0.8.4;
 
 import {ILendPoolAddressesProvider} from "./ILendPoolAddressesProvider.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
-import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
 
 interface ILendPool {
   /**
@@ -75,19 +74,21 @@ interface ILendPool {
 
   /**
    * @dev Emitted when a borrower's loan is auctioned.
+   * @param user The address of the user initiating the auction
    * @param reserve The address of the underlying asset of the reserve
-   * @param bidPrice The start bid price of the underlying reserve
-   * @param auctionDuration Auction duration of the underlying reserve
+   * @param bidPrice The price of the underlying reserve given by the bidder
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token id of the underlying NFT used as collateral
+   * @param onBehalfOf The address that will be getting the NFT
    * @param loanId The loan ID of the NFT loans
    **/
   event Auction(
+    address user,
     address indexed reserve,
     uint256 bidPrice,
-    uint256 auctionDuration,
     address indexed nftAsset,
     uint256 nftTokenId,
+    address onBehalfOf,
     address indexed borrower,
     uint256 loanId
   );
@@ -122,23 +123,6 @@ interface ILendPool {
    **/
   event Liquidate(
     address user,
-    address indexed reserve,
-    uint256 repayAmount,
-    uint256 remainAmount,
-    address indexed nftAsset,
-    uint256 nftTokenId,
-    address indexed borrower,
-    uint256 loanId
-  );
-
-  /**
-   * @dev Emitted when a borrower's loan is liquidated on LooksRare.
-   * @param reserve The address of the underlying asset of the reserve
-   * @param repayAmount The amount of reserve repaid by the liquidator
-   * @param remainAmount The amount of reserve received by the borrower
-   * @param loanId The loan ID of the NFT loans
-   **/
-  event LiquidateLooksRare(
     address indexed reserve,
     uint256 repayAmount,
     uint256 remainAmount,
@@ -191,6 +175,11 @@ interface ILendPool {
    * @dev Emitted when the pause is lifted.
    */
   event Unpaused();
+
+  /**
+   * @dev Emitted when the pause time is updated.
+   */
+  event PausedTimeUpdated(uint256 startTime, uint256 durationTime);
 
   /**
    * @dev Emitted when the state of a reserve is updated. NOTE: This event is actually declared
@@ -304,8 +293,17 @@ interface ILendPool {
    * - The caller (liquidator) want to buy collateral asset of the user getting liquidated
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
+   * @param bidPrice The bid price of the liquidator want to buy the underlying NFT
+   * @param onBehalfOf Address of the user who will get the underlying NFT, same as msg.sender if the user
+   *   wants to receive them on his own wallet, or a different address if the beneficiary of NFT
+   *   is a different wallet
    **/
-  function auction(address nftAsset, uint256 nftTokenId) external;
+  function auction(
+    address nftAsset,
+    uint256 nftTokenId,
+    uint256 bidPrice,
+    address onBehalfOf
+  ) external;
 
   /**
    * @notice Redeem a NFT loan which state is in Auction
@@ -313,24 +311,26 @@ interface ILendPool {
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    * @param amount The amount to repay the debt
+   * @param bidFine The amount of bid fine
    **/
   function redeem(
     address nftAsset,
     uint256 nftTokenId,
-    uint256 amount
+    uint256 amount,
+    uint256 bidFine
   ) external returns (uint256);
 
   /**
    * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The collateral asset is sold on LooksRare
+   * - The caller (liquidator) buy collateral asset of the user getting liquidated, and receives
+   *   the collateral asset
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
-  function liquidateLooksRare(
+  function liquidate(
     address nftAsset,
     uint256 nftTokenId,
-    OrderTypes.TakerOrder calldata takerAsk,
-    OrderTypes.MakerOrder calldata makerBid
+    uint256 amount
   ) external returns (uint256);
 
   /**
@@ -458,18 +458,20 @@ interface ILendPool {
    * @param nftAsset The address of the NFT
    * @param nftTokenId The token id of the NFT
    * @return loanId the loan id of the NFT
-   * @return auctionStartTimestamp the timestamp of auction start
-   * @return reserveAsset the reserve asset of buy offers
-   * @return minBidPrice the min bid price of the auction
+   * @return bidderAddress the highest bidder address of the loan
+   * @return bidPrice the highest bid price in Reserve of the loan
+   * @return bidBorrowAmount the borrow amount in Reserve of the loan
+   * @return bidFine the penalty fine of the loan
    **/
   function getNftAuctionData(address nftAsset, uint256 nftTokenId)
     external
     view
     returns (
       uint256 loanId,
-      uint256 auctionStartTimestamp,
-      address reserveAsset,
-      uint256 minBidPrice
+      address bidderAddress,
+      uint256 bidPrice,
+      uint256 bidBorrowAmount,
+      uint256 bidFine
     );
 
   function getNftLiquidatePrice(address nftAsset, uint256 nftTokenId)
@@ -486,10 +488,14 @@ interface ILendPool {
    */
   function setPause(bool val) external;
 
+  function setPausedTime(uint256 startTime, uint256 durationTime) external;
+
   /**
    * @dev Returns if the LendPool is paused
    */
   function paused() external view returns (bool);
+
+  function getPausedTime() external view returns (uint256, uint256);
 
   function getAddressesProvider() external view returns (ILendPoolAddressesProvider);
 

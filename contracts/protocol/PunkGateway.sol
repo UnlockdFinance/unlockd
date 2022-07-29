@@ -15,7 +15,6 @@ import {IPunks} from "../interfaces/IPunks.sol";
 import {IWrappedPunks} from "../interfaces/IWrappedPunks.sol";
 import {IPunkGateway} from "../interfaces/IPunkGateway.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
-import {OrderTypes} from "../libraries/looksrare/OrderTypes.sol";
 import {IWETHGateway} from "../interfaces/IWETHGateway.sol";
 
 import {EmergencyTokenRecoveryUpgradeable} from "./EmergencyTokenRecoveryUpgradeable.sol";
@@ -224,8 +223,12 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (paybackAmount, burn);
   }
 
-  function auction(uint256 punkIndex) external override nonReentrant {
-    require(_addressProvider.getLendPoolLiquidator() == _msgSender(), Errors.CALLER_NOT_POOL_LIQUIDATOR);
+  function auction(
+    uint256 punkIndex,
+    uint256 bidPrice,
+    address onBehalfOf
+  ) external override nonReentrant {
+    _checkValidCallerAndOnBehalfOf(onBehalfOf);
 
     ILendPool cachedPool = _getLendPool();
     ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
@@ -233,10 +236,18 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
     require(loanId != 0, "PunkGateway: no loan with such punkIndex");
 
-    cachedPool.auction(address(wrappedPunks), punkIndex);
+    (, , address reserve, ) = cachedPoolLoan.getLoanCollateralAndReserve(loanId);
+
+    IERC20Upgradeable(reserve).transferFrom(msg.sender, address(this), bidPrice);
+
+    cachedPool.auction(address(wrappedPunks), punkIndex, bidPrice, onBehalfOf);
   }
 
-  function redeem(uint256 punkIndex, uint256 amount) external override nonReentrant returns (uint256) {
+  function redeem(
+    uint256 punkIndex,
+    uint256 amount,
+    uint256 bidFine
+  ) external override nonReentrant returns (uint256) {
     ILendPool cachedPool = _getLendPool();
     ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
 
@@ -245,33 +256,40 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
 
     DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
 
-    IERC20Upgradeable(loan.reserveAsset).transferFrom(msg.sender, address(this), amount);
+    IERC20Upgradeable(loan.reserveAsset).transferFrom(msg.sender, address(this), (amount + bidFine));
 
-    uint256 paybackAmount = cachedPool.redeem(address(wrappedPunks), punkIndex, amount);
+    uint256 paybackAmount = cachedPool.redeem(address(wrappedPunks), punkIndex, amount, bidFine);
 
-    if (amount > paybackAmount) {
-      IERC20Upgradeable(loan.reserveAsset).safeTransfer(msg.sender, (amount - paybackAmount));
+    if ((amount + bidFine) > paybackAmount) {
+      IERC20Upgradeable(loan.reserveAsset).safeTransfer(msg.sender, ((amount + bidFine) - paybackAmount));
     }
 
     return paybackAmount;
   }
 
-  function liquidateLooksRare(
-    uint256 punkIndex,
-    OrderTypes.TakerOrder calldata takerAsk,
-    OrderTypes.MakerOrder calldata makerBid
-  ) external override nonReentrant returns (uint256) {
-    require(_addressProvider.getLendPoolLiquidator() == _msgSender(), Errors.CALLER_NOT_POOL_LIQUIDATOR);
-
+  function liquidate(uint256 punkIndex, uint256 amount) external override nonReentrant returns (uint256) {
     ILendPool cachedPool = _getLendPool();
     ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
 
     uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
     require(loanId != 0, "PunkGateway: no loan with such punkIndex");
 
-    uint256 remainAmount = cachedPool.liquidateLooksRare(address(wrappedPunks), punkIndex, takerAsk, makerBid);
+    DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
+    require(loan.bidderAddress == _msgSender(), "PunkGateway: caller is not bidder");
 
-    return (remainAmount);
+    if (amount > 0) {
+      IERC20Upgradeable(loan.reserveAsset).transferFrom(msg.sender, address(this), amount);
+    }
+
+    uint256 extraRetAmount = cachedPool.liquidate(address(wrappedPunks), punkIndex, amount);
+
+    _withdrawPunk(punkIndex, loan.bidderAddress);
+
+    if (amount > extraRetAmount) {
+      IERC20Upgradeable(loan.reserveAsset).safeTransfer(msg.sender, (amount - extraRetAmount));
+    }
+
+    return (extraRetAmount);
   }
 
   function liquidateOpensea(uint256 punkIndex, uint256 priceInEth) external override nonReentrant returns (uint256) {
@@ -403,7 +421,17 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (paybackAmount, burn);
   }
 
-  function redeemETH(uint256 punkIndex, uint256 amount) external payable override nonReentrant returns (uint256) {
+  function auctionETH(uint256 punkIndex, address onBehalfOf) external payable override nonReentrant {
+    _checkValidCallerAndOnBehalfOf(onBehalfOf);
+
+    _wethGateway.auctionETH{value: msg.value}(address(wrappedPunks), punkIndex, onBehalfOf);
+  }
+
+  function redeemETH(
+    uint256 punkIndex,
+    uint256 amount,
+    uint256 bidFine
+  ) external payable override nonReentrant returns (uint256) {
     ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
 
     uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
@@ -411,7 +439,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
 
     //DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
 
-    uint256 paybackAmount = _wethGateway.redeemETH{value: msg.value}(address(wrappedPunks), punkIndex, amount);
+    uint256 paybackAmount = _wethGateway.redeemETH{value: msg.value}(address(wrappedPunks), punkIndex, amount, bidFine);
 
     // refund remaining dust eth
     if (msg.value > paybackAmount) {
@@ -419,6 +447,27 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     }
 
     return paybackAmount;
+  }
+
+  function liquidateETH(uint256 punkIndex) external payable override nonReentrant returns (uint256) {
+    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
+
+    uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
+    require(loanId != 0, "PunkGateway: no loan with such punkIndex");
+
+    DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
+    require(loan.bidderAddress == _msgSender(), "PunkGateway: caller is not bidder");
+
+    uint256 extraAmount = _wethGateway.liquidateETH{value: msg.value}(address(wrappedPunks), punkIndex);
+
+    _withdrawPunk(punkIndex, loan.bidderAddress);
+
+    // refund remaining dust eth
+    if (msg.value > extraAmount) {
+      _safeTransferETH(msg.sender, msg.value - extraAmount);
+    }
+
+    return extraAmount;
   }
 
   /**
