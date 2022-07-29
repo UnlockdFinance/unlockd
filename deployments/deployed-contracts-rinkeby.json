@@ -20,27 +20,27 @@
     "deployer": "0xAa3777F59260b8bD003e850E321AdBc576115b06"
   },
   "CryptoPunksMarket": {
-    "address": "0x8984Ef45Cf76286D5cC92906a34adf3537A3c6bC",
+    "address": "0x0ec723A03731bfE56f763C19979387E21F3eA8A8",
     "deployer": "0xAa3777F59260b8bD003e850E321AdBc576115b06"
   },
   "WrappedPunk": {
-    "address": "0x18D82Ea7FE0E892976bE0e7c652462Cc0D5c5B82",
+    "address": "0x80906E6f7963f5095A7967AaECADe2E5dC60d8c0",
     "deployer": "0xAa3777F59260b8bD003e850E321AdBc576115b06"
   },
   "WPUNKS": {
-    "address": "0x18D82Ea7FE0E892976bE0e7c652462Cc0D5c5B82",
+    "address": "0x80906E6f7963f5095A7967AaECADe2E5dC60d8c0",
     "deployer": "0xAa3777F59260b8bD003e850E321AdBc576115b06"
   },
   "MintableERC721": {
-    "address": "0xaF7cc3794D8644Eb0ACFf24644700812f179dc8b",
+    "address": "0xB0147824c5BacdC5c9553b6DaF1102902eDcFE82",
     "deployer": "0xAa3777F59260b8bD003e850E321AdBc576115b06"
   },
   "BAYC": {
-    "address": "0x24492da4cf63E0058Cf443C53c10308562a4830E",
+    "address": "0x94eeA2EDCa63840E3CC8275D600E1Fe9baA63D6c",
     "deployer": "0xAa3777F59260b8bD003e850E321AdBc576115b06"
   },
   "DOODLE": {
-    "address": "0xaF7cc3794D8644Eb0ACFf24644700812f179dc8b",
+    "address": "0x0cd6543dE09dE88Ea394B84Bf3Ba37D1353A564a",
     "deployer": "0xAa3777F59260b8bD003e850E321AdBc576115b06"
   },
   "COOL": {
