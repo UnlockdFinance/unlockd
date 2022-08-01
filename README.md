@@ -203,22 +203,25 @@ It also comes with a variety of other tools, preconfigured to work with the proj
 Try running some of the following tasks:
 
 ```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-npx hardhat help
-REPORT_GAS=true npx hardhat test
-npx hardhat coverage
-npx hardhat run scripts/deploy.js
-node scripts/deploy.js
-npx eslint '**/*.js'
-npx eslint '**/*.js' --fix
-npx prettier '**/*.{json,sol,md}' --check
-npx prettier '**/*.{json,sol,md}' --write
-npx solhint 'contracts/**/*.sol'
-npx solhint 'contracts/**/*.sol' --fix
+npx hardhat tests:interestRate:variableRateSlope1
+npx hardhat tests:interestRate:variableRateSlope2
+npx hardhat tests:interestRate:baseVariableBorrowRate
+npx hardhat lendpool:deposit
+npx hardhat lendpool:withdraw
+npx hardhat lendpool:borrow
+npx hardhat lendpool:getcollateraldata
+npx hardhat lendpool:getdebtdata
+npx hardhat lendpool:redeem
+npx hardhat lendpool:repay
+npx hardhat reserveoracle:getassetprice
+npx hardhat tests:provider:getMarketId
+npx hardhat tests:provider:getLendPoolLiquidator
+npx hardhat tests:provider:setLendPoolLiquidator
+npx hardhat nftoracle:getnftprice
+npx hardhat nftoracle:setnftprice
+npx hardhat nftoracle:getoracleowner
+npx hardhat lendpoolloan:getloanidtracker
+npx hardhat lendpoolloan:getloan
 ```
 
 ## Etherscan verification
