@@ -35,6 +35,16 @@ interface IWETHGateway {
     uint16 referralCode
   ) external;
 
+  /**
+   * @dev borrows multiple amounts of WETH, unwraps to ETH and send both the ETH and DebtTokens to msg.sender, via `approveDelegation` and onBehalf argument in `LendPool.borrow`.
+   * @param amounts the amount of ETH to borrow
+   * @param nftAssets The array of addresses of the underlying NFTs used as collateral
+   * @param nftTokenIds The array of token IDs of the underlying NFTs used as collateral
+   * @param onBehalfOf Address of the user who will receive the loans. Should be the address of the borrower itself
+   * calling the function if he wants to borrow against his own collateral, or the address of the credit delegator
+   * if he has been given credit delegation allowance
+   * @param referralCode integrators are assigned a referral code and can potentially receive rewards
+   */
   function batchBorrowETH(
     uint256[] calldata amounts,
     address[] calldata nftAssets,
@@ -55,6 +65,12 @@ interface IWETHGateway {
     uint256 amount
   ) external payable returns (uint256, bool);
 
+  /**
+   * @dev repays multiple borrows on the WETH reserves, for the specified amounts (or for the whole amounts, if uint256(-1) is specified).
+   * @param nftAssets The array of addresses of the underlying NFTs used as collateral
+   * @param nftTokenIds The token IDs of the underlying NFTs used as collateral
+   * @param amounts the amounts to repay, or uint256(-1) if the user wants to repay everything
+   */
   function batchRepayETH(
     address[] calldata nftAssets,
     uint256[] calldata nftTokenIds,

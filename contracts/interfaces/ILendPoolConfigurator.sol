@@ -145,11 +145,24 @@ interface ILendPoolConfigurator {
    * @param redeemFine The new redeem fine
    **/
   event NftAuctionChanged(address indexed asset, uint256 redeemDuration, uint256 auctionDuration, uint256 redeemFine);
-
+  /**
+   * @dev Emitted when a redeem threshold is modified
+   * @param asset The address of the underlying asset of the NFT
+   * @param redeemThreshold The new redeem threshold
+   **/
   event NftRedeemThresholdChanged(address indexed asset, uint256 redeemThreshold);
-
+  /**
+   * @dev Emitted when a min bid fine is modified
+   * @param asset The address of the underlying asset of the NFT
+   * @param minBidFine The new min bid fine
+   **/
   event NftMinBidFineChanged(address indexed asset, uint256 minBidFine);
-
+  /**
+   * @dev Emitted when an asset's max supply and max token Id is modified
+   * @param asset The address of the underlying asset of the NFT
+   * @param maxSupply The new max supply
+   * @param maxTokenId The new max token Id
+   **/
   event NftMaxSupplyAndTokenIdChanged(address indexed asset, uint256 maxSupply, uint256 maxTokenId);
 
   /**

@@ -39,6 +39,9 @@ contract UnlockdProtocolDataProvider {
     ADDRESSES_PROVIDER = addressesProvider;
   }
 
+  /**
+   * @dev Returns the reserve token data for all the reserves in the protocol
+   */
   function getAllReservesTokenDatas() external view returns (ReserveTokenData[] memory) {
     ILendPool pool = ILendPool(ADDRESSES_PROVIDER.getLendPool());
     address[] memory reserves = pool.getReservesList();
@@ -57,6 +60,10 @@ contract UnlockdProtocolDataProvider {
     return reservesTokens;
   }
 
+  /**
+   * @dev Returns the reserve token data for the specified reserve
+   * @param asset the reserve to get the token data from
+   */
   function getReserveTokenData(address asset) external view returns (ReserveTokenData memory) {
     ILendPool pool = ILendPool(ADDRESSES_PROVIDER.getLendPool());
     DataTypes.ReserveData memory reserveData = pool.getReserveData(asset);
@@ -71,6 +78,9 @@ contract UnlockdProtocolDataProvider {
       });
   }
 
+  /**
+   * @dev Returns the NFT token data for all the NFTs in the protocol
+   */
   function getAllNftsTokenDatas() external view returns (NftTokenData[] memory) {
     ILendPool pool = ILendPool(ADDRESSES_PROVIDER.getLendPool());
     address[] memory nfts = pool.getNftsList();
@@ -87,6 +97,10 @@ contract UnlockdProtocolDataProvider {
     return nftTokens;
   }
 
+  /**
+   * @dev Returns the NFT token data for the specified NFT asset
+   * @param nftAsset The NFT to get the token data from
+   */
   function getNftTokenData(address nftAsset) external view returns (NftTokenData memory) {
     ILendPool pool = ILendPool(ADDRESSES_PROVIDER.getLendPool());
     DataTypes.NftData memory nftData = pool.getNftData(nftAsset);
@@ -99,6 +113,10 @@ contract UnlockdProtocolDataProvider {
       });
   }
 
+  /**
+   * @dev Returns the configuration for a specific reserve
+   * @param asset The asset to request the configuration
+   */
   function getReserveConfigurationData(address asset)
     external
     view
@@ -131,6 +149,10 @@ contract UnlockdProtocolDataProvider {
     bool isFrozen;
   }
 
+  /**
+   * @dev Returns the configuration for a specific NFT
+   * @param asset The NFT to request the configuration
+   */
   function getNftConfigurationData(address asset) external view returns (NftConfigurationData memory configData) {
     DataTypes.NftConfigurationMap memory configuration = ILendPool(ADDRESSES_PROVIDER.getLendPool())
       .getNftConfiguration(asset);
@@ -149,6 +171,10 @@ contract UnlockdProtocolDataProvider {
     (configData.minBidFine) = configuration.getMinBidFineMemory();
   }
 
+  /**
+   * @dev Returns the stored data for a specific reserve
+   * @param asset The asset to request the data
+   */
   function getReserveData(address asset)
     external
     view
@@ -175,6 +201,11 @@ contract UnlockdProtocolDataProvider {
     );
   }
 
+  /**
+   * @dev Returns the stored reserve data for a specific yser
+   * @param asset The asset to request the data
+   * @param asset The user to request the data
+   */
   function getUserReserveData(address asset, address user)
     external
     view
@@ -208,6 +239,11 @@ contract UnlockdProtocolDataProvider {
     uint256 bidBorrowAmount;
   }
 
+  /**
+   * @dev Returns the loan data for a specific NFT used as collateral
+   * @param nftAsset The NFT address
+   * @param nftTokenId The token ID for the NFT
+   */
   function getLoanDataByCollateral(address nftAsset, uint256 nftTokenId)
     external
     view
@@ -218,11 +254,20 @@ contract UnlockdProtocolDataProvider {
     _fillLoanData(loanData, loan);
   }
 
+  /**
+   * @dev Returns the loan data for a specific loan
+   * @param loanId The loan identifier
+   */
   function getLoanDataByLoanId(uint256 loanId) external view returns (LoanData memory loanData) {
     DataTypes.LoanData memory loan = ILendPoolLoan(ADDRESSES_PROVIDER.getLendPoolLoan()).getLoan(loanId);
     _fillLoanData(loanData, loan);
   }
 
+  /**
+   * @dev Stores the specified loan data to the protocol
+   * @param loanData The loan data where the data will be stored
+   * @param loanData The loan data which contains the data to be stored
+   */
   function _fillLoanData(LoanData memory loanData, DataTypes.LoanData memory loan) internal view {
     loanData.loanId = loan.loanId;
     loanData.state = uint8(loan.state);

@@ -68,6 +68,10 @@ contract LendPoolAddressesProviderRegistry is Ownable, ILendPoolAddressesProvide
     return _addressesProviders[addressesProvider];
   }
 
+  /**
+   * @dev Adds provider to addresses provider list
+   * @param provider The provider address to be added
+   */
   function _addToAddressesProvidersList(address provider) internal {
     uint256 providersCount = _addressesProvidersList.length;
 

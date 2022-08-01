@@ -7,20 +7,41 @@ interface IUNFTRegistry {
   event UNFTCreated(address indexed nftAsset, address uNftImpl, address uNftProxy, uint256 totals);
   event UNFTUpgraded(address indexed nftAsset, address uNftImpl, address uNftProxy, uint256 totals);
 
+  /**
+   * @dev gets the uNFT address
+   * @param nftAsset The address of the underlying NFT asset
+   **/
   function getUNFTAddresses(address nftAsset) external view returns (address uNftProxy, address uNftImpl);
 
+  /**
+   * @dev gets the uNFT address by index
+   * @param index the uNFT index
+   **/
   function getUNFTAddressesByIndex(uint16 index) external view returns (address uNftProxy, address uNftImpl);
 
+  /**
+   * @dev gets the list of uNFTs
+   **/
   function getUNFTAssetList() external view returns (address[] memory);
 
+  /**
+   * @dev gets the length of the list of uNFTs
+   **/
   function allUNFTAssetLength() external view returns (uint256);
 
+  /**
+   * @dev initializes the contract
+   **/
   function initialize(
     address genericImpl,
     string memory namePrefix_,
     string memory symbolPrefix_
   ) external;
 
+  /**
+   * @dev sets the uNFT generic implementation
+   * @dev genericImpl the implementation contract
+   **/
   function setUNFTGenericImpl(address genericImpl) external;
 
   /**

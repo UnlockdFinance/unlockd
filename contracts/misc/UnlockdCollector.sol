@@ -22,6 +22,12 @@ contract UnlockdCollector is Initializable, OwnableUpgradeable {
     __Ownable_init();
   }
 
+  /**
+   * @dev Approves the specified token to a recipient
+   * @param token the ERC20 token
+   * @param recipient the address to be approved
+   * @param amount the amount to approve
+   */
   function approve(
     IERC20Upgradeable token,
     address recipient,
@@ -30,6 +36,12 @@ contract UnlockdCollector is Initializable, OwnableUpgradeable {
     token.safeApprove(recipient, amount);
   }
 
+  /**
+   * @dev Transfers the specified token to a recipient
+   * @param token the ERC20 token
+   * @param recipient the address to transfer the tokens to
+   * @param amount the amount to transfer
+   */
   function transfer(
     IERC20Upgradeable token,
     address recipient,
