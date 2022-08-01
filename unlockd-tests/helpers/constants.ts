@@ -16,7 +16,7 @@ import wethGatewayArtifact from "../../artifacts/contracts/protocol/WETHGateway.
 //Mock imports
 import erc20Artifact from "../../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
 import erc721Artifact from "../../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
-import deployments from "../../deployments/deployed-contracts-old-rinkeby.json"
+import deployments from "../../deployments/deployed-contracts-rinkeby.json"
 
 dotenv.config();
 

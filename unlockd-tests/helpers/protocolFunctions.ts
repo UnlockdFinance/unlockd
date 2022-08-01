@@ -89,6 +89,22 @@ const getLendPoolLiquidator = async (wallet: Wallet) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getLendPoolLiquidator();
 }
 
+const getNFTXVaultFactory = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getNFTXVaultFactory();
+}
+
+const setNFTXVaultFactory = async (wallet: Wallet, factory: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setNFTXVaultFactory(factory);
+}
+
+const getSushiSwapRouter = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getSushiSwapRouter();
+}
+
+const setSushiSwapRouter = async (wallet: Wallet, router: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setSushiSwapRouter(router);
+}
+
 // interest Rates
 const variableRateSlope1 = async (wallet: Wallet) => {
     return await Contracts.interestRate.connect(wallet).variableRateSlope1();
@@ -139,6 +155,10 @@ export const Functions = {
         getMarketId: getMarketId,
         setLendPoolLiquidator: setLendPoolLiquidator,
         getLendPoolLiquidator: getLendPoolLiquidator,
+        getNFTXVaultFactory: getNFTXVaultFactory, 
+        setNFTXVaultFactory: setNFTXVaultFactory,
+        getSushiSwapRouter: getSushiSwapRouter,
+        setSushiSwapRouter: setSushiSwapRouter,
     },
     INTERESTRATE: {
         variableRateSlope1: variableRateSlope1,
