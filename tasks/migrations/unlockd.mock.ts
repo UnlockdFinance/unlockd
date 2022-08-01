@@ -88,6 +88,9 @@ task("unlockd:mock", "Deploy a mock enviroment for testnets")
     console.log("\n\nDeploy PUNK Gateway"); // MUST AFTER WETH GATEWAY
     await localBRE.run("full:deploy-punk-gateway", { verify, pool: POOL_NAME });
 
+    console.log("\n\nDeploy unlockd collect contract"); // APPROVE Transfer Function for ERC20
+    await localBRE.run("full:deploy-unlockd-collector", { verify, pool: POOL_NAME });
+
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nInitialize lend pool");
     await localBRE.run("dev:initialize-lend-pool", { verify, pool: POOL_NAME });
