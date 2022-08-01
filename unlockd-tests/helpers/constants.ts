@@ -8,8 +8,6 @@ import lendPoolAddressesProviderArtifact from "../../artifacts/contracts/protoco
 import lendPoolAddressesProviderRegistryArtifact from "../../artifacts/contracts/protocol/LendPoolAddressesProviderRegistry.sol/LendPoolAddressesProviderRegistry.json";
 import lendPoolConfiguratorArtifact from "../../artifacts/contracts/protocol/LendPoolConfigurator.sol/LendPoolConfigurator.json";
 import lendPoolLoanArtifact from "../../artifacts/contracts/protocol/LendPoolLoan.sol/LendPoolLoan.json";
-import lendPoolStorageArtifact from "../../artifacts/contracts/protocol/LendPoolStorage.sol/LendPoolStorage.json";
-import lendPoolStorageExtArtifact from "../../artifacts/contracts/protocol/LendPoolStorageExt.sol/LendPoolStorageExt.json";
 import nftOracleArtifact from "../../artifacts/contracts/protocol/NFTOracle.sol/NFTOracle.json";
 import punkGatewayArtifact from "../../artifacts/contracts/protocol/PunkGateway.sol/PunkGateway.json";
 import reserveOracleArtifact from "../../artifacts/contracts/protocol/ReserveOracle.sol/ReserveOracle.json";
@@ -18,7 +16,7 @@ import wethGatewayArtifact from "../../artifacts/contracts/protocol/WETHGateway.
 //Mock imports
 import erc20Artifact from "../../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
 import erc721Artifact from "../../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
-import deployments from "../../deployments/deployed-contracts-rinkeby.json"
+import deployments from "../../deployments/deployed-contracts-old-rinkeby.json"
 
 dotenv.config();
 
