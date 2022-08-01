@@ -3,7 +3,7 @@ import { Functions } from "../helpers/protocolFunctions";
 import {getUserWallet, getOwnerWallet } from "../helpers/config";
 import { parseEther, parseUnits } from "@ethersproject/units";
 
-//Get NFT price
+//Get NFT price 
 task("nftoracle:getnftprice", "User 0 Deposits {amount} {reserve} in an empty reserve")
 .addParam("collection", "The collection address") 
 .addParam("tokenid", "The token id")
