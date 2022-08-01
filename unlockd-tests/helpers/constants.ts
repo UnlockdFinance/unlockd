@@ -1,3 +1,4 @@
+import { getNFTXVaultFactory } from './../../helpers/contracts-getters';
 import { Contract} from "ethers";
 import dotenv from 'dotenv';
 //Protocol imports
@@ -16,7 +17,9 @@ import wethGatewayArtifact from "../../artifacts/contracts/protocol/WETHGateway.
 //Mock imports
 import erc20Artifact from "../../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
 import erc721Artifact from "../../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
-import deployments from "../../deployments/deployed-contracts-old-rinkeby.json"
+//NFTX
+import nftxVaultFactoryArtificat from "../../artifacts/contracts/interfaces/INFTXVaultFactoryV2.sol/INFTXVaultFactoryV2.json";
+import deployments from "../../deployments/deployed-contracts-rinkeby.json"
 
 dotenv.config();
 
@@ -40,6 +43,9 @@ const reserveOracleContract = new Contract(deployments.ReserveOracle.address, re
 const uTokenContract = new Contract(deployments.UToken.address, uTokenArtifact.abi);
 const wethGatewayContract = new Contract(deployments.WETHGateway.address, wethGatewayArtifact.abi);
 
+// NFTX
+const nftxVaultFactoryContract = new Contract("0xbbc53022Af15Bb973AD906577c84784c47C14371", nftxVaultFactoryArtificat.abi);
+
 
 export const Contracts = {
     debtToken: debtTokenContract,
@@ -54,6 +60,7 @@ export const Contracts = {
     reserveOracle: reserveOracleContract,
     uToken: uTokenContract,
     wethGateway: wethGatewayContract,
+    nftxVaultFactory: nftxVaultFactoryContract,
 }
 
 
