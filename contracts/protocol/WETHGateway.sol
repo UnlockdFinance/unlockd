@@ -62,30 +62,53 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     WETH.approve(address(_getLendPool()), type(uint256).max);
   }
 
+  /**
+   * @notice returns the LendPool address
+   */
   function _getLendPool() internal view returns (ILendPool) {
     return ILendPool(_addressProvider.getLendPool());
   }
 
+  /**
+   * @notice returns the LendPoolLoan address
+   */
   function _getLendPoolLoan() internal view returns (ILendPoolLoan) {
     return ILendPoolLoan(_addressProvider.getLendPoolLoan());
   }
 
+  /**
+   * @dev approves the lendpool for the given NFT assets
+   * @param nftAssets the array of nft assets
+   */
   function authorizeLendPoolNFT(address[] calldata nftAssets) external nonReentrant onlyOwner {
     for (uint256 i = 0; i < nftAssets.length; i++) {
       IERC721Upgradeable(nftAssets[i]).setApprovalForAll(address(_getLendPool()), true);
     }
   }
 
+  /**
+   * @dev authorizes/unauthorizes a list of callers for the whitelist
+   * @param callers the array of callers to be authorized
+   * @param flag the flag to authorize/unauthorize
+   */
   function authorizeCallerWhitelist(address[] calldata callers, bool flag) external nonReentrant onlyOwner {
     for (uint256 i = 0; i < callers.length; i++) {
       _callerWhitelists[callers[i]] = flag;
     }
   }
 
+  /**
+   * @dev checks if caller is whitelisted
+   * @param caller the caller to check
+   */
   function isCallerInWhitelist(address caller) external view returns (bool) {
     return _callerWhitelists[caller];
   }
 
+  /**
+   * @dev checks if caller's approved address is valid
+   * @param onBehalfOf the address to check approval of the caller
+   */
   function _checkValidCallerAndOnBehalfOf(address onBehalfOf) internal view {
     require(
       (onBehalfOf == _msgSender()) || (_callerWhitelists[_msgSender()] == true),
@@ -93,6 +116,9 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     );
   }
 
+  /**
+   * @inheritdoc IWETHGateway
+   */
   function depositETH(address onBehalfOf, uint16 referralCode) external payable override nonReentrant {
     _checkValidCallerAndOnBehalfOf(onBehalfOf);
 
@@ -102,6 +128,9 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     cachedPool.deposit(address(WETH), msg.value, onBehalfOf, referralCode);
   }
 
+  /**
+   * @inheritdoc IWETHGateway
+   */
   function withdrawETH(uint256 amount, address to) external override nonReentrant {
     _checkValidCallerAndOnBehalfOf(to);
 
@@ -122,6 +151,9 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     _safeTransferETH(to, amountToWithdraw);
   }
 
+  /**
+   * @inheritdoc IWETHGateway
+   */
   function borrowETH(
     uint256 amount,
     address nftAsset,
@@ -143,6 +175,9 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     _safeTransferETH(onBehalfOf, amount);
   }
 
+  /**
+   * @inheritdoc IWETHGateway
+   */
   function batchBorrowETH(
     uint256[] calldata amounts,
     address[] calldata nftAssets,
@@ -170,6 +205,9 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     }
   }
 
+  /**
+   * @inheritdoc IWETHGateway
+   */
   function repayETH(
     address nftAsset,
     uint256 nftTokenId,
@@ -185,6 +223,9 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (repayAmount, repayAll);
   }
 
+  /**
+   * @inheritdoc IWETHGateway
+   */
   function batchRepayETH(
     address[] calldata nftAssets,
     uint256[] calldata nftTokenIds,
@@ -211,6 +252,14 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (repayAmounts, repayAlls);
   }
 
+  /**
+   * @dev repays a borrow on the WETH reserve, for the specified amount (or for the whole amount, if uint256(-1) is specified).
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   * @param amount the amount to repay, or uint256(-1) if the user wants to repay everything
+   * @param accAmount the accumulated amount
+  
+   */
   function _repayETH(
     address nftAsset,
     uint256 nftTokenId,

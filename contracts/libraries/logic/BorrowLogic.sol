@@ -95,6 +95,7 @@ library BorrowLogic {
   /**
    * @notice Implements the borrow feature. Through `borrow()`, users borrow assets from the protocol.
    * @dev Emits the `Borrow()` event.
+   * @param addressesProvider The addresses provider
    * @param reservesData The state of all the reserves
    * @param nftsData The state of all the nfts
    * @param params The additional parameters needed to execute the borrow function
@@ -143,6 +144,14 @@ library BorrowLogic {
     }
   }
 
+  /**
+   * @notice Implements the borrow feature. Through `_borrow()`, users borrow assets from the protocol.
+   * @dev Emits the `Borrow()` event.
+   * @param addressesProvider The addresses provider
+   * @param reservesData The state of all the reserves
+   * @param nftsData The state of all the nfts
+   * @param params The additional parameters needed to execute the borrow function
+   */
   function _borrow(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
@@ -240,7 +249,7 @@ library BorrowLogic {
   }
 
   /**
-   * @notice Implements the borrow feature. Through `repay()`, users repay assets to the protocol.
+   * @notice Implements the repay feature. Through `repay()`, users repay assets to the protocol.
    * @dev Emits the `Repay()` event.
    * @param reservesData The state of all the reserves
    * @param nftsData The state of all the nfts
@@ -291,6 +300,13 @@ library BorrowLogic {
     return (repayAmounts, repayAlls);
   }
 
+  /**
+   * @notice Implements the repay feature. Through `repay()`, users repay assets to the protocol.
+   * @dev Emits the `Repay()` event.
+   * @param reservesData The state of all the reserves
+   * @param nftsData The state of all the nfts
+   * @param params The additional parameters needed to execute the repay function
+   */
   function _repay(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,

@@ -46,8 +46,13 @@ library GenericLogic {
    * @dev Calculates the nft loan data.
    * this includes the total collateral/borrow balances in Reserve,
    * the Loan To Value, the Liquidation Ratio, and the Health factor.
+   * @param reserveAddress the underlying asset of the reserve
    * @param reserveData Data of the reserve
+   * @param nftAddress the underlying NFT asset
+   * @param nftTokenId the token Id for the NFT
    * @param nftData Data of the nft
+   * @param loanAddress The loan address
+   * @param loanId The loan identifier
    * @param reserveOracle The price oracle address of reserve
    * @param nftOracle The price oracle address of nft
    * @return The total collateral and total debt of the loan in Reserve, the ltv, liquidation threshold and the HF
@@ -105,6 +110,17 @@ library GenericLogic {
     return (vars.totalCollateralInReserve, vars.totalDebtInReserve, vars.healthFactor);
   }
 
+  /**
+   * @dev Calculates the nft debt data.
+   * this includes the total collateral/borrow balances in Reserve,
+   * the Loan To Value, the Liquidation Ratio, and the Health factor.
+   * @param reserveAddress the underlying asset of the reserve
+   * @param reserveData Data of the reserve
+   * @param loanAddress The loan address
+   * @param loanId The loan identifier
+   * @param reserveOracle The price oracle address of reserve
+   * @return The total debt in ETH and the total debt in the Reserve
+   **/
   function calculateNftDebtData(
     address reserveAddress,
     DataTypes.ReserveData storage reserveData,
@@ -127,6 +143,19 @@ library GenericLogic {
     return (vars.totalDebtInETH, vars.totalDebtInReserve);
   }
 
+  /**
+   * @dev Calculates the nft collateral data.
+   * this includes the total collateral/borrow balances in Reserve,
+   * the Loan To Value, the Liquidation Ratio, and the Health factor.
+   * @param reserveAddress the underlying asset of the reserve
+   * @param reserveData Data of the reserve
+   * @param nftAddress The underlying NFT asset
+   * @param nftTokenId The underlying NFT token Id
+   * @param nftData The NFT data
+   * @param reserveOracle The price oracle address of reserve
+   * @param nftOracle The nft price oracle address
+   * @return The total debt in ETH and the total debt in the Reserve
+   **/
   function calculateNftCollateralData(
     address reserveAddress,
     DataTypes.ReserveData storage reserveData,
@@ -211,6 +240,19 @@ library GenericLogic {
     uint256 borrowAmount;
   }
 
+  /**
+   * @dev Calculates the loan liquidation price
+   * @param loanId the loan Id
+   * @param reserveAsset The underlying asset of the reserve
+   * @param reserveData the reserve data
+   * @param nftAsset the underlying NFT asset
+   * @param nftTokenId the NFT token Id
+   * @param nftData The NFT data
+   * @param poolLoan The pool loan address
+   * @param reserveOracle The price oracle address of reserve
+   * @param nftOracle The price oracle address of nft
+   * @return The borrow amount, threshold price and liquidation price
+   **/
   function calculateLoanLiquidatePrice(
     uint256 loanId,
     address reserveAsset,
