@@ -12,13 +12,12 @@ Unlockd is a decentralized non-custodial NFT lending protocol where users can pa
 
 ## Documentation
 
-The documentation of Unlockd Protocol is in the following [Unlockd documentation](https://docs.unlockddao.xyz) link. At the documentation you can learn more about the protocol, see the contract interfaces, integration guides and audits.
+The documentation of Unlockd Protocol is in the following [Unlockd documentation](https://github.com/UnlockdFinance/unlockd-protocol-v1/blob/development__documentation/Documentation.md) link. At the documentation you can learn more about the protocol, see the contract interfaces, integration guides and audits.
 
 For getting the latest contracts addresses, please check the [Deployed contracts](https://docs.unlockddao.xyz/developers/deployed-contracts) page at the documentation to stay up to date.
 
 ## Audits
-1. [Verilog Solutions Online Report](https://hackmd.io/@verilog/unlockddao-audit).
-2. [Certik Online Report](https://www.certik.com/projects/unlockd-dao).
+1. [Halborn](link-to-docs).
 
 ## Thanks
 Unlockd protocol refers to the architecture design and adopts some of the code of [AAVE](https://github.com/aave).
