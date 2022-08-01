@@ -1,4 +1,3 @@
-
 import { Wallet, Contract, BigNumber } from "ethers";
 import { Contracts } from "./constants";
 
@@ -78,6 +77,31 @@ const getLendPool = async (wallet: Wallet) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getLendPool().wait();
 }
 
+const getMarketId = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getMarketId();
+}
+
+const setLendPoolLiquidator = async (wallet: Wallet, lendPoolLiquidatorAddress: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setLendPoolLiquidator(lendPoolLiquidatorAddress);
+}
+
+const getLendPoolLiquidator = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getLendPoolLiquidator();
+}
+
+// interest Rates
+const variableRateSlope1 = async (wallet: Wallet) => {
+    return await Contracts.interestRate.connect(wallet).variableRateSlope1();
+}
+
+const variableRateSlope2 = async (wallet: Wallet) => {
+    return await Contracts.interestRate.connect(wallet).variableRateSlope2();
+}
+
+const baseVariableBorrowRate = async (wallet: Wallet) => {
+    return await Contracts.interestRate.connect(wallet).baseVariableBorrowRate();
+}
+
 
 //Exported functions
 export const Functions = {
@@ -89,7 +113,6 @@ export const Functions = {
         approve: approveNft
     },
     LENDPOOL: {
-        getLendPool: getLendPool,
         deposit: deposit,
         withdraw: withdraw,
         borrow: borrow,
@@ -110,5 +133,16 @@ export const Functions = {
     },
     RESERVEORACLE: {
         getAssetPrice: getAssetPrice,
-    }
+    },
+    LENDPOOLADDRESSPROVIDER: {
+        getLendPool: getLendPool,
+        getMarketId: getMarketId,
+        setLendPoolLiquidator: setLendPoolLiquidator,
+        getLendPoolLiquidator: getLendPoolLiquidator,
+    },
+    INTERESTRATE: {
+        variableRateSlope1: variableRateSlope1,
+        variableRateSlope2: variableRateSlope2,
+        baseVariableBorrowRate: baseVariableBorrowRate,
+    },
 }
