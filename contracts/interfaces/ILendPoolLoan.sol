@@ -57,14 +57,19 @@ interface ILendPoolLoan {
 
   /**
    * @dev Emitted when a loan is auction by the liquidator
+   * @param user The address initiating the action
    */
   event LoanAuctioned(
+    address indexed user,
     uint256 indexed loanId,
     address nftAsset,
     uint256 nftTokenId,
     uint256 amount,
     uint256 borrowIndex,
-    uint256 price
+    address bidder,
+    uint256 price,
+    address previousBidder,
+    uint256 previousPrice
   );
 
   /**
@@ -82,17 +87,19 @@ interface ILendPoolLoan {
   );
 
   /**
-   * @dev Emitted when a loan is liquidate on LooksRare
+   * @dev Emitted when a loan is liquidate by the liquidator
+   * @param user The address initiating the action
    */
-  event LoanLiquidatedLooksRare(
+  event LoanLiquidated(
+    address indexed user,
     uint256 indexed loanId,
     address nftAsset,
     uint256 nftTokenId,
     address reserveAsset,
     uint256 amount,
-    uint256 borrowIndex,
-    uint256 sellPrice
+    uint256 borrowIndex
   );
+
   /**
    * @dev Emitted when a loan is liquidate on Opensea
    */
@@ -175,16 +182,18 @@ interface ILendPoolLoan {
    * @dev Auction the given loan
    *
    * Requirements:
-   *  - The loan must be in state Active
+   *  - The price must be greater than current highest price
+   *  - The loan must be in state Active or Auction
    *
+   * @param initiator The address of the user initiating the auction
    * @param loanId The loan getting auctioned
-   * @param uNftAddress The address of uNFT
-   * @param minBidPrice The start bid price of this auction
+   * @param bidPrice The bid price of this auction
    */
   function auctionLoan(
+    address initiator,
     uint256 loanId,
-    address uNftAddress,
-    uint256 minBidPrice,
+    address onBehalfOf,
+    uint256 bidPrice,
     uint256 borrowAmount,
     uint256 borrowIndex
   ) external;
@@ -200,28 +209,28 @@ interface ILendPoolLoan {
   function redeemLoan(
     address initiator,
     uint256 loanId,
-    address uNftAddress,
     uint256 amountTaken,
     uint256 borrowIndex
   ) external;
 
   /**
-   * @dev Liquidate the given loan on LooksRare
+   * @dev Liquidate the given loan
    *
    * Requirements:
    *  - The caller must send in principal + interest
-   *  - The loan must be in state Auction
+   *  - The loan must be in state Active
    *
+   * @param initiator The address of the user initiating the auction
    * @param loanId The loan getting burned
    * @param uNftAddress The address of uNFT
    */
-  function liquidateLoanLooksRare(
+  function liquidateLoan(
+    address initiator,
     uint256 loanId,
     address uNftAddress,
     uint256 borrowAmount,
-    uint256 borrowIndex,
-    DataTypes.ExecuteLiquidateLooksRareParams memory params
-  ) external returns (uint256 sellPrice);
+    uint256 borrowIndex
+  ) external;
 
   /**
    * @dev Liquidate the given loan on Opensea
@@ -249,6 +258,7 @@ interface ILendPoolLoan {
    */
   function liquidateLoanNFTX(
     uint256 loanId,
+    address uNftAddress,
     uint256 borrowAmount,
     uint256 borrowIndex
   ) external returns (uint256 sellPrice);
@@ -273,7 +283,7 @@ interface ILendPoolLoan {
 
   function getLoanReserveBorrowAmount(uint256 loanId) external view returns (address, uint256);
 
-  function getLoanMinBidPrice(uint256 loanId) external view returns (uint256);
+  function getLoanHighestBid(uint256 loanId) external view returns (address, uint256);
 
   function getNftCollateralAmount(address nftAsset) external view returns (uint256);
 

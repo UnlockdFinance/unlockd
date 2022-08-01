@@ -24,7 +24,6 @@ interface ILendPoolAddressesProvider {
   event UIDataProviderUpdated(address indexed newAddress);
   event UnlockdDataProviderUpdated(address indexed newAddress);
   event WalletBalanceProviderUpdated(address indexed newAddress);
-  event LooksRareExchangeUpdated(address indexed newAddress);
   event OpenseaSeaportUpdated(address indexed newAddress);
   event NFTXVaultFactoryUpdated(address indexed newAddress);
   event SushiSwapRouterUpdated(address indexed newAddress);
@@ -95,10 +94,6 @@ interface ILendPoolAddressesProvider {
   function getOpenseaSeaport() external view returns (address);
 
   function setOpenseaSeaport(address exchange) external;
-
-  function getLooksRareExchange() external view returns (address);
-
-  function setLooksRareExchange(address exchange) external;
 
   function getNFTXVaultFactory() external view returns (address);
 

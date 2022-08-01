@@ -49,6 +49,13 @@ if (!SKIP_LOAD) {
         require(`${tasksPath}/${task}`);
       });
   });
+  const tasksPath = path.join(__dirname, "unlockd-tests", "tasks");
+  fs.readdirSync(tasksPath)
+    .filter((pth) => pth.includes(".ts"))
+    .forEach((task) => {
+      require(`${tasksPath}/${task}`);
+    });
+
 }
 
 require(`${path.join(__dirname, "tasks/misc")}/set-bre.ts`);

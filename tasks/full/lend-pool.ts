@@ -34,14 +34,14 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       const addressesProvider = await getLendPoolAddressesProvider();
 
       //////////////////////////////////////////////////////////////////////////
-      const bnftRegistryAddress = getParamPerNetwork(poolConfig.UNFTRegistry, network);
+      const unftRegistryAddress = getParamPerNetwork(poolConfig.UNFTRegistry, network);
       console.log("UNFTRegistry", poolConfig.UNFTRegistry);
-      if (bnftRegistryAddress == undefined || !notFalsyOrZeroAddress(bnftRegistryAddress)) {
+      if (unftRegistryAddress == undefined || !notFalsyOrZeroAddress(unftRegistryAddress)) {
         throw Error("Invalid UNFT Registry address in pool config");
       }
-      const bnftRegistryProxy = await getUNFTRegistryProxy(bnftRegistryAddress);
+      const unftRegistryProxy = await getUNFTRegistryProxy(unftRegistryAddress);
       console.log("Setting UNFTRegistry to address provider...");
-      await waitForTx(await addressesProvider.setUNFTRegistry(bnftRegistryProxy.address));
+      await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
 
       // Reserves Init & NFTs Init need IncentivesController
       const incentivesControllerAddress = getParamPerNetwork(poolConfig.IncentivesController, network);

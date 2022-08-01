@@ -480,8 +480,7 @@ export const calcExpectedUserDataAfterAuction = (
   txTimestamp: BigNumber,
   currentTimestamp: BigNumber
 ): UserReserveData => {
-  // const amountAuctionBN = new BigNumber(amountToAuction);
-  const amountAuctionBN = new BigNumber(0);
+  const amountAuctionBN = new BigNumber(amountToAuction);
   const amountRedeemBN = new BigNumber(0); // just reuse repay calculation logic
 
   const expectedUserData = calcExpectedUserDataAfterRepay(
@@ -524,10 +523,18 @@ export const calcExpectedUserDataAfterRedeem = (
     currentTimestamp
   );
 
+  const borrowAmount = calcExpectedLoanBorrowBalance(reserveDataBeforeAction, loanDataBeforeAction, currentTimestamp);
+  let bidFine = borrowAmount.percentMul(loanDataBeforeAction.nftCfgRedeemFine);
+  const minBidFine = oneEther.percentMul(loanDataBeforeAction.nftCfgMinBidFine);
+  if (bidFine < minBidFine) {
+    bidFine = minBidFine;
+  }
+
   // walletBalance is about liquidator(user), not borrower
   // borrower's wallet not changed, but we check liquidator's wallet
-  expectedUserData.walletBalance = userDataBeforeAction.walletBalance.minus(new BigNumber(amountToRedeem));
-  // .minus(bidFine);
+  expectedUserData.walletBalance = userDataBeforeAction.walletBalance
+    .minus(new BigNumber(amountToRedeem))
+    .minus(bidFine);
   return expectedUserData;
 };
 
@@ -543,6 +550,9 @@ export const calcExpectedUserDataAfterLiquidate = (
   //const amountRepaidBN = loanDataBeforeAction.currentAmount;
   const amountRepaidBN = calcExpectedLoanBorrowBalance(reserveDataBeforeAction, loanDataBeforeAction, currentTimestamp);
   let extraRepaidBN = new BigNumber("0");
+  if (amountRepaidBN > loanDataBeforeAction.bidPrice) {
+    extraRepaidBN = loanDataBeforeAction.bidPrice.minus(amountRepaidBN);
+  }
 
   const expectedUserData = calcExpectedUserDataAfterRepay(
     amountRepaidBN.toString(),
@@ -583,7 +593,10 @@ export const calcExpectedLoanDataAfterBorrow = (
   expectedLoanData.nftTokenId = new BigNumber(loanDataAfterAction.nftTokenId);
   expectedLoanData.reserveAsset = loanDataAfterAction.reserveAsset;
 
-  expectedLoanData.minBidPrice = new BigNumber(0);
+  expectedLoanData.bidderAddress = ZERO_ADDRESS;
+  expectedLoanData.bidPrice = new BigNumber(0);
+  expectedLoanData.bidBorrowAmount = new BigNumber(0);
+  expectedLoanData.bidFine = new BigNumber(0);
 
   expectedLoanData.state = new BigNumber(ProtocolLoanState.Active);
 
@@ -625,7 +638,10 @@ export const calcExpectedLoanDataAfterRepay = (
   expectedLoanData.nftTokenId = new BigNumber(loanDataAfterAction.nftTokenId);
   expectedLoanData.reserveAsset = loanDataAfterAction.reserveAsset;
 
-  expectedLoanData.minBidPrice = new BigNumber(0);
+  expectedLoanData.bidderAddress = ZERO_ADDRESS;
+  expectedLoanData.bidPrice = new BigNumber(0);
+  expectedLoanData.bidBorrowAmount = new BigNumber(0);
+  expectedLoanData.bidFine = new BigNumber(0);
 
   const borrowAmount = calcExpectedLoanBorrowBalance(reserveDataBeforeAction, loanDataBeforeAction, currentTimestamp);
 
@@ -677,7 +693,12 @@ export const calcExpectedLoanDataAfterAuction = (
 
   expectedLoanData.state = new BigNumber(ProtocolLoanState.Auction);
 
-  expectedLoanData.minBidPrice = new BigNumber(0);
+  expectedLoanData.bidderAddress = onBehalfOf;
+  expectedLoanData.bidPrice = new BigNumber(amountToAuction);
+  expectedLoanData.bidFine = loanDataAfterAction.bidFine;
+
+  const borrowAmount = calcExpectedLoanBorrowBalance(reserveDataBeforeAction, loanDataBeforeAction, currentTimestamp);
+  expectedLoanData.bidBorrowAmount = borrowAmount;
 
   {
     expectedLoanData.scaledAmount = loanDataBeforeAction.scaledAmount;
@@ -713,7 +734,10 @@ export const calcExpectedLoanDataAfterRedeem = (
 
   expectedLoanData.state = new BigNumber(ProtocolLoanState.Active); //active
 
-  expectedLoanData.minBidPrice = new BigNumber(0);
+  expectedLoanData.bidderAddress = ZERO_ADDRESS;
+  expectedLoanData.bidPrice = new BigNumber(0);
+  expectedLoanData.bidFine = new BigNumber(0);
+  expectedLoanData.bidBorrowAmount = new BigNumber(0);
 
   {
     expectedLoanData.scaledAmount = loanDataBeforeAction.scaledAmount.minus(
@@ -748,7 +772,12 @@ export const calcExpectedLoanDataAfterLiquidate = (
 
   expectedLoanData.state = new BigNumber(ProtocolLoanState.Defaulted);
 
-  expectedLoanData.minBidPrice = loanDataBeforeAction.minBidPrice;
+  expectedLoanData.bidderAddress = loanDataBeforeAction.bidderAddress;
+  expectedLoanData.bidPrice = loanDataBeforeAction.bidPrice;
+  expectedLoanData.bidFine = loanDataAfterAction.bidFine; //???
+
+  const borrowAmount = calcExpectedLoanBorrowBalance(reserveDataBeforeAction, loanDataBeforeAction, currentTimestamp);
+  expectedLoanData.bidBorrowAmount = borrowAmount;
 
   {
     expectedLoanData.scaledAmount = loanDataBeforeAction.scaledAmount;

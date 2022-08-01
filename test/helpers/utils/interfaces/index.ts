@@ -31,7 +31,7 @@ export interface ReserveData {
 export interface NftData {
   address: string;
   symbol: string;
-  bnftTokenAddress: string;
+  unftTokenAddress: string;
   redeemFine: BigNumber;
   [key: string]: BigNumber | string;
 }
@@ -45,7 +45,10 @@ export interface LoanData {
   reserveAsset: string;
   scaledAmount: BigNumber;
   currentAmount: BigNumber;
-  minBidPrice: BigNumber;
+  bidderAddress: string;
+  bidPrice: BigNumber;
+  bidBorrowAmount: BigNumber;
+  bidFine: BigNumber;
   nftCfgRedeemFine: BigNumber;
   nftCfgMinBidFine: BigNumber;
   [key: string]: BigNumber | string | Boolean;

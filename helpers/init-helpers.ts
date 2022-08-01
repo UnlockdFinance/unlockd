@@ -162,7 +162,7 @@ export const initNftsByHelper = async (
   verify: boolean
 ) => {
   const addressProvider = await getLendPoolAddressesProvider();
-  const bnftRegistry = await addressProvider.getUNFTRegistry();
+  const unftRegistry = await addressProvider.getUNFTRegistry();
 
   // CHUNK CONFIGURATION
   const initChunks = 1;

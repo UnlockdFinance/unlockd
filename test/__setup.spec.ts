@@ -128,33 +128,33 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
 
   //////////////////////////////////////////////////////////////////////////////
   // !!! MUST BEFORE LendPoolConfigurator which will getUNFTRegistry from address provider when init
-  console.log("-> Prepare mock bnft registry...");
-  const bnftGenericImpl = await deployGenericUNFTImpl(false);
+  console.log("-> Prepare mock unft registry...");
+  const unftGenericImpl = await deployGenericUNFTImpl(false);
 
-  const bnftRegistryImpl = await deployUNFTRegistry();
-  const initEncodedData = bnftRegistryImpl.interface.encodeFunctionData("initialize", [
-    bnftGenericImpl.address,
+  const unftRegistryImpl = await deployUNFTRegistry();
+  const initEncodedData = unftRegistryImpl.interface.encodeFunctionData("initialize", [
+    unftGenericImpl.address,
     config.Mocks.UNftNamePrefix,
     config.Mocks.UNftSymbolPrefix,
   ]);
 
-  const bnftRegistryProxy = await deployUnlockdUpgradeableProxy(
+  const unftRegistryProxy = await deployUnlockdUpgradeableProxy(
     eContractid.UNFTRegistry,
     unlockdProxyAdmin.address,
-    bnftRegistryImpl.address,
+    unftRegistryImpl.address,
     initEncodedData
   );
 
-  const bnftRegistry = await getUNFTRegistryProxy(bnftRegistryProxy.address);
+  const unftRegistry = await getUNFTRegistryProxy(unftRegistryProxy.address);
 
-  await waitForTx(await bnftRegistry.transferOwnership(poolAdmin));
+  await waitForTx(await unftRegistry.transferOwnership(poolAdmin));
 
   //////////////////////////////////////////////////////////////////////////////
-  console.log("-> Prepare mock bnft tokens...");
+  console.log("-> Prepare mock unft tokens...");
   for (const [nftSymbol, mockedNft] of Object.entries(mockNfts) as [string, MintableERC721][]) {
-    await waitForTx(await bnftRegistry.createUNFT(mockedNft.address));
-    const bnftAddresses = await bnftRegistry.getUNFTAddresses(mockedNft.address);
-    console.log("createUNFT:", nftSymbol, bnftAddresses.uNftProxy, bnftAddresses.uNftImpl);
+    await waitForTx(await unftRegistry.createUNFT(mockedNft.address));
+    const uNftAddresses = await unftRegistry.getUNFTAddresses(mockedNft.address);
+    console.log("createUNFT:", nftSymbol, uNftAddresses.uNftProxy, uNftAddresses.uNftImpl);
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -172,7 +172,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
 
   //////////////////////////////////////////////////////////////////////////////
   // !!! MUST BEFORE LendPoolConfigurator which will getUNFTRegistry from address provider when init
-  await waitForTx(await addressesProvider.setUNFTRegistry(bnftRegistry.address));
+  await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistry.address));
   await waitForTx(await addressesProvider.setIncentivesController(incentivesControllerAddress));
 
   //////////////////////////////////////////////////////////////////////////////

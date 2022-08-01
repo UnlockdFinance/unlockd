@@ -23,20 +23,20 @@ task("verify:nfts", "Verify nfts contracts at Etherscan")
 
     const lendPoolProxy = await getLendPool(await addressesProvider.getLendPool());
 
-    const bnftRegistryAddress = await addressesProvider.getUNFTRegistry();
-    const bnftRegistryProxy = await getUnlockdUpgradeableProxy(bnftRegistryAddress);
-    const bnftRegistryImpl = await getUNFTRegistryImpl();
-    const bnftRegistry = await getUNFTRegistryProxy(bnftRegistryAddress);
+    const unftRegistryAddress = await addressesProvider.getUNFTRegistry();
+    const unftRegistryProxy = await getUnlockdUpgradeableProxy(unftRegistryAddress);
+    const unftRegistryImpl = await getUNFTRegistryImpl();
+    const unftRegistry = await getUNFTRegistryProxy(unftRegistryAddress);
 
-    const bnftGenericImpl = await getUNFT(await bnftRegistry.uNftGenericImpl());
+    const unftGenericImpl = await getUNFT(await unftRegistry.uNftGenericImpl());
 
     // UNFTRegistry proxy
     console.log("\n- Verifying UNFT Registry Proxy...\n");
-    await verifyContract(eContractid.UnlockdUpgradeableProxy, bnftRegistryProxy, [
-      bnftRegistryImpl.address,
+    await verifyContract(eContractid.UnlockdUpgradeableProxy, unftRegistryProxy, [
+      unftRegistryImpl.address,
       addressesProvider.address,
-      bnftRegistryImpl.interface.encodeFunctionData("initialize", [
-        bnftGenericImpl.address,
+      unftRegistryImpl.interface.encodeFunctionData("initialize", [
+        unftGenericImpl.address,
         poolConfig.Mocks.UNftNamePrefix,
         poolConfig.Mocks.UNftSymbolPrefix,
       ]),
@@ -44,7 +44,7 @@ task("verify:nfts", "Verify nfts contracts at Etherscan")
 
     // UNFT generic implementation
     console.log("\n- Verifying UNFT Generic Implementation...\n");
-    await verifyContract(eContractid.UNFT, bnftGenericImpl, []);
+    await verifyContract(eContractid.UNFT, unftGenericImpl, []);
 
     const configs = Object.entries(NftsConfig) as [string, IReserveParams][];
     for (const entry of Object.entries(getParamPerNetwork(NftsAssets, network))) {
@@ -57,12 +57,12 @@ task("verify:nfts", "Verify nfts contracts at Etherscan")
       }
 
       const { uNftAddress } = await lendPoolProxy.getNftData(tokenAddress);
-      //const { uNftProxy, uNftImpl } = await bnftRegistry.getUNFTAddresses(tokenAddress);
+      //const { uNftProxy, uNftImpl } = await unftRegistry.getUNFTAddresses(tokenAddress);
 
       // UNFT proxy for each nft asset
       console.log("\n- Verifying UNFT Proxy...\n");
       await verifyContract(eContractid.UnlockdUpgradeableProxy, await getUnlockdUpgradeableProxy(uNftAddress), [
-        bnftRegistry.address,
+        unftRegistry.address,
       ]);
     }
   });

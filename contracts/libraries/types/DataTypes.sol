@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
-import {OrderTypes} from "../looksrare/OrderTypes.sol";
-
 library DataTypes {
   struct ReserveData {
     //stores the reserve configuration
@@ -96,9 +94,15 @@ library DataTypes {
     //scaled borrow amount. Expressed in ray
     uint256 scaledAmount;
     //start time of first bid time
-    uint256 auctionStartTimestamp;
-    //min bid price
-    uint256 minBidPrice;
+    uint256 bidStartTimestamp;
+    //bidder address of higest bid
+    address bidderAddress;
+    //price of higest bid
+    uint256 bidPrice;
+    //borrow amount of loan
+    uint256 bidBorrowAmount;
+    //bidder address of first bid
+    address firstBidderAddress;
   }
 
   struct ExecuteDepositParams {
@@ -151,8 +155,11 @@ library DataTypes {
   }
 
   struct ExecuteAuctionParams {
+    address initiator;
     address nftAsset;
     uint256 nftTokenId;
+    uint256 bidPrice;
+    address onBehalfOf;
   }
 
   struct ExecuteRedeemParams {
@@ -160,6 +167,7 @@ library DataTypes {
     address nftAsset;
     uint256 nftTokenId;
     uint256 amount;
+    uint256 bidFine;
   }
 
   struct ExecuteLiquidateParams {
@@ -167,13 +175,6 @@ library DataTypes {
     address nftAsset;
     uint256 nftTokenId;
     uint256 amount;
-  }
-
-  struct ExecuteLiquidateLooksRareParams {
-    address nftAsset;
-    uint256 nftTokenId;
-    OrderTypes.TakerOrder takerAsk;
-    OrderTypes.MakerOrder makerBid;
   }
 
   struct ExecuteLiquidateOpenseaParams {
@@ -187,5 +188,10 @@ library DataTypes {
     address nftAsset;
     uint256 nftTokenId;
     uint256 liquidateFeePercentage;
+  }
+
+  struct ExecuteLendPoolStates {
+    uint256 pauseStartTime;
+    uint256 pauseDurationTime;
   }
 }

@@ -133,9 +133,8 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Auction, "Invalid loan state after acution");
   });
 
-  it("WETH - Liquidates the borrow", async () => {
-    const { weth, bayc, users, pool, dataProvider } = testEnv;
-    const liquidator = users[3];
+  it("WETH - Can't liquidate on NFTX", async () => {
+    const { weth, bayc, users, pool, dataProvider, liquidator } = testEnv;
     const borrower = users[1];
 
     const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
@@ -150,49 +149,8 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
 
     const extraAmount = await convertToCurrencyDecimals(weth.address, "1");
-    await pool.connect(liquidator.signer).liquidate(bayc.address, "101", extraAmount);
-
-    // check result
-    const tokenOwner = await bayc.ownerOf("101");
-    expect(tokenOwner).to.be.equal(liquidator.address, "Invalid token owner after liquidation");
-
-    const loanDataAfter = await dataProvider.getLoanDataByLoanId(loanDataBefore.loanId);
-
-    expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Defaulted, "Invalid loan state after liquidation");
-
-    const userReserveDataAfter = await getUserData(pool, dataProvider, weth.address, borrower.address);
-
-    const ethReserveDataAfter = await dataProvider.getReserveData(weth.address);
-
-    const userVariableDebtAmountBeforeTx = new BigNumber(userReserveDataBefore.scaledVariableDebt).rayMul(
-      new BigNumber(ethReserveDataAfter.variableBorrowIndex.toString())
-    );
-
-    // expect debt amount to be liquidated
-    const expectedLiquidateAmount = new BigNumber(loanDataBefore.scaledAmount.toString()).rayMul(
-      new BigNumber(ethReserveDataAfter.variableBorrowIndex.toString())
-    );
-
-    expect(userReserveDataAfter.currentVariableDebt.toString()).to.be.bignumber.almostEqual(
-      userVariableDebtAmountBeforeTx.minus(expectedLiquidateAmount).toString(),
-      "Invalid user debt after liquidation"
-    );
-
-    //the liquidity index of the principal reserve needs to be bigger than the index before
-    expect(ethReserveDataAfter.liquidityIndex.toString()).to.be.bignumber.gte(
-      ethReserveDataBefore.liquidityIndex.toString(),
-      "Invalid liquidity index"
-    );
-
-    //the principal APY after a liquidation needs to be lower than the APY before
-    expect(ethReserveDataAfter.liquidityRate.toString()).to.be.bignumber.lt(
-      ethReserveDataBefore.liquidityRate.toString(),
-      "Invalid liquidity APY"
-    );
-
-    expect(ethReserveDataAfter.availableLiquidity.toString()).to.be.bignumber.almostEqual(
-      new BigNumber(ethReserveDataBefore.availableLiquidity.toString()).plus(expectedLiquidateAmount).toFixed(0),
-      "Invalid principal available liquidity"
+    await expect(pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "101")).to.be.revertedWith(
+      ProtocolErrors.LPL_INVALID_LOAN_STATE
     );
   });
 
@@ -340,9 +298,8 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Auction, "Invalid loan state after acution");
   });
 
-  it("USDC - Liquidates the borrow", async () => {
-    const { usdc, bayc, users, pool, dataProvider } = testEnv;
-    const liquidator = users[4];
+  it("USDC - Can't liquidate on NFTX", async () => {
+    const { usdc, bayc, users, pool, dataProvider, liquidator } = testEnv;
     const borrower = users[1];
 
     const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
@@ -357,51 +314,8 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
 
     const extraAmount = await convertToCurrencyDecimals(usdc.address, "10");
-    await pool.connect(liquidator.signer).liquidate(bayc.address, "102", extraAmount);
-
-    // check result
-    const tokenOwner = await bayc.ownerOf("102");
-    expect(tokenOwner).to.be.equal(liquidator.address, "Invalid token owner after liquidation");
-
-    const loanDataAfter = await dataProvider.getLoanDataByLoanId(loanDataBefore.loanId);
-
-    expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Defaulted, "Invalid loan state after liquidation");
-
-    const userReserveDataAfter = await getUserData(pool, dataProvider, usdc.address, borrower.address);
-
-    const usdcReserveDataAfter = await dataProvider.getReserveData(usdc.address);
-
-    const userVariableDebtAmountBeforeTx = new BigNumber(userReserveDataBefore.scaledVariableDebt).rayMul(
-      new BigNumber(usdcReserveDataAfter.variableBorrowIndex.toString())
-    );
-
-    // expect debt amount to be liquidated
-    const expectedLiquidateAmount = new BigNumber(loanDataBefore.scaledAmount.toString()).rayMul(
-      new BigNumber(usdcReserveDataAfter.variableBorrowIndex.toString())
-    );
-
-    expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Defaulted, "Invalid loan state after liquidation");
-
-    expect(userReserveDataAfter.currentVariableDebt.toString()).to.be.bignumber.almostEqual(
-      userVariableDebtAmountBeforeTx.minus(expectedLiquidateAmount).toString(),
-      "Invalid user debt after liquidation"
-    );
-
-    //the liquidity index of the principal reserve needs to be bigger than the index before
-    expect(usdcReserveDataAfter.liquidityIndex.toString()).to.be.bignumber.gte(
-      usdcReserveDataBefore.liquidityIndex.toString(),
-      "Invalid liquidity index"
-    );
-
-    //the principal APY after a liquidation needs to be lower than the APY before
-    expect(usdcReserveDataAfter.liquidityRate.toString()).to.be.bignumber.lt(
-      usdcReserveDataBefore.liquidityRate.toString(),
-      "Invalid liquidity APY"
-    );
-
-    expect(usdcReserveDataAfter.availableLiquidity.toString()).to.be.bignumber.almostEqual(
-      new BigNumber(usdcReserveDataBefore.availableLiquidity.toString()).plus(expectedLiquidateAmount).toFixed(0),
-      "Invalid principal available liquidity"
+    await expect(pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "102")).to.be.revertedWith(
+      ProtocolErrors.LPL_INVALID_LOAN_STATE
     );
   });
 });
