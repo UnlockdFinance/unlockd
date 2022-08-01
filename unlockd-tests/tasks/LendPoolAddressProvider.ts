@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
 import { Functions } from "../helpers/protocolFunctions";
 import { getOwnerWallet } from "../helpers/config"; 
-
+ 
 task("tests:provider:getMarketId", "User gets the market id address")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
