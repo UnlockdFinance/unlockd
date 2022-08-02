@@ -16,7 +16,7 @@ import wethGatewayArtifact from "../../artifacts/contracts/protocol/WETHGateway.
 //Mock imports
 import erc20Artifact from "../../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
 import erc721Artifact from "../../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
-import deployments from "../../deployments/deployed-contracts-old-rinkeby.json"
+import deployments from "../../deployments/deployed-contracts-rinkeby.json"
 
 dotenv.config();
 
@@ -61,7 +61,7 @@ export const Contracts = {
 const daiContract = new Contract(deployments.DAI.address, erc20Artifact.abi);
 const usdcContract = new Contract(deployments.USDC.address, erc20Artifact.abi);
 const baycContract = new Contract(deployments.BAYC.address, erc721Artifact.abi);
- 
+
 export const MockContracts = {
     DAI: daiContract,
     USDC: usdcContract,
