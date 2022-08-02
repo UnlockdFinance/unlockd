@@ -8,11 +8,12 @@ import { parseUnits } from "@ethersproject/units";
 task("lendpool:deposit", "User 0 Deposits {amount} {reserve} in an empty reserve")
 .addParam("amount", "Reserve amount") 
 .addParam("reserve", "The reserve")  //must be set to 'DAI' or 'USDC'
-.addParam("onbehalfof", "On behalf of to deposit")
+.addParam("to", "Who will receive the interest bearing tokens")
 .setAction( async ({amount, reserve, onbehalfof}) => {
     const wallet = await getUserWallet();  
     const tokenContract = MockContracts[reserve];
-    amount = await parseUnits(amount.toString())    
+    reserve == 'USDC' ? 
+        amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString())
   
     await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount)  
     await Functions.LENDPOOL.deposit(wallet, tokenContract.address, amount, onbehalfof);
@@ -26,26 +27,28 @@ task("lendpool:withdraw", "User 0 Withdraws {amount} {reserve} from the reserves
 .setAction( async ({amount, reserve, to}) => {
     const wallet = await getUserWallet();  
     const tokenContract = MockContracts[reserve];
-    amount = await parseUnits(amount.toString())    
+    reserve == 'USDC' ? 
+        amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString())    
     
     await Functions.LENDPOOL.withdraw(wallet, tokenContract.address, amount, to);
-   
+    
 }); 
 //Borrowing 
 task("lendpool:borrow", "User 0 Withdraws {amount} {reserve} from the reserves")
-.addParam("asset", "reserve asset to borrow") 
+.addParam("reserve", "reserve asset to borrow") 
 .addParam("amount", "amount to borrow")  
 .addParam("collectionname", "NFT name")
 .addParam("collection", "NFT collection")
 .addParam("tokenid", "the NFT token ID")
-.addParam("onbehalfof", "Who will reveive the borrowed amount")
-.setAction( async ({asset, amount, collectionname, collection, tokenid, onbehalfof}) => {
+.addParam("to", "Who will reveive the borrowed amount")
+.setAction( async ({reserve, amount, collectionname, collection, tokenid, to}) => {
     const wallet = await getUserWallet();  
-    amount = await parseUnits(amount.toString())    
-    console.log(amount);
+    const tokenContract = MockContracts[reserve];
+    reserve == 'USDC' ? 
+        amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString())  
     const nftContract = MockContracts[collectionname];
     await Functions.NFTS.approve(wallet, nftContract, Contracts.lendPool.address, tokenid);
-    await Functions.LENDPOOL.borrow(wallet, asset, amount, collection, tokenid, onbehalfof);
+    await Functions.LENDPOOL.borrow(wallet, tokenContract.address, amount, collection, tokenid, to);
    
 }); 
 //Borrowing 
@@ -81,13 +84,26 @@ task("lendpool:redeem", "Redeems a loan")
 });  
 
 //Repay loan 
-task("lendpool:repay", "Redeems a loan")
+task("lendpool:repay", "Repays a loan")
 .addParam("collection", "NFT collection address") 
 .addParam("tokenid", "nft token id")  
+.addParam("reserve", "reserve")  //must be set to 'DAI' or 'USDC'
 .addParam("amount", "Amount to repay")  
-.setAction( async ({collection, tokenid, amount}) => {
+.setAction( async ({collection, tokenid, reserve, amount}) => {
     const wallet = await getUserWallet();  
-    amount = await parseUnits(amount.toString())    
+    reserve == 'USDC' ? 
+        amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString())
+    
+    const tokenContract = MockContracts[reserve];
+    await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount)  
     await Functions.LENDPOOL.repay(wallet, collection, tokenid, amount);
     
+});  
+
+//Get liquidation fee percentage
+task("lendpool:getliquidatefee", "Get liquidation fee percentage")
+.setAction( async () => {
+    const wallet = await getUserWallet();  
+    const percentage = await Functions.LENDPOOL.getLiquidateFeePercentage(wallet);
+    console.log(percentage.toString())
 });  
