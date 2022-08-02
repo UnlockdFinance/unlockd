@@ -71,22 +71,45 @@ const getAssetPrice = async (wallet: Wallet, asset: string) => {
     return await Contracts.reserveOracle.connect(wallet).getAssetPrice(asset);
 }
 
-//Addresses provider
+//Addresses provider for any doubts in the parameters check the LendPoolAddressProvider Contract
+const getMarketId = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getMarketId();
+}
+
+const setMarketId = async (wallet: Wallet, marketId: string) => { 
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setMarketId(marketId);
+}
 
 const getLendPool = async (wallet: Wallet) => { 
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getLendPool().wait();
 }
 
-const getMarketId = async (wallet: Wallet) => {
-    return await Contracts.lendPoolAddressesProvider.connect(wallet).getMarketId();
+const setLendPoolImpl = async (wallet: Wallet, lendpoolProviderAddress: string, encodedCallData: string) => { 
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setLendPoolImpl(lendpoolProviderAddress, encodedCallData);
+}
+
+const getLendPoolLiquidator = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getLendPoolLiquidator();
 }
 
 const setLendPoolLiquidator = async (wallet: Wallet, lendPoolLiquidatorAddress: string) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).setLendPoolLiquidator(lendPoolLiquidatorAddress);
 }
 
-const getLendPoolLiquidator = async (wallet: Wallet) => {
-    return await Contracts.lendPoolAddressesProvider.connect(wallet).getLendPoolLiquidator();
+const getPoolAdmin = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getPoolAdmin();
+}
+
+const setPoolAdmin = async (wallet: Wallet, admin: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setPoolAdmin(admin);
+}
+
+const getEmergencyAdmin = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getEmergencyAdmin();
+}
+
+const setEmergencyAdmin = async (wallet: Wallet, emergencyAdmin: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setEmergencyAdmin(emergencyAdmin);
 }
 
 const getNFTXVaultFactory = async (wallet: Wallet) => {
@@ -151,10 +174,16 @@ export const Functions = {
         getAssetPrice: getAssetPrice,
     },
     LENDPOOLADDRESSPROVIDER: {
-        getLendPool: getLendPool,
         getMarketId: getMarketId,
+        setMarketId: setMarketId,
+        getLendPool: getLendPool,
+        setLendPoolImpl: setLendPoolImpl,
         setLendPoolLiquidator: setLendPoolLiquidator,
         getLendPoolLiquidator: getLendPoolLiquidator,
+        getPoolAdmin: getPoolAdmin,
+        setPoolAdmin: setPoolAdmin,
+        getEmergencyAdmin: getEmergencyAdmin,
+        setEmergencyAdmin: setEmergencyAdmin,
         getNFTXVaultFactory: getNFTXVaultFactory, 
         setNFTXVaultFactory: setNFTXVaultFactory,
         getSushiSwapRouter: getSushiSwapRouter,

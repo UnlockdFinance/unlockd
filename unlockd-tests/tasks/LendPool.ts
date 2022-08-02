@@ -12,7 +12,8 @@ task("lendpool:deposit", "User 0 Deposits {amount} {reserve} in an empty reserve
 .setAction( async ({amount, reserve, onbehalfof}) => {
     const wallet = await getUserWallet();  
     const tokenContract = MockContracts[reserve];
-    amount = await parseUnits(amount.toString())    
+    reserve == 'USDC' ? 
+        amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString())    
   
     await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount)  
     await Functions.LENDPOOL.deposit(wallet, tokenContract.address, amount, onbehalfof);
@@ -26,7 +27,8 @@ task("lendpool:withdraw", "User 0 Withdraws {amount} {reserve} from the reserves
 .setAction( async ({amount, reserve, to}) => {
     const wallet = await getUserWallet();  
     const tokenContract = MockContracts[reserve];
-    amount = await parseUnits(amount.toString())    
+    reserve == 'USDC' ? 
+        amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString())    
     
     await Functions.LENDPOOL.withdraw(wallet, tokenContract.address, amount, to);
    
@@ -41,7 +43,8 @@ task("lendpool:borrow", "User 0 Withdraws {amount} {reserve} from the reserves")
 .addParam("onbehalfof", "Who will reveive the borrowed amount")
 .setAction( async ({asset, amount, collectionname, collection, tokenid, onbehalfof}) => {
     const wallet = await getUserWallet();  
-    amount = await parseUnits(amount.toString())    
+    asset == 'USDC' ? 
+        amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString())    
     console.log(amount);
     const nftContract = MockContracts[collectionname];
     await Functions.NFTS.approve(wallet, nftContract, Contracts.lendPool.address, tokenid);
