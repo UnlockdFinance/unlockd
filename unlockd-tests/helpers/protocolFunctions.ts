@@ -47,6 +47,10 @@ const redeem = async (wallet: Wallet, collection: string, nftTokenId: number, am
 const repay = async (wallet: Wallet, collection: string, nftTokenId: number, amount: number) => {
     return await Contracts.lendPool.connect(wallet).repay(collection, nftTokenId, amount);
 }
+
+const getLiquidateFeePercentage = async (wallet: Wallet) => {
+    return await Contracts.lendPool.connect(wallet).getLiquidateFeePercentage();
+}
 //Lendpool loan
 const getLoanIdTracker = async (wallet: Wallet) => {
     return await Contracts.lendPoolLoan.connect(wallet).getLoanIdTracker();
@@ -184,20 +188,28 @@ const setOpenseaSeaport = async (wallet: Wallet, exchange: string) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).setOpenseaSeaport(exchange);
 }
 
+const setProtocolDataProvider = async (wallet: Wallet, protocolDataProviderAddress: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setUnlockdDataProvider(protocolDataProviderAddress);
+}
+
+const getProtocolDataProvider = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getUnlockdDataProvider();
+}
+
 const getNFTXVaultFactory = async (wallet: Wallet) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getNFTXVaultFactory();
 }
 
-const setNFTXVaultFactory = async (wallet: Wallet, factory: string) => {
-    return await Contracts.lendPoolAddressesProvider.connect(wallet).setNFTXVaultFactory(factory);
+const setNFTXVaultFactory = async (wallet: Wallet, address: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setNFTXVaultFactory(address);
 }
 
-const getSushiSwapRouter = async (wallet: Wallet) => {
+const getSushiSwapRouter =  async (wallet: Wallet) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getSushiSwapRouter();
 }
 
-const setSushiSwapRouter = async (wallet: Wallet, router: string) => {
-    return await Contracts.lendPoolAddressesProvider.connect(wallet).setSushiSwapRouter(router);
+const setSushiSwapRouter = async (wallet: Wallet, address: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setSushiSwapRouter(address);
 }
 
 // interest Rates
@@ -213,6 +225,14 @@ const baseVariableBorrowRate = async (wallet: Wallet) => {
     return await Contracts.interestRate.connect(wallet).baseVariableBorrowRate();
 }
 
+// NFTX
+const getNFTXVault = async (wallet: Wallet, assetAddress: string) => {
+    return await Contracts.nftxVaultFactory.connect(wallet).vaultsForAsset(assetAddress);
+}
+
+const createNFTXVault = async (wallet: Wallet, name: string, symbol: string, assetAddress: string, is1155 = false, allowAllItems = true) => {
+    return await Contracts.nftxVaultFactory.connect(wallet).createVault(name, symbol, assetAddress, is1155, allowAllItems)
+}
 
 //Exported functions
 export const Functions = {
@@ -229,9 +249,9 @@ export const Functions = {
         borrow: borrow,
         getCollateralData: getCollateralData,
         getDebtData: getDebtData,
+        getLiquidateFeePercentage: getLiquidateFeePercentage,
         redeem: redeem,
         repay: repay
-
     },
     LENDPOOL_LOAN: {
         getLoanIdTracker: getLoanIdTracker,
@@ -278,10 +298,16 @@ export const Functions = {
         setNFTXVaultFactory: setNFTXVaultFactory,
         getSushiSwapRouter: getSushiSwapRouter,
         setSushiSwapRouter: setSushiSwapRouter,
+        setProtocolDataProvider: setProtocolDataProvider,
+        getProtocolDataProvider: getProtocolDataProvider,
     },
     INTERESTRATE: {
         variableRateSlope1: variableRateSlope1,
         variableRateSlope2: variableRateSlope2,
         baseVariableBorrowRate: baseVariableBorrowRate,
     },
+    NFTX: {
+        getNFTXVault: getNFTXVault,
+        createNFTXVault: createNFTXVault
+    }
 }
