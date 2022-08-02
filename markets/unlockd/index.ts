@@ -71,9 +71,9 @@ export const UnlockdConfig: IUnlockdConfiguration = {
       USDC: '0x0bb5261d7b100bcfAe9976aFFFae50B7dDaBa176',
     },
     [eEthereumNetwork.rinkeby]: { // dev:deploy-mock-reserves
-      // WETH: '0xB78975442a6E692b8764fd18DAF0Db1BFC6355A0',
-      // DAI: '0x3Ba63E017D95DE373cAB3fcE3C6A07917702D928',
-      // USDC: '0xBe63eAB657873c4b8633cCFbEAF568a860c896c3'
+      WETH: '0xB78975442a6E692b8764fd18DAF0Db1BFC6355A0',
+      DAI: '0x3Ba63E017D95DE373cAB3fcE3C6A07917702D928',
+      USDC: '0xBe63eAB657873c4b8633cCFbEAF568a860c896c3'
     },
     [eEthereumNetwork.goerli]: {
       //WETH: ,
