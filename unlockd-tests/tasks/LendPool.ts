@@ -94,3 +94,11 @@ task("lendpool:repay", "Redeems a loan")
     await Functions.LENDPOOL.repay(wallet, collection, tokenid, amount);
     
 });  
+
+//Get liquidation fee percentage
+task("lendpool:getliquidatefee", "Get liquidation fee percentage")
+.setAction( async () => {
+    const wallet = await getUserWallet();  
+    const percentage = await Functions.LENDPOOL.getLiquidateFeePercentage(wallet);
+    console.log(percentage.toString())
+});  
