@@ -65,6 +65,11 @@ const repay = async (wallet: Wallet, collection: string, nftTokenId: number, amo
 //#endregion
 
 //#region  Lendpool loan
+
+const getLiquidateFeePercentage = async (wallet: Wallet) => {
+    return await Contracts.lendPool.connect(wallet).getLiquidateFeePercentage();
+}
+//Lendpool loan
 const getLoanIdTracker = async (wallet: Wallet) => {
     return await Contracts.lendPoolLoan.connect(wallet).getLoanIdTracker();
 }
@@ -93,6 +98,7 @@ const getAssetPrice = async (wallet: Wallet, asset: string) => {
 //#endregion
 
 //#region AddressProvider for any doubts in the parameters check the LendPoolAddressProvider Contract
+//Addresses provider for any doubts in the parameters check the LendPoolAddressProvider Contract
 const getMarketId = async (wallet: Wallet) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getMarketId();
 }
@@ -205,21 +211,30 @@ const setOpenseaSeaport = async (wallet: Wallet, exchange: string) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).setOpenseaSeaport(exchange);
 }
 
+const setProtocolDataProvider = async (wallet: Wallet, protocolDataProviderAddress: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setUnlockdDataProvider(protocolDataProviderAddress);
+}
+
+const getProtocolDataProvider = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getUnlockdDataProvider();
+}
+
 const getNFTXVaultFactory = async (wallet: Wallet) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getNFTXVaultFactory();
 }
 
-const setNFTXVaultFactory = async (wallet: Wallet, factory: string) => {
-    return await Contracts.lendPoolAddressesProvider.connect(wallet).setNFTXVaultFactory(factory);
+const setNFTXVaultFactory = async (wallet: Wallet, address: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setNFTXVaultFactory(address);
 }
 
-const getSushiSwapRouter = async (wallet: Wallet) => {
+const getSushiSwapRouter =  async (wallet: Wallet) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getSushiSwapRouter();
 }
 
-const setSushiSwapRouter = async (wallet: Wallet, router: string) => {
-    return await Contracts.lendPoolAddressesProvider.connect(wallet).setSushiSwapRouter(router);
+const setSushiSwapRouter = async (wallet: Wallet, address: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setSushiSwapRouter(address);
 }
+
 //#endregion
 
 //#region Interest Rates
@@ -241,6 +256,14 @@ const getUNFTAddresses = async (wallet:Wallet, nftAddress: string) => {
     return await Contracts.unftRegistry.connect(wallet).getUNFTAddresses(nftAddress);
 }
 //#endregion
+// NFTX
+const getNFTXVault = async (wallet: Wallet, assetAddress: string) => {
+    return await Contracts.nftxVaultFactory.connect(wallet).vaultsForAsset(assetAddress);
+}
+
+const createNFTXVault = async (wallet: Wallet, name: string, symbol: string, assetAddress: string, is1155 = false, allowAllItems = true) => {
+    return await Contracts.nftxVaultFactory.connect(wallet).createVault(name, symbol, assetAddress, is1155, allowAllItems)
+}
 
 //#region LendPoolConfigurator
 const setActiveFlagOnNft = async (wallet:Wallet, assets: string[], flag: boolean) => {
@@ -279,9 +302,9 @@ export const Functions = {
         borrow: borrow,
         getCollateralData: getCollateralData,
         getDebtData: getDebtData,
+        getLiquidateFeePercentage: getLiquidateFeePercentage,
         redeem: redeem,
         repay: repay
-
     },
     LENDPOOL_LOAN: {
         getLoanIdTracker: getLoanIdTracker,
@@ -328,6 +351,8 @@ export const Functions = {
         setNFTXVaultFactory: setNFTXVaultFactory,
         getSushiSwapRouter: getSushiSwapRouter,
         setSushiSwapRouter: setSushiSwapRouter,
+        setProtocolDataProvider: setProtocolDataProvider,
+        getProtocolDataProvider: getProtocolDataProvider,
     },
     INTERESTRATE: {
         variableRateSlope1: variableRateSlope1,
@@ -341,4 +366,8 @@ export const Functions = {
         setActiveFlagOnNft: setActiveFlagOnNft,
         configureNftAsCollateral: configureNftAsCollateral,
     },
+    NFTX: {
+        getNFTXVault: getNFTXVault,
+        createNFTXVault: createNFTXVault
+    }
 }

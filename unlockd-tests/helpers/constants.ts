@@ -1,3 +1,4 @@
+import { getNFTXVaultFactory } from './../../helpers/contracts-getters';
 import { Contract} from "ethers";
 import dotenv from 'dotenv';
 //Protocol imports
@@ -18,6 +19,8 @@ import unftRegistryArtifact from "../../artifacts/contracts/interfaces/IUNFTRegi
 //Mock imports
 import erc20Artifact from "../../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
 import erc721Artifact from "../../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
+//NFTX
+import nftxVaultFactoryArtificat from "../../artifacts/contracts/interfaces/INFTXVaultFactoryV2.sol/INFTXVaultFactoryV2.json";
 import deployments from "../../deployments/deployed-contracts-rinkeby.json"
 
 dotenv.config();
@@ -43,6 +46,9 @@ const uTokenContract = new Contract(deployments.UToken.address, uTokenArtifact.a
 const wethGatewayContract = new Contract(deployments.WETHGateway.address, wethGatewayArtifact.abi);
 const unftRegistryContract = new Contract(deployments.UNFTRegistry.address, unftRegistryArtifact.abi);
 
+// NFTX
+const nftxVaultFactoryContract = new Contract("0xbbc53022Af15Bb973AD906577c84784c47C14371", nftxVaultFactoryArtificat.abi);
+
 
 export const Contracts = {
     debtToken: debtTokenContract,
@@ -58,6 +64,7 @@ export const Contracts = {
     uToken: uTokenContract,
     wethGateway: wethGatewayContract,
     unftRegistry: unftRegistryContract,
+    nftxVaultFactory: nftxVaultFactoryContract,
 }
 
 
