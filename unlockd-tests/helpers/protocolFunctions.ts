@@ -308,7 +308,6 @@ export const Functions = {
     },
     LENDPOOL: {
         getNftConfiguration: getNftConfiguration,
-        getNftData: getNftData,
         getNftsList: getNftsList,
         deposit: deposit,
         withdraw: withdraw,
