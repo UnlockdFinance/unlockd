@@ -54,7 +54,15 @@ const auction = async (wallet: Wallet, collection: string, nftTokenId: number, b
 const getLiquidateFeePercentage = async (wallet: Wallet) => {
     return await Contracts.lendPool.connect(wallet).getLiquidateFeePercentage();
 }
-
+const getNftLiquidatePrice = async (wallet: Wallet,collection: string, nftTokenId: number ) => {
+    return await Contracts.lendPool.connect(wallet).getNftLiquidatePrice(collection, nftTokenId);
+}
+const getNftAuctionData = async (wallet: Wallet,collection: string, nftTokenId: number ) => {
+    return await Contracts.lendPool.connect(wallet).getNftAuctionData(collection, nftTokenId);
+}
+const getNftData = async (wallet: Wallet,collection: string) => {
+    return await Contracts.lendPool.connect(wallet).getNftData(collection);
+}
 //Lendpool loan
 const getLoanIdTracker = async (wallet: Wallet) => {
     return await Contracts.lendPoolLoan.connect(wallet).getLoanIdTracker();
@@ -261,7 +269,10 @@ export const Functions = {
         getLiquidateFeePercentage: getLiquidateFeePercentage,
         redeem: redeem,
         repay: repay,
-        auction: auction
+        auction: auction,
+        getNftLiquidatePrice: getNftLiquidatePrice,
+        getNftAuctionData: getNftAuctionData,
+        getNftData: getNftData
     },
     LENDPOOL_LOAN: {
         getLoanIdTracker: getLoanIdTracker,
@@ -310,7 +321,7 @@ export const Functions = {
         getWalletBalanceProvider: getWalletBalanceProvider,
         setWalletBalanceProvider: setWalletBalanceProvider,
         getOpenseaSeaport: getOpenseaSeaport,
-        setOpenseaSeaport: setOpenseaSeaport,
+        setOpenseaSeaport: setOpenseaSeaport
        
     },
     INTERESTRATE: {
