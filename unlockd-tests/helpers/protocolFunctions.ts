@@ -26,9 +26,7 @@ const getNftsList = async(wallet: Wallet) => {
     return await Contracts.lendPool.connect(wallet).getNftsList();
 }
 
-const getNftData = async(wallet: Wallet, nftAddress: string) => {
-    return await Contracts.lendPool.connect(wallet).getNftData(nftAddress);
-}
+
 
 const getNftConfiguration = async(wallet: Wallet, nftAddress: string) => {
     return await Contracts.lendPool.connect(wallet).getNftConfiguration(nftAddress);
@@ -61,6 +59,9 @@ const redeem = async (wallet: Wallet, collection: string, nftTokenId: number, am
 
 const repay = async (wallet: Wallet, collection: string, nftTokenId: number, amount: number) => {
     return await Contracts.lendPool.connect(wallet).repay(collection, nftTokenId, amount);
+} 
+const auction = async (wallet: Wallet, collection: string, nftTokenId: number, bidprice: number, to: string) => {
+    return await Contracts.lendPool.connect(wallet).auction(collection, nftTokenId, bidprice, to);
 }
 //#endregion
 
@@ -69,13 +70,26 @@ const repay = async (wallet: Wallet, collection: string, nftTokenId: number, amo
 const getLiquidateFeePercentage = async (wallet: Wallet) => {
     return await Contracts.lendPool.connect(wallet).getLiquidateFeePercentage();
 }
+const getNftLiquidatePrice = async (wallet: Wallet,collection: string, nftTokenId: number ) => {
+    return await Contracts.lendPool.connect(wallet).getNftLiquidatePrice(collection, nftTokenId);
+}
+const getNftAuctionData = async (wallet: Wallet,collection: string, nftTokenId: number ) => {
+    return await Contracts.lendPool.connect(wallet).getNftAuctionData(collection, nftTokenId);
+}
+const getNftData = async (wallet: Wallet, collection: string) => {
+    return await Contracts.lendPool.connect(wallet).getNftData(collection);
+}
 //Lendpool loan
 const getLoanIdTracker = async (wallet: Wallet) => {
     return await Contracts.lendPoolLoan.connect(wallet).getLoanIdTracker();
 }
 const getLoan = async (wallet: Wallet, loanId: number) => {
     return await Contracts.lendPoolLoan.connect(wallet).getLoan(loanId);
-}
+} 
+const getCollateralLoanId = async (wallet: Wallet, collection: string, tokenid: number) => {
+    return await Contracts.lendPoolLoan.connect(wallet).getCollateralLoanId(collection, tokenid);
+} 
+
 //#endregion
 
 //#region  Nftoracle
@@ -234,7 +248,6 @@ const getSushiSwapRouter =  async (wallet: Wallet) => {
 const setSushiSwapRouter = async (wallet: Wallet, address: string) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).setSushiSwapRouter(address);
 }
-
 //#endregion
 
 //#region Interest Rates
@@ -295,7 +308,6 @@ export const Functions = {
     },
     LENDPOOL: {
         getNftConfiguration: getNftConfiguration,
-        getNftData: getNftData,
         getNftsList: getNftsList,
         deposit: deposit,
         withdraw: withdraw,
@@ -304,11 +316,16 @@ export const Functions = {
         getDebtData: getDebtData,
         getLiquidateFeePercentage: getLiquidateFeePercentage,
         redeem: redeem,
-        repay: repay
+        repay: repay,
+        auction: auction,
+        getNftLiquidatePrice: getNftLiquidatePrice,
+        getNftAuctionData: getNftAuctionData,
+        getNftData: getNftData
     },
     LENDPOOL_LOAN: {
         getLoanIdTracker: getLoanIdTracker,
-        getLoan: getLoan
+        getLoan: getLoan,
+        getCollateralLoanId: getCollateralLoanId
     },
     NFTORACLE: {
         getNftPrice: getNftPrice,
@@ -325,6 +342,12 @@ export const Functions = {
         setLendPoolImpl: setLendPoolImpl,
         setLendPoolLiquidator: setLendPoolLiquidator,
         getLendPoolLiquidator: getLendPoolLiquidator,
+        setProtocolDataProvider: setProtocolDataProvider,
+        getProtocolDataProvider: getProtocolDataProvider,
+        getNFTXVaultFactory: getNFTXVaultFactory,
+        setNFTXVaultFactory: setNFTXVaultFactory,
+        getSushiSwapRouter: getSushiSwapRouter,
+        setSushiSwapRouter: setSushiSwapRouter,
         getPoolAdmin: getPoolAdmin,
         setPoolAdmin: setPoolAdmin,
         getEmergencyAdmin: getEmergencyAdmin,
@@ -346,13 +369,8 @@ export const Functions = {
         getWalletBalanceProvider: getWalletBalanceProvider,
         setWalletBalanceProvider: setWalletBalanceProvider,
         getOpenseaSeaport: getOpenseaSeaport,
-        setOpenseaSeaport: setOpenseaSeaport,
-        getNFTXVaultFactory: getNFTXVaultFactory, 
-        setNFTXVaultFactory: setNFTXVaultFactory,
-        getSushiSwapRouter: getSushiSwapRouter,
-        setSushiSwapRouter: setSushiSwapRouter,
-        setProtocolDataProvider: setProtocolDataProvider,
-        getProtocolDataProvider: getProtocolDataProvider,
+        setOpenseaSeaport: setOpenseaSeaport
+       
     },
     INTERESTRATE: {
         variableRateSlope1: variableRateSlope1,
