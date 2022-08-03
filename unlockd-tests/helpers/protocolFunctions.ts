@@ -1,7 +1,8 @@
 import { Wallet, Contract, BigNumber } from "ethers";
 import { Contracts } from "./constants";
 
-// Reserves Mintable ERC20
+
+//#region  Reserves Mintable ERC20
 const approve = async (wallet: Wallet, token: Contract, spender: string, amount: string) => {
     const tx = await token.connect(wallet).approve(spender, amount);
     await tx.wait();
@@ -11,14 +12,16 @@ const getBalance = async (wallet: Wallet, token: Contract, address: string) => {
     return await token.connect(wallet).balanceOf(address);
   
 }
+//#endregion
 
-// Nfts Mintable ERC721
+//#region  Nfts Mintable ERC721
 const approveNft = async (wallet: Wallet, collection: Contract, to: string, tokenId: string) => {
     const tx = await collection.connect(wallet).approve(to, tokenId);
     await tx.wait();
 }
+//#endregion
 
-// LendPool 
+//#region  LendPool 
 const getNftsList = async(wallet: Wallet) => {
     return await Contracts.lendPool.connect(wallet).getNftsList();
 }
@@ -59,15 +62,18 @@ const redeem = async (wallet: Wallet, collection: string, nftTokenId: number, am
 const repay = async (wallet: Wallet, collection: string, nftTokenId: number, amount: number) => {
     return await Contracts.lendPool.connect(wallet).repay(collection, nftTokenId, amount);
 }
-// Lendpool loan
+//#endregion
+
+//#region  Lendpool loan
 const getLoanIdTracker = async (wallet: Wallet) => {
     return await Contracts.lendPoolLoan.connect(wallet).getLoanIdTracker();
 }
 const getLoan = async (wallet: Wallet, loanId: number) => {
     return await Contracts.lendPoolLoan.connect(wallet).getLoan(loanId);
 }
+//#endregion
 
-// Nftoracle
+//#region  Nftoracle
 const getNftPrice = async(wallet: Wallet, collection: string, tokenid: number) => {
     return await Contracts.nftOracle.connect(wallet).getNFTPrice(collection, tokenid);
 }
@@ -78,13 +84,15 @@ const setNftPrice = async(wallet: Wallet, collection: string, tokenid: number, p
 const getNFTOracleOwner = async(wallet: Wallet) => {
     return await Contracts.nftOracle.connect(wallet).owner();
 } 
+//#endregion
 
-// Reserve Oracle
+//#region  Reserve Oracle
 const getAssetPrice = async (wallet: Wallet, asset: string) => {
     return await Contracts.reserveOracle.connect(wallet).getAssetPrice(asset);
 }
+//#endregion
 
-// Addresses provider for any doubts in the parameters check the LendPoolAddressProvider Contract
+//#region AddressProvider for any doubts in the parameters check the LendPoolAddressProvider Contract
 const getMarketId = async (wallet: Wallet) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getMarketId();
 }
@@ -212,8 +220,9 @@ const getSushiSwapRouter = async (wallet: Wallet) => {
 const setSushiSwapRouter = async (wallet: Wallet, router: string) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).setSushiSwapRouter(router);
 }
+//#endregion
 
-// interest Rates
+//#region Interest Rates
 const variableRateSlope1 = async (wallet: Wallet) => {
     return await Contracts.interestRate.connect(wallet).variableRateSlope1();
 }
@@ -225,13 +234,15 @@ const variableRateSlope2 = async (wallet: Wallet) => {
 const baseVariableBorrowRate = async (wallet: Wallet) => {
     return await Contracts.interestRate.connect(wallet).baseVariableBorrowRate();
 }
+//#endregion
 
-// UNFTRegistry
+//#region UNFTRegistry
 const getUNFTAddresses = async (wallet:Wallet, nftAddress: string) => {
     return await Contracts.unftRegistry.connect(wallet).getUNFTAddresses(nftAddress);
 }
+//#endregion
 
-// LendPoolConfigurator
+//#region LendPoolConfigurator
 const setActiveFlagOnNft = async (wallet:Wallet, assets: string[], flag: boolean) => {
     return await Contracts.lendPoolConfigurator.connect(wallet).setActiveFlagOnNft(assets, flag);
 }
@@ -246,7 +257,7 @@ const configureNftAsCollateral = async (
         liquidationBonus
     );
 }
-
+//#endregion
 
 /////////////////////////////////////////////////////////////////////////////////////
 

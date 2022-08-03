@@ -27,8 +27,8 @@ task("lendpool:getNftConfiguration", "Get the NFT Struct with the configuration"
   .addParam("nftaddress", "The asset address")
   .setAction(async ({ nftaddress }) => {
     const wallet = await getUserWallet();
-    const tx = await Functions.LENDPOOL.getNftConfiguration(wallet, nftaddress);
-    console.log(JSON.stringify(tx));
+    const tx = await Functions.LENDPOOL.getNftConfiguration(wallet, nftaddress).then(v => v.toString());
+    console.log(tx);
   }
 );
 
@@ -63,22 +63,23 @@ task("lendpool:withdraw", "User 0 Withdraws {amount} {reserve} from the reserves
 }); 
 //Borrowing 
 task("lendpool:borrow", "User 0 Withdraws {amount} {reserve} from the reserves")
-.addParam("asset", "reserve asset to borrow") 
+.addParam("reserve", "reserve asset to borrow") 
 .addParam("amount", "amount to borrow")  
 .addParam("collectionname", "NFT name")
 .addParam("collection", "NFT collection")
 .addParam("tokenid", "the NFT token ID")
-.addParam("onbehalfof", "Who will reveive the borrowed amount")
-.setAction( async ({asset, amount, collectionname, collection, tokenid, onbehalfof}) => {
+.addParam("to", "Who will reveive the borrowed amount")
+.setAction( async ({reserve, amount, collectionname, collection, tokenid, to}) => {
     const wallet = await getUserWallet();  
-    asset == 'USDC' ? 
-        amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString())    
-    console.log(amount);
+    const tokenContract = MockContracts[reserve];
+    reserve == 'USDC' ? 
+        amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString())  
     const nftContract = MockContracts[collectionname];
     await Functions.NFTS.approve(wallet, nftContract, Contracts.lendPool.address, tokenid);
-    await Functions.LENDPOOL.borrow(wallet, asset, amount, collection, tokenid, onbehalfof);
+    await Functions.LENDPOOL.borrow(wallet, tokenContract.address, amount, collection, tokenid, to);
    
 }); 
+
 //Borrowing 
 task("lendpool:getcollateraldata", "Returns collateral data")
 .addParam("collection", "NFT collection address") 

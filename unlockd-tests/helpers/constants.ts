@@ -65,10 +65,14 @@ export const Contracts = {
 export const daiContract = new Contract(deployments.DAI.address, erc20Artifact.abi);
 export const usdcContract = new Contract(deployments.USDC.address, erc20Artifact.abi);
 export const baycContract = new Contract(deployments.BAYC.address, erc721Artifact.abi);
+export const pscContract = new Contract(deployments.PSC.address, erc721Artifact.abi);
+export const moonContract = new Contract(deployments.MOON.address, erc721Artifact.abi);
  
 export const MockContracts = {
     DAI: daiContract,
     USDC: usdcContract,
     BAYC: baycContract,
+    PSC: pscContract,
+    MOON: moonContract,
 }
 

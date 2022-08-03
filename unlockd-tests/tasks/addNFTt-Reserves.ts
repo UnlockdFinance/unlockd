@@ -4,7 +4,7 @@ import { getWETHGateway, getUNFTRegistryProxy, getNFTOracle } from "../../helper
 import { getLendPoolConfiguratorProxy } from "../../helpers/contracts-getters";
 
 
-task("tests:unft-registerNFT", "Deploy unft tokens for dev enviroment")
+task("unft-registerNFT", "Deploy unft tokens for dev enviroment")
   .addParam("nftaddress", `The address of the NFT to use`)
   .setAction(async ({ nftaddress, pool }, localBRE) => {
     await localBRE.run("set-DRE");
@@ -16,7 +16,7 @@ task("tests:unft-registerNFT", "Deploy unft tokens for dev enviroment")
   }
 );
 
-task("tests:addAsset-NFTOracle", "Add an NFT Address to the Oracle")
+task("addAsset-NFTOracle", "Add an NFT Address to the Oracle")
   .addParam("nftaddress", `The address of the NFT to add`)
   .setAction(async ({ nftaddress, pool }, localBRE) => {
     await localBRE.run("set-DRE");
@@ -27,7 +27,7 @@ task("tests:addAsset-NFTOracle", "Add an NFT Address to the Oracle")
   }
 );
 
-task("tests:initNFTReserve", "Initializes the NFT Reserve")
+task("initNFTReserve", "Initializes the NFT Reserve")
   .addParam("nftaddress", `The address of the NFT to add`)
   .setAction(async ({ nftaddress, pool }, localBRE) => {
 
@@ -41,7 +41,7 @@ task("tests:initNFTReserve", "Initializes the NFT Reserve")
   }
 );
 
-task("tests:configNFTReserve", "Initializes the NFT Reserve")
+task("configNFTReserve", "Initializes the NFT Reserve")
   .addParam("nftaddress", `The address of the NFT to add`)
   .addParam("nftsymbol", `The address of the NFT to add`)
   .addParam("maxsupply", `The address of the NFT to add`)
@@ -72,7 +72,7 @@ task("tests:configNFTReserve", "Initializes the NFT Reserve")
   }
 );
 
-task("tests:auth-wethgateway", "Authorize Weth Gateway to do transactions.")
+task("auth-wethgateway", "Authorize Weth Gateway to do transactions.")
 .addParam("nftaddress", "the address of the NFT to authorize") 
 .setAction( async ({ nftaddress, pool }, localBRE) => {
     await localBRE.run("set-DRE");
