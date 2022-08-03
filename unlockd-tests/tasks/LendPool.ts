@@ -1,9 +1,37 @@
 import { task } from "hardhat/config";
 import { Functions } from "../helpers/protocolFunctions";
-import {getOwnerWallet, getUserWallet } from "../helpers/config"; 
+import { getUserWallet } from "../helpers/config"; 
 import {  Contracts, MockContracts } from "../helpers/constants";
 import { parseUnits } from "@ethersproject/units";
- 
+
+// Get Nft Reserve data 
+task("lendpool:getNftsList", "Gets the list of NFTs in the reserves")
+.setAction( async () => {
+    const wallet = await getUserWallet();  
+
+    const tx = await Functions.LENDPOOL.getNftsList(wallet)
+    console.log(JSON.stringify(tx));
+}); 
+
+task("lendpool:getNftData", "Get the NFT Data from the lendpool reserves")
+  .addParam("nftaddress", "The asset address")
+  .setAction(async ({ nftaddress }) => {
+    const wallet = await getUserWallet();
+    const tx = await Functions.LENDPOOL.getNftData(wallet, nftaddress).then(v => v.toString());
+    console.log(tx);
+  }
+);
+
+// Get NFT configuration data 
+task("lendpool:getNftConfiguration", "Get the NFT Struct with the configuration")
+  .addParam("nftaddress", "The asset address")
+  .setAction(async ({ nftaddress }) => {
+    const wallet = await getUserWallet();
+    const tx = await Functions.LENDPOOL.getNftConfiguration(wallet, nftaddress).then(v => v.toString());
+    console.log(tx);
+  }
+);
+
 //Deposit funds to the pool
 task("lendpool:deposit", "User 0 Deposits {amount} {reserve} in an empty reserve")
 .addParam("amount", "Reserve amount") 
@@ -51,6 +79,7 @@ task("lendpool:borrow", "User 0 Withdraws {amount} {reserve} from the reserves")
     await Functions.LENDPOOL.borrow(wallet, tokenContract.address, amount, collection, tokenid, to);
    
 }); 
+
 //Borrowing 
 task("lendpool:getcollateraldata", "Returns collateral data")
 .addParam("collection", "NFT collection address") 

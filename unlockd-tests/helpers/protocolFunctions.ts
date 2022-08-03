@@ -1,7 +1,8 @@
 import { Wallet, Contract, BigNumber } from "ethers";
 import { Contracts } from "./constants";
 
-//Reserves
+
+//#region  Reserves Mintable ERC20
 const approve = async (wallet: Wallet, token: Contract, spender: string, amount: string) => {
     const tx = await token.connect(wallet).approve(spender, amount);
     await tx.wait();
@@ -11,16 +12,30 @@ const getBalance = async (wallet: Wallet, token: Contract, address: string) => {
     return await token.connect(wallet).balanceOf(address);
   
 }
+//#endregion
 
-//Nfts
+//#region  Nfts Mintable ERC721
 const approveNft = async (wallet: Wallet, collection: Contract, to: string, tokenId: string) => {
     const tx = await collection.connect(wallet).approve(to, tokenId);
     await tx.wait();
 }
-//LendPool
+//#endregion
+
+//#region  LendPool 
+const getNftsList = async(wallet: Wallet) => {
+    return await Contracts.lendPool.connect(wallet).getNftsList();
+}
+
+const getNftData = async(wallet: Wallet, nftAddress: string) => {
+    return await Contracts.lendPool.connect(wallet).getNftData(nftAddress);
+}
+
+const getNftConfiguration = async(wallet: Wallet, nftAddress: string) => {
+    return await Contracts.lendPool.connect(wallet).getNftConfiguration(nftAddress);
+}
+
 const deposit = async (wallet: Wallet, asset: string, amount: BigNumber, onBehalfOf: string) => {
-    const tx = await Contracts.lendPool.connect(wallet).deposit(asset, amount, onBehalfOf, 0);
-    await tx.wait();
+    return await Contracts.lendPool.connect(wallet).deposit(asset, amount, onBehalfOf, 0);
 }
 
 const withdraw = async (wallet: Wallet, asset: string, amount: BigNumber, to: string) => {
@@ -47,6 +62,9 @@ const redeem = async (wallet: Wallet, collection: string, nftTokenId: number, am
 const repay = async (wallet: Wallet, collection: string, nftTokenId: number, amount: number) => {
     return await Contracts.lendPool.connect(wallet).repay(collection, nftTokenId, amount);
 }
+//#endregion
+
+//#region  Lendpool loan
 
 const getLiquidateFeePercentage = async (wallet: Wallet) => {
     return await Contracts.lendPool.connect(wallet).getLiquidateFeePercentage();
@@ -58,23 +76,28 @@ const getLoanIdTracker = async (wallet: Wallet) => {
 const getLoan = async (wallet: Wallet, loanId: number) => {
     return await Contracts.lendPoolLoan.connect(wallet).getLoan(loanId);
 }
+//#endregion
 
-//Nftoracle
+//#region  Nftoracle
 const getNftPrice = async(wallet: Wallet, collection: string, tokenid: number) => {
     return await Contracts.nftOracle.connect(wallet).getNFTPrice(collection, tokenid);
 }
+
 const setNftPrice = async(wallet: Wallet, collection: string, tokenid: number, price: BigNumber) => {
     return await Contracts.nftOracle.connect(wallet).setNFTPrice(collection, tokenid, price);
 }
 const getNFTOracleOwner = async(wallet: Wallet) => {
     return await Contracts.nftOracle.connect(wallet).owner();
 } 
+//#endregion
 
-// Reserve Oracle
+//#region  Reserve Oracle
 const getAssetPrice = async (wallet: Wallet, asset: string) => {
     return await Contracts.reserveOracle.connect(wallet).getAssetPrice(asset);
 }
+//#endregion
 
+//#region AddressProvider for any doubts in the parameters check the LendPoolAddressProvider Contract
 //Addresses provider for any doubts in the parameters check the LendPoolAddressProvider Contract
 const getMarketId = async (wallet: Wallet) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getMarketId();
@@ -212,7 +235,9 @@ const setSushiSwapRouter = async (wallet: Wallet, address: string) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).setSushiSwapRouter(address);
 }
 
-// interest Rates
+//#endregion
+
+//#region Interest Rates
 const variableRateSlope1 = async (wallet: Wallet) => {
     return await Contracts.interestRate.connect(wallet).variableRateSlope1();
 }
@@ -224,7 +249,13 @@ const variableRateSlope2 = async (wallet: Wallet) => {
 const baseVariableBorrowRate = async (wallet: Wallet) => {
     return await Contracts.interestRate.connect(wallet).baseVariableBorrowRate();
 }
+//#endregion
 
+//#region UNFTRegistry
+const getUNFTAddresses = async (wallet:Wallet, nftAddress: string) => {
+    return await Contracts.unftRegistry.connect(wallet).getUNFTAddresses(nftAddress);
+}
+//#endregion
 // NFTX
 const getNFTXVault = async (wallet: Wallet, assetAddress: string) => {
     return await Contracts.nftxVaultFactory.connect(wallet).vaultsForAsset(assetAddress);
@@ -234,7 +265,26 @@ const createNFTXVault = async (wallet: Wallet, name: string, symbol: string, ass
     return await Contracts.nftxVaultFactory.connect(wallet).createVault(name, symbol, assetAddress, is1155, allowAllItems)
 }
 
-//Exported functions
+//#region LendPoolConfigurator
+const setActiveFlagOnNft = async (wallet:Wallet, assets: string[], flag: boolean) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setActiveFlagOnNft(assets, flag);
+}
+
+const configureNftAsCollateral = async (
+    wallet:Wallet, assets: string[], ltv: string, liquidationThreshold: string, liquidationBonus: string
+    ) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).configureNftAsCollateral(
+        assets, 
+        ltv, 
+        liquidationThreshold, 
+        liquidationBonus
+    );
+}
+//#endregion
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+// Exported functions
 export const Functions = {
     RESERVES: {
         approve: approve,
@@ -244,6 +294,9 @@ export const Functions = {
         approve: approveNft
     },
     LENDPOOL: {
+        getNftConfiguration: getNftConfiguration,
+        getNftData: getNftData,
+        getNftsList: getNftsList,
         deposit: deposit,
         withdraw: withdraw,
         borrow: borrow,
@@ -305,6 +358,13 @@ export const Functions = {
         variableRateSlope1: variableRateSlope1,
         variableRateSlope2: variableRateSlope2,
         baseVariableBorrowRate: baseVariableBorrowRate,
+    },
+    UNFTREGISTRY: {
+        getUNFTAddresses: getUNFTAddresses,
+    },
+    LENDPOOLCONFIGURATOR: {
+        setActiveFlagOnNft: setActiveFlagOnNft,
+        configureNftAsCollateral: configureNftAsCollateral,
     },
     NFTX: {
         getNFTXVault: getNFTXVault,
