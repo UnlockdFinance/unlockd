@@ -68,10 +68,22 @@ export const Contracts = {
 const daiContract = new Contract(deployments.DAI.address, erc20Artifact.abi);
 const usdcContract = new Contract(deployments.USDC.address, erc20Artifact.abi);
 const baycContract = new Contract(deployments.BAYC.address, erc721Artifact.abi);
- 
+const pscContract = new Contract('0x9dEB37a73186596bF3B9889113b2bf2E8948ab53', erc721Artifact.abi);
+
 export const MockContracts = {
     DAI: daiContract,
     USDC: usdcContract,
     BAYC: baycContract,
+    PSC: pscContract
 }
+
+const daiAddr = daiContract.address;
+const usdcAddr = usdcContract.address;
+export const AddressToMockId = {
+    daiAddr: 'DAI',
+    usdcAddr: 'USDC',
+    
+}
+
+
 

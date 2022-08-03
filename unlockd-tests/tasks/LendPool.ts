@@ -1,8 +1,10 @@
 import { task } from "hardhat/config";
 import { Functions } from "../helpers/protocolFunctions";
 import {getOwnerWallet, getUserWallet } from "../helpers/config"; 
-import {  Contracts, MockContracts } from "../helpers/constants";
+import {  AddressToMockId, Contracts, MockContracts } from "../helpers/constants";
 import { parseUnits } from "@ethersproject/units";
+import { Contract } from "ethers";
+import erc20Artifact from "../../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
  
 //Deposit funds to the pool
 task("lendpool:deposit", "User 0 Deposits {amount} {reserve} in an empty reserve")
@@ -99,3 +101,25 @@ task("lendpool:getliquidatefee", "Get liquidation fee percentage")
     const percentage = await Functions.LENDPOOL.getLiquidateFeePercentage(wallet);
     console.log(percentage.toString())
 });  
+
+//Auction loan 
+task("lendpool:auction", "Repays a loan")
+.addParam("collection", "NFT collection address") 
+.addParam("tokenid", "nft token id")  
+.addParam("bidprice", "The bid price")  
+.addParam("to", "Receiver")  
+.setAction( async ({collection, tokenid, bidprice, to}) => {
+    const wallet = await getUserWallet();  
+    bidprice = await parseUnits(bidprice.toString())
+    //Get loan data to fetch reserve asset
+
+    const loanId = await Functions.LENDPOOL_LOAN.getCollateralLoanId(wallet, collection, tokenid);
+    console.log(loanId);
+    const loanData = await Functions.LENDPOOL_LOAN.getLoan(wallet, loanId);
+    const reserve = loanData.reserveAsset;
+    console.log(reserve);
+    /* const tokenContract = MockContracts[AddressToMockId[reserve]];;
+    await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, bidprice)  
+    await Functions.LENDPOOL.auction(wallet, collection, tokenid, bidprice, tokenid); */
+    
+}); 
