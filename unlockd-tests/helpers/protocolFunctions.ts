@@ -54,6 +54,7 @@ const auction = async (wallet: Wallet, collection: string, nftTokenId: number, b
 const getLiquidateFeePercentage = async (wallet: Wallet) => {
     return await Contracts.lendPool.connect(wallet).getLiquidateFeePercentage();
 }
+
 //Lendpool loan
 const getLoanIdTracker = async (wallet: Wallet) => {
     return await Contracts.lendPoolLoan.connect(wallet).getLoanIdTracker();
@@ -81,22 +82,117 @@ const getAssetPrice = async (wallet: Wallet, asset: string) => {
     return await Contracts.reserveOracle.connect(wallet).getAssetPrice(asset);
 }
 
-//Addresses provider
+//Addresses provider for any doubts in the parameters check the LendPoolAddressProvider Contract
+const getMarketId = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getMarketId();
+}
+
+const setMarketId = async (wallet: Wallet, marketId: string) => { 
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setMarketId(marketId);
+}
 
 const getLendPool = async (wallet: Wallet) => { 
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getLendPool().wait();
 }
 
-const getMarketId = async (wallet: Wallet) => {
-    return await Contracts.lendPoolAddressesProvider.connect(wallet).getMarketId();
+const setLendPoolImpl = async (wallet: Wallet, lendpoolAddress: string, encodedCallData: string) => { 
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setLendPoolImpl(lendpoolAddress, encodedCallData);
+}
+
+const getLendPoolLiquidator = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getLendPoolLiquidator();
 }
 
 const setLendPoolLiquidator = async (wallet: Wallet, lendPoolLiquidatorAddress: string) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).setLendPoolLiquidator(lendPoolLiquidatorAddress);
 }
 
-const getLendPoolLiquidator = async (wallet: Wallet) => {
-    return await Contracts.lendPoolAddressesProvider.connect(wallet).getLendPoolLiquidator();
+const getPoolAdmin = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getPoolAdmin();
+}
+
+const setPoolAdmin = async (wallet: Wallet, admin: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setPoolAdmin(admin);
+}
+
+const getEmergencyAdmin = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getEmergencyAdmin();
+}
+
+const setEmergencyAdmin = async (wallet: Wallet, emergencyAdmin: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setEmergencyAdmin(emergencyAdmin);
+}
+
+const getReserveOracle = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getReserveOracle();
+}
+
+const setReserveOracle = async (wallet: Wallet, reserveOracle: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setReserveOracle(reserveOracle);
+}
+
+const getNFTOracle = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getNFTOracle();
+}
+
+const setNFTOracle = async (wallet: Wallet, nftOracle: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setNFTOracle(nftOracle);
+}
+
+const getLendPoolLoan = async (wallet: Wallet) => { 
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getLendPool().wait();
+}
+
+const setLendPoolLoanImpl = async (wallet: Wallet, loanAddress: string, encodedCallData: string) => { 
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setLendPoolImpl(loanAddress, encodedCallData);
+}
+
+const getUNFTRegistry = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getUNFTRegistry();
+}
+
+const setUNFTRegistry = async (wallet: Wallet, factory: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setUNFTRegistry(factory);
+}
+
+const getIncentivesController = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getIncentivesController();
+}
+
+const setIncentivesController = async (wallet: Wallet, controller: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setIncentivesController(controller);
+}
+
+const getUIDataProvider = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getUIDataProvider();
+}
+
+const setUIDataProvider = async (wallet: Wallet, provider: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setUIDataProvider(provider);
+}
+
+const getUnlockdDataProvider = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getUnlockdDataProvider();
+}
+
+const setUnlockdDataProvider = async (wallet: Wallet, provider: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setUnlockdDataProvider(provider);
+}
+
+const getWalletBalanceProvider = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getWalletBalanceProvider();
+}
+
+const setWalletBalanceProvider = async (wallet: Wallet, provider: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setWalletBalanceProvider(provider);
+}
+
+const getOpenseaSeaport = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getOpenseaSeaport();
+}
+
+const setOpenseaSeaport = async (wallet: Wallet, exchange: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setOpenseaSeaport(exchange);
 }
 
 const setProtocolDataProvider = async (wallet: Wallet, protocolDataProviderAddress: string) => {
@@ -122,6 +218,8 @@ const getSushiSwapRouter =  async (wallet: Wallet) => {
 const setSushiSwapRouter = async (wallet: Wallet, address: string) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).setSushiSwapRouter(address);
 }
+
+
 
 // interest Rates
 const variableRateSlope1 = async (wallet: Wallet) => {
@@ -179,8 +277,10 @@ export const Functions = {
         getAssetPrice: getAssetPrice,
     },
     LENDPOOLADDRESSPROVIDER: {
-        getLendPool: getLendPool,
         getMarketId: getMarketId,
+        setMarketId: setMarketId,
+        getLendPool: getLendPool,
+        setLendPoolImpl: setLendPoolImpl,
         setLendPoolLiquidator: setLendPoolLiquidator,
         getLendPoolLiquidator: getLendPoolLiquidator,
         setProtocolDataProvider: setProtocolDataProvider,
@@ -188,7 +288,30 @@ export const Functions = {
         getNFTXVaultFactory: getNFTXVaultFactory,
         setNFTXVaultFactory: setNFTXVaultFactory,
         getSushiSwapRouter: getSushiSwapRouter,
-        setSushiSwapRouter: setSushiSwapRouter
+        setSushiSwapRouter: setSushiSwapRouter,
+        getPoolAdmin: getPoolAdmin,
+        setPoolAdmin: setPoolAdmin,
+        getEmergencyAdmin: getEmergencyAdmin,
+        setEmergencyAdmin: setEmergencyAdmin,
+        getReserveOracle: getReserveOracle,
+        setReserveOracle: setReserveOracle,
+        getNFTOracle: getNFTOracle,
+        setNFTOracle: setNFTOracle,
+        getLendPoolLoan: getLendPoolLoan,
+        setLendPoolLoanImpl: setLendPoolLoanImpl,
+        getUNFTRegistry: getUNFTRegistry,
+        setUNFTRegistry: setUNFTRegistry,
+        getIncentivesController: getIncentivesController,
+        setIncentivesController: setIncentivesController,
+        getUIDataProvider: getUIDataProvider,
+        setUIDataProvider: setUIDataProvider,
+        getUnlockdDataProvider: getUnlockdDataProvider,
+        setUnlockdDataProvider: setUnlockdDataProvider,
+        getWalletBalanceProvider: getWalletBalanceProvider,
+        setWalletBalanceProvider: setWalletBalanceProvider,
+        getOpenseaSeaport: getOpenseaSeaport,
+        setOpenseaSeaport: setOpenseaSeaport,
+       
     },
     INTERESTRATE: {
         variableRateSlope1: variableRateSlope1,
