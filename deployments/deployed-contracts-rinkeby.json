@@ -75,6 +75,14 @@
     "address": "0x5aB409ec94921193018f71Ca51589d1418eb690F",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
+  "PSC": {
+    "address": "0x9dEB37a73186596bF3B9889113b2bf2E8948ab53",
+    "deployer": "0x1a470e9916f3dFF8E268A69A39fa2E9F7B954927"
+  },
+  "MOON": {
+    "address": "0xc6fDC94F307Ae5Eb19193a9ca6E9ee1DfA04a0B2",
+    "deployer": "0x1a470e9916f3dFF8E268A69A39fa2E9F7B954927"
+  },
   "UNFT": {
     "address": "0x5751f2BCb01728119EBc63126D0f7895871b7e94",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"

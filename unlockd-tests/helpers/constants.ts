@@ -14,6 +14,8 @@ import punkGatewayArtifact from "../../artifacts/contracts/protocol/PunkGateway.
 import reserveOracleArtifact from "../../artifacts/contracts/protocol/ReserveOracle.sol/ReserveOracle.json";
 import uTokenArtifact from "../../artifacts/contracts/protocol/UToken.sol/UToken.json";
 import wethGatewayArtifact from "../../artifacts/contracts/protocol/WETHGateway.sol/WETHGateway.json";
+import unftRegistryArtifact from "../../artifacts/contracts/interfaces/IUNFTRegistry.sol/IUNFTRegistry.json";
+
 //Mock imports
 import erc20Artifact from "../../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
 import erc721Artifact from "../../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
@@ -42,6 +44,7 @@ const punkGatewayContract = new Contract(deployments.PunkGateway.address, punkGa
 const reserveOracleContract = new Contract(deployments.ReserveOracle.address, reserveOracleArtifact.abi);
 const uTokenContract = new Contract(deployments.UToken.address, uTokenArtifact.abi);
 const wethGatewayContract = new Contract(deployments.WETHGateway.address, wethGatewayArtifact.abi);
+const unftRegistryContract = new Contract(deployments.UNFTRegistry.address, unftRegistryArtifact.abi);
 
 // NFTX
 const nftxVaultFactoryContract = new Contract("0xbbc53022Af15Bb973AD906577c84784c47C14371", nftxVaultFactoryArtificat.abi);
@@ -60,6 +63,7 @@ export const Contracts = {
     reserveOracle: reserveOracleContract,
     uToken: uTokenContract,
     wethGateway: wethGatewayContract,
+    unftRegistry: unftRegistryContract,
     nftxVaultFactory: nftxVaultFactoryContract,
 }
 
@@ -68,13 +72,15 @@ export const Contracts = {
 export const daiContract = new Contract(deployments.DAI.address, erc20Artifact.abi);
 export const usdcContract = new Contract(deployments.USDC.address, erc20Artifact.abi);
 export const baycContract = new Contract(deployments.BAYC.address, erc721Artifact.abi);
-export const pscContract = new Contract('0x9dEB37a73186596bF3B9889113b2bf2E8948ab53', erc721Artifact.abi);
-
+export const pscContract = new Contract(deployments.PSC.address, erc721Artifact.abi);
+export const moonContract = new Contract(deployments.MOON.address, erc721Artifact.abi);
+ 
 export const MockContracts = {
     DAI: daiContract,
     USDC: usdcContract,
     BAYC: baycContract,
-    PSC: pscContract
+    PSC: pscContract,
+    MOON: moonContract,
 }
 
 
