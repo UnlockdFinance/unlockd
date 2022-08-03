@@ -29,7 +29,7 @@ task("tests:addAsset-NFTOracle", "Add an NFT Address to the Oracle")
 
 task("tests:initNFTReserve", "Initializes the NFT Reserve")
   .addParam("nftaddress", `The address of the NFT to add`)
-  .setAction(async ({ nftaddress, nftsymbol, maxsupply, maxtokenid, pool }, localBRE) => {
+  .setAction(async ({ nftaddress, pool }, localBRE) => {
 
     await localBRE.run("set-DRE");
     console.log("-> Prepare NFT pools...");

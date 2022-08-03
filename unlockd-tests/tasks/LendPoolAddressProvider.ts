@@ -4,8 +4,9 @@ import { getOwnerWallet } from "../helpers/config";
  
 /** 
  * This file will use the lendpoolProvider to get and set addresses or names
+ * for full reference check the LendPoolAddressProvider.sol
 */
-task("tests:provider:getMarketId", "User gets the market id address")
+task("provider:getMarketId", "User gets the market id address")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
 
@@ -13,7 +14,7 @@ task("tests:provider:getMarketId", "User gets the market id address")
     console.log(JSON.stringify(tx));
 }); 
 
-task("tests:provider:setMarketId", "User sets a new Market Id name")
+task("provider:setMarketId", "User sets a new Market Id name")
 .addParam("marketId", "The new Market Id string/name") 
 .setAction( async ({marketId}) => {
     const wallet = await getOwnerWallet();  
@@ -22,7 +23,7 @@ task("tests:provider:setMarketId", "User sets a new Market Id name")
     console.log(tx);
 }); 
 
-task("tests:provider:getLendPool", "User gets the LendPool address")
+task("provider:getLendPool", "User gets the LendPool address")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
 
@@ -30,7 +31,7 @@ task("tests:provider:getLendPool", "User gets the LendPool address")
     console.log(JSON.stringify(tx));
 }); 
 
-task("tests:provider:setLendPoolImpl", "User sets a lendpool address")
+task("provider:setLendPoolImpl", "User sets a lendpool address")
 .addParam("provideraddress", "The new LendPool Address") 
 .addParam("encodeddata", "The data to initialize the lendPool") 
 .setAction( async ({provideraddress, encodeddata}) => {
@@ -40,7 +41,7 @@ task("tests:provider:setLendPoolImpl", "User sets a lendpool address")
     console.log(tx);
 }); 
 
-task("tests:provider:getLendPoolLiquidator", "User gets the lendPoolLiquidator Address")
+task("provider:getLendPoolLiquidator", "User gets the lendPoolLiquidator Address")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
 
@@ -48,7 +49,7 @@ task("tests:provider:getLendPoolLiquidator", "User gets the lendPoolLiquidator A
     console.log(JSON.stringify(tx));
 }); 
 
-task("tests:provider:setLendPoolLiquidator", "User sets a new LendPoolLiquidator address")
+task("provider:setLendPoolLiquidator", "User sets a new LendPoolLiquidator address")
 .addParam("lendpoolliquidatoraddress", "The new LendPoolLiquidator Address") 
 .setAction( async ({lendpoolliquidatoraddress}) => {
     const wallet = await getOwnerWallet();  
@@ -57,7 +58,7 @@ task("tests:provider:setLendPoolLiquidator", "User sets a new LendPoolLiquidator
     console.log(tx);
 }); 
 
-task("tests:provider:getPoolAdmin", "User gets the lendpool admin Address")
+task("provider:getPoolAdmin", "User gets the lendpool admin Address")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
 
@@ -65,7 +66,7 @@ task("tests:provider:getPoolAdmin", "User gets the lendpool admin Address")
     console.log(JSON.stringify(tx));
 }); 
 
-task("tests:provider:setPoolAdmin", "User sets a lendpool admin address")
+task("provider:setPoolAdmin", "User sets a lendpool admin address")
 .addParam("admin", "The new pool admin address") 
 .setAction( async ({admin}) => {
     const wallet = await getOwnerWallet();  
@@ -74,7 +75,7 @@ task("tests:provider:setPoolAdmin", "User sets a lendpool admin address")
     console.log(tx);
 }); 
 
-task("tests:provider:getEmergencyAdmin", "User gets the lendpool emergency admin Address")
+task("provider:getEmergencyAdmin", "User gets the lendpool emergency admin Address")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
 
@@ -82,7 +83,7 @@ task("tests:provider:getEmergencyAdmin", "User gets the lendpool emergency admin
     console.log(JSON.stringify(tx));
 }); 
 
-task("tests:provider:setEmergencyAdmin", "User sets a lendpool emergency admin address")
+task("provider:setEmergencyAdmin", "User sets a lendpool emergency admin address")
 .addParam("emergencyadmin", "The new emergency admin address") 
 .setAction( async ({emergencyadmin}) => {
     const wallet = await getOwnerWallet();  
@@ -91,7 +92,7 @@ task("tests:provider:setEmergencyAdmin", "User sets a lendpool emergency admin a
     console.log(tx);
 }); 
 
-task("tests:provider:getReserveOracle", "User gets the address of the reserve oracle")
+task("provider:getReserveOracle", "User gets the address of the reserve oracle")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
 
@@ -99,7 +100,7 @@ task("tests:provider:getReserveOracle", "User gets the address of the reserve or
     console.log(JSON.stringify(tx));
 }); 
 
-task("tests:provider:setReserveOracle", "User sets the address of the reserver oracle")
+task("provider:setReserveOracle", "User sets the address of the reserver oracle")
 .addParam("reserveoracle", "The new reserve oracle address") 
 .setAction( async ({reserveoracle}) => {
     const wallet = await getOwnerWallet();  
@@ -108,7 +109,7 @@ task("tests:provider:setReserveOracle", "User sets the address of the reserver o
     console.log(tx);
 });
 
-task("tests:provider:getNFTOracle", "User gets the address of the NFT oracle")
+task("provider:getNFTOracle", "User gets the address of the NFT oracle")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
 
@@ -116,7 +117,7 @@ task("tests:provider:getNFTOracle", "User gets the address of the NFT oracle")
     console.log(JSON.stringify(tx));
 }); 
 
-task("tests:provider:setNFTOracle", "User sets the address of the NFT oracle")
+task("provider:setNFTOracle", "User sets the address of the NFT oracle")
 .addParam("nftoracle", "The new NFT Oracle address") 
 .setAction( async ({nftoracle}) => {
     const wallet = await getOwnerWallet();  
@@ -125,7 +126,7 @@ task("tests:provider:setNFTOracle", "User sets the address of the NFT oracle")
     console.log(tx);
 });
 
-task("tests:provider:getLendPoolLoan", "User gets the LendPoolLoan address")
+task("provider:getLendPoolLoan", "User gets the LendPoolLoan address")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
 
@@ -133,7 +134,7 @@ task("tests:provider:getLendPoolLoan", "User gets the LendPoolLoan address")
     console.log(JSON.stringify(tx));
 }); 
 
-task("tests:provider:setLendPoolLoanImpl", "User sets a lendPoolLoan address")
+task("provider:setLendPoolLoanImpl", "User sets a lendPoolLoan address")
 .addParam("loanAddress", "The new LendPoolLoan Address") 
 .addParam("encodeddata", "The data to initialize the lendPoolLoan") 
 .setAction( async ({loanAddress, encodeddata}) => {
@@ -143,7 +144,7 @@ task("tests:provider:setLendPoolLoanImpl", "User sets a lendPoolLoan address")
     console.log(tx);
 });
 
-task("tests:provider:getUNFTRegistry", "User gets the address of the UNFT registry")
+task("provider:getUNFTRegistry", "User gets the address of the UNFT registry")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
 
@@ -151,7 +152,7 @@ task("tests:provider:getUNFTRegistry", "User gets the address of the UNFT regist
     console.log(JSON.stringify(tx));
 }); 
 
-task("tests:provider:setUNFTRegistry", "User sets the address of the UNFT registry")
+task("provider:setUNFTRegistry", "User sets the address of the UNFT registry")
 .addParam("factory", "The new UNFT registry address") 
 .setAction( async ({factory}) => {
     const wallet = await getOwnerWallet();  
@@ -160,7 +161,7 @@ task("tests:provider:setUNFTRegistry", "User sets the address of the UNFT regist
     console.log(tx);
 });
 
-task("tests:provider:getIncentivesController", "User gets the address of the incentives controller")
+task("provider:getIncentivesController", "User gets the address of the incentives controller")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
 
@@ -168,7 +169,7 @@ task("tests:provider:getIncentivesController", "User gets the address of the inc
     console.log(JSON.stringify(tx));
 }); 
 
-task("tests:provider:setIncentivesController", "User sets the address of the incentives controller")
+task("provider:setIncentivesController", "User sets the address of the incentives controller")
 .addParam("controller", "The new incentives controller address") 
 .setAction( async ({controller}) => {
     const wallet = await getOwnerWallet();  
@@ -177,7 +178,7 @@ task("tests:provider:setIncentivesController", "User sets the address of the inc
     console.log(tx);
 });
 
-task("tests:provider:getUIDataProvider", "User gets the address of the UI Data Provider")
+task("provider:getUIDataProvider", "User gets the address of the UI Data Provider")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
 
@@ -185,7 +186,7 @@ task("tests:provider:getUIDataProvider", "User gets the address of the UI Data P
     console.log(JSON.stringify(tx));
 }); 
 
-task("tests:provider:setUIDataProvider", "User sets the address of the UI Data Provider")
+task("provider:setUIDataProvider", "User sets the address of the UI Data Provider")
 .addParam("provider", "The new UI Data Provider address") 
 .setAction( async ({provider}) => {
     const wallet = await getOwnerWallet();  
@@ -194,7 +195,7 @@ task("tests:provider:setUIDataProvider", "User sets the address of the UI Data P
     console.log(tx);
 });
 
-task("tests:provider:getUnlockdDataProvider", "User gets the address of the Unlockd Data Provider")
+task("provider:getUnlockdDataProvider", "User gets the address of the Unlockd Data Provider")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
 
@@ -202,7 +203,7 @@ task("tests:provider:getUnlockdDataProvider", "User gets the address of the Unlo
     console.log(JSON.stringify(tx));
 }); 
 
-task("tests:provider:setUnlockdDataProvider", "User sets the address of the Unlockd Data Provider")
+task("provider:setUnlockdDataProvider", "User sets the address of the Unlockd Data Provider")
 .addParam("provider", "The new UI Data Provider address") 
 .setAction( async ({provider}) => {
     const wallet = await getOwnerWallet();  
@@ -211,7 +212,7 @@ task("tests:provider:setUnlockdDataProvider", "User sets the address of the Unlo
     console.log(tx);
 });
 
-task("tests:provider:getWalletBalanceProvider", "User gets the address of the Wallet Balance Provider")
+task("provider:getWalletBalanceProvider", "User gets the address of the Wallet Balance Provider")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
 
@@ -219,7 +220,7 @@ task("tests:provider:getWalletBalanceProvider", "User gets the address of the Wa
     console.log(JSON.stringify(tx));
 }); 
 
-task("tests:provider:setWalletBalanceProvider", "User sets the address of the Wallet Balance Provider")
+task("provider:setWalletBalanceProvider", "User sets the address of the Wallet Balance Provider")
 .addParam("provider", "The new Wallet Balance Provider address") 
 .setAction( async ({provider}) => {
     const wallet = await getOwnerWallet();  
@@ -228,7 +229,7 @@ task("tests:provider:setWalletBalanceProvider", "User sets the address of the Wa
     console.log(tx);
 });
 
-task("tests:provider:getOpenseaSeaport", "User gets the address of the Opensea Seaport")
+task("provider:getOpenseaSeaport", "User gets the address of the Opensea Seaport")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
 
@@ -236,7 +237,7 @@ task("tests:provider:getOpenseaSeaport", "User gets the address of the Opensea S
     console.log(JSON.stringify(tx));
 }); 
 
-task("tests:provider:setOpenseaSeaport", "User sets the address of the Opensea Seaport")
+task("provider:setOpenseaSeaport", "User sets the address of the Opensea Seaport")
 .addParam("exchange", "The new Opensea Seaport address") 
 .setAction( async ({exchange}) => {
     const wallet = await getOwnerWallet();  
@@ -245,7 +246,7 @@ task("tests:provider:setOpenseaSeaport", "User sets the address of the Opensea S
     console.log(tx);
 });
 
-task("tests:provider:getNFTXVaultFactory", "User gets the NFTXVaultFactory Address")
+task("provider:getNFTXVaultFactory", "User gets the NFTXVaultFactory Address")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
 
@@ -253,7 +254,7 @@ task("tests:provider:getNFTXVaultFactory", "User gets the NFTXVaultFactory Addre
     console.log(JSON.stringify(tx));
 }); 
 
-task("tests:provider:setNFTXVaultFactory", "User sets a new NFTXVaultFactory address")
+task("provider:setNFTXVaultFactory", "User sets a new NFTXVaultFactory address")
 .addParam("nftxvaultfactoryaddress", "The NFTXVaultFactory Address") 
 .setAction( async ({nftxvaultfactoryaddress}) => {
     const wallet = await getOwnerWallet();  
@@ -262,7 +263,7 @@ task("tests:provider:setNFTXVaultFactory", "User sets a new NFTXVaultFactory add
     console.log(tx);
 }); 
 
-task("tests:provider:getSushiSwapRouter", "User gets the Sushiswap router Address")
+task("provider:getSushiSwapRouter", "User gets the Sushiswap router Address")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
 
@@ -270,7 +271,7 @@ task("tests:provider:getSushiSwapRouter", "User gets the Sushiswap router Addres
     console.log(JSON.stringify(tx));
 }); 
 
-task("tests:provider:setSushiSwapRouter", "User sets a new Sushiswap router address")
+task("provider:setSushiSwapRouter", "User sets a new Sushiswap router address")
 .addParam("sushiswaprouteraddress", "The Sushiswap router Address") 
 .setAction( async ({sushiswaprouteraddress}) => {
     const wallet = await getOwnerWallet();  

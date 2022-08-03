@@ -13,6 +13,8 @@ import punkGatewayArtifact from "../../artifacts/contracts/protocol/PunkGateway.
 import reserveOracleArtifact from "../../artifacts/contracts/protocol/ReserveOracle.sol/ReserveOracle.json";
 import uTokenArtifact from "../../artifacts/contracts/protocol/UToken.sol/UToken.json";
 import wethGatewayArtifact from "../../artifacts/contracts/protocol/WETHGateway.sol/WETHGateway.json";
+import unftRegistryArtifact from "../../artifacts/contracts/interfaces/IUNFTRegistry.sol/IUNFTRegistry.json";
+
 //Mock imports
 import erc20Artifact from "../../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
 import erc721Artifact from "../../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
@@ -39,6 +41,7 @@ const punkGatewayContract = new Contract(deployments.PunkGateway.address, punkGa
 const reserveOracleContract = new Contract(deployments.ReserveOracle.address, reserveOracleArtifact.abi);
 const uTokenContract = new Contract(deployments.UToken.address, uTokenArtifact.abi);
 const wethGatewayContract = new Contract(deployments.WETHGateway.address, wethGatewayArtifact.abi);
+const unftRegistryContract = new Contract(deployments.UNFTRegistry.address, unftRegistryArtifact.abi);
 
 
 export const Contracts = {
@@ -54,6 +57,7 @@ export const Contracts = {
     reserveOracle: reserveOracleContract,
     uToken: uTokenContract,
     wethGateway: wethGatewayContract,
+    unftRegistry: unftRegistryContract,
 }
 
 
