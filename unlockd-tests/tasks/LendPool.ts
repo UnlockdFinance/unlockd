@@ -96,7 +96,13 @@ task("lendpool:getdebtdata", "Returns debt data")
 .setAction( async ({collection, tokenid}) => {
     const wallet = await getUserWallet();  
     const debtData = await Functions.LENDPOOL.getDebtData(wallet, collection, tokenid);
-    console.log(debtData);
+    console.log("Debt data: ");
+    console.log("Loan ID: ", debtData.loanId.toString());
+    console.log("Reserve asset: ", debtData.reserveAsset);
+    console.log("Total collateral: ", debtData.totalCollateral.toString() / 10**18);
+    console.log("Total debt: ", debtData.totalDebt.toString() / 10**18);
+    console.log("Available borrows: ", debtData.availableBorrows.toString() / 10**18);
+    console.log("Health Factor: ", debtData.healthFactor.toString() / 10**18);
 });  
 //Get NFT data
 task("lendpool:getnftdata", "Returns the NFT data")
