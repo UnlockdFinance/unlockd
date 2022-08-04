@@ -79,8 +79,7 @@ task("lendpool:borrow", "User 0 Withdraws {amount} {reserve} from the reserves")
     await Functions.LENDPOOL.borrow(wallet, tokenContract.address, amount, collection, tokenid, to);
    
 }); 
-
-//Borrowing 
+// Get collateral data
 task("lendpool:getcollateraldata", "Returns collateral data")
 .addParam("collection", "NFT collection address") 
 .addParam("tokenid", "nft token id")  
@@ -90,16 +89,29 @@ task("lendpool:getcollateraldata", "Returns collateral data")
     const collateralData = await Functions.LENDPOOL.getCollateralData(wallet, collection, tokenid, reserve);
     console.log(collateralData);
 });   
-//Borrowing 
+// Get debt data
 task("lendpool:getdebtdata", "Returns debt data")
 .addParam("collection", "NFT collection address") 
 .addParam("tokenid", "nft token id")  
 .setAction( async ({collection, tokenid}) => {
     const wallet = await getUserWallet();  
     const debtData = await Functions.LENDPOOL.getDebtData(wallet, collection, tokenid);
-    console.log(debtData);
-}); 
-
+    console.log("Debt data: ");
+    console.log("Loan ID: ", debtData.loanId.toString());
+    console.log("Reserve asset: ", debtData.reserveAsset);
+    console.log("Total collateral: ", debtData.totalCollateral.toString() / 10**18);
+    console.log("Total debt: ", debtData.totalDebt.toString() / 10**18);
+    console.log("Available borrows: ", debtData.availableBorrows.toString() / 10**18);
+    console.log("Health Factor: ", debtData.healthFactor.toString() / 10**18);
+});  
+//Get NFT data
+task("lendpool:getnftdata", "Returns the NFT data")
+.addParam("collection", "NFT collection address") 
+.setAction( async ({collection}) => {
+    const wallet = await getUserWallet();  
+    const nftData = await Functions.LENDPOOL.getNftData(wallet, collection);
+    console.log(nftData);
+});  
 //Redeem 
 task("lendpool:redeem", "Redeems a loan")
 .addParam("collection", "NFT collection address") 
@@ -133,6 +145,54 @@ task("lendpool:repay", "Repays a loan")
 task("lendpool:getliquidatefee", "Get liquidation fee percentage")
 .setAction( async () => {
     const wallet = await getUserWallet();  
-    const percentage = await Functions.LENDPOOL.getLiquidateFeePercentage(wallet);
-    console.log(percentage.toString())
-});  
+    const fee = await Functions.LENDPOOL.getLiquidateFeePercentage(wallet);
+    console.log(fee.toString())
+}); 
+
+//Get liquidation fee percentage
+task("lendpool:getnftliquidateprice", "Get liquidation price for an asset")
+.addParam("collection", "NFT collection address") 
+.addParam("tokenid", "nft token id")  
+.setAction( async ({collection, tokenid}) => {
+    const wallet = await getUserWallet();  
+    const price = await Functions.LENDPOOL.getNftLiquidatePrice(wallet, collection, tokenid);
+    console.log(price.toString())
+});   
+
+//Auction loan 
+task("lendpool:auction", "Auctions a loan")
+.addParam("collection", "NFT collection address") 
+.addParam("tokenid", "nft token id")  
+.addParam("bidprice", "The bid price")  
+.addParam("to", "Receiver")  
+.setAction( async ({collection, tokenid, bidprice, to}) => {
+    const wallet = await getUserWallet();  
+    bidprice = await parseUnits(bidprice.toString())
+    //Get loan data to fetch reserve asset
+
+    const loanId = await Functions.LENDPOOL_LOAN.getCollateralLoanId(wallet, collection, tokenid);
+    console.log(loanId.toString());
+    const loanData = await Functions.LENDPOOL_LOAN.getLoan(wallet, loanId);
+    const reserveAddress = loanData.reserveAsset;
+    let tokenContract;
+    reserveAddress == MockContracts['DAI'].address ?
+       tokenContract = MockContracts['DAI'] :tokenContract = MockContracts['USDC'];
+    
+    await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, bidprice)  
+    await Functions.LENDPOOL.auction(wallet, collection, tokenid, bidprice, to); 
+    
+}); 
+
+//Get NFT auction data
+task("lendpool:getnftauctiondata", "Get liquidation price for an asset")
+.addParam("collection", "NFT collection address") 
+.addParam("tokenid", "nft token id")  
+.setAction( async ({collection, tokenid}) => {
+    const wallet = await getUserWallet();  
+    const data = await Functions.LENDPOOL.getNftAuctionData(wallet, collection, tokenid);
+    console.log("Loan id: ", data.loanId.toString());
+    console.log("Bidder address: ", data.bidderAddress.toString());
+    console.log("Bid price: ", data.bidPrice.toString());
+    console.log("Bid borrow amount: ", data.bidBorrowAmount.toString());
+    console.log("Bid fine: ", data.bidFine.toString());
+}); 

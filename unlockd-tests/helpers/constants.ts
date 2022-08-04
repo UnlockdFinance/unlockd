@@ -49,7 +49,6 @@ const unftRegistryContract = new Contract(deployments.UNFTRegistry.address, unft
 // NFTX
 const nftxVaultFactoryContract = new Contract("0xbbc53022Af15Bb973AD906577c84784c47C14371", nftxVaultFactoryArtificat.abi);
 
-
 export const Contracts = {
     debtToken: debtTokenContract,
     interestRate: interestRateContract,
@@ -82,4 +81,8 @@ export const MockContracts = {
     PSC: pscContract,
     MOON: moonContract,
 }
+
+
+
+
 
