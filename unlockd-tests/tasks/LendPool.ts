@@ -171,7 +171,7 @@ task("lendpool:auction", "Auctions a loan")
     //Get loan data to fetch reserve asset
 
     const loanId = await Functions.LENDPOOL_LOAN.getCollateralLoanId(wallet, collection, tokenid);
-    console.log(loanId);
+    console.log(loanId.toString());
     const loanData = await Functions.LENDPOOL_LOAN.getLoan(wallet, loanId);
     const reserveAddress = loanData.reserveAsset;
     let tokenContract;

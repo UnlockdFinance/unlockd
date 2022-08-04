@@ -24,7 +24,7 @@ task("lendpoolloan:getloan", "Returns the loan")
     console.log("NFT Collection: ", loan.nftAsset);
     console.log("NFT Token ID: ", loan.nftTokenId.toString());
     console.log("Reserve Asset: ", loan.reserveAsset);
-    console.log("Scaled amount", loan.scaledAmount);
+    console.log("Scaled amount", loan.scaledAmount.toString() / 10**18);
     console.log("Bid start timestamp (UNIX): ", loan.bidStartTimestamp.toString());
     console.log("Bidder address: ", loan.bidderAddress);
     console.log("Bid price: ", loan.bidPrice.toString());
