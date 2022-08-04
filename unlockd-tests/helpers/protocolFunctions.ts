@@ -53,8 +53,8 @@ const getDebtData = async (wallet: Wallet, collection: string, nftTokenId: numbe
     return await Contracts.lendPool.connect(wallet).getNftDebtData(collection, nftTokenId);
 }
 
-const redeem = async (wallet: Wallet, collection: string, nftTokenId: number, amount: number) => {
-    return await Contracts.lendPool.connect(wallet).redeem(collection, nftTokenId, amount);
+const redeem = async (wallet: Wallet, collection: string, nftTokenId: number, amount: number, bidfine:number) => {
+    return await Contracts.lendPool.connect(wallet).redeem(collection, nftTokenId, amount, bidfine);
 }
 
 const repay = async (wallet: Wallet, collection: string, nftTokenId: number, amount: number) => {

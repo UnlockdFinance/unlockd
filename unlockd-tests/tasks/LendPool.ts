@@ -117,10 +117,11 @@ task("lendpool:redeem", "Redeems a loan")
 .addParam("collection", "NFT collection address") 
 .addParam("tokenid", "nft token id")  
 .addParam("amount", "Amount to redeem")   
-.setAction( async ({collection, tokenid, amount}) => {
+.addParam("bidfine", "Amount to redeem")   
+.setAction( async ({collection, tokenid, amount, bidfine}) => {
     const wallet = await getUserWallet();  
     amount = await parseUnits(amount.toString())    
-    await Functions.LENDPOOL.redeem(wallet, collection, tokenid, amount);
+    await Functions.LENDPOOL.redeem(wallet, collection, tokenid, amount, bidfine);
     
 });  
 
