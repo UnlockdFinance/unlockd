@@ -37,14 +37,14 @@ task("lendpool:deposit", "User 0 Deposits {amount} {reserve} in an empty reserve
 .addParam("amount", "Reserve amount") 
 .addParam("reserve", "The reserve")  //must be set to 'DAI' or 'USDC'
 .addParam("to", "Who will receive the interest bearing tokens")
-.setAction( async ({amount, reserve, onbehalfof}) => {
+.setAction( async ({amount, reserve, to}) => {
     const wallet = await getUserWallet();  
     const tokenContract = MockContracts[reserve];
     reserve == 'USDC' ? 
         amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString())
   
     await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount)  
-    await Functions.LENDPOOL.deposit(wallet, tokenContract.address, amount, onbehalfof);
+    await Functions.LENDPOOL.deposit(wallet, tokenContract.address, amount, to);
    
 }); 
 //Withdrawing funds from the pool
