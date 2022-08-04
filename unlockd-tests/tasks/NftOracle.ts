@@ -9,7 +9,7 @@ task("nftoracle:getnftprice", "User 0 Deposits {amount} {reserve} in an empty re
 .addParam("tokenid", "The token id")
 .setAction( async ({collection, tokenid}) => {
     const wallet = await getUserWallet();  
-    const price = await Functions.NFTORACLE.getNftPrice(wallet, collection, tokenid);
+    const price = await Functions.NFTORACLE.getNftPrice(wallet, collection, tokenid).then(v => v.string());
     console.log(price);
    
 }); 

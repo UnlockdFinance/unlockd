@@ -21,3 +21,13 @@ task("lendpoolloan:getloan", "Returns the loan")
     console.log(loan);
    
 }); 
+
+task("lendpoolloan:getcollateralloanid", "Returns the loan")
+.addParam("collection", "The collection address")
+.addParam("tokenid", "The NFT id")
+.setAction( async ({collection, tokenid}) => {
+    const wallet = await getUserWallet();  
+    const loan= await Functions.LENDPOOL_LOAN.getCollateralLoanId(wallet, collection, tokenid);
+    console.log(loan);
+   
+}); 
