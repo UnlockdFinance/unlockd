@@ -27,8 +27,8 @@ task("lendpoolloan:getloan", "Returns the loan")
     console.log("Scaled amount", loan.scaledAmount.toString() / 10**18);
     console.log("Bid start timestamp (UNIX): ", loan.bidStartTimestamp.toString());
     console.log("Bidder address: ", loan.bidderAddress);
-    console.log("Bid price: ", loan.bidPrice.toString());
-    console.log("Bid borrow amount: ", loan.bidBorrowAmount.toString());
+    console.log("Bid price: ", loan.bidPrice.toString() / 10**18);
+    console.log("Bid borrow amount: ", loan.bidBorrowAmount.toString() / 10**18);
     console.log("First bidder address: ", loan.firstBidderAddress);
    
 }); 
