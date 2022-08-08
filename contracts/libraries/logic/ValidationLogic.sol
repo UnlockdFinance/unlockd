@@ -209,6 +209,7 @@ library ValidationLogic {
   function validateRedeem(
     DataTypes.ReserveData storage reserveData,
     DataTypes.NftData storage nftData,
+    DataTypes.NftConfigurationMap storage nftConfig,
     DataTypes.LoanData memory loanData,
     uint256 amount
   ) external view {
@@ -217,7 +218,7 @@ library ValidationLogic {
 
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
 
-    require(nftData.configuration.getActive(), Errors.VL_NO_ACTIVE_NFT);
+    require(nftConfig.getActive(), Errors.VL_NO_ACTIVE_NFT);
 
     require(loanData.state == DataTypes.LoanState.Auction, Errors.LPL_INVALID_LOAN_STATE);
 

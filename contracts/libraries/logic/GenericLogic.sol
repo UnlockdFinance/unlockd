@@ -243,7 +243,7 @@ library GenericLogic {
    * @param reserveData the reserve data
    * @param nftAsset the underlying NFT asset
    * @param nftTokenId the NFT token Id
-   * @param nftData The NFT data
+   * @param nftConfig The NFT data
    * @param poolLoan The pool loan address
    * @param reserveOracle The price oracle address of reserve
    * @param nftOracle The price oracle address of nft
@@ -255,7 +255,7 @@ library GenericLogic {
     DataTypes.ReserveData storage reserveData,
     address nftAsset,
     uint256 nftTokenId,
-    DataTypes.NftData storage nftData,
+    DataTypes.NftConfigurationMap storage nftConfig,
     address poolLoan,
     address reserveOracle,
     address nftOracle
@@ -284,7 +284,7 @@ library GenericLogic {
 
     (, vars.borrowAmount) = ILendPoolLoan(poolLoan).getLoanReserveBorrowAmount(loanId);
 
-    (vars.ltv, vars.liquidationThreshold, vars.liquidationBonus) = nftData.configuration.getCollateralParams();
+    (vars.ltv, vars.liquidationThreshold, vars.liquidationBonus) = nftConfig.getCollateralParams();
 
     vars.nftPriceInETH = INFTOracleGetter(nftOracle).getNFTPrice(nftAsset, nftTokenId);
     vars.reservePriceInETH = IReserveOracleGetter(reserveOracle).getAssetPrice(reserveAsset);
