@@ -50,7 +50,7 @@ library GenericLogic {
    * @param reserveData Data of the reserve
    * @param nftAddress the underlying NFT asset
    * @param nftTokenId the token Id for the NFT
-   * @param nftData Data of the nft
+   * @param nftConfig Config of the nft by tokenId
    * @param loanAddress The loan address
    * @param loanId The loan identifier
    * @param reserveOracle The price oracle address of reserve
@@ -62,7 +62,7 @@ library GenericLogic {
     DataTypes.ReserveData storage reserveData,
     address nftAddress,
     uint256 nftTokenId,
-    DataTypes.NftData storage nftData,
+    DataTypes.NftConfigurationMap storage nftConfig,
     address loanAddress,
     uint256 loanId,
     address reserveOracle,
@@ -77,7 +77,7 @@ library GenericLogic {
     )
   {
     CalculateLoanDataVars memory vars;
-    (vars.nftLtv, vars.nftLiquidationThreshold, ) = nftData.configuration.getCollateralParams();
+    (vars.nftLtv, vars.nftLiquidationThreshold, ) = nftConfig.getCollateralParams();
 
     // calculate total borrow balance for the loan
     if (loanId != 0) {
@@ -96,7 +96,6 @@ library GenericLogic {
       reserveData,
       nftAddress,
       nftTokenId,
-      nftData,
       reserveOracle,
       nftOracle
     );
@@ -151,7 +150,6 @@ library GenericLogic {
    * @param reserveData Data of the reserve
    * @param nftAddress The underlying NFT asset
    * @param nftTokenId The underlying NFT token Id
-   * @param nftData The NFT data
    * @param reserveOracle The price oracle address of reserve
    * @param nftOracle The nft price oracle address
    * @return The total debt in ETH and the total debt in the Reserve
@@ -161,12 +159,10 @@ library GenericLogic {
     DataTypes.ReserveData storage reserveData,
     address nftAddress,
     uint256 nftTokenId,
-    DataTypes.NftData storage nftData,
     address reserveOracle,
     address nftOracle
   ) internal view returns (uint256, uint256) {
     reserveData;
-    nftData;
 
     CalculateLoanDataVars memory vars;
 
