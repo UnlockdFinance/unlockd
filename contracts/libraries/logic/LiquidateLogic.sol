@@ -160,7 +160,7 @@ library LiquidateLogic {
   function executeAuction(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
-    mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftData)) storage nftsData,
     DataTypes.ExecuteLendPoolStates memory poolStates,
     DataTypes.ExecuteAuctionParams memory params
   ) external {
@@ -179,7 +179,7 @@ library LiquidateLogic {
     DataTypes.LoanData memory loanData = ILendPoolLoan(vars.loanAddress).getLoan(vars.loanId);
 
     DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
-    DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
+    DataTypes.NftData storage nftData = nftsData[loanData.nftAsset][loanData.nftTokenId];
 
     ValidationLogic.validateAuction(reserveData, nftData, loanData, params.bidPrice);
 
@@ -286,7 +286,7 @@ library LiquidateLogic {
   function executeRedeem(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
-    mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftData)) storage nftsData,
     DataTypes.ExecuteLendPoolStates memory poolStates,
     DataTypes.ExecuteRedeemParams memory params
   ) external returns (uint256) {
@@ -303,7 +303,7 @@ library LiquidateLogic {
     DataTypes.LoanData memory loanData = ILendPoolLoan(vars.poolLoan).getLoan(vars.loanId);
 
     DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
-    DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
+    DataTypes.NftData storage nftData = nftsData[loanData.nftAsset][loanData.nftTokenId];
 
     ValidationLogic.validateRedeem(reserveData, nftData, loanData, params.amount);
 
@@ -423,7 +423,7 @@ library LiquidateLogic {
   function executeLiquidate(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
-    mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftData)) storage nftsData,
     DataTypes.ExecuteLendPoolStates memory poolStates,
     DataTypes.ExecuteLiquidateParams memory params
   ) external returns (uint256) {
@@ -440,7 +440,7 @@ library LiquidateLogic {
     DataTypes.LoanData memory loanData = ILendPoolLoan(vars.poolLoan).getLoan(vars.loanId);
 
     DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
-    DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
+    DataTypes.NftData storage nftData = nftsData[loanData.nftAsset][loanData.nftTokenId];
 
     ValidationLogic.validateLiquidate(reserveData, nftData, loanData);
 
@@ -548,7 +548,7 @@ library LiquidateLogic {
   function executeLiquidateOpensea(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
-    mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftData)) storage nftsData,
     DataTypes.ExecuteLiquidateOpenseaParams memory params
   ) external returns (uint256) {
     LiquidateOpenseaLocalVars memory vars;
@@ -564,7 +564,7 @@ library LiquidateLogic {
     DataTypes.LoanData memory loanData = ILendPoolLoan(vars.poolLoan).getLoan(vars.loanId);
 
     DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
-    DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
+    DataTypes.NftData storage nftData = nftsData[loanData.nftAsset][loanData.nftTokenId];
 
     ValidationLogic.validateLiquidate(reserveData, nftData, loanData);
 
@@ -668,7 +668,7 @@ library LiquidateLogic {
   function executeLiquidateNFTX(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
-    mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftData)) storage nftsData,
     DataTypes.ExecuteLiquidateNFTXParams memory params
   ) external returns (uint256) {
     LiquidateNFTXLocalVars memory vars;
@@ -684,7 +684,7 @@ library LiquidateLogic {
     DataTypes.LoanData memory loanData = ILendPoolLoan(vars.poolLoan).getLoan(vars.loanId);
 
     DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
-    DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
+    DataTypes.NftData storage nftData = nftsData[loanData.nftAsset][loanData.nftTokenId];
 
     ValidationLogic.validateLiquidateNFTX(reserveData, nftData, loanData);
 

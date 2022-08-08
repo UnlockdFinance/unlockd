@@ -103,7 +103,7 @@ library BorrowLogic {
   function executeBorrow(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
-    mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsData,
     DataTypes.ExecuteBorrowParams memory params
   ) external {
     _borrow(addressesProvider, reservesData, nftsData, params);
@@ -119,7 +119,7 @@ library BorrowLogic {
   function executeBatchBorrow(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
-    mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsData,
     DataTypes.ExecuteBatchBorrowParams memory params
   ) external {
     require(params.nftAssets.length == params.assets.length, "inconsistent assets length");
@@ -155,7 +155,7 @@ library BorrowLogic {
   function _borrow(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
-    mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsData,
     DataTypes.ExecuteBorrowParams memory params
   ) internal {
     require(params.onBehalfOf != address(0), Errors.VL_INVALID_ONBEHALFOF_ADDRESS);
@@ -164,7 +164,7 @@ library BorrowLogic {
     vars.initiator = params.initiator;
 
     DataTypes.ReserveData storage reserveData = reservesData[params.asset];
-    DataTypes.NftData storage nftData = nftsData[params.nftAsset];
+    DataTypes.NftConfigurationMap storage nftConfig = nftsData[params.nftAsset][params.nftTokenId];
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();
@@ -184,7 +184,7 @@ library BorrowLogic {
       reserveData,
       params.nftAsset,
       params.nftTokenId,
-      nftData,
+      nftConfig,
       vars.loanAddress,
       vars.loanId,
       vars.reserveOracle,
@@ -258,7 +258,7 @@ library BorrowLogic {
   function executeRepay(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
-    mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsData,
     DataTypes.ExecuteRepayParams memory params
   ) external returns (uint256, bool) {
     return _repay(addressesProvider, reservesData, nftsData, params);
@@ -274,7 +274,7 @@ library BorrowLogic {
   function executeBatchRepay(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
-    mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsData,
     DataTypes.ExecuteBatchRepayParams memory params
   ) external returns (uint256[] memory, bool[] memory) {
     require(params.nftAssets.length == params.amounts.length, "inconsistent amounts length");
@@ -310,7 +310,7 @@ library BorrowLogic {
   function _repay(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
-    mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsData,
     DataTypes.ExecuteRepayParams memory params
   ) internal returns (uint256, bool) {
     RepayLocalVars memory vars;
@@ -324,7 +324,7 @@ library BorrowLogic {
     DataTypes.LoanData memory loanData = ILendPoolLoan(vars.poolLoan).getLoan(vars.loanId);
 
     DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
-    DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
+    DataTypes.NftData storage nftData = nftsData[loanData.nftAsset][loanData.nftTokenId];
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();

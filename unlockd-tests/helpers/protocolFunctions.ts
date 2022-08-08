@@ -366,6 +366,7 @@ const getTokenImplementation = async (wallet:Wallet, proxyAddress: string) => {
     return await Contracts.lendPoolConfigurator.connect(wallet).getTokenImplementation(proxyAddress);
 }
 
+
 //#endregion
 
 //          NFT's
@@ -488,5 +489,5 @@ export const Functions = {
     NFTX: {
         getNFTXVault: getNFTXVault,
         createNFTXVault: createNFTXVault
-    }
+    },
 }

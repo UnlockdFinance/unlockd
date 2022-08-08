@@ -404,6 +404,17 @@ interface ILendPool {
   function getNftConfiguration(address asset) external view returns (DataTypes.NftConfigurationMap memory);
 
   /**
+   * @dev Returns the configuration of the NFT
+   * @param asset The address of the asset of the NFT
+   * @param tokenId the Token Id of the NFT
+   * @return The configuration of the NFT
+   **/
+  function getNftConfigByTokenId(address asset, uint256 tokenId)
+    external
+    view
+    returns (DataTypes.NftConfigurationMap memory);
+
+  /**
    * @dev Returns the normalized income normalized income of the reserve
    * @param asset The address of the underlying asset of the reserve
    * @return The reserve's normalized income
@@ -594,6 +605,19 @@ interface ILendPool {
    * @param configuration The new configuration bitmap
    **/
   function setNftConfiguration(address asset, uint256 configuration) external;
+
+  /**
+   * @dev Sets the configuration bitmap of the NFT as a whole
+   * - Only callable by the LendPoolConfigurator contract
+   * @param asset The address of the asset of the NFT
+   * @param nftTokenId the NFT tokenId
+   * @param configuration The new configuration bitmap
+   **/
+  function setNftConfigByTokenId(
+    address asset,
+    uint256 nftTokenId,
+    uint256 configuration
+  ) external;
 
   /**
    * @dev Sets the max supply and token ID for a given asset

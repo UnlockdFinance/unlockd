@@ -265,91 +265,93 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   /**
    * @dev Configures the NFT collateralization parameters
    * all the values are expressed in percentages with two decimals of precision. A valid value is 10000, which means 100.00%
-   * @param assets The address of the underlying asset of the reserve
+   * @param asset The address of the underlying asset of the reserve
+   * @param nftTokenId The token Id of the asset
    * @param ltv The loan to value of the asset when used as NFT
    * @param liquidationThreshold The threshold at which loans using this asset as collateral will be considered undercollateralized
    * @param liquidationBonus The bonus liquidators receive to liquidate this asset. The values is always below 100%. A value of 5%
    * means the liquidator will receive a 5% bonus
    **/
   function configureNftAsCollateral(
-    address[] calldata assets,
+    address asset,
+    uint256 nftTokenId,
     uint256 ltv,
     uint256 liquidationThreshold,
     uint256 liquidationBonus
   ) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; i++) {
-      DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfiguration(assets[i]);
+    DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(asset, nftTokenId);
 
-      //validation of the parameters: the LTV can
-      //only be lower or equal than the liquidation threshold
-      //(otherwise a loan against the asset would cause instantaneous liquidation)
-      require(ltv <= liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
+    //validation of the parameters: the LTV can
+    //only be lower or equal than the liquidation threshold
+    //(otherwise a loan against the asset would cause instantaneous liquidation)
+    require(ltv <= liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
 
-      if (liquidationThreshold != 0) {
-        //liquidation bonus must be smaller than 100.00%
-        require(liquidationBonus < PercentageMath.PERCENTAGE_FACTOR, Errors.LPC_INVALID_CONFIGURATION);
-      } else {
-        require(liquidationBonus == 0, Errors.LPC_INVALID_CONFIGURATION);
-      }
-
-      currentConfig.setLtv(ltv);
-      currentConfig.setLiquidationThreshold(liquidationThreshold);
-      currentConfig.setLiquidationBonus(liquidationBonus);
-
-      cachedPool.setNftConfiguration(assets[i], currentConfig.data);
-
-      emit NftConfigurationChanged(assets[i], ltv, liquidationThreshold, liquidationBonus);
+    if (liquidationThreshold != 0) {
+      //liquidation bonus must be smaller than 100.00%
+      require(liquidationBonus < PercentageMath.PERCENTAGE_FACTOR, Errors.LPC_INVALID_CONFIGURATION);
+    } else {
+      require(liquidationBonus == 0, Errors.LPC_INVALID_CONFIGURATION);
     }
+
+    currentConfig.setLtv(ltv);
+    currentConfig.setLiquidationThreshold(liquidationThreshold);
+    currentConfig.setLiquidationBonus(liquidationBonus);
+
+    cachedPool.setNftConfigByTokenId(asset, nftTokenId, currentConfig.data);
+
+    emit NftConfigurationChanged(asset, ltv, liquidationThreshold, liquidationBonus);
   }
 
   /**
    * @dev Configures the NFT auction parameters
-   * @param assets The address of the underlying NFT asset
+   * @param asset The address of the underlying NFT asset
    * @param redeemDuration The max duration for the redeem
    * @param auctionDuration The auction duration
    * @param redeemFine The fine for the redeem
    **/
   function configureNftAsAuction(
-    address[] calldata assets,
+    address asset,
+    uint256 nftTokenId,
     uint256 redeemDuration,
     uint256 auctionDuration,
     uint256 redeemFine
   ) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; i++) {
-      DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfiguration(assets[i]);
+    DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(asset, nftTokenId);
 
-      //validation of the parameters: the redeem duration can
-      //only be lower or equal than the auction duration
-      require(redeemDuration <= auctionDuration, Errors.LPC_INVALID_CONFIGURATION);
+    //validation of the parameters: the redeem duration can
+    //only be lower or equal than the auction duration
+    require(redeemDuration <= auctionDuration, Errors.LPC_INVALID_CONFIGURATION);
 
-      currentConfig.setRedeemDuration(redeemDuration);
-      currentConfig.setAuctionDuration(auctionDuration);
-      currentConfig.setRedeemFine(redeemFine);
+    currentConfig.setRedeemDuration(redeemDuration);
+    currentConfig.setAuctionDuration(auctionDuration);
+    currentConfig.setRedeemFine(redeemFine);
 
-      cachedPool.setNftConfiguration(assets[i], currentConfig.data);
+    cachedPool.setNftConfigByTokenId(asset, nftTokenId, currentConfig.data);
 
-      emit NftAuctionChanged(assets[i], redeemDuration, auctionDuration, redeemFine);
-    }
+    emit NftAuctionChanged(asset, redeemDuration, auctionDuration, redeemFine);
   }
 
   /**
    * @dev Configures the redeem threshold
-   * @param assets The address of the underlying NFT asset
+   * @param asset The address of the underlying NFT asset
+   * @param nftTokenId the tokenId of the asset
    * @param redeemThreshold The threshold for the redeem
    **/
-  function setNftRedeemThreshold(address[] calldata assets, uint256 redeemThreshold) external onlyPoolAdmin {
+  function setNftRedeemThreshold(
+    address asset,
+    uint256 nftTokenId,
+    uint256 redeemThreshold
+  ) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; i++) {
-      DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfiguration(assets[i]);
+    DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(asset, nftTokenId);
 
-      currentConfig.setRedeemThreshold(redeemThreshold);
+    currentConfig.setRedeemThreshold(redeemThreshold);
 
-      cachedPool.setNftConfiguration(assets[i], currentConfig.data);
+    cachedPool.setNftConfiguration(asset, nftTokenId, currentConfig.data);
 
-      emit NftRedeemThresholdChanged(assets[i], redeemThreshold);
-    }
+    emit NftRedeemThresholdChanged(asset, nftTokenId, redeemThreshold);
   }
 
   /**
@@ -393,6 +395,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    * @dev Configures NFTs in batch
    * @param inputs the input array with data to configure each NFT asset
    **/
+  //TODO: solve this to accept multi Ids
   function batchConfigNft(ConfigNftInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     for (uint256 i = 0; i < inputs.length; i++) {
