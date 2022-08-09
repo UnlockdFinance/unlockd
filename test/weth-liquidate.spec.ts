@@ -57,7 +57,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
   });
 
   it("Borrow ETH and Liquidate it", async () => {
-    const { users, wethGateway, pool, loan, reserveOracle, nftOracle, weth, bWETH, bayc, dataProvider } = testEnv;
+    const { users, wethGateway, pool, loan, reserveOracle, nftOracle, weth, uWETH, bayc, dataProvider } = testEnv;
     const depositor = users[0];
     const user = users[1];
     const user3 = users[3];
@@ -156,7 +156,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
       reserveOracle,
       nftOracle,
       weth,
-      bWETH,
+      uWETH,
       bayc,
       dataProvider,
       liquidator,
@@ -245,9 +245,9 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
       reserveOracle,
       nftOracle,
       weth,
-      bWETH,
+      uWETH,
       bayc,
-      bBAYC,
+      uBAYC,
       dataProvider,
       liquidator,
     } = testEnv;
@@ -329,7 +329,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     expect(loanDataAfterRedeem.state).to.be.equal(ProtocolLoanState.Active, "Invalid loan state after redeem");
 
     const tokenOwnerAfterRedeem = await bayc.ownerOf(tokenId);
-    expect(tokenOwnerAfterRedeem).to.be.equal(bBAYC.address, "Invalid token owner after redeem");
+    expect(tokenOwnerAfterRedeem).to.be.equal(uBAYC.address, "Invalid token owner after redeem");
 
     // Repay loan
     console.log("repayETH:", redeemAmountSend);

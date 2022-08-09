@@ -135,7 +135,7 @@ contract LendPool is
 
   /**
    * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying uTokens.
-   * - E.g. User deposits 100 USDC and gets in return 100 bUSDC
+   * - E.g. User deposits 100 USDC and gets in return 100 uusdc
    * @param asset The address of the underlying asset to deposit
    * @param amount The amount to be deposited
    * @param onBehalfOf The address that will receive the uTokens, same as msg.sender if the user
@@ -164,7 +164,7 @@ contract LendPool is
 
   /**
    * @dev Withdraws an `amount` of underlying asset from the reserve, burning the equivalent uTokens owned
-   * E.g. User has 100 bUSDC, calls withdraw() and receives 100 USDC, burning the 100 bUSDC
+   * E.g. User has 100 uusdc, calls withdraw() and receives 100 USDC, burning the 100 uusdc
    * @param asset The address of the underlying asset to withdraw
    * @param amount The underlying amount to be withdrawn
    *   - Send the value type(uint256).max in order to withdraw the whole uToken balance

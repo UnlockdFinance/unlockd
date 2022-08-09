@@ -157,7 +157,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
   });
 
   it("USDC - Borrows USDC", async () => {
-    const { users, pool, reserveOracle, usdc, bayc, bBAYC, configurator, dataProvider } = testEnv;
+    const { users, pool, reserveOracle, usdc, bayc, uBAYC, configurator, dataProvider } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
 
@@ -205,7 +205,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     );
 
     const tokenOwner = await bayc.ownerOf("102");
-    expect(tokenOwner).to.be.equal(bBAYC.address, "Invalid token owner after auction");
+    expect(tokenOwner).to.be.equal(uBAYC.address, "Invalid token owner after auction");
   });
 
   it("USDC - Drop the health factor below 1", async () => {

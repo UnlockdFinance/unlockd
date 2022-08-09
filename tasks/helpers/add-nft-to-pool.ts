@@ -11,14 +11,15 @@ import {
 } from "../../helpers/contracts-getters";
 import { getEthersSignerByAddress } from "../../helpers/contracts-helpers";
 import { getNowTimeInSeconds, notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
-import { eContractid, eNetwork, INftParams } from "../../helpers/types";
+import { eContractid, eNetwork, INftParams, TokenContractId } from "../../helpers/types";
 import { strategyNftParams } from "../../markets/unlockd/nftsConfigs";
 
 task("add-nft-to-pool", "Add and config new nft asset to lend pool")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .addParam("asset", "Address of underlying nft asset contract")
+  .addParam("tokenId", "The tokenId of the underlying asset")
   .addOptionalParam("strategy", "Name of nft strategy, supported: ClassA, ClassB, ClassC, ClassD, ClassE")
-  .setAction(async ({ pool, asset, strategy }, DRE) => {
+  .setAction(async ({ pool, asset, tokenId, strategy }, DRE) => {
     await DRE.run("set-DRE");
 
     const network = DRE.network.name as eNetwork;
@@ -73,6 +74,7 @@ task("add-nft-to-pool", "Add and config new nft asset to lend pool")
         .connect(poolAdminSigner)
         .configureNftAsCollateral(
           asset,
+          tokenId,
           nftParam.baseLTVAsCollateral,
           nftParam.liquidationThreshold,
           nftParam.liquidationBonus
@@ -81,6 +83,7 @@ task("add-nft-to-pool", "Add and config new nft asset to lend pool")
 
     let cfgInputParams: {
       asset: string;
+      tokenId: BigNumberish;
       baseLTV: BigNumberish;
       liquidationThreshold: BigNumberish;
       liquidationBonus: BigNumberish;
@@ -94,6 +97,7 @@ task("add-nft-to-pool", "Add and config new nft asset to lend pool")
     }[] = [
       {
         asset: asset,
+        tokenId: nftParam.tokenId,
         baseLTV: nftParam.baseLTVAsCollateral,
         liquidationThreshold: nftParam.liquidationThreshold,
         liquidationBonus: nftParam.liquidationBonus,

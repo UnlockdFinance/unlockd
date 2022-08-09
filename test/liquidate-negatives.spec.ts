@@ -85,7 +85,7 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
   });
 
   it("User 2 auction on a non-active Reserve", async () => {
-    const { configurator, weth, bWETH, bayc, pool, users } = testEnv;
+    const { configurator, weth, uWETH, bayc, pool, users } = testEnv;
     const user2 = users[2];
 
     await configurator.deactivateReserve(weth.address);
@@ -98,7 +98,7 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
   });
 
   it("User 2 liquidate on a non-active Reserve", async () => {
-    const { configurator, weth, bWETH, bayc, pool, users } = testEnv;
+    const { configurator, weth, uWETH, bayc, pool, users } = testEnv;
     const user2 = users[2];
 
     await configurator.deactivateReserve(weth.address);

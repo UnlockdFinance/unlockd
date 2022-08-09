@@ -2,6 +2,7 @@ import { task } from "hardhat/config";
 import { waitForTx } from "../../helpers/misc-utils";
 import { getWETHGateway, getUNFTRegistryProxy, getNFTOracle } from "../../helpers/contracts-getters";
 import { getLendPoolConfiguratorProxy } from "../../helpers/contracts-getters";
+import { TokenContractId } from "../../helpers/types";
 
 
 task("unft-registerNFT", "Deploy unft tokens for dev enviroment")
@@ -39,13 +40,15 @@ task("initNFTReserve", "Initializes the NFT Reserve")
 
 task("configNFTReserve", "Initializes the NFT Reserve")
   .addParam("nftaddress", `The address of the NFT to add`)
+  .addParam("tokenId", `The tokenId of the NFT to add`)
   .addParam("maxsupply", `The address of the NFT to add`)
   .addParam("maxtokenid", `The address of the NFT to add`)
-  .setAction(async ({ nftaddress, maxsupply, maxtokenid }) => {
+  .setAction(async ({ nftaddress, tokenId, maxsupply, maxtokenid }) => {
 
     const configurator = await getLendPoolConfiguratorProxy();
     const nftsParams = {
       asset: nftaddress,
+      tokenId: tokenId,
       maxSupply: maxsupply,
       maxTokenId: maxtokenid,
       baseLTV: '3000', // 30%

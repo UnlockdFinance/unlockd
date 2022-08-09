@@ -1,5 +1,5 @@
 import { TestEnv, makeSuite } from "./helpers/make-suite";
-import { APPROVAL_AMOUNT_LENDING_POOL, RAY } from "../helpers/constants";
+import { APPROVAL_AMOUNT_LENDING_POOL, MOCK_NFT_AGGREGATORS_MAXSUPPLY, RAY } from "../helpers/constants";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { ProtocolErrors } from "../helpers/types";
 import { strategyNftClassB } from "../markets/unlockd/nftsConfigs";
@@ -10,6 +10,7 @@ const { expect } = require("chai");
 makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   let cfgInputParams: {
     asset: string;
+    tokenId: BigNumberish;
     baseLTV: BigNumberish;
     liquidationThreshold: BigNumberish;
     liquidationBonus: BigNumberish;
@@ -23,6 +24,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   }[] = [
     {
       asset: "",
+      tokenId: 1,
       baseLTV: 0,
       liquidationThreshold: 0,
       liquidationBonus: 0,
@@ -37,6 +39,8 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   ];
 
   const { CALLER_NOT_POOL_ADMIN, LPC_INVALID_CONFIGURATION, LPC_NFT_LIQUIDITY_NOT_0 } = ProtocolErrors;
+  const tokenSupply = MOCK_NFT_AGGREGATORS_MAXSUPPLY.BAYC;
+  var maxSupply: number = +tokenSupply;
 
   it("Deactivates the BAYC NFT", async () => {
     const { configurator, bayc, dataProvider } = testEnv;
@@ -104,8 +108,8 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   });
 
   it("Deactivates the BAYC NFT as collateral", async () => {
-    const { configurator, dataProvider, bayc } = testEnv;
-    await configurator.configureNftAsCollateral([bayc.address], 0, 0, 0);
+    const { configurator, dataProvider, bayc, tokenId } = testEnv;
+    await configurator.configureNftAsCollateral(bayc.address, tokenId, 0, 0, 0);
 
     const { ltv, liquidationBonus, liquidationThreshold } = await dataProvider.getNftConfigurationData(bayc.address);
 
@@ -115,8 +119,8 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   });
 
   it("Activates the BAYC NFT as collateral", async () => {
-    const { configurator, dataProvider, bayc } = testEnv;
-    await configurator.configureNftAsCollateral([bayc.address], "8000", "8250", "500");
+    const { configurator, dataProvider, bayc, tokenId } = testEnv;
+    await configurator.configureNftAsCollateral(bayc.address, tokenId, "8000", "8250", "500");
 
     const { ltv, liquidationBonus, liquidationThreshold } = await dataProvider.getNftConfigurationData(bayc.address);
 
@@ -126,18 +130,18 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   });
 
   it("Check the onlyAdmin on configureNftAsCollateral ", async () => {
-    const { configurator, users, bayc } = testEnv;
+    const { configurator, users, bayc, tokenId } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).configureNftAsCollateral([bayc.address], "7500", "8000", "500"),
+      configurator.connect(users[2].signer).configureNftAsCollateral(bayc.address, tokenId, "7500", "8000", "500"),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
 
   it("Deactivates the BAYC NFT as auction", async () => {
-    const { configurator, dataProvider, bayc } = testEnv;
-    await configurator.configureNftAsAuction([bayc.address], 0, 0, 0);
-    await configurator.setNftRedeemThreshold([bayc.address], 0);
-    await configurator.setNftMinBidFine([bayc.address], 0);
+    const { configurator, dataProvider, bayc, tokenId } = testEnv;
+    await configurator.configureNftAsAuction(bayc.address, tokenId, 0, 0, 0);
+    await configurator.setNftRedeemThreshold(bayc.address, tokenId, 0);
+    await configurator.setNftMinBidFine(bayc.address, tokenId, 0);
 
     const { redeemDuration, auctionDuration, redeemFine, redeemThreshold, minBidFine } =
       await dataProvider.getNftConfigurationData(bayc.address);
@@ -150,10 +154,10 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   });
 
   it("Activates the BAYC NFT as auction", async () => {
-    const { configurator, dataProvider, bayc } = testEnv;
-    await configurator.configureNftAsAuction([bayc.address], "1", "1", "100");
-    await configurator.setNftRedeemThreshold([bayc.address], "5000");
-    await configurator.setNftMinBidFine([bayc.address], 5000);
+    const { configurator, dataProvider, bayc, tokenId } = testEnv;
+    await configurator.configureNftAsAuction(bayc.address, tokenId, "1", "1", "100");
+    await configurator.setNftRedeemThreshold(bayc.address, tokenId, "5000");
+    await configurator.setNftMinBidFine(bayc.address, tokenId, 5000);
 
     const { redeemDuration, auctionDuration, redeemFine, redeemThreshold, minBidFine } =
       await dataProvider.getNftConfigurationData(bayc.address);
@@ -166,22 +170,22 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   });
 
   it("Check the onlyAdmin on configureNftAsAuction ", async () => {
-    const { configurator, users, bayc } = testEnv;
+    const { configurator, users, bayc, tokenId } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).configureNftAsAuction([bayc.address], "1", "1", "100"),
+      configurator.connect(users[2].signer).configureNftAsAuction(bayc.address, tokenId, "1", "1", "100"),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
     await expect(
-      configurator.connect(users[2].signer).setNftRedeemThreshold([bayc.address], "5000"),
+      configurator.connect(users[2].signer).setNftRedeemThreshold(bayc.address, tokenId, "5000"),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
 
   it("Batch Deactivates the BAYC NFT as collateral", async () => {
-    const { configurator, dataProvider, bayc } = testEnv;
+    const { configurator, dataProvider, bayc, tokenId } = testEnv;
 
     cfgInputParams[0].asset = bayc.address;
-    cfgInputParams[0].baseLTV = 0;
+    (cfgInputParams[0].tokenId = tokenId), (cfgInputParams[0].baseLTV = 0);
     cfgInputParams[0].liquidationThreshold = 0;
     cfgInputParams[0].liquidationBonus = 0;
     await configurator.batchConfigNft(cfgInputParams);
@@ -197,10 +201,10 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   });
 
   it("Batch Activates the BAYC NFT as collateral", async () => {
-    const { configurator, dataProvider, bayc } = testEnv;
+    const { configurator, dataProvider, bayc, tokenId } = testEnv;
 
     cfgInputParams[0].asset = bayc.address;
-    cfgInputParams[0].baseLTV = 8000;
+    (cfgInputParams[0].tokenId = tokenId), (cfgInputParams[0].baseLTV = 8000);
     cfgInputParams[0].liquidationThreshold = 8250;
     cfgInputParams[0].liquidationBonus = 500;
     await configurator.batchConfigNft(cfgInputParams);

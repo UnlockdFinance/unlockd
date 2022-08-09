@@ -12,7 +12,7 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
   before(async () => {});
 
   it("Transfer", async () => {
-    const { users, pool, dai, bDai, configurator } = testEnv;
+    const { users, pool, dai, uDai, configurator } = testEnv;
     const emergencyAdminSigner = await getEmergencyAdminSigner();
 
     const amountDeposit = await convertToCurrencyDecimals(dai.address, "1000");
@@ -23,19 +23,19 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     await dai.connect(users[0].signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
     await pool.connect(users[0].signer).deposit(dai.address, amountDeposit, users[0].address, "0");
 
-    const user0Balance = await bDai.balanceOf(users[0].address);
-    const user1Balance = await bDai.balanceOf(users[1].address);
+    const user0Balance = await uDai.balanceOf(users[0].address);
+    const user1Balance = await uDai.balanceOf(users[1].address);
 
     // Configurator pauses the pool
     await configurator.connect(emergencyAdminSigner).setPoolPause(true);
 
     // User 0 tries the transfer to User 1
-    await expect(bDai.connect(users[0].signer).transfer(users[1].address, amountDeposit)).to.revertedWith(
+    await expect(uDai.connect(users[0].signer).transfer(users[1].address, amountDeposit)).to.revertedWith(
       ProtocolErrors.LP_IS_PAUSED
     );
 
-    const pausedFromBalance = await bDai.balanceOf(users[0].address);
-    const pausedToBalance = await bDai.balanceOf(users[1].address);
+    const pausedFromBalance = await uDai.balanceOf(users[0].address);
+    const pausedToBalance = await uDai.balanceOf(users[1].address);
 
     expect(pausedFromBalance).to.be.equal(user0Balance.toString(), ProtocolErrors.INVALID_TO_BALANCE_AFTER_TRANSFER);
     expect(pausedToBalance.toString()).to.be.equal(
@@ -47,10 +47,10 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     await configurator.connect(emergencyAdminSigner).setPoolPause(false);
 
     // User 0 succeeds transfer to User 1
-    await bDai.connect(users[0].signer).transfer(users[1].address, amountDeposit);
+    await uDai.connect(users[0].signer).transfer(users[1].address, amountDeposit);
 
-    const fromBalance = await bDai.balanceOf(users[0].address);
-    const toBalance = await bDai.balanceOf(users[1].address);
+    const fromBalance = await uDai.balanceOf(users[0].address);
+    const toBalance = await uDai.balanceOf(users[1].address);
 
     expect(fromBalance.toString()).to.be.equal(
       user0Balance.sub(amountDeposit),
@@ -63,7 +63,7 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
   });
 
   it("Deposit", async () => {
-    const { users, pool, dai, bDai, configurator } = testEnv;
+    const { users, pool, dai, uDai, configurator } = testEnv;
     const emergencyAdminSigner = await getEmergencyAdminSigner();
 
     const amountDeposit = await convertToCurrencyDecimals(dai.address, "1000");
@@ -84,7 +84,7 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
   });
 
   it("Withdraw", async () => {
-    const { users, pool, dai, bDai, configurator } = testEnv;
+    const { users, pool, dai, uDai, configurator } = testEnv;
     const emergencyAdminSigner = await getEmergencyAdminSigner();
 
     const amountDeposit = await convertToCurrencyDecimals(dai.address, "1000");

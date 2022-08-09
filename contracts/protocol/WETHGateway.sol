@@ -135,9 +135,9 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     _checkValidCallerAndOnBehalfOf(to);
 
     ILendPool cachedPool = _getLendPool();
-    IUToken bWETH = IUToken(cachedPool.getReserveData(address(WETH)).uTokenAddress);
+    IUToken uWETH = IUToken(cachedPool.getReserveData(address(WETH)).uTokenAddress);
 
-    uint256 userBalance = bWETH.balanceOf(msg.sender);
+    uint256 userBalance = uWETH.balanceOf(msg.sender);
     uint256 amountToWithdraw = amount;
 
     // if amount is equal to uint(-1), the user wants to redeem everything
@@ -145,7 +145,7 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
       amountToWithdraw = userBalance;
     }
 
-    bWETH.transferFrom(msg.sender, address(this), amountToWithdraw);
+    uWETH.transferFrom(msg.sender, address(this), amountToWithdraw);
     cachedPool.withdraw(address(WETH), amountToWithdraw, address(this));
     WETH.withdraw(amountToWithdraw);
     _safeTransferETH(to, amountToWithdraw);

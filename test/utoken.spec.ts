@@ -15,32 +15,32 @@ makeSuite("UToken", (testEnv: TestEnv) => {
   });
 
   it("Check DAI basic parameters", async () => {
-    const { dai, bDai, pool } = testEnv;
+    const { dai, uDai, pool } = testEnv;
 
     const symbol = await dai.symbol();
-    const bSymbol = await bDai.symbol();
+    const bSymbol = await uDai.symbol();
     expect(bSymbol).to.be.equal(CommonsConfig.UTokenSymbolPrefix + symbol);
 
     //const name = await dai.name();
-    const bName = await bDai.name();
+    const bName = await uDai.name();
     expect(bName).to.be.equal(CommonsConfig.UTokenNamePrefix + " " + symbol);
 
     const decimals = await dai.decimals();
-    const bDecimals = await bDai.decimals();
+    const bDecimals = await uDai.decimals();
     expect(decimals).to.be.equal(bDecimals);
 
-    const treasury = await bDai.RESERVE_TREASURY_ADDRESS();
+    const treasury = await uDai.RESERVE_TREASURY_ADDRESS();
     expect(treasury).to.be.not.equal(ZERO_ADDRESS);
 
-    const underAsset = await bDai.UNDERLYING_ASSET_ADDRESS();
+    const underAsset = await uDai.UNDERLYING_ASSET_ADDRESS();
     expect(underAsset).to.be.equal(dai.address);
 
-    const wantPool = await bDai.POOL();
+    const wantPool = await uDai.POOL();
     expect(wantPool).to.be.equal(pool.address);
   });
 
-  it("User 0 deposits 1000 DAI, transfers bDAI to user 1", async () => {
-    const { users, pool, dai, bDai } = testEnv;
+  it("User 0 deposits 1000 DAI, transfers uDai to user 1", async () => {
+    const { users, pool, dai, uDai } = testEnv;
 
     await dai.connect(users[0].signer).mint(await convertToCurrencyDecimals(dai.address, "1000"));
 
@@ -53,33 +53,33 @@ makeSuite("UToken", (testEnv: TestEnv) => {
 
     await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
 
-    await bDai.connect(users[0].signer).transfer(users[1].address, amountDeposit);
+    await uDai.connect(users[0].signer).transfer(users[1].address, amountDeposit);
 
     const checkResult = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
     await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
     expect(checkResult).to.be.equal(true, "IncentivesController not called");
 
-    const fromBalance = await bDai.balanceOf(users[0].address);
-    const toBalance = await bDai.balanceOf(users[1].address);
+    const fromBalance = await uDai.balanceOf(users[0].address);
+    const toBalance = await uDai.balanceOf(users[1].address);
 
     expect(fromBalance.toString()).to.be.equal("0", INVALID_FROM_BALANCE_AFTER_TRANSFER);
     expect(toBalance.toString()).to.be.equal(amountDeposit.toString(), INVALID_TO_BALANCE_AFTER_TRANSFER);
   });
 
-  it("User 1 receive bDAI from user 0, transfers 50% to user 2", async () => {
-    const { users, pool, dai, bDai } = testEnv;
+  it("User 1 receive uDai from user 0, transfers 50% to user 2", async () => {
+    const { users, pool, dai, uDai } = testEnv;
 
-    const amountTransfer = (await bDai.balanceOf(users[1].address)).div(2);
+    const amountTransfer = (await uDai.balanceOf(users[1].address)).div(2);
 
-    await bDai.connect(users[1].signer).transfer(users[2].address, amountTransfer);
+    await uDai.connect(users[1].signer).transfer(users[2].address, amountTransfer);
 
-    const fromBalance = await bDai.balanceOf(users[1].address);
-    const toBalance = await bDai.balanceOf(users[2].address);
+    const fromBalance = await uDai.balanceOf(users[1].address);
+    const toBalance = await uDai.balanceOf(users[2].address);
 
     expect(fromBalance.toString()).to.be.equal(amountTransfer.toString(), INVALID_FROM_BALANCE_AFTER_TRANSFER);
     expect(toBalance.toString()).to.be.equal(amountTransfer.toString(), INVALID_TO_BALANCE_AFTER_TRANSFER);
 
-    await bDai.totalSupply();
-    await bDai.getScaledUserBalanceAndSupply(users[1].address);
+    await uDai.totalSupply();
+    await uDai.getScaledUserBalanceAndSupply(users[1].address);
   });
 });

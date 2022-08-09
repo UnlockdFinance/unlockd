@@ -311,6 +311,7 @@ export const configureNftsByHelper = async (
 
   const inputParams: {
     asset: string;
+    tokenId: BigNumberish;
     baseLTV: BigNumberish;
     liquidationThreshold: BigNumberish;
     liquidationBonus: BigNumberish;
@@ -327,6 +328,7 @@ export const configureNftsByHelper = async (
   for (const [
     assetSymbol,
     {
+      tokenId,
       baseLTVAsCollateral,
       liquidationBonus,
       liquidationThreshold,
@@ -351,6 +353,7 @@ export const configureNftsByHelper = async (
 
     inputParams.push({
       asset: tokenAddress,
+      tokenId: tokenId,
       baseLTV: baseLTVAsCollateral,
       liquidationThreshold: liquidationThreshold,
       liquidationBonus: liquidationBonus,
@@ -368,6 +371,7 @@ export const configureNftsByHelper = async (
 
     console.log(
       `  - Params for ${assetSymbol}:`,
+      tokenId,
       baseLTVAsCollateral,
       liquidationThreshold,
       liquidationBonus,

@@ -249,7 +249,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
       users,
       cryptoPunksMarket,
       wrappedPunk,
-      bPUNK,
+      uPUNK,
       punkGateway,
       wethGateway,
       usdc,
@@ -346,7 +346,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     expect(punkOwner).to.be.equal(wrappedPunk.address, "Invalid punk owner after redeem");
 
     const wpunkOwner = await wrappedPunk.ownerOf(punkIndex);
-    expect(wpunkOwner).to.be.equal(bPUNK.address, "Invalid wpunk owner after redeem");
+    expect(wpunkOwner).to.be.equal(uPUNK.address, "Invalid wpunk owner after redeem");
 
     // Repay loan
     await advanceTimeAndBlock(100);
@@ -547,7 +547,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
       users,
       cryptoPunksMarket,
       wrappedPunk,
-      bPUNK,
+      uPUNK,
       punkGateway,
       weth,
       wethGateway,
@@ -649,7 +649,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     expect(punkOwner).to.be.equal(wrappedPunk.address, "Invalid punk owner after redeem");
 
     const wpunkOwner = await wrappedPunk.ownerOf(punkIndex);
-    expect(wpunkOwner).to.be.equal(bPUNK.address, "Invalid wpunk owner after redeem");
+    expect(wpunkOwner).to.be.equal(uPUNK.address, "Invalid wpunk owner after redeem");
 
     // Repay loan
     const debtDataBeforeRepay = await pool.getNftDebtData(wrappedPunk.address, punkIndex);

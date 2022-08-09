@@ -1,6 +1,7 @@
 import { eContractid, INftParams, SymbolMap } from '../../helpers/types';
 
 export const strategyNftClassA: INftParams = {
+  tokenId: "1",
   baseLTVAsCollateral: '5000', // 50%
   liquidationThreshold: '9000', // 90%
   liquidationBonus: '500', // 5%
@@ -15,6 +16,7 @@ export const strategyNftClassA: INftParams = {
 };
 
 export const strategyNftClassB: INftParams = {
+  tokenId: "1",
   baseLTVAsCollateral: '4000', // 40%
   liquidationThreshold: '9000', // 90%
   liquidationBonus: '500', // 5%
@@ -29,6 +31,7 @@ export const strategyNftClassB: INftParams = {
 };
 
 export const strategyNftClassC: INftParams = {
+  tokenId: "1",
   baseLTVAsCollateral: '3000', // 30%
   liquidationThreshold: '9000', // 90%
   liquidationBonus: '500', // 5%
@@ -43,6 +46,7 @@ export const strategyNftClassC: INftParams = {
 };
 
 export const strategyNftClassD: INftParams = {
+  tokenId: "1",
   baseLTVAsCollateral: '2000', // 20%
   liquidationThreshold: '9000', // 90%
   liquidationBonus: '500', // 5%
@@ -57,6 +61,7 @@ export const strategyNftClassD: INftParams = {
 };
 
 export const strategyNftClassE: INftParams = {
+  tokenId: "1",
   baseLTVAsCollateral: '1000', // 10%
   liquidationThreshold: '9000', // 90%
   liquidationBonus: '500', // 5%
