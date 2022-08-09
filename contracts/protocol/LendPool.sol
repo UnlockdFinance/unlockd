@@ -209,6 +209,7 @@ contract LendPool is
     BorrowLogic.executeBorrow(
       _addressesProvider,
       _reserves,
+      _nfts,
       _nftConfig,
       DataTypes.ExecuteBorrowParams({
         initiator: _msgSender(),
@@ -250,7 +251,7 @@ contract LendPool is
     params.onBehalfOf = onBehalfOf;
     params.referralCode = referralCode;
 
-    BorrowLogic.executeBatchBorrow(_addressesProvider, _reserves, _nfts, params);
+    BorrowLogic.executeBatchBorrow(_addressesProvider, _reserves, _nfts, _nftConfig, params);
   }
 
   /**
@@ -269,6 +270,7 @@ contract LendPool is
       BorrowLogic.executeRepay(
         _addressesProvider,
         _reserves,
+        _nfts,
         _nftConfig,
         DataTypes.ExecuteRepayParams({
           initiator: _msgSender(),
@@ -294,6 +296,7 @@ contract LendPool is
       BorrowLogic.executeBatchRepay(
         _addressesProvider,
         _reserves,
+        _nfts,
         _nftConfig,
         DataTypes.ExecuteBatchRepayParams({
           initiator: _msgSender(),
@@ -323,6 +326,7 @@ contract LendPool is
     LiquidateLogic.executeAuction(
       _addressesProvider,
       _reserves,
+      _nfts,
       _nftConfig,
       _buildLendPoolVars(),
       DataTypes.ExecuteAuctionParams({
@@ -353,6 +357,7 @@ contract LendPool is
       LiquidateLogic.executeRedeem(
         _addressesProvider,
         _reserves,
+        _nfts,
         _nftConfig,
         _buildLendPoolVars(),
         DataTypes.ExecuteRedeemParams({
@@ -381,6 +386,7 @@ contract LendPool is
       LiquidateLogic.executeLiquidate(
         _addressesProvider,
         _reserves,
+        _nfts,
         _nftConfig,
         _buildLendPoolVars(),
         DataTypes.ExecuteLiquidateParams({
@@ -407,6 +413,7 @@ contract LendPool is
       LiquidateLogic.executeLiquidateOpensea(
         _addressesProvider,
         _reserves,
+        _nfts,
         _nftConfig,
         DataTypes.ExecuteLiquidateOpenseaParams({
           nftAsset: nftAsset,
@@ -435,6 +442,7 @@ contract LendPool is
       LiquidateLogic.executeLiquidateNFTX(
         _addressesProvider,
         _reserves,
+        _nfts,
         _nftConfig,
         DataTypes.ExecuteLiquidateNFTXParams({
           nftAsset: nftAsset,
@@ -486,7 +494,7 @@ contract LendPool is
     override
     returns (DataTypes.NftConfigurationMap memory)
   {
-    return _nftConfig[asset][nftTokenId].configuration;
+    return _nftConfig[asset][nftTokenId];
   }
 
   /**
@@ -526,6 +534,21 @@ contract LendPool is
   }
 
   /**
+   * @dev Returns the configuration of the nft asset
+   * @param asset The address of the underlying asset of the nft
+   * @param tokenId NFT asset ID
+   * @return The configuration of the nft asset
+   **/
+  function getNftAssetConfig(address asset, uint256 tokenId)
+    external
+    view
+    override
+    returns (DataTypes.NftConfigurationMap memory)
+  {
+    return _nftConfig[asset][tokenId];
+  }
+
+  /**
    * @dev Returns the loan data of the NFT
    * @param nftAsset The address of the NFT
    * @param reserveAsset The address of the Reserve
@@ -555,18 +578,17 @@ contract LendPool is
       uint256 liquidationBonus
     )
   {
-    DataTypes.NftData storage nftData = _nftConfig[nftAsset][nftTokenId];
+    DataTypes.NftConfigurationMap storage nftConfig = _nftConfig[nftAsset][nftTokenId];
 
     DataTypes.ReserveData storage reserveData = _reserves[reserveAsset];
 
-    (ltv, liquidationThreshold, liquidationBonus) = nftData.configuration.getCollateralParams();
+    (ltv, liquidationThreshold, liquidationBonus) = nftConfig.getCollateralParams();
 
     (totalCollateralInETH, totalCollateralInReserve) = GenericLogic.calculateNftCollateralData(
       reserveAsset,
       reserveData,
       nftAsset,
       nftTokenId,
-      nftData,
       _addressesProvider.getReserveOracle(),
       _addressesProvider.getNFTOracle()
     );
@@ -599,9 +621,9 @@ contract LendPool is
       uint256 healthFactor
     )
   {
-    DataTypes.NftData storage nftData = _nftConfig[nftAsset][nftTokenId];
+    DataTypes.NftConfigurationMap storage nftConfig = _nftConfig[nftAsset][nftTokenId];
 
-    (uint256 ltv, uint256 liquidationThreshold, ) = nftData.configuration.getCollateralParams();
+    (uint256 ltv, uint256 liquidationThreshold, ) = nftConfig.getCollateralParams();
 
     loanId = ILendPoolLoan(_addressesProvider.getLendPoolLoan()).getCollateralLoanId(nftAsset, nftTokenId);
     if (loanId == 0) {
@@ -618,7 +640,6 @@ contract LendPool is
       reserveData,
       nftAsset,
       nftTokenId,
-      nftData,
       _addressesProvider.getReserveOracle(),
       _addressesProvider.getNFTOracle()
     );
@@ -660,7 +681,7 @@ contract LendPool is
       uint256 bidFine
     )
   {
-    DataTypes.NftData storage nftData = _nftConfig[nftAsset][nftTokenId];
+    DataTypes.NftConfigurationMap storage nftConfig = _nftConfig[nftAsset][nftTokenId];
     ILendPoolLoan poolLoan = ILendPoolLoan(_addressesProvider.getLendPoolLoan());
 
     loanId = poolLoan.getCollateralLoanId(nftAsset, nftTokenId);
@@ -676,7 +697,7 @@ contract LendPool is
         loan.reserveAsset,
         reserveData,
         nftAsset,
-        nftData,
+        nftConfig,
         loan,
         address(poolLoan),
         _addressesProvider.getReserveOracle()
@@ -715,7 +736,7 @@ contract LendPool is
     DataTypes.LoanData memory loanData = ILendPoolLoan(vars.poolLoan).getLoan(vars.loanId);
 
     DataTypes.ReserveData storage reserveData = _reserves[loanData.reserveAsset];
-    DataTypes.NftData storage nftData = _nftConfig[nftAsset][nftTokenId];
+    DataTypes.NftConfigurationMap storage nftConfig = _nftConfig[nftAsset][nftTokenId];
 
     (vars.paybackAmount, vars.thresholdPrice, vars.liquidatePrice) = GenericLogic.calculateLoanLiquidatePrice(
       vars.loanId,
@@ -723,7 +744,7 @@ contract LendPool is
       reserveData,
       loanData.nftAsset,
       loanData.nftTokenId,
-      nftData,
+      nftConfig,
       vars.poolLoan,
       _addressesProvider.getReserveOracle(),
       _addressesProvider.getNFTOracle()
@@ -958,7 +979,7 @@ contract LendPool is
     uint256 nftTokenId,
     uint256 configuration
   ) external override onlyLendPoolConfigurator {
-    _nftConfig[asset][nftTokenId].configuration.data = configuration;
+    _nftConfig[asset][nftTokenId].data = configuration;
   }
 
   /**
@@ -991,15 +1012,15 @@ contract LendPool is
     }
   }
 
-  function _addNftToList(address asset, uint256 tokenId) internal {
+  function _addNftToList(address asset) internal {
     uint256 nftsCount = _nftsCount;
 
     require(nftsCount < _maxNumberOfNfts, Errors.LP_NO_MORE_NFTS_ALLOWED);
 
-    bool nftAlreadyAdded = _nftConfig[asset][tokenId].id != 0 || _nftsList[0] == asset;
+    bool nftAlreadyAdded = _nfts[asset].id != 0 || _nftsList[0] == asset;
 
     if (!nftAlreadyAdded) {
-      _nftConfig[asset][tokenId].id = uint8(nftsCount);
+      _nfts[asset].id = uint8(nftsCount);
       _nftsList[nftsCount] = asset;
 
       _nftsCount = nftsCount + 1;

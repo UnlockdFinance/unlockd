@@ -183,7 +183,7 @@ library LiquidateLogic {
     DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
 
-    ValidationLogic.validateAuction(reserveData, nftData, loanData, params.bidPrice);
+    ValidationLogic.validateAuction(reserveData, nftData, nftConfig, loanData, params.bidPrice);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();
@@ -340,7 +340,7 @@ library LiquidateLogic {
       loanData.reserveAsset,
       reserveData,
       loanData.nftAsset,
-      nftData,
+      nftConfig,
       loanData,
       vars.poolLoan,
       vars.reserveOracle
@@ -449,7 +449,7 @@ library LiquidateLogic {
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
     DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
 
-    ValidationLogic.validateLiquidate(reserveData, nftData, loanData);
+    ValidationLogic.validateLiquidate(reserveData, nftData, nftConfig, loanData);
 
     if ((poolStates.pauseDurationTime > 0) && (loanData.bidStartTimestamp <= poolStates.pauseStartTime)) {
       vars.extraAuctionDuration = poolStates.pauseDurationTime;
@@ -576,7 +576,7 @@ library LiquidateLogic {
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
     DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
 
-    ValidationLogic.validateLiquidate(reserveData, nftData, loanData);
+    ValidationLogic.validateLiquidate(reserveData, nftData, nftConfig, loanData);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();
@@ -698,7 +698,7 @@ library LiquidateLogic {
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
     DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
 
-    ValidationLogic.validateLiquidateNFTX(reserveData, nftData, loanData);
+    ValidationLogic.validateLiquidateNFTX(reserveData, nftData, nftConfig, loanData);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();

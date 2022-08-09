@@ -312,7 +312,7 @@ library GenericLogic {
     address reserveAsset,
     DataTypes.ReserveData storage reserveData,
     address nftAsset,
-    DataTypes.NftData storage nftData,
+    DataTypes.NftConfigurationMap storage nftConfig,
     DataTypes.LoanData memory loanData,
     address poolLoan,
     address reserveOracle
@@ -329,12 +329,12 @@ library GenericLogic {
     vars.reservePriceInETH = IReserveOracleGetter(reserveOracle).getAssetPrice(reserveAsset);
     vars.baseBidFineInReserve = (1 ether * 10**vars.reserveDecimals) / vars.reservePriceInETH;
 
-    vars.minBidFinePct = nftData.configuration.getMinBidFine();
+    vars.minBidFinePct = nftConfig.getMinBidFine();
     vars.minBidFineInReserve = vars.baseBidFineInReserve.percentMul(vars.minBidFinePct);
 
     (, vars.debtAmount) = ILendPoolLoan(poolLoan).getLoanReserveBorrowAmount(loanData.loanId);
 
-    vars.bidFineInReserve = vars.debtAmount.percentMul(nftData.configuration.getRedeemFine());
+    vars.bidFineInReserve = vars.debtAmount.percentMul(nftConfig.getRedeemFine());
     if (vars.bidFineInReserve < vars.minBidFineInReserve) {
       vars.bidFineInReserve = vars.minBidFineInReserve;
     }

@@ -39,9 +39,17 @@ interface IUiPoolDataProvider {
 
   struct AggregatedNftData {
     address underlyingAsset;
-    uint256 assetTokenId;
     string name;
     string symbol;
+    bool isActive;
+    bool isFrozen;
+    address uNftAddress;
+    uint256 totalCollateral;
+  }
+
+  struct AggregatedNftConfiguration {
+    address underlyingAsset;
+    uint256 tokenId;
     uint256 ltv;
     uint256 liquidationThreshold;
     uint256 liquidationBonus;
@@ -52,9 +60,7 @@ interface IUiPoolDataProvider {
     uint256 minBidFine;
     bool isActive;
     bool isFrozen;
-    address uNftAddress;
     uint256 priceInEth;
-    uint256 totalCollateral;
   }
 
   struct UserNftData {
@@ -144,6 +150,18 @@ interface IUiPoolDataProvider {
     external
     view
     returns (AggregatedNftData[] memory, UserNftData[] memory);
+
+  /**
+   * @dev Gets aggregated configuration of NFT asset
+   * @param provider the addresses provider
+   * @param nftAsset asset address
+   * @param tokenId asset token id
+   **/
+  function getSimpleNftConfiguration(
+    ILendPoolAddressesProvider provider,
+    address nftAsset,
+    uint256 tokenId
+  ) external view returns (AggregatedNftConfiguration memory);
 
   /**
    * @dev Gets loans aggregated data

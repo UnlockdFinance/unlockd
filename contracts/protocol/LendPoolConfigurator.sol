@@ -300,7 +300,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
 
     cachedPool.setNftConfigByTokenId(asset, nftTokenId, currentConfig.data);
 
-    emit NftConfigurationChanged(asset, ltv, liquidationThreshold, liquidationBonus);
+    emit NftConfigurationChanged(asset, nftTokenId, ltv, liquidationThreshold, liquidationBonus);
   }
 
   /**
@@ -330,7 +330,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
 
     cachedPool.setNftConfigByTokenId(asset, nftTokenId, currentConfig.data);
 
-    emit NftAuctionChanged(asset, redeemDuration, auctionDuration, redeemFine);
+    emit NftAuctionChanged(asset, nftTokenId, redeemDuration, auctionDuration, redeemFine);
   }
 
   /**
@@ -349,27 +349,30 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
 
     currentConfig.setRedeemThreshold(redeemThreshold);
 
-    cachedPool.setNftConfiguration(asset, nftTokenId, currentConfig.data);
+    cachedPool.setNftConfigByTokenId(asset, nftTokenId, currentConfig.data);
 
     emit NftRedeemThresholdChanged(asset, nftTokenId, redeemThreshold);
   }
 
   /**
-   * @dev Configures the minimum fine for the underlying assets
-   * @param assets The address of the underlying NFT asset
+   * @dev Configures the minimum fine for the underlying asset
+   * @param asset The address of the underlying NFT asset
+   * @param nftTokenId the tokenId of the asset
    * @param minBidFine The minimum bid fine value
    **/
-  function setNftMinBidFine(address[] calldata assets, uint256 minBidFine) external onlyPoolAdmin {
+  function setNftMinBidFine(
+    address asset,
+    uint256 nftTokenId,
+    uint256 minBidFine
+  ) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; i++) {
-      DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfiguration(assets[i]);
+    DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(asset, nftTokenId);
 
-      currentConfig.setMinBidFine(minBidFine);
+    currentConfig.setMinBidFine(minBidFine);
 
-      cachedPool.setNftConfiguration(assets[i], currentConfig.data);
+    cachedPool.setNftConfigByTokenId(asset, nftTokenId, currentConfig.data);
 
-      emit NftMinBidFineChanged(assets[i], minBidFine);
-    }
+    emit NftMinBidFineChanged(asset, nftTokenId, minBidFine);
   }
 
   /**
@@ -399,7 +402,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function batchConfigNft(ConfigNftInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     for (uint256 i = 0; i < inputs.length; i++) {
-      DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfiguration(inputs[i].asset);
+      DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(
+        inputs[i].asset,
+        inputs[i].tokenId
+      );
 
       //validation of the parameters: the LTV can
       //only be lower or equal than the liquidation threshold
@@ -425,22 +431,24 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
       currentConfig.setRedeemThreshold(inputs[i].redeemThreshold);
       currentConfig.setMinBidFine(inputs[i].minBidFine);
 
-      cachedPool.setNftConfiguration(inputs[i].asset, currentConfig.data);
+      cachedPool.setNftConfigByTokenId(inputs[i].asset, inputs[i].tokenId, currentConfig.data);
 
       emit NftConfigurationChanged(
         inputs[i].asset,
+        inputs[i].tokenId,
         inputs[i].baseLTV,
         inputs[i].liquidationThreshold,
         inputs[i].liquidationBonus
       );
       emit NftAuctionChanged(
         inputs[i].asset,
+        inputs[i].tokenId,
         inputs[i].redeemDuration,
         inputs[i].auctionDuration,
         inputs[i].redeemFine
       );
-      emit NftRedeemThresholdChanged(inputs[i].asset, inputs[i].redeemThreshold);
-      emit NftMinBidFineChanged(inputs[i].asset, inputs[i].minBidFine);
+      emit NftRedeemThresholdChanged(inputs[i].asset, inputs[i].tokenId, inputs[i].redeemThreshold);
+      emit NftMinBidFineChanged(inputs[i].asset, inputs[i].tokenId, inputs[i].minBidFine);
 
       // max limit
       cachedPool.setNftMaxSupplyAndTokenId(inputs[i].asset, inputs[i].maxSupply, inputs[i].maxTokenId);

@@ -103,10 +103,11 @@ library BorrowLogic {
   function executeBorrow(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
-    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsData,
+    mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
     DataTypes.ExecuteBorrowParams memory params
   ) external {
-    _borrow(addressesProvider, reservesData, nftsData, params);
+    _borrow(addressesProvider, reservesData, nftsData, nftsConfig, params);
   }
 
   /**
@@ -182,12 +183,8 @@ library BorrowLogic {
     require(vars.totalSupply <= nftData.maxSupply, Errors.LP_NFT_SUPPLY_NUM_EXCEED_MAX_LIMIT);
     require(params.nftTokenId <= nftData.maxTokenId, Errors.LP_NFT_TOKEN_ID_EXCEED_MAX_LIMIT);
     ValidationLogic.validateBorrow(
-      params.onBehalfOf,
-      params.asset,
-      params.amount,
+      params,
       reserveData,
-      params.nftAsset,
-      params.nftTokenId,
       nftData,
       nftConfig,
       vars.loanAddress,
@@ -264,9 +261,10 @@ library BorrowLogic {
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
     DataTypes.ExecuteRepayParams memory params
   ) external returns (uint256, bool) {
-    return _repay(addressesProvider, reservesData, nftsData, params);
+    return _repay(addressesProvider, reservesData, nftsData, nftsConfig, params);
   }
 
   /**
@@ -280,6 +278,7 @@ library BorrowLogic {
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
     DataTypes.ExecuteBatchRepayParams memory params
   ) external returns (uint256[] memory, bool[] memory) {
     require(params.nftAssets.length == params.amounts.length, "inconsistent amounts length");
@@ -293,6 +292,7 @@ library BorrowLogic {
         addressesProvider,
         reservesData,
         nftsData,
+        nftsConfig,
         DataTypes.ExecuteRepayParams({
           initiator: params.initiator,
           nftAsset: params.nftAssets[i],
@@ -316,6 +316,7 @@ library BorrowLogic {
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
     DataTypes.ExecuteRepayParams memory params
   ) internal returns (uint256, bool) {
     RepayLocalVars memory vars;
@@ -330,13 +331,14 @@ library BorrowLogic {
 
     DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
+    DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[params.nftAsset][params.nftTokenId];
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();
 
     (, vars.borrowAmount) = ILendPoolLoan(vars.poolLoan).getLoanReserveBorrowAmount(vars.loanId);
 
-    ValidationLogic.validateRepay(reserveData, nftData, loanData, params.amount, vars.borrowAmount);
+    ValidationLogic.validateRepay(reserveData, nftData, nftConfig, loanData, params.amount, vars.borrowAmount);
 
     vars.repayAmount = vars.borrowAmount;
     vars.isUpdate = false;

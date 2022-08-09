@@ -79,18 +79,12 @@ library ValidationLogic {
 
   /**
    * @dev Validates a borrow action
-   * @param reserveAsset The address of the asset to borrow
-   * @param amount The amount to be borrowed
    * @param reserveData The reserve state from which the user is borrowing
    * @param nftData The state of the user for the specific nft
    */
   function validateBorrow(
-    address user,
-    address reserveAsset,
-    uint256 amount,
+    DataTypes.ExecuteBorrowParams memory params,
     DataTypes.ReserveData storage reserveData,
-    address nftAsset,
-    uint256 tokenId,
     DataTypes.NftData storage nftData,
     DataTypes.NftConfigurationMap storage nftConfig,
     address loanAddress,
@@ -101,14 +95,14 @@ library ValidationLogic {
     ValidateBorrowLocalVars memory vars;
     require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
     require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
-    require(amount > 0, Errors.VL_INVALID_AMOUNT);
+    require(params.amount > 0, Errors.VL_INVALID_AMOUNT);
 
     if (loanId != 0) {
       DataTypes.LoanData memory loanData = ILendPoolLoan(loanAddress).getLoan(loanId);
 
       require(loanData.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
-      require(reserveAsset == loanData.reserveAsset, Errors.VL_SPECIFIED_RESERVE_NOT_BORROWED_BY_USER);
-      require(user == loanData.borrower, Errors.VL_SPECIFIED_LOAN_NOT_BORROWED_BY_USER);
+      require(params.asset == loanData.reserveAsset, Errors.VL_SPECIFIED_RESERVE_NOT_BORROWED_BY_USER);
+      require(params.onBehalfOf == loanData.borrower, Errors.VL_SPECIFIED_LOAN_NOT_BORROWED_BY_USER);
     }
 
     (vars.isActive, vars.isFrozen, vars.borrowingEnabled, vars.stableRateBorrowingEnabled) = reserveData
@@ -117,16 +111,24 @@ library ValidationLogic {
     require(vars.isActive, Errors.VL_NO_ACTIVE_RESERVE);
     require(!vars.isFrozen, Errors.VL_RESERVE_FROZEN);
     require(vars.borrowingEnabled, Errors.VL_BORROWING_NOT_ENABLED);
+    (vars.nftIsActive, vars.nftIsFrozen) = nftData.configuration.getFlags();
+    require(vars.nftIsActive, Errors.VL_NO_ACTIVE_NFT);
+    require(!vars.nftIsFrozen, Errors.VL_NFT_FROZEN);
+
+    /**
+     * @dev additional check for individual asset
+     */
     (vars.nftIsActive, vars.nftIsFrozen) = nftConfig.getFlags();
     require(vars.nftIsActive, Errors.VL_NO_ACTIVE_NFT);
     require(!vars.nftIsFrozen, Errors.VL_NFT_FROZEN);
+
     (vars.currentLtv, vars.currentLiquidationThreshold, ) = nftConfig.getCollateralParams();
 
     (vars.userCollateralBalance, vars.userBorrowBalance, vars.healthFactor) = GenericLogic.calculateLoanData(
-      reserveAsset,
+      params.asset,
       reserveData,
-      nftAsset,
-      tokenId,
+      params.nftAsset,
+      params.nftTokenId,
       nftConfig,
       loanAddress,
       loanId,
@@ -142,7 +144,7 @@ library ValidationLogic {
 
     //add the current already borrowed amount to the amount requested to calculate the total collateral needed.
     //LTV is calculated in percentage
-    vars.amountOfCollateralNeeded = (vars.userBorrowBalance + amount).percentDiv(vars.currentLtv);
+    vars.amountOfCollateralNeeded = (vars.userBorrowBalance + params.amount).percentDiv(vars.currentLtv);
 
     require(vars.amountOfCollateralNeeded <= vars.userCollateralBalance, Errors.VL_COLLATERAL_CANNOT_COVER_NEW_BORROW);
   }
@@ -156,6 +158,7 @@ library ValidationLogic {
   function validateRepay(
     DataTypes.ReserveData storage reserveData,
     DataTypes.NftData storage nftData,
+    DataTypes.NftConfigurationMap storage nftConfig,
     DataTypes.LoanData memory loanData,
     uint256 amountSent,
     uint256 borrowAmount
@@ -166,6 +169,11 @@ library ValidationLogic {
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
 
     require(nftData.configuration.getActive(), Errors.VL_NO_ACTIVE_NFT);
+
+    /**
+     * @dev additional check for individual asset
+     */
+    require(nftConfig.getActive(), Errors.VL_NO_ACTIVE_NFT);
 
     require(amountSent > 0, Errors.VL_INVALID_AMOUNT);
 
@@ -183,6 +191,7 @@ library ValidationLogic {
   function validateAuction(
     DataTypes.ReserveData storage reserveData,
     DataTypes.NftData storage nftData,
+    DataTypes.NftConfigurationMap storage nftConfig,
     DataTypes.LoanData memory loanData,
     uint256 bidPrice
   ) internal view {
@@ -192,6 +201,11 @@ library ValidationLogic {
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
 
     require(nftData.configuration.getActive(), Errors.VL_NO_ACTIVE_NFT);
+
+    /**
+     * @dev additional check for individual asset
+     */
+    require(nftConfig.getActive(), Errors.VL_NO_ACTIVE_NFT);
 
     require(
       loanData.state == DataTypes.LoanState.Active || loanData.state == DataTypes.LoanState.Auction,
@@ -218,6 +232,11 @@ library ValidationLogic {
 
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
 
+    require(nftData.configuration.getActive(), Errors.VL_NO_ACTIVE_NFT);
+
+    /**
+     * @dev additional check for individual asset
+     */
     require(nftConfig.getActive(), Errors.VL_NO_ACTIVE_NFT);
 
     require(loanData.state == DataTypes.LoanState.Auction, Errors.LPL_INVALID_LOAN_STATE);
@@ -234,6 +253,7 @@ library ValidationLogic {
   function validateLiquidate(
     DataTypes.ReserveData storage reserveData,
     DataTypes.NftData storage nftData,
+    DataTypes.NftConfigurationMap storage nftConfig,
     DataTypes.LoanData memory loanData
   ) internal view {
     require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
@@ -242,6 +262,11 @@ library ValidationLogic {
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
 
     require(nftData.configuration.getActive(), Errors.VL_NO_ACTIVE_NFT);
+
+    /**
+     * @dev additional check for individual asset
+     */
+    require(nftConfig.getActive(), Errors.VL_NO_ACTIVE_NFT);
 
     require(loanData.state == DataTypes.LoanState.Auction, Errors.LPL_INVALID_LOAN_STATE);
   }
@@ -255,6 +280,7 @@ library ValidationLogic {
   function validateLiquidateNFTX(
     DataTypes.ReserveData storage reserveData,
     DataTypes.NftData storage nftData,
+    DataTypes.NftConfigurationMap storage nftConfig,
     DataTypes.LoanData memory loanData
   ) internal view {
     require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
@@ -263,6 +289,11 @@ library ValidationLogic {
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
 
     require(nftData.configuration.getActive(), Errors.VL_NO_ACTIVE_NFT);
+
+    /**
+     * @dev additional check for individual asset
+     */
+    require(nftConfig.getActive(), Errors.VL_NO_ACTIVE_NFT);
 
     require(loanData.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
   }
