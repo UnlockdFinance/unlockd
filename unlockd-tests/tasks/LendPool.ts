@@ -117,10 +117,23 @@ task("lendpool:redeem", "Redeems a loan")
 .addParam("collection", "NFT collection address") 
 .addParam("tokenid", "nft token id")  
 .addParam("amount", "Amount to redeem")   
-.setAction( async ({collection, tokenid, amount}) => {
-    const wallet = await getUserWallet();  
+.addParam("bidfine", "Amount to redeem")   
+.setAction( async ({collection, tokenid, amount, bidfine}) => {
+    const wallet = await getUserWallet(); 
+   
     amount = await parseUnits(amount.toString())    
-    await Functions.LENDPOOL.redeem(wallet, collection, tokenid, amount);
+    bidfine = await parseUnits(bidfine.toString())  
+    console.log(bidfine.toString());  
+    const loanId = await Functions.LENDPOOL_LOAN.getCollateralLoanId(wallet, collection, tokenid);
+    console.log(loanId.toString());
+    const loanData = await Functions.LENDPOOL_LOAN.getLoan(wallet, loanId);
+    const reserveAddress = loanData.reserveAsset;
+    let tokenContract;
+    reserveAddress == MockContracts['DAI'].address ?
+       tokenContract = MockContracts['DAI'] :tokenContract = MockContracts['USDC'];
+
+    await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount+bidfine)   
+    await Functions.LENDPOOL.redeem(wallet, collection, tokenid, amount, bidfine);
     
 });  
 
