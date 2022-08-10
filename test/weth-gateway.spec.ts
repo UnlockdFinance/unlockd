@@ -516,5 +516,5 @@ makeSuite(
       expect(wethGatewayAfterRecovery).to.be.eq("0", "WETHGateway ether balance should be zero.");
     });
   },
-  { skip: true }
+  { only: true }
 );
