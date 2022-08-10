@@ -242,6 +242,34 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   }
 
   /**
+   * @dev Activates or deactivates each NFT asset
+   * @param assets the NFTs to update the flag to
+   * @param tokenIds the NFT token ids to update the flag to
+   * @param flag the flag to set to the each NFT
+   **/
+  function setActiveFlagOnNftByTokenId(
+    address[] calldata assets,
+    uint256[] calldata tokenIds,
+    bool flag
+  ) external onlyPoolAdmin {
+    require(assets.length == tokenIds.length, Errors.LPC_PARAMS_MISMATCH);
+
+    ILendPool cachedPool = _getLendPool();
+    for (uint256 i = 0; i < assets.length; i++) {
+      DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(assets[i], tokenIds[i]);
+
+      currentConfig.setActive(flag);
+      cachedPool.setNftConfigByTokenId(assets[i], tokenIds[i], currentConfig.data);
+
+      if (flag) {
+        emit NftTokenActivated(assets[i], tokenIds[i]);
+      } else {
+        emit NftTokenDeactivated(assets[i], tokenIds[i]);
+      }
+    }
+  }
+
+  /**
    * @dev Freezes or unfreezes each NFT
    * @param assets the assets to update the flag to
    * @param flag the flag to set to the each NFT
@@ -258,6 +286,32 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
         emit NftFrozen(assets[i]);
       } else {
         emit NftUnfrozen(assets[i]);
+      }
+    }
+  }
+
+  /**
+   * @dev Freezes or unfreezes each NFT token
+   * @param assets the assets to update the flag to
+   * @param tokenIds the NFT token ids to update the flag to
+   * @param flag the flag to set to the each NFT
+   **/
+  function setFreezeFlagOnNftByTokenId(
+    address[] calldata assets,
+    uint256[] calldata tokenIds,
+    bool flag
+  ) external onlyPoolAdmin {
+    ILendPool cachedPool = _getLendPool();
+    for (uint256 i = 0; i < assets.length; i++) {
+      DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(assets[i], tokenIds[i]);
+
+      currentConfig.setFrozen(flag);
+      cachedPool.setNftConfigByTokenId(assets[i], tokenIds[i], currentConfig.data);
+
+      if (flag) {
+        emit NftTokenFrozen(assets[i], tokenIds[i]);
+      } else {
+        emit NftTokenUnfrozen(assets[i], tokenIds[i]);
       }
     }
   }
@@ -418,6 +472,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
       } else {
         require(inputs[i].liquidationBonus == 0, Errors.LPC_INVALID_CONFIGURATION);
       }
+
+      // Active & Frozen Flag
+      currentConfig.setActive(true);
+      currentConfig.setFrozen(false);
 
       // collateral parameters
       currentConfig.setLtv(inputs[i].baseLTV);

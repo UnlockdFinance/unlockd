@@ -351,27 +351,28 @@ export const configureNftsByHelper = async (
     const [, tokenAddress] = (Object.entries(nftAddresses) as [string, string][])[assetAddressIndex];
     // Push data
 
-    inputParams.push({
-      asset: tokenAddress,
-      tokenId: tokenId,
-      baseLTV: baseLTVAsCollateral,
-      liquidationThreshold: liquidationThreshold,
-      liquidationBonus: liquidationBonus,
-      redeemDuration: redeemDuration,
-      auctionDuration: auctionDuration,
-      redeemFine: redeemFine,
-      redeemThreshold: redeemThreshold,
-      minBidFine: minBidFine,
-      maxSupply: maxSupply,
-      maxTokenId: maxTokenId,
-    });
+    for (let _tokenId = 100; _tokenId < 120; _tokenId++) {
+      inputParams.push({
+        asset: tokenAddress,
+        tokenId: _tokenId,
+        baseLTV: baseLTVAsCollateral,
+        liquidationThreshold: liquidationThreshold,
+        liquidationBonus: liquidationBonus,
+        redeemDuration: redeemDuration,
+        auctionDuration: auctionDuration,
+        redeemFine: redeemFine,
+        redeemThreshold: redeemThreshold,
+        minBidFine: minBidFine,
+        maxSupply: maxSupply,
+        maxTokenId: maxTokenId,
+      });
 
-    tokens.push(tokenAddress);
-    symbols.push(assetSymbol);
+      tokens.push(tokenAddress);
+      symbols.push(assetSymbol);
+    }
 
     console.log(
       `  - Params for ${assetSymbol}:`,
-      tokenId,
       baseLTVAsCollateral,
       liquidationThreshold,
       liquidationBonus,

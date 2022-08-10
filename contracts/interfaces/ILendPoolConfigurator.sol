@@ -129,6 +129,20 @@ interface ILendPoolConfigurator {
   event NftDeactivated(address indexed asset);
 
   /**
+   * @dev Emitted when a NFT token is activated
+   * @param asset The address of the underlying asset of the NFT
+   * @param nftTokenId The token id of the underlying asset of the NFT
+   **/
+  event NftTokenActivated(address indexed asset, uint256 indexed nftTokenId);
+
+  /**
+   * @dev Emitted when a NFT token is deactivated
+   * @param asset The address of the underlying asset of the NFT
+   * @param nftTokenId The token id of the underlying asset of the NFT
+   **/
+  event NftTokenDeactivated(address indexed asset, uint256 indexed nftTokenId);
+
+  /**
    * @dev Emitted when a NFT is frozen
    * @param asset The address of the underlying asset of the NFT
    **/
@@ -139,6 +153,20 @@ interface ILendPoolConfigurator {
    * @param asset The address of the underlying asset of the NFT
    **/
   event NftUnfrozen(address indexed asset);
+
+  /**
+   * @dev Emitted when a NFT is frozen
+   * @param asset The address of the underlying asset of the NFT
+   * @param nftTokenId The token id of the underlying asset of the NFT
+   **/
+  event NftTokenFrozen(address indexed asset, uint256 indexed nftTokenId);
+
+  /**
+   * @dev Emitted when a NFT is unfrozen
+   * @param asset The address of the underlying asset of the NFT
+   * @param nftTokenId The token id of the underlying asset of the NFT
+   **/
+  event NftTokenUnfrozen(address indexed asset, uint256 indexed nftTokenId);
 
   /**
    * @dev Emitted when a redeem duration is updated
