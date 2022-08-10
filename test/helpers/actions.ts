@@ -219,7 +219,7 @@ export const setNftAssetPriceForDebt = async (
   const reserveToken = await getIErc20Detailed(reserve);
   const reservePrice = await reserveOracle.getAssetPrice(reserve);
 
-  const oldNftPrice = await nftOracle.getNFTPrice(nftAsset, 0);
+  const oldNftPrice = await nftOracle.getNFTPrice(nftAsset, tokenId); // 0
 
   const debtAmountDecimals = await convertToCurrencyDecimals(reserve, debtAmount);
 
@@ -229,7 +229,7 @@ export const setNftAssetPriceForDebt = async (
     .dividedBy(new BigNumber(oneReserve))
     .toFixed(0);
 
-  const { liquidationThreshold } = await dataProvider.getNftConfigurationData(nftAsset);
+  const { liquidationThreshold } = await dataProvider.getNftConfigurationDataByTokenId(nftAsset, tokenId);
 
   // (Price * LH / Debt = HF) => (Price * LH = Debt * HF) => (Price = Debt * HF / LH)
   // LH is 2 decimals
