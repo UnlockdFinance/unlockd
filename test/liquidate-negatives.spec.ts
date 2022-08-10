@@ -41,7 +41,6 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     await pool
       .connect(user1.signer)
       .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", user1.address, "0");
-
     // user 2, 3 mint 100 WETH
     await weth.connect(user2.signer).mint(await convertToCurrencyDecimals(weth.address, "100"));
     await weth.connect(user2.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
@@ -85,7 +84,7 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
   });
 
   it("User 2 auction on a non-active Reserve", async () => {
-    const { configurator, weth, bWETH, bayc, pool, users } = testEnv;
+    const { configurator, weth, uWETH, bayc, pool, users } = testEnv;
     const user2 = users[2];
 
     await configurator.deactivateReserve(weth.address);
@@ -98,7 +97,7 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
   });
 
   it("User 2 liquidate on a non-active Reserve", async () => {
-    const { configurator, weth, bWETH, bayc, pool, users } = testEnv;
+    const { configurator, weth, uWETH, bayc, pool, users } = testEnv;
     const user2 = users[2];
 
     await configurator.deactivateReserve(weth.address);
@@ -254,12 +253,14 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     const { bayc, dataProvider } = testEnv;
 
     const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
+    const nftTokenIdCfgData = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
 
     await increaseTime(nftCfgData.redeemDuration.mul(ONE_DAY).add(100).toNumber());
+    await increaseTime(nftTokenIdCfgData.redeemDuration.mul(ONE_DAY).add(100).toNumber());
   });
 
   it("User 1 redeem after duration is end", async () => {
-    const { bayc, pool, users, dataProvider } = testEnv;
+    const { bayc, pool, users, dataProvider, loan } = testEnv;
     const user1 = users[1];
 
     const nftAuctionData = await pool.getNftAuctionData(bayc.address, "101");

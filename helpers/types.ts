@@ -306,6 +306,7 @@ export interface IReserveParams extends IReserveBorrowParams, IReserveCollateral
 
 export interface INftParams extends INftAuctionParams, INftCollateralParams {
   uNftImpl: eContractid;
+  tokenId: string;
   maxSupply: string;
   maxTokenId: string;
 }

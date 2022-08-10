@@ -202,7 +202,7 @@ interface ILendPool {
 
   /**
    * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying uTokens.
-   * - E.g. User deposits 100 USDC and gets in return 100 bUSDC
+   * - E.g. User deposits 100 USDC and gets in return 100 uusdc
    * @param reserve The address of the underlying asset to deposit
    * @param amount The amount to be deposited
    * @param onBehalfOf The address that will receive the uTokens, same as msg.sender if the user
@@ -220,7 +220,7 @@ interface ILendPool {
 
   /**
    * @dev Withdraws an `amount` of underlying asset from the reserve, burning the equivalent uTokens owned
-   * E.g. User has 100 bUSDC, calls withdraw() and receives 100 USDC, burning the 100 bUSDC
+   * E.g. User has 100 uusdc, calls withdraw() and receives 100 USDC, burning the 100 uusdc
    * @param reserve The address of the underlying asset to withdraw
    * @param amount The underlying amount to be withdrawn
    *   - Send the value type(uint256).max in order to withdraw the whole uToken balance
@@ -404,6 +404,17 @@ interface ILendPool {
   function getNftConfiguration(address asset) external view returns (DataTypes.NftConfigurationMap memory);
 
   /**
+   * @dev Returns the configuration of the NFT
+   * @param asset The address of the asset of the NFT
+   * @param tokenId the Token Id of the NFT
+   * @return The configuration of the NFT
+   **/
+  function getNftConfigByTokenId(address asset, uint256 tokenId)
+    external
+    view
+    returns (DataTypes.NftConfigurationMap memory);
+
+  /**
    * @dev Returns the normalized income normalized income of the reserve
    * @param asset The address of the underlying asset of the reserve
    * @return The reserve's normalized income
@@ -436,6 +447,17 @@ interface ILendPool {
    * @return The status of the nft
    **/
   function getNftData(address asset) external view returns (DataTypes.NftData memory);
+
+  /**
+   * @dev Returns the configuration of the nft asset
+   * @param asset The address of the underlying asset of the nft
+   * @param tokenId NFT asset ID
+   * @return The configuration of the nft asset
+   **/
+  function getNftAssetConfig(address asset, uint256 tokenId)
+    external
+    view
+    returns (DataTypes.NftConfigurationMap memory);
 
   /**
    * @dev Returns the loan data of the NFT
@@ -594,6 +616,19 @@ interface ILendPool {
    * @param configuration The new configuration bitmap
    **/
   function setNftConfiguration(address asset, uint256 configuration) external;
+
+  /**
+   * @dev Sets the configuration bitmap of the NFT as a whole
+   * - Only callable by the LendPoolConfigurator contract
+   * @param asset The address of the asset of the NFT
+   * @param nftTokenId the NFT tokenId
+   * @param configuration The new configuration bitmap
+   **/
+  function setNftConfigByTokenId(
+    address asset,
+    uint256 nftTokenId,
+    uint256 configuration
+  ) external;
 
   /**
    * @dev Sets the max supply and token ID for a given asset

@@ -172,6 +172,33 @@ contract UnlockdProtocolDataProvider {
   }
 
   /**
+   * @dev Returns the configuration for a specific NFT token
+   * @param asset The NFT to request the configuration
+   * @param tokenId The token id of the NFT
+   */
+  function getNftConfigurationDataByTokenId(address asset, uint256 tokenId)
+    external
+    view
+    returns (NftConfigurationData memory configData)
+  {
+    DataTypes.NftConfigurationMap memory configuration = ILendPool(ADDRESSES_PROVIDER.getLendPool())
+      .getNftConfigByTokenId(asset, tokenId);
+
+    (configData.ltv, configData.liquidationThreshold, configData.liquidationBonus) = configuration
+      .getCollateralParamsMemory();
+    (
+      configData.redeemDuration,
+      configData.auctionDuration,
+      configData.redeemFine,
+      configData.redeemThreshold
+    ) = configuration.getAuctionParamsMemory();
+
+    (configData.isActive, configData.isFrozen) = configuration.getFlagsMemory();
+
+    (configData.minBidFine) = configuration.getMinBidFineMemory();
+  }
+
+  /**
    * @dev Returns the stored data for a specific reserve
    * @param asset The asset to request the data
    */

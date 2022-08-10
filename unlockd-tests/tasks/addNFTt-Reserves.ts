@@ -2,12 +2,12 @@ import { task } from "hardhat/config";
 import { waitForTx } from "../../helpers/misc-utils";
 import { getWETHGateway, getUNFTRegistryProxy, getNFTOracle } from "../../helpers/contracts-getters";
 import { getLendPoolConfiguratorProxy } from "../../helpers/contracts-getters";
+import { TokenContractId } from "../../helpers/types";
 
 
 task("unft-registerNFT", "Deploy unft tokens for dev enviroment")
   .addParam("nftaddress", `The address of the NFT to use`)
-  .setAction(async ({ nftaddress, pool }, localBRE) => {
-    await localBRE.run("set-DRE");
+  .setAction(async ({ nftaddress }) => {
 
     const unftRegistryProxy = await getUNFTRegistryProxy();
     await waitForTx(await unftRegistryProxy.createUNFT(nftaddress));
@@ -18,8 +18,7 @@ task("unft-registerNFT", "Deploy unft tokens for dev enviroment")
 
 task("addAsset-NFTOracle", "Add an NFT Address to the Oracle")
   .addParam("nftaddress", `The address of the NFT to add`)
-  .setAction(async ({ nftaddress, pool }, localBRE) => {
-    await localBRE.run("set-DRE");
+  .setAction(async ({ nftaddress }) => {
 
     const nftOracle = await getNFTOracle();
     await waitForTx(await nftOracle.addCollection(nftaddress));
@@ -29,31 +28,27 @@ task("addAsset-NFTOracle", "Add an NFT Address to the Oracle")
 
 task("initNFTReserve", "Initializes the NFT Reserve")
   .addParam("nftaddress", `The address of the NFT to add`)
-  .setAction(async ({ nftaddress, pool }, localBRE) => {
+  .setAction(async ({ nftaddress }) => {
 
-    await localBRE.run("set-DRE");
-    console.log("-> Prepare NFT pools...");
     const configurator = await getLendPoolConfiguratorProxy();
     //const { uNftImpl } = await unftRegistryProxy.getUNFTAddresses(nftaddress);
 
-    const tx3 = await waitForTx(await configurator.batchInitNft([{underlyingAsset: nftaddress}]));
-    console.log(tx3);
+    await waitForTx(await configurator.batchInitNft([{underlyingAsset: nftaddress}]));
+    console.log("ERC721 reserve initialized for: ", nftaddress);
   }
 );
 
 task("configNFTReserve", "Initializes the NFT Reserve")
   .addParam("nftaddress", `The address of the NFT to add`)
-  .addParam("nftsymbol", `The address of the NFT to add`)
+  .addParam("tokenId", `The tokenId of the NFT to add`)
   .addParam("maxsupply", `The address of the NFT to add`)
   .addParam("maxtokenid", `The address of the NFT to add`)
-  .setAction(async ({ nftaddress, nftsymbol, maxsupply, maxtokenid, pool }, localBRE) => {
+  .setAction(async ({ nftaddress, tokenId, maxsupply, maxtokenid }) => {
 
-    await localBRE.run("set-DRE");
-    console.log("-> Prepare NFT pools...");
-    // NFT params from pool + mocked tokens
     const configurator = await getLendPoolConfiguratorProxy();
     const nftsParams = {
       asset: nftaddress,
+      tokenId: tokenId,
       maxSupply: maxsupply,
       maxTokenId: maxtokenid,
       baseLTV: '3000', // 30%
@@ -65,23 +60,21 @@ task("configNFTReserve", "Initializes the NFT Reserve")
       redeemThreshold: "5000", // 50%
       minBidFine: "2000", // 0.2 ETH
     };
-    console.log("2");
 
-    const tx = await waitForTx(await configurator.batchConfigNft([nftsParams]));
-    console.log(tx);
+    await waitForTx(await configurator.batchConfigNft([nftsParams]));
+    console.log("ERC721 reserve configured for: ", nftaddress);
   }
 );
 
 task("auth-wethgateway", "Authorize Weth Gateway to do transactions.")
 .addParam("nftaddress", "the address of the NFT to authorize") 
-.setAction( async ({ nftaddress, pool }, localBRE) => {
-    await localBRE.run("set-DRE");
+.setAction( async ({ nftaddress }) => {
     
     ////////////////////////////////////////////////////////////////////////////
     // Init & Config Reserve assets
     const wethGateway = await getWETHGateway();
     await waitForTx(await wethGateway.authorizeLendPoolNFT([nftaddress]));
-    console.log("ERC721 addresses authorized!");
+    console.log("ERC721 address authorized for: ", nftaddress);
     }
 );
 

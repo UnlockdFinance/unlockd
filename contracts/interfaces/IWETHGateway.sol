@@ -12,7 +12,7 @@ interface IWETHGateway {
 
   /**
    * @dev withdraws the WETH _reserves of msg.sender.
-   * @param amount amount of bWETH to withdraw and receive native ETH
+   * @param amount amount of uWETH to withdraw and receive native ETH
    * @param to address of the user who will receive native ETH
    */
   function withdrawETH(uint256 amount, address to) external;

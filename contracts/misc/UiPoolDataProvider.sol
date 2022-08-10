@@ -289,7 +289,6 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
 
     // nft current state
     nftData.uNftAddress = baseData.uNftAddress;
-    nftData.priceInEth = nftOracle.getNFTPrice(nftData.underlyingAsset, nftData.assetTokenId);
 
     nftData.totalCollateral = lendPoolLoan.getNftCollateralAmount(nftAsset);
 
@@ -297,14 +296,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     nftData.symbol = IERC721Detailed(nftData.underlyingAsset).symbol();
     nftData.name = IERC721Detailed(nftData.underlyingAsset).name();
 
-    (nftData.ltv, nftData.liquidationThreshold, nftData.liquidationBonus) = baseData
-      .configuration
-      .getCollateralParamsMemory();
-    (nftData.redeemDuration, nftData.auctionDuration, nftData.redeemFine, nftData.redeemThreshold) = baseData
-      .configuration
-      .getAuctionParamsMemory();
     (nftData.isActive, nftData.isFrozen) = baseData.configuration.getFlagsMemory();
-    nftData.minBidFine = baseData.configuration.getMinBidFineMemory();
   }
 
   /**
@@ -328,6 +320,49 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     userNftData.uNftAddress = baseData.uNftAddress;
 
     userNftData.totalCollateral = lendPoolLoan.getUserNftCollateralAmount(user, nftAsset);
+  }
+
+  /**
+   * @inheritdoc IUiPoolDataProvider
+   */
+  function getSimpleNftConfiguration(
+    ILendPoolAddressesProvider provider,
+    address nftAsset,
+    uint256 tokenId
+  ) external view override returns (AggregatedNftConfiguration memory) {
+    ILendPool lendPool = ILendPool(provider.getLendPool());
+
+    AggregatedNftConfiguration memory nftConfig;
+    DataTypes.NftConfigurationMap memory baseConfig = lendPool.getNftAssetConfig(nftAsset, tokenId);
+    _fillNftConfiguration(nftConfig, nftAsset, tokenId, baseConfig);
+
+    return nftConfig;
+  }
+
+  /**
+   * @dev fills the specified  NFT config
+   * @param nftConfig the NFT config to be updated
+   * @param nftAsset the NFT to be updated
+   * @param tokenId token id to be updated
+   * @param baseConfig the base config
+   **/
+  function _fillNftConfiguration(
+    AggregatedNftConfiguration memory nftConfig,
+    address nftAsset,
+    uint256 tokenId,
+    DataTypes.NftConfigurationMap memory baseConfig
+  ) internal view {
+    nftConfig.underlyingAsset = nftAsset;
+    nftConfig.tokenId = tokenId;
+
+    nftConfig.priceInEth = nftOracle.getNFTPrice(nftConfig.underlyingAsset, nftConfig.tokenId);
+
+    (nftConfig.ltv, nftConfig.liquidationThreshold, nftConfig.liquidationBonus) = baseConfig
+      .getCollateralParamsMemory();
+    (nftConfig.redeemDuration, nftConfig.auctionDuration, nftConfig.redeemFine, nftConfig.redeemThreshold) = baseConfig
+      .getAuctionParamsMemory();
+    (nftConfig.isActive, nftConfig.isFrozen) = baseConfig.getFlagsMemory();
+    nftConfig.minBidFine = baseConfig.getMinBidFineMemory();
   }
 
   /**

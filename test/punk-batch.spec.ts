@@ -141,7 +141,7 @@ makeSuite("PunkGateway: Batch borrow", (testEnv: TestEnv) => {
   });
 
   it("Batch Borrow ETH", async () => {
-    const { users, pool, cryptoPunksMarket, wrappedPunk, punkGateway, weth, bWETH, wethGateway, dataProvider } =
+    const { users, pool, cryptoPunksMarket, wrappedPunk, punkGateway, weth, uWETH, wethGateway, dataProvider } =
       testEnv;
 
     const [depositor, borrower] = users;

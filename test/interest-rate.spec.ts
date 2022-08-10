@@ -15,11 +15,11 @@ const { expect } = require("chai");
 makeSuite("Interest rate tests", (testEnv: TestEnv) => {
   let rateInstance: InterestRate;
   let dai: MintableERC20;
-  let bDai: UToken;
+  let uDai: UToken;
 
   before(async () => {
     dai = testEnv.dai;
-    bDai = testEnv.bDai;
+    uDai = testEnv.uDai;
 
     const { addressesProvider } = testEnv;
 
@@ -38,7 +38,7 @@ makeSuite("Interest rate tests", (testEnv: TestEnv) => {
   it("Checks rates at 0% utilization rate, empty reserve", async () => {
     const { 0: currentLiquidityRate, 1: currentVariableBorrowRate } = await rateInstance[
       "calculateInterestRates(address,address,uint256,uint256,uint256,uint256)"
-    ](dai.address, bDai.address, 0, 0, 0, strategyDAI.reserveFactor);
+    ](dai.address, uDai.address, 0, 0, 0, strategyDAI.reserveFactor);
 
     expect(currentLiquidityRate.toString()).to.be.equal("0", "Invalid liquidity rate");
     expect(currentVariableBorrowRate.toString()).to.be.equal(
@@ -50,7 +50,7 @@ makeSuite("Interest rate tests", (testEnv: TestEnv) => {
   it("Checks rates at 80% utilization rate", async () => {
     const { 0: currentLiquidityRate, 1: currentVariableBorrowRate } = await rateInstance[
       "calculateInterestRates(address,address,uint256,uint256,uint256,uint256)"
-    ](dai.address, bDai.address, "200000000000000000", "0", "800000000000000000", strategyDAI.reserveFactor);
+    ](dai.address, uDai.address, "200000000000000000", "0", "800000000000000000", strategyDAI.reserveFactor);
 
     const expectedVariableRate = new BigNumber(rateStrategyStableOne.baseVariableBorrowRate).plus(
       rateStrategyStableOne.variableRateSlope1
@@ -70,7 +70,7 @@ makeSuite("Interest rate tests", (testEnv: TestEnv) => {
   it("Checks rates at 100% utilization rate", async () => {
     const { 0: currentLiquidityRate, 1: currentVariableBorrowRate } = await rateInstance[
       "calculateInterestRates(address,address,uint256,uint256,uint256,uint256)"
-    ](dai.address, bDai.address, "0", "0", "800000000000000000", strategyDAI.reserveFactor);
+    ](dai.address, uDai.address, "0", "0", "800000000000000000", strategyDAI.reserveFactor);
 
     const expectedVariableRate = new BigNumber(rateStrategyStableOne.baseVariableBorrowRate)
       .plus(rateStrategyStableOne.variableRateSlope1)
