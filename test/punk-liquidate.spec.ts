@@ -101,7 +101,7 @@ makeSuite(
         await cryptoPunksMarket.connect(borrower.signer).offerPunkForSaleToAddress(punkIndex, 0, punkGateway.address)
       );
 
-      const nftCfgData = await dataProvider.getNftConfigurationData(wrappedPunk.address);
+      const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(wrappedPunk.address, punkIndex);
 
       // borrow usdc, health factor above 1
       const nftColDataBefore = await pool.getNftCollateralData(wrappedPunk.address, 101, usdc.address);
@@ -199,7 +199,7 @@ makeSuite(
         await cryptoPunksMarket.connect(borrower.signer).offerPunkForSaleToAddress(punkIndex, 0, punkGateway.address)
       );
 
-      const nftCfgData = await dataProvider.getNftConfigurationData(wrappedPunk.address);
+      const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(wrappedPunk.address, punkIndex);
 
       // borrow usdc, health factor above 1
       const nftColDataBefore = await pool.getNftCollateralData(wrappedPunk.address, 102, usdc.address);
@@ -282,7 +282,7 @@ makeSuite(
         await cryptoPunksMarket.connect(borrower.signer).offerPunkForSaleToAddress(punkIndex, 0, punkGateway.address)
       );
 
-      const nftCfgData = await dataProvider.getNftConfigurationData(wrappedPunk.address);
+      const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(wrappedPunk.address, punkIndex);
 
       // Delegates borrowing power of WETH to WETHGateway
       const reserveData = await pool.getReserveData(usdc.address);
@@ -400,7 +400,7 @@ makeSuite(
         await cryptoPunksMarket.connect(user.signer).offerPunkForSaleToAddress(punkIndex, 0, punkGateway.address)
       );
 
-      const nftCfgData = await dataProvider.getNftConfigurationData(wrappedPunk.address);
+      const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(wrappedPunk.address, punkIndex);
 
       // Delegates borrowing power of WETH to WETHGateway
       const reserveData = await pool.getReserveData(weth.address);
@@ -496,7 +496,7 @@ makeSuite(
         await cryptoPunksMarket.connect(user.signer).offerPunkForSaleToAddress(punkIndex, 0, punkGateway.address)
       );
 
-      const nftCfgData = await dataProvider.getNftConfigurationData(wrappedPunk.address);
+      const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(wrappedPunk.address, punkIndex);
 
       // Delegates borrowing power of WETH to WETHGateway
       const reserveData = await pool.getReserveData(weth.address);
@@ -587,7 +587,7 @@ makeSuite(
         await cryptoPunksMarket.connect(borrower.signer).offerPunkForSaleToAddress(punkIndex, 0, punkGateway.address)
       );
 
-      const nftCfgData = await dataProvider.getNftConfigurationData(wrappedPunk.address);
+      const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(wrappedPunk.address, punkIndex);
 
       // borrow eth, health factor above 1
       const nftColDataBefore = await pool.getNftCollateralData(wrappedPunk.address, punkIndex, weth.address);
@@ -664,5 +664,5 @@ makeSuite(
       expect(loanDataAfterRepay.state).to.be.equal(ProtocolLoanState.Repaid, "Invalid loan state after repay");
     });
   },
-  { skip: true }
+  { only: true }
 );
