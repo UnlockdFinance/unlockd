@@ -117,13 +117,13 @@ export const getLoanData = async (
     [loanData, auctionData, nftCfgData] = await Promise.all([
       helper.getLoanDataByCollateral(nftAsset, nftTokenId),
       pool.getNftAuctionData(nftAsset, nftTokenId),
-      helper.getNftConfigurationData(nftAsset),
+      helper.getNftConfigurationDataByTokenId(nftAsset, nftTokenId),
     ]);
   } else {
     [loanData, auctionData, nftCfgData] = await Promise.all([
       helper.getLoanDataByLoanId(loanId),
       pool.getNftAuctionData(nftAsset, nftTokenId),
-      helper.getNftConfigurationData(nftAsset),
+      helper.getNftConfigurationDataByTokenId(nftAsset, nftTokenId),
     ]);
   }
 

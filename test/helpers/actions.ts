@@ -270,12 +270,17 @@ export const setNftAssetPrice = async (
   return oldNftPrice.toString();
 };
 
-export const increaseRedeemDuration = async (testEnv: TestEnv, nftSymbol: string, isEnd: Boolean) => {
+export const increaseRedeemDuration = async (
+  testEnv: TestEnv,
+  nftSymbol: string,
+  nftTokenId: string,
+  isEnd: Boolean
+) => {
   const { dataProvider } = testEnv;
 
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
 
-  const nftCfgData = await dataProvider.getNftConfigurationData(nftAsset);
+  const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(nftAsset, nftTokenId);
   if (isEnd) {
     await increaseTime(nftCfgData.redeemDuration.mul(ONE_DAY).add(ONE_HOUR).toNumber());
   } else {
@@ -283,12 +288,12 @@ export const increaseRedeemDuration = async (testEnv: TestEnv, nftSymbol: string
   }
 };
 
-export const increaseAuctionDuration = async (testEnv: TestEnv, nftSymbol: string, isEnd: Boolean) => {
+export const increaseAuctionDuration = async (testEnv: TestEnv, nftSymbol: string, tokenId: string, isEnd: Boolean) => {
   const { dataProvider } = testEnv;
 
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
 
-  const nftCfgData = await dataProvider.getNftConfigurationData(nftAsset);
+  const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(nftAsset, tokenId);
   if (isEnd) {
     await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(ONE_HOUR).toNumber());
   } else {
