@@ -140,7 +140,7 @@ makeSuite(
       //approve protocol to access the borrower wallet
       await weth.connect(borrower.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
 
-      const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
+      const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
 
       const auctionDataBefore = await pool.getNftAuctionData(bayc.address, "101");
 
@@ -342,7 +342,7 @@ makeSuite(
       //approve protocol to access borrower wallet
       await usdc.connect(borrower.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
 
-      const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
+      const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "102");
 
       const auctionDataBefore = await pool.getNftAuctionData(bayc.address, "102");
 
