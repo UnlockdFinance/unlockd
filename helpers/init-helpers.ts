@@ -351,7 +351,7 @@ export const configureNftsByHelper = async (
     const [, tokenAddress] = (Object.entries(nftAddresses) as [string, string][])[assetAddressIndex];
     // Push data
 
-    for (let _tokenId = 100; _tokenId < 120; _tokenId++) {
+    for (let _tokenId = 100; _tokenId < 140; _tokenId++) {
       inputParams.push({
         asset: tokenAddress,
         tokenId: _tokenId,
