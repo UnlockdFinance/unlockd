@@ -152,7 +152,7 @@ function deposit(address asset, uint256 amount, address onBehalfOf, uint16 refer
 ```
 
 _Deposits an `amount` of underlying asset into the reserve, receiving in return overlying uTokens.
-- E.g. User deposits 100 USDC and gets in return 100 bUSDC_
+- E.g. User deposits 100 USDC and gets in return 100 uusdc_
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
@@ -168,7 +168,7 @@ function withdraw(address asset, uint256 amount, address to) external returns (u
 ```
 
 _Withdraws an `amount` of underlying asset from the reserve, burning the equivalent uTokens owned
-E.g. User has 100 bUSDC, calls withdraw() and receives 100 USDC, burning the 100 bUSDC_
+E.g. User has 100 uusdc, calls withdraw() and receives 100 USDC, burning the 100 uusdc_
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
@@ -3639,7 +3639,7 @@ _withdraws the WETH _reserves of msg.sender._
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| amount | uint256 | amount of bWETH to withdraw and receive native ETH |
+| amount | uint256 | amount of uWETH to withdraw and receive native ETH |
 | to | address | address of the user who will receive native ETH |
 
 ### borrowETH
@@ -7035,7 +7035,7 @@ _withdraws the WETH _reserves of msg.sender._
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| amount | uint256 | amount of bWETH to withdraw and receive native ETH |
+| amount | uint256 | amount of uWETH to withdraw and receive native ETH |
 | to | address | address of the user who will receive native ETH |
 
 ### borrowETH
@@ -8904,7 +8904,7 @@ function deposit(address reserve, uint256 amount, address onBehalfOf, uint16 ref
 ```
 
 _Deposits an `amount` of underlying asset into the reserve, receiving in return overlying uTokens.
-- E.g. User deposits 100 USDC and gets in return 100 bUSDC_
+- E.g. User deposits 100 USDC and gets in return 100 uusdc_
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
@@ -8920,7 +8920,7 @@ function withdraw(address reserve, uint256 amount, address to) external returns 
 ```
 
 _Withdraws an `amount` of underlying asset from the reserve, burning the equivalent uTokens owned
-E.g. User has 100 bUSDC, calls withdraw() and receives 100 USDC, burning the 100 bUSDC_
+E.g. User has 100 uusdc, calls withdraw() and receives 100 USDC, burning the 100 uusdc_
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
@@ -12083,7 +12083,7 @@ _withdraws the WETH _reserves of msg.sender._
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| amount | uint256 | amount of bWETH to withdraw and receive native ETH |
+| amount | uint256 | amount of uWETH to withdraw and receive native ETH |
 | to | address | address of the user who will receive native ETH |
 
 ### borrowETH

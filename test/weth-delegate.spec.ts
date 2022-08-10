@@ -53,7 +53,7 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
   });
 
   it("Hacker try to delegate different onBehalf (should revert)", async () => {
-    const { users, wethGateway, pool, loan, weth, bWETH, bayc, dataProvider } = testEnv;
+    const { users, wethGateway, pool, loan, weth, uWETH, bayc, dataProvider } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
     const liquidator = users[1];
@@ -78,7 +78,7 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
   });
 
   it("Borrower try to Borrow more ETH to different onBehalf (should revert)", async () => {
-    const { users, wethGateway, pool, loan, weth, bWETH, bayc, dataProvider } = testEnv;
+    const { users, wethGateway, pool, loan, weth, uWETH, bayc, dataProvider } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
     const hacker = users[2];
@@ -93,7 +93,7 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
       await wethGateway.connect(depositor.signer).depositETH(depositor.address, "0", { value: depositSize })
     );
 
-    const uTokensBalance = await bWETH.balanceOf(depositor.address);
+    const uTokensBalance = await uWETH.balanceOf(depositor.address);
     expect(uTokensBalance, "uTokensBalance not gte depositSize").to.be.gte(depositSize);
 
     // Delegates borrowing power of WETH to WETHGateway
@@ -133,7 +133,7 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
   });
 
   it("Hacker try to Borrow more ETH (should revert)", async () => {
-    const { users, wethGateway, pool, loan, weth, bWETH, bayc, dataProvider } = testEnv;
+    const { users, wethGateway, pool, loan, weth, uWETH, bayc, dataProvider } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
     const hacker = users[2];
@@ -148,7 +148,7 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
       await wethGateway.connect(depositor.signer).depositETH(depositor.address, "0", { value: depositSize })
     );
 
-    const uTokensBalance = await bWETH.balanceOf(depositor.address);
+    const uTokensBalance = await uWETH.balanceOf(depositor.address);
     expect(uTokensBalance, "uTokensBalance not gte depositSize").to.be.gte(depositSize);
 
     // Delegates borrowing power of WETH to WETHGateway

@@ -191,7 +191,7 @@ makeSuite("DataProvider", (testEnv) => {
   });
 
   it("Query Wallet Reserve Data", async () => {
-    const { users, addressesProvider, weth, bWETH, walletProvider, dataProvider } = testEnv;
+    const { users, addressesProvider, weth, uWETH, walletProvider, dataProvider } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
 
@@ -234,21 +234,21 @@ makeSuite("DataProvider", (testEnv) => {
     {
       const batchBalances = await walletProvider.batchBalanceOfReserve(
         [depositor.address, borrower.address],
-        [weth.address, bWETH.address]
+        [weth.address, uWETH.address]
       );
       //depositor + weth
       expect(batchBalances[0 * 2 + 0]).to.be.equal(0); // all weth has deposited
-      //depositor + bWETH
+      //depositor + uWETH
       expect(batchBalances[0 * 2 + 1]).to.be.gt(0); // all weth has deposited
       //borrower + weth
       expect(batchBalances[1 * 2 + 0]).to.be.gt(0); // NFT 101 borrow eth
-      //borrower + bWETH
+      //borrower + uWETH
       expect(batchBalances[1 * 2 + 1]).to.be.equal(0); // not deposit any weth
     }
   });
 
   it("Query Wallet NFT Data", async () => {
-    const { users, addressesProvider, bayc, bBAYC, walletProvider, dataProvider } = testEnv;
+    const { users, addressesProvider, bayc, uBAYC, walletProvider, dataProvider } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
 
@@ -285,21 +285,21 @@ makeSuite("DataProvider", (testEnv) => {
     {
       const batchBalances = await walletProvider.batchBalanceOfNft(
         [depositor.address, borrower.address],
-        [bayc.address, bBAYC.address]
+        [bayc.address, uBAYC.address]
       );
       //depositor + bayc
       expect(batchBalances[0 * 2 + 0]).to.be.equal(0); // not mint any NFT
-      //depositor + bBAYC
+      //depositor + uBAYC
       expect(batchBalances[0 * 2 + 1]).to.be.equal(0); // not mint any NFT
       //borrower + bayc
       expect(batchBalances[1 * 2 + 0]).to.be.equal(1); // NFT 102 not used for borrow
-      //borrower + bBAYC
+      //borrower + uBAYC
       expect(batchBalances[1 * 2 + 1]).to.be.equal(1); // NFT 101 has used for borrow
     }
   });
 
   it("Batch Query Wallet NFT Token by index", async () => {
-    const { users, bayc, bBAYC, walletProvider, dataProvider } = testEnv;
+    const { users, bayc, uBAYC, walletProvider, dataProvider } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
     const depositorTokenId = 2999;
@@ -316,12 +316,12 @@ makeSuite("DataProvider", (testEnv) => {
     expect(borrowerTokenIdsBayc.length).to.be.equal(2); // NFT 102 not used for borrow, and nft at previous test step
     expect(borrowerTokenIdsBayc[1]).to.be.equal(borrowerTokenId);
 
-    const borrowerTokenIdsBBayc = await walletProvider.batchTokenOfOwnerByIndex(borrower.address, bBAYC.address);
-    expect(borrowerTokenIdsBBayc.length).to.be.equal(1); // NFT 101 has used for borrow
+    const borrowerTokenIdsuBAYC = await walletProvider.batchTokenOfOwnerByIndex(borrower.address, uBAYC.address);
+    expect(borrowerTokenIdsuBAYC.length).to.be.equal(1); // NFT 101 has used for borrow
   });
 
   it("Batch Query Wallet NFT Token by owner", async () => {
-    const { users, bayc, bBAYC, walletProvider, dataProvider } = testEnv;
+    const { users, bayc, uBAYC, walletProvider, dataProvider } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
     const depositorTokenId = 2999;
@@ -345,13 +345,13 @@ makeSuite("DataProvider", (testEnv) => {
     expect(borrowerTokenIdsBayc.length).to.be.equal(2); // NFT 102 not used for borrow, and nft at previous test step
     expect(borrowerTokenIdsBayc[1]).to.be.equal(borrowerTokenId);
 
-    const borrowerTokenIdsBBayc = await walletProvider.batchTokenOfOwner(
+    const borrowerTokenIdsuBAYC = await walletProvider.batchTokenOfOwner(
       borrower.address,
-      bBAYC.address,
+      uBAYC.address,
       0,
       depositorTokenId + 1
     );
-    expect(borrowerTokenIdsBBayc.length).to.be.equal(1); // NFT 101 has used for borrow
+    expect(borrowerTokenIdsuBAYC.length).to.be.equal(1); // NFT 101 has used for borrow
   });
 
   it("Batch Query Wallet Punk", async () => {

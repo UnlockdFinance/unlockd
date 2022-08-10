@@ -9,6 +9,7 @@ interface ILendPoolConfigurator {
 
   struct ConfigNftInput {
     address asset;
+    uint256 tokenId;
     uint256 baseLTV;
     uint256 liquidationThreshold;
     uint256 liquidationBonus;
@@ -102,12 +103,14 @@ interface ILendPoolConfigurator {
   /**
    * @dev Emitted when the collateralization risk parameters for the specified NFT are updated.
    * @param asset The address of the underlying asset of the NFT
+   * @param tokenId token ID
    * @param ltv The loan to value of the asset when used as NFT
    * @param liquidationThreshold The threshold at which loans using this asset as NFT will be considered undercollateralized
    * @param liquidationBonus The bonus liquidators receive to liquidate this asset
    **/
   event NftConfigurationChanged(
     address indexed asset,
+    uint256 indexed tokenId,
     uint256 ltv,
     uint256 liquidationThreshold,
     uint256 liquidationBonus
@@ -126,6 +129,20 @@ interface ILendPoolConfigurator {
   event NftDeactivated(address indexed asset);
 
   /**
+   * @dev Emitted when a NFT token is activated
+   * @param asset The address of the underlying asset of the NFT
+   * @param nftTokenId The token id of the underlying asset of the NFT
+   **/
+  event NftTokenActivated(address indexed asset, uint256 indexed nftTokenId);
+
+  /**
+   * @dev Emitted when a NFT token is deactivated
+   * @param asset The address of the underlying asset of the NFT
+   * @param nftTokenId The token id of the underlying asset of the NFT
+   **/
+  event NftTokenDeactivated(address indexed asset, uint256 indexed nftTokenId);
+
+  /**
    * @dev Emitted when a NFT is frozen
    * @param asset The address of the underlying asset of the NFT
    **/
@@ -138,25 +155,48 @@ interface ILendPoolConfigurator {
   event NftUnfrozen(address indexed asset);
 
   /**
+   * @dev Emitted when a NFT is frozen
+   * @param asset The address of the underlying asset of the NFT
+   * @param nftTokenId The token id of the underlying asset of the NFT
+   **/
+  event NftTokenFrozen(address indexed asset, uint256 indexed nftTokenId);
+
+  /**
+   * @dev Emitted when a NFT is unfrozen
+   * @param asset The address of the underlying asset of the NFT
+   * @param nftTokenId The token id of the underlying asset of the NFT
+   **/
+  event NftTokenUnfrozen(address indexed asset, uint256 indexed nftTokenId);
+
+  /**
    * @dev Emitted when a redeem duration is updated
    * @param asset The address of the underlying asset of the NFT
+   * @param tokenId token ID
    * @param redeemDuration The new redeem duration
    * @param auctionDuration The new redeem duration
    * @param redeemFine The new redeem fine
    **/
-  event NftAuctionChanged(address indexed asset, uint256 redeemDuration, uint256 auctionDuration, uint256 redeemFine);
+  event NftAuctionChanged(
+    address indexed asset,
+    uint256 indexed tokenId,
+    uint256 redeemDuration,
+    uint256 auctionDuration,
+    uint256 redeemFine
+  );
   /**
    * @dev Emitted when a redeem threshold is modified
    * @param asset The address of the underlying asset of the NFT
+   * @param tokenId token ID
    * @param redeemThreshold The new redeem threshold
    **/
-  event NftRedeemThresholdChanged(address indexed asset, uint256 redeemThreshold);
+  event NftRedeemThresholdChanged(address indexed asset, uint256 indexed tokenId, uint256 redeemThreshold);
   /**
    * @dev Emitted when a min bid fine is modified
    * @param asset The address of the underlying asset of the NFT
+   * @param tokenId token ID
    * @param minBidFine The new min bid fine
    **/
-  event NftMinBidFineChanged(address indexed asset, uint256 minBidFine);
+  event NftMinBidFineChanged(address indexed asset, uint256 indexed tokenId, uint256 minBidFine);
   /**
    * @dev Emitted when an asset's max supply and max token Id is modified
    * @param asset The address of the underlying asset of the NFT

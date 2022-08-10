@@ -61,6 +61,7 @@ export const MOCK_NFT_AGGREGATORS_PRICES = {
   LAND: oneEther.multipliedBy("2.16").toFixed(),
 };
 
+// TODO: Replace 150 for 1000
 export const MOCK_NFT_AGGREGATORS_MAXSUPPLY = {
   WPUNKS: "1000", //10000
   BAYC: "1000", //10000

@@ -107,6 +107,7 @@ library Errors {
   string public constant LPC_INVALIED_UNFT_ADDRESS = "703";
   string public constant LPC_INVALIED_LOAN_ADDRESS = "704";
   string public constant LPC_NFT_LIQUIDITY_NOT_0 = "705";
+  string public constant LPC_PARAMS_MISMATCH = "706"; // NFT assets & token ids mismatch
 
   //reserve config errors
   string public constant RC_INVALID_LTV = "730";

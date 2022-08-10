@@ -313,7 +313,7 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
   });
 
   it("Borrow all ETH and repay it", async () => {
-    const { users, pool, cryptoPunksMarket, wrappedPunk, punkGateway, weth, bWETH, wethGateway, dataProvider } =
+    const { users, pool, cryptoPunksMarket, wrappedPunk, punkGateway, weth, uWETH, wethGateway, dataProvider } =
       testEnv;
 
     const [depositor, user] = users;

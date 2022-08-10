@@ -95,15 +95,16 @@ export interface TestEnv {
   walletProvider: WalletBalanceProvider;
   mockIncentivesController: MockIncentivesController;
   weth: WETH9Mocked;
-  bWETH: UToken;
+  uWETH: UToken;
   dai: MintableERC20;
-  bDai: UToken;
+  uDai: UToken;
   usdc: MintableERC20;
-  bUsdc: UToken;
+  uUsdc: UToken;
   //wpunks: WPUNKSMocked;
-  bPUNK: UNFT;
+  uPUNK: UNFT;
   bayc: MintableERC721;
-  bBAYC: UNFT;
+  uBAYC: UNFT;
+  tokenId: number;
   addressesProvider: LendPoolAddressesProvider;
   wethGateway: WETHGateway;
   tokenIdTracker: number;
@@ -143,15 +144,16 @@ const testEnv: TestEnv = {
   nftOracle: {} as NFTOracle,
   mockChainlinkOracle: {} as MockChainlinkOracle,
   weth: {} as WETH9Mocked,
-  bWETH: {} as UToken,
+  uWETH: {} as UToken,
   dai: {} as MintableERC20,
-  bDai: {} as UToken,
+  uDai: {} as UToken,
   usdc: {} as MintableERC20,
-  bUsdc: {} as UToken,
+  uUsdc: {} as UToken,
   //wpunks: WPUNKSMocked,
-  bPUNK: {} as UNFT,
+  uPUNK: {} as UNFT,
   bayc: {} as MintableERC721,
-  bBAYC: {} as UNFT,
+  uBAYC: {} as UNFT,
+  tokenId: {} as number,
   addressesProvider: {} as LendPoolAddressesProvider,
   wethGateway: {} as WETHGateway,
   //wpunksGateway: {} as WPUNKSGateway,
@@ -201,16 +203,16 @@ export async function initializeMakeSuite() {
 
   // Reserve Tokens
   const allReserveTokens = await testEnv.dataProvider.getAllReservesTokenDatas();
-  const bDaiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.uTokenAddress;
-  const bUsdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.uTokenAddress;
-  const bWEthAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.uTokenAddress;
+  const uDaiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.uTokenAddress;
+  const uUsdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.uTokenAddress;
+  const uWEthAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.uTokenAddress;
 
   const daiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.tokenAddress;
   const usdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.tokenAddress;
   const wethAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.tokenAddress;
 
-  if (!bDaiAddress || !bUsdcAddress || !bWEthAddress) {
-    console.error("Invalid UTokens", bDaiAddress, bUsdcAddress, bWEthAddress);
+  if (!uDaiAddress || !uUsdcAddress || !uWEthAddress) {
+    console.error("Invalid UTokens", uDaiAddress, uUsdcAddress, uWEthAddress);
     process.exit(1);
   }
   if (!daiAddress || !usdcAddress || !wethAddress) {
@@ -218,9 +220,9 @@ export async function initializeMakeSuite() {
     process.exit(1);
   }
 
-  testEnv.bDai = await getUToken(bDaiAddress);
-  testEnv.bUsdc = await getUToken(bUsdcAddress);
-  testEnv.bWETH = await getUToken(bWEthAddress);
+  testEnv.uDai = await getUToken(uDaiAddress);
+  testEnv.uUsdc = await getUToken(uUsdcAddress);
+  testEnv.uWETH = await getUToken(uWEthAddress);
 
   testEnv.dai = await getMintableERC20(daiAddress);
   testEnv.usdc = await getMintableERC20(usdcAddress);
@@ -230,14 +232,14 @@ export async function initializeMakeSuite() {
   // NFT Tokens
   const allUNftTokens = await testEnv.dataProvider.getAllNftsTokenDatas();
   //console.log("allUNftTokens", allUNftTokens);
-  const bPunkAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.uNftAddress;
-  const bByacAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "BAYC")?.uNftAddress;
+  const uPunkAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.uNftAddress;
+  const uByacAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "BAYC")?.uNftAddress;
 
   const wpunksAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.nftAddress;
   const baycAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "BAYC")?.nftAddress;
 
-  if (!bByacAddress || !bPunkAddress) {
-    console.error("Invalid UNFT Tokens", bByacAddress, bPunkAddress);
+  if (!uByacAddress || !uPunkAddress) {
+    console.error("Invalid UNFT Tokens", uByacAddress, uPunkAddress);
     process.exit(1);
   }
   if (!baycAddress || !wpunksAddress) {
@@ -245,11 +247,11 @@ export async function initializeMakeSuite() {
     process.exit(1);
   }
 
-  testEnv.bBAYC = await getUNFT(bByacAddress);
-  testEnv.bPUNK = await getUNFT(bPunkAddress);
+  testEnv.uBAYC = await getUNFT(uByacAddress);
+  testEnv.uPUNK = await getUNFT(uPunkAddress);
 
   testEnv.bayc = await getMintableERC721(baycAddress);
-
+  testEnv.tokenId = 1;
   testEnv.cryptoPunksMarket = await getCryptoPunksMarket();
   testEnv.wrappedPunk = await getWrappedPunk();
   testEnv.punkGateway = await getPunkGateway();

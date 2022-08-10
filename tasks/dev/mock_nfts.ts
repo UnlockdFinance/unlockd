@@ -119,12 +119,12 @@ task("dev:mint-top-tokens", "Mint top sale tokens for dev enviroment")
     for (const tokenId of topSaleTokenIds) {
       console.log("Try to mint token: %d", tokenId);
 
-      if (minterLimit < 0 || minterLimit >= 10) {
+      if (minterLimit < 0 || minterLimit >= 100) {
         for (; minterIndex < allSingers.length; minterIndex++) {
           minterSigner = allSingers[minterIndex];
           minterAddress = await minterSigner.getAddress();
-          const tmpLimit = (await erc721Token.mintCounts(minterAddress)).toNumber();
-          if (tmpLimit < 10) {
+          const tmpLimit = 1; //(await erc721Token.mintCounts(minterAddress)).toNumber();
+          if (tmpLimit < 100) {
             minterLimit = tmpLimit;
             break;
           }

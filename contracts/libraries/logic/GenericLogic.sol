@@ -50,7 +50,7 @@ library GenericLogic {
    * @param reserveData Data of the reserve
    * @param nftAddress the underlying NFT asset
    * @param nftTokenId the token Id for the NFT
-   * @param nftData Data of the nft
+   * @param nftConfig Config of the nft by tokenId
    * @param loanAddress The loan address
    * @param loanId The loan identifier
    * @param reserveOracle The price oracle address of reserve
@@ -62,7 +62,7 @@ library GenericLogic {
     DataTypes.ReserveData storage reserveData,
     address nftAddress,
     uint256 nftTokenId,
-    DataTypes.NftData storage nftData,
+    DataTypes.NftConfigurationMap storage nftConfig,
     address loanAddress,
     uint256 loanId,
     address reserveOracle,
@@ -77,7 +77,7 @@ library GenericLogic {
     )
   {
     CalculateLoanDataVars memory vars;
-    (vars.nftLtv, vars.nftLiquidationThreshold, ) = nftData.configuration.getCollateralParams();
+    (vars.nftLtv, vars.nftLiquidationThreshold, ) = nftConfig.getCollateralParams();
 
     // calculate total borrow balance for the loan
     if (loanId != 0) {
@@ -96,7 +96,6 @@ library GenericLogic {
       reserveData,
       nftAddress,
       nftTokenId,
-      nftData,
       reserveOracle,
       nftOracle
     );
@@ -151,7 +150,6 @@ library GenericLogic {
    * @param reserveData Data of the reserve
    * @param nftAddress The underlying NFT asset
    * @param nftTokenId The underlying NFT token Id
-   * @param nftData The NFT data
    * @param reserveOracle The price oracle address of reserve
    * @param nftOracle The nft price oracle address
    * @return The total debt in ETH and the total debt in the Reserve
@@ -161,12 +159,10 @@ library GenericLogic {
     DataTypes.ReserveData storage reserveData,
     address nftAddress,
     uint256 nftTokenId,
-    DataTypes.NftData storage nftData,
     address reserveOracle,
     address nftOracle
   ) internal view returns (uint256, uint256) {
     reserveData;
-    nftData;
 
     CalculateLoanDataVars memory vars;
 
@@ -247,7 +243,7 @@ library GenericLogic {
    * @param reserveData the reserve data
    * @param nftAsset the underlying NFT asset
    * @param nftTokenId the NFT token Id
-   * @param nftData The NFT data
+   * @param nftConfig The NFT data
    * @param poolLoan The pool loan address
    * @param reserveOracle The price oracle address of reserve
    * @param nftOracle The price oracle address of nft
@@ -259,7 +255,7 @@ library GenericLogic {
     DataTypes.ReserveData storage reserveData,
     address nftAsset,
     uint256 nftTokenId,
-    DataTypes.NftData storage nftData,
+    DataTypes.NftConfigurationMap storage nftConfig,
     address poolLoan,
     address reserveOracle,
     address nftOracle
@@ -288,7 +284,7 @@ library GenericLogic {
 
     (, vars.borrowAmount) = ILendPoolLoan(poolLoan).getLoanReserveBorrowAmount(loanId);
 
-    (vars.ltv, vars.liquidationThreshold, vars.liquidationBonus) = nftData.configuration.getCollateralParams();
+    (vars.ltv, vars.liquidationThreshold, vars.liquidationBonus) = nftConfig.getCollateralParams();
 
     vars.nftPriceInETH = INFTOracleGetter(nftOracle).getNFTPrice(nftAsset, nftTokenId);
     vars.reservePriceInETH = IReserveOracleGetter(reserveOracle).getAssetPrice(reserveAsset);
@@ -316,7 +312,7 @@ library GenericLogic {
     address reserveAsset,
     DataTypes.ReserveData storage reserveData,
     address nftAsset,
-    DataTypes.NftData storage nftData,
+    DataTypes.NftConfigurationMap storage nftConfig,
     DataTypes.LoanData memory loanData,
     address poolLoan,
     address reserveOracle
@@ -333,12 +329,12 @@ library GenericLogic {
     vars.reservePriceInETH = IReserveOracleGetter(reserveOracle).getAssetPrice(reserveAsset);
     vars.baseBidFineInReserve = (1 ether * 10**vars.reserveDecimals) / vars.reservePriceInETH;
 
-    vars.minBidFinePct = nftData.configuration.getMinBidFine();
+    vars.minBidFinePct = nftConfig.getMinBidFine();
     vars.minBidFineInReserve = vars.baseBidFineInReserve.percentMul(vars.minBidFinePct);
 
     (, vars.debtAmount) = ILendPoolLoan(poolLoan).getLoanReserveBorrowAmount(loanData.loanId);
 
-    vars.bidFineInReserve = vars.debtAmount.percentMul(nftData.configuration.getRedeemFine());
+    vars.bidFineInReserve = vars.debtAmount.percentMul(nftConfig.getRedeemFine());
     if (vars.bidFineInReserve < vars.minBidFineInReserve) {
       vars.bidFineInReserve = vars.minBidFineInReserve;
     }

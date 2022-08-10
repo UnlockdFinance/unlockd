@@ -92,7 +92,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
   });
 
   it("WETH - Auctions the borrow", async () => {
-    const { weth, bayc, bBAYC, users, pool, dataProvider } = testEnv;
+    const { weth, bayc, uBAYC, users, pool, dataProvider } = testEnv;
     const liquidator = users[3];
     const borrower = users[1];
 
@@ -125,11 +125,11 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Auction, "Invalid loan state after auction");
 
     const tokenOwner = await bayc.ownerOf("101");
-    expect(tokenOwner).to.be.equal(bBAYC.address, "Invalid token owner after redeem");
+    expect(tokenOwner).to.be.equal(uBAYC.address, "Invalid token owner after redeem");
   });
 
   it("WETH - Redeems the borrow", async () => {
-    const { weth, bayc, bBAYC, users, pool, dataProvider } = testEnv;
+    const { weth, bayc, uBAYC, users, pool, dataProvider } = testEnv;
     const liquidator = users[3];
     const borrower = users[1];
 
@@ -138,7 +138,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     //approve protocol to access the borrower wallet
     await weth.connect(borrower.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
 
-    const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
+    const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
 
     const auctionDataBefore = await pool.getNftAuctionData(bayc.address, "101");
 
@@ -161,7 +161,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
 
     // check result
     const tokenOwner = await bayc.ownerOf("101");
-    expect(tokenOwner).to.be.equal(bBAYC.address, "Invalid token owner after redeem");
+    expect(tokenOwner).to.be.equal(uBAYC.address, "Invalid token owner after redeem");
 
     const liquidatorBalanceAfter = await weth.balanceOf(liquidator.address);
     expect(liquidatorBalanceAfter).to.be.gte(
@@ -204,7 +204,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
   });
 
   it("WETH - Repays the borrow", async () => {
-    const { weth, bayc, bBAYC, users, pool, dataProvider } = testEnv;
+    const { weth, bayc, uBAYC, users, pool, dataProvider } = testEnv;
     const liquidator = users[3];
     const borrower = users[1];
 
@@ -283,7 +283,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
   });
 
   it("USDC - Auctions the borrow", async () => {
-    const { usdc, bayc, bBAYC, users, pool, dataProvider } = testEnv;
+    const { usdc, bayc, uBAYC, users, pool, dataProvider } = testEnv;
     const liquidator = users[3];
     const borrower = users[1];
 
@@ -313,7 +313,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     );
 
     const tokenOwner = await bayc.ownerOf("102");
-    expect(tokenOwner).to.be.equal(bBAYC.address, "Invalid token owner after redeem");
+    expect(tokenOwner).to.be.equal(uBAYC.address, "Invalid token owner after redeem");
 
     /*
     const nftColData = await testEnv.pool.getNftCollateralData(bayc.address, usdc.address);
@@ -329,7 +329,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
   });
 
   it("USDC - Redeems the borrow", async () => {
-    const { usdc, bayc, bBAYC, users, pool, dataProvider } = testEnv;
+    const { usdc, bayc, uBAYC, users, pool, dataProvider } = testEnv;
     const liquidator = users[3];
     const borrower = users[1];
 
@@ -340,7 +340,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     //approve protocol to access borrower wallet
     await usdc.connect(borrower.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
 
-    const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
+    const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "102");
 
     const auctionDataBefore = await pool.getNftAuctionData(bayc.address, "102");
 
@@ -363,7 +363,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
 
     // check result
     const tokenOwner = await bayc.ownerOf("102");
-    expect(tokenOwner).to.be.equal(bBAYC.address, "Invalid token owner after redeem");
+    expect(tokenOwner).to.be.equal(uBAYC.address, "Invalid token owner after redeem");
 
     const liquidatorBalanceAfter = await usdc.balanceOf(liquidator.address);
     expect(liquidatorBalanceAfter).to.be.gte(
@@ -406,7 +406,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
   });
 
   it("USDC - Repays the borrow", async () => {
-    const { usdc, bayc, bBAYC, users, pool, dataProvider } = testEnv;
+    const { usdc, bayc, uBAYC, users, pool, dataProvider } = testEnv;
     const liquidator = users[3];
     const borrower = users[1];
 

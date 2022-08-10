@@ -93,7 +93,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
   });
 
   it("WETH - Auctions the borrow", async () => {
-    const { weth, bayc, bBAYC, users, pool, dataProvider } = testEnv;
+    const { weth, bayc, uBAYC, users, pool, dataProvider } = testEnv;
     const liquidator = users[3];
     const borrower = users[1];
 
@@ -117,7 +117,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
 
     // check result
     const tokenOwner = await bayc.ownerOf("101");
-    expect(tokenOwner).to.be.equal(bBAYC.address, "Invalid token owner after auction");
+    expect(tokenOwner).to.be.equal(uBAYC.address, "Invalid token owner after auction");
 
     const lendpoolBalanceAfter = await weth.balanceOf(pool.address);
     expect(lendpoolBalanceAfter).to.be.equal(
@@ -138,7 +138,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     const liquidator = users[3];
     const borrower = users[1];
 
-    const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
+    const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
 
     const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, "101");
 
@@ -197,7 +197,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
   });
 
   it("USDC - Borrows USDC", async () => {
-    const { users, pool, reserveOracle, usdc, bayc, bBAYC, configurator, dataProvider } = testEnv;
+    const { users, pool, reserveOracle, usdc, bayc, uBAYC, configurator, dataProvider } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
 
@@ -245,7 +245,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     );
 
     const tokenOwner = await bayc.ownerOf("102");
-    expect(tokenOwner).to.be.equal(bBAYC.address, "Invalid token owner after auction");
+    expect(tokenOwner).to.be.equal(uBAYC.address, "Invalid token owner after auction");
   });
 
   it("USDC - Drop the health factor below 1", async () => {
@@ -266,7 +266,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
   });
 
   it("USDC - Auctions the borrow at first time", async () => {
-    const { usdc, bayc, bBAYC, users, pool, dataProvider } = testEnv;
+    const { usdc, bayc, uBAYC, users, pool, dataProvider } = testEnv;
     const liquidator = users[3];
     const borrower = users[1];
 
@@ -288,7 +288,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
 
     // check result
     const tokenOwner = await bayc.ownerOf("102");
-    expect(tokenOwner).to.be.equal(bBAYC.address, "Invalid token owner after auction");
+    expect(tokenOwner).to.be.equal(uBAYC.address, "Invalid token owner after auction");
 
     const lendpoolBalanceAfter = await usdc.balanceOf(pool.address);
     expect(lendpoolBalanceAfter).to.be.equal(
@@ -305,7 +305,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
   });
 
   it("USDC - Auctions the borrow at second time with higher price", async () => {
-    const { usdc, bayc, bBAYC, users, pool, dataProvider } = testEnv;
+    const { usdc, bayc, uBAYC, users, pool, dataProvider } = testEnv;
     const liquidator3 = users[3];
     const liquidator4 = users[4];
 
@@ -345,7 +345,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     const liquidator = users[4];
     const borrower = users[1];
 
-    const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
+    const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "102");
 
     const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, "102");
 

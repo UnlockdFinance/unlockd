@@ -219,7 +219,7 @@ export const setNftAssetPriceForDebt = async (
   const reserveToken = await getIErc20Detailed(reserve);
   const reservePrice = await reserveOracle.getAssetPrice(reserve);
 
-  const oldNftPrice = await nftOracle.getNFTPrice(nftAsset, 0);
+  const oldNftPrice = await nftOracle.getNFTPrice(nftAsset, tokenId); // 0
 
   const debtAmountDecimals = await convertToCurrencyDecimals(reserve, debtAmount);
 
@@ -229,7 +229,7 @@ export const setNftAssetPriceForDebt = async (
     .dividedBy(new BigNumber(oneReserve))
     .toFixed(0);
 
-  const { liquidationThreshold } = await dataProvider.getNftConfigurationData(nftAsset);
+  const { liquidationThreshold } = await dataProvider.getNftConfigurationDataByTokenId(nftAsset, tokenId);
 
   // (Price * LH / Debt = HF) => (Price * LH = Debt * HF) => (Price = Debt * HF / LH)
   // LH is 2 decimals
@@ -270,12 +270,17 @@ export const setNftAssetPrice = async (
   return oldNftPrice.toString();
 };
 
-export const increaseRedeemDuration = async (testEnv: TestEnv, nftSymbol: string, isEnd: Boolean) => {
+export const increaseRedeemDuration = async (
+  testEnv: TestEnv,
+  nftSymbol: string,
+  nftTokenId: string,
+  isEnd: Boolean
+) => {
   const { dataProvider } = testEnv;
 
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
 
-  const nftCfgData = await dataProvider.getNftConfigurationData(nftAsset);
+  const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(nftAsset, nftTokenId);
   if (isEnd) {
     await increaseTime(nftCfgData.redeemDuration.mul(ONE_DAY).add(ONE_HOUR).toNumber());
   } else {
@@ -283,12 +288,12 @@ export const increaseRedeemDuration = async (testEnv: TestEnv, nftSymbol: string
   }
 };
 
-export const increaseAuctionDuration = async (testEnv: TestEnv, nftSymbol: string, isEnd: Boolean) => {
+export const increaseAuctionDuration = async (testEnv: TestEnv, nftSymbol: string, tokenId: string, isEnd: Boolean) => {
   const { dataProvider } = testEnv;
 
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
 
-  const nftCfgData = await dataProvider.getNftConfigurationData(nftAsset);
+  const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(nftAsset, tokenId);
   if (isEnd) {
     await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(ONE_HOUR).toNumber());
   } else {

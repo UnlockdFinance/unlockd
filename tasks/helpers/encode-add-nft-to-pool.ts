@@ -17,8 +17,9 @@ import { strategyNftParams } from "../../markets/unlockd/nftsConfigs";
 task("encode-add-nft-to-pool", "Init and config new nft asset to lend pool")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .addParam("asset", "Address of underlying nft asset contract")
+  .addParam("tokenId", "Address of underlying nft asset contract")
   .addOptionalParam("strategy", "Name of nft strategy, supported: ClassA, ClassB, ClassC, ClassD, ClassE")
-  .setAction(async ({ pool, asset, strategy }, DRE) => {
+  .setAction(async ({ pool, asset, tokenId, strategy }, DRE) => {
     await DRE.run("set-DRE");
 
     const network = DRE.network.name as eNetwork;
@@ -72,6 +73,7 @@ task("encode-add-nft-to-pool", "Init and config new nft asset to lend pool")
     console.log("Configure nft parameters to lend pool");
     let cfgInputParams: {
       asset: string;
+      tokenId: BigNumberish;
       baseLTV: BigNumberish;
       liquidationThreshold: BigNumberish;
       liquidationBonus: BigNumberish;
@@ -85,6 +87,7 @@ task("encode-add-nft-to-pool", "Init and config new nft asset to lend pool")
     }[] = [
       {
         asset: asset,
+        tokenId: tokenId,
         baseLTV: nftParam.baseLTVAsCollateral,
         liquidationThreshold: nftParam.liquidationThreshold,
         liquidationBonus: nftParam.liquidationBonus,

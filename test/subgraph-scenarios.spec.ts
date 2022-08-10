@@ -118,7 +118,7 @@ makeSuite("Subgraph tests", async (testEnv) => {
 
     await auction(testEnv, liquidator, "BAYC", tokenId, auctionAmount.toString(), liquidator, true, "success", "");
 
-    await increaseRedeemDuration(testEnv, "BAYC", false);
+    await increaseRedeemDuration(testEnv, "BAYC", tokenId, false);
 
     // redeem
     await mintERC20(testEnv, borrower, "WETH", "100");
@@ -154,7 +154,7 @@ makeSuite("Subgraph tests", async (testEnv) => {
 
     await auction(testEnv, liquidator, "BAYC", tokenId, auctionAmount.toString(), liquidator, true, "success", "");
 
-    await increaseAuctionDuration(testEnv, "BAYC", true);
+    await increaseAuctionDuration(testEnv, "BAYC", tokenId, true);
 
     // liquidate
     await liquidate(testEnv, liquidator, "BAYC", tokenId, "0", "success", "");

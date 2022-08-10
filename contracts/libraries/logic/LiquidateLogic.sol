@@ -161,6 +161,7 @@ library LiquidateLogic {
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
     DataTypes.ExecuteLendPoolStates memory poolStates,
     DataTypes.ExecuteAuctionParams memory params
   ) external {
@@ -179,9 +180,10 @@ library LiquidateLogic {
     DataTypes.LoanData memory loanData = ILendPoolLoan(vars.loanAddress).getLoan(vars.loanId);
 
     DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
+    DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
 
-    ValidationLogic.validateAuction(reserveData, nftData, loanData, params.bidPrice);
+    ValidationLogic.validateAuction(reserveData, nftData, nftConfig, loanData, params.bidPrice);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();
@@ -192,7 +194,7 @@ library LiquidateLogic {
       reserveData,
       loanData.nftAsset,
       loanData.nftTokenId,
-      nftData,
+      nftConfig,
       vars.loanAddress,
       vars.reserveOracle,
       vars.nftOracle
@@ -218,7 +220,7 @@ library LiquidateLogic {
       vars.auctionEndTimestamp =
         loanData.bidStartTimestamp +
         vars.extraAuctionDuration +
-        (nftData.configuration.getAuctionDuration() * 1 days);
+        (nftConfig.getAuctionDuration() * 1 days);
       require(block.timestamp <= vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_HAS_END);
 
       // bid price must greater than highest bid + delta
@@ -287,6 +289,7 @@ library LiquidateLogic {
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
     DataTypes.ExecuteLendPoolStates memory poolStates,
     DataTypes.ExecuteRedeemParams memory params
   ) external returns (uint256) {
@@ -304,15 +307,16 @@ library LiquidateLogic {
 
     DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
+    DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
 
-    ValidationLogic.validateRedeem(reserveData, nftData, loanData, params.amount);
+    ValidationLogic.validateRedeem(reserveData, nftData, nftConfig, loanData, params.amount);
 
     if ((poolStates.pauseDurationTime > 0) && (loanData.bidStartTimestamp <= poolStates.pauseStartTime)) {
       vars.extraRedeemDuration = poolStates.pauseDurationTime;
     }
     vars.redeemEndTimestamp = (loanData.bidStartTimestamp +
       vars.extraRedeemDuration +
-      nftData.configuration.getRedeemDuration() *
+      nftConfig.getRedeemDuration() *
       1 days);
     require(block.timestamp <= vars.redeemEndTimestamp, Errors.LPL_BID_REDEEM_DURATION_HAS_END);
 
@@ -325,7 +329,7 @@ library LiquidateLogic {
       reserveData,
       loanData.nftAsset,
       loanData.nftTokenId,
-      nftData,
+      nftConfig,
       vars.poolLoan,
       vars.reserveOracle,
       vars.nftOracle
@@ -336,7 +340,7 @@ library LiquidateLogic {
       loanData.reserveAsset,
       reserveData,
       loanData.nftAsset,
-      nftData,
+      nftConfig,
       loanData,
       vars.poolLoan,
       vars.reserveOracle
@@ -347,7 +351,7 @@ library LiquidateLogic {
 
     // check the minimum debt repay amount, use redeem threshold in config
     vars.repayAmount = params.amount;
-    vars.minRepayAmount = vars.borrowAmount.percentMul(nftData.configuration.getRedeemThreshold());
+    vars.minRepayAmount = vars.borrowAmount.percentMul(nftConfig.getRedeemThreshold());
     require(vars.repayAmount >= vars.minRepayAmount, Errors.LP_AMOUNT_LESS_THAN_REDEEM_THRESHOLD);
 
     // check the maxinmum debt repay amount, 90%?
@@ -417,6 +421,7 @@ library LiquidateLogic {
    * @dev Emits the `Liquidate()` event.
    * @param reservesData The state of all the reserves
    * @param nftsData The state of all the nfts
+   * @param nftsConfig The state of the nft by tokenId
    * @param poolStates The state of the lend pool
    * @param params The additional parameters needed to execute the liquidate function
    */
@@ -424,6 +429,7 @@ library LiquidateLogic {
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
     DataTypes.ExecuteLendPoolStates memory poolStates,
     DataTypes.ExecuteLiquidateParams memory params
   ) external returns (uint256) {
@@ -441,8 +447,9 @@ library LiquidateLogic {
 
     DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
+    DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
 
-    ValidationLogic.validateLiquidate(reserveData, nftData, loanData);
+    ValidationLogic.validateLiquidate(reserveData, nftData, nftConfig, loanData);
 
     if ((poolStates.pauseDurationTime > 0) && (loanData.bidStartTimestamp <= poolStates.pauseStartTime)) {
       vars.extraAuctionDuration = poolStates.pauseDurationTime;
@@ -450,7 +457,7 @@ library LiquidateLogic {
     vars.auctionEndTimestamp =
       loanData.bidStartTimestamp +
       vars.extraAuctionDuration +
-      (nftData.configuration.getAuctionDuration() * 1 days);
+      (nftConfig.getAuctionDuration() * 1 days); // Per  Collection or NFT ??
     require(block.timestamp > vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_NOT_END);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
@@ -462,7 +469,7 @@ library LiquidateLogic {
       reserveData,
       loanData.nftAsset,
       loanData.nftTokenId,
-      nftData,
+      nftConfig,
       vars.poolLoan,
       vars.reserveOracle,
       vars.nftOracle
@@ -543,12 +550,14 @@ library LiquidateLogic {
    * @dev Emits the `LiquidateOpensea()` event.
    * @param reservesData The state of all the reserves
    * @param nftsData The state of all the nfts
+   * @param nftsConfig The state of the nft by TokenId
    * @param params The additional parameters needed to execute the liquidate function
    */
   function executeLiquidateOpensea(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
     DataTypes.ExecuteLiquidateOpenseaParams memory params
   ) external returns (uint256) {
     LiquidateOpenseaLocalVars memory vars;
@@ -565,8 +574,9 @@ library LiquidateLogic {
 
     DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
+    DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
 
-    ValidationLogic.validateLiquidate(reserveData, nftData, loanData);
+    ValidationLogic.validateLiquidate(reserveData, nftData, nftConfig, loanData);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();
@@ -577,7 +587,7 @@ library LiquidateLogic {
       reserveData,
       loanData.nftAsset,
       loanData.nftTokenId,
-      nftData,
+      nftConfig,
       vars.poolLoan,
       vars.reserveOracle,
       vars.nftOracle
@@ -669,6 +679,7 @@ library LiquidateLogic {
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
     DataTypes.ExecuteLiquidateNFTXParams memory params
   ) external returns (uint256) {
     LiquidateNFTXLocalVars memory vars;
@@ -685,8 +696,9 @@ library LiquidateLogic {
 
     DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
+    DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
 
-    ValidationLogic.validateLiquidateNFTX(reserveData, nftData, loanData);
+    ValidationLogic.validateLiquidateNFTX(reserveData, nftData, nftConfig, loanData);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();
@@ -697,7 +709,7 @@ library LiquidateLogic {
       reserveData,
       loanData.nftAsset,
       loanData.nftTokenId,
-      nftData,
+      nftConfig,
       vars.poolLoan,
       vars.reserveOracle,
       vars.nftOracle

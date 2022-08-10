@@ -58,23 +58,6 @@ task("provider:setLendPoolLiquidator", "User sets a new LendPoolLiquidator addre
     console.log(tx);
 }); 
 
-task("tests:provider:getProtocolDataProvider", "User gets the ProtocolDataProvider Address")
-.setAction( async () => {
-    const wallet = await getOwnerWallet();  
-
-    const tx = await Functions.LENDPOOLADDRESSPROVIDER.getProtocolDataProvider(wallet)
-    console.log(JSON.stringify(tx));
-}); 
-
-task("tests:provider:setProtocolDataProvider", "User sets a new ProtocolDataProvider address")
-.addParam("protocoldataprovideraddress", "The ProtocolDataProvider Address") 
-.setAction( async ({protocoldataprovideraddress}) => {
-    const wallet = await getOwnerWallet();  
-
-    const tx = await Functions.LENDPOOLADDRESSPROVIDER.setProtocolDataProvider(wallet, protocoldataprovideraddress)
-    console.log(tx);
-}); 
-
 task("provider:getPoolAdmin", "User gets the lendpool admin Address")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
