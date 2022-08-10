@@ -422,5 +422,5 @@ makeSuite(
       expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Repaid, "Invalid loan state after repay");
     });
   },
-  { skip: true }
+  { only: true }
 );
