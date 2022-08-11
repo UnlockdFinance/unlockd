@@ -333,7 +333,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     ILendPool lendPool = ILendPool(provider.getLendPool());
 
     AggregatedNftConfiguration memory nftConfig;
-    DataTypes.NftConfigurationMap memory baseConfig = lendPool.getNftAssetConfig(nftAsset, tokenId);
+    DataTypes.NftConfigurationMap memory baseConfig = lendPool.getNftConfigByTokenId(nftAsset, tokenId);
     _fillNftConfiguration(nftConfig, nftAsset, tokenId, baseConfig);
 
     return nftConfig;
