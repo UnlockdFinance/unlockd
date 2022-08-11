@@ -347,23 +347,6 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
   }
 
   /**
-   * @inheritdoc IUiPoolDataProvider
-   */
-  function getSimpleNftConfiguration(
-    ILendPoolAddressesProvider provider,
-    address nftAsset,
-    uint256 tokenId
-  ) external view override returns (AggregatedNftConfiguration memory) {
-    ILendPool lendPool = ILendPool(provider.getLendPool());
-
-    AggregatedNftConfiguration memory nftConfig;
-    DataTypes.NftConfigurationMap memory baseConfig = lendPool.getNftConfigByTokenId(nftAsset, tokenId);
-    _fillNftConfiguration(nftConfig, nftAsset, tokenId, baseConfig);
-
-    return nftConfig;
-  }
-
-  /**
    * @dev fills the specified  NFT config
    * @param nftConfig the NFT config to be updated
    * @param nftAsset the NFT to be updated

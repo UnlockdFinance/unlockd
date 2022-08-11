@@ -534,6 +534,21 @@ contract LendPool is
   }
 
   /**
+   * @dev Returns the configuration of the nft asset
+   * @param asset The address of the underlying asset of the nft
+   * @param tokenId NFT asset ID
+   * @return The configuration of the nft asset
+   **/
+  function getNftAssetConfig(address asset, uint256 tokenId)
+    external
+    view
+    override
+    returns (DataTypes.NftConfigurationMap memory)
+  {
+    return _nftConfig[asset][tokenId];
+  }
+
+  /**
    * @dev Returns the loan data of the NFT
    * @param nftAsset The address of the NFT
    * @param reserveAsset The address of the Reserve
