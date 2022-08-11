@@ -49,11 +49,26 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     expect(isActive).to.be.equal(false);
   });
 
+  it("Deactivates the BAYC NFT Token", async () => {
+    const { configurator, bayc, dataProvider } = testEnv;
+    await configurator.setActiveFlagOnNftByTokenId([bayc.address], ["101"], false);
+    const { isActive } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
+    expect(isActive).to.be.equal(false);
+  });
+
   it("Rectivates the BAYC NFT", async () => {
     const { configurator, bayc, dataProvider } = testEnv;
     await configurator.setActiveFlagOnNft([bayc.address], true);
 
     const { isActive } = await dataProvider.getNftConfigurationData(bayc.address);
+    expect(isActive).to.be.equal(true);
+  });
+
+  it("Rectivates the BAYC NFT Token", async () => {
+    const { configurator, bayc, dataProvider } = testEnv;
+    await configurator.setActiveFlagOnNftByTokenId([bayc.address], ["101"], true);
+
+    const { isActive } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
     expect(isActive).to.be.equal(true);
   });
 
@@ -82,11 +97,29 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     expect(isFrozen).to.be.equal(true);
   });
 
+  it("Freezes the BAYC NFT Token", async () => {
+    const { configurator, bayc, dataProvider } = testEnv;
+
+    await configurator.setFreezeFlagOnNftByTokenId([bayc.address], ["101"], true);
+    const { isFrozen } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
+
+    expect(isFrozen).to.be.equal(true);
+  });
+
   it("Unfreezes the BAYC NFT", async () => {
     const { configurator, dataProvider, bayc } = testEnv;
     await configurator.setFreezeFlagOnNft([bayc.address], false);
 
     const { isFrozen } = await dataProvider.getNftConfigurationData(bayc.address);
+
+    expect(isFrozen).to.be.equal(false);
+  });
+
+  it("Unfreezes the BAYC NFT Token", async () => {
+    const { configurator, dataProvider, bayc } = testEnv;
+    await configurator.setFreezeFlagOnNftByTokenId([bayc.address], ["101"], false);
+
+    const { isFrozen } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
 
     expect(isFrozen).to.be.equal(false);
   });

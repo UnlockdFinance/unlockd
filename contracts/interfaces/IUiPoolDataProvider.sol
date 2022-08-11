@@ -152,16 +152,16 @@ interface IUiPoolDataProvider {
     returns (AggregatedNftData[] memory, UserNftData[] memory);
 
   /**
-   * @dev Gets aggregated configuration of NFT asset
+   * @dev Gets aggregated configuration of NFT assets
    * @param provider the addresses provider
-   * @param nftAsset asset address
-   * @param tokenId asset token id
+   * @param nftAssets the array of NFT assets to check the loans from
+   * @param nftTokenIds the array of token Ids
    **/
-  function getSimpleNftConfiguration(
+  function getSimpleNftsConfiguration(
     ILendPoolAddressesProvider provider,
-    address nftAsset,
-    uint256 tokenId
-  ) external view returns (AggregatedNftConfiguration memory);
+    address[] memory nftAssets,
+    uint256[] memory nftTokenIds
+  ) external view returns (AggregatedNftConfiguration[] memory);
 
   /**
    * @dev Gets loans aggregated data
