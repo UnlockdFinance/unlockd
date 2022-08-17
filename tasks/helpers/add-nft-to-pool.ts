@@ -77,7 +77,9 @@ task("add-nft-to-pool", "Add and config new nft asset to lend pool")
           tokenId,
           nftParam.baseLTVAsCollateral,
           nftParam.liquidationThreshold,
-          nftParam.liquidationBonus
+          nftParam.liquidationBonus,
+          true,
+          false
         )
     );
 

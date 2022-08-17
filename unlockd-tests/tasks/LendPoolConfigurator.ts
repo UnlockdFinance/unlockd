@@ -83,7 +83,9 @@ task("configurator:configureNftAsCollateral",
 .addParam("ltv", "The loan to value of the asset when used as NFT") 
 .addParam("threshold", "The threshold at which loans using this asset as collateral will be considered undercollateralized") 
 .addParam("bonus", "The bonus liquidators receive to liquidate this asset. The values is always below 100%. A value of 5% means the liquidator will receive a 5% bonus") 
-.setAction( async ({assets, ltv, threshold, bonus}) => {
+.addParam("active", "if the nft asset is active or not (BOOL true or false)") 
+.addParam("freeze", "if the nft asset is frozen or not (BOOL true or false)") 
+.setAction( async ({assets, ltv, threshold, bonus, active, freeze}) => {
     const wallet = await getOwnerWallet();  
 
     const tx = await Functions.LENDPOOLCONFIGURATOR.configureNftAsCollateral(
@@ -91,7 +93,9 @@ task("configurator:configureNftAsCollateral",
         [assets], 
         ltv, 
         threshold, 
-        bonus
+        bonus,
+        active,
+        freeze
     )
 
     console.log(tx);
