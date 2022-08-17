@@ -37,6 +37,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   bytes32 private constant OPENSEA_SEAPORT = "OPENSEA_SEAPORT";
   bytes32 private constant NFTX_VAULT_FACTORY = "NFTX_VAULT_FACTORY";
   bytes32 private constant SUSHI_SWAP_ROUTER = "SUSHI_SWAP_ROUTER";
+  bytes32 private constant LTV_MANAGER = "LTV_MANAGER";
 
   constructor(string memory marketId) {
     _setMarketId(marketId);
@@ -143,6 +144,24 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
     if (encodedCallData.length > 0) {
       Address.functionCall(_addresses[LEND_POOL_CONFIGURATOR], encodedCallData);
     }
+  }
+
+  /**
+   * @dev returns the address of the Loan to Value Manager
+   * @return the LendPoolAdmin address
+   **/
+
+  function getLtvManager() external view override returns (address) {
+    return getAddress(LTV_MANAGER);
+  }
+
+  /**
+   * @dev sets the address of the Loan to Value Manager
+   * @param ltvManager the LtvManager Wallet address
+   **/
+  function setLtvManager(address ltvManager) external override onlyOwner {
+    _addresses[LTV_MANAGER] = ltvManager;
+    emit LtvManagerUpdated(ltvManager);
   }
 
   /**

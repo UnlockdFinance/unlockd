@@ -74,6 +74,9 @@ const getNftAuctionData = async (wallet: Wallet,collection: string, nftTokenId: 
 const getNftData = async (wallet: Wallet, collection: string) => {
     return await Contracts.lendPool.connect(wallet).getNftData(collection);
 }
+const getNftAssetConfig = async (wallet: Wallet, nftAsset: string, nftTokenId: number) => {
+    return await Contracts.lendPool.connect(wallet).getNftAssetConfig(nftAsset, nftTokenId);
+}
 
 //#region Lendpool loan
 const getLoanIdTracker = async (wallet: Wallet) => {
@@ -408,6 +411,7 @@ export const Functions = {
         auction: auction,
         getNftLiquidatePrice: getNftLiquidatePrice,
         getNftAuctionData: getNftAuctionData,
+        getNftAssetConfig: getNftAssetConfig,
     },
     LENDPOOL_LOAN: {
         getLoanIdTracker: getLoanIdTracker,
