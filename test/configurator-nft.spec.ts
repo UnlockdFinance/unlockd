@@ -38,7 +38,8 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     },
   ];
 
-  const { CALLER_NOT_POOL_ADMIN, LPC_INVALID_CONFIGURATION, LPC_NFT_LIQUIDITY_NOT_0 } = ProtocolErrors;
+  const { CALLER_NOT_POOL_ADMIN, LPC_INVALID_CONFIGURATION, LPC_NFT_LIQUIDITY_NOT_0, CALLER_NOT_LTV_MANAGER } =
+    ProtocolErrors;
   const tokenSupply = MOCK_NFT_AGGREGATORS_MAXSUPPLY.BAYC;
   var maxSupply: number = +tokenSupply;
 
@@ -142,7 +143,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
 
   it("Deactivates the BAYC NFT as collateral", async () => {
     const { configurator, dataProvider, bayc, tokenId } = testEnv;
-    await configurator.configureNftAsCollateral(bayc.address, tokenId, 0, 0, 0);
+    await configurator.configureNftAsCollateral(bayc.address, tokenId, 0, 0, 0, true, false);
 
     const { ltv, liquidationBonus, liquidationThreshold } = await dataProvider.getNftConfigurationDataByTokenId(
       bayc.address,
@@ -156,7 +157,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
 
   it("Activates the BAYC NFT as collateral", async () => {
     const { configurator, dataProvider, bayc, tokenId } = testEnv;
-    await configurator.configureNftAsCollateral(bayc.address, tokenId, "8000", "8250", "500");
+    await configurator.configureNftAsCollateral(bayc.address, tokenId, "8000", "8250", "500", true, false);
 
     const { ltv, liquidationBonus, liquidationThreshold } = await dataProvider.getNftConfigurationDataByTokenId(
       bayc.address,
@@ -168,12 +169,14 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     expect(liquidationBonus).to.be.equal(500);
   });
 
-  it("Check the onlyAdmin on configureNftAsCollateral ", async () => {
+  it("Check the onlyLtvManager on configureNftAsCollateral ", async () => {
     const { configurator, users, bayc, tokenId } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).configureNftAsCollateral(bayc.address, tokenId, "7500", "8000", "500"),
-      CALLER_NOT_POOL_ADMIN
-    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+      configurator
+        .connect(users[2].signer)
+        .configureNftAsCollateral(bayc.address, tokenId, "7500", "8000", "500", true, false),
+      CALLER_NOT_LTV_MANAGER
+    ).to.be.revertedWith(CALLER_NOT_LTV_MANAGER);
   });
 
   it("Deactivates the BAYC NFT as auction", async () => {

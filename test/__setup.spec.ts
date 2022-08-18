@@ -67,6 +67,7 @@ import {
   getWETHGateway,
   getPunkGateway,
   getLendPoolLiquidatorSigner,
+  getLtvManagerSigner,
 } from "../helpers/contracts-getters";
 import { WETH9Mocked } from "../types/WETH9Mocked";
 import { getNftAddressFromSymbol } from "./helpers/utils/helpers";
@@ -87,6 +88,8 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   const poolAdmin = await (await getPoolAdminSigner()).getAddress();
   const emergencyAdmin = await (await getEmergencyAdminSigner()).getAddress();
   const poolLiquidator = await (await getLendPoolLiquidatorSigner()).getAddress();
+  const ltvManager = await (await getLtvManagerSigner()).getAddress();
+
   console.log(
     "Admin accounts:",
     "poolAdmin:",
@@ -94,7 +97,9 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     "emergencyAdmin:",
     emergencyAdmin,
     "lendPoolLiquidator:",
-    poolLiquidator
+    poolLiquidator,
+    "ltvManager:",
+    ltvManager
   );
 
   const config = loadPoolConfig(ConfigNames.Unlockd);
@@ -165,6 +170,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   await waitForTx(await addressesProvider.setPoolAdmin(poolAdmin));
   await waitForTx(await addressesProvider.setEmergencyAdmin(emergencyAdmin));
   await waitForTx(await addressesProvider.setLendPoolLiquidator(poolLiquidator));
+  await waitForTx(await addressesProvider.setLtvManager(ltvManager));
 
   await waitForTx(
     await addressesProviderRegistry.registerAddressesProvider(addressesProvider.address, UnlockdConfig.ProviderId)

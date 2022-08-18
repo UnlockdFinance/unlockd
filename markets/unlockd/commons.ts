@@ -111,6 +111,17 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.main]: '0x868964fa49a6fd6e116FE82c8f4165904406f479',
   },
   LendPoolLiquidatorIndex: 0,
+  LtvManager: {                             // The wallet address that will be set as loan to value Manager
+    [eEthereumNetwork.coverage]: '',
+    [eEthereumNetwork.hardhat]: '',
+    [eEthereumNetwork.localhost]: '',
+    [eEthereumNetwork.develop]: '',
+    [eEthereumNetwork.rinkeby]: '0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014', // Primary wallet but IT MUST BE THE ADDRESS OF THE SERVER WALLET
+    [eEthereumNetwork.kovan]: '',
+    [eEthereumNetwork.goerli]: '',
+    [eEthereumNetwork.main]: '',
+  },
+  LtvManagerIndex: 0,
 
   UNFTRegistry: { /// Add contract From U
     [eEthereumNetwork.coverage]: '',

@@ -99,6 +99,17 @@ export const getLendPoolLiquidator = async (config: ICommonConfiguration): Promi
   return addressList[addressIndex];
 };
 
+export const getLtvManager = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
+  const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
+  const targetAddress = getParamPerNetwork(config.LtvManager, <eNetwork>currentNetwork);
+  if (targetAddress) {
+    return targetAddress;
+  }
+  const addressList = await getEthersSignersAddresses();
+  const addressIndex = config.LtvManagerIndex;
+  return addressList[addressIndex];
+};
+
 export const getTreasuryAddress = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
   const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
   return getParamPerNetwork(config.ReserveFactorTreasuryAddress, <eNetwork>currentNetwork);
