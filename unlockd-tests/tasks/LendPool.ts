@@ -22,6 +22,16 @@ task("lendpool:getNftData", "Get the NFT Data from the lendpool reserves")
   }
 );
 
+task("lendpool:getNftAssetConfig", "Get the NFT Data from the lendpool reserves")
+  .addParam("nftaddress", "The asset address")
+  .addParam("nfttokenid", "The tokenId of the asset")
+  .setAction(async ({ nftaddress, nfttokenid }) => {
+    const wallet = await getUserWallet();
+    const tx = await Functions.LENDPOOL.getNftAssetConfig(wallet, nftaddress, nfttokenid).then(v => v.toString());
+    console.log(tx);
+  }
+);
+
 // Get NFT configuration data 
 task("lendpool:getNftConfiguration", "Get the NFT Struct with the configuration")
   .addParam("nftaddress", "The asset address")
@@ -45,8 +55,8 @@ task("lendpool:deposit", "User 0 Deposits {amount} {reserve} in an empty reserve
   
     await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount)  
     await Functions.LENDPOOL.deposit(wallet, tokenContract.address, amount, to);
-   
 }); 
+
 //Withdrawing funds from the pool
 task("lendpool:withdraw", "User 0 Withdraws {amount} {reserve} from the reserves")
 .addParam("amount", "Amount to withdraw") 

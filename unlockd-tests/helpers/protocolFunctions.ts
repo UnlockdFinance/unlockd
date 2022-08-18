@@ -74,6 +74,9 @@ const getNftAuctionData = async (wallet: Wallet,collection: string, nftTokenId: 
 const getNftData = async (wallet: Wallet, collection: string) => {
     return await Contracts.lendPool.connect(wallet).getNftData(collection);
 }
+const getNftAssetConfig = async (wallet: Wallet, nftAsset: string, nftTokenId: number) => {
+    return await Contracts.lendPool.connect(wallet).getNftAssetConfig(nftAsset, nftTokenId);
+}
 
 //#region Lendpool loan
 const getLoanIdTracker = async (wallet: Wallet) => {
@@ -307,13 +310,21 @@ const setFreezeFlagOnNft = async (wallet:Wallet, assets: string[], flag: boolean
 }
 
 const configureNftAsCollateral = async (
-    wallet:Wallet, assets: string[], ltv: string, liquidationThreshold: string, liquidationBonus: string
+    wallet:Wallet, 
+    assets: string[], 
+    ltv: string, 
+    liquidationThreshold: string, 
+    liquidationBonus: string,
+    active: boolean,
+    freeze: boolean
     ) => {
     return await Contracts.lendPoolConfigurator.connect(wallet).configureNftAsCollateral(
         assets, 
         ltv, 
         liquidationThreshold, 
-        liquidationBonus
+        liquidationBonus,
+        active,
+        freeze
     );
 }
 
@@ -408,6 +419,7 @@ export const Functions = {
         auction: auction,
         getNftLiquidatePrice: getNftLiquidatePrice,
         getNftAuctionData: getNftAuctionData,
+        getNftAssetConfig: getNftAssetConfig,
     },
     LENDPOOL_LOAN: {
         getLoanIdTracker: getLoanIdTracker,

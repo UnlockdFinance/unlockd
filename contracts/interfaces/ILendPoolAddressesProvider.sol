@@ -28,6 +28,7 @@ interface ILendPoolAddressesProvider {
   event NFTXVaultFactoryUpdated(address indexed newAddress);
   event SushiSwapRouterUpdated(address indexed newAddress);
   event LendPoolLiquidatorUpdated(address indexed newAddress);
+  event LtvManagerUpdated(address indexed newAddress);
 
   /**
    * @dev Returns the id of the Unlockd market to which this contracts points to
@@ -97,6 +98,18 @@ interface ILendPoolAddressesProvider {
    * @param encodedCallData calldata to execute
    **/
   function setLendPoolConfiguratorImpl(address configurator, bytes memory encodedCallData) external;
+
+  /**
+   * @dev Returns the address of the LtvManager
+   * @return The address of the Loan to Value Manager Wallet
+   **/
+  function getLtvManager() external view returns (address);
+
+  /**
+   * @dev Updates the address of the LtvManager - Loan to Value Wallet Address.
+   * @param ltvManager the new address of the LtvManager.
+   **/
+  function setLtvManager(address ltvManager) external;
 
   /**
    * @dev returns the address of the LendPool admin
