@@ -85,10 +85,14 @@ task("lendpool:borrow", "User 0 Withdraws {amount} {reserve} from the reserves")
     reserve == 'USDC' ? 
         amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString())  
     const nftContract = MockContracts[collectionname];
-    await Functions.NFTS.approve(wallet, nftContract, Contracts.lendPool.address, tokenid);
+    const isApprovedForAll = await Functions.NFTS.isApprovedNft(wallet, nftContract, to, Contracts.lendPool.address);
+    if(isApprovedForAll == false) {
+        await Functions.NFTS.setApproveForAllNft(wallet, nftContract, Contracts.lendPool.address, true);
+    }
     await Functions.LENDPOOL.borrow(wallet, tokenContract.address, amount, collection, tokenid, to);
-   
+    console.log("Congratulations you just borrowed:", amount.toString(), " in: ", reserve);
 }); 
+
 // Get collateral data
 task("lendpool:getcollateraldata", "Returns collateral data")
 .addParam("collection", "NFT collection address") 

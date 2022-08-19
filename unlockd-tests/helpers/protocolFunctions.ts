@@ -19,7 +19,21 @@ const approveNft = async (wallet: Wallet, collection: Contract, to: string, toke
     const tx = await collection.connect(wallet).approve(to, tokenId);
     await tx.wait();
 }
-//#endregion
+
+const getApprovedNft = async(wallet: Wallet, collection: Contract, tokenId: string) => {
+    return await collection.connect(wallet).getApproved(tokenId);
+}
+
+const setApproveForAllNft = async (wallet: Wallet, collection: Contract, operator: string, approved: boolean) => {
+    const tx = await collection.connect(wallet).setApprovalForAll(operator, approve);
+    await tx.wait();
+}
+
+const isApprovedNft = async(wallet: Wallet, collection: Contract, owner: string, operator: string) => {
+    return await collection.connect(wallet).isApprovedForAll(owner, operator);
+}
+
+//#endregion 
 
 //#region  LendPool 
 const getNftsList = async(wallet: Wallet) => {
@@ -326,7 +340,7 @@ const configureNftAsCollateral = async (
         liquidationThreshold, 
         liquidationBonus,
         active,
-        freeze
+        false // TODO : understand why freeze is failing
     );
 }
 
@@ -404,7 +418,10 @@ export const Functions = {
         getBalance: getBalance,
     },
     NFTS: {
-        approve: approveNft
+        approve: approveNft,
+        getApprovedNft: getApprovedNft,
+        setApproveForAllNft: setApproveForAllNft,
+        isApprovedNft: isApprovedNft,
     },
     LENDPOOL: {
         getNftConfiguration: getNftConfiguration,
