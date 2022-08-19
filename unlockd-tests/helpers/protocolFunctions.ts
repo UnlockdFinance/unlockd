@@ -311,7 +311,8 @@ const setFreezeFlagOnNft = async (wallet:Wallet, assets: string[], flag: boolean
 
 const configureNftAsCollateral = async (
     wallet:Wallet, 
-    assets: string[], 
+    asset: string,
+    tokenId: string, 
     ltv: string, 
     liquidationThreshold: string, 
     liquidationBonus: string,
@@ -319,7 +320,8 @@ const configureNftAsCollateral = async (
     freeze: boolean
     ) => {
     return await Contracts.lendPoolConfigurator.connect(wallet).configureNftAsCollateral(
-        assets, 
+        asset,
+        tokenId, 
         ltv, 
         liquidationThreshold, 
         liquidationBonus,
