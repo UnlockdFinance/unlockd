@@ -41,6 +41,24 @@ task("provider:setLendPoolImpl", "User sets a lendpool address")
     console.log(tx);
 }); 
 
+task("provider:getLendPoolConfigurator", "User gets the LendPoolConfigurator address")
+.setAction( async () => {
+    const wallet = await getOwnerWallet();  
+
+    const tx = await Functions.LENDPOOLADDRESSPROVIDER.getLendPoolConfigurator(wallet)
+    console.log(JSON.stringify(tx));
+}); 
+
+task("provider:setLendPoolConfiguratorImpl", "User sets a lendPoolConfigurator address")
+.addParam("provideraddress", "The new LendPoolConfigurator Address") 
+.addParam("encodeddata", "The data to initialize the lendPoolConfigurator") 
+.setAction( async ({provideraddress, encodeddata}) => {
+    const wallet = await getOwnerWallet();  
+
+    const tx = await Functions.LENDPOOLADDRESSPROVIDER.setLendPoolConfiguratorImpl(wallet, provideraddress, encodeddata)
+    console.log(tx);
+}); 
+
 task("provider:getLendPoolLiquidator", "User gets the lendPoolLiquidator Address")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  

@@ -91,6 +91,7 @@ const getNftData = async (wallet: Wallet, collection: string) => {
 const getNftAssetConfig = async (wallet: Wallet, nftAsset: string, nftTokenId: number) => {
     return await Contracts.lendPool.connect(wallet).getNftAssetConfig(nftAsset, nftTokenId);
 }
+//#endregion
 
 //#region Lendpool loan
 const getLoanIdTracker = async (wallet: Wallet) => {
@@ -135,11 +136,19 @@ const setMarketId = async (wallet: Wallet, marketId: string) => {
 }
 
 const getLendPool = async (wallet: Wallet) => { 
-    return await Contracts.lendPoolAddressesProvider.connect(wallet).getLendPool().wait();
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getLendPool();
 }
 
 const setLendPoolImpl = async (wallet: Wallet, lendpoolAddress: string, encodedCallData: string) => { 
     return await Contracts.lendPoolAddressesProvider.connect(wallet).setLendPoolImpl(lendpoolAddress, encodedCallData);
+}
+
+const getLendPoolConfigurator = async (wallet: Wallet) => { 
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getLendPoolConfigurator();
+}
+
+const setLendPoolConfiguratorImpl = async (wallet: Wallet, lendpoolAddress: string, encodedCallData: string) => { 
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setLendPoolConfiguratorImpl(lendpoolAddress, encodedCallData);
 }
 
 const getLendPoolLiquidator = async (wallet: Wallet) => {
@@ -351,10 +360,11 @@ const configureNftAsCollateral = async (
 }
 
 const configureNftAsAuction = async (
-    wallet:Wallet, assets: string[], redeemDuration: string, auctionDuration: string, redeemFine: string
+    wallet:Wallet, assets: string, tokenId: string, redeemDuration: string, auctionDuration: string, redeemFine: string
     ) => {
     return await Contracts.lendPoolConfigurator.connect(wallet).configureNftAsAuction(
-        assets, 
+        assets,
+        tokenId, 
         redeemDuration, 
         auctionDuration, 
         redeemFine
@@ -464,6 +474,8 @@ export const Functions = {
         setMarketId: setMarketId,
         getLendPool: getLendPool,
         setLendPoolImpl: setLendPoolImpl,
+        getLendPoolConfigurator: getLendPoolConfigurator,
+        setLendPoolConfiguratorImpl: setLendPoolConfiguratorImpl,
         setLendPoolLiquidator: setLendPoolLiquidator,
         getLendPoolLiquidator: getLendPoolLiquidator,
         setProtocolDataProvider: setProtocolDataProvider,

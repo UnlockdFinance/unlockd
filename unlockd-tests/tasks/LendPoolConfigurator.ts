@@ -111,15 +111,17 @@ task("configurator:configureNftAsCollateral",
 
 task("configurator:configureNftAsAuction", "Configures the NFT auction parameters")
 .addParam("assets", "he address of the underlying NFT asset") 
+.addParam("tokenid", "The tokenId of the underlying asset")
 .addParam("redeemduration", "The max duration for the redeem") 
 .addParam("auctionduration", "The auction duration") 
 .addParam("redeemfine", "The fine for the redeem") 
-.setAction( async ({assets, redeemduration, auctionduration, redeemfine}) => {
+.setAction( async ({assets, tokenid, redeemduration, auctionduration, redeemfine}) => {
     const wallet = await getOwnerWallet();  
 
     const tx = await Functions.LENDPOOLCONFIGURATOR.configureNftAsAuction(
         wallet, 
-        [assets], 
+        assets,
+        tokenid, 
         redeemduration, 
         auctionduration, 
         redeemfine

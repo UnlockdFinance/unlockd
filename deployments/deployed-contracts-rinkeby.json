@@ -111,61 +111,61 @@
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "GenericLogic": {
-    "address": "0x716a36E80A2310cF8756d905d11901Cfe6D1c718",
+    "address": "0x198DFeE179db41dcb49afd154E6A891e36035FDd",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "ReserveLogic": {
-    "address": "0x67C14bDC7F8222286312609b562d157EE5Def8Be",
+    "address": "0xA38FeCea47722f91e7a96DD5edd35D03f71aF485",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "NftLogic": {
-    "address": "0xf47e880eD578deAF424b8Bbf349F1dA8C134F671",
+    "address": "0x7261605f784bB66E83B263453Df5809cC6540A25",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "ValidationLogic": {
-    "address": "0x97b8531Adc686Ba9d66d8C2BA5b9afdcfD258Bd3",
+    "address": "0xf413C9c1DCc3d7959DEEa4D4B604D2332E2ACA79",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "SupplyLogic": {
-    "address": "0x80D54C18B7b4f5789d87160e3A132961651a32DB",
+    "address": "0x543fD5998693B8363D47BA15eb435D981eEE03e3",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "BorrowLogic": {
-    "address": "0x38cC6213fA608a722DEc67B103AC146229357C92",
+    "address": "0x3810Ad217FBC8D4fd27E325f0e014CDA2dF79b9B",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "LiquidateLogic": {
-    "address": "0x2B54527d5340c407A3Fed7591aC182798ED09B11",
+    "address": "0x315A20406D17288444eeD24c0fA34833C9f468F2",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "ConfiguratorLogic": {
-    "address": "0xD56A07E88d1A93cF35f839386306CECE6e822A07",
+    "address": "0xe6a07bf71EA9b994e008c99C8AaB72f0e9ED85b0",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "LendPoolImpl": {
-    "address": "0x5626C99b238E90cbeEe4E1F49044E0AeF78AB3A9"
+    "address": "0xB804f34Ca184Ad4f859236722267F2e9D1d627dd"
   },
   "LendPool": {
     "address": "0x58354d52C0F5E2985fEBA02691d2773B4B7088E8"
   },
   "LendPoolConfiguratorImpl": {
-    "address": "0x0D1d6023a316790dA7Cc9D49204E076329B3b422"
+    "address": "0x8984ab9C30836F564c58d837430921CB2790F0Be"
   },
   "LendPoolConfigurator": {
     "address": "0x600975D653C3645F2547B65C590818c26399827e"
   },
   "LendPoolLoanImpl": {
-    "address": "0x4cE018446ea9761A6CEE0A75756655a21f394060"
+    "address": "0x5307457ad4C136A0CdddC76fD4E602D7d4C4bdEe"
   },
   "LendPoolLoan": {
     "address": "0x37c58613C14cdFd194236ce7829C230c4003A275"
   },
   "UToken": {
-    "address": "0x76A3e89020DDB9aBC92F8567C83612CcD8547A3e",
+    "address": "0x39E2e3b2B51A623c60bD2Cc81017e5800D441539",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "DebtToken": {
-    "address": "0xCAf6bC9f2e1F38249F2a6fFcB01C10db5c9b09Ab",
+    "address": "0x498310C122C41Dcc6143c0123132E75f22ea9B2D",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "ReserveOracleImpl": {
