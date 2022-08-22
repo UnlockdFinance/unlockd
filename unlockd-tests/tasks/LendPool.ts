@@ -100,7 +100,7 @@ task("lendpool:getcollateraldata", "Returns collateral data")
 .addParam("reserve", "reserve") //must be set to 'DAI' or 'USDC'
 .setAction( async ({collection, tokenid, reserve}) => {
     const wallet = await getUserWallet();  
-    const collateralData = await Functions.LENDPOOL.getCollateralData(wallet, collection, tokenid, reserve);
+    const collateralData = await Functions.LENDPOOL.getCollateralData(wallet, collection, tokenid, reserve).then(v=> v.toString());
     console.log(collateralData);
 });   
 // Get debt data

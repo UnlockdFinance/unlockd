@@ -313,7 +313,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     );
 
     // Redeem ETH loan with native ETH
-    await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).sub(100).toNumber());
+    await increaseTime(nftCfgData.auctionDuration.mul(24).sub(1).toNumber());
     const auctionData = await pool.getNftAuctionData(nftAsset, tokenId);
     const bidFineAmount = new BigNumber(auctionData.bidFine.toString()).multipliedBy(1.1).toFixed(0);
     const repayAmount = new BigNumber(auctionData.bidBorrowAmount.toString()).multipliedBy(0.51).toFixed(0);

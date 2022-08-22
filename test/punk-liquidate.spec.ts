@@ -330,7 +330,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     await mintERC20(testEnv, borrower, "USDC", depositUnit.toString());
     await approveERC20PunkGateway(testEnv, borrower, "USDC");
 
-    await increaseTime(nftCfgData.redeemDuration.mul(ONE_DAY).sub(3600).toNumber());
+    await increaseTime(nftCfgData.redeemDuration.mul(24).sub(1).toNumber());
 
     const nftDebtDataBeforeRedeem = await pool.getNftDebtData(wrappedPunk.address, punkIndex);
     const nftAuctionDataBeforeRedeem = await pool.getNftAuctionData(wrappedPunk.address, punkIndex);
@@ -629,7 +629,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     );
 
     // Redeem ETH loan with native ETH
-    await increaseTime(nftCfgData.redeemDuration.mul(ONE_DAY).sub(3600).toNumber());
+    await increaseTime(nftCfgData.redeemDuration.mul(24).sub(1).toNumber());
 
     const auctionDataBeforeRedeem = await pool.getNftAuctionData(wrappedPunk.address, punkIndex);
     const debtDataBeforeRedeem = await pool.getNftDebtData(wrappedPunk.address, punkIndex);

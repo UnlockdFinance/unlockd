@@ -330,6 +330,9 @@ const configureNftAsCollateral = async (
     ltv: string, 
     liquidationThreshold: string, 
     liquidationBonus: string,
+    redeemDuration: string,
+    auctionDuration: string,
+    redeemFine: string,
     active: boolean,
     freeze: boolean
     ) => {
@@ -339,6 +342,9 @@ const configureNftAsCollateral = async (
         ltv, 
         liquidationThreshold, 
         liquidationBonus,
+        redeemDuration,
+        auctionDuration,
+        redeemFine,
         active,
         false // TODO : understand why freeze is failing
     );
@@ -347,7 +353,7 @@ const configureNftAsCollateral = async (
 const configureNftAsAuction = async (
     wallet:Wallet, assets: string[], redeemDuration: string, auctionDuration: string, redeemFine: string
     ) => {
-    return await Contracts.lendPoolConfigurator.connect(wallet).configureNftAsCollateral(
+    return await Contracts.lendPoolConfigurator.connect(wallet).configureNftAsAuction(
         assets, 
         redeemDuration, 
         auctionDuration, 
@@ -403,8 +409,8 @@ const getTokenImplementation = async (wallet:Wallet, proxyAddress: string) => {
 //       baseLTV: '3000', // 30%
 //       liquidationThreshold: '9000', // 90%
 //       liquidationBonus: '500', // 5%
-//       redeemDuration: "2", // 2 day
-//       auctionDuration: "2", // 2 day
+//       redeemDuration: "2", // 2 hours
+//       auctionDuration: "2", // 2 hours
 //       redeemFine: "500", // 5%
 //       redeemThreshold: "5000", // 50%
 //       minBidFine: "2000", // 0.2 ETH
