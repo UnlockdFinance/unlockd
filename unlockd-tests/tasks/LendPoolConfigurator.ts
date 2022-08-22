@@ -79,21 +79,29 @@ task("configurator:setFreezeFlagOnNft", "Freezes or unfreezes each NFT")
 
 task("configurator:configureNftAsCollateral", 
 "configure the ltv, liquidationThreshold, liquidationBonus for a reserve asset.")
-.addParam("assets", "the address of the underlying NFT asset") 
+.addParam("asset", "the address of the underlying NFT asset")
+.addParam("tokenid", "the tokenId of the underlying NFT asset")  
 .addParam("ltv", "The loan to value of the asset when used as NFT") 
 .addParam("threshold", "The threshold at which loans using this asset as collateral will be considered undercollateralized") 
 .addParam("bonus", "The bonus liquidators receive to liquidate this asset. The values is always below 100%. A value of 5% means the liquidator will receive a 5% bonus") 
+.addParam("redeemduration", "the address of the underlying NFT asset")
+.addParam("auctionduration", "the tokenId of the underlying NFT asset")  
+.addParam("redeemfine", "The loan to value of the asset when used as NFT") 
 .addParam("active", "if the nft asset is active or not (BOOL true or false)") 
 .addParam("freeze", "if the nft asset is frozen or not (BOOL true or false)") 
-.setAction( async ({assets, ltv, threshold, bonus, active, freeze}) => {
+.setAction( async ({asset, tokenid, ltv, threshold, bonus, redeemduration, auctionduration, redeemfine, active, freeze}) => {
     const wallet = await getOwnerWallet();  
 
     const tx = await Functions.LENDPOOLCONFIGURATOR.configureNftAsCollateral(
         wallet, 
-        [assets], 
+        asset,
+        tokenid,
         ltv, 
         threshold, 
         bonus,
+        redeemduration,
+        auctionduration,
+        redeemfine,
         active,
         freeze
     )

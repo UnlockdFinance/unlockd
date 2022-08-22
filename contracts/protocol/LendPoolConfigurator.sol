@@ -338,6 +338,9 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     uint256 ltv,
     uint256 liquidationThreshold,
     uint256 liquidationBonus,
+    uint256 redeemDuration,
+    uint256 auctionDuration,
+    uint256 redeemFine,
     bool activeFlag,
     bool freezeFlag
   ) external onlyLtvManager {
@@ -361,6 +364,14 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     currentConfig.setLiquidationBonus(liquidationBonus);
     currentConfig.setActive(activeFlag);
     currentConfig.setFrozen(freezeFlag);
+
+    //validation of the parameters: the redeem duration can
+    //only be lower or equal than the auction duration
+    require(redeemDuration <= auctionDuration, Errors.LPC_INVALID_CONFIGURATION);
+
+    currentConfig.setRedeemDuration(redeemDuration);
+    currentConfig.setAuctionDuration(auctionDuration);
+    currentConfig.setRedeemFine(redeemFine);
 
     cachedPool.setNftConfigByTokenId(asset, nftTokenId, currentConfig.data);
 

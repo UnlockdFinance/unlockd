@@ -282,9 +282,9 @@ export const increaseRedeemDuration = async (
 
   const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(nftAsset, nftTokenId);
   if (isEnd) {
-    await increaseTime(nftCfgData.redeemDuration.mul(ONE_DAY).add(ONE_HOUR).toNumber());
+    await increaseTime(nftCfgData.redeemDuration.mul(24).add(1).toNumber());
   } else {
-    await increaseTime(nftCfgData.redeemDuration.mul(ONE_DAY).sub(ONE_HOUR).toNumber());
+    await increaseTime(nftCfgData.redeemDuration.mul(24).sub(1).toNumber());
   }
 };
 
