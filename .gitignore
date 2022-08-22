@@ -11,7 +11,7 @@ build/
 .vscode
 .idea
 /types
-
+protocol-scripts.md
 deployed-contracts.json
 /deployments/*
 !/deployments/deployed-contracts-main*.json
