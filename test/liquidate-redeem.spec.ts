@@ -151,7 +151,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     const userReserveDataBefore = await getUserData(pool, dataProvider, weth.address, borrower.address);
 
     // redeem duration
-    await increaseTime(nftCfgData.redeemDuration.mul(ONE_DAY).sub(ONE_HOUR).toNumber());
+    await increaseTime(nftCfgData.redeemDuration.mul(24).sub(1).toNumber());
 
     const debtDataBeforeRedeem = await pool.getNftDebtData(bayc.address, "101");
     const repayDebtAmount = new BigNumber(debtDataBeforeRedeem.totalDebt.toString()).multipliedBy(0.6).toFixed(0);
@@ -353,7 +353,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, "102");
 
     // redeem duration
-    await increaseTime(nftCfgData.redeemDuration.mul(ONE_DAY).sub(ONE_HOUR).toNumber());
+    await increaseTime(nftCfgData.redeemDuration.mul(24).sub(1).toNumber());
 
     const debtDataBeforeRedeem = await pool.getNftDebtData(bayc.address, "102");
     const repayDebtAmount = new BigNumber(debtDataBeforeRedeem.totalDebt.toString()).multipliedBy(0.6).toFixed(0);

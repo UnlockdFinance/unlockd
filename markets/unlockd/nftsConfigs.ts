@@ -5,8 +5,8 @@ export const strategyNftClassA: INftParams = {
   baseLTVAsCollateral: '5000', // 50%
   liquidationThreshold: '9000', // 90%
   liquidationBonus: '500', // 5%
-  redeemDuration: "2", // 2 days
-  auctionDuration: "2", // 2 days
+  redeemDuration: "24", // 24 hours
+  auctionDuration: "24", // 24 hours
   redeemFine: "500", // 5%
   redeemThreshold: "5000", // 50%
   minBidFine: "2000", // 0.2 ETH
@@ -20,8 +20,8 @@ export const strategyNftClassB: INftParams = {
   baseLTVAsCollateral: '4000', // 40%
   liquidationThreshold: '9000', // 90%
   liquidationBonus: '500', // 5%
-  redeemDuration: "2", // 2 days
-  auctionDuration: "2", // 2 days
+  redeemDuration: "24", // 24 hours
+  auctionDuration: "24", // 24 hours
   redeemFine: "500", // 5%
   redeemThreshold: "5000", // 50%
   minBidFine: "2000", // 0.2 ETH
@@ -35,8 +35,8 @@ export const strategyNftClassC: INftParams = {
   baseLTVAsCollateral: '3000', // 30%
   liquidationThreshold: '9000', // 90%
   liquidationBonus: '500', // 5%
-  redeemDuration: "2", // 2 day
-  auctionDuration: "2", // 2 day
+  redeemDuration: "24", // 24 hours
+  auctionDuration: "24", // 24 hours
   redeemFine: "500", // 5%
   redeemThreshold: "5000", // 50%
   minBidFine: "2000", // 0.2 ETH
@@ -50,8 +50,8 @@ export const strategyNftClassD: INftParams = {
   baseLTVAsCollateral: '2000', // 20%
   liquidationThreshold: '9000', // 90%
   liquidationBonus: '500', // 5%
-  redeemDuration: "2", // 2 days
-  auctionDuration: "2", // 2 days
+  redeemDuration: "24", // 24 hours
+  auctionDuration: "24", // 24 hours
   redeemFine: "500", // 5%
   redeemThreshold: "5000", // 50%
   minBidFine: "2000", // 0.2 ETH
@@ -65,8 +65,8 @@ export const strategyNftClassE: INftParams = {
   baseLTVAsCollateral: '1000', // 10%
   liquidationThreshold: '9000', // 90%
   liquidationBonus: '500', // 5%
-  redeemDuration: "2", // 2 days
-  auctionDuration: "2", // 2 days
+  redeemDuration: "24", // 24 hours
+  auctionDuration: "24", // 24 hours
   redeemFine: "500", // 5%
   redeemThreshold: "5000", // 50%
   minBidFine: "2000", // 0.2 ETH

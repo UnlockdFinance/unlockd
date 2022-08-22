@@ -220,7 +220,7 @@ library LiquidateLogic {
       vars.auctionEndTimestamp =
         loanData.bidStartTimestamp +
         vars.extraAuctionDuration +
-        (nftConfig.getAuctionDuration() * 1 days);
+        (nftConfig.getAuctionDuration() * 1 hours);
       require(block.timestamp <= vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_HAS_END);
 
       // bid price must greater than highest bid + delta
@@ -317,7 +317,7 @@ library LiquidateLogic {
     vars.redeemEndTimestamp = (loanData.bidStartTimestamp +
       vars.extraRedeemDuration +
       nftConfig.getRedeemDuration() *
-      1 days);
+      1 hours);
     require(block.timestamp <= vars.redeemEndTimestamp, Errors.LPL_BID_REDEEM_DURATION_HAS_END);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
@@ -457,7 +457,7 @@ library LiquidateLogic {
     vars.auctionEndTimestamp =
       loanData.bidStartTimestamp +
       vars.extraAuctionDuration +
-      (nftConfig.getAuctionDuration() * 1 days); // Per  Collection or NFT ??
+      (nftConfig.getAuctionDuration() * 1 hours); // Per  Collection or NFT ??
     require(block.timestamp > vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_NOT_END);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
