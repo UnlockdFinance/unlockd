@@ -111,45 +111,45 @@
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "GenericLogic": {
-    "address": "0x5071d58a4FdC20cAA13d2a97d7CAd0F8a25FEF08",
+    "address": "0x716a36E80A2310cF8756d905d11901Cfe6D1c718",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "ReserveLogic": {
-    "address": "0xcA41799b62907e2D7e29F8a0A6823F7d656aE671",
+    "address": "0x67C14bDC7F8222286312609b562d157EE5Def8Be",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "NftLogic": {
-    "address": "0xd76a27FC89841d5a290100F2c191eBD9AaA693e1",
+    "address": "0xf47e880eD578deAF424b8Bbf349F1dA8C134F671",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "ValidationLogic": {
-    "address": "0x0fA1C0a2ed636f51d740437779E48BefF1Ae6B8d",
+    "address": "0x97b8531Adc686Ba9d66d8C2BA5b9afdcfD258Bd3",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "SupplyLogic": {
-    "address": "0x59651FB9D55422B0e1EfbD03Fb5Ed0328BF02C60",
+    "address": "0x80D54C18B7b4f5789d87160e3A132961651a32DB",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "BorrowLogic": {
-    "address": "0xaf24D31D34dF676155755B9264aeBdA58790561B",
+    "address": "0x38cC6213fA608a722DEc67B103AC146229357C92",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "LiquidateLogic": {
-    "address": "0xD6845A7f268Ea3b4c07Ef7DF2496cBDd11Ce9e8b",
+    "address": "0x2B54527d5340c407A3Fed7591aC182798ED09B11",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "ConfiguratorLogic": {
-    "address": "0xb372903a92E25Bd56B7101Ee960FA963ffB939C3",
+    "address": "0xD56A07E88d1A93cF35f839386306CECE6e822A07",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "LendPoolImpl": {
-    "address": "0xa8BB8B79C28402CFa2c7CA587cc4BE1B1EfC81A0"
+    "address": "0x5626C99b238E90cbeEe4E1F49044E0AeF78AB3A9"
   },
   "LendPool": {
     "address": "0x58354d52C0F5E2985fEBA02691d2773B4B7088E8"
   },
   "LendPoolConfiguratorImpl": {
-    "address": "0x195E6DAa8d638e6CCFE0779BfE3d3D3fbeB076FC"
+    "address": "0x0D1d6023a316790dA7Cc9D49204E076329B3b422"
   },
   "LendPoolConfigurator": {
     "address": "0x600975D653C3645F2547B65C590818c26399827e"

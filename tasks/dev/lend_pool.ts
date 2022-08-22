@@ -58,16 +58,16 @@ task("dev:deploy-lend-pool", "Deploy lend pool for dev enviroment")
 
     ////////////////////////////////////////////////////////////////////////////
     // deploy lend pool loan
-    const lendPoolLoanImpl = await deployLendPoolLoan(verify);
+    // const lendPoolLoanImpl = await deployLendPoolLoan(verify);
 
-    // Set lend pool conf impl to Address Provider
-    await waitForTx(await addressesProvider.setLendPoolLoanImpl(lendPoolLoanImpl.address, []));
+    // // Set lend pool conf impl to Address Provider
+    // await waitForTx(await addressesProvider.setLendPoolLoanImpl(lendPoolLoanImpl.address, []));
 
-    const lendPoolLoanProxy = await getLendPoolLoanProxy(await addressesProvider.getLendPoolLoan());
-    await insertContractAddressInDb(eContractid.LendPoolLoan, lendPoolLoanProxy.address);
+    // const lendPoolLoanProxy = await getLendPoolLoanProxy(await addressesProvider.getLendPoolLoan());
+    // await insertContractAddressInDb(eContractid.LendPoolLoan, lendPoolLoanProxy.address);
 
-    // Generic UNFT Implementation at here
-    await deployUTokenImplementations(pool, poolConfig.ReservesConfig, verify);
+    // // Generic UNFT Implementation at here
+    // await deployUTokenImplementations(pool, poolConfig.ReservesConfig, verify);
 
     // Generic UNFT Implementation in UNFT step, not here
     //await deployUNFTImplementations(pool, poolConfig.NftsConfig, verify);
