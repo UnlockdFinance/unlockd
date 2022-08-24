@@ -143,9 +143,13 @@ task("lendpool:redeem", "Redeems a loan")
     const loanData = await Functions.LENDPOOL_LOAN.getLoan(wallet, loanId);
     const reserveAddress = loanData.reserveAsset;
     let tokenContract;
+    
     reserveAddress == MockContracts['DAI'].address ?
        tokenContract = MockContracts['DAI'] :tokenContract = MockContracts['USDC'];
-
+    
+    reserveAddress == MockContracts['DAI'].address ?
+    amount = await parseUnits(amount.toString()) :amount = await parseUnits(amount.toString(), 6);
+    
     await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount+bidfine)   
     await Functions.LENDPOOL.redeem(wallet, collection, tokenid, amount, bidfine);
     
@@ -202,8 +206,12 @@ task("lendpool:auction", "Auctions a loan")
     const loanData = await Functions.LENDPOOL_LOAN.getLoan(wallet, loanId);
     const reserveAddress = loanData.reserveAsset;
     let tokenContract;
+    
     reserveAddress == MockContracts['DAI'].address ?
        tokenContract = MockContracts['DAI'] :tokenContract = MockContracts['USDC'];
+    
+    reserveAddress == MockContracts['DAI'].address ?
+        bidprice = await parseUnits(bidprice.toString()) :bidprice = await parseUnits(bidprice.toString(), 6);
     
     await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, bidprice)  
     await Functions.LENDPOOL.auction(wallet, collection, tokenid, bidprice, to); 

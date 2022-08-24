@@ -54,7 +54,10 @@ const withdraw = async (wallet: Wallet, asset: string, amount: BigNumber, to: st
 }
 
 const borrow = async (wallet: Wallet, asset: string, amount: BigNumber, nftAsset: string, nftTokenId: number, onBehalfOf: string) => {
-    return await Contracts.lendPool.connect(wallet).borrow(asset, amount, nftAsset, nftTokenId, onBehalfOf, 0);
+    var gas = await Contracts.lendPool.connect(wallet).estimateGas.borrow(asset, amount, nftAsset, nftTokenId, onBehalfOf, 0)
+    var strGas = gas.toString();
+    const gasPrice = Math.round(parseInt(strGas)*1.1);
+    return await Contracts.lendPool.connect(wallet).borrow(asset, amount, nftAsset, nftTokenId, onBehalfOf, 0, {gasLimit: gasPrice.toFixed(0)});
 }
 
 const getCollateralData = async (wallet: Wallet, collection: string, nftTokenId: number, reserve: string) => {
