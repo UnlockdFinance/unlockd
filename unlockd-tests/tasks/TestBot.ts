@@ -3,7 +3,7 @@ import { getUserWallet } from "../helpers/config";
 import { Functions } from "../helpers/protocolFunctions";
 
 const amounts = [10000, 15000, 20000, 10000, 30000]; // 5
-const tokenIds = [3, 4, 5, 6, 7]; // 5 | each user should change the numbers to their own NFT TokenIds. WE ARE ONLY USING BAYC ATM!!!
+const tokenIds = [100, 101, 102, 103, 104]; // 5 | each user should change the numbers to their own NFT TokenIds. WE ARE ONLY USING BAYC ATM!!!
 const reserves = ["DAI", "USDC"];
 const reservesAddresses = ["0xd5E378c657668Ff99b5bf34F339382562F679bDA", "0x1f033Ec42c380eB834c640Bb58994e5BC0115DB3"];
 const userAddress = "0x94aBa23b9Bbfe7bb62A9eB8b1215D72b5f6F33a1";
@@ -52,7 +52,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
             to: userAddress,
             redeemduration: "1",
             auctionduration: "2",
-            redeemfine: "20",
+            redeemfine: "200",
             active: "true",
             freeze: "false"
         }); 
@@ -97,6 +97,16 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         console.log("\n-----token borrowed 2nd time-----\n")
         await delay(10000);
 
+        // Gets the normalized income
+        await localBRE.run("lendpool:getReserveNormalizedIncome", {reserve: reservesAddresses[j]}); 
+        console.log("\n-----Reserve Normalized Income-----\n")
+        await delay(10000);
+
+        // gets the normalized variable debt
+        await localBRE.run("lendpool:getReserveNormalizedVariableDebt", {reserve: reservesAddresses[j]}); 
+        console.log("\n-----Reserve Normalized Variable Debt-----\n")
+        await delay(10000);
+        
         // We lower the price to trigger the auction state
         const nftPriceV2 = 1;
         console.log("nft price update: ", nftPrice);
@@ -143,7 +153,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
 
         //Redeem the debt
         const reedemAmount = debt * 0.7;
-        const bidFine = debt * 0.05;
+        const bidFine = debt * 0.2;
         console.log("reedemAmount: ", reedemAmount);
         console.log("bidFine: ", bidFine);
         await localBRE.run("lendpool:redeem", {
@@ -176,6 +186,17 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
             amount: repayAmountV2.toFixed(0).toString()
         }); 
         console.log("\n-----final amount repayed-----\n")
+        await delay(10000);
+
+        // Gets the normalized income
+        await localBRE.run("lendpool:getReserveNormalizedIncome", {reserve: reservesAddresses[j]}); 
+        console.log("\n-----Reserve Normalized Income-----\n")
+        await delay(10000);
+
+        // gets the normalized variable debt
+        await localBRE.run("lendpool:getReserveNormalizedVariableDebt", {reserve: reservesAddresses[j]}); 
+        console.log("\n-----Reserve Normalized Variable Debt-----\n")
+        await delay(10000);
         // amount of time to restart (3m)
         await delay(180000);
         i++

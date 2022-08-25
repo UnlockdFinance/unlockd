@@ -94,6 +94,13 @@ const getNftData = async (wallet: Wallet, collection: string) => {
 const getNftAssetConfig = async (wallet: Wallet, nftAsset: string, nftTokenId: number) => {
     return await Contracts.lendPool.connect(wallet).getNftAssetConfig(nftAsset, nftTokenId);
 }
+const getReserveNormalizedIncome = async (wallet: Wallet, collection: string) => {
+    return await Contracts.lendPool.connect(wallet).getReserveNormalizedIncome(collection);
+}
+const getReserveNormalizedVariableDebt = async (wallet: Wallet, collection: string) => {
+    return await Contracts.lendPool.connect(wallet).getReserveNormalizedVariableDebt(collection);
+}
+
 //#endregion
 
 //#region Lendpool loan
@@ -458,6 +465,8 @@ export const Functions = {
         getNftLiquidatePrice: getNftLiquidatePrice,
         getNftAuctionData: getNftAuctionData,
         getNftAssetConfig: getNftAssetConfig,
+        getReserveNormalizedIncome: getReserveNormalizedIncome,
+        getReserveNormalizedVariableDebt: getReserveNormalizedVariableDebt,
     },
     LENDPOOL_LOAN: {
         getLoanIdTracker: getLoanIdTracker,

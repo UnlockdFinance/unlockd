@@ -498,7 +498,7 @@ contract LendPool is
   }
 
   /**
-   * @dev Returns the normalized income normalized income of the reserve
+   * @dev Returns the normalized income of the reserve
    * @param asset The address of the underlying asset of the reserve
    * @return The reserve's normalized income
    */

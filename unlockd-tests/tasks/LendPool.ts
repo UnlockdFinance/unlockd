@@ -226,3 +226,27 @@ task("lendpool:getnftauctiondata", "Get liquidation price for an asset")
     console.log("Bid borrow amount: ", data.bidBorrowAmount.toString());
     console.log("Bid fine: ", data.bidFine.toString());
 }); 
+
+//Get liquidation fee percentage
+task("lendpool:getReserveNormalizedIncome", "normalized income normalized income of the reserve")
+.addParam("reserve", "NFT collection address") 
+.setAction( async ({reserve}) => {
+    const wallet = await getUserWallet();  
+    const tx = await Functions.LENDPOOL.getReserveNormalizedIncome(wallet, reserve);
+    let value: number;
+    reserve == MockContracts['DAI'].address ?
+    value = tx.toString() / 10**18 :value = tx.toString() / 10**6;
+    console.log(value.toString())
+});
+
+//Get liquidation fee percentage
+task("lendpool:getReserveNormalizedVariableDebt", "normalized variable debt per unit of asset")
+.addParam("reserve", "NFT collection address") 
+.setAction( async ({reserve}) => {
+    const wallet = await getUserWallet();  
+    const tx = await Functions.LENDPOOL.getReserveNormalizedVariableDebt(wallet, reserve);
+    let value: number;
+    reserve == MockContracts['DAI'].address ?
+    value = tx.toString() / 10**18 :value = tx.toString() / 10**6;
+    console.log(value.toString())
+});
