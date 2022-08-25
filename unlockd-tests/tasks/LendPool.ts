@@ -134,22 +134,21 @@ task("lendpool:redeem", "Redeems a loan")
 .addParam("bidfine", "Amount to redeem")   
 .setAction( async ({collection, tokenid, amount, bidfine}) => {
     const wallet = await getUserWallet(); 
-   
-    amount = await parseUnits(amount.toString())    
-    bidfine = await parseUnits(bidfine.toString())  
-    console.log(bidfine.toString());  
     const loanId = await Functions.LENDPOOL_LOAN.getCollateralLoanId(wallet, collection, tokenid);
-    console.log(loanId.toString());
     const loanData = await Functions.LENDPOOL_LOAN.getLoan(wallet, loanId);
     const reserveAddress = loanData.reserveAsset;
+    
     let tokenContract;
     
     reserveAddress == MockContracts['DAI'].address ?
-       tokenContract = MockContracts['DAI'] :tokenContract = MockContracts['USDC'];
+       tokenContract = MockContracts['DAI'] : tokenContract = MockContracts['USDC'];
     
     reserveAddress == MockContracts['DAI'].address ?
-    amount = await parseUnits(amount.toString()) :amount = await parseUnits(amount.toString(), 6);
+    amount = await parseUnits(amount.toString()) : amount = await parseUnits(amount.toString(), 6);
     
+    reserveAddress == MockContracts['DAI'].address ?
+    bidfine = await parseUnits(bidfine.toString()) : bidfine = await parseUnits(amount.toString(), 6);
+
     await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount+bidfine)   
     await Functions.LENDPOOL.redeem(wallet, collection, tokenid, amount, bidfine);
     
@@ -198,11 +197,7 @@ task("lendpool:auction", "Auctions a loan")
 .addParam("to", "Receiver")  
 .setAction( async ({collection, tokenid, bidprice, to}) => {
     const wallet = await getUserWallet();  
-    bidprice = await parseUnits(bidprice.toString())
-    //Get loan data to fetch reserve asset
-
     const loanId = await Functions.LENDPOOL_LOAN.getCollateralLoanId(wallet, collection, tokenid);
-    console.log(loanId.toString());
     const loanData = await Functions.LENDPOOL_LOAN.getLoan(wallet, loanId);
     const reserveAddress = loanData.reserveAsset;
     let tokenContract;

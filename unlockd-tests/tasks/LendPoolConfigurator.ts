@@ -92,7 +92,7 @@ task("configurator:configureNftAsCollateral",
 .setAction( async ({asset, tokenid, ltv, threshold, bonus, redeemduration, auctionduration, redeemfine, active, freeze}) => {
     const wallet = await getOwnerWallet();  
 
-    const tx = await Functions.LENDPOOLCONFIGURATOR.configureNftAsCollateral(
+    await Functions.LENDPOOLCONFIGURATOR.configureNftAsCollateral(
         wallet, 
         asset,
         tokenid,
@@ -106,7 +106,7 @@ task("configurator:configureNftAsCollateral",
         freeze
     )
 
-    console.log(tx);
+    console.log("nft configured.");
 }); 
 
 task("configurator:configureNftAsAuction", "Configures the NFT auction parameters")

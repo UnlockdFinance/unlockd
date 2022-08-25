@@ -10,8 +10,8 @@ const userAddress = "0x94aBa23b9Bbfe7bb62A9eB8b1215D72b5f6F33a1";
 const nftAssets = ["0x8691bEd6655b0b7dD47ac524857C79e71E939d5f"];
 const nftNames = ["BAYC"];
 
-let i = 1;
-let j = 1;
+let i = 0;
+let j = 0;
 let k = 0;
 
 task("bot:runtests", "Runs a set of configures tests.").setAction(
@@ -21,80 +21,88 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         console.log(`------- Iteration number ${i} -------\n`)
         if(i == amounts.length) i = 0
 
-        // // Minting Reserves to wallet
-        // const mintAmount = amounts[i] * 3;
-        // await localBRE.run("dev:mint-mock-reserves", {amount: mintAmount.toString(), user: userAddress});
-        // console.log("\n-----reserves minted-----\n")
-        // await delay(10000);
+        // Minting Reserves to wallet
+        const mintAmount = amounts[i] * 3;
+        console.log("mint/deposit amount: ", mintAmount);
+        await localBRE.run("dev:mint-mock-reserves", {amount: mintAmount.toString(), user: userAddress});
+        console.log("\n-----reserves minted-----\n")
+        await delay(10000);
 
-        // // Deposit 
-        // await localBRE.run("lendpool:deposit", {amount: mintAmount.toString(), reserve: reserves[j], to: userAddress}); 
-        // console.log("\n-----deposited to reserve-----\n")
-        // await delay(10000);
+        // Check if the reserves increased - Balance
 
-        // // Set the NFT Price
-        // const nftPrice = amounts[i] * 3;
-        // await localBRE.run("nftoracle:setnftprice", {collection: nftAssets[k], tokenid: tokenIds[i].toString(), price: nftPrice.toString()}); 
-        // console.log("\n-----price added-----\n")
-        // await delay(10000);
+        // Deposit 
+        await localBRE.run("lendpool:deposit", {amount: mintAmount.toString(), reserve: reserves[j], to: userAddress}); 
+        console.log("\n-----deposited to reserve-----\n")
+        await delay(10000);
 
-        // // NFT Configuration 
-        // await localBRE.run("configurator:configureNftAsCollateral", {
-        //     asset: nftAssets[k], 
-        //     tokenid: tokenIds[i].toString(),
-        //     ltv: "4000",
-        //     threshold: "7000", 
-        //     bonus: "100",
-        //     to: userAddress,
-        //     redeemduration: "1",
-        //     auctionduration: "2",
-        //     redeemfine: "20",
-        //     active: "true",
-        //     freeze: "false"
-        // }); 
-        // console.log("\n-----nft configured-----\n")
-        // await delay(10000);
+        // Set the NFT Price
+        const nftPrice = amounts[i] * 3;
+        console.log("nft price: ", nftPrice);
+        await localBRE.run("nftoracle:setnftprice", {collection: nftAssets[k], tokenid: tokenIds[i].toString(), price: nftPrice.toString()}); 
+        console.log("\n-----price added-----\n")
+        await delay(10000);
+
+        // NFT Configuration 
+        await localBRE.run("configurator:configureNftAsCollateral", {
+            asset: nftAssets[k], 
+            tokenid: tokenIds[i].toString(),
+            ltv: "4000",
+            threshold: "7000", 
+            bonus: "100",
+            to: userAddress,
+            redeemduration: "1",
+            auctionduration: "2",
+            redeemfine: "20",
+            active: "true",
+            freeze: "false"
+        }); 
+        console.log("\n-----nft configured-----\n")
+        await delay(10000);
         
-        // // Borrow
-        // await localBRE.run("lendpool:borrow", {
-        //     amount: amounts[i].toString(), 
-        //     reserve: reserves[j], 
-        //     collectionname: nftNames[k],
-        //     collection: nftAssets[k],
-        //     tokenid: tokenIds[i].toString(),
-        //     to: userAddress
-        // });
-        // console.log("\n-----token borrowed-----\n")
-        // await delay(10000);
+        // Borrow
+        console.log("amount to borrow: ", amounts.toString())
+        await localBRE.run("lendpool:borrow", {
+            amount: amounts[i].toString(), 
+            reserve: reserves[j], 
+            collectionname: nftNames[k],
+            collection: nftAssets[k],
+            tokenid: tokenIds[i].toString(),
+            to: userAddress
+        });
+        console.log("\n-----token borrowed-----\n")
+        await delay(10000);
 
-        // // Set the NFT Price
-        // const repayAmount = amounts[i] / 2;
-        // await localBRE.run("lendpool:repay", {
-        //     collection: nftAssets[k], 
-        //     tokenid: tokenIds[i].toString(), 
-        //     reserve: reserves[j], 
-        //     amount: repayAmount.toString()
-        // }); 
-        // console.log("\n-----amount repayed-----\n")
-        // await delay(10000);
+        // Set the NFT Price
+        const repayAmount = amounts[i] / 2;
+        console.log("repay amount: ", repayAmount);
+        await localBRE.run("lendpool:repay", {
+            collection: nftAssets[k], 
+            tokenid: tokenIds[i].toString(), 
+            reserve: reserves[j], 
+            amount: repayAmount.toString()
+        }); 
+        console.log("\n-----amount repayed-----\n")
+        await delay(10000);
 
-        // // Borrow
-        // await localBRE.run("lendpool:borrow", {
-        //     amount: amounts[i].toString(), 
-        //     reserve: reserves[j], 
-        //     collectionname: nftNames[k],
-        //     collection: nftAssets[k],
-        //     tokenid: tokenIds[i].toString(),
-        //     to: userAddress
-        // });
-        // console.log("\n-----token borrowed 2nd time-----\n")
-        // await delay(10000);
+        // 2nd Borrow
+        console.log("amount to do a 2nd borrow: ", amounts.toString())
+        await localBRE.run("lendpool:borrow", {
+            amount: amounts[i].toString(), 
+            reserve: reserves[j], 
+            collectionname: nftNames[k],
+            collection: nftAssets[k],
+            tokenid: tokenIds[i].toString(),
+            to: userAddress
+        });
+        console.log("\n-----token borrowed 2nd time-----\n")
+        await delay(10000);
 
-        // // We lower the price to trigger the auction state
-        // const nftPriceV2 = 1;
-        // await localBRE.run("nftoracle:setnftprice", {collection: nftAssets[k], tokenid: tokenIds[i].toString(), price: nftPriceV2.toString()}); 
-        // console.log("\n-----price added-----\n")
-        // await delay(10000);
+        // We lower the price to trigger the auction state
+        const nftPriceV2 = 1;
+        console.log("nft price update: ", nftPrice);
+        await localBRE.run("nftoracle:setnftprice", {collection: nftAssets[k], tokenid: tokenIds[i].toString(), price: nftPriceV2.toString()}); 
+        console.log("\n-----price added-----\n")
+        await delay(10000);
 
         // Get the amount of debt
         const wallet = await getUserWallet();  
@@ -102,16 +110,16 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         let debt = debtData.totalDebt.toString() / 10**18;;
         // This will fix the decimals for USDC
         if(reserves[j] == "USDC") {
-            debt = debtData.totalDebt.toString() / 10**10;
+            debt = debtData.totalDebt.toString() / 10**6;
         }
         console.log("Total debt: ", debt.toFixed(0));
-        console.log(debt.toFixed(0));
         console.log("\n-----total debt-----\n")
         await delay(10000);
 
         // Auction - 1st Bid
         const bidPrice = debt * 1.3;
-        console.log(debt);
+        console.log("bidPrice: ", bidPrice);
+        console.log(bidPrice);
         await localBRE.run("lendpool:auction", {
             collection: nftAssets[k], 
             tokenid: tokenIds[i].toString(), 
@@ -123,6 +131,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
 
         // Auction - 2nd Bid
         const bidPriceV2 = debt * 1.5;
+        console.log("2nd bidPrice: ", bidPriceV2);
         await localBRE.run("lendpool:auction", {
             collection: nftAssets[k], 
             tokenid: tokenIds[i].toString(), 
@@ -135,6 +144,8 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         //Redeem the debt
         const reedemAmount = debt * 0.7;
         const bidFine = debt * 0.05;
+        console.log("reedemAmount: ", reedemAmount);
+        console.log("bidFine: ", bidFine);
         await localBRE.run("lendpool:redeem", {
             collection: nftAssets[k], 
             tokenid: tokenIds[i].toString(), 
@@ -157,6 +168,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
 
         // Repays total debt and gets the NFT back
         const repayAmountV2 = finalDebt + 1;
+        console.log("repay amount: ", repayAmountV2);
         await localBRE.run("lendpool:repay", {
             collection: nftAssets[k], 
             tokenid: tokenIds[i].toString(), 
