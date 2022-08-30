@@ -169,6 +169,14 @@ const setLendPoolLiquidator = async (wallet: Wallet, lendPoolLiquidatorAddress: 
     return await Contracts.lendPoolAddressesProvider.connect(wallet).setLendPoolLiquidator(lendPoolLiquidatorAddress);
 }
 
+const getLtvManager = async (wallet: Wallet) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getLtvManager();
+}
+
+const setLtvManager = async (wallet: Wallet, ltvManagerAddress: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setLtvManager(ltvManagerAddress);
+}
+
 const getPoolAdmin = async (wallet: Wallet) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getPoolAdmin();
 }
@@ -488,10 +496,12 @@ export const Functions = {
         setLendPoolImpl: setLendPoolImpl,
         getLendPoolConfigurator: getLendPoolConfigurator,
         setLendPoolConfiguratorImpl: setLendPoolConfiguratorImpl,
-        setLendPoolLiquidator: setLendPoolLiquidator,
         getLendPoolLiquidator: getLendPoolLiquidator,
-        setProtocolDataProvider: setProtocolDataProvider,
+        setLendPoolLiquidator: setLendPoolLiquidator,
+        getLtvManager: getLtvManager,
+        setLtvManager: setLtvManager,
         getProtocolDataProvider: getProtocolDataProvider,
+        setProtocolDataProvider: setProtocolDataProvider,
         getNFTXVaultFactory: getNFTXVaultFactory,
         setNFTXVaultFactory: setNFTXVaultFactory,
         getSushiSwapRouter: getSushiSwapRouter,

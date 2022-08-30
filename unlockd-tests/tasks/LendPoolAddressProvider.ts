@@ -76,6 +76,23 @@ task("provider:setLendPoolLiquidator", "User sets a new LendPoolLiquidator addre
     console.log(tx);
 }); 
 
+task("provider:getLtvManager", "User gets the ltvManager Address")
+.setAction( async () => {
+    const wallet = await getOwnerWallet();  
+
+    const tx = await Functions.LENDPOOLADDRESSPROVIDER.getLtvManager(wallet)
+    console.log(JSON.stringify(tx));
+}); 
+
+task("provider:setLtvManager", "User sets a new LtvManager address")
+.addParam("ltvmanageraddress", "The new LtvManager Address") 
+.setAction( async ({ltvmanageraddress}) => {
+    const wallet = await getOwnerWallet();  
+
+    const tx = await Functions.LENDPOOLADDRESSPROVIDER.setLtvManager(wallet, ltvmanageraddress)
+    console.log(tx);
+}); 
+
 task("provider:getPoolAdmin", "User gets the lendpool admin Address")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
