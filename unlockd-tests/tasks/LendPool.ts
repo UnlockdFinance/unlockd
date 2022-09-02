@@ -5,6 +5,16 @@ import {  Contracts, MockContracts } from "../helpers/constants";
 import { parseUnits } from "@ethersproject/units";
 
 // Get Nft Reserve data 
+task("lendpool:liquidateNFTX", "Liquidates the NFT on NFTx Vault")
+  .addParam("nftaddress", "The asset address")
+  .addParam("nfttokenid", "The tokenId of the asset")
+  .setAction(async ({ nftaddress, nfttokenid }) => {
+    const wallet = await getUserWallet();
+    const tx = await Functions.LENDPOOL.liquidateNFTX(wallet, nftaddress, nfttokenid).then(v => v.toString());
+    console.log(tx);
+  }
+);
+
 task("lendpool:getNftsList", "Gets the list of NFTs in the reserves")
 .setAction( async () => {
     const wallet = await getUserWallet();  

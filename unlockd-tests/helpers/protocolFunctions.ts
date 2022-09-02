@@ -113,7 +113,9 @@ const getReserveNormalizedVariableDebt = async (wallet: Wallet, collection: stri
 const getReservesList = async (wallet: Wallet) => {
     return await Contracts.lendPool.connect(wallet).getReservesList();
 }
-
+const liquidateNFTX = async (wallet: Wallet, nftAsset: string, nftTokenId: number) => {
+    return await Contracts.lendPool.connect(wallet).liquidateNFTX(nftAsset, nftTokenId);
+}
 //#endregion
 
 //#region Lendpool loan
@@ -480,6 +482,7 @@ export const Functions = {
         isApprovedNft: isApprovedNft,
     },
     LENDPOOL: {
+        liquidateNFTX: liquidateNFTX,
         getReserveConfiguration: getReserveConfiguration,
         getNftConfiguration: getNftConfiguration,
         getNftData: getNftData,
