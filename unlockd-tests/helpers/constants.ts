@@ -1,4 +1,4 @@
-import { getNFTXVaultFactory } from './../../helpers/contracts-getters';
+
 import { Contract} from "ethers";
 import dotenv from 'dotenv';
 //Protocol imports
@@ -20,12 +20,10 @@ import unftRegistryArtifact from "../../artifacts/contracts/interfaces/IUNFTRegi
 import erc20Artifact from "../../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
 import erc721Artifact from "../../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
 //NFTX
-import nftxVaultFactoryArtificat from "../../artifacts/contracts/interfaces/INFTXVaultFactoryV2.sol/INFTXVaultFactoryV2.json";
-import deployments from "../../deployments/deployed-contracts-rinkeby.json"
+import nftxVaultFactoryArtifact from "../../artifacts/contracts/interfaces/INFTXVaultFactoryV2.sol/INFTXVaultFactoryV2.json";
+import deployments from "../../deployments/deployed-contracts-goerli.json";
 
 dotenv.config();
-
- 
 
 // Protocol
 const debtTokenContract = new Contract(deployments.DebtToken.address, debtTokenArtifact.abi);
@@ -42,12 +40,12 @@ const lendPoolLoanContract = new Contract(deployments.LendPoolLoan.address, lend
 const nftOracleContract = new Contract(deployments.NFTOracle.address, nftOracleArtifact.abi);
 const punkGatewayContract = new Contract(deployments.PunkGateway.address, punkGatewayArtifact.abi);
 const reserveOracleContract = new Contract(deployments.ReserveOracle.address, reserveOracleArtifact.abi);
-const uTokenContract = new Contract(deployments.UToken.address, uTokenArtifact.abi);
+const uTokenContract = new Contract(deployments.UToken.address, uTokenArtifact.abi); // The UToken needs to be the reserve address
 const wethGatewayContract = new Contract(deployments.WETHGateway.address, wethGatewayArtifact.abi);
 const unftRegistryContract = new Contract(deployments.UNFTRegistry.address, unftRegistryArtifact.abi);
 
 // NFTX
-const nftxVaultFactoryContract = new Contract("0xbbc53022Af15Bb973AD906577c84784c47C14371", nftxVaultFactoryArtificat.abi);
+const nftxVaultFactoryContract = new Contract(deployments.NFTXVaultFactory.address, nftxVaultFactoryArtifact.abi);
 
 export const Contracts = {
     debtToken: debtTokenContract,
@@ -71,15 +69,11 @@ export const Contracts = {
 export const daiContract = new Contract(deployments.DAI.address, erc20Artifact.abi);
 export const usdcContract = new Contract(deployments.USDC.address, erc20Artifact.abi);
 export const baycContract = new Contract(deployments.BAYC.address, erc721Artifact.abi);
-export const pscContract = new Contract(deployments.PSC.address, erc721Artifact.abi);
-export const moonContract = new Contract(deployments.MOON.address, erc721Artifact.abi);
  
 export const MockContracts = {
     DAI: daiContract,
     USDC: usdcContract,
     BAYC: baycContract,
-    PSC: pscContract,
-    MOON: moonContract,
 }
 
 

@@ -9,7 +9,7 @@ import { Functions } from "../helpers/protocolFunctions";
 
 var amounts = [10000, 15000, 20000, 10000, 30000]; 
 const reserves = ["DAI", "USDC"];
-const reservesAddresses = ["0xd5E378c657668Ff99b5bf34F339382562F679bDA", "0x1f033Ec42c380eB834c640Bb58994e5BC0115DB3"];
+const reservesAddresses = ["0xba8E26A7ea78c628331baFD32eB0C77047F2cBCa", "0x103a065B2c676123dF6EdDbf41e06d361Dd15905"];
 const userAddresses = [
     "0x94aBa23b9Bbfe7bb62A9eB8b1215D72b5f6F33a1",
     "0x429796dAc057E7C15724196367007F1e9Cff82F9",
@@ -17,7 +17,7 @@ const userAddresses = [
     "0xa2440E27b00f59520c473652b16786B18639518E",
     "0xAf441B4b092ef6c932957E19876940a72EdEE702"
 ];
-const nftAssets = ["0x8691bEd6655b0b7dD47ac524857C79e71E939d5f"];
+const nftAssets = ["0x685660C0E5Aa3c06DAddF2e4E0219120a13993Dd"];
 const nftNames = ["BAYC"];
 const ltv = "4000";
 const treshold = "7000";
@@ -48,36 +48,36 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         var n = i + 1; // for user wallet numbers
         switch (n) { // each user should change the numbers to their own NFT TokenIds. WE ARE ONLY USING BAYC ATM!!! each number is a dif wallet
             case 1:
-                tokenIds = [100, 101, 102, 103, 104];
+                tokenIds = [230, 201, 202, 203, 204];
                 break;
             case 2:
-                tokenIds = [110, 111, 112, 113, 114];
+                tokenIds = [205, 206, 207, 208, 209];
                 break;
             case 3:
-                tokenIds = [115, 116, 117, 118, 119];
+                tokenIds = [210, 211, 212, 213, 214];
                 break;
             case 4:
-                tokenIds = [120, 121, 122, 123, 124];
+                tokenIds = [215, 216, 217, 218, 219];
                 break;
             case 5:
-                tokenIds = [125, 126, 127, 128, 129];
+                tokenIds = [220, 221, 222, 223, 224];
                 break;
         }
         if(b == tokenIds.length)  b = 0;
 
         ///////////////////////////////////////////////////////////////////////////////////////
 
-        // // Minting Reserves to wallet
-        // console.log("\n----------------------------minting reservers----------------------------\n");
-        // const mintAmount = amounts[i] * 3;
-        // console.log("mint/deposit amount: ", mintAmount);
-        // console.log("user address: ", userAddresses[i].toString());
-        // await localBRE.run("dev:mint-mock-reserves", {
-        //     amount: mintAmount.toString(), 
-        //     user: userAddresses[i].toString()
-        // });
-        // await delay(10000);
-        // console.log("\n-------------------------------------------------------------------------\n");
+        // Minting Reserves to wallet
+        console.log("\n----------------------------minting reservers----------------------------\n");
+        const mintAmount = amounts[i] * 3;
+        console.log("mint/deposit amount: ", mintAmount);
+        console.log("user address: ", userAddresses[i].toString());
+        await localBRE.run("dev:mint-mock-reserves", {
+            amount: mintAmount.toString(), 
+            user: userAddresses[i].toString()
+        });
+        await delay(20000);
+        console.log("\n-------------------------------------------------------------------------\n");
         
         // Check if the reserves increased - Balance
 
@@ -92,7 +92,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
             to: userAddresses[i].toString(), 
             walletnumber: (n).toString()}
         ); 
-        await delay(10000);
+        await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
         
 
@@ -107,7 +107,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
             tokenid: tokenIds[b].toString(), 
             price: nftPrice.toString()
         }); 
-        await delay(10000);
+        await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
 
         // NFT Configuration 
@@ -135,7 +135,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
             active: activeState,
             freeze: freezeState
         }); 
-        await delay(10000);
+        await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
 
         // Borrow
@@ -156,7 +156,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
             to: userAddresses[i].toString(),
             walletnumber: (n).toString()
         });
-        await delay(10000);
+        await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
 
         // Repay a % of the debt
@@ -174,7 +174,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
             amount: repayAmount.toString(),
             walletnumber: (n).toString()
         }); 
-        await delay(10000);
+        await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
 
         // 2nd Borrow
@@ -195,14 +195,14 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
             to: userAddresses[i].toString(),
             walletnumber: (n).toString()
         });
-        await delay(10000);
+        await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
 
         // Gets the normalized income
         console.log("\n---------------------Getting Normalized Income Amount---------------------\n");
         console.log("reserve address: ", reservesAddresses[j].toString())
         await localBRE.run("lendpool:getReserveNormalizedIncome", {reserve: reservesAddresses[j]}); 
-        await delay(10000);
+        await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
 
         // gets the normalized variable debt
@@ -223,7 +223,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
             tokenid: tokenIds[b].toString(), 
             price: nftPriceV2.toString()
         }); 
-        await delay(10000);
+        await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n"); 
 
         // Get the amount of debt
@@ -240,7 +240,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
             debt = debtData.totalDebt.toString() / 10**6;
         }
         console.log("Total debt: ", debt.toFixed(0));
-        await delay(10000);
+        await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
 
         // Auction - 1st Bid
@@ -258,7 +258,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
             to: userAddresses[i].toString(),
             walletnumber: (n).toString()
         });
-        await delay(10000);
+        await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
 
         // Auction - 2nd Bid
@@ -276,7 +276,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
             to: userAddresses[i].toString(),
             walletnumber: (n).toString()
         });
-        await delay(10000);
+        await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
 
         //Redeem the debt
@@ -295,7 +295,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
             bidfine: bidFine.toFixed(0).toString(),
             walletnumber: (n).toString()
         });
-        await delay(10000);
+        await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
 
         // fetches the debt
@@ -311,7 +311,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
             finalDebt = debtData.totalDebt.toString() / 10**6;
         }
         console.log("Total debt: ", finalDebt.toFixed(0));
-        await delay(10000);
+        await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
 
         // Repays total debt and gets the NFT back
@@ -329,21 +329,21 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
             amount: repayAmountV2.toFixed(0).toString(),
             walletnumber: (n).toString()
         }); 
-        await delay(10000);
+        await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
 
         // Gets the normalized income
         console.log("\n--------------------Getting Normalized Income Amount---------------------\n");
         console.log("reserve address: ", reservesAddresses[j].toString())
         await localBRE.run("lendpool:getReserveNormalizedIncome", {reserve: reservesAddresses[j]}); 
-        await delay(10000);
+        await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
 
         // gets the normalized variable debt
         console.log("\n-----------------Getting Normalized Variable Debt Amount-----------------\n");
         console.log("reserve address: ", reservesAddresses[j].toString())
         await localBRE.run("lendpool:getReserveNormalizedVariableDebt", {reserve: reservesAddresses[j]}); 
-        await delay(10000);
+        await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
         
         // amount of time to restart (3m)

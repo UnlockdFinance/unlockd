@@ -38,7 +38,7 @@ task("configurator:setFreezeFlagOnReserve", "Freezes or unfreezes each reserve")
 }); 
 
 task("configurator:setReserveFactor", "Updates the reserve factor of a reserve")
-.addParam("assets", "NFT addresses") 
+.addParam("assets", "addresses") 
 .addParam("factor", "The new reserve factor of the reserve") 
 .setAction( async ({assets, factor }) => {
     const wallet = await getOwnerWallet();  

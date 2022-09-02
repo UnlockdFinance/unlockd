@@ -228,12 +228,16 @@
     "address": "0x7bF230Ee3cf02F0861D0Bc8D45F8d76AEC6659f0",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
-  "SushiSwapRouter": {
-    "address": "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
-    "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
-  },
   "NFTXVaultFactory": {
     "address": "0xbbc53022Af15Bb973AD906577c84784c47C14371",
+    "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
+  },
+  "UniswapV2Factory": {
+    "address": "0xEcAeE89b5d87eF906471c25EEBE8e13a82356e76",
+    "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
+  },
+  "SushiSwapRouter": {
+    "address": "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   }
 }

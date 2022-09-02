@@ -59,6 +59,23 @@ task("provider:setLendPoolConfiguratorImpl", "User sets a lendPoolConfigurator a
     console.log(tx);
 }); 
 
+task("provider:getLtvManager", "User gets the Loan to Value Manager Address")
+.setAction( async () => {
+    const wallet = await getOwnerWallet();  
+
+    const tx = await Functions.LENDPOOLADDRESSPROVIDER.getLtvManager(wallet)
+    console.log(JSON.stringify(tx));
+}); 
+
+task("provider:setLtvManager", "User sets a new Loan to Value Manager Address")
+.addParam("ltvaddress", "The new Loan to Value Manager Address") 
+.setAction( async ({ltvaddress}) => {
+    const wallet = await getOwnerWallet();  
+
+    const tx = await Functions.LENDPOOLADDRESSPROVIDER.setLtvManager(wallet, ltvaddress)
+    console.log(tx);
+}); 
+
 task("provider:getLendPoolLiquidator", "User gets the lendPoolLiquidator Address")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
@@ -222,10 +239,10 @@ task("provider:getUnlockdDataProvider", "User gets the address of the Unlockd Da
 }); 
 
 task("provider:setUnlockdDataProvider", "User sets the address of the Unlockd Data Provider")
-.addParam("provider", "The new UI Data Provider address") 
+.addParam("provider", "The new Data Provider address") 
 .setAction( async ({provider}) => {
     const wallet = await getOwnerWallet();  
-
+    
     const tx = await Functions.LENDPOOLADDRESSPROVIDER.setUnlockdDataProvider(wallet, provider)
     console.log(tx);
 });
