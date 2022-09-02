@@ -15,6 +15,7 @@ import reserveOracleArtifact from "../../artifacts/contracts/protocol/ReserveOra
 import uTokenArtifact from "../../artifacts/contracts/protocol/UToken.sol/UToken.json";
 import wethGatewayArtifact from "../../artifacts/contracts/protocol/WETHGateway.sol/WETHGateway.json";
 import unftRegistryArtifact from "../../artifacts/contracts/interfaces/IUNFTRegistry.sol/IUNFTRegistry.json";
+import protocolDataProviderArtifact from "../../artifacts/contracts/misc/UnlockdProtocolDataProvider.sol/UnlockdProtocolDataProvider.json";
 
 //Mock imports
 import erc20Artifact from "../../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
@@ -43,6 +44,7 @@ const reserveOracleContract = new Contract(deployments.ReserveOracle.address, re
 const uTokenContract = new Contract(deployments.UToken.address, uTokenArtifact.abi); // The UToken needs to be the reserve address
 const wethGatewayContract = new Contract(deployments.WETHGateway.address, wethGatewayArtifact.abi);
 const unftRegistryContract = new Contract(deployments.UNFTRegistry.address, unftRegistryArtifact.abi);
+const dataProviderContract = new Contract(deployments.UnlockdProtocolDataProvider.address, protocolDataProviderArtifact.abi);
 
 // NFTX
 const nftxVaultFactoryContract = new Contract(deployments.NFTXVaultFactory.address, nftxVaultFactoryArtifact.abi);
@@ -62,6 +64,7 @@ export const Contracts = {
     wethGateway: wethGatewayContract,
     unftRegistry: unftRegistryContract,
     nftxVaultFactory: nftxVaultFactoryContract,
+    dataProvider: dataProviderContract,
 }
 
 

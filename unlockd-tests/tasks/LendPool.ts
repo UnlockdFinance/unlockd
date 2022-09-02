@@ -8,8 +8,9 @@ import { parseUnits } from "@ethersproject/units";
 task("lendpool:liquidateNFTX", "Liquidates the NFT on NFTx Vault")
   .addParam("nftaddress", "The asset address")
   .addParam("nfttokenid", "The tokenId of the asset")
-  .setAction(async ({ nftaddress, nfttokenid }) => {
-    const wallet = await getUserWallet();
+  .addParam("walletnumber", "the wallet number in ur .env from 2 to 5 otherwise it's default userWallet")
+  .setAction(async ({ nftaddress, nfttokenid, walletnumber }) => {
+    const wallet = await getWalletByNumber(walletnumber);
     const tx = await Functions.LENDPOOL.liquidateNFTX(wallet, nftaddress, nfttokenid).then(v => v.toString());
     console.log(tx);
   }

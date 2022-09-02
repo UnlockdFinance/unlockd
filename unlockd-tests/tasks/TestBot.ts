@@ -1,6 +1,8 @@
 import { task } from "hardhat/config";
 import { getWalletByNumber } from "../helpers/config";
 import { Functions } from "../helpers/protocolFunctions";
+import { increaseTime } from "../../helpers/misc-utils";
+import { ONE_DAY } from "../../helpers/constants";
 
 // The idea of this bot is to generate transactions on the test network in order
 // to check if the code is working, if numbers are ok and above all if subgraph and risk framework

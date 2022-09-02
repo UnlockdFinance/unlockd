@@ -1,6 +1,11 @@
 import { Wallet, Contract, BigNumber } from "ethers";
 import { Contracts } from "./constants";
 
+//#region UnlockdProtocolDataProvider
+const getNftConfigurationDataByTokenId = async (wallet: Wallet, nftAddress: string, nftTokenId: string) => {
+    return await Contracts.dataProvider.connect(wallet).getNftConfigurationDataByTokenId(nftAddress, nftTokenId);
+}
+//#endregion
 
 //#region  Reserves Mintable ERC20
 const approve = async (wallet: Wallet, token: Contract, spender: string, amount: string) => {
@@ -468,6 +473,9 @@ const RESERVE_TREASURY_ADDRESS = async(wallet: Wallet) => {
 
 // Exported functions
 export const Functions = {
+    DATAPROVIDER: {
+        getNftConfigurationDataByTokenId: getNftConfigurationDataByTokenId,
+    },
     UTOKEN: {
         RESERVE_TREASURY_ADDRESS: RESERVE_TREASURY_ADDRESS,  
     },
