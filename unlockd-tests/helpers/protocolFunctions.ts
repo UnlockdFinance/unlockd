@@ -1,3 +1,4 @@
+import { MAX_INTEGER } from "ethereumjs-util";
 import { Wallet, Contract, BigNumber } from "ethers";
 import { Contracts } from "./constants";
 
@@ -33,7 +34,7 @@ const getApprovedNft = async(wallet: Wallet, collection: Contract, tokenId: stri
 }
 
 const setApproveForAllNft = async (wallet: Wallet, collection: Contract, operator: string, approved: boolean) => {
-    const tx = await collection.connect(wallet).setApprovalForAll(operator, approve);
+    const tx = await collection.connect(wallet).setApprovalForAll(operator, approved);
     await tx.wait();
 }
 
@@ -330,7 +331,11 @@ const getUNFTAddresses = async (wallet:Wallet, nftAddress: string) => {
 }
 //#endregion
 
-//#region NFTX
+//#region NFTXVaultFactory
+const getTotalVaults = async (wallet: Wallet) => {
+    return await Contracts.nftxVaultFactory.connect(wallet).numVaults();
+}
+
 const getNFTXVault = async (wallet: Wallet, assetAddress: string) => {
     return await Contracts.nftxVaultFactory.connect(wallet).vaultsForAsset(assetAddress);
 }
@@ -338,6 +343,13 @@ const getNFTXVault = async (wallet: Wallet, assetAddress: string) => {
 const createNFTXVault = async (wallet: Wallet, name: string, symbol: string, assetAddress: string, is1155 = false, allowAllItems = true) => {
     return await Contracts.nftxVaultFactory.connect(wallet).createVault(name, symbol, assetAddress, is1155, allowAllItems)
 }
+//#endregion
+
+//#region NFTXVault
+const mintNFTX = async (wallet: Wallet, token: Contract, tokenIds: string[], amounts: string[]) => {
+    return await token.connect(wallet).mint(tokenIds, amounts);
+}
+
 //#endregion
 
 //#region LendPoolConfigurator for any doubts in the parameters 
@@ -592,8 +604,12 @@ export const Functions = {
         setPoolPause: setPoolPause,
         getTokenImplementation: getTokenImplementation,
     },
-    NFTX: {
+    NFTXFACTORY: {
         getNFTXVault: getNFTXVault,
-        createNFTXVault: createNFTXVault
+        createNFTXVault: createNFTXVault,
+        getTotalVaults: getTotalVaults,
+    },
+    NFTXVAULT: {
+        mintNFTX: mintNFTX,
     },
 }
