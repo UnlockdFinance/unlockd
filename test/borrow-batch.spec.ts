@@ -81,7 +81,8 @@ makeSuite("LendPool: Batch borrow test cases", (testEnv: TestEnv) => {
           [bayc.address, bayc.address],
           [tokenId1, tokenId2],
           borrower.address,
-          "0"
+          "0",
+          0
         )
     );
     const userBalanceAfterBorrow = await weth.balanceOf(borrower.address);

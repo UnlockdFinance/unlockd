@@ -94,7 +94,8 @@ task("lendpool:borrow", "User 0 Withdraws {amount} {reserve} from the reserves")
 .addParam("tokenid", "the NFT token ID")
 .addParam("to", "Who will reveive the borrowed amount")
 .addParam("walletnumber", "the wallet number in ur .env from 2 to 5 otherwise it's default userWallet")
-.setAction( async ({reserve, amount, collectionname, collection, tokenid, to, walletnumber}) => {
+.addParam("nftconfigfee", "the gas cost of configuring the nft")
+.setAction( async ({reserve, amount, collectionname, collection, tokenid, to, walletnumber, nftconfigfee}) => {
     const wallet = await getWalletByNumber(walletnumber); 
     const tokenContract = MockContracts[reserve];
     reserve == 'USDC' ? 
@@ -104,7 +105,7 @@ task("lendpool:borrow", "User 0 Withdraws {amount} {reserve} from the reserves")
     if(isApprovedForAll == false) {
         await Functions.NFTS.setApproveForAllNft(wallet, nftContract, Contracts.lendPool.address, true);
     }
-    await Functions.LENDPOOL.borrow(wallet, tokenContract.address, amount, collection, tokenid, to);
+    await Functions.LENDPOOL.borrow(wallet, tokenContract.address, amount, collection, tokenid, to, nftconfigfee);
 }); 
 
 // Get collateral data

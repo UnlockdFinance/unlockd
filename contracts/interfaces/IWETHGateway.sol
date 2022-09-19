@@ -26,13 +26,15 @@ interface IWETHGateway {
    * calling the function if he wants to borrow against his own collateral, or the address of the credit delegator
    * if he has been given credit delegation allowance
    * @param referralCode integrators are assigned a referral code and can potentially receive rewards
+   * @param nftConfigFee gas estimations fee to config the NFTs
    */
   function borrowETH(
     uint256 amount,
     address nftAsset,
     uint256 nftTokenId,
     address onBehalfOf,
-    uint16 referralCode
+    uint16 referralCode,
+    uint256 nftConfigFee
   ) external;
 
   /**
@@ -44,13 +46,15 @@ interface IWETHGateway {
    * calling the function if he wants to borrow against his own collateral, or the address of the credit delegator
    * if he has been given credit delegation allowance
    * @param referralCode integrators are assigned a referral code and can potentially receive rewards
+   * @param nftConfigFees an array os gas estimations fees to config the NFTs
    */
   function batchBorrowETH(
     uint256[] calldata amounts,
     address[] calldata nftAssets,
     uint256[] calldata nftTokenIds,
     address onBehalfOf,
-    uint16 referralCode
+    uint16 referralCode,
+    uint256 nftConfigFees
   ) external;
 
   /**

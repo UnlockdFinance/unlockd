@@ -65,7 +65,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
 
     await pool
       .connect(borrower.signer)
-      .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", borrower.address, "0");
+      .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", borrower.address, "0", 0);
 
     const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "101");
 
@@ -193,7 +193,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
 
     await pool
       .connect(borrower.signer)
-      .borrow(usdc.address, amountBorrow.toString(), bayc.address, "102", borrower.address, "0");
+      .borrow(usdc.address, amountBorrow.toString(), bayc.address, "102", borrower.address, "0", 0);
 
     const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "102");
 

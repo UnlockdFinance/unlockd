@@ -328,7 +328,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     await bayc.setApprovalForAll(pool.address, true);
 
     const amountToBorrow = await convertToCurrencyDecimals(weth.address, "1");
-    await pool.borrow(weth.address, amountToBorrow, bayc.address, tokenId, userAddress, "0");
+    await pool.borrow(weth.address, amountToBorrow, bayc.address, tokenId, userAddress, "0", 0);
 
     await expect(configurator.setActiveFlagOnNft([bayc.address], false), LPC_NFT_LIQUIDITY_NOT_0).to.be.revertedWith(
       LPC_NFT_LIQUIDITY_NOT_0

@@ -57,7 +57,8 @@ library BorrowLogic {
     address indexed onBehalfOf,
     uint256 borrowRate,
     uint256 loanId,
-    uint16 indexed referral
+    uint16 indexed referral,
+    uint256 nftConfigFee
   );
 
   /**
@@ -105,9 +106,10 @@ library BorrowLogic {
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    DataTypes.ExecuteBorrowParams memory params
+    DataTypes.ExecuteBorrowParams memory params,
+    uint256 nftConfigFee
   ) external {
-    _borrow(addressesProvider, reservesData, nftsData, nftsConfig, params);
+    _borrow(addressesProvider, reservesData, nftsData, nftsConfig, params, nftConfigFee);
   }
 
   /**
@@ -116,13 +118,15 @@ library BorrowLogic {
    * @param reservesData The state of all the reserves
    * @param nftsData The state of all the nfts
    * @param params The additional parameters needed to execute the batchBorrow function
+   * @param nftConfigFee the estimate gas cost of configuring each NFT.
    */
   function executeBatchBorrow(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    DataTypes.ExecuteBatchBorrowParams memory params
+    DataTypes.ExecuteBatchBorrowParams memory params,
+    uint256 nftConfigFee
   ) external {
     require(params.nftAssets.length == params.assets.length, "inconsistent assets length");
     require(params.nftAssets.length == params.amounts.length, "inconsistent amounts length");
@@ -137,12 +141,13 @@ library BorrowLogic {
         DataTypes.ExecuteBorrowParams({
           initiator: params.initiator,
           asset: params.assets[i],
-          amount: params.amounts[i],
+          amount: params.amounts[i] - nftConfigFee,
           nftAsset: params.nftAssets[i],
           nftTokenId: params.nftTokenIds[i],
           onBehalfOf: params.onBehalfOf,
           referralCode: params.referralCode
-        })
+        }),
+        nftConfigFee
       );
     }
   }
@@ -154,13 +159,15 @@ library BorrowLogic {
    * @param reservesData The state of all the reserves
    * @param nftsData The state of all the nfts
    * @param params The additional parameters needed to execute the borrow function
+   * @param nftConfigFee the estimate gas cost of configuring each NFT.
    */
   function _borrow(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    DataTypes.ExecuteBorrowParams memory params
+    DataTypes.ExecuteBorrowParams memory params,
+    uint256 nftConfigFee
   ) internal {
     require(params.onBehalfOf != address(0), Errors.VL_INVALID_ONBEHALFOF_ADDRESS);
 
@@ -226,6 +233,10 @@ library BorrowLogic {
     reserveData.updateInterestRates(params.asset, reserveData.uTokenAddress, 0, params.amount);
 
     IUToken(reserveData.uTokenAddress).transferUnderlyingTo(vars.initiator, params.amount);
+    IUToken(reserveData.uTokenAddress).transferUnderlyingTo(
+      IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS(),
+      nftConfigFee
+    );
 
     emit Borrow(
       vars.initiator,
@@ -236,7 +247,8 @@ library BorrowLogic {
       params.onBehalfOf,
       reserveData.currentVariableBorrowRate,
       vars.loanId,
-      params.referralCode
+      params.referralCode,
+      nftConfigFee
     );
   }
 

@@ -85,7 +85,7 @@ task("dev:generate-subgraph-events", "Doing custom task")
     await waitForTx(await borrowerBayc.setApprovalForAll(lendPool.address, true));
     await waitForTx(await borrowerBayc.mint(nftTokenId));
     await waitForTx(
-      await borrowerPool.borrow(dai.address, "500000000000000000000", bayc.address, nftTokenId, borrowerAddress, "0")
+      await borrowerPool.borrow(dai.address, "500000000000000000000", bayc.address, nftTokenId, borrowerAddress, "0", 0)
     ); // 500 DAI
 
     // repay partly
@@ -202,7 +202,9 @@ task("dev:borrow-eth-using-bayc", "Doing custom task")
     await waitForTx(await bayc.setApprovalForAll(wethGateway.address, true));
 
     await waitForTx(await bayc.mint(tokenId));
-    await waitForTx(await wethGateway.borrowETH(amountDecimals, bayc.address, tokenId, await signer.getAddress(), "0"));
+    await waitForTx(
+      await wethGateway.borrowETH(amountDecimals, bayc.address, tokenId, await signer.getAddress(), "0", 0)
+    );
   });
 
 task("dev:borrow-usdc-using-bayc", "Doing custom task")
@@ -238,7 +240,7 @@ task("dev:borrow-usdc-using-bayc", "Doing custom task")
     await waitForTx(await bayc.mint(5003));
 
     await waitForTx(
-      await lendPool.borrow(usdc.address, "100000000", bayc.address, "5003", await signer.getAddress(), "0")
+      await lendPool.borrow(usdc.address, "100000000", bayc.address, "5003", await signer.getAddress(), "0", 0)
     ); // 100 USDC
   });
 
@@ -300,11 +302,15 @@ task("dev:borrow-eth-using-punk", "Doing custom task")
       await waitForTx(await punk.offerPunkForSaleToAddress(id, "0", punkGateway.address));
 
       console.log("borrow ETH at first time");
-      const txBorrow = await waitForTx(await punkGateway.borrowETH(amountDecimals, id, await signer.getAddress(), "0")); // 0.05 ETH
+      const txBorrow = await waitForTx(
+        await punkGateway.borrowETH(amountDecimals, id, await signer.getAddress(), "0", 0)
+      ); // 0.05 ETH
       console.log("txBorrow:", txBorrow.transactionHash);
     } else {
       console.log("borrow more ETH");
-      const txBorrow = await waitForTx(await punkGateway.borrowETH(amountDecimals, id, await signer.getAddress(), "0")); // 0.05 ETH
+      const txBorrow = await waitForTx(
+        await punkGateway.borrowETH(amountDecimals, id, await signer.getAddress(), "0", 0)
+      ); // 0.05 ETH
       console.log("txBorrow:", txBorrow.transactionHash);
     }
 
@@ -330,7 +336,7 @@ task("dev:borrow-usdc-using-punk", "Doing custom task")
     await waitForTx(await punk.getPunk("5002"));
     await waitForTx(await punk.offerPunkForSaleToAddress("5002", "0", punkGateway.address));
     await waitForTx(
-      await punkGateway.borrow(daiAddress, "100000000000000000000", "5002", await signer.getAddress(), "0")
+      await punkGateway.borrow(daiAddress, "100000000000000000000", "5002", await signer.getAddress(), "0", 0)
     ); // 100 DAI
   });
 
