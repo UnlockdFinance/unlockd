@@ -578,6 +578,15 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   }
 
   /**
+   * @dev Sets new pool rescuer
+   * @param rescuer the new rescuer address
+   **/
+  function setPoolRescuer(address rescuer) external onlyPoolAdmin {
+    ILendPool cachedPool = _getLendPool();
+    cachedPool.updateRescuer(rescuer);
+  }
+
+  /**
    * @dev Returns the token implementation contract address
    * @param proxyAddress  The address of the proxy contract
    * @return The address of the token implementation contract

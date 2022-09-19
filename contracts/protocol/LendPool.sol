@@ -24,7 +24,9 @@ import {LendPoolStorageExt} from "./LendPoolStorageExt.sol";
 
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {IERC721ReceiverUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -57,6 +59,7 @@ contract LendPool is
   using WadRayMath for uint256;
   using PercentageMath for uint256;
   using SafeERC20Upgradeable for IERC20Upgradeable;
+  using SafeERC20 for IERC20;
   using ReserveLogic for DataTypes.ReserveData;
   using NftLogic for DataTypes.NftData;
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
@@ -101,6 +104,14 @@ contract LendPool is
     _;
   }
 
+  /**
+   * @notice Revert if called by any account other than the rescuer.
+   */
+  modifier onlyRescuer() {
+    require(msg.sender == _rescuer, "Rescuable: caller is not the rescuer");
+    _;
+  }
+
   function _whenNotPaused() internal view {
     require(!_paused, Errors.LP_IS_PAUSED);
   }
@@ -117,6 +128,11 @@ contract LendPool is
       Errors.LP_CALLER_NOT_LEND_POOL_LIQUIDATOR_NOR_GATEWAY
     );
   }
+
+  /**
+   * @dev Address allowed to recover accidentally sent ERC20 tokens to the LendPool
+   **/
+  address private _rescuer;
 
   /**
    * @dev Function is invoked by the proxy contract when the LendPool contract is added to the
@@ -999,6 +1015,38 @@ contract LendPool is
   ) external override onlyLendPoolConfigurator {
     _nfts[asset].maxSupply = maxSupply;
     _nfts[asset].maxTokenId = maxTokenId;
+  }
+
+  /**
+   * @notice Rescue ERC20 tokens locked up in this contract.
+   * @param tokenContract ERC20 token contract address
+   * @param to        Recipient address
+   * @param amount    Amount to withdraw
+   */
+  function rescueERC20(
+    IERC20 tokenContract,
+    address to,
+    uint256 amount
+  ) external override onlyRescuer {
+    tokenContract.safeTransfer(to, amount);
+  }
+
+  /**
+   * @notice Assign the rescuer role to a given address.
+   * @param newRescuer New rescuer's address
+   */
+  function updateRescuer(address newRescuer) external override onlyLendPoolConfigurator {
+    require(newRescuer != address(0), "Rescuable: new rescuer is the zero address");
+    _rescuer = newRescuer;
+    emit RescuerChanged(newRescuer);
+  }
+
+  /**
+   * @notice Returns current rescuer
+   * @return Rescuer's address
+   */
+  function rescuer() external view override returns (address) {
+    return _rescuer;
   }
 
   function _addReserveToList(address asset) internal {
