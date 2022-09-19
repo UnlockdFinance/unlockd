@@ -36,6 +36,12 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
    **/
   event FeedAdminUpdated(address indexed admin);
 
+  /**
+   * @dev Emitted when the pause status is set to a collection
+   * @param paused the new pause status
+   **/
+  event CollectionPaused(bool indexed paused);
+
   error NotAdmin();
   error NonExistingCollection(address collection);
   error AlreadyExistingCollection();
