@@ -9,6 +9,7 @@ import {INFTXVaultFactoryV2} from "../interfaces/INFTXVaultFactoryV2.sol";
 import {INFTXVault} from "../interfaces/INFTXVault.sol";
 import {IUniswapV2Router02} from "../interfaces/IUniswapV2Router02.sol";
 import {BlockContext} from "../utils/BlockContext.sol";
+import {Errors} from "../libraries/helpers/Errors.sol";
 
 contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   /// @dev When calling getPrice() of a non-minted tokenId it returns '0', shouldn't this revert with an error?
@@ -95,6 +96,10 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     address _sushiswapRouter
   ) public initializer {
     __Ownable_init();
+    require(
+      _admin != address(0) && _nftxVaultFactory != address(0) && _sushiswapRouter != address(0),
+      Errors.INVALID_ZERO_ADDRESS
+    );
     priceFeedAdmin = _admin;
     nftxVaultFactory = _nftxVaultFactory;
     sushiswapRouter = _sushiswapRouter;
@@ -114,6 +119,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   @param _admin the address to become the admin
    */
   function setPriceFeedAdmin(address _admin) external onlyOwner {
+    require(_admin != address(0), Errors.INVALID_ZERO_ADDRESS);
     priceFeedAdmin = _admin;
     emit FeedAdminUpdated(_admin);
   }
