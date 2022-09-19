@@ -117,8 +117,12 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   @param _collections the array NFT collections to add
    */
   function setCollections(address[] calldata _collections) external onlyOwner {
-    for (uint256 i = 0; i < _collections.length; i++) {
+    uint256 collectionsLength = _collections.length;
+    for (uint256 i = 0; i < collectionsLength; ) {
       _addCollection(_collections[i]);
+      unchecked {
+        ++i;
+      }
     }
   }
 
@@ -178,8 +182,11 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   ) external override onlyOwner {
     uint256 collectionsLength = _collections.length;
     if (collectionsLength != _tokenIds.length || collectionsLength != _prices.length) revert ArraysLengthInconsistent();
-    for (uint256 i = 0; i < collectionsLength; i++) {
+    for (uint256 i = 0; i < collectionsLength; ) {
       _setNFTPrice(_collections[i], _tokenIds[i], _prices[i]);
+      unchecked {
+        ++i;
+      }
     }
   }
 
@@ -228,8 +235,11 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
 
     uint256[] memory _nftPrices = new uint256[](collectionsLength);
 
-    for (uint256 i = 0; i < collectionsLength; i++) {
+    for (uint256 i = 0; i < collectionsLength; ) {
       _nftPrices[i] = this.getNFTPrice(_collections[i], _tokenIds[i]);
+      unchecked {
+        ++i;
+      }
     }
 
     return _nftPrices;
@@ -252,7 +262,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     uint256[] memory tokenIds = new uint256[](1);
     tokenIds[0] = _tokenId;
 
-    for (uint256 i = 0; i < vaultAddresses.length; i += 1) {
+    for (uint256 i = 0; i < vaultAddresses.length; ) {
       INFTXVault nftxVault = INFTXVault(vaultAddresses[i]);
       if (nftxVault.allValidNFTs(tokenIds)) {
         // Swap path is NFTX Vault -> WETH
@@ -265,6 +275,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
         uint256[] memory amounts = IUniswapV2Router02(sushiswapRouter).getAmountsOut(amountIn, swapPath);
         return amounts[1];
       }
+      ++i;
     }
 
     revert PriceIsZero();
