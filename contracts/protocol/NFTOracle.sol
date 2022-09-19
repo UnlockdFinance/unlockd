@@ -260,14 +260,20 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   /**
    * @inheritdoc INFTOracle
    */
-  function setPause(address _collection, bool paused) external override onlyOwner {
+  function setPause(address _collection, bool paused) external override onlyOwner onlyExistingCollection(_collection) {
     collectionPaused[_collection] = paused;
   }
 
   /**
    * @inheritdoc INFTOracle
    */
-  function getNFTPriceNFTX(address _collection, uint256 _tokenId) external view override returns (uint256) {
+  function getNFTPriceNFTX(address _collection, uint256 _tokenId)
+    external
+    view
+    override
+    onlyExistingCollection(_collection)
+    returns (uint256)
+  {
     // Get NFTX Vaults for asset
     address[] memory vaultAddresses = INFTXVaultFactoryV2(nftxVaultFactory).vaultsForAsset(_collection);
 
