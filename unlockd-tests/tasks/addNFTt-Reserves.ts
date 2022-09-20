@@ -3,7 +3,9 @@ import { waitForTx } from "../../helpers/misc-utils";
 import { getWETHGateway, getUNFTRegistryProxy, getNFTOracle } from "../../helpers/contracts-getters";
 import { getLendPoolConfiguratorProxy } from "../../helpers/contracts-getters";
 import { TokenContractId } from "../../helpers/types";
+
 import { deployCustomERC721 } from "../../helpers/contracts-deployments";
+
 task("deploy-new-NFT" )
   .addParam("name", `The NFT name`)
   .addParam("symbol", `The NFT symbol`)
@@ -12,6 +14,7 @@ task("deploy-new-NFT" )
     await deployCustomERC721([name, symbol], symbol, true); //add nft to database with symbol as ID
   }
 ); 
+
 task("unft-registerNFT", "Deploy unft tokens for dev enviroment")
   .addParam("nftaddress", `The address of the NFT to use`)
   .setAction(async ({ nftaddress }) => {
