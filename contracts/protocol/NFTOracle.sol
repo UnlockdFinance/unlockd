@@ -180,7 +180,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     address _collection,
     uint256 _tokenId,
     uint256 _price
-  ) external override onlyOwner {
+  ) external override onlyAdmin {
     _setNFTPrice(_collection, _tokenId, _price);
   }
 
@@ -191,7 +191,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     address[] calldata _collections,
     uint256[] calldata _tokenIds,
     uint256[] calldata _prices
-  ) external override onlyOwner {
+  ) external override onlyAdmin {
     uint256 collectionsLength = _collections.length;
     if (collectionsLength != _tokenIds.length || collectionsLength != _prices.length) revert ArraysLengthInconsistent();
     for (uint256 i = 0; i < collectionsLength; ) {
