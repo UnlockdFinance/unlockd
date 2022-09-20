@@ -70,8 +70,8 @@ const borrow = async (wallet: Wallet, asset: string, amount: BigNumber, nftAsset
     nftTokenId: number, onBehalfOf: string, nftConfigFee: BigNumber) => {
         
     var gas = await Contracts.lendPool.connect(wallet).estimateGas.borrow(asset, amount, nftAsset, 
-        nftTokenId, onBehalfOf, 0);
-        
+        nftTokenId, onBehalfOf, 0, nftConfigFee);
+
     var strGas = gas.toString();
     const gasPrice = Math.round(parseInt(strGas)*1.1);
 
