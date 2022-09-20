@@ -365,6 +365,12 @@ export const deployMintableERC721 = async (args: [string, string], verify?: bool
     args,
     verify
   );
+export const deployCustomMintableERC721 = async (
+  args: [string, string],
+  id: string,
+  verify?: boolean
+): Promise<MintableERC721> =>
+  withSaveAndVerify(await new MintableERC721Factory(await getDeploySigner()).deploy(...args), id, args, verify);
 
 export const deployInterestRate = async (args: [tEthereumAddress, string, string, string, string], verify: boolean) =>
   withSaveAndVerify(

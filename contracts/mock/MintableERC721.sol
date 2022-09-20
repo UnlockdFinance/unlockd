@@ -9,29 +9,37 @@ import {ERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/
  * @dev ERC721 minting logic
  */
 contract MintableERC721 is ERC721Enumerable {
+  error ZeroAddress();
+  error MaxSupplyReached();
+
+  uint16 public _currTokenId;
   string public baseURI;
   address private owner;
-  mapping(address => uint256) public mintCounts;
+  uint256 public constant MAX_SUPPLY = 10_000;
 
   constructor(string memory name, string memory symbol) ERC721(name, symbol) {
-    baseURI = "https://MintableERC721/";
+    baseURI = "";
     owner = _msgSender();
+    _currTokenId = 0;
   }
 
   /**
    * @dev Function to mint tokens
-   * @param tokenId The id of tokens to mint.
+   * @param to The address receiving the NFT
+   * @param amount The amount of tokens to mint.
    * @return A boolean that indicates if the operation was successful.
    */
-  function mint(uint256 tokenId) public returns (bool) {
-    require(tokenId < 10000, "exceed mint limit");
+  function mint(address to, uint256 amount) public returns (bool) {
+    if (to == address(0)) revert ZeroAddress();
+    if (_currTokenId + amount >= MAX_SUPPLY) revert MaxSupplyReached();
 
-    mintCounts[_msgSender()] += 1;
-    if (_msgSender() != owner) {
-      require(mintCounts[_msgSender()] <= 20, "exceed mint limit");
+    for (uint256 i = 0; i < amount; ) {
+      _mint(to, _currTokenId);
+      unchecked {
+        ++i;
+        ++_currTokenId;
+      }
     }
-
-    _mint(_msgSender(), tokenId);
     return true;
   }
 
