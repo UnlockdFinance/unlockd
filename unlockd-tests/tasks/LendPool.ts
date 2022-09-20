@@ -102,13 +102,14 @@ task("lendpool:borrow", "User 0 Withdraws {amount} {reserve} from the reserves")
     reserve == 'USDC' ? 
         amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString()) 
     reserve == 'USDC' ? 
-        nftconfigfee = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString()) 
+        nftconfigfee = await parseUnits(nftconfigfee.toString(), 6)  :   nftconfigfee = await parseUnits(nftconfigfee.toString()) 
 
     const nftContract = MockContracts[collectionname];
     const isApprovedForAll = await Functions.NFTS.isApprovedNft(wallet, nftContract, to, Contracts.lendPool.address);
     if(isApprovedForAll == false) {
         await Functions.NFTS.setApproveForAllNft(wallet, nftContract, Contracts.lendPool.address, true);
     }
+
     console.log(wallet.address);
     console.log(tokenContract.address);
     console.log(amount);
@@ -116,7 +117,6 @@ task("lendpool:borrow", "User 0 Withdraws {amount} {reserve} from the reserves")
     console.log(tokenid);
     console.log(to);
     console.log(nftconfigfee);
-
 
     await Functions.LENDPOOL.borrow(wallet, tokenContract.address, amount, collection, tokenid, to, nftconfigfee);
 }); 
