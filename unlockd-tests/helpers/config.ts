@@ -33,7 +33,6 @@ export const getUser5Wallet = async (): Promise<Wallet> =>{
 } 
 
 export const getWalletByNumber = async (walletNumber: number) : Promise<Wallet> => {
-   
     if(walletNumber == 2) return getUser2Wallet();
     if(walletNumber == 3) return getUser3Wallet();
     if(walletNumber == 4) return getUser4Wallet();
