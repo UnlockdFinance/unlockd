@@ -110,14 +110,6 @@ task("lendpool:borrow", "User 0 Withdraws {amount} {reserve} from the reserves")
         await Functions.NFTS.setApproveForAllNft(wallet, nftContract, Contracts.lendPool.address, true);
     }
 
-    console.log(wallet.address);
-    console.log(tokenContract.address);
-    console.log(amount);
-    console.log(collection);
-    console.log(tokenid);
-    console.log(to);
-    console.log(nftconfigfee);
-
     await Functions.LENDPOOL.borrow(wallet, tokenContract.address, amount, collection, tokenid, to, nftconfigfee);
 }); 
 
