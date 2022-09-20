@@ -3,8 +3,15 @@ import { waitForTx } from "../../helpers/misc-utils";
 import { getWETHGateway, getUNFTRegistryProxy, getNFTOracle } from "../../helpers/contracts-getters";
 import { getLendPoolConfiguratorProxy } from "../../helpers/contracts-getters";
 import { TokenContractId } from "../../helpers/types";
-
-
+import { deployCustomMintableERC721 } from "../../helpers/contracts-deployments";
+task("deploy-new-NFT" )
+  .addParam("name", `The NFT name`)
+  .addParam("symbol", `The NFT symbol`)
+  .setAction(async ({ name, symbol }, localBRE) => {
+    await localBRE.run("set-DRE"); 
+    await deployCustomMintableERC721([name, symbol], symbol, true); //add nft to database with symbol as ID
+  }
+);
 task("unft-registerNFT", "Deploy unft tokens for dev enviroment")
   .addParam("nftaddress", `The address of the NFT to use`)
   .setAction(async ({ nftaddress }) => {
