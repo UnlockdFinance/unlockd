@@ -142,6 +142,7 @@ contract LendPool is
    * @param provider The address of the LendPoolAddressesProvider
    **/
   function initialize(ILendPoolAddressesProvider provider) public initializer {
+    require(address(provider) != address(0), Errors.INVALID_ZERO_ADDRESS);
     _maxNumberOfReserves = 32;
     _maxNumberOfNfts = 256;
     _liquidateFeePercentage = 250;
@@ -933,6 +934,10 @@ contract LendPool is
     address interestRateAddress
   ) external override onlyLendPoolConfigurator {
     require(AddressUpgradeable.isContract(asset), Errors.LP_NOT_CONTRACT);
+    require(
+      uTokenAddress != address(0) && debtTokenAddress != address(0) && interestRateAddress != address(0),
+      Errors.INVALID_ZERO_ADDRESS
+    );
     _reserves[asset].init(uTokenAddress, debtTokenAddress, interestRateAddress);
     _addReserveToList(asset);
   }
@@ -946,6 +951,7 @@ contract LendPool is
    **/
   function initNft(address asset, address uNftAddress) external override onlyLendPoolConfigurator {
     require(AddressUpgradeable.isContract(asset), Errors.LP_NOT_CONTRACT);
+    require(uNftAddress != address(0), Errors.INVALID_ZERO_ADDRESS);
     _nfts[asset].init(uNftAddress);
     _addNftToList(asset);
 
@@ -966,6 +972,7 @@ contract LendPool is
     override
     onlyLendPoolConfigurator
   {
+    require(asset != address(0) && rateAddress != address(0), Errors.INVALID_ZERO_ADDRESS);
     _reserves[asset].interestRateAddress = rateAddress;
     emit ReserveInterestRateAddressChanged(asset, rateAddress);
   }
