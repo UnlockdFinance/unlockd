@@ -865,7 +865,7 @@ contract LendPool is
   /**
    * @dev Returns the maximum number of reserves supported to be listed in this LendPool
    */
-  function getMaxNumberOfReserves() public view override returns (uint256) {
+  function getMaxNumberOfReserves() external view override returns (uint256) {
     return _maxNumberOfReserves;
   }
 
@@ -880,7 +880,7 @@ contract LendPool is
   /**
    * @dev Returns the maximum number of nfts supported to be listed in this LendPool
    */
-  function getMaxNumberOfNfts() public view override returns (uint256) {
+  function getMaxNumberOfNfts() external view override returns (uint256) {
     return _maxNumberOfNfts;
   }
 
@@ -891,7 +891,7 @@ contract LendPool is
   /**
    * @dev Returns the liquidate fee percentage
    */
-  function getLiquidateFeePercentage() public view override returns (uint256) {
+  function getLiquidateFeePercentage() external view override returns (uint256) {
     return _liquidateFeePercentage;
   }
 
