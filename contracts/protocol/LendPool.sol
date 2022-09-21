@@ -144,7 +144,7 @@ contract LendPool is
   function initialize(ILendPoolAddressesProvider provider) public initializer {
     require(address(provider) != address(0), Errors.INVALID_ZERO_ADDRESS);
     _maxNumberOfReserves = 32;
-    _maxNumberOfNfts = 256;
+    _maxNumberOfNfts = 255;
     _liquidateFeePercentage = 250;
 
     _addressesProvider = provider;
@@ -882,6 +882,7 @@ contract LendPool is
    * @param val the value to set the max number of reserves
    **/
   function setMaxNumberOfReserves(uint256 val) external override onlyLendPoolConfigurator {
+    require(val <= 255, Errors.LP_INVALID_OVERFLOW_VALUE); //Sanity check to avoid overflows in `_addReserveToList`
     _maxNumberOfReserves = val;
   }
 
@@ -897,6 +898,7 @@ contract LendPool is
    * @param val the value to set the max number of NFTs
    **/
   function setMaxNumberOfNfts(uint256 val) external override onlyLendPoolConfigurator {
+    require(val <= 255, Errors.LP_INVALID_OVERFLOW_VALUE); //Sanity check to avoid overflows in `_addNftToList`
     _maxNumberOfNfts = val;
   }
 

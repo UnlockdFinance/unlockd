@@ -70,6 +70,7 @@ library Errors {
   string public constant LP_NFT_SUPPLY_NUM_EXCEED_MAX_LIMIT = "418";
   string public constant LP_CALLER_NOT_LEND_POOL_LIQUIDATOR_NOR_GATEWAY = "419";
   string public constant LP_CONSECUTIVE_BIDS_NOT_ALLOWED = "420";
+  string public constant LP_INVALID_OVERFLOW_VALUE = "421";
 
   //lend pool loan errors
   string public constant LPL_INVALID_LOAN_STATE = "480";
