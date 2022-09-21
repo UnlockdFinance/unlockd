@@ -543,6 +543,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    * @param newVal the new value to set as the max fee percentage
    **/
   function setLiquidationFeePercentage(uint256 newVal) external onlyPoolAdmin {
+    require(newVal < 1000, Errors.LPC_FEE_PERCENTAGE_TOO_HIGH); //prevent setting incorrect values and ensure fee is not too high (10% max)
     ILendPool cachedPool = _getLendPool();
     cachedPool.setLiquidateFeePercentage(newVal);
   }
