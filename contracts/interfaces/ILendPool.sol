@@ -208,6 +208,26 @@ interface ILendPool {
   );
 
   /**
+  @dev Emitted after the address of the interest rate strategy contract has been updated
+  */
+  event ReserveInterestRateAddressChanged(address indexed asset, address indexed rateAddress);
+
+  /**
+  @dev Emitted after setting the configuration bitmap of the reserve as a whole
+  */
+  event ReserveConfigurationChanged(address indexed asset, uint256 configuration);
+
+  /**
+  @dev Emitted after setting the configuration bitmap of the NFT collection as a whole
+  */
+  event NftConfigurationChanged(address indexed asset, uint256 configuration);
+
+  /**
+  @dev Emitted after setting the configuration bitmap of the NFT as a whole
+  */
+  event NftConfigurationByIdChanged(address indexed asset, uint256 indexed nftTokenId, uint256 configuration);
+
+  /**
    * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying uTokens.
    * - E.g. User deposits 100 USDC and gets in return 100 uusdc
    * @param reserve The address of the underlying asset to deposit

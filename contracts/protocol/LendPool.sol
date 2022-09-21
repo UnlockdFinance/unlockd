@@ -967,6 +967,7 @@ contract LendPool is
     onlyLendPoolConfigurator
   {
     _reserves[asset].interestRateAddress = rateAddress;
+    emit ReserveInterestRateAddressChanged(asset, rateAddress);
   }
 
   /**
@@ -977,6 +978,7 @@ contract LendPool is
    **/
   function setReserveConfiguration(address asset, uint256 configuration) external override onlyLendPoolConfigurator {
     _reserves[asset].configuration.data = configuration;
+    emit ReserveConfigurationChanged(asset, configuration);
   }
 
   /**
@@ -987,6 +989,7 @@ contract LendPool is
    **/
   function setNftConfiguration(address asset, uint256 configuration) external override onlyLendPoolConfigurator {
     _nfts[asset].configuration.data = configuration;
+    emit NftConfigurationChanged(asset, configuration);
   }
 
   /**
@@ -1002,6 +1005,7 @@ contract LendPool is
     uint256 configuration
   ) external override onlyLendPoolConfigurator {
     _nftConfig[asset][nftTokenId].data = configuration;
+    emit NftConfigurationByIdChanged(asset, nftTokenId, configuration);
   }
 
   /**
