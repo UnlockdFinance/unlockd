@@ -67,14 +67,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     _;
   }
 
-  modifier onlyExistingCollections(address[] memory _collections) {
-    for (uint256 i = 0; i < _collections.length; i++) {
-      bool collectionExists = collections[_collections[i]];
-      if (!collectionExists) revert NonExistingCollection(_collections[i]);
-    }
-    _;
-  }
-
   modifier onlyNonExistingCollection(address _collection) {
     bool collectionExists = collections[_collection];
     if (collectionExists) revert AlreadyExistingCollection();
@@ -229,7 +221,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     external
     view
     override
-    onlyExistingCollections(_collections)
     returns (uint256[] memory)
   {
     uint256 collectionsLength = _collections.length;
