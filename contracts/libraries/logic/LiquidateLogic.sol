@@ -705,6 +705,25 @@ library LiquidateLogic {
 
     ValidationLogic.validateLiquidateNFTX(reserveData, nftData, nftConfig, loanData);
 
+    // Check for health factor
+    (, , uint256 healthFactor) = GenericLogic.calculateLoanData(
+      loanData.reserveAsset,
+      reserveData,
+      loanData.nftAsset,
+      loanData.nftTokenId,
+      nftConfig,
+      vars.poolLoan,
+      vars.loanId,
+      vars.reserveOracle,
+      vars.nftOracle
+    );
+
+    //Loan must be unhealthy in order to get liquidated
+    require(
+      healthFactor <= GenericLogic.HEALTH_FACTOR_LIQUIDATION_THRESHOLD,
+      Errors.VL_HEALTH_FACTOR_LOWER_THAN_LIQUIDATION_THRESHOLD
+    );
+
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();
 
