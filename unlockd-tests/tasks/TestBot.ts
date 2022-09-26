@@ -98,24 +98,26 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         console.log("\n-------------------------------------------------------------------------\n");
         
 
-        // Set the NFT Price
-        console.log("\n----------------------------updating NFT price----------------------------\n");
-        const nftPrice = amounts[i] * 3;
-        console.log("nft price: ", nftPrice);
-        console.log("nft address: ", nftAssets[k].toString());
-        console.log("nft token id: ", tokenIds[b].toString());
-        await localBRE.run("nftoracle:setnftprice", {
-            collection: nftAssets[k], 
-            tokenid: tokenIds[b].toString(), 
-            price: nftPrice.toString()
-        }); 
-        await delay(20000);
-        console.log("\n-------------------------------------------------------------------------\n");
+        // // Set the NFT Price
+        // console.log("\n----------------------------updating NFT price----------------------------\n");
+        // const nftPrice = amounts[i] * 3;
+        // console.log("nft price: ", nftPrice);
+        // console.log("nft address: ", nftAssets[k].toString());
+        // console.log("nft token id: ", tokenIds[b].toString());
+        // await localBRE.run("nftoracle:setnftprice", {
+        //     collection: nftAssets[k], 
+        //     tokenid: tokenIds[b].toString(), 
+        //     price: nftPrice.toString()
+        // }); 
+        // await delay(20000);
+        // console.log("\n-------------------------------------------------------------------------\n");
 
         // NFT Configuration 
+        const nftPrice = amounts[i] * 3;
         console.log("\n---------------------------configuring the NFT---------------------------\n");
         console.log("nft address: ", nftAssets[k].toString());
         console.log("nft token id: ", tokenIds[b].toString());
+        console.log("new price: ", nftPrice.toString());
         console.log("ltv: ", ltv);
         console.log("treshold: ", treshold);
         console.log("bonus: ", bonus);
@@ -127,6 +129,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         await localBRE.run("configurator:configureNftAsCollateral", {
             asset: nftAssets[k], 
             tokenid: tokenIds[b].toString(),
+            newprice: nftPrice.toString(),
             ltv: ltv,
             threshold: treshold, 
             bonus: bonus,

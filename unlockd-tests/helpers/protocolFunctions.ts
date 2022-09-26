@@ -154,6 +154,10 @@ const setNftPrice = async(wallet: Wallet, collection: string, tokenid: number, p
 const getNFTOracleOwner = async(wallet: Wallet) => {
     return await Contracts.nftOracle.connect(wallet).owner();
 } 
+
+const setPriceManagerStatus = async (wallet:Wallet, newPriceManager: string, val: boolean) => {
+    return await Contracts.nftOracle.connect(wallet).setPriceManagerStatus(newPriceManager, val);
+}
 //#endregion
 
 //#region  Reserve Oracle
@@ -391,7 +395,8 @@ const setFreezeFlagOnNft = async (wallet:Wallet, assets: string[], flag: boolean
 const configureNftAsCollateral = async (
     wallet:Wallet, 
     asset: string,
-    tokenId: string, 
+    tokenId: string,
+    newPrice: BigNumber, 
     ltv: string, 
     liquidationThreshold: string, 
     liquidationBonus: string,
@@ -404,6 +409,7 @@ const configureNftAsCollateral = async (
     return await Contracts.lendPoolConfigurator.connect(wallet).configureNftAsCollateral(
         asset,
         tokenId, 
+        newPrice,
         ltv, 
         liquidationThreshold, 
         liquidationBonus,
@@ -459,6 +465,10 @@ const setLiquidationFeePercentage = async (wallet:Wallet, newVal: string) => {
 
 const setPoolPause = async (wallet:Wallet, val: boolean) => {
     return await Contracts.lendPoolConfigurator.connect(wallet).setPoolPause(val);
+}
+
+const setLtvManagerStatus = async (wallet:Wallet, newLtvManager: string, val: boolean) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setLtvManagerStatus(newLtvManager, val);
 }
 
 const getTokenImplementation = async (wallet:Wallet, proxyAddress: string) => {
@@ -537,7 +547,8 @@ export const Functions = {
     NFTORACLE: {
         getNftPrice: getNftPrice,
         setNftPrice: setNftPrice,
-        getNFTOracleOwner: getNFTOracleOwner
+        getNFTOracleOwner: getNFTOracleOwner,
+        setPriceManagerStatus: setPriceManagerStatus
     },
     RESERVEORACLE: {
         getAssetPrice: getAssetPrice,
@@ -608,6 +619,7 @@ export const Functions = {
         setMaxNumberOfNfts: setMaxNumberOfNfts,
         setLiquidationFeePercentage: setLiquidationFeePercentage,
         setPoolPause: setPoolPause,
+        setLtvManagerStatus: setLtvManagerStatus,
         getTokenImplementation: getTokenImplementation,
     },
     NFTXFACTORY: {

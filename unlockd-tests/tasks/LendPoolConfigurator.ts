@@ -81,6 +81,7 @@ task("configurator:configureNftAsCollateral",
 "configure the ltv, liquidationThreshold, liquidationBonus for a reserve asset.")
 .addParam("asset", "the address of the underlying NFT asset")
 .addParam("tokenid", "the tokenId of the underlying NFT asset")  
+.addParam("newprice", "The actual price of the NFT")
 .addParam("ltv", "The loan to value of the asset when used as NFT") 
 .addParam("threshold", "The threshold at which loans using this asset as collateral will be considered undercollateralized") 
 .addParam("bonus", "The bonus liquidators receive to liquidate this asset. The values is always below 100%. A value of 5% means the liquidator will receive a 5% bonus") 
@@ -89,13 +90,14 @@ task("configurator:configureNftAsCollateral",
 .addParam("redeemfine", "The loan to value of the asset when used as NFT") 
 .addParam("active", "if the nft asset is active or not (BOOL true or false)") 
 .addParam("freeze", "if the nft asset is frozen or not (BOOL true or false)") 
-.setAction( async ({asset, tokenid, ltv, threshold, bonus, redeemduration, auctionduration, redeemfine, active, freeze}) => {
-    const wallet = await getOwnerWallet();  
-
+.setAction( async ({asset, tokenid, newprice, ltv, threshold, bonus, redeemduration, auctionduration, redeemfine, active, freeze}) => {
+    const wallet = await getOwnerWallet(); 
+    console.log(wallet.address); 
     await Functions.LENDPOOLCONFIGURATOR.configureNftAsCollateral(
         wallet, 
         asset,
         tokenid,
+        newprice,
         ltv, 
         threshold, 
         bonus,
@@ -200,6 +202,16 @@ task("configurator:setPoolPause", "pauses or unpauses all the actions of the pro
     const wallet = await getOwnerWallet();  
 
     const tx = await Functions.LENDPOOLCONFIGURATOR.setPoolPause(wallet, val)
+    console.log(tx);
+});
+
+task("configurator:setLtvManagerStatus", "adds an address as LTV Manager")
+.addParam("newltvmanager", "the address to add as LTV Manager") 
+.addParam("val", "true as ltvManager") 
+.setAction( async ({newltvmanager, val}) => {
+    const wallet = await getOwnerWallet();  
+
+    const tx = await Functions.LENDPOOLCONFIGURATOR.setLtvManagerStatus(wallet, newltvmanager, val)
     console.log(tx);
 });
 
