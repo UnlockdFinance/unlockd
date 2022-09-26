@@ -4,6 +4,16 @@ import { getWETHGateway, getUNFTRegistryProxy, getNFTOracle } from "../../helper
 import { getLendPoolConfiguratorProxy } from "../../helpers/contracts-getters";
 import { TokenContractId } from "../../helpers/types";
 
+import { deployCustomERC721 } from "../../helpers/contracts-deployments";
+
+task("deploy-new-NFT" )
+  .addParam("name", `The NFT name`)
+  .addParam("symbol", `The NFT symbol`)
+  .setAction(async ({ name, symbol }, localBRE) => {
+    await localBRE.run("set-DRE"); 
+    await deployCustomERC721([name, symbol], symbol, true); //add nft to database with symbol as ID
+  }
+); 
 
 task("unft-registerNFT", "Deploy unft tokens for dev enviroment")
   .addParam("nftaddress", `The address of the NFT to use`)

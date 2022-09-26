@@ -22,7 +22,7 @@ library Errors {
   string public constant CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST = "104";
   string public constant CALLER_NOT_POOL_LIQUIDATOR = "105";
   string public constant CALLER_NOT_LTV_MANAGER = "106";
-
+  string public constant CALLER_NOT_PRICE_MANAGER = "107";
   //math library erros
   string public constant MATH_MULTIPLICATION_OVERFLOW = "200";
   string public constant MATH_ADDITION_OVERFLOW = "201";

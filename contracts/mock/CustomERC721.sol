@@ -8,7 +8,7 @@ import {ERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/
  * @title MintableERC721
  * @dev ERC721 minting logic
  */
-contract MintableERC721 is ERC721Enumerable {
+contract CustomERC721 is ERC721Enumerable {
   error ZeroAddress();
   error MaxSupplyReached();
 

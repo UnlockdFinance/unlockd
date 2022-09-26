@@ -142,9 +142,14 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   });
 
   it("Deactivates the BAYC NFT as collateral", async () => {
-    const { configurator, dataProvider, bayc, tokenId } = testEnv;
-    await configurator.configureNftAsCollateral(bayc.address, tokenId, 0, 0, 0, 1, 2, 25, true, false);
-
+    const { users, configurator, dataProvider, bayc, tokenId, nftOracle } = testEnv;
+    await configurator.setLtvManagerStatus(users[0].address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+    console.log("ltv set");
+    await configurator
+      .connect(users[0].signer)
+      .configureNftAsCollateral(bayc.address, tokenId, "8000", 0, 0, 0, 1, 2, 25, true, false);
+    console.log("ocllateral set");
     const { ltv, liquidationBonus, liquidationThreshold } = await dataProvider.getNftConfigurationDataByTokenId(
       bayc.address,
       tokenId
@@ -156,8 +161,12 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   });
 
   it("Activates the BAYC NFT as collateral", async () => {
-    const { configurator, dataProvider, bayc, tokenId } = testEnv;
-    await configurator.configureNftAsCollateral(bayc.address, tokenId, "8000", "8250", "500", 1, 2, 25, true, false);
+    const { users, configurator, dataProvider, bayc, tokenId, nftOracle } = testEnv;
+    await configurator.setLtvManagerStatus(users[0].address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+    await configurator
+      .connect(users[0].signer)
+      .configureNftAsCollateral(bayc.address, tokenId, "8000", "8000", "8250", "500", 1, 2, 25, true, false);
 
     const { ltv, liquidationBonus, liquidationThreshold } = await dataProvider.getNftConfigurationDataByTokenId(
       bayc.address,
@@ -170,11 +179,13 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   });
 
   it("Check the onlyLtvManager on configureNftAsCollateral ", async () => {
-    const { configurator, users, bayc, tokenId } = testEnv;
+    const { configurator, users, bayc, tokenId, nftOracle } = testEnv;
+    await configurator.setLtvManagerStatus(users[0].address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
     await expect(
       configurator
         .connect(users[2].signer)
-        .configureNftAsCollateral(bayc.address, tokenId, "7500", "8000", "500", 1, 2, 25, true, false),
+        .configureNftAsCollateral(bayc.address, tokenId, "8000", "7500", "8000", "500", 1, 2, 25, true, false),
       CALLER_NOT_LTV_MANAGER
     ).to.be.revertedWith(CALLER_NOT_LTV_MANAGER);
   });
