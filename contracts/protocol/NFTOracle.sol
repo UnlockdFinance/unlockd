@@ -9,6 +9,7 @@ import {INFTXVaultFactoryV2} from "../interfaces/INFTXVaultFactoryV2.sol";
 import {INFTXVault} from "../interfaces/INFTXVault.sol";
 import {IUniswapV2Router02} from "../interfaces/IUniswapV2Router02.sol";
 import {BlockContext} from "../utils/BlockContext.sol";
+import {Errors} from "../libraries/helpers/Errors.sol";
 
 contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   /// @dev When calling getPrice() of a non-minted tokenId it returns '0', shouldn't this revert with an error?
@@ -56,8 +57,15 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   address public nftxVaultFactory;
   address public sushiswapRouter;
 
+  mapping(address => bool) isPriceManager;
+
   modifier onlyAdmin() {
     if (_msgSender() != priceFeedAdmin) revert NotAdmin();
+    _;
+  }
+
+  modifier onlyPriceManager() {
+    require(isPriceManager[msg.sender], Errors.CALLER_NOT_PRICE_MANAGER);
     _;
   }
 
@@ -100,6 +108,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     priceFeedAdmin = _admin;
     nftxVaultFactory = _nftxVaultFactory;
     sushiswapRouter = _sushiswapRouter;
+    isPriceManager[_msgSender()] = true;
   }
 
   /**
@@ -172,7 +181,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     address _collection,
     uint256 _tokenId,
     uint256 _price
-  ) external override onlyOwner {
+  ) external override onlyPriceManager {
     _setNFTPrice(_collection, _tokenId, _price);
   }
 
@@ -249,6 +258,10 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
    */
   function setPause(address _collection, bool paused) external override onlyOwner {
     collectionPaused[_collection] = paused;
+  }
+
+  function setPriceManagerStatus(address newLtvManager, bool val) external onlyOwner {
+    isPriceManager[newLtvManager] = val;
   }
 
   /**
