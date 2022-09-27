@@ -9,7 +9,7 @@ import { ONE_DAY } from "../../helpers/constants";
 // are working properly.
 // the user addresses are random from a wallet just to improve simulation
 
-var amounts = [10000, 15000, 20000, 10000, 30000]; 
+var amounts = [100000, 150000, 200000, 100000, 300000]; 
 const reserves = ["DAI", "USDC"];
 const reservesAddresses = ["0xba8E26A7ea78c628331baFD32eB0C77047F2cBCa", "0x103a065B2c676123dF6EdDbf41e06d361Dd15905"];
 const userAddresses = [
@@ -50,7 +50,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         var n = i + 1; // for user wallet numbers
         switch (n) { // each user should change the numbers to their own NFT TokenIds. WE ARE ONLY USING BAYC ATM!!! each number is a dif wallet
             case 1:
-                tokenIds = [230, 201, 202, 203, 204];
+                tokenIds = [220, 221, 222, 223, 224]; //[230, 201, 202, 203, 201];
                 break;
             case 2:
                 tokenIds = [205, 206, 207, 208, 209];
@@ -62,7 +62,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
                 tokenIds = [215, 216, 217, 218, 219];
                 break;
             case 5:
-                tokenIds = [220, 221, 222, 223, 224];
+                tokenIds = [224, 223, 222, 221, 220];
                 break;
         }
         if(b == tokenIds.length)  b = 0;
@@ -96,21 +96,6 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         ); 
         await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
-        
-
-        // // Set the NFT Price
-        // console.log("\n----------------------------updating NFT price----------------------------\n");
-        // const nftPrice = amounts[i] * 3;
-        // console.log("nft price: ", nftPrice);
-        // console.log("nft address: ", nftAssets[k].toString());
-        // console.log("nft token id: ", tokenIds[b].toString());
-        // await localBRE.run("nftoracle:setnftprice", {
-        //     collection: nftAssets[k], 
-        //     tokenid: tokenIds[b].toString(), 
-        //     price: nftPrice.toString()
-        // }); 
-        // await delay(20000);
-        // console.log("\n-------------------------------------------------------------------------\n");
 
         // NFT Configuration 
         const nftPrice = amounts[i] * 3;
@@ -144,6 +129,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         console.log("\n-------------------------------------------------------------------------\n");
 
         // Borrow
+        const borrowAmount = amounts[i] / 10;
         console.log("\n-----------------------------borrowing tokens-----------------------------\n");
         console.log("collection name: ", nftNames[k].toString());
         console.log("collection address: ", nftAssets[k].toString());
@@ -154,7 +140,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         console.log("wallet: ", (n).toString());
         console.log("nftConfigFee: 200");
         await localBRE.run("lendpool:borrow", {
-            amount: amounts[i].toString(), 
+            amount: borrowAmount.toString(), 
             reserve: reserves[j], 
             collectionname: nftNames[k],
             collection: nftAssets[k],

@@ -37,7 +37,7 @@ task("lendpool:getNftAssetConfig", "Get the NFT Data from the lendpool reserves"
   .addParam("nfttokenid", "The tokenId of the asset")
   .setAction(async ({ nftaddress, nfttokenid }) => {
     const wallet = await getUserWallet();
-    const tx = await Functions.LENDPOOL.getNftAssetConfig(wallet, nftaddress, nfttokenid).then(v => v.toString());
+    const tx = await Functions.LENDPOOL.getNftAssetConfig(wallet, nftaddress, nfttokenid);
     console.log(tx);
   }
 );

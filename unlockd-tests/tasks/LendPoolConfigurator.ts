@@ -92,7 +92,6 @@ task("configurator:configureNftAsCollateral",
 .addParam("freeze", "if the nft asset is frozen or not (BOOL true or false)") 
 .setAction( async ({asset, tokenid, newprice, ltv, threshold, bonus, redeemduration, auctionduration, redeemfine, active, freeze}) => {
     const wallet = await getOwnerWallet(); 
-    console.log(wallet.address); 
     await Functions.LENDPOOLCONFIGURATOR.configureNftAsCollateral(
         wallet, 
         asset,
