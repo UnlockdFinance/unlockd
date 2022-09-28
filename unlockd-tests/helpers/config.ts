@@ -9,7 +9,7 @@ export const getOwnerWallet = async (): Promise<Wallet> =>{
 
 export const getUserWallet = async (): Promise<Wallet> =>{
     const provider = await new providers.JsonRpcProvider( process.env.RPC_ENDPOINT ) ;
-    return new Wallet( process.env.PRIVATE_KEY_USER5 as string, provider);
+    return new Wallet( process.env.PRIVATE_KEY_USER as string, provider);
 }  
 
 export const getUser2Wallet = async (): Promise<Wallet> =>{

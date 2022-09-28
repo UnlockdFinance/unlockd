@@ -1,15 +1,15 @@
 import { task } from "hardhat/config";
 import { getWalletByNumber } from "../helpers/config";
 import { Functions } from "../helpers/protocolFunctions";
-import { increaseTime } from "../../helpers/misc-utils";
-import { ONE_DAY } from "../../helpers/constants";
+import { convertToCurrencyDecimals, getContractAddressInDb } from "../../helpers/contracts-helpers";
+import { getMintableERC20 } from "../../helpers/contracts-getters";
 
 // The idea of this bot is to generate transactions on the test network in order
 // to check if the code is working, if numbers are ok and above all if subgraph and risk framework
 // are working properly.
 // the user addresses are random from a wallet just to improve simulation
 
-var amounts = [100000, 150000, 200000, 100000, 300000]; 
+var amounts = [10000, 15000, 20000, 10000, 30000]; 
 const reserves = ["DAI", "USDC"];
 const reservesAddresses = ["0xba8E26A7ea78c628331baFD32eB0C77047F2cBCa", "0x103a065B2c676123dF6EdDbf41e06d361Dd15905"];
 const userAddresses = [
@@ -50,7 +50,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         var n = i + 1; // for user wallet numbers
         switch (n) { // each user should change the numbers to their own NFT TokenIds. WE ARE ONLY USING BAYC ATM!!! each number is a dif wallet
             case 1:
-                tokenIds = [220, 221, 222, 223, 224]; //[230, 201, 202, 203, 201];
+                tokenIds = [230, 201, 202, 203, 204];
                 break;
             case 2:
                 tokenIds = [205, 206, 207, 208, 209];
@@ -71,7 +71,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
 
         // Minting Reserves to wallet
         console.log("\n----------------------------minting reservers----------------------------\n");
-        const mintAmount = amounts[i] * 3;
+        const mintAmount = amounts[i] * 1.1;
         console.log("mint/deposit amount: ", mintAmount);
         console.log("user address: ", userAddresses[i].toString());
         await localBRE.run("dev:mint-mock-reserves", {
@@ -85,7 +85,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
 
         // Deposit 
         console.log("\n-------------------------depositing to reservers-------------------------\n");
-        const depositAmount = amounts[i] * 2;
+        const depositAmount = amounts[i];
         console.log("reserve: ", reserves[j].toString());
         console.log("deposit amount: ", depositAmount.toString())
         await localBRE.run("lendpool:deposit", {
@@ -97,8 +97,11 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
 
-        // NFT Configuration 
-        const nftPrice = amounts[i] * 3;
+        // NFT Configuration
+        const erc20Address = await getContractAddressInDb(reserves[j]);
+        const erc20 = await getMintableERC20(erc20Address); 
+        const nftPriceWei = amounts[i] * 100000; // 1
+        const nftPrice = await convertToCurrencyDecimals(erc20.address, nftPriceWei.toString());
         console.log("\n---------------------------configuring the NFT---------------------------\n");
         console.log("nft address: ", nftAssets[k].toString());
         console.log("nft token id: ", tokenIds[b].toString());
@@ -129,7 +132,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         console.log("\n-------------------------------------------------------------------------\n");
 
         // Borrow
-        const borrowAmount = amounts[i] / 10;
+        const borrowAmount = amounts[i] / 4;
         console.log("\n-----------------------------borrowing tokens-----------------------------\n");
         console.log("collection name: ", nftNames[k].toString());
         console.log("collection address: ", nftAssets[k].toString());
@@ -154,7 +157,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
 
         // Repay a % of the debt
         console.log("\n-----------------------repaying part of the borrow-----------------------\n");
-        const repayAmount = amounts[i] / 2;
+        const repayAmount = amounts[i] / 10;
         console.log("collection address: ", nftAssets[k].toString());
         console.log("token id: ", tokenIds[b].toString());
         console.log("reserve: ", reserves[j].toString());
@@ -171,6 +174,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         console.log("\n-------------------------------------------------------------------------\n");
 
         // 2nd Borrow
+        const borrowAmountv2 = amounts[i] / 4;
         console.log("\n------------------------2nd time borrowing tokens------------------------\n");
         console.log("collection name: ", nftNames[k].toString());
         console.log("collection address: ", nftAssets[k].toString());
@@ -181,7 +185,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         console.log("wallet: ", (n).toString());
         console.log("nftConfigFee: 100");
         await localBRE.run("lendpool:borrow", {
-            amount: amounts[i].toString(), 
+            amount: borrowAmountv2.toString(), 
             reserve: reserves[j], 
             collectionname: nftNames[k],
             collection: nftAssets[k],

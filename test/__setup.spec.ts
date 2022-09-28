@@ -307,6 +307,8 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   await waitForTx(await addressesProvider.setNFTOracle(nftOracleImpl.address));
   await addAssetsInNFTOracle(allNftAddresses, nftOracleImpl);
   await setPricesInNFTOracle(allNftPrices, allNftAddresses, allNftMaxSupply, nftOracleImpl);
+  const lendpoolConfigurator = await addressesProvider.getLendPoolConfigurator();
+  await nftOracleImpl.setPriceManagerStatus(lendpoolConfigurator, true);
 
   console.log("-> Prepare mock nft oracle...");
   const mockNftOracleImpl = await deployMockNFTOracle();

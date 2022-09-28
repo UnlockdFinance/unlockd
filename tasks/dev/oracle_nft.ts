@@ -50,6 +50,9 @@ task("dev:deploy-oracle-nft", "Deploy nft oracle for dev environment")
       ) // Fix bug! 2e17 1e17
     );
 
+    const lendpoolConfigurator = await addressesProvider.getLendPoolConfigurator();
+    await nftOracleImpl.setPriceManagerStatus(lendpoolConfigurator, true);
+
     await waitForTx(await addressesProvider.setNFTOracle(nftOracleImpl.address));
     await addAssetsInNFTOracle(allNftAddresses, nftOracleImpl);
     await setPricesInNFTOracle(allNftPrices, allNftAddresses, allNftMaxSupply, nftOracleImpl);

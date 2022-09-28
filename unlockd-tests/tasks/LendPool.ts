@@ -170,7 +170,7 @@ task("lendpool:redeem", "Redeems a loan")
     reserveAddress == MockContracts['DAI'].address ?
     bidfine = await parseUnits(bidfine.toString()) : bidfine = await parseUnits(amount.toString(), 6);
 
-    await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount+bidfine)   
+    await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount.add(bidfine));   
     await Functions.LENDPOOL.redeem(wallet, collection, tokenid, amount, bidfine);
     
 });  
