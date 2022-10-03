@@ -292,14 +292,6 @@ const setWalletBalanceProvider = async (wallet: Wallet, provider: string) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).setWalletBalanceProvider(provider);
 }
 
-const getOpenseaSeaport = async (wallet: Wallet) => {
-    return await Contracts.lendPoolAddressesProvider.connect(wallet).getOpenseaSeaport();
-}
-
-const setOpenseaSeaport = async (wallet: Wallet, exchange: string) => {
-    return await Contracts.lendPoolAddressesProvider.connect(wallet).setOpenseaSeaport(exchange);
-}
-
 const setProtocolDataProvider = async (wallet: Wallet, protocolDataProviderAddress: string) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).setUnlockdDataProvider(protocolDataProviderAddress);
 }
@@ -595,8 +587,6 @@ export const Functions = {
         setUnlockdDataProvider: setUnlockdDataProvider,
         getWalletBalanceProvider: getWalletBalanceProvider,
         setWalletBalanceProvider: setWalletBalanceProvider,
-        getOpenseaSeaport: getOpenseaSeaport,
-        setOpenseaSeaport: setOpenseaSeaport
        
     },
     INTERESTRATE: {

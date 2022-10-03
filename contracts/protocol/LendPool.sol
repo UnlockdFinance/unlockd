@@ -227,39 +227,6 @@ contract LendPool is
   }
 
   /**
-   * @dev Allows users to borrow a specific `amount` of the reserve underlying asset array
-   * @param assets The array of addresses of the underlying asset to borrow
-   * @param totalAmounts The array of amounts to be borrowed
-   * @param nftAssets The array of addresses of the underlying nft used as collateral
-   * @param nftTokenIds The token ID of the underlying nft used as collateral
-   * @param onBehalfOf Address of the user who will receive the loan. Should be the address of the borrower itself
-   * calling the function if he wants to borrow against his own collateral
-   * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
-   *   0 if the action is executed directly by the user, without any middle-man
-   * @param nftConfigFees An array os estimation fees to config each NFT
-   **/
-  function batchBorrow(
-    address[] calldata assets,
-    uint256[] calldata totalAmounts,
-    address[] calldata nftAssets,
-    uint256[] calldata nftTokenIds,
-    address onBehalfOf,
-    uint16 referralCode,
-    uint256 nftConfigFees
-  ) external override nonReentrant whenNotPaused {
-    DataTypes.ExecuteBatchBorrowParams memory params;
-    params.initiator = _msgSender();
-    params.assets = assets;
-    params.amounts = totalAmounts;
-    params.nftAssets = nftAssets;
-    params.nftTokenIds = nftTokenIds;
-    params.onBehalfOf = onBehalfOf;
-    params.referralCode = referralCode;
-
-    BorrowLogic.executeBatchBorrow(_addressesProvider, _reserves, _nfts, _nftConfig, params, nftConfigFees);
-  }
-
-  /**
    * @notice Repays a borrowed `amount` on a specific reserve, burning the equivalent loan owned
    * - E.g. User repays 100 USDC, burning loan and receives collateral asset
    * @param nftAsset The address of the underlying NFT used as collateral
@@ -282,32 +249,6 @@ contract LendPool is
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
           amount: amount
-        })
-      );
-  }
-
-  /**
-   * @notice Repays a borrowed `amounts` on a specific array of reserves, burning the equivalent loan owned
-   * @param nftAssets The array of addresses of the underlying NFT used as collateral
-   * @param nftTokenIds The array of token IDs of the underlying NFT used as collateral
-   * @param amounts The array of amounts to repay
-   **/
-  function batchRepay(
-    address[] calldata nftAssets,
-    uint256[] calldata nftTokenIds,
-    uint256[] calldata amounts
-  ) external override nonReentrant whenNotPaused returns (uint256[] memory, bool[] memory) {
-    return
-      BorrowLogic.executeBatchRepay(
-        _addressesProvider,
-        _reserves,
-        _nfts,
-        _nftConfig,
-        DataTypes.ExecuteBatchRepayParams({
-          initiator: _msgSender(),
-          nftAssets: nftAssets,
-          nftTokenIds: nftTokenIds,
-          amounts: amounts
         })
       );
   }
@@ -405,33 +346,7 @@ contract LendPool is
 
   /**
    * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The collateral asset is sold on Opensea
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param nftTokenId The token ID of the underlying NFT used as collateral
-   **/
-  function liquidateOpensea(
-    address nftAsset,
-    uint256 nftTokenId,
-    uint256 priceInEth
-  ) external override nonReentrant onlyLendPoolLiquidatorOrGateway whenNotPaused returns (uint256) {
-    return
-      LiquidateLogic.executeLiquidateOpensea(
-        _addressesProvider,
-        _reserves,
-        _nfts,
-        _nftConfig,
-        DataTypes.ExecuteLiquidateOpenseaParams({
-          nftAsset: nftAsset,
-          nftTokenId: nftTokenId,
-          priceInEth: priceInEth,
-          liquidateFeePercentage: _liquidateFeePercentage
-        })
-      );
-  }
-
-  /**
-   * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The collateral asset is sold on Opensea
+   * - The collateral asset is sold on NFTX
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/

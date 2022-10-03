@@ -24,7 +24,6 @@ interface ILendPoolAddressesProvider {
   event UIDataProviderUpdated(address indexed newAddress);
   event UnlockdDataProviderUpdated(address indexed newAddress);
   event WalletBalanceProviderUpdated(address indexed newAddress);
-  event OpenseaSeaportUpdated(address indexed newAddress);
   event NFTXVaultFactoryUpdated(address indexed newAddress);
   event SushiSwapRouterUpdated(address indexed newAddress);
   event LendPoolLiquidatorUpdated(address indexed newAddress);
@@ -231,17 +230,6 @@ interface ILendPoolAddressesProvider {
    * @param provider the WalletBalanceProvider address
    **/
   function setWalletBalanceProvider(address provider) external;
-
-  /**
-   * @dev returns the address of the Seaport contract
-   **/
-  function getOpenseaSeaport() external view returns (address);
-
-  /**
-   * @dev sets the address of the Seaport contract
-   * @param exchange the Seaport address
-   **/
-  function setOpenseaSeaport(address exchange) external;
 
   function getNFTXVaultFactory() external view returns (address);
 

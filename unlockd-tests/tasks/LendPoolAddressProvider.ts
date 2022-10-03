@@ -264,23 +264,6 @@ task("provider:setWalletBalanceProvider", "User sets the address of the Wallet B
     console.log(tx);
 });
 
-task("provider:getOpenseaSeaport", "User gets the address of the Opensea Seaport")
-.setAction( async () => {
-    const wallet = await getOwnerWallet();  
-
-    const tx = await Functions.LENDPOOLADDRESSPROVIDER.getOpenseaSeaport(wallet)
-    console.log(JSON.stringify(tx));
-}); 
-
-task("provider:setOpenseaSeaport", "User sets the address of the Opensea Seaport")
-.addParam("exchange", "The new Opensea Seaport address") 
-.setAction( async ({exchange}) => {
-    const wallet = await getOwnerWallet();  
-
-    const tx = await Functions.LENDPOOLADDRESSPROVIDER.setOpenseaSeaport(wallet, exchange)
-    console.log(tx);
-});
-
 task("provider:getNFTXVaultFactory", "User gets the NFTXVaultFactory Address")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
