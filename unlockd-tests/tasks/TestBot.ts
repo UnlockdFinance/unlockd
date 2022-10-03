@@ -100,7 +100,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         // NFT Configuration
         const erc20Address = await getContractAddressInDb(reserves[j]);
         const erc20 = await getMintableERC20(erc20Address); 
-        const nftPriceWei = amounts[i] * 100000; // 1
+        const nftPriceWei = amounts[i] * 100; // 1
         const nftPrice = await convertToCurrencyDecimals(erc20.address, nftPriceWei.toString());
         console.log("\n---------------------------configuring the NFT---------------------------\n");
         console.log("nft address: ", nftAssets[k].toString());

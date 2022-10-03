@@ -45,6 +45,10 @@ const isApprovedNft = async(wallet: Wallet, collection: Contract, owner: string,
 //#endregion 
 
 //#region  LendPool 
+const getNftConfigByTokenId = async (wallet: Wallet, nftAddress: string, nftTokenId: number) => {
+    return await Contracts.lendPool.connect(wallet).getNftConfigByTokenId(nftAddress, nftTokenId);
+}
+
 const getReserveConfiguration = async (wallet: Wallet, asset: string) => {
     return await Contracts.lendPool.connect(wallet).getReserveConfiguration(asset);
 }
@@ -518,6 +522,7 @@ export const Functions = {
         isApprovedNft: isApprovedNft,
     },
     LENDPOOL: {
+        getNftConfigByTokenId: getNftConfigByTokenId,
         liquidateNFTX: liquidateNFTX,
         getReserveConfiguration: getReserveConfiguration,
         getNftConfiguration: getNftConfiguration,

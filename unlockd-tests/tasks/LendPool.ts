@@ -4,6 +4,17 @@ import { getOwnerWallet, getUserWallet, getWalletByNumber } from "../helpers/con
 import {  Contracts, MockContracts } from "../helpers/constants";
 import { parseUnits } from "@ethersproject/units";
 
+
+task("lendpool:getNftConfigByTokenId", "Get the NFT Configuration")
+  .addParam("nftaddress", "The asset address")
+  .addParam("nfttokenid", "The tokenId of the asset")
+  .setAction(async ({ nftaddress, nfttokenid }) => {
+    const wallet = await getUserWallet();
+    const tx = await Functions.LENDPOOL.getNftConfigByTokenId(wallet, nftaddress, nfttokenid);
+    console.log(tx);
+  }
+);
+
 // Get Nft Reserve data 
 task("lendpool:liquidateNFTX", "Liquidates the NFT on NFTx Vault")
   .addParam("nftaddress", "The asset address")
