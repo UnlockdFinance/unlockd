@@ -9,7 +9,7 @@ import { getMintableERC20 } from "../../helpers/contracts-getters";
 // are working properly.
 // the user addresses are random from a wallet just to improve simulation
 
-var amounts = [10000, 15000, 20000, 10000, 30000]; 
+var amounts = [100000, 150000, 200000, 100000, 300000]; 
 const reserves = ["DAI", "USDC"];
 const reservesAddresses = ["0xba8E26A7ea78c628331baFD32eB0C77047F2cBCa", "0x103a065B2c676123dF6EdDbf41e06d361Dd15905"];
 const userAddresses = [
@@ -50,7 +50,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         var n = i + 1; // for user wallet numbers
         switch (n) { // each user should change the numbers to their own NFT TokenIds. WE ARE ONLY USING BAYC ATM!!! each number is a dif wallet
             case 1:
-                tokenIds = [230, 201, 202, 203, 204];
+                tokenIds = [220, 221, 222, 223, 224]; //[230, 201, 202, 203, 201];
                 break;
             case 2:
                 tokenIds = [205, 206, 207, 208, 209];
