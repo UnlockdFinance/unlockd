@@ -358,6 +358,14 @@ const mintNFTX = async (wallet: Wallet, token: Contract, tokenIds: string[], amo
 
 //#endregion
 
+//#region NFTXHelper
+
+const sellNFTX = async (wallet: Wallet, ILPAddressProvider: string, nftAddress: string, nftTokenId: string, reserveAsset: string) =>  {
+    return await Contract.NFTX.connect(wallet).sellNFTX(ILPAddressProvider, nftAddress, nftTokenId, reserveAsset);
+}
+
+//#endregion
+
 //#region LendPoolConfigurator for any doubts in the parameters 
 // check the LendPoolConfigurator.sol or ILendPoolconfigurator.sol     
 const setBorrowingFlagOnReserve = async (wallet:Wallet, assets: string[], flag: boolean) => {
@@ -624,5 +632,8 @@ export const Functions = {
     },
     NFTXVAULT: {
         mintNFTX: mintNFTX,
+    },
+    NFTXHELPER: {
+        sellNFTX: sellNFTX,
     },
 }

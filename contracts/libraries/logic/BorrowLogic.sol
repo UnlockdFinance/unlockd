@@ -133,6 +133,7 @@ library BorrowLogic {
 
     ExecuteBorrowLocalVars memory vars;
     vars.initiator = params.initiator;
+    uint256 totalAmount = params.amount + nftConfigFee;
 
     DataTypes.ReserveData storage reserveData = reservesData[params.asset];
     DataTypes.NftData storage nftData = nftsData[params.nftAsset];
@@ -169,7 +170,7 @@ library BorrowLogic {
         params.nftTokenId,
         nftData.uNftAddress,
         params.asset,
-        params.amount,
+        totalAmount, //params.amount,
         reserveData.variableBorrowIndex
       );
     } else {
@@ -185,7 +186,7 @@ library BorrowLogic {
     IDebtToken(reserveData.debtTokenAddress).mint(
       vars.initiator,
       params.onBehalfOf,
-      params.amount,
+      totalAmount, //params.amount,
       reserveData.variableBorrowIndex
     );
 
@@ -193,10 +194,13 @@ library BorrowLogic {
     reserveData.updateInterestRates(params.asset, reserveData.uTokenAddress, 0, params.amount);
 
     IUToken(reserveData.uTokenAddress).transferUnderlyingTo(vars.initiator, params.amount);
-    IUToken(reserveData.uTokenAddress).transferUnderlyingTo(
-      IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS(),
-      nftConfigFee
-    );
+
+    if (nftConfigFee > 0) {
+      IUToken(reserveData.uTokenAddress).transferUnderlyingTo(
+        IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS(),
+        nftConfigFee
+      );
+    }
 
     emit Borrow(
       vars.initiator,

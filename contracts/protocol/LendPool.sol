@@ -201,12 +201,12 @@ contract LendPool is
    **/
   function borrow(
     address asset,
-    uint256 totalAmount, // Total Amount
+    uint256 amount,
     address nftAsset,
     uint256 nftTokenId,
     address onBehalfOf,
     uint16 referralCode,
-    uint256 nftConfigFee // Will deduct from Total Amount amount - nftConfigFee
+    uint256 nftConfigFee
   ) external override nonReentrant whenNotPaused {
     BorrowLogic.executeBorrow(
       _addressesProvider,
@@ -216,7 +216,7 @@ contract LendPool is
       DataTypes.ExecuteBorrowParams({
         initiator: _msgSender(),
         asset: asset,
-        amount: totalAmount - nftConfigFee,
+        amount: amount,
         nftAsset: nftAsset,
         nftTokenId: nftTokenId,
         onBehalfOf: onBehalfOf,

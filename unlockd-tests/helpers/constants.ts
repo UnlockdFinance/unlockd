@@ -22,7 +22,9 @@ import erc20Artifact from "../../artifacts/contracts/mock/MintableERC20.sol/Mint
 import erc721Artifact from "../../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
 //NFTX
 import nftxVaultFactoryArtifact from "../../artifacts/contracts/interfaces/INFTXVaultFactoryV2.sol/INFTXVaultFactoryV2.json";
+import nftxHelperArtifact from "../../artifacts/contracts/libraries/nftx/NFTXHelper.sol/NFTXHelper.json"
 import deployments from "../../deployments/deployed-contracts-goerli.json";
+
 
 dotenv.config();
 
@@ -45,6 +47,7 @@ const uTokenContract = new Contract(deployments.UToken.address, uTokenArtifact.a
 const wethGatewayContract = new Contract(deployments.WETHGateway.address, wethGatewayArtifact.abi);
 const unftRegistryContract = new Contract(deployments.UNFTRegistry.address, unftRegistryArtifact.abi);
 const dataProviderContract = new Contract(deployments.UnlockdProtocolDataProvider.address, protocolDataProviderArtifact.abi);
+const nftxHelperContract = new Contract(deployments.NFTX, nftxHelperArtifact.abi);
 
 // NFTX
 const nftxVaultFactoryContract = new Contract(deployments.NFTXVaultFactory.address, nftxVaultFactoryArtifact.abi);
