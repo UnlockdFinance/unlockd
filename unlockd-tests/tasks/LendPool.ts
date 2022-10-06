@@ -19,7 +19,7 @@ task("lendpool:getNftConfigByTokenId", "Get the NFT Configuration")
 task("lendpool:liquidateNFTX", "Liquidates the NFT on NFTx Vault")
   .addParam("nftaddress", "The asset address")
   .addParam("nfttokenid", "The tokenId of the asset")
-  .setAction(async ({ nftaddress, nfttokenid, walletnumber }) => {
+  .setAction(async ({ nftaddress, nfttokenid }) => {
     const wallet = await getOwnerWallet(); 
     const tx = await Functions.LENDPOOL.liquidateNFTX(wallet, nftaddress, nfttokenid).then(v => v.toString());
     console.log(tx);

@@ -355,15 +355,6 @@ const createNFTXVault = async (wallet: Wallet, name: string, symbol: string, ass
 const mintNFTX = async (wallet: Wallet, token: Contract, tokenIds: string[], amounts: string[]) => {
     return await token.connect(wallet).mint(tokenIds, amounts);
 }
-
-//#endregion
-
-//#region NFTXHelper
-
-const sellNFTX = async (wallet: Wallet, ILPAddressProvider: string, nftAddress: string, nftTokenId: string, reserveAsset: string) =>  {
-    return await Contract.NFTX.connect(wallet).sellNFTX(ILPAddressProvider, nftAddress, nftTokenId, reserveAsset);
-}
-
 //#endregion
 
 //#region LendPoolConfigurator for any doubts in the parameters 
@@ -632,8 +623,5 @@ export const Functions = {
     },
     NFTXVAULT: {
         mintNFTX: mintNFTX,
-    },
-    NFTXHELPER: {
-        sellNFTX: sellNFTX,
     },
 }

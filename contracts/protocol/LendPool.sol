@@ -190,7 +190,7 @@ contract LendPool is
    * - E.g. User borrows 100 USDC, receiving the 100 USDC in his wallet
    *   and lock collateral asset in contract
    * @param asset The address of the underlying asset to borrow
-   * @param totalAmount The amount to be borrowed
+   * @param amount The amount to be borrowed
    * @param nftAsset The address of the underlying nft used as collateral
    * @param nftTokenId The token ID of the underlying nft used as collateral
    * @param onBehalfOf Address of the user who will receive the loan. Should be the address of the borrower itself
