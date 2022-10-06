@@ -6,6 +6,11 @@ import { Contracts } from "./constants";
 const getNftConfigurationDataByTokenId = async (wallet: Wallet, nftAddress: string, nftTokenId: string) => {
     return await Contracts.dataProvider.connect(wallet).getNftConfigurationDataByTokenId(nftAddress, nftTokenId);
 }
+
+const getLoanDataByCollateral = async (wallet: Wallet, nftAddress: string, nftTokenId: string) => {
+    return await Contracts.dataProvider.connect(wallet).getLoanDataByCollateral(nftAddress, nftTokenId);
+}
+
 //#endregion
 
 //#region  Reserves Mintable ERC20
@@ -498,6 +503,7 @@ const RESERVE_TREASURY_ADDRESS = async(wallet: Wallet) => {
 export const Functions = {
     DATAPROVIDER: {
         getNftConfigurationDataByTokenId: getNftConfigurationDataByTokenId,
+        getLoanDataByCollateral: getLoanDataByCollateral,
     },
     UTOKEN: {
         RESERVE_TREASURY_ADDRESS: RESERVE_TREASURY_ADDRESS,  
