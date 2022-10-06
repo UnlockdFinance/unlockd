@@ -6,6 +6,16 @@ import { getOwnerWallet } from "../helpers/config";
  * This file will use the lendpoolProvider to get and set addresses or names
  * for full reference check the LendPoolAddressProvider.sol
 */
+
+task("provider:getAddress", "User sets a new Market Id name")
+.addParam("bytesaddress", "The new Market Id string/name") 
+.setAction( async ({bytesaddress}) => {
+    const wallet = await getOwnerWallet();  
+
+    const tx = await Functions.LENDPOOLADDRESSPROVIDER.getAddress(wallet, bytesaddress)
+    console.log(tx);
+}); 
+
 task("provider:getMarketId", "User gets the market id address")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  

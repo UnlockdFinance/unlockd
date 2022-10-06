@@ -11,7 +11,7 @@ task("nftxvault:mintNFTX", "Mints the token in NFTX")
 .setAction(async ({ nftname, tokenids, amounts }) => {
     const wallet = await getOwnerWallet();
     const nftContract = MockContracts[nftname];
-    const nftxAddress = await Functions.NFTXFACTORY.getNFTXVault(wallet, nftContract.address);
+    const nftxAddress = await Functions.NFTXFACTORY.vaultsForAsset(wallet, nftContract.address);
     const nftxVault = await INFTXVaultFactory.connect(nftxAddress[0], wallet);
     await Functions.NFTS.setApproveForAllNft(wallet, nftContract, nftxVault.address, true);
     await Functions.NFTXVAULT.mintNFTX(wallet, nftxVault, [tokenids], [amounts]);

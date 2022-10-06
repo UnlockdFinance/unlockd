@@ -13,11 +13,11 @@ task("nftxfactory:createNFTXVault", "Creates a Vault on NFTX")
 });
 
 
-task("nftxfactory:getNFTXVault", "Gets the vault address on NFTX")
+task("nftxfactory:vaultsForAsset", "Gets the vault address on NFTX")
 .addParam("nftaddress", "The NFT address")
 .setAction(async ({ nftaddress }) => {
     const wallet = await getUserWallet();  
-    const tx = await Functions.NFTXFACTORY.getNFTXVault(wallet, nftaddress);
+    const tx = await Functions.NFTXFACTORY.vaultsForAsset(wallet, nftaddress);
     console.log(tx);
 });
 

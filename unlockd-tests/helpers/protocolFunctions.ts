@@ -177,6 +177,10 @@ const getAssetPrice = async (wallet: Wallet, asset: string) => {
 
 //#region AddressProvider for any doubts in the parameters check the LendPoolAddressProvider Contract
 //Addresses provider for any doubts in the parameters check the LendPoolAddressProvider Contract
+const getAddress = async (wallet: Wallet, bytesAddress: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getAddress(bytesAddress);
+}
+
 const getMarketId = async (wallet: Wallet) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getMarketId();
 }
@@ -347,7 +351,7 @@ const getTotalVaults = async (wallet: Wallet) => {
     return await Contracts.nftxVaultFactory.connect(wallet).numVaults();
 }
 
-const getNFTXVault = async (wallet: Wallet, assetAddress: string) => {
+const vaultsForAsset = async (wallet: Wallet, assetAddress: string) => {
     return await Contracts.nftxVaultFactory.connect(wallet).vaultsForAsset(assetAddress);
 }
 
@@ -556,6 +560,7 @@ export const Functions = {
         getAssetPrice: getAssetPrice,
     },
     LENDPOOLADDRESSPROVIDER: {
+        getAddress: getAddress,
         getMarketId: getMarketId,
         setMarketId: setMarketId,
         getLendPool: getLendPool,
@@ -623,7 +628,7 @@ export const Functions = {
         getTokenImplementation: getTokenImplementation,
     },
     NFTXFACTORY: {
-        getNFTXVault: getNFTXVault,
+        vaultsForAsset: vaultsForAsset,
         createNFTXVault: createNFTXVault,
         getTotalVaults: getTotalVaults,
     },
