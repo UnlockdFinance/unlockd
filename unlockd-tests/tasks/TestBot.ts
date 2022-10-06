@@ -50,7 +50,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         var n = i + 1; // for user wallet numbers
         switch (n) { // each user should change the numbers to their own NFT TokenIds. WE ARE ONLY USING BAYC ATM!!! each number is a dif wallet
             case 1:
-                tokenIds = [230, 201, 202, 203, 204];
+                tokenIds = [230, 201, 202, 203, 201];
                 break;
             case 2:
                 tokenIds = [205, 206, 207, 208, 209];
