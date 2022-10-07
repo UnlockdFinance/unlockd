@@ -3,8 +3,15 @@ pragma solidity 0.8.4;
 
 import {ILendPoolAddressesProvider} from "./ILendPoolAddressesProvider.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface ILendPool {
+  /**
+   * @dev Emitted when _rescuer is modified in the LendPool
+   * @param newRescuer The address of the new rescuer
+   **/
+  event RescuerChanged(address indexed newRescuer);
+
   /**
    * @dev Emitted on deposit()
    * @param user The address initiating the deposit
@@ -199,6 +206,26 @@ interface ILendPool {
     uint256 liquidityIndex,
     uint256 variableBorrowIndex
   );
+
+  /**
+  @dev Emitted after the address of the interest rate strategy contract has been updated
+  */
+  event ReserveInterestRateAddressChanged(address indexed asset, address indexed rateAddress);
+
+  /**
+  @dev Emitted after setting the configuration bitmap of the reserve as a whole
+  */
+  event ReserveConfigurationChanged(address indexed asset, uint256 configuration);
+
+  /**
+  @dev Emitted after setting the configuration bitmap of the NFT collection as a whole
+  */
+  event NftConfigurationChanged(address indexed asset, uint256 configuration);
+
+  /**
+  @dev Emitted after setting the configuration bitmap of the NFT as a whole
+  */
+  event NftConfigurationByIdChanged(address indexed asset, uint256 indexed nftTokenId, uint256 configuration);
 
   /**
    * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying uTokens.
@@ -655,6 +682,24 @@ interface ILendPool {
   function setMaxNumberOfNfts(uint256 val) external;
 
   /**
+   * @notice Assigns the rescuer role to a given address.
+   * @param newRescuer New rescuer's address
+   */
+  function updateRescuer(address newRescuer) external;
+
+  /**
+   * @notice Rescue ERC20 tokens locked up in this contract.
+   * @param tokenContract ERC20 token contract address
+   * @param to        Recipient address
+   * @param amount    Amount to withdraw
+   */
+  function rescueERC20(
+    IERC20 tokenContract,
+    address to,
+    uint256 amount
+  ) external;
+
+  /**
    * @dev Sets the fee percentage for liquidations
    * @param percentage the fee percentage to be set
    **/
@@ -674,4 +719,10 @@ interface ILendPool {
    * @dev Returns the fee percentage for liquidations
    **/
   function getLiquidateFeePercentage() external view returns (uint256);
+
+  /**
+   * @notice Returns current rescuer
+   * @return Rescuer's address
+   */
+  function rescuer() external view returns (address);
 }

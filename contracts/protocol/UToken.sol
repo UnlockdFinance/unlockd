@@ -196,7 +196,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   /**
    * @dev Returns the address of the Unlockd treasury, receiving the fees on this uToken
    **/
-  function RESERVE_TREASURY_ADDRESS() public view returns (address) {
+  function RESERVE_TREASURY_ADDRESS() public view override returns (address) {
     return _treasury;
   }
 

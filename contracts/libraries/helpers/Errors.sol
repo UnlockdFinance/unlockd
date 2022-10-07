@@ -21,7 +21,7 @@ library Errors {
   string public constant INVALID_TO_BALANCE_AFTER_TRANSFER = "103";
   string public constant CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST = "104";
   string public constant CALLER_NOT_POOL_LIQUIDATOR = "105";
-
+  string public constant INVALID_ZERO_ADDRESS = "106";
   //math library erros
   string public constant MATH_MULTIPLICATION_OVERFLOW = "200";
   string public constant MATH_ADDITION_OVERFLOW = "201";
@@ -69,6 +69,8 @@ library Errors {
   string public constant LP_NFT_TOKEN_ID_EXCEED_MAX_LIMIT = "417";
   string public constant LP_NFT_SUPPLY_NUM_EXCEED_MAX_LIMIT = "418";
   string public constant LP_CALLER_NOT_LEND_POOL_LIQUIDATOR_NOR_GATEWAY = "419";
+  string public constant LP_CONSECUTIVE_BIDS_NOT_ALLOWED = "420";
+  string public constant LP_INVALID_OVERFLOW_VALUE = "421";
 
   //lend pool loan errors
   string public constant LPL_INVALID_LOAN_STATE = "480";
@@ -108,7 +110,7 @@ library Errors {
   string public constant LPC_INVALIED_LOAN_ADDRESS = "704";
   string public constant LPC_NFT_LIQUIDITY_NOT_0 = "705";
   string public constant LPC_PARAMS_MISMATCH = "706"; // NFT assets & token ids mismatch
-
+  string public constant LPC_FEE_PERCENTAGE_TOO_HIGH = "707";
   //reserve config errors
   string public constant RC_INVALID_LTV = "730";
   string public constant RC_INVALID_LIQ_THRESHOLD = "731";

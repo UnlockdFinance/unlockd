@@ -9,6 +9,7 @@ import {INFTXVaultFactoryV2} from "../interfaces/INFTXVaultFactoryV2.sol";
 import {INFTXVault} from "../interfaces/INFTXVault.sol";
 import {IUniswapV2Router02} from "../interfaces/IUniswapV2Router02.sol";
 import {BlockContext} from "../utils/BlockContext.sol";
+import {Errors} from "../libraries/helpers/Errors.sol";
 
 contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   /// @dev When calling getPrice() of a non-minted tokenId it returns '0', shouldn't this revert with an error?
@@ -35,6 +36,12 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
    * @param admin The new admin
    **/
   event FeedAdminUpdated(address indexed admin);
+
+  /**
+   * @dev Emitted when the pause status is set to a collection
+   * @param paused the new pause status
+   **/
+  event CollectionPaused(bool indexed paused);
 
   error NotAdmin();
   error NonExistingCollection(address collection);
@@ -67,14 +74,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     _;
   }
 
-  modifier onlyExistingCollections(address[] memory _collections) {
-    for (uint256 i = 0; i < _collections.length; i++) {
-      bool collectionExists = collections[_collections[i]];
-      if (!collectionExists) revert NonExistingCollection(_collections[i]);
-    }
-    _;
-  }
-
   modifier onlyNonExistingCollection(address _collection) {
     bool collectionExists = collections[_collection];
     if (collectionExists) revert AlreadyExistingCollection();
@@ -96,6 +95,10 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     address _nftxVaultFactory,
     address _sushiswapRouter
   ) public initializer {
+    require(
+      _admin != address(0) && _nftxVaultFactory != address(0) && _sushiswapRouter != address(0),
+      Errors.INVALID_ZERO_ADDRESS
+    );
     __Ownable_init();
     priceFeedAdmin = _admin;
     nftxVaultFactory = _nftxVaultFactory;
@@ -116,6 +119,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   @param _admin the address to become the admin
    */
   function setPriceFeedAdmin(address _admin) external onlyOwner {
+    require(_admin != address(0), Errors.INVALID_ZERO_ADDRESS);
     priceFeedAdmin = _admin;
     emit FeedAdminUpdated(_admin);
   }
@@ -125,8 +129,12 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   @param _collections the array NFT collections to add
    */
   function setCollections(address[] calldata _collections) external onlyOwner {
-    for (uint256 i = 0; i < _collections.length; i++) {
+    uint256 collectionsLength = _collections.length;
+    for (uint256 i = 0; i != collectionsLength; ) {
       _addCollection(_collections[i]);
+      unchecked {
+        ++i;
+      }
     }
   }
 
@@ -172,7 +180,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     address _collection,
     uint256 _tokenId,
     uint256 _price
-  ) external override onlyOwner {
+  ) external override onlyAdmin {
     _setNFTPrice(_collection, _tokenId, _price);
   }
 
@@ -183,11 +191,14 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     address[] calldata _collections,
     uint256[] calldata _tokenIds,
     uint256[] calldata _prices
-  ) external override onlyOwner {
+  ) external override onlyAdmin {
     uint256 collectionsLength = _collections.length;
     if (collectionsLength != _tokenIds.length || collectionsLength != _prices.length) revert ArraysLengthInconsistent();
-    for (uint256 i = 0; i < collectionsLength; i++) {
+    for (uint256 i = 0; i != collectionsLength; ) {
       _setNFTPrice(_collections[i], _tokenIds[i], _prices[i]);
+      unchecked {
+        ++i;
+      }
     }
   }
 
@@ -229,7 +240,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     external
     view
     override
-    onlyExistingCollections(_collections)
     returns (uint256[] memory)
   {
     uint256 collectionsLength = _collections.length;
@@ -237,8 +247,11 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
 
     uint256[] memory _nftPrices = new uint256[](collectionsLength);
 
-    for (uint256 i = 0; i < collectionsLength; i++) {
+    for (uint256 i = 0; i != collectionsLength; ) {
       _nftPrices[i] = this.getNFTPrice(_collections[i], _tokenIds[i]);
+      unchecked {
+        ++i;
+      }
     }
 
     return _nftPrices;
@@ -247,21 +260,28 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   /**
    * @inheritdoc INFTOracle
    */
-  function setPause(address _collection, bool paused) external override onlyOwner {
+  function setPause(address _collection, bool paused) external override onlyOwner onlyExistingCollection(_collection) {
     collectionPaused[_collection] = paused;
+    emit CollectionPaused(paused);
   }
 
   /**
    * @inheritdoc INFTOracle
    */
-  function getNFTPriceNFTX(address _collection, uint256 _tokenId) external view override returns (uint256) {
+  function getNFTPriceNFTX(address _collection, uint256 _tokenId)
+    external
+    view
+    override
+    onlyExistingCollection(_collection)
+    returns (uint256)
+  {
     // Get NFTX Vaults for asset
     address[] memory vaultAddresses = INFTXVaultFactoryV2(nftxVaultFactory).vaultsForAsset(_collection);
 
     uint256[] memory tokenIds = new uint256[](1);
     tokenIds[0] = _tokenId;
 
-    for (uint256 i = 0; i < vaultAddresses.length; i += 1) {
+    for (uint256 i = 0; i != vaultAddresses.length; ) {
       INFTXVault nftxVault = INFTXVault(vaultAddresses[i]);
       if (nftxVault.allValidNFTs(tokenIds)) {
         // Swap path is NFTX Vault -> WETH
@@ -274,6 +294,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
         uint256[] memory amounts = IUniswapV2Router02(sushiswapRouter).getAmountsOut(amountIn, swapPath);
         return amounts[1];
       }
+      ++i;
     }
 
     revert PriceIsZero();

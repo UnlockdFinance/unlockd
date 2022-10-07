@@ -24,7 +24,9 @@ import {LendPoolStorageExt} from "./LendPoolStorageExt.sol";
 
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {IERC721ReceiverUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -57,6 +59,7 @@ contract LendPool is
   using WadRayMath for uint256;
   using PercentageMath for uint256;
   using SafeERC20Upgradeable for IERC20Upgradeable;
+  using SafeERC20 for IERC20;
   using ReserveLogic for DataTypes.ReserveData;
   using NftLogic for DataTypes.NftData;
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
@@ -101,6 +104,14 @@ contract LendPool is
     _;
   }
 
+  /**
+   * @notice Revert if called by any account other than the rescuer.
+   */
+  modifier onlyRescuer() {
+    require(msg.sender == _rescuer, "Rescuable: caller is not the rescuer");
+    _;
+  }
+
   function _whenNotPaused() internal view {
     require(!_paused, Errors.LP_IS_PAUSED);
   }
@@ -119,6 +130,11 @@ contract LendPool is
   }
 
   /**
+   * @dev Address allowed to recover accidentally sent ERC20 tokens to the LendPool
+   **/
+  address private _rescuer;
+
+  /**
    * @dev Function is invoked by the proxy contract when the LendPool contract is added to the
    * LendPoolAddressesProvider of the market.
    * - Caching the address of the LendPoolAddressesProvider in order to reduce gas consumption
@@ -126,8 +142,9 @@ contract LendPool is
    * @param provider The address of the LendPoolAddressesProvider
    **/
   function initialize(ILendPoolAddressesProvider provider) public initializer {
+    require(address(provider) != address(0), Errors.INVALID_ZERO_ADDRESS);
     _maxNumberOfReserves = 32;
-    _maxNumberOfNfts = 256;
+    _maxNumberOfNfts = 255;
     _liquidateFeePercentage = 250;
 
     _addressesProvider = provider;
@@ -794,8 +811,11 @@ contract LendPool is
   function getReservesList() external view override returns (address[] memory) {
     address[] memory _activeReserves = new address[](_reservesCount);
 
-    for (uint256 i = 0; i < _reservesCount; i++) {
+    for (uint256 i = 0; i != _reservesCount; ) {
       _activeReserves[i] = _reservesList[i];
+      unchecked {
+        ++i;
+      }
     }
     return _activeReserves;
   }
@@ -806,8 +826,11 @@ contract LendPool is
   function getNftsList() external view override returns (address[] memory) {
     address[] memory _activeNfts = new address[](_nftsCount);
 
-    for (uint256 i = 0; i < _nftsCount; i++) {
+    for (uint256 i = 0; i != _nftsCount; ) {
       _activeNfts[i] = _nftsList[i];
+      unchecked {
+        ++i;
+      }
     }
     return _activeNfts;
   }
@@ -859,13 +882,14 @@ contract LendPool is
    * @param val the value to set the max number of reserves
    **/
   function setMaxNumberOfReserves(uint256 val) external override onlyLendPoolConfigurator {
+    require(val <= 255, Errors.LP_INVALID_OVERFLOW_VALUE); //Sanity check to avoid overflows in `_addReserveToList`
     _maxNumberOfReserves = val;
   }
 
   /**
    * @dev Returns the maximum number of reserves supported to be listed in this LendPool
    */
-  function getMaxNumberOfReserves() public view override returns (uint256) {
+  function getMaxNumberOfReserves() external view override returns (uint256) {
     return _maxNumberOfReserves;
   }
 
@@ -874,13 +898,14 @@ contract LendPool is
    * @param val the value to set the max number of NFTs
    **/
   function setMaxNumberOfNfts(uint256 val) external override onlyLendPoolConfigurator {
+    require(val <= 255, Errors.LP_INVALID_OVERFLOW_VALUE); //Sanity check to avoid overflows in `_addNftToList`
     _maxNumberOfNfts = val;
   }
 
   /**
    * @dev Returns the maximum number of nfts supported to be listed in this LendPool
    */
-  function getMaxNumberOfNfts() public view override returns (uint256) {
+  function getMaxNumberOfNfts() external view override returns (uint256) {
     return _maxNumberOfNfts;
   }
 
@@ -891,7 +916,7 @@ contract LendPool is
   /**
    * @dev Returns the liquidate fee percentage
    */
-  function getLiquidateFeePercentage() public view override returns (uint256) {
+  function getLiquidateFeePercentage() external view override returns (uint256) {
     return _liquidateFeePercentage;
   }
 
@@ -911,6 +936,10 @@ contract LendPool is
     address interestRateAddress
   ) external override onlyLendPoolConfigurator {
     require(AddressUpgradeable.isContract(asset), Errors.LP_NOT_CONTRACT);
+    require(
+      uTokenAddress != address(0) && debtTokenAddress != address(0) && interestRateAddress != address(0),
+      Errors.INVALID_ZERO_ADDRESS
+    );
     _reserves[asset].init(uTokenAddress, debtTokenAddress, interestRateAddress);
     _addReserveToList(asset);
   }
@@ -924,6 +953,7 @@ contract LendPool is
    **/
   function initNft(address asset, address uNftAddress) external override onlyLendPoolConfigurator {
     require(AddressUpgradeable.isContract(asset), Errors.LP_NOT_CONTRACT);
+    require(uNftAddress != address(0), Errors.INVALID_ZERO_ADDRESS);
     _nfts[asset].init(uNftAddress);
     _addNftToList(asset);
 
@@ -944,7 +974,9 @@ contract LendPool is
     override
     onlyLendPoolConfigurator
   {
+    require(asset != address(0) && rateAddress != address(0), Errors.INVALID_ZERO_ADDRESS);
     _reserves[asset].interestRateAddress = rateAddress;
+    emit ReserveInterestRateAddressChanged(asset, rateAddress);
   }
 
   /**
@@ -955,6 +987,7 @@ contract LendPool is
    **/
   function setReserveConfiguration(address asset, uint256 configuration) external override onlyLendPoolConfigurator {
     _reserves[asset].configuration.data = configuration;
+    emit ReserveConfigurationChanged(asset, configuration);
   }
 
   /**
@@ -965,6 +998,7 @@ contract LendPool is
    **/
   function setNftConfiguration(address asset, uint256 configuration) external override onlyLendPoolConfigurator {
     _nfts[asset].configuration.data = configuration;
+    emit NftConfigurationChanged(asset, configuration);
   }
 
   /**
@@ -980,6 +1014,7 @@ contract LendPool is
     uint256 configuration
   ) external override onlyLendPoolConfigurator {
     _nftConfig[asset][nftTokenId].data = configuration;
+    emit NftConfigurationByIdChanged(asset, nftTokenId, configuration);
   }
 
   /**
@@ -995,6 +1030,38 @@ contract LendPool is
   ) external override onlyLendPoolConfigurator {
     _nfts[asset].maxSupply = maxSupply;
     _nfts[asset].maxTokenId = maxTokenId;
+  }
+
+  /**
+   * @notice Rescue ERC20 tokens locked up in this contract.
+   * @param tokenContract ERC20 token contract address
+   * @param to        Recipient address
+   * @param amount    Amount to withdraw
+   */
+  function rescueERC20(
+    IERC20 tokenContract,
+    address to,
+    uint256 amount
+  ) external override onlyRescuer {
+    tokenContract.safeTransfer(to, amount);
+  }
+
+  /**
+   * @notice Assign the rescuer role to a given address.
+   * @param newRescuer New rescuer's address
+   */
+  function updateRescuer(address newRescuer) external override onlyLendPoolConfigurator {
+    require(newRescuer != address(0), "Rescuable: new rescuer is the zero address");
+    _rescuer = newRescuer;
+    emit RescuerChanged(newRescuer);
+  }
+
+  /**
+   * @notice Returns current rescuer
+   * @return Rescuer's address
+   */
+  function rescuer() external view override returns (address) {
+    return _rescuer;
   }
 
   function _addReserveToList(address asset) internal {
@@ -1024,27 +1091,6 @@ contract LendPool is
       _nftsList[nftsCount] = asset;
 
       _nftsCount = nftsCount + 1;
-    }
-  }
-
-  function _verifyCallResult(
-    bool success,
-    bytes memory returndata,
-    string memory errorMessage
-  ) internal pure returns (bytes memory) {
-    if (success) {
-      return returndata;
-    } else {
-      // Look for revert reason and bubble it up if present
-      if (returndata.length > 0) {
-        // The easiest way to bubble the revert reason is using memory via assembly
-        assembly {
-          let returndata_size := mload(returndata)
-          revert(add(32, returndata), returndata_size)
-        }
-      } else {
-        revert(errorMessage);
-      }
     }
   }
 

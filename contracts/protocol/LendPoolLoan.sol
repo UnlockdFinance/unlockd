@@ -43,6 +43,8 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
 
   // called once by the factory at time of deployment
   function initialize(ILendPoolAddressesProvider provider) external initializer {
+    require(address(provider) != address(0), Errors.INVALID_ZERO_ADDRESS);
+
     __Context_init();
 
     _addressesProvider = provider;

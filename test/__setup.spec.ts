@@ -1,7 +1,7 @@
 import rawBRE from "hardhat";
 import { MockContract } from "ethereum-waffle";
 import "./helpers/utils/math";
-import { insertContractAddressInDb, registerContractInJsonDb } from "../helpers/contracts-helpers";
+import { getEthersSigners, insertContractAddressInDb, registerContractInJsonDb } from "../helpers/contracts-helpers";
 import {
   deployLendPoolAddressesProvider,
   deployUTokenImplementations,
@@ -330,7 +330,10 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
 
   console.log("-> Prepare Reserve init and configure...");
   const { UTokenNamePrefix, UTokenSymbolPrefix, DebtTokenNamePrefix, DebtTokenSymbolPrefix } = config;
-  const treasuryAddress = await getTreasuryAddress(config);
+
+  //const treasuryAddress = await getTreasuryAddress(config);
+  const [_deployer, ...restSigners] = await getEthersSigners();
+  const treasuryAddress = await restSigners[0].getAddress(); //TREASURY WILL BE users [0] FOR TESTING PURPOSES
 
   await initReservesByHelper(
     reservesParams,
