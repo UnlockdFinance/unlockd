@@ -99,61 +99,61 @@
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "GenericLogic": {
-    "address": "0xf4250354CD82bb517A35C4408335B19F344757d8",
+    "address": "0x20e7Bb8a46884D3CA032fc9A9433c5b7549e9791",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "ReserveLogic": {
-    "address": "0xfCDA62680131dA68Ca707aaebaE23F33b7A46aF2",
+    "address": "0xBe7be3EBDB53B2455136C121e7BA1Acc0674B3fA",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "NftLogic": {
-    "address": "0x55b322e7521F03867014cd4381FF493CbF7c8bD6",
+    "address": "0x8E7Bea87EaCF65C186B630707575A87575372Ea5",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "ValidationLogic": {
-    "address": "0x7797e698279B6bebC712C7660a0f5813257Eb840",
+    "address": "0xFD1B8812cfe20A6BD9Da934a2Bdbf74825C561b9",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "SupplyLogic": {
-    "address": "0x9348758718B3dA970fDfcfe4b62c081d88c5F045",
+    "address": "0xfE2F63111679234b5e793749e30033B34ae5B428",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "BorrowLogic": {
-    "address": "0x169ae8A02A22d3fd28d4c63fCCf9BD5c76DBB623",
+    "address": "0x72aC28aBbb537Aa5A5CA859D48D93d47D4dbe5D8",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "LiquidateLogic": {
-    "address": "0x724BC408BbE264617cc040F709592182c40e8566",
+    "address": "0x80eB871ADa4508b44d50d0d03174f970a850D2f4",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "ConfiguratorLogic": {
-    "address": "0x7713C6206cC98C349D81538E4d166B36aB2bD9F4",
+    "address": "0xc6ba8f17700a5D29E1A191C65780AA43a78D327E",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "LendPoolImpl": {
-    "address": "0x6A5B951cD8bED72c0107ED52f4765403dA98bf8B"
+    "address": "0x9567d541a2acf029a417eeE99f78E4582E38726D"
   },
   "LendPool": {
     "address": "0x16868ce9241645Bb035Ecb5f0498B51f68a56BF2"
   },
   "LendPoolConfiguratorImpl": {
-    "address": "0xfA31E15007787540Aa4CF89597Ff0C4d9C682345"
+    "address": "0x0D2449228d4b20dF75650B9904c5f8F3B73a134D"
   },
   "LendPoolConfigurator": {
     "address": "0x7cFC534E27F06BCc8ACA487bb8d32a4e8a645Bd1"
   },
   "LendPoolLoanImpl": {
-    "address": "0x418Fd395F8E61c7B0e96f0e833f7315391f1795c"
+    "address": "0xd7a6c0498d2bC444a019c37858E3e6E307caEb09"
   },
   "LendPoolLoan": {
     "address": "0xff6671d1140443D769CB828adE4EC5d365F91F16"
   },
   "UToken": {
-    "address": "0x961c33bD9447eA430CbA11f04DE22153B9306F75",
+    "address": "0x5D3090C2BfdC9Bc6be4533Cd9DE93F7a27369118",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "DebtToken": {
-    "address": "0x5FeEeF818B7d0911C37dcf6D137b713ECB166289",
+    "address": "0xB3a4F440cbA08A796e810D949403821a378a20d5",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "MockChainlinkOracle": {

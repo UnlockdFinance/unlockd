@@ -371,7 +371,7 @@ contract LendPool is
     external
     override
     nonReentrant
-    onlyLendPoolLiquidatorOrGateway
+    //onlyLendPoolLiquidatorOrGateway
     whenNotPaused
     returns (uint256)
   {
