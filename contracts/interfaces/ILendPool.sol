@@ -46,6 +46,7 @@ interface ILendPool {
    * @param nftTokenId The token id of the underlying NFT used as collateral
    * @param onBehalfOf The address that will be getting the loan
    * @param referral The referral code used
+   * @param nftConfigFee an estimated gas cost fee for configuring the NFT
    **/
   event Borrow(
     address user,
@@ -56,7 +57,8 @@ interface ILendPool {
     address indexed onBehalfOf,
     uint256 borrowRate,
     uint256 loanId,
-    uint16 indexed referral
+    uint16 indexed referral,
+    uint256 nftConfigFee
   );
 
   /**
@@ -130,23 +132,6 @@ interface ILendPool {
    **/
   event Liquidate(
     address user,
-    address indexed reserve,
-    uint256 repayAmount,
-    uint256 remainAmount,
-    address indexed nftAsset,
-    uint256 nftTokenId,
-    address indexed borrower,
-    uint256 loanId
-  );
-
-  /**
-   * @dev Emitted when a borrower's loan is liquidated on Opensea.
-   * @param reserve The address of the underlying asset of the reserve
-   * @param repayAmount The amount of reserve repaid by the liquidator
-   * @param remainAmount The amount of reserve received by the borrower
-   * @param loanId The loan ID of the NFT loans
-   **/
-  event LiquidateOpensea(
     address indexed reserve,
     uint256 repayAmount,
     uint256 remainAmount,
@@ -276,6 +261,7 @@ interface ILendPool {
    * if he has been given credit delegation allowance
    * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
    *   0 if the action is executed directly by the user, without any middle-man
+   * @param nftConfigFee an estimated gas cost fee for configuring the NFT
    **/
   function borrow(
     address reserveAsset,
@@ -283,27 +269,8 @@ interface ILendPool {
     address nftAsset,
     uint256 nftTokenId,
     address onBehalfOf,
-    uint16 referralCode
-  ) external;
-
-  /**
-   * @dev Allows users to borrow a specific `amount` of the reserve underlying asset array
-   * @param assets The array of addresses of the underlying asset to borrow
-   * @param amounts The array of amounts to be borrowed
-   * @param nftAssets The array of addresses of the underlying nft used as collateral
-   * @param nftTokenIds The token ID of the underlying nft used as collateral
-   * @param onBehalfOf Address of the user who will receive the loan. Should be the address of the borrower itself
-   * calling the function if he wants to borrow against his own collateral
-   * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
-   *   0 if the action is executed directly by the user, without any middle-man
-   **/
-  function batchBorrow(
-    address[] calldata assets,
-    uint256[] calldata amounts,
-    address[] calldata nftAssets,
-    uint256[] calldata nftTokenIds,
-    address onBehalfOf,
-    uint16 referralCode
+    uint16 referralCode,
+    uint256 nftConfigFee
   ) external;
 
   /**
@@ -319,18 +286,6 @@ interface ILendPool {
     uint256 nftTokenId,
     uint256 amount
   ) external returns (uint256, bool);
-
-  /**
-   * @notice Repays a borrowed `amounts` on a specific array of reserves, burning the equivalent loan owned
-   * @param nftAssets The array of addresses of the underlying NFT used as collateral
-   * @param nftTokenIds The array of token IDs of the underlying NFT used as collateral
-   * @param amounts The array of amounts to repay
-   **/
-  function batchRepay(
-    address[] calldata nftAssets,
-    uint256[] calldata nftTokenIds,
-    uint256[] calldata amounts
-  ) external returns (uint256[] memory, bool[] memory);
 
   /**
    * @dev Function to auction a non-healthy position collateral-wise
@@ -375,18 +330,6 @@ interface ILendPool {
     address nftAsset,
     uint256 nftTokenId,
     uint256 amount
-  ) external returns (uint256);
-
-  /**
-   * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The collateral asset is sold on Opensea
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param nftTokenId The token ID of the underlying NFT used as collateral
-   **/
-  function liquidateOpensea(
-    address nftAsset,
-    uint256 nftTokenId,
-    uint256 priceInEth
   ) external returns (uint256);
 
   /**

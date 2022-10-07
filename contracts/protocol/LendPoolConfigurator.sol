@@ -14,7 +14,7 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {ConfigTypes} from "../libraries/types/ConfigTypes.sol";
-
+import {INFTOracle} from "../interfaces/INFTOracle.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -30,8 +30,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   using NftConfiguration for DataTypes.NftConfigurationMap;
   ILendPoolAddressesProvider internal _addressesProvider;
 
+  mapping(address => bool) isLtvManager;
+
   modifier onlyLtvManager() {
-    require(_addressesProvider.getLtvManager() == msg.sender, Errors.CALLER_NOT_LTV_MANAGER);
+    require(isLtvManager[msg.sender], Errors.CALLER_NOT_LTV_MANAGER);
     _;
   }
 
@@ -335,6 +337,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function configureNftAsCollateral(
     address asset,
     uint256 nftTokenId,
+    uint256 newPrice,
     uint256 ltv,
     uint256 liquidationThreshold,
     uint256 liquidationBonus,
@@ -345,6 +348,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     bool freezeFlag
   ) external onlyLtvManager {
     ILendPool cachedPool = _getLendPool();
+
     DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(asset, nftTokenId);
 
     //validation of the parameters: the LTV can
@@ -374,6 +378,8 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     currentConfig.setRedeemFine(redeemFine);
 
     cachedPool.setNftConfigByTokenId(asset, nftTokenId, currentConfig.data);
+
+    INFTOracle(_addressesProvider.getNFTOracle()).setNFTPrice(asset, nftTokenId, newPrice);
 
     emit NftConfigurationChanged(asset, nftTokenId, ltv, liquidationThreshold, liquidationBonus);
   }
@@ -576,6 +582,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function setPoolPause(bool val) external onlyEmergencyAdmin {
     ILendPool cachedPool = _getLendPool();
     cachedPool.setPause(val);
+  }
+
+  function setLtvManagerStatus(address newLtvManager, bool val) external onlyPoolAdmin {
+    isLtvManager[newLtvManager] = val;
   }
 
   /**

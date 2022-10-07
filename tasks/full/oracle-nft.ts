@@ -28,13 +28,13 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
       const { NftsAssets, NFTXVaultFactory, SushiSwapRouter } = poolConfig as ICommonConfiguration;
 
       const nftOracleAddress = getParamPerNetwork(poolConfig.NFTOracle, network);
+      const addressesProvider = await getLendPoolAddressesProvider();
 
       if (skipOracle) {
         if (nftOracleAddress == undefined || !notFalsyOrZeroAddress(nftOracleAddress)) {
           throw Error("Invalid NFT Oracle address in pool config");
         }
         console.log("Reuse existed nft oracle proxy:", nftOracleAddress);
-        const addressesProvider = await getLendPoolAddressesProvider();
         await waitForTx(await addressesProvider.setNFTOracle(nftOracleAddress));
         return;
       }
@@ -71,6 +71,9 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
         nftxVaultFactory,
         sushiSwapRouter,
       ]);
+
+      const lendpoolConfigurator = await addressesProvider.getLendPoolConfigurator();
+      await nftOracleImpl.setPriceManagerStatus(lendpoolConfigurator, true);
 
       let nftOracle: NFTOracle;
       let nftOracleProxy: UnlockdUpgradeableProxy;

@@ -57,7 +57,8 @@ library BorrowLogic {
     address indexed onBehalfOf,
     uint256 borrowRate,
     uint256 loanId,
-    uint16 indexed referral
+    uint16 indexed referral,
+    uint256 nftConfigFee
   );
 
   /**
@@ -105,46 +106,10 @@ library BorrowLogic {
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    DataTypes.ExecuteBorrowParams memory params
+    DataTypes.ExecuteBorrowParams memory params,
+    uint256 nftConfigFee
   ) external {
-    _borrow(addressesProvider, reservesData, nftsData, nftsConfig, params);
-  }
-
-  /**
-   * @notice Implements the batch borrow feature. Through `batchBorrow()`, users repay borrow to the protocol.
-   * @dev Emits the `Borrow()` event.
-   * @param reservesData The state of all the reserves
-   * @param nftsData The state of all the nfts
-   * @param params The additional parameters needed to execute the batchBorrow function
-   */
-  function executeBatchBorrow(
-    ILendPoolAddressesProvider addressesProvider,
-    mapping(address => DataTypes.ReserveData) storage reservesData,
-    mapping(address => DataTypes.NftData) storage nftsData,
-    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    DataTypes.ExecuteBatchBorrowParams memory params
-  ) external {
-    require(params.nftAssets.length == params.assets.length, "inconsistent assets length");
-    require(params.nftAssets.length == params.amounts.length, "inconsistent amounts length");
-    require(params.nftAssets.length == params.nftTokenIds.length, "inconsistent tokenIds length");
-
-    for (uint256 i = 0; i < params.nftAssets.length; i++) {
-      _borrow(
-        addressesProvider,
-        reservesData,
-        nftsData,
-        nftsConfig,
-        DataTypes.ExecuteBorrowParams({
-          initiator: params.initiator,
-          asset: params.assets[i],
-          amount: params.amounts[i],
-          nftAsset: params.nftAssets[i],
-          nftTokenId: params.nftTokenIds[i],
-          onBehalfOf: params.onBehalfOf,
-          referralCode: params.referralCode
-        })
-      );
-    }
+    _borrow(addressesProvider, reservesData, nftsData, nftsConfig, params, nftConfigFee);
   }
 
   /**
@@ -154,18 +119,21 @@ library BorrowLogic {
    * @param reservesData The state of all the reserves
    * @param nftsData The state of all the nfts
    * @param params The additional parameters needed to execute the borrow function
+   * @param nftConfigFee the estimate gas cost of configuring each NFT.
    */
   function _borrow(
     ILendPoolAddressesProvider addressesProvider,
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    DataTypes.ExecuteBorrowParams memory params
+    DataTypes.ExecuteBorrowParams memory params,
+    uint256 nftConfigFee
   ) internal {
     require(params.onBehalfOf != address(0), Errors.VL_INVALID_ONBEHALFOF_ADDRESS);
 
     ExecuteBorrowLocalVars memory vars;
     vars.initiator = params.initiator;
+    uint256 totalAmount = params.amount + nftConfigFee;
 
     DataTypes.ReserveData storage reserveData = reservesData[params.asset];
     DataTypes.NftData storage nftData = nftsData[params.nftAsset];
@@ -202,7 +170,7 @@ library BorrowLogic {
         params.nftTokenId,
         nftData.uNftAddress,
         params.asset,
-        params.amount,
+        totalAmount, //params.amount,
         reserveData.variableBorrowIndex
       );
     } else {
@@ -218,7 +186,7 @@ library BorrowLogic {
     IDebtToken(reserveData.debtTokenAddress).mint(
       vars.initiator,
       params.onBehalfOf,
-      params.amount,
+      totalAmount, //params.amount,
       reserveData.variableBorrowIndex
     );
 
@@ -226,6 +194,13 @@ library BorrowLogic {
     reserveData.updateInterestRates(params.asset, reserveData.uTokenAddress, 0, params.amount);
 
     IUToken(reserveData.uTokenAddress).transferUnderlyingTo(vars.initiator, params.amount);
+
+    if (nftConfigFee > 0) {
+      IUToken(reserveData.uTokenAddress).transferUnderlyingTo(
+        IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS(),
+        nftConfigFee
+      );
+    }
 
     emit Borrow(
       vars.initiator,
@@ -236,7 +211,8 @@ library BorrowLogic {
       params.onBehalfOf,
       reserveData.currentVariableBorrowRate,
       vars.loanId,
-      params.referralCode
+      params.referralCode,
+      nftConfigFee
     );
   }
 
@@ -265,44 +241,6 @@ library BorrowLogic {
     DataTypes.ExecuteRepayParams memory params
   ) external returns (uint256, bool) {
     return _repay(addressesProvider, reservesData, nftsData, nftsConfig, params);
-  }
-
-  /**
-   * @notice Implements the batch repay feature. Through `batchRepay()`, users repay assets to the protocol.
-   * @dev Emits the `repay()` event.
-   * @param reservesData The state of all the reserves
-   * @param nftsData The state of all the nfts
-   * @param params The additional parameters needed to execute the batchRepay function
-   */
-  function executeBatchRepay(
-    ILendPoolAddressesProvider addressesProvider,
-    mapping(address => DataTypes.ReserveData) storage reservesData,
-    mapping(address => DataTypes.NftData) storage nftsData,
-    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    DataTypes.ExecuteBatchRepayParams memory params
-  ) external returns (uint256[] memory, bool[] memory) {
-    require(params.nftAssets.length == params.amounts.length, "inconsistent amounts length");
-    require(params.nftAssets.length == params.nftTokenIds.length, "inconsistent tokenIds length");
-
-    uint256[] memory repayAmounts = new uint256[](params.nftAssets.length);
-    bool[] memory repayAlls = new bool[](params.nftAssets.length);
-
-    for (uint256 i = 0; i < params.nftAssets.length; i++) {
-      (repayAmounts[i], repayAlls[i]) = _repay(
-        addressesProvider,
-        reservesData,
-        nftsData,
-        nftsConfig,
-        DataTypes.ExecuteRepayParams({
-          initiator: params.initiator,
-          nftAsset: params.nftAssets[i],
-          nftTokenId: params.nftTokenIds[i],
-          amount: params.amounts[i]
-        })
-      );
-    }
-
-    return (repayAmounts, repayAlls);
   }
 
   /**

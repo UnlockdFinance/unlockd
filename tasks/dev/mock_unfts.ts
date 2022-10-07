@@ -23,7 +23,7 @@ task("dev:deploy-mock-unft-registry", "Deploy unft registry for dev enviroment")
     await localBRE.run("set-DRE");
 
     const proxyAdminAddress = await (await getProxyAdminSigner()).getAddress();
-
+    console.log(proxyAdminAddress);
     const poolConfig = loadPoolConfig(pool);
 
     const unftGenericImpl = await deployGenericUNFTImpl(verify);

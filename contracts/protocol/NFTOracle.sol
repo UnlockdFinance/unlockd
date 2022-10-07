@@ -56,15 +56,19 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   mapping(address => bool) public collections;
   //Keeps track of token IDs in a collection
   mapping(address => uint256[]) public collectionTokenIds;
-
+  
+  //TODO: Remove this variable previously to deploying the protocol
   address public priceFeedAdmin;
   mapping(address => bool) public collectionPaused;
 
   address public nftxVaultFactory;
   address public sushiswapRouter;
 
-  modifier onlyAdmin() {
-    if (_msgSender() != priceFeedAdmin) revert NotAdmin();
+  mapping(address => bool) isPriceManager;
+
+
+  modifier onlyPriceManager() {
+    require(isPriceManager[msg.sender], Errors.CALLER_NOT_PRICE_MANAGER);
     _;
   }
 
@@ -103,6 +107,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     priceFeedAdmin = _admin;
     nftxVaultFactory = _nftxVaultFactory;
     sushiswapRouter = _sushiswapRouter;
+    isPriceManager[_msgSender()] = true;
   }
 
   /**
@@ -180,7 +185,9 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     address _collection,
     uint256 _tokenId,
     uint256 _price
-  ) external override onlyAdmin {
+
+  ) external override onlyPriceManager {
+
     _setNFTPrice(_collection, _tokenId, _price);
   }
 
@@ -191,7 +198,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     address[] calldata _collections,
     uint256[] calldata _tokenIds,
     uint256[] calldata _prices
-  ) external override onlyAdmin {
+  ) external override onlyPriceManager {
     uint256 collectionsLength = _collections.length;
     if (collectionsLength != _tokenIds.length || collectionsLength != _prices.length) revert ArraysLengthInconsistent();
     for (uint256 i = 0; i < collectionsLength; ) {
@@ -262,6 +269,10 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
    */
   function setPause(address _collection, bool paused) external override onlyOwner onlyExistingCollection(_collection) {
     collectionPaused[_collection] = paused;
+  }
+
+  function setPriceManagerStatus(address newLtvManager, bool val) external onlyOwner {
+    isPriceManager[newLtvManager] = val;
   }
 
   /**

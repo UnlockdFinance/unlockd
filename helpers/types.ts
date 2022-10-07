@@ -87,6 +87,7 @@ export enum eContractid {
   NFTXVaultFactory = "NFTXVaultFactory",
   UniswapV2Factory = "UniswapV2Factory",
   SushiSwapRouter = "SushiSwapRouter",
+  NFTXHelper = "NFTXHelper",
 }
 
 export enum ProtocolLoanState {

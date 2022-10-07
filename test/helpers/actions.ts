@@ -532,7 +532,7 @@ export const borrow = async (
 
   if (expectedResult === "success") {
     const txResult = await waitForTx(
-      await pool.connect(user.signer).borrow(reserve, amountToBorrow, nftAsset, nftTokenId, onBehalfOf, "0")
+      await pool.connect(user.signer).borrow(reserve, amountToBorrow, nftAsset, nftTokenId, onBehalfOf, "0", 0)
     );
 
     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
@@ -583,7 +583,7 @@ export const borrow = async (
     expectEqual(loanDataAfter, expectedLoanData);
   } else if (expectedResult === "revert") {
     await expect(
-      pool.connect(user.signer).borrow(reserve, amountToBorrow, nftAsset, nftTokenId, onBehalfOf, "0"),
+      pool.connect(user.signer).borrow(reserve, amountToBorrow, nftAsset, nftTokenId, onBehalfOf, "0", 0),
       revertMessage
     ).to.be.reverted;
   }

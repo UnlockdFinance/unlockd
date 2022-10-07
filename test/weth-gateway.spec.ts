@@ -236,14 +236,14 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
 
     console.log("Borrow first ETH with NFT");
     await waitForTx(
-      await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, nftAsset, tokenId, borrower.address, "0")
+      await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, nftAsset, tokenId, borrower.address, "0", 0)
     );
 
     await advanceTimeAndBlock(100);
 
     console.log("Borrow more ETH with NFT");
     await waitForTx(
-      await wethGateway.connect(borrower.signer).borrowETH(borrowSize2, nftAsset, tokenId, borrower.address, "0")
+      await wethGateway.connect(borrower.signer).borrowETH(borrowSize2, nftAsset, tokenId, borrower.address, "0", 0)
     );
 
     expect(await borrower.signer.getBalance(), "current eth balance shoud increase").to.be.gt(ethBalanceBefore);
@@ -275,110 +275,6 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
 
     const tokenOwner = await bayc.ownerOf(tokenId);
     expect(tokenOwner).to.be.equal(borrower.address, "Invalid token owner after repay");
-  });
-
-  it("Batch Borrow ETH", async () => {
-    const { users, wethGateway, pool, loan, weth, uWETH, bayc, dataProvider } = testEnv;
-    const depositor = users[0];
-    const borrower = users[1];
-    const borrowSize1 = parseEther("1");
-    const borrowSize2 = parseEther("2");
-    const borrowSizeAll = borrowSize1.add(borrowSize2);
-
-    // Deposit with native ETH
-    await waitForTx(
-      await wethGateway.connect(depositor.signer).depositETH(depositor.address, "0", { value: depositSize })
-    );
-
-    const uTokensBalance = await uWETH.balanceOf(depositor.address);
-    expect(uTokensBalance, "uTokensBalance not gte depositSize").to.be.gte(depositSize);
-
-    // Delegates borrowing power of WETH to WETHGateway
-    const reserveData = await pool.getReserveData(weth.address);
-    const debtToken = await getDebtToken(reserveData.debtTokenAddress);
-    await waitForTx(await debtToken.connect(borrower.signer).approveDelegation(wethGateway.address, borrowSizeAll));
-
-    // Start loan
-    const nftAsset = await getNftAddressFromSymbol("BAYC");
-    const tokenId1 = (testEnv.tokenIdTracker++).toString();
-    await mintERC721(testEnv, borrower, "BAYC", tokenId1);
-    const tokenId2 = (testEnv.tokenIdTracker++).toString();
-    await mintERC721(testEnv, borrower, "BAYC", tokenId2);
-
-    await setApprovalForAll(testEnv, borrower, "BAYC");
-    await setApprovalForAllWETHGateway(testEnv, borrower, "BAYC");
-
-    await advanceTimeAndBlock(100);
-
-    const ethBalanceBefore = await borrower.signer.getBalance();
-
-    console.log("batch borrow eth");
-    await waitForTx(
-      await wethGateway
-        .connect(borrower.signer)
-        .batchBorrowETH([borrowSize1, borrowSize2], [nftAsset, nftAsset], [tokenId1, tokenId2], borrower.address, "0")
-    );
-
-    // check results
-    const ethBalanceAfter = await borrower.signer.getBalance();
-    expect(ethBalanceAfter, "current eth balance shoud increase").to.be.gte(
-      ethBalanceBefore.add(borrowSizeAll).sub(gasCostSize)
-    );
-
-    const loanData1AfterBorrow = await getLoanData(pool, dataProvider, nftAsset, tokenId1, "0");
-    const loanData2AfterBorrow = await getLoanData(pool, dataProvider, nftAsset, tokenId2, "0");
-    expect(loanData1AfterBorrow.state.toNumber()).to.be.eq(ProtocolLoanState.Active);
-    expect(loanData2AfterBorrow.state.toNumber()).to.be.eq(ProtocolLoanState.Active);
-
-    await advanceTimeAndBlock(100);
-
-    console.log("batch repay eth - partial");
-    const repaySize1Part = borrowSize2.div(2);
-    const repaySize2Part = borrowSize2.div(2);
-    await waitForTx(
-      await wethGateway
-        .connect(borrower.signer)
-        .batchRepayETH([nftAsset, nftAsset], [tokenId1, tokenId2], [repaySize1Part, repaySize2Part], {
-          value: repaySize1Part.add(repaySize2Part).add(1000000),
-        })
-    );
-
-    const loanData1AfterRepayPart = await getLoanData(pool, dataProvider, nftAsset, tokenId1, "0");
-    const loanData2AfterRepayPart = await getLoanData(pool, dataProvider, nftAsset, tokenId2, "0");
-
-    expect(loanData1AfterRepayPart.state.toNumber()).to.be.eq(ProtocolLoanState.Active);
-    expect(loanData2AfterRepayPart.state.toNumber()).to.be.eq(ProtocolLoanState.Active);
-
-    await advanceTimeAndBlock(100);
-
-    console.log("batch repay eth - full");
-    const repaySize1Full = loanData1AfterRepayPart.currentAmount;
-    const repaySize2Full = loanData2AfterRepayPart.currentAmount;
-    await waitForTx(
-      await wethGateway
-        .connect(borrower.signer)
-        .batchRepayETH([nftAsset, nftAsset], [tokenId1, tokenId2], [MAX_UINT_AMOUNT, MAX_UINT_AMOUNT], {
-          value: repaySize1Full.plus(repaySize2Full).multipliedBy(1.01).toFixed(0),
-        })
-    );
-
-    const loanData1AfterRepayFull = await getLoanData(
-      pool,
-      dataProvider,
-      nftAsset,
-      tokenId1,
-      loanData1AfterRepayPart.loanId.toFixed(0)
-    );
-    const loanData2AfterRepayFull = await getLoanData(
-      pool,
-      dataProvider,
-      nftAsset,
-      tokenId2,
-      loanData2AfterRepayPart.loanId.toFixed(0)
-    );
-
-    expect(loanData1AfterRepayFull.state.toNumber()).to.be.eq(ProtocolLoanState.Repaid);
-    expect(loanData2AfterRepayFull.state.toNumber()).to.be.eq(ProtocolLoanState.Repaid);
   });
 
   it("Should revert if receiver function receives Ether if not WETH", async () => {

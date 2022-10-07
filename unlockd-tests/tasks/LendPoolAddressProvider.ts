@@ -6,6 +6,16 @@ import { getOwnerWallet } from "../helpers/config";
  * This file will use the lendpoolProvider to get and set addresses or names
  * for full reference check the LendPoolAddressProvider.sol
 */
+
+task("provider:getAddress", "User sets a new Market Id name")
+.addParam("bytesaddress", "The new Market Id string/name") 
+.setAction( async ({bytesaddress}) => {
+    const wallet = await getOwnerWallet();  
+
+    const tx = await Functions.LENDPOOLADDRESSPROVIDER.getAddress(wallet, bytesaddress)
+    console.log(tx);
+}); 
+
 task("provider:getMarketId", "User gets the market id address")
 .setAction( async () => {
     const wallet = await getOwnerWallet();  
@@ -38,6 +48,41 @@ task("provider:setLendPoolImpl", "User sets a lendpool address")
     const wallet = await getOwnerWallet();  
 
     const tx = await Functions.LENDPOOLADDRESSPROVIDER.setLendPoolImpl(wallet, provideraddress, encodeddata)
+    console.log(tx);
+}); 
+
+task("provider:getLendPoolConfigurator", "User gets the LendPoolConfigurator address")
+.setAction( async () => {
+    const wallet = await getOwnerWallet();  
+
+    const tx = await Functions.LENDPOOLADDRESSPROVIDER.getLendPoolConfigurator(wallet)
+    console.log(JSON.stringify(tx));
+}); 
+
+task("provider:setLendPoolConfiguratorImpl", "User sets a lendPoolConfigurator address")
+.addParam("provideraddress", "The new LendPoolConfigurator Address") 
+.addParam("encodeddata", "The data to initialize the lendPoolConfigurator") 
+.setAction( async ({provideraddress, encodeddata}) => {
+    const wallet = await getOwnerWallet();  
+
+    const tx = await Functions.LENDPOOLADDRESSPROVIDER.setLendPoolConfiguratorImpl(wallet, provideraddress, encodeddata)
+    console.log(tx);
+}); 
+
+task("provider:getLtvManager", "User gets the Loan to Value Manager Address")
+.setAction( async () => {
+    const wallet = await getOwnerWallet();  
+
+    const tx = await Functions.LENDPOOLADDRESSPROVIDER.getLtvManager(wallet)
+    console.log(JSON.stringify(tx));
+}); 
+
+task("provider:setLtvManager", "User sets a new Loan to Value Manager Address")
+.addParam("ltvaddress", "The new Loan to Value Manager Address") 
+.setAction( async ({ltvaddress}) => {
+    const wallet = await getOwnerWallet();  
+
+    const tx = await Functions.LENDPOOLADDRESSPROVIDER.setLtvManager(wallet, ltvaddress)
     console.log(tx);
 }); 
 
@@ -204,10 +249,10 @@ task("provider:getUnlockdDataProvider", "User gets the address of the Unlockd Da
 }); 
 
 task("provider:setUnlockdDataProvider", "User sets the address of the Unlockd Data Provider")
-.addParam("provider", "The new UI Data Provider address") 
+.addParam("provider", "The new Data Provider address") 
 .setAction( async ({provider}) => {
     const wallet = await getOwnerWallet();  
-
+    
     const tx = await Functions.LENDPOOLADDRESSPROVIDER.setUnlockdDataProvider(wallet, provider)
     console.log(tx);
 });
@@ -226,23 +271,6 @@ task("provider:setWalletBalanceProvider", "User sets the address of the Wallet B
     const wallet = await getOwnerWallet();  
 
     const tx = await Functions.LENDPOOLADDRESSPROVIDER.setWalletBalanceProvider(wallet, provider)
-    console.log(tx);
-});
-
-task("provider:getOpenseaSeaport", "User gets the address of the Opensea Seaport")
-.setAction( async () => {
-    const wallet = await getOwnerWallet();  
-
-    const tx = await Functions.LENDPOOLADDRESSPROVIDER.getOpenseaSeaport(wallet)
-    console.log(JSON.stringify(tx));
-}); 
-
-task("provider:setOpenseaSeaport", "User sets the address of the Opensea Seaport")
-.addParam("exchange", "The new Opensea Seaport address") 
-.setAction( async ({exchange}) => {
-    const wallet = await getOwnerWallet();  
-
-    const tx = await Functions.LENDPOOLADDRESSPROVIDER.setOpenseaSeaport(wallet, exchange)
     console.log(tx);
 });
 

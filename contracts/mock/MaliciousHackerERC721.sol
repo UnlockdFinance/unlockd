@@ -21,8 +21,7 @@ contract MaliciousHackerERC721 is IERC721Receiver {
   uint256 public constant ACTION_REPAY = 4;
   uint256 public constant ACTION_AUCTION = 5;
   uint256 public constant ACTION_REDEEM = 6;
-  uint256 public constant ACTION_LIQUIDATE_OPENSEA = 7;
-  uint256 public constant ACTION_LIQUIDATE_NFTX = 8;
+  uint256 public constant ACTION_LIQUIDATE_NFTX = 7;
 
   constructor(address pool_) {
     _pool = ILendPool(pool_);
@@ -69,13 +68,22 @@ contract MaliciousHackerERC721 is IERC721Receiver {
     vars.to = msg.sender;
     vars.referralCode = 0;
     vars.amount = 1 ether;
+    uint256 nftConfigFee = 0;
 
     if (_simulateAction == ACTION_DEPOSIT) {
       _pool.deposit(vars.reserves[0], vars.amount, vars.onBehalfOf, vars.referralCode);
     } else if (_simulateAction == ACTION_WITHDRAW) {
       _pool.withdraw(vars.reserves[0], vars.amount, vars.to);
     } else if (_simulateAction == ACTION_BORROW) {
-      _pool.borrow(vars.reserves[0], vars.amount, vars.nfts[0], tokenId, vars.onBehalfOf, vars.referralCode);
+      _pool.borrow(
+        vars.reserves[0],
+        vars.amount,
+        vars.nfts[0],
+        tokenId,
+        vars.onBehalfOf,
+        vars.referralCode,
+        nftConfigFee
+      );
     } else if (_simulateAction == ACTION_REPAY) {
       _pool.repay(vars.nfts[0], tokenId, vars.amount);
     } else if (_simulateAction == ACTION_AUCTION) {

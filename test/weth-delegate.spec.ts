@@ -73,7 +73,7 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     console.log("borrowETH");
     await expect(
-      wethGateway.connect(hacker.signer).borrowETH(borrowSize2, nftAsset, tokenId, borrower.address, "0")
+      wethGateway.connect(hacker.signer).borrowETH(borrowSize2, nftAsset, tokenId, borrower.address, "0", 0)
     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
   });
 
@@ -118,7 +118,7 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     console.log("Borrow first ETH with NFT");
     await waitForTx(
-      await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, nftAsset, tokenId, borrower.address, "0")
+      await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, nftAsset, tokenId, borrower.address, "0", 0)
     );
 
     expect(await borrower.signer.getBalance(), "current eth balance shoud increase").to.be.gt(ethBalanceBefore);
@@ -128,7 +128,7 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     console.log("Borrower try Borrow more ETH with NFT on different onBehalfOf");
     await expect(
-      wethGateway.connect(borrower.signer).borrowETH(borrowSize2, nftAsset, tokenId, hacker.address, "0")
+      wethGateway.connect(borrower.signer).borrowETH(borrowSize2, nftAsset, tokenId, hacker.address, "0", 0)
     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
   });
 
@@ -173,7 +173,7 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     console.log("Borrow first ETH with NFT");
     await waitForTx(
-      await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, nftAsset, tokenId, borrower.address, "0")
+      await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, nftAsset, tokenId, borrower.address, "0", 0)
     );
 
     expect(await borrower.signer.getBalance(), "current eth balance shoud increase").to.be.gt(ethBalanceBefore);
@@ -183,7 +183,7 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     console.log("Hacker try Borrow more ETH with others NFT");
     await expect(
-      wethGateway.connect(hacker.signer).borrowETH(borrowSize2, nftAsset, tokenId, borrower.address, "0")
+      wethGateway.connect(hacker.signer).borrowETH(borrowSize2, nftAsset, tokenId, borrower.address, "0", 0)
     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
   });
 });

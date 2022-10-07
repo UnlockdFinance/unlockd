@@ -130,28 +130,11 @@ library DataTypes {
     uint16 referralCode;
   }
 
-  struct ExecuteBatchBorrowParams {
-    address initiator;
-    address[] assets;
-    uint256[] amounts;
-    address[] nftAssets;
-    uint256[] nftTokenIds;
-    address onBehalfOf;
-    uint16 referralCode;
-  }
-
   struct ExecuteRepayParams {
     address initiator;
     address nftAsset;
     uint256 nftTokenId;
     uint256 amount;
-  }
-
-  struct ExecuteBatchRepayParams {
-    address initiator;
-    address[] nftAssets;
-    uint256[] nftTokenIds;
-    uint256[] amounts;
   }
 
   struct ExecuteAuctionParams {
@@ -175,13 +158,6 @@ library DataTypes {
     address nftAsset;
     uint256 nftTokenId;
     uint256 amount;
-  }
-
-  struct ExecuteLiquidateOpenseaParams {
-    address nftAsset;
-    uint256 nftTokenId;
-    uint256 priceInEth;
-    uint256 liquidateFeePercentage;
   }
 
   struct ExecuteLiquidateNFTXParams {
