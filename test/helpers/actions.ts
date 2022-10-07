@@ -37,6 +37,7 @@ import {
   getLendPoolLoanProxy,
   getIErc20Detailed,
   getDebtToken,
+  getPoolAdminSigner,
 } from "../../helpers/contracts-getters";
 import { MAX_UINT_AMOUNT, oneEther, ONE_DAY, ONE_HOUR, ONE_YEAR } from "../../helpers/constants";
 import { SignerWithAddress, TestEnv } from "./make-suite";
@@ -130,7 +131,41 @@ export const mintERC20 = async (testEnv: TestEnv, user: SignerWithAddress, reser
 
   await waitForTx(await token.connect(user.signer).mint(await convertToCurrencyDecimals(reserve, amount)));
 };
+export const transferERC20 = async (
+  testEnv: TestEnv,
+  from: SignerWithAddress,
+  to: SignerWithAddress,
+  reserveSymbol: string,
+  amount: string
+) => {
+  const reserve = await getReserveAddressFromSymbol(reserveSymbol);
 
+  const token = await getMintableERC20(reserve);
+
+  await waitForTx(
+    await token.connect(from.signer).transfer(to.address, await convertToCurrencyDecimals(reserve, amount))
+  );
+};
+
+export const setPoolRescuer = async (testEnv: TestEnv, rescuer: SignerWithAddress) => {
+  const poolAdmin = await getPoolAdminSigner();
+
+  //Set new rescuer
+  await testEnv.configurator.connect(poolAdmin).setPoolRescuer(rescuer.address);
+};
+export const rescueERC20 = async (
+  testEnv: TestEnv,
+  rescuer: SignerWithAddress,
+  to: SignerWithAddress,
+  reserveSymbol: string,
+  amount: string
+) => {
+  const { configurator } = testEnv;
+  const reserve = await getReserveAddressFromSymbol(reserveSymbol);
+  await testEnv.pool
+    .connect(rescuer.signer)
+    .rescueERC20(reserve, to.address, await convertToCurrencyDecimals(reserve, amount));
+};
 export const mintERC721 = async (testEnv: TestEnv, user: SignerWithAddress, nftSymbol: string, tokenId: string) => {
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
 
@@ -147,7 +182,15 @@ export const approveERC20 = async (testEnv: TestEnv, user: SignerWithAddress, re
 
   await waitForTx(await token.connect(user.signer).approve(pool.address, "100000000000000000000000000000"));
 };
+export const getERC20Balance = async (testEnv: TestEnv, user: SignerWithAddress, reserveSymbol: string) => {
+  const { pool } = testEnv;
+  const reserve = await getReserveAddressFromSymbol(reserveSymbol);
 
+  const token = await getMintableERC20(reserve);
+
+  const balance = await token.connect(user.signer).balanceOf(user.address);
+  return balance;
+};
 export const approveERC20PunkGateway = async (testEnv: TestEnv, user: SignerWithAddress, reserveSymbol: string) => {
   const { punkGateway } = testEnv;
   const reserve = await getReserveAddressFromSymbol(reserveSymbol);

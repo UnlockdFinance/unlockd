@@ -162,6 +162,11 @@ library LiquidateLogic {
 
     DataTypes.LoanData memory loanData = ILendPoolLoan(vars.loanAddress).getLoan(vars.loanId);
 
+    //Initiator can not bid for same onBehalfOf address, as the new auction would be the same as the currently existing auction
+    //created by them previously. Nevertheless, it is possible for the initiator to bid for a different `onBehalfOf` address,
+    //as the new bidderAddress will be different.
+    require(params.onBehalfOf != loanData.bidderAddress, Errors.LP_CONSECUTIVE_BIDS_NOT_ALLOWED);
+
     DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
     DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];

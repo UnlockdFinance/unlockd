@@ -8,8 +8,13 @@ import { BigNumberish } from "ethers";
 const { expect } = require("chai");
 
 makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
-  const { CALLER_NOT_POOL_ADMIN, LPC_RESERVE_LIQUIDITY_NOT_0, LPC_INVALID_CONFIGURATION, RC_INVALID_RESERVE_FACTOR } =
-    ProtocolErrors;
+  const {
+    CALLER_NOT_POOL_ADMIN,
+    LPC_RESERVE_LIQUIDITY_NOT_0,
+    LPC_INVALID_CONFIGURATION,
+    RC_INVALID_RESERVE_FACTOR,
+    LP_INVALID_OVERFLOW_VALUE,
+  } = ProtocolErrors;
 
   it("Reverts trying to set an invalid reserve factor", async () => {
     const { configurator, weth } = testEnv;
@@ -236,6 +241,13 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
     const { configurator, users, pool } = testEnv;
     await expect(configurator.setMaxNumberOfReserves(2), LPC_INVALID_CONFIGURATION).to.be.revertedWith(
       LPC_INVALID_CONFIGURATION
+    );
+  });
+
+  it("Config setMaxNumberOfReserves invalid value overflow", async () => {
+    const { configurator, users, pool } = testEnv;
+    await expect(configurator.setMaxNumberOfReserves(256), LP_INVALID_OVERFLOW_VALUE).to.be.revertedWith(
+      LP_INVALID_OVERFLOW_VALUE
     );
   });
 
