@@ -17,7 +17,7 @@ import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC7
  * @notice Implements NFTX selling logic
  */
 library NFTXHelper {
-  address public constant WETH = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
+  address internal constant WETH = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
 
   /**
    * @dev Sells an asset in an NFTX liquid market
