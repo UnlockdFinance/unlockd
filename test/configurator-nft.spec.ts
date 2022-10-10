@@ -38,7 +38,9 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     },
   ];
 
-  const { CALLER_NOT_POOL_ADMIN, LPC_INVALID_CONFIGURATION, LPC_NFT_LIQUIDITY_NOT_0, CALLER_NOT_LTV_MANAGER } =
+
+  const { CALLER_NOT_POOL_ADMIN, LPC_INVALID_CONFIGURATION, LPC_NFT_LIQUIDITY_NOT_0, LP_INVALID_OVERFLOW_VALUE } =
+
     ProtocolErrors;
   const tokenSupply = MOCK_NFT_AGGREGATORS_MAXSUPPLY.BAYC;
   var maxSupply: number = +tokenSupply;
@@ -346,18 +348,17 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     );
   });
 
-  it("Config setMaxNumberOfNfts valid value", async () => {
-    const { configurator, users, pool } = testEnv;
-    await configurator.setMaxNumberOfNfts(512);
-
-    const wantVal = await pool.getMaxNumberOfNfts();
-    expect(wantVal).to.be.equal(512);
-  });
-
   it("Config setMaxNumberOfNfts invalid value", async () => {
     const { configurator, users, pool } = testEnv;
     await expect(configurator.setMaxNumberOfNfts(2), LPC_INVALID_CONFIGURATION).to.be.revertedWith(
       LPC_INVALID_CONFIGURATION
+    );
+  });
+
+  it("Config setMaxNumberOfNfts invalid value overflowing", async () => {
+    const { configurator, users, pool } = testEnv;
+    await expect(configurator.setMaxNumberOfNfts(256), LP_INVALID_OVERFLOW_VALUE).to.be.revertedWith(
+      LP_INVALID_OVERFLOW_VALUE
     );
   });
 

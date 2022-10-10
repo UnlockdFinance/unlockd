@@ -2,9 +2,9 @@ import BigNumber from "bignumber.js";
 import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 
-import { getReservesConfigByPool } from "../helpers/configuration";
+import { ConfigNames, getReservesConfigByPool, getTreasuryAddress, loadPoolConfig } from "../helpers/configuration";
 import { MAX_UINT_AMOUNT, oneEther, ONE_DAY } from "../helpers/constants";
-import { getDebtToken, getNFTXVault } from "../helpers/contracts-getters";
+import { getDebtToken, getDeploySigner, getNFTXVault } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
 import { advanceBlock, advanceTimeAndBlock, increaseTime, sleep, waitForTx } from "../helpers/misc-utils";
 import { UnlockdPools, iUnlockdPoolAssets, IReserveParams, ProtocolLoanState } from "../helpers/types";
@@ -166,6 +166,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
       nftxVaultFactory,
     } = testEnv;
 
+    const config = loadPoolConfig(ConfigNames.Unlockd);
     const [depositor, borrower] = users;
     const depositUnit = "200000";
     const depositSize = await convertToCurrencyDecimals(usdc.address, "200000");
@@ -227,6 +228,10 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     // Liquidate USDC loan
     await mintERC20(testEnv, liquidator, "USDC", depositUnit.toString());
     await approveERC20PunkGateway(testEnv, liquidator, "USDC");
+    //User[0] is the treasury. Approving in case extradebtamount is > 0
+    const treasury = users[0];
+    await mintERC20(testEnv, treasury, "USDC", "100000");
+    await approveERC20(testEnv, treasury, "USDC");
 
     await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
 
