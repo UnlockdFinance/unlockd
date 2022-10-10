@@ -95,7 +95,8 @@ makeSuite("PunkGateway: Batch borrow", (testEnv: TestEnv) => {
           [borrowSize1, borrowSize2],
           [punkIndex1, punkIndex2],
           borrower.address,
-          "0"
+          "0",
+          0
         )
     );
 
@@ -182,7 +183,7 @@ makeSuite("PunkGateway: Batch borrow", (testEnv: TestEnv) => {
     await waitForTx(
       await punkGateway
         .connect(borrower.signer)
-        .batchBorrowETH([borrowSize1, borrowSize2], [punkIndex1, punkIndex2], borrower.address, "0")
+        .batchBorrowETH([borrowSize1, borrowSize2], [punkIndex1, punkIndex2], borrower.address, "0", 0)
     );
 
     // Check results

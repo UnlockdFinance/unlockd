@@ -325,18 +325,25 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
   /**
    * @inheritdoc IUiPoolDataProvider
    */
-  function getSimpleNftConfiguration(
+  function getSimpleNftsConfiguration(
     ILendPoolAddressesProvider provider,
-    address nftAsset,
-    uint256 tokenId
-  ) external view override returns (AggregatedNftConfiguration memory) {
+    address[] memory nftAssets,
+    uint256[] memory nftTokenIds
+  ) external view override returns (AggregatedNftConfiguration[] memory) {
+    require(nftAssets.length == nftTokenIds.length, Errors.LP_INCONSISTENT_PARAMS);
+
     ILendPool lendPool = ILendPool(provider.getLendPool());
+    AggregatedNftConfiguration[] memory nftConfigs = new AggregatedNftConfiguration[](nftAssets.length);
 
-    AggregatedNftConfiguration memory nftConfig;
-    DataTypes.NftConfigurationMap memory baseConfig = lendPool.getNftAssetConfig(nftAsset, tokenId);
-    _fillNftConfiguration(nftConfig, nftAsset, tokenId, baseConfig);
+    for (uint256 i = 0; i < nftAssets.length; i++) {
+      AggregatedNftConfiguration memory nftConfig = nftConfigs[i];
 
-    return nftConfig;
+      DataTypes.NftConfigurationMap memory baseConfig = lendPool.getNftConfigByTokenId(nftAssets[i], nftTokenIds[i]);
+
+      _fillNftConfiguration(nftConfig, nftAssets[i], nftTokenIds[i], baseConfig);
+    }
+
+    return nftConfigs;
   }
 
   /**

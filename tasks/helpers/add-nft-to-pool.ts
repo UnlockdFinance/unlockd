@@ -8,6 +8,7 @@ import {
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
   getWETHGateway,
+  getNFTOracle,
 } from "../../helpers/contracts-getters";
 import { getEthersSignerByAddress } from "../../helpers/contracts-helpers";
 import { getNowTimeInSeconds, notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
@@ -67,7 +68,9 @@ task("add-nft-to-pool", "Add and config new nft asset to lend pool")
       },
     ];
     await waitForTx(await lendPoolConfiguratorProxy.connect(poolAdminSigner).batchInitNft(initInputParams));
-
+    const nftOracleProxyAddress = await addressesProvider.getNFTOracle();
+    const nftOracle = await getNFTOracle(unftRegistryProxyAddress);
+    nftOracle.setPriceManagerStatus(lendPoolConfiguratorProxy.address, true);
     console.log("Configure nft parameters to lend pool");
     await waitForTx(
       await lendPoolConfiguratorProxy
@@ -75,9 +78,15 @@ task("add-nft-to-pool", "Add and config new nft asset to lend pool")
         .configureNftAsCollateral(
           asset,
           tokenId,
+          "10",
           nftParam.baseLTVAsCollateral,
           nftParam.liquidationThreshold,
-          nftParam.liquidationBonus
+          nftParam.liquidationBonus,
+          nftParam.redeemDuration,
+          nftParam.auctionDuration,
+          nftParam.redeemFine,
+          true,
+          false
         )
     );
 

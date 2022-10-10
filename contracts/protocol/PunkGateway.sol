@@ -165,7 +165,8 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     uint256 amount,
     uint256 punkIndex,
     address onBehalfOf,
-    uint16 referralCode
+    uint16 referralCode,
+    uint256 nftConfigFee
   ) external override nonReentrant {
     _checkValidCallerAndOnBehalfOf(onBehalfOf);
 
@@ -173,7 +174,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
 
     _depositPunk(punkIndex);
 
-    cachedPool.borrow(reserveAsset, amount, address(wrappedPunks), punkIndex, onBehalfOf, referralCode);
+    cachedPool.borrow(reserveAsset, amount, address(wrappedPunks), punkIndex, onBehalfOf, referralCode, nftConfigFee);
     IERC20Upgradeable(reserveAsset).transfer(onBehalfOf, amount);
   }
 
@@ -185,7 +186,8 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     uint256[] calldata amounts,
     uint256[] calldata punkIndexs,
     address onBehalfOf,
-    uint16 referralCode
+    uint16 referralCode,
+    uint256 nftConfigFees
   ) external override nonReentrant {
     require(punkIndexs.length == reserveAssets.length, "inconsistent reserveAssets length");
     require(punkIndexs.length == amounts.length, "inconsistent amounts length");
@@ -197,7 +199,15 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     for (uint256 i = 0; i < punkIndexs.length; i++) {
       _depositPunk(punkIndexs[i]);
 
-      cachedPool.borrow(reserveAssets[i], amounts[i], address(wrappedPunks), punkIndexs[i], onBehalfOf, referralCode);
+      cachedPool.borrow(
+        reserveAssets[i],
+        amounts[i],
+        address(wrappedPunks),
+        punkIndexs[i],
+        onBehalfOf,
+        referralCode,
+        nftConfigFees
+      );
 
       IERC20Upgradeable(reserveAssets[i]).transfer(onBehalfOf, amounts[i]);
     }
@@ -382,12 +392,13 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     uint256 amount,
     uint256 punkIndex,
     address onBehalfOf,
-    uint16 referralCode
+    uint16 referralCode,
+    uint256 nftConfigFee
   ) external override nonReentrant {
     _checkValidCallerAndOnBehalfOf(onBehalfOf);
 
     _depositPunk(punkIndex);
-    _wethGateway.borrowETH(amount, address(wrappedPunks), punkIndex, onBehalfOf, referralCode);
+    _wethGateway.borrowETH(amount, address(wrappedPunks), punkIndex, onBehalfOf, referralCode, nftConfigFee);
   }
 
   /**
@@ -397,7 +408,8 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     uint256[] calldata amounts,
     uint256[] calldata punkIndexs,
     address onBehalfOf,
-    uint16 referralCode
+    uint16 referralCode,
+    uint256 nftConfigFees
   ) external override nonReentrant {
     require(punkIndexs.length == amounts.length, "inconsistent amounts length");
 
@@ -409,7 +421,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
       _depositPunk(punkIndexs[i]);
     }
 
-    _wethGateway.batchBorrowETH(amounts, nftAssets, punkIndexs, onBehalfOf, referralCode);
+    _wethGateway.batchBorrowETH(amounts, nftAssets, punkIndexs, onBehalfOf, referralCode, nftConfigFees);
   }
 
   /**

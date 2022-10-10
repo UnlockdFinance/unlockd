@@ -327,9 +327,9 @@ export const increaseRedeemDuration = async (
 
   const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(nftAsset, nftTokenId);
   if (isEnd) {
-    await increaseTime(nftCfgData.redeemDuration.mul(ONE_DAY).add(ONE_HOUR).toNumber());
+    await increaseTime(nftCfgData.redeemDuration.mul(24).add(1).toNumber());
   } else {
-    await increaseTime(nftCfgData.redeemDuration.mul(ONE_DAY).sub(ONE_HOUR).toNumber());
+    await increaseTime(nftCfgData.redeemDuration.mul(24).sub(1).toNumber());
   }
 };
 
@@ -534,7 +534,7 @@ export const borrow = async (
 
   if (expectedResult === "success") {
     const txResult = await waitForTx(
-      await pool.connect(user.signer).borrow(reserve, amountToBorrow, nftAsset, nftTokenId, onBehalfOf, "0")
+      await pool.connect(user.signer).borrow(reserve, amountToBorrow, nftAsset, nftTokenId, onBehalfOf, "0", 0)
     );
 
     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
@@ -585,7 +585,7 @@ export const borrow = async (
     expectEqual(loanDataAfter, expectedLoanData);
   } else if (expectedResult === "revert") {
     await expect(
-      pool.connect(user.signer).borrow(reserve, amountToBorrow, nftAsset, nftTokenId, onBehalfOf, "0"),
+      pool.connect(user.signer).borrow(reserve, amountToBorrow, nftAsset, nftTokenId, onBehalfOf, "0", 0),
       revertMessage
     ).to.be.reverted;
   }

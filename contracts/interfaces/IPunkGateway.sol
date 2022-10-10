@@ -15,13 +15,15 @@ interface IPunkGateway {
    * if he has been given credit delegation allowance
    * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
    *   0 if the action is executed directly by the user, without any middle-man
+   * @param nftConfigFee an estimated gas cost fee for configuring the NFT
    **/
   function borrow(
     address reserveAsset,
     uint256 amount,
     uint256 punkIndex,
     address onBehalfOf,
-    uint16 referralCode
+    uint16 referralCode,
+    uint256 nftConfigFee
   ) external;
 
   /**
@@ -35,13 +37,15 @@ interface IPunkGateway {
    * if he has been given credit delegation allowance
    * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
    *   0 if the action is executed directly by the user, without any middle-man
+   * @param nftConfigFee an estimated gas cost fee for configuring the NFT
    **/
   function batchBorrow(
     address[] calldata reserveAssets,
     uint256[] calldata amounts,
     uint256[] calldata punkIndexs,
     address onBehalfOf,
-    uint16 referralCode
+    uint16 referralCode,
+    uint256 nftConfigFee
   ) external;
 
   /**
@@ -65,12 +69,8 @@ interface IPunkGateway {
 
   /**
    * @notice auction a unhealth punk loan with ERC20 reserve
-<<<<<<< HEAD
-   * @param punkIndex The index of the CryptoPunk used as collateral
-=======
    * @param punkIndex The index of the CryptoPunk used as collteral
    * @param bidPrice The bid price
->>>>>>> development
    **/
   function auction(
     uint256 punkIndex,
@@ -120,12 +120,14 @@ interface IPunkGateway {
    * if he has been given credit delegation allowance
    * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
    *   0 if the action is executed directly by the user, without any middle-man
+   * @param nftConfigFee gas estimation fees to pay the NFT Configuration
    **/
   function borrowETH(
     uint256 amount,
     uint256 punkIndex,
     address onBehalfOf,
-    uint16 referralCode
+    uint16 referralCode,
+    uint256 nftConfigFee
   ) external;
 
   /**
@@ -138,12 +140,14 @@ interface IPunkGateway {
    * if he has been given credit delegation allowance
    * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
    *   0 if the action is executed directly by the user, without any middle-man
+   * @param nftConfigFees an array of gas estimation fees to pay the NFT Configuration
    **/
   function batchBorrowETH(
     uint256[] calldata amounts,
     uint256[] calldata punkIndexs,
     address onBehalfOf,
-    uint16 referralCode
+    uint16 referralCode,
+    uint256 nftConfigFees
   ) external;
 
   /**

@@ -60,6 +60,8 @@ export const getPoolAdminSigner = async () => (await getEthersSigners())[0];
 
 export const getPoolOwnerSigner = async () => (await getEthersSigners())[0];
 
+export const getLtvManagerSigner = async () => (await getEthersSigners())[0];
+
 export const getLendPoolLiquidatorSigner = async () => (await getEthersSigners())[0];
 
 export const getEmergencyAdminSigner = async () => (await getEthersSigners())[1];

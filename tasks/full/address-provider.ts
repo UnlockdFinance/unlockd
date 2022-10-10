@@ -8,8 +8,14 @@ import {
   getGenesisPoolAdmin,
   getEmergencyAdmin,
   getLendPoolLiquidator,
+  getLtvManager,
 } from "../../helpers/configuration";
-import { getDeploySigner } from "../../helpers/contracts-getters";
+import {
+  getDeploySigner,
+  getSushiSwapRouter,
+  getNFTXVaultFactory,
+  getUnlockdProtocolDataProvider,
+} from "../../helpers/contracts-getters";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { eNetwork } from "../../helpers/types";
 
@@ -37,11 +43,18 @@ task("full:deploy-address-provider", "Deploy address provider for full enviromen
         deployRegistry: !notFalsyOrZeroAddress(providerRegistryAddress),
       });
     }
+    const sushiRouter = await getSushiSwapRouter();
+    const nftx = await getNFTXVaultFactory();
+    const dataProvider = await getUnlockdProtocolDataProvider();
 
     // Set pool admins
     await waitForTx(await addressesProvider.setPoolAdmin(await getGenesisPoolAdmin(poolConfig)));
     await waitForTx(await addressesProvider.setEmergencyAdmin(await getEmergencyAdmin(poolConfig)));
     await waitForTx(await addressesProvider.setLendPoolLiquidator(await getLendPoolLiquidator(poolConfig)));
+    await waitForTx(await addressesProvider.setLtvManager(await getLtvManager(poolConfig)));
+    await waitForTx(await addressesProvider.setSushiSwapRouter(sushiRouter.address));
+    await waitForTx(await addressesProvider.setNFTXVaultFactory(nftx.address));
+    await waitForTx(await addressesProvider.setUnlockdDataProvider(dataProvider.address));
 
     console.log("Pool Admin", await addressesProvider.getPoolAdmin());
     console.log("Emergency Admin", await addressesProvider.getEmergencyAdmin());

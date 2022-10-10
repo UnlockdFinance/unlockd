@@ -51,7 +51,7 @@ makeSuite("LendPool: Malicious Hacker Rentrant", (testEnv) => {
     const amountBorrow = await convertToCurrencyDecimals(weth.address, "10");
     await pool
       .connect(borrower.signer)
-      .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", maliciousHackerErc721.address, "0");
+      .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", maliciousHackerErc721.address, "0", 0);
 
     // borrower repay and hacker try to do reentrant action
     console.log("hacker do reentrant action: ACTION_DEPOSIT");

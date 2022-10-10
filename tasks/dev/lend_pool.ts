@@ -70,5 +70,5 @@ task("dev:deploy-lend-pool", "Deploy lend pool for dev enviroment")
     await deployUTokenImplementations(pool, poolConfig.ReservesConfig, verify);
 
     // Generic UNFT Implementation in UNFT step, not here
-    //await deployUNFTImplementations(pool, poolConfig.NftsConfig, verify);
+    // await deployUNFTImplementations(pool, poolConfig.NftsConfig, verify);
   });

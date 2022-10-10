@@ -30,13 +30,12 @@ task("dev:mint-mock-nfts", "Mint mock nfts for dev enviroment")
     const deployerSigner = await getDeploySigner();
     const deployerAddress = await deployerSigner.getAddress();
 
-    // PUNK
+    //PUNK
     const cryptoPunksMarket = await getCryptoPunksMarket();
     if (index <= 1) {
       // first time to open market to public
       await waitForTx(await cryptoPunksMarket.allInitialOwnersAssigned());
     }
-
     for (let punkIndex = Number(index); punkIndex < Number(index) + Number(amount); punkIndex++) {
       console.log("Mint PUNK:", punkIndex);
       await waitForTx(await cryptoPunksMarket.getPunk(punkIndex));
@@ -44,9 +43,9 @@ task("dev:mint-mock-nfts", "Mint mock nfts for dev enviroment")
     }
     console.log("PUNK Balances:", (await cryptoPunksMarket.balanceOf(user)).toString());
 
-    //const wpunkAddress = await getContractAddressInDb("WPUNK");
-    //const wpunk = await getWrappedPunk(wpunkAddress);
-    //await waitForTx(await wpunk.registerProxy());
+    // const wpunkAddress = await getContractAddressInDb("WPUNKS");
+    // const wpunk = await getWrappedPunk(wpunkAddress);
+    // await waitForTx(await wpunk.registerProxy());
 
     // BAYC
     const baycAddress = await getContractAddressInDb("BAYC");

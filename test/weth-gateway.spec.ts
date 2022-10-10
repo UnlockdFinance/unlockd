@@ -236,14 +236,14 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
 
     console.log("Borrow first ETH with NFT");
     await waitForTx(
-      await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, nftAsset, tokenId, borrower.address, "0")
+      await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, nftAsset, tokenId, borrower.address, "0", 0)
     );
 
     await advanceTimeAndBlock(100);
 
     console.log("Borrow more ETH with NFT");
     await waitForTx(
-      await wethGateway.connect(borrower.signer).borrowETH(borrowSize2, nftAsset, tokenId, borrower.address, "0")
+      await wethGateway.connect(borrower.signer).borrowETH(borrowSize2, nftAsset, tokenId, borrower.address, "0", 0)
     );
 
     expect(await borrower.signer.getBalance(), "current eth balance shoud increase").to.be.gt(ethBalanceBefore);
@@ -316,7 +316,14 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
     await waitForTx(
       await wethGateway
         .connect(borrower.signer)
-        .batchBorrowETH([borrowSize1, borrowSize2], [nftAsset, nftAsset], [tokenId1, tokenId2], borrower.address, "0")
+        .batchBorrowETH(
+          [borrowSize1, borrowSize2],
+          [nftAsset, nftAsset],
+          [tokenId1, tokenId2],
+          borrower.address,
+          "0",
+          0
+        )
     );
 
     // check results

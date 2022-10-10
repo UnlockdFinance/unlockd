@@ -63,8 +63,15 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   address public nftxVaultFactory;
   address public sushiswapRouter;
 
+  mapping(address => bool) isPriceManager;
+
   modifier onlyAdmin() {
     if (_msgSender() != priceFeedAdmin) revert NotAdmin();
+    _;
+  }
+
+  modifier onlyPriceManager() {
+    require(isPriceManager[msg.sender], Errors.CALLER_NOT_PRICE_MANAGER);
     _;
   }
 
@@ -103,6 +110,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     priceFeedAdmin = _admin;
     nftxVaultFactory = _nftxVaultFactory;
     sushiswapRouter = _sushiswapRouter;
+    isPriceManager[_msgSender()] = true;
   }
 
   /**
@@ -180,7 +188,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     address _collection,
     uint256 _tokenId,
     uint256 _price
-  ) external override onlyAdmin {
+  ) external override onlyPriceManager {
     _setNFTPrice(_collection, _tokenId, _price);
   }
 
@@ -263,6 +271,10 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   function setPause(address _collection, bool paused) external override onlyOwner onlyExistingCollection(_collection) {
     collectionPaused[_collection] = paused;
     emit CollectionPaused(paused);
+  }
+
+  function setPriceManagerStatus(address newLtvManager, bool val) external onlyOwner {
+    isPriceManager[newLtvManager] = val;
   }
 
   /**

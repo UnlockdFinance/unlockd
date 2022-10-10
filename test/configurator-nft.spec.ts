@@ -38,7 +38,9 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     },
   ];
 
+
   const { CALLER_NOT_POOL_ADMIN, LPC_INVALID_CONFIGURATION, LPC_NFT_LIQUIDITY_NOT_0, LP_INVALID_OVERFLOW_VALUE } =
+
     ProtocolErrors;
   const tokenSupply = MOCK_NFT_AGGREGATORS_MAXSUPPLY.BAYC;
   var maxSupply: number = +tokenSupply;
@@ -50,11 +52,26 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     expect(isActive).to.be.equal(false);
   });
 
+  it("Deactivates the BAYC NFT Token", async () => {
+    const { configurator, bayc, dataProvider } = testEnv;
+    await configurator.setActiveFlagOnNftByTokenId([bayc.address], ["101"], false);
+    const { isActive } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
+    expect(isActive).to.be.equal(false);
+  });
+
   it("Rectivates the BAYC NFT", async () => {
     const { configurator, bayc, dataProvider } = testEnv;
     await configurator.setActiveFlagOnNft([bayc.address], true);
 
     const { isActive } = await dataProvider.getNftConfigurationData(bayc.address);
+    expect(isActive).to.be.equal(true);
+  });
+
+  it("Rectivates the BAYC NFT Token", async () => {
+    const { configurator, bayc, dataProvider } = testEnv;
+    await configurator.setActiveFlagOnNftByTokenId([bayc.address], ["101"], true);
+
+    const { isActive } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
     expect(isActive).to.be.equal(true);
   });
 
@@ -83,11 +100,29 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     expect(isFrozen).to.be.equal(true);
   });
 
+  it("Freezes the BAYC NFT Token", async () => {
+    const { configurator, bayc, dataProvider } = testEnv;
+
+    await configurator.setFreezeFlagOnNftByTokenId([bayc.address], ["101"], true);
+    const { isFrozen } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
+
+    expect(isFrozen).to.be.equal(true);
+  });
+
   it("Unfreezes the BAYC NFT", async () => {
     const { configurator, dataProvider, bayc } = testEnv;
     await configurator.setFreezeFlagOnNft([bayc.address], false);
 
     const { isFrozen } = await dataProvider.getNftConfigurationData(bayc.address);
+
+    expect(isFrozen).to.be.equal(false);
+  });
+
+  it("Unfreezes the BAYC NFT Token", async () => {
+    const { configurator, dataProvider, bayc } = testEnv;
+    await configurator.setFreezeFlagOnNftByTokenId([bayc.address], ["101"], false);
+
+    const { isFrozen } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
 
     expect(isFrozen).to.be.equal(false);
   });
@@ -109,9 +144,14 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   });
 
   it("Deactivates the BAYC NFT as collateral", async () => {
-    const { configurator, dataProvider, bayc, tokenId } = testEnv;
-    await configurator.configureNftAsCollateral(bayc.address, tokenId, 0, 0, 0);
-
+    const { users, configurator, dataProvider, bayc, tokenId, nftOracle } = testEnv;
+    await configurator.setLtvManagerStatus(users[0].address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+    console.log("ltv set");
+    await configurator
+      .connect(users[0].signer)
+      .configureNftAsCollateral(bayc.address, tokenId, "8000", 0, 0, 0, 1, 2, 25, true, false);
+    console.log("ocllateral set");
     const { ltv, liquidationBonus, liquidationThreshold } = await dataProvider.getNftConfigurationDataByTokenId(
       bayc.address,
       tokenId
@@ -123,8 +163,12 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   });
 
   it("Activates the BAYC NFT as collateral", async () => {
-    const { configurator, dataProvider, bayc, tokenId } = testEnv;
-    await configurator.configureNftAsCollateral(bayc.address, tokenId, "8000", "8250", "500");
+    const { users, configurator, dataProvider, bayc, tokenId, nftOracle } = testEnv;
+    await configurator.setLtvManagerStatus(users[0].address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+    await configurator
+      .connect(users[0].signer)
+      .configureNftAsCollateral(bayc.address, tokenId, "8000", "8000", "8250", "500", 1, 2, 25, true, false);
 
     const { ltv, liquidationBonus, liquidationThreshold } = await dataProvider.getNftConfigurationDataByTokenId(
       bayc.address,
@@ -136,12 +180,16 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     expect(liquidationBonus).to.be.equal(500);
   });
 
-  it("Check the onlyAdmin on configureNftAsCollateral ", async () => {
-    const { configurator, users, bayc, tokenId } = testEnv;
+  it("Check the onlyLtvManager on configureNftAsCollateral ", async () => {
+    const { configurator, users, bayc, tokenId, nftOracle } = testEnv;
+    await configurator.setLtvManagerStatus(users[0].address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
     await expect(
-      configurator.connect(users[2].signer).configureNftAsCollateral(bayc.address, tokenId, "7500", "8000", "500"),
-      CALLER_NOT_POOL_ADMIN
-    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+      configurator
+        .connect(users[2].signer)
+        .configureNftAsCollateral(bayc.address, tokenId, "8000", "7500", "8000", "500", 1, 2, 25, true, false),
+      CALLER_NOT_LTV_MANAGER
+    ).to.be.revertedWith(CALLER_NOT_LTV_MANAGER);
   });
 
   it("Deactivates the BAYC NFT as auction", async () => {
@@ -293,7 +341,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     await bayc.setApprovalForAll(pool.address, true);
 
     const amountToBorrow = await convertToCurrencyDecimals(weth.address, "1");
-    await pool.borrow(weth.address, amountToBorrow, bayc.address, tokenId, userAddress, "0");
+    await pool.borrow(weth.address, amountToBorrow, bayc.address, tokenId, userAddress, "0", 0);
 
     await expect(configurator.setActiveFlagOnNft([bayc.address], false), LPC_NFT_LIQUIDITY_NOT_0).to.be.revertedWith(
       LPC_NFT_LIQUIDITY_NOT_0

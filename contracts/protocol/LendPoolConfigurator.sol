@@ -14,7 +14,7 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {ConfigTypes} from "../libraries/types/ConfigTypes.sol";
-
+import {INFTOracle} from "../interfaces/INFTOracle.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -28,8 +28,14 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   using PercentageMath for uint256;
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
   using NftConfiguration for DataTypes.NftConfigurationMap;
-
   ILendPoolAddressesProvider internal _addressesProvider;
+
+  mapping(address => bool) isLtvManager;
+
+  modifier onlyLtvManager() {
+    require(isLtvManager[msg.sender], Errors.CALLER_NOT_LTV_MANAGER);
+    _;
+  }
 
   modifier onlyPoolAdmin() {
     require(_addressesProvider.getPoolAdmin() == msg.sender, Errors.CALLER_NOT_POOL_ADMIN);
@@ -325,15 +331,24 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    * @param liquidationThreshold The threshold at which loans using this asset as collateral will be considered undercollateralized
    * @param liquidationBonus The bonus liquidators receive to liquidate this asset. The values is always below 100%. A value of 5%
    * means the liquidator will receive a 5% bonus
+   * @param activeFlag It will set NFT as Active for the given asset and tokenId
+   * @param freezeFlag It will set NFT as un-Freezed for the given asset and tokenId
    **/
   function configureNftAsCollateral(
     address asset,
     uint256 nftTokenId,
+    uint256 newPrice,
     uint256 ltv,
     uint256 liquidationThreshold,
-    uint256 liquidationBonus
-  ) external onlyPoolAdmin {
+    uint256 liquidationBonus,
+    uint256 redeemDuration,
+    uint256 auctionDuration,
+    uint256 redeemFine,
+    bool activeFlag,
+    bool freezeFlag
+  ) external onlyLtvManager {
     ILendPool cachedPool = _getLendPool();
+
     DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(asset, nftTokenId);
 
     //validation of the parameters: the LTV can
@@ -351,8 +366,20 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     currentConfig.setLtv(ltv);
     currentConfig.setLiquidationThreshold(liquidationThreshold);
     currentConfig.setLiquidationBonus(liquidationBonus);
+    currentConfig.setActive(activeFlag);
+    currentConfig.setFrozen(freezeFlag);
+
+    //validation of the parameters: the redeem duration can
+    //only be lower or equal than the auction duration
+    require(redeemDuration <= auctionDuration, Errors.LPC_INVALID_CONFIGURATION);
+
+    currentConfig.setRedeemDuration(redeemDuration);
+    currentConfig.setAuctionDuration(auctionDuration);
+    currentConfig.setRedeemFine(redeemFine);
 
     cachedPool.setNftConfigByTokenId(asset, nftTokenId, currentConfig.data);
+
+    INFTOracle(_addressesProvider.getNFTOracle()).setNFTPrice(asset, nftTokenId, newPrice);
 
     emit NftConfigurationChanged(asset, nftTokenId, ltv, liquidationThreshold, liquidationBonus);
   }
@@ -555,6 +582,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function setPoolPause(bool val) external onlyEmergencyAdmin {
     ILendPool cachedPool = _getLendPool();
     cachedPool.setPause(val);
+  }
+
+  function setLtvManagerStatus(address newLtvManager, bool val) external onlyPoolAdmin {
+    isLtvManager[newLtvManager] = val;
   }
 
   /**

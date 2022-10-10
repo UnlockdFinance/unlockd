@@ -39,6 +39,6 @@ task("lendpoolloan:getcollateralloanid", "Returns the loan")
 .setAction( async ({collection, tokenid}) => {
     const wallet = await getUserWallet();  
     const loan= await Functions.LENDPOOL_LOAN.getCollateralLoanId(wallet, collection, tokenid);
-    console.log(loan);
+    console.log(JSON.stringify(loan));
    
 }); 

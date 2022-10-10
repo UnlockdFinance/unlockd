@@ -159,7 +159,8 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     address nftAsset,
     uint256 nftTokenId,
     address onBehalfOf,
-    uint16 referralCode
+    uint16 referralCode,
+    uint256 nftConfigFee
   ) external override nonReentrant {
     _checkValidCallerAndOnBehalfOf(onBehalfOf);
 
@@ -170,7 +171,7 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     if (loanId == 0) {
       IERC721Upgradeable(nftAsset).safeTransferFrom(msg.sender, address(this), nftTokenId);
     }
-    cachedPool.borrow(address(WETH), amount, nftAsset, nftTokenId, onBehalfOf, referralCode);
+    cachedPool.borrow(address(WETH), amount, nftAsset, nftTokenId, onBehalfOf, referralCode, nftConfigFee);
     WETH.withdraw(amount);
     _safeTransferETH(onBehalfOf, amount);
   }
@@ -183,7 +184,8 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     address[] calldata nftAssets,
     uint256[] calldata nftTokenIds,
     address onBehalfOf,
-    uint16 referralCode
+    uint16 referralCode,
+    uint256 nftConfigFees
   ) external override nonReentrant {
     require(nftAssets.length == nftTokenIds.length, "inconsistent tokenIds length");
     require(nftAssets.length == amounts.length, "inconsistent amounts length");
@@ -198,7 +200,15 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
       if (loanId == 0) {
         IERC721Upgradeable(nftAssets[i]).safeTransferFrom(msg.sender, address(this), nftTokenIds[i]);
       }
-      cachedPool.borrow(address(WETH), amounts[i], nftAssets[i], nftTokenIds[i], onBehalfOf, referralCode);
+      cachedPool.borrow(
+        address(WETH),
+        amounts[i],
+        nftAssets[i],
+        nftTokenIds[i],
+        onBehalfOf,
+        referralCode,
+        nftConfigFees
+      );
 
       WETH.withdraw(amounts[i]);
       _safeTransferETH(onBehalfOf, amounts[i]);

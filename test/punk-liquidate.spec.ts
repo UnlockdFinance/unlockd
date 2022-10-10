@@ -114,7 +114,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     );
 
     await waitForTx(
-      await punkGateway.connect(borrower.signer).borrow(usdc.address, amountBorrow, punkIndex, borrower.address, "0")
+      await punkGateway.connect(borrower.signer).borrow(usdc.address, amountBorrow, punkIndex, borrower.address, "0", 0)
     );
 
     await waitForTx(await wrappedPunk.connect(liquidator.signer).setApprovalForAll(punkGateway.address, true));
@@ -213,7 +213,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     );
 
     await waitForTx(
-      await punkGateway.connect(borrower.signer).borrow(usdc.address, amountBorrow, punkIndex, borrower.address, "0")
+      await punkGateway.connect(borrower.signer).borrow(usdc.address, amountBorrow, punkIndex, borrower.address, "0", 0)
     );
 
     const nftDebtDataAfterBorrow = await pool.getNftDebtData(wrappedPunk.address, punkIndex);
@@ -305,7 +305,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     );
 
     await waitForTx(
-      await punkGateway.connect(borrower.signer).borrow(usdc.address, amountBorrow, punkIndex, borrower.address, "0")
+      await punkGateway.connect(borrower.signer).borrow(usdc.address, amountBorrow, punkIndex, borrower.address, "0", 0)
     );
 
     await waitForTx(await wrappedPunk.connect(borrower.signer).setApprovalForAll(punkGateway.address, true));
@@ -335,7 +335,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     await mintERC20(testEnv, borrower, "USDC", depositUnit.toString());
     await approveERC20PunkGateway(testEnv, borrower, "USDC");
 
-    await increaseTime(nftCfgData.redeemDuration.mul(ONE_DAY).sub(3600).toNumber());
+    await increaseTime(nftCfgData.redeemDuration.mul(24).sub(1).toNumber());
 
     const nftDebtDataBeforeRedeem = await pool.getNftDebtData(wrappedPunk.address, punkIndex);
     const nftAuctionDataBeforeRedeem = await pool.getNftAuctionData(wrappedPunk.address, punkIndex);
@@ -422,7 +422,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
         .toFixed(0)
     );
 
-    await waitForTx(await punkGateway.connect(user.signer).borrowETH(amountBorrow, punkIndex, user.address, "0"));
+    await waitForTx(await punkGateway.connect(user.signer).borrowETH(amountBorrow, punkIndex, user.address, "0", 0));
 
     await waitForTx(await wrappedPunk.connect(liquidator.signer).setApprovalForAll(punkGateway.address, true));
 
@@ -518,7 +518,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
         .toFixed(0)
     );
 
-    await waitForTx(await punkGateway.connect(user.signer).borrowETH(amountBorrow, punkIndex, user.address, "0"));
+    await waitForTx(await punkGateway.connect(user.signer).borrowETH(amountBorrow, punkIndex, user.address, "0", 0));
 
     await waitForTx(await wrappedPunk.connect(liquidator.signer).setApprovalForAll(punkGateway.address, true));
 
@@ -610,7 +610,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     );
 
     await waitForTx(
-      await punkGateway.connect(borrower.signer).borrowETH(amountBorrow, punkIndex, borrower.address, "0")
+      await punkGateway.connect(borrower.signer).borrowETH(amountBorrow, punkIndex, borrower.address, "0", 0)
     );
 
     await waitForTx(await wrappedPunk.connect(borrower.signer).setApprovalForAll(punkGateway.address, true));
@@ -634,7 +634,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     );
 
     // Redeem ETH loan with native ETH
-    await increaseTime(nftCfgData.redeemDuration.mul(ONE_DAY).sub(3600).toNumber());
+    await increaseTime(nftCfgData.redeemDuration.mul(24).sub(1).toNumber());
 
     const auctionDataBeforeRedeem = await pool.getNftAuctionData(wrappedPunk.address, punkIndex);
     const debtDataBeforeRedeem = await pool.getNftDebtData(wrappedPunk.address, punkIndex);
