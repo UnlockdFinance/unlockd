@@ -5,7 +5,8 @@ import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesPro
 import {INFTXVaultFactoryV2} from "../../interfaces/INFTXVaultFactoryV2.sol";
 import {INFTXVault} from "../../interfaces/INFTXVault.sol";
 import {IUniswapV2Router02} from "../../interfaces/IUniswapV2Router02.sol";
-import {INFTXMarketplaceZap} from "../interfaces/INFTXMarketplaceZap.sol";
+
+import {Errors} from "../../libraries/helpers/Errors.sol";
 
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
@@ -16,6 +17,8 @@ import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC7
  * @notice Implements NFTX selling logic
  */
 library NFTXHelper {
+  address public constant WETH = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
+
   /**
    * @dev Sells an asset in an NFTX liquid market
    * @param addressesProvider The addresses provider
@@ -27,35 +30,54 @@ library NFTXHelper {
     ILendPoolAddressesProvider addressesProvider,
     address nftAsset,
     uint256 nftTokenId,
-    address reserveAsset,
-    uint256 borrowAmount
+    address reserveAsset
   ) internal returns (uint256) {
-    address nftxMarketplaceZapAddress = addressesProvider.getNFTXVaultFactory(); //todo: change name to nftxMarketplaceZap
+    address vaultFactoryAddress = addressesProvider.getNFTXVaultFactory();
+    address sushiSwapRouterAddress = addressesProvider.getSushiSwapRouter();
     address lendPoolAddress = addressesProvider.getLendPool();
 
     // Get NFTX Vaults for the asset
-    address vaultFactoryAddress = INFTXMarketplaceZap(nftxMarketplaceZapAddress).nftxFactory();
     address[] memory vaultAddresses = INFTXVaultFactoryV2(vaultFactoryAddress).vaultsForAsset(nftAsset);
 
-    //todo: create custom error
-    require(vaultAddresses.length > 0, "Invalid vault");
-
-    //We always get the first vault
-    uint256 vaultId = INFTXVault(vaultAddresses[0]).vaultId();
+    require(vaultAddresses.length > 0, Errors.NFTX_INVALID_VAULTS_LENGTH);
 
     uint256[] memory tokenIds = new uint256[](1);
     tokenIds[0] = nftTokenId;
 
-    address[] memory swapPath = new address[](2);
-    swapPath[0] = vaultAddress[0];
-    swapPath[1] = reserveAsset;
+    //Always get the first vault address
+    address vaultAddress = vaultAddresses[0];
+    INFTXVault nftxVault = INFTXVault(vaultAddress);
 
-    INFTXMarketplaceZap(nftxMarketplaceZapAddress).mintAndSell721WETH(
-      vaultId,
-      tokenIds,
-      0.2 * borrowAmount,
-      swapPath,
-      lendPoolAddress
-    );
+    if (nftxVault.allValidNFTs(tokenIds)) {
+      // Deposit NFT to NFTX Vault
+      IERC721Upgradeable(nftAsset).setApprovalForAll(vaultAddress, true);
+      nftxVault.mint(tokenIds, new uint256[](1));
+      uint256 depositAmount = IERC20Upgradeable(vaultAddress).balanceOf(address(this));
+
+      // Swap on SushiSwap
+      IERC20Upgradeable(vaultAddress).approve(sushiSwapRouterAddress, depositAmount);
+
+      address[] memory swapPath;
+      if (reserveAsset != address(WETH)) {
+        swapPath = new address[](3);
+        swapPath[2] = reserveAsset;
+      } else {
+        swapPath = new address[](2);
+      }
+      swapPath[0] = vaultAddress;
+      swapPath[1] = WETH;
+
+      uint256[] memory amounts = IUniswapV2Router02(sushiSwapRouterAddress).swapExactTokensForTokens(
+        depositAmount,
+        0,
+        swapPath,
+        lendPoolAddress,
+        block.timestamp
+      );
+
+      return amounts[1];
+    }
+
+    revert("NFTX: vault not available");
   }
 }
