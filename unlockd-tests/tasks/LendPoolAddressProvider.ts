@@ -282,12 +282,12 @@ task("provider:getNFTXVaultFactory", "User gets the NFTXVaultFactory Address")
     console.log(JSON.stringify(tx));
 }); 
 
-task("provider:setNFTXVaultFactory", "User sets a new NFTXVaultFactory address")
-.addParam("nftxvaultfactoryaddress", "The NFTXVaultFactory Address") 
-.setAction( async ({nftxvaultfactoryaddress}) => {
+task("provider:setNFTXZapMarketplace", "User sets a new NFTXVaultFactory address")
+.addParam("nftxzapmarketplace", "The NFTXVaultFactory Address") 
+.setAction( async ({nftxzapmarketplace}) => {
     const wallet = await getOwnerWallet();  
 
-    const tx = await Functions.LENDPOOLADDRESSPROVIDER.setNFTXVaultFactory(wallet, nftxvaultfactoryaddress)
+    const tx = await Functions.LENDPOOLADDRESSPROVIDER.setNFTXVaultFactory(wallet, nftxzapmarketplace)
     console.log(tx);
 }); 
 
