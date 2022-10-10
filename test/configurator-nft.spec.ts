@@ -38,9 +38,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     },
   ];
 
-
   const { CALLER_NOT_POOL_ADMIN, LPC_INVALID_CONFIGURATION, LPC_NFT_LIQUIDITY_NOT_0, LP_INVALID_OVERFLOW_VALUE } =
-
     ProtocolErrors;
   const tokenSupply = MOCK_NFT_AGGREGATORS_MAXSUPPLY.BAYC;
   var maxSupply: number = +tokenSupply;

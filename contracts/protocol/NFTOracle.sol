@@ -75,11 +75,13 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     _;
   }
 
+
   modifier onlyExistingCollection(address _collection) {
     bool collectionExists = collections[_collection];
     if (!collectionExists) revert NonExistingCollection(_collection);
     _;
   }
+
 
   modifier onlyNonExistingCollection(address _collection) {
     bool collectionExists = collections[_collection];
@@ -189,6 +191,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     uint256 _tokenId,
     uint256 _price
   ) external override onlyPriceManager {
+
     _setNFTPrice(_collection, _tokenId, _price);
   }
 
@@ -271,6 +274,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   function setPause(address _collection, bool paused) external override onlyOwner onlyExistingCollection(_collection) {
     collectionPaused[_collection] = paused;
     emit CollectionPaused(paused);
+
   }
 
   function setPriceManagerStatus(address newLtvManager, bool val) external onlyOwner {
