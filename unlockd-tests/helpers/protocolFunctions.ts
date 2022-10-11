@@ -185,7 +185,9 @@ const getAssetPrice = async (wallet: Wallet, asset: string) => {
 const getAddress = async (wallet: Wallet, bytesAddress: string) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getAddress(bytesAddress);
 }
-
+const setAddress = async (wallet: Wallet, id: string, address: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setAddress(id, address);
+} 
 const getMarketId = async (wallet: Wallet) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getMarketId();
 }
@@ -206,8 +208,8 @@ const getLendPoolConfigurator = async (wallet: Wallet) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getLendPoolConfigurator();
 }
 
-const setLendPoolConfiguratorImpl = async (wallet: Wallet, lendpoolAddress: string, encodedCallData: string) => { 
-    return await Contracts.lendPoolAddressesProvider.connect(wallet).setLendPoolConfiguratorImpl(lendpoolAddress, encodedCallData);
+const setLendPoolConfiguratorImpl = async (wallet: Wallet, lendpoolAddress: string) => { 
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setLendPoolConfiguratorImpl(lendpoolAddress, []);
 }
 
 const getLtvManager = async (wallet: Wallet) => {
@@ -262,8 +264,8 @@ const getLendPoolLoan = async (wallet: Wallet) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getLendPool().wait();
 }
 
-const setLendPoolLoanImpl = async (wallet: Wallet, loanAddress: string, encodedCallData: string) => { 
-    return await Contracts.lendPoolAddressesProvider.connect(wallet).setLendPoolImpl(loanAddress, encodedCallData);
+const setLendPoolLoanImpl = async (wallet: Wallet, loanAddress: string) => { 
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setLendPoolImpl(loanAddress, []);
 }
 
 const getUNFTRegistry = async (wallet: Wallet) => {
@@ -566,6 +568,7 @@ export const Functions = {
     },
     LENDPOOLADDRESSPROVIDER: {
         getAddress: getAddress,
+        setAddress: setAddress,
         getMarketId: getMarketId,
         setMarketId: setMarketId,
         getLendPool: getLendPool,

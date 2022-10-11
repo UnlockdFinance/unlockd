@@ -71,12 +71,12 @@ task("lendpool:deposit", "User 0 Deposits {amount} {reserve} in an empty reserve
 .addParam("walletnumber", "the wallet number in ur .env from 2 to 5 otherwise it's default userWallet")
 .setAction( async ({amount, reserve, to, walletnumber}) => {
     const wallet = await getWalletByNumber(walletnumber);  
-    let tokenContract;
-    reserve == 'USDC' ? 
+    let tokenContract; 
+    reserve == 'USDC' ?  
         amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString())
-    reserve == 'WETH' ? 
-        tokenContract = "0xc778417E063141139Fce010982780140Aa0cD5Ab" : tokenContract = MockContracts[reserve];
     
+    tokenContract = MockContracts[reserve];
+     
     await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount)  
     await Functions.LENDPOOL.deposit(wallet, tokenContract.address, amount, to);
 }); 
@@ -95,7 +95,7 @@ task("lendpool:withdraw", "User 0 Withdraws {amount} {reserve} from the reserves
     
     await Functions.LENDPOOL.withdraw(wallet, tokenContract.address, amount, to);
     
-}); 
+});  
 //Borrowing 
 task("lendpool:borrow", "User 0 Withdraws {amount} {reserve} from the reserves")
 .addParam("reserve", "reserve asset to borrow") 
@@ -149,15 +149,15 @@ task("lendpool:getdebtdata", "Returns debt data")
     console.log("Available borrows: ", debtData.availableBorrows.toString() / 10**18);
     console.log("Health Factor: ", debtData.healthFactor.toString() / 10**18);
 });  
-//Get NFT data
-task("lendpool:getnftdata", "Returns the NFT data")
+//Get NFT data 
+task("lendpool:getnftdata", "Returns the NFT data") 
 .addParam("collection", "NFT collection address") 
 .setAction( async ({collection}) => {
     const wallet = await getUserWallet();  
     const nftData = await Functions.LENDPOOL.getNftData(wallet, collection);
     console.log(nftData);
 });  
-//Redeem 
+//Redeem  
 task("lendpool:redeem", "Redeems a loan")
 .addParam("collection", "NFT collection address") 
 .addParam("tokenid", "nft token id")  
@@ -170,7 +170,7 @@ task("lendpool:redeem", "Redeems a loan")
     const loanData = await Functions.LENDPOOL_LOAN.getLoan(wallet, loanId);
     const reserveAddress = loanData.reserveAsset;
     
-    let tokenContract;
+    let tokenContract; 
     
     reserveAddress == MockContracts['DAI'].address ?
        tokenContract = MockContracts['DAI'] : tokenContract = MockContracts['USDC'];
