@@ -11,6 +11,7 @@ import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 import {IInterestRate} from "../../interfaces/IInterestRate.sol";
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
+import {ILendPool} from "../../interfaces/ILendPool.sol";
 
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
@@ -121,6 +122,11 @@ library ValidationLogic {
     (vars.nftIsActive, vars.nftIsFrozen) = nftConfig.getFlags();
     require(vars.nftIsActive, Errors.VL_NO_ACTIVE_NFT);
     require(!vars.nftIsFrozen, Errors.VL_NFT_FROZEN);
+
+    require(
+      (nftConfig.getConfigTimestamp() + ILendPool(address(this)).getTimeframe()) <= block.timestamp,
+      Errors.VL_TIMEFRAME_EXCEEDED
+    );
 
     (vars.currentLtv, vars.currentLiquidationThreshold, ) = nftConfig.getCollateralParams();
 

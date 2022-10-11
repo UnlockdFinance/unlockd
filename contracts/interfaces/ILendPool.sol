@@ -157,7 +157,13 @@ interface ILendPool {
     address indexed borrower,
     uint256 loanId
   );
-
+  /**
+   * @dev Emitted when an NFT configuration is triggered.
+   * @param user The NFT holder
+   * @param nftAsset The NFT collection address
+   * @param nftTokenId The NFT token Id
+   **/
+  event UserCollateralTriggered(address indexed user, address indexed nftAsset, uint256 indexed nftTokenId);
   /**
    * @dev Emitted when the pause is triggered.
    */
@@ -339,6 +345,14 @@ interface ILendPool {
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
   function liquidateNFTX(address nftAsset, uint256 nftTokenId) external returns (uint256);
+
+  /**
+   * @dev Triggers the configuration of an NFT
+   * @dev Just the NFT holder can trigger the configuration
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   **/
+  function triggerUserCollateral(address nftAsset, uint256 nftTokenId) external;
 
   /**
    * @dev Validates and finalizes an uToken transfer
@@ -649,6 +663,12 @@ interface ILendPool {
   function setLiquidateFeePercentage(uint256 percentage) external;
 
   /**
+   * @dev Sets the max timeframe between NFT config triggers and borrows
+   * @param timeframe the number of seconds for the timeframe
+   **/
+  function setTimeframe(uint256 timeframe) external;
+
+  /**
    * @dev Returns the maximum number of reserves supported to be listed in this LendPool
    */
   function getMaxNumberOfReserves() external view returns (uint256);
@@ -668,4 +688,9 @@ interface ILendPool {
    * @return Rescuer's address
    */
   function rescuer() external view returns (address);
+
+  /**
+   * @dev Returns the max timeframe between NFT config triggers and borrows
+   **/
+  function getTimeframe() external view returns (uint256);
 }

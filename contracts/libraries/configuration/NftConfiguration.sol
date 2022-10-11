@@ -20,6 +20,7 @@ library NftConfiguration {
   uint256 constant REDEEM_FINE_MASK =           0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFFFF; // prettier-ignore
   uint256 constant REDEEM_THRESHOLD_MASK =      0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFFFFFFFF; // prettier-ignore
   uint256 constant MIN_BIDFINE_MASK      =      0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFF; // prettier-ignore
+  uint256 constant CONFIG_TIMESTAMP_MASK =      0xFFFFFFFFFFFFFFFFFFFFFFFF00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF; // prettier-ignore
 
   /// @dev For the LTV, the start bit is 0 (up to 15), hence no bitshifting is needed
   uint256 constant LIQUIDATION_THRESHOLD_START_BIT_POSITION = 16;
@@ -31,6 +32,7 @@ library NftConfiguration {
   uint256 constant REDEEM_FINE_START_BIT_POSITION = 80;
   uint256 constant REDEEM_THRESHOLD_START_BIT_POSITION = 96;
   uint256 constant MIN_BIDFINE_START_BIT_POSITION = 112;
+  uint256 constant CONFIG_TIMESTAMP_START_BIT_POSITION = 128;
 
   uint256 constant MAX_VALID_LTV = 65535;
   uint256 constant MAX_VALID_LIQUIDATION_THRESHOLD = 65535;
@@ -40,6 +42,7 @@ library NftConfiguration {
   uint256 constant MAX_VALID_REDEEM_FINE = 65535;
   uint256 constant MAX_VALID_REDEEM_THRESHOLD = 65535;
   uint256 constant MAX_VALID_MIN_BIDFINE = 65535;
+  uint256 constant MAX_VALID_CONFIG_TIMESTAMP = 4294967295;
 
   /**
    * @dev Sets the Loan to Value of the NFT
@@ -235,6 +238,26 @@ library NftConfiguration {
    **/
   function getMinBidFine(DataTypes.NftConfigurationMap storage self) internal view returns (uint256) {
     return ((self.data & ~MIN_BIDFINE_MASK) >> MIN_BIDFINE_START_BIT_POSITION);
+  }
+
+  /**
+   * @dev Sets the timestamp when the NFTconfig was triggered
+   * @param self The NFT configuration
+   * @param configTimestamp The config timestamp
+   **/
+  function setConfigTimestamp(DataTypes.NftConfigurationMap memory self, uint256 configTimestamp) internal pure {
+    require(configTimestamp <= MAX_VALID_CONFIG_TIMESTAMP, Errors.RC_INVALID_MAX_CONFIG_TIMESTAMP);
+
+    self.data = (self.data & CONFIG_TIMESTAMP_MASK) | (configTimestamp << CONFIG_TIMESTAMP_START_BIT_POSITION);
+  }
+
+  /**
+   * @dev Gets the timestamp when the NFTconfig was triggered
+   * @param self The NFT configuration
+   * @return The config timestamp
+   **/
+  function getConfigTimestamp(DataTypes.NftConfigurationMap storage self) internal view returns (uint256) {
+    return ((self.data & ~CONFIG_TIMESTAMP_MASK) >> CONFIG_TIMESTAMP_START_BIT_POSITION);
   }
 
   /**

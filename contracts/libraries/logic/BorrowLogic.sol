@@ -25,8 +25,6 @@ import {ReserveLogic} from "./ReserveLogic.sol";
 import {GenericLogic} from "./GenericLogic.sol";
 import {ValidationLogic} from "./ValidationLogic.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title BorrowLogic library
  * @author Unlockd
@@ -160,6 +158,7 @@ library BorrowLogic {
       vars.reserveOracle,
       vars.nftOracle
     );
+
     if (vars.loanId == 0) {
       IERC721Upgradeable(params.nftAsset).safeTransferFrom(vars.initiator, address(this), params.nftTokenId);
 

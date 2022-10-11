@@ -50,7 +50,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
 
   it("Deactivates the BAYC NFT", async () => {
     const { configurator, bayc, dataProvider } = testEnv;
-    await configurator.setActiveFlagOnNft([bayc.address], false);
+    await configurator.setActiveFlagOnNft(bayc.address, false);
     const { isActive } = await dataProvider.getNftConfigurationData(bayc.address);
     expect(isActive).to.be.equal(false);
   });
@@ -64,7 +64,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
 
   it("Rectivates the BAYC NFT", async () => {
     const { configurator, bayc, dataProvider } = testEnv;
-    await configurator.setActiveFlagOnNft([bayc.address], true);
+    await configurator.setActiveFlagOnNft(bayc.address, true);
 
     const { isActive } = await dataProvider.getNftConfigurationData(bayc.address);
     expect(isActive).to.be.equal(true);
@@ -81,7 +81,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   it("Check the onlyAdmin on deactivateRNft ", async () => {
     const { configurator, users, bayc } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).setActiveFlagOnNft([bayc.address], false),
+      configurator.connect(users[2].signer).setActiveFlagOnNft(bayc.address, false),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
@@ -89,7 +89,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   it("Check the onlyAdmin on activateNft ", async () => {
     const { configurator, users, bayc } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).setActiveFlagOnNft([bayc.address], true),
+      configurator.connect(users[2].signer).setActiveFlagOnNft(bayc.address, true),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
@@ -97,7 +97,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   it("Freezes the BAYC NFT", async () => {
     const { configurator, bayc, dataProvider } = testEnv;
 
-    await configurator.setFreezeFlagOnNft([bayc.address], true);
+    await configurator.setFreezeFlagOnNft(bayc.address, true);
     const { isFrozen } = await dataProvider.getNftConfigurationData(bayc.address);
 
     expect(isFrozen).to.be.equal(true);
@@ -114,7 +114,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
 
   it("Unfreezes the BAYC NFT", async () => {
     const { configurator, dataProvider, bayc } = testEnv;
-    await configurator.setFreezeFlagOnNft([bayc.address], false);
+    await configurator.setFreezeFlagOnNft(bayc.address, false);
 
     const { isFrozen } = await dataProvider.getNftConfigurationData(bayc.address);
 
@@ -133,7 +133,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   it("Check the onlyAdmin on freezeNft ", async () => {
     const { configurator, users, bayc } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).setFreezeFlagOnNft([bayc.address], true),
+      configurator.connect(users[2].signer).setFreezeFlagOnNft(bayc.address, true),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
@@ -141,7 +141,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   it("Check the onlyAdmin on unfreezeNft ", async () => {
     const { configurator, users, bayc } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).setFreezeFlagOnNft([bayc.address], false),
+      configurator.connect(users[2].signer).setFreezeFlagOnNft(bayc.address, false),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
@@ -346,7 +346,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const amountToBorrow = await convertToCurrencyDecimals(weth.address, "1");
     await pool.borrow(weth.address, amountToBorrow, bayc.address, tokenId, userAddress, "0", 0);
 
-    await expect(configurator.setActiveFlagOnNft([bayc.address], false), LPC_NFT_LIQUIDITY_NOT_0).to.be.revertedWith(
+    await expect(configurator.setActiveFlagOnNft(bayc.address, false), LPC_NFT_LIQUIDITY_NOT_0).to.be.revertedWith(
       LPC_NFT_LIQUIDITY_NOT_0
     );
   });

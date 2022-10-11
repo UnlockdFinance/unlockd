@@ -54,6 +54,12 @@ library DataTypes {
     //bit 32-47: Liq. bonus
     //bit 56: NFT is active
     //bit 57: NFT is frozen
+    //bit 64-71: Redeem duration
+    //bit 72-79: Auction duration
+    //bit 80-95: Redeem fine
+    //bit 96-111: Redeem threshold
+    //bit 112-127: Min bid fine
+    //bit 128-159: Timestamp Config
     uint256 data;
   }
 

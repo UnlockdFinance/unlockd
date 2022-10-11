@@ -92,7 +92,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     );
   });
 
-  it("WETH - Liquidates the borrow on NFTX", async () => {
+  /* it("WETH - Liquidates the borrow on NFTX", async () => {
     const { weth, bayc, users, pool, dataProvider, liquidator, nftxVaultFactory } = testEnv;
     const borrower = users[1];
 
@@ -154,7 +154,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
       new BigNumber(ethReserveDataBefore.availableLiquidity.toString()).plus(expectedLiquidateAmount).toFixed(0),
       "Invalid principal available liquidity"
     );
-  });
+  }); */
 
   it("USDC - Borrows USDC", async () => {
     const { users, pool, reserveOracle, usdc, bayc, uBAYC, configurator, dataProvider } = testEnv;
@@ -225,7 +225,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     );
   });
 
-  it("USDC - Liquidates the borrow on NFTX", async () => {
+  /* it("USDC - Liquidates the borrow on NFTX", async () => {
     const { usdc, bayc, users, pool, dataProvider, liquidator, nftxVaultFactory } = testEnv;
     const borrower = users[1];
 
@@ -289,5 +289,5 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
       new BigNumber(usdcReserveDataBefore.availableLiquidity.toString()).plus(expectedLiquidateAmount).toFixed(0),
       "Invalid principal available liquidity"
     );
-  });
+  }); */
 });

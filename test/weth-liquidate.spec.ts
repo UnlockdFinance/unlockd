@@ -147,7 +147,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     expect(tokenOwner).to.be.equal(liquidator.address, "Invalid token owner after liquidation");
   });
 
-  it("Borrow ETH and Liquidate it on NFTX", async () => {
+  /* it("Borrow ETH and Liquidate it on NFTX", async () => {
     const {
       users,
       wethGateway,
@@ -234,7 +234,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     const vaultsForAssets = await nftxVaultFactory.vaultsForAsset(bayc.address);
     const nftxVault = await getNFTXVault(vaultsForAssets[0]);
     expect(tokenOwner).to.be.equal(nftxVault.address, "Invalid token owner after liquidation");
-  });
+  }); */
 
   it("Borrow ETH and Redeem it", async () => {
     const {

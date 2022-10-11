@@ -292,7 +292,11 @@ export const configureReservesByHelper = async (
       console.log(`  - batchConfigReserve for: ${chunkedSymbols[chunkIndex].join(", ")}`);
     }
 
-    await waitForTx(await configuator.setBorrowingFlagOnReserve(assetsParams, true));
+    await Promise.all(
+      assetsParams.map(async (asset) => {
+        await waitForTx(await configuator.setBorrowingFlagOnReserve(asset, true));
+      })
+    );
   }
 };
 

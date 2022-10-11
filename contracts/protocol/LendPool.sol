@@ -4,6 +4,7 @@ pragma solidity 0.8.4;
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
+import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
@@ -108,7 +109,12 @@ contract LendPool is
    * @notice Revert if called by any account other than the rescuer.
    */
   modifier onlyRescuer() {
-    require(msg.sender == _rescuer, "Rescuable: caller is not the rescuer");
+    require(_msgSender() == _rescuer, "Rescuable: caller is not the rescuer");
+    _;
+  }
+
+  modifier onlyHolder(address nftAsset, uint256 nftTokenId) {
+    require(_msgSender() == IERC721Upgradeable(nftAsset).ownerOf(nftTokenId), Errors.LP_CALLER_NOT_NFT_HOLDER);
     _;
   }
 
@@ -371,7 +377,7 @@ contract LendPool is
     external
     override
     nonReentrant
-    //onlyLendPoolLiquidatorOrGateway
+    onlyLendPoolLiquidatorOrGateway
     whenNotPaused
     returns (uint256)
   {
@@ -387,6 +393,15 @@ contract LendPool is
           liquidateFeePercentage: _liquidateFeePercentage
         })
       );
+  }
+
+  function triggerUserCollateral(address nftAsset, uint256 nftTokenId)
+    external
+    override
+    onlyHolder(nftAsset, nftTokenId)
+    whenNotPaused
+  {
+    emit UserCollateralTriggered(_msgSender(), nftAsset, nftTokenId);
   }
 
   function onERC721Received(
@@ -836,6 +851,21 @@ contract LendPool is
    */
   function getLiquidateFeePercentage() external view override returns (uint256) {
     return _liquidateFeePercentage;
+  }
+
+  /**
+   * @dev Sets the max timeframe between NFT config triggers and borrows
+   * @param timeframe the number of seconds for the timeframe
+   **/
+  function setTimeframe(uint256 timeframe) external override onlyLendPoolConfigurator {
+    _timeframe = timeframe;
+  }
+
+  /**
+   * @dev Returns the max timeframe between NFT config triggers and borrows
+   **/
+  function getTimeframe() external view override returns (uint256) {
+    return _timeframe;
   }
 
   /**

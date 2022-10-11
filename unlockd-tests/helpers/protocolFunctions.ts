@@ -375,28 +375,28 @@ const mintNFTX = async (wallet: Wallet, token: Contract, tokenIds: string[], amo
 
 //#region LendPoolConfigurator for any doubts in the parameters 
 // check the LendPoolConfigurator.sol or ILendPoolconfigurator.sol     
-const setBorrowingFlagOnReserve = async (wallet:Wallet, assets: string[], flag: boolean) => {
-    return await Contracts.lendPoolConfigurator.connect(wallet).setBorrowingFlagOnReserve(assets, flag);
+const setBorrowingFlagOnReserve = async (wallet:Wallet, asset: string, flag: boolean) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setBorrowingFlagOnReserve(asset, flag);
 }
 
-const setActiveFlagOnReserve = async (wallet:Wallet, assets: string[], flag: boolean) => {
-    return await Contracts.lendPoolConfigurator.connect(wallet).setActiveFlagOnReserve(assets, flag);
+const setActiveFlagOnReserve = async (wallet:Wallet, asset: string, flag: boolean) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setActiveFlagOnReserve(asset, flag);
 }
 
-const setFreezeFlagOnReserve = async (wallet:Wallet, assets: string[], flag: boolean) => {
-    return await Contracts.lendPoolConfigurator.connect(wallet).setFreezeFlagOnReserve(assets, flag);
+const setFreezeFlagOnReserve = async (wallet:Wallet, asset: string, flag: boolean) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setFreezeFlagOnReserve(asset, flag);
 }
 
-const setReserveFactor = async (wallet:Wallet, assets: string[], factor: string) => {
-    return await Contracts.lendPoolConfigurator.connect(wallet).setReserveFactor(assets, factor);
+const setReserveFactor = async (wallet:Wallet, asset: string, factor: string) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setReserveFactor(asset, factor);
 }
 
 const setReserveInterestRateAddress = async (wallet:Wallet, assets: string[], rateAddress: string) => {
     return await Contracts.lendPoolConfigurator.connect(wallet).setReserveInterestRateAddress(assets, rateAddress);
 }
 
-const setActiveFlagOnNft = async (wallet:Wallet, assets: string[], flag: boolean) => {
-    return await Contracts.lendPoolConfigurator.connect(wallet).setActiveFlagOnNft(assets, flag);
+const setActiveFlagOnNft = async (wallet:Wallet, asset: string, flag: boolean) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setActiveFlagOnNft(asset, flag);
 }
 
 const setFreezeFlagOnNft = async (wallet:Wallet, assets: string[], flag: boolean) => {
@@ -444,9 +444,9 @@ const configureNftAsAuction = async (
     );
 }
 
-const setNftRedeemThreshold = async (wallet:Wallet, assets: string[], redeemThreshold: string) => {
-    return await Contracts.lendPoolConfigurator.connect(wallet).setReserveFactor(assets, redeemThreshold);
-}
+const setNftRedeemThreshold = async (wallet:Wallet, asset: string, nftTokenId: number, redeemThreshold: string) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setNftRedeemThreshold(asset, nftTokenId, redeemThreshold);
+}  
 
 const setNftMinBidFine = async (wallet:Wallet, assets: string[], minBidFine: string) => {
     return await Contracts.lendPoolConfigurator.connect(wallet).setNftMinBidFine(assets, minBidFine);

@@ -150,7 +150,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     expect(punkOwner).to.be.equal(liquidator.address, "Invalid punk owner after liquidation");
   });
 
-  it("Borrow USDC and liquidate it on NFTX", async () => {
+  /* it("Borrow USDC and liquidate it on NFTX", async () => {
     const {
       users,
       cryptoPunksMarket,
@@ -242,7 +242,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     const nftxVault = await getNFTXVault(vaultsForAssets[0]);
     const wrappedPunkOwner = await wrappedPunk.ownerOf(punkIndex);
     expect(wrappedPunkOwner).to.be.equal(nftxVault.address, "Invalid punk owner after liquidation");
-  });
+  }); */
 
   it("Borrow USDC and redeem it", async () => {
     const {
@@ -451,7 +451,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     expect(punkOwner).to.be.equal(liquidator.address, "Invalid punk owner after liquidation");
   });
 
-  it("Borrow ETH and liquidate it on NFTX", async () => {
+  /* it("Borrow ETH and liquidate it on NFTX", async () => {
     const {
       users,
       cryptoPunksMarket,
@@ -540,7 +540,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     const nftxVault = await getNFTXVault(vaultsForAssets[0]);
     const wrappedPunkOwner = await wrappedPunk.ownerOf(punkIndex);
     expect(wrappedPunkOwner).to.be.equal(nftxVault.address, "Invalid punk owner after liquidation");
-  });
+  }); */
 
   it("Borrow ETH and redeem it", async () => {
     const {

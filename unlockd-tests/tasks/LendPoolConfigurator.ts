@@ -8,42 +8,42 @@ import { getOwnerWallet } from "../helpers/config";
 */
 
 task("configurator:setBorrowingFlagOnReserve", "Enables or disables borrowing on each reserve")
-.addParam("assets", "NFT addresses") 
+.addParam("asset", "NFT addresses") 
 .addParam("flag", "A boolean, true to enable ; false to disable") 
-.setAction( async ({assets, flag }) => {
+.setAction( async ({asset, flag }) => {
     const wallet = await getOwnerWallet();  
 
-    const tx = await Functions.LENDPOOLCONFIGURATOR.setBorrowingFlagOnReserve(wallet, [assets], flag)
+    const tx = await Functions.LENDPOOLCONFIGURATOR.setBorrowingFlagOnReserve(wallet, asset, flag)
     console.log(tx);
 }); 
 
 task("configurator:setActiveFlagOnReserve", "Activates or deactivates each reserve")
-.addParam("assets", "NFT addresses") 
+.addParam("asset", "NFT addresses") 
 .addParam("flag", "A boolean, true for Active; false for not active") 
-.setAction( async ({assets, flag }) => {
+.setAction( async ({asset, flag }) => {
     const wallet = await getOwnerWallet();  
 
-    const tx = await Functions.LENDPOOLCONFIGURATOR.setActiveFlagOnReserve(wallet, [assets], flag)
+    const tx = await Functions.LENDPOOLCONFIGURATOR.setActiveFlagOnReserve(wallet, asset, flag)
     console.log(tx);
 }); 
 
 task("configurator:setFreezeFlagOnReserve", "Freezes or unfreezes each reserve")
-.addParam("assets", "NFT addresses") 
+.addParam("asset", "NFT addresses") 
 .addParam("flag", "A boolean, true for freeze; false for unfreeze") 
-.setAction( async ({assets, flag }) => {
+.setAction( async ({asset, flag }) => {
     const wallet = await getOwnerWallet();  
 
-    const tx = await Functions.LENDPOOLCONFIGURATOR.setFreezeFlagOnReserve(wallet, [assets], flag)
+    const tx = await Functions.LENDPOOLCONFIGURATOR.setFreezeFlagOnReserve(wallet, asset, flag)
     console.log(tx);
 }); 
 
 task("configurator:setReserveFactor", "Updates the reserve factor of a reserve")
-.addParam("assets", "addresses") 
+.addParam("asset", "addresses") 
 .addParam("factor", "The new reserve factor of the reserve") 
-.setAction( async ({assets, factor }) => {
+.setAction( async ({asset, factor }) => {
     const wallet = await getOwnerWallet();  
 
-    const tx = await Functions.LENDPOOLCONFIGURATOR.setReserveFactor(wallet, [assets], factor)
+    const tx = await Functions.LENDPOOLCONFIGURATOR.setReserveFactor(wallet, asset, factor)
     console.log(tx);
 }); 
 
@@ -58,12 +58,12 @@ task("configurator:setReserveInterestRateAddress", "Sets the interest rate strat
 }); 
 
 task("configurator:setActiveFlagOnNft", "Activates or Deactivates the reserves")
-.addParam("assets", "NFT addresses") 
+.addParam("asset", "NFT address") 
 .addParam("flag", "A boolean, True for Active; False for not active") 
-.setAction( async ({assets, flag }) => {
+.setAction( async ({asset, flag }) => {
     const wallet = await getOwnerWallet();  
 
-    const tx = await Functions.LENDPOOLCONFIGURATOR.setActiveFlagOnNft(wallet, [assets], flag)
+    const tx = await Functions.LENDPOOLCONFIGURATOR.setActiveFlagOnNft(wallet, asset, flag)
     console.log(tx);
 }); 
 
@@ -132,14 +132,15 @@ task("configurator:configureNftAsAuction", "Configures the NFT auction parameter
 }); 
 
 task("configurator:setNftRedeemThreshold", "Activates or Deactivates the reserves")
-.addParam("assets", "NFT addresses") 
+.addParam("asset", "NFT address") 
+.addParam("tokenid", "NFT tokenid") 
 .addParam("redeemthreshold", "The threshold for the redeem") 
-.setAction( async ({assets, redeemthreshold }) => {
+.setAction( async ({asset, tokenid, redeemthreshold }) => {
     const wallet = await getOwnerWallet();  
 
-    const tx = await Functions.LENDPOOLCONFIGURATOR.setNftRedeemThreshold(wallet, [assets], redeemthreshold)
+    const tx = await Functions.LENDPOOLCONFIGURATOR.setNftRedeemThreshold(wallet, asset, tokenid, redeemthreshold)
     console.log(tx);
-}); 
+});  
 
 task("configurator:setNftMinBidFine", "Freezes or unfreezes each NFT")
 .addParam("assets", "NFT addresses") 
