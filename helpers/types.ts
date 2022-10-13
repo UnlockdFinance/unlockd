@@ -201,6 +201,8 @@ export enum ProtocolErrors {
   LPC_INVALIED_UNFT_ADDRESS = "703",
   LPC_INVALIED_LOAN_ADDRESS = "704",
   LPC_NFT_LIQUIDITY_NOT_0 = "705",
+  LPC_PARAMS_MISMATCH = "706",
+  LPC_FEE_PERCENTAGE_TOO_HIGH = "707",
 
   //reserve config errors
   RC_INVALID_LTV = "730",

@@ -4,6 +4,7 @@ import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { ProtocolErrors } from "../helpers/types";
 import { strategyNftClassB } from "../markets/unlockd/nftsConfigs";
 import { BigNumberish } from "ethers";
+import { timeLatest } from "../helpers/misc-utils";
 
 const { expect } = require("chai");
 
@@ -371,5 +372,22 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
       configurator.connect(users[2].signer).setMaxNumberOfNfts(512),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+  });
+
+  it("Config the timeFrame for an X amount of time", async () => {
+    const { configurator, pool } = testEnv;
+    await configurator.setTimeframe(1800);
+    await expect(await pool.getTimeframe()).to.be.equal(1800);
+  });
+
+  it("Check if the config timestamp is correct", async () => {
+    const { users, configurator, pool, tokenId, bayc } = testEnv;
+    const timestamp = timeLatest;
+    console.log("TimeStamp: ", timestamp);
+    await configurator
+      .connect(users[0].signer)
+      .configureNftAsCollateral(bayc.address, tokenId, "8000", "8000", "8250", "500", 1, 2, 25, true, false);
+    const config = await pool.getNftConfigByTokenId(bayc.address, tokenId);
+    console.log("Config: ", config);
   });
 });

@@ -26,34 +26,31 @@ task("dev:deploy-lend-pool", "Deploy lend pool for dev enviroment")
     const addressesProvider = await getLendPoolAddressesProvider();
     const poolConfig = loadPoolConfig(pool);
 
-    // const unftRegistryProxy = await getUNFTRegistryProxy();
-    // await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
+    const unftRegistryProxy = await getUNFTRegistryProxy();
+    await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
 
-    // ////////////////////////////////////////////////////////////////////////////
-    // console.log("Deploying new libraries implementation...");
-    // await deployUnlockdLibraries(verify);
+    ////////////////////////////////////////////////////////////////////////////
+    console.log("Deploying new libraries implementation...");
+    await deployUnlockdLibraries(verify);
 
-    // // deploy lend pool
-    // const lendPoolImpl = await deployLendPool(verify);
+    // deploy lend pool
+    const lendPoolImpl = await deployLendPool(verify);
 
-    // // Set lend pool impl to Address Provider
-    // await waitForTx(await addressesProvider.setLendPoolImpl(lendPoolImpl.address, []));
+    // Set lend pool impl to Address Provider
+    await waitForTx(await addressesProvider.setLendPoolImpl(lendPoolImpl.address, []));
 
-    // const address = await addressesProvider.getLendPool();
-    // const lendPoolProxy = await getLendPool(address);
+    const address = await addressesProvider.getLendPool();
+    const lendPoolProxy = await getLendPool(address);
 
-    // await insertContractAddressInDb(eContractid.LendPool, lendPoolProxy.address);
+    await insertContractAddressInDb(eContractid.LendPool, lendPoolProxy.address);
 
-    // ////////////////////////////////////////////////////////////////////////////
-    // // deploy lend pool configurator
-    // const lendPoolConfiguratorImpl = await deployLendPoolConfigurator(verify);
+    ////////////////////////////////////////////////////////////////////////////
+    // deploy lend pool configurator
+    const lendPoolConfiguratorImpl = await deployLendPoolConfigurator(verify);
 
-    // Set lend pool conf impl to Address Provider
-    //await waitForTx(await addressesProvider.setLendPoolConfiguratorImpl(lendPoolConfiguratorImpl.address, []));
-    await waitForTx(
-      await addressesProvider.setLendPoolConfiguratorImpl("0x1b81739B470B72bBa38e57784709b44378802078", [])
-    );
-    console.log("0x1b81739B470B72bBa38e57784709b44378802078");
+    //Set lend pool conf impl to Address Provider
+    await waitForTx(await addressesProvider.setLendPoolConfiguratorImpl(lendPoolConfiguratorImpl.address, []));
+
     const lendPoolConfiguratorProxy = await getLendPoolConfiguratorProxy(
       await addressesProvider.getLendPoolConfigurator()
     );
