@@ -380,4 +380,13 @@ library NftConfiguration {
   function getMinBidFineMemory(DataTypes.NftConfigurationMap memory self) internal pure returns (uint256) {
     return ((self.data & ~MIN_BIDFINE_MASK) >> MIN_BIDFINE_START_BIT_POSITION);
   }
+
+  /**
+   * @dev Gets the timestamp the NFT was configured
+   * @param self The NFT configuration
+   * @return The timestamp value
+   **/
+  function getConfigTimestampMemory(DataTypes.NftConfigurationMap memory self) internal pure returns (uint256) {
+    return ((self.data & ~CONFIG_TIMESTAMP_MASK) >> CONFIG_TIMESTAMP_START_BIT_POSITION);
+  }
 }

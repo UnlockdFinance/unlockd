@@ -3,8 +3,9 @@ import { APPROVAL_AMOUNT_LENDING_POOL, MOCK_NFT_AGGREGATORS_MAXSUPPLY, RAY } fro
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { ProtocolErrors } from "../helpers/types";
 import { strategyNftClassB } from "../markets/unlockd/nftsConfigs";
-import { BigNumberish } from "ethers";
+import { BigNumberish, BigNumber } from "ethers";
 import { timeLatest } from "../helpers/misc-utils";
+import { timeStamp } from "console";
 
 const { expect } = require("chai");
 
@@ -381,13 +382,13 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   });
 
   it("Check if the config timestamp is correct", async () => {
-    const { users, configurator, pool, tokenId, bayc } = testEnv;
-    const timestamp = timeLatest;
-    console.log("TimeStamp: ", timestamp);
+    const { users, configurator, pool, tokenId, bayc, dataProvider } = testEnv;
+    const timestamp = await (await timeLatest()).toString();
+    let timestampAux = BigNumber.from(timestamp);
     await configurator
       .connect(users[0].signer)
       .configureNftAsCollateral(bayc.address, tokenId, "8000", "8000", "8250", "500", 1, 2, 25, true, false);
-    const config = await pool.getNftConfigByTokenId(bayc.address, tokenId);
-    console.log("Config: ", config);
+    const { configTimestamp } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, tokenId);
+    expect(configTimestamp).to.be.within(timestamp, timestampAux.add(10));
   });
 });
