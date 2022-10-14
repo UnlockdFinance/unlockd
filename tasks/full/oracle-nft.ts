@@ -10,6 +10,7 @@ import {
   getUnlockdUpgradeableProxy,
   getUnlockdProxyAdminById,
   getAllMockedNfts,
+  getDeploySigner,
 } from "../../helpers/contracts-getters";
 import { NFTOracle, UnlockdUpgradeableProxy } from "../../types";
 import { addAssetsInNFTOraclewithSigner, setPricesInNFTOracleWithSigner } from "../../helpers/oracles-helpers";
@@ -66,14 +67,14 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
       }
 
       const nftOracleImpl = await deployNFTOracle(verify);
+      console.log("feedAdmin: ", feedAdmin);
+      console.log("nftxVaultFactory: ", nftxVaultFactory);
+      console.log("sushiSwapRouter: ", sushiSwapRouter);
       const initEncodedData = nftOracleImpl.interface.encodeFunctionData("initialize", [
         feedAdmin,
         nftxVaultFactory,
         sushiSwapRouter,
       ]);
-
-      const lendpoolConfigurator = await addressesProvider.getLendPoolConfigurator();
-      await nftOracleImpl.setPriceManagerStatus(lendpoolConfigurator, true);
 
       let nftOracle: NFTOracle;
       let nftOracleProxy: UnlockdUpgradeableProxy;
@@ -93,7 +94,7 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
         nftOracle = await getNFTOracle(nftOracleProxy.address);
       } else {
         console.log("Deploying new nft oracle proxy & implementation...");
-
+        console.log("oracle data", initEncodedData);
         nftOracleProxy = await deployUnlockdUpgradeableProxy(
           eContractid.NFTOracle,
           proxyAdmin.address,
@@ -103,6 +104,9 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
         );
 
         nftOracle = await getNFTOracle(nftOracleProxy.address);
+
+        const lendpoolConfigurator = await addressesProvider.getLendPoolConfigurator();
+        await nftOracle.setPriceManagerStatus(lendpoolConfigurator, true);
 
         const mockNfts = await getAllMockedNfts();
 
@@ -134,13 +138,13 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
         const oracleOwnerSigner = DRE.ethers.provider.getSigner(oracleOwnerAddress);
         // await waitForTx(await nftOracle.connect(oracleOwnerSigner).setCollections(tokens));
         await addAssetsInNFTOraclewithSigner(allNftAddresses, nftOracle, oracleOwnerSigner);
-        await setPricesInNFTOracleWithSigner(
-          allNftPrices,
-          allNftAddresses,
-          allNftMaxSupply,
-          nftOracle,
-          oracleOwnerSigner
-        );
+        // await setPricesInNFTOracleWithSigner(
+        //   allNftPrices,
+        //   allNftAddresses,
+        //   allNftMaxSupply,
+        //   nftOracle,
+        //   oracleOwnerSigner
+        // );
       }
 
       // Register the proxy oracle on the addressesProvider

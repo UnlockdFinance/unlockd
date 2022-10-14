@@ -37,17 +37,19 @@ task(`full:deploy-weth-gateway`, `Deploys the WETHGateway contract`)
     console.log("WETH.address", weth);
 
     const wethGatewayImpl = await deployWETHGateway(verify);
+    console.log("addressesProvider: ", addressesProvider.address);
+    console.log("weth: ", weth);
     const initEncodedData = wethGatewayImpl.interface.encodeFunctionData("initialize", [
       addressesProvider.address,
       weth,
     ]);
-    // const initEncodedData = '0x';
+    //const initEncodedData = '0x';
 
     let wethGateWay: WETHGateway;
     let wethGatewayProxy: UnlockdUpgradeableProxy;
 
-    //  const wethGatewayAddress = undefined;
-    const wethGatewayAddress = await addressesProvider.getAddress(ADDRESS_ID_WETH_GATEWAY);
+    const wethGatewayAddress = undefined;
+    //const wethGatewayAddress = await addressesProvider.getAddress(ADDRESS_ID_WETH_GATEWAY);
 
     if (wethGatewayAddress != undefined && notFalsyOrZeroAddress(wethGatewayAddress)) {
       console.log("Upgrading exist WETHGateway proxy to new implementation...");
@@ -63,17 +65,20 @@ task(`full:deploy-weth-gateway`, `Deploys the WETHGateway contract`)
       wethGateWay = await getWETHGateway(wethGatewayProxy.address);
     } else {
       console.log("Deploying new WETHGateway proxy & implementation...");
+      console.log("WETHGateway: ", eContractid.WETHGateway);
+      console.log("proxyAdmin: ", proxyAdmin.address);
+      console.log("wethGatewayImpl: ", wethGatewayImpl.address);
+      console.log("initEncodedData: ", initEncodedData);
       const wethGatewayProxy = await deployUnlockdUpgradeableProxy(
         eContractid.WETHGateway,
         proxyAdmin.address,
         wethGatewayImpl.address,
-        initEncodedData.toString(),
+        initEncodedData,
         verify
       );
 
       wethGateWay = await getWETHGateway(wethGatewayProxy.address);
     }
-
     await waitForTx(await addressesProvider.setAddress(ADDRESS_ID_WETH_GATEWAY, wethGateWay.address));
 
     console.log("WETHGateway: proxy %s, implementation %s", wethGateWay.address, wethGatewayImpl.address);

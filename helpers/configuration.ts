@@ -118,9 +118,9 @@ export const getTreasuryAddress = async (config: ICommonConfiguration): Promise<
 export const getWrappedNativeTokenAddress = async (config: ICommonConfiguration) => {
   const currentNetwork = process.env.MAINNET_FORK === "true" ? "main" : DRE.network.name;
   const wethAddress = getParamPerNetwork(config.WrappedNativeToken, <eNetwork>currentNetwork);
-  if (wethAddress) {
-    return wethAddress;
-  }
+  // if (wethAddress) {
+  //   return wethAddress;
+  // }
   if (currentNetwork.includes("main")) {
     throw new Error("WETH not set at mainnet configuration.");
   }
