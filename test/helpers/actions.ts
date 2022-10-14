@@ -182,15 +182,16 @@ export const approveERC20 = async (testEnv: TestEnv, user: SignerWithAddress, re
 
   await waitForTx(await token.connect(user.signer).approve(pool.address, "100000000000000000000000000000"));
 };
+
 export const getERC20Balance = async (testEnv: TestEnv, user: SignerWithAddress, reserveSymbol: string) => {
   const { pool } = testEnv;
   const reserve = await getReserveAddressFromSymbol(reserveSymbol);
-
   const token = await getMintableERC20(reserve);
 
   const balance = await token.connect(user.signer).balanceOf(user.address);
   return balance;
 };
+
 export const approveERC20PunkGateway = async (testEnv: TestEnv, user: SignerWithAddress, reserveSymbol: string) => {
   const { punkGateway } = testEnv;
   const reserve = await getReserveAddressFromSymbol(reserveSymbol);

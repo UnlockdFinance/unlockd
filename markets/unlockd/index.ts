@@ -31,8 +31,8 @@ export const UnlockdConfig: IUnlockdConfiguration = {
   ProviderId: 1,
   ReservesConfig: { 
     WETH: strategyWETH,
-    //DAI: strategyDAI,
-    //USDC: strategyUSDC,
+    DAI: strategyDAI,
+    USDC: strategyUSDC,
   },
   NftsConfig: {
     WPUNKS: strategyNft_WPUNKS,

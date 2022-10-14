@@ -113,7 +113,9 @@ export enum ProtocolErrors {
   INVALID_TO_BALANCE_AFTER_TRANSFER = "103",
   CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST = "104",
   CALLER_NOT_POOL_LIQUIDATOR = "105",
-  CALLER_NOT_LTV_MANAGER = "106",
+  INVALID_ZERO_ADDRESS = "106",
+  CALLER_NOT_LTV_MANAGER = "107",
+  CALLER_NOT_PRICE_MANAGER = "108",
 
   //math library erros
   MATH_MULTIPLICATION_OVERFLOW = "200",
@@ -249,10 +251,10 @@ export type iAssetsWithoutUSD<T> = Omit<iAssetBase<T>, "USD">;
 
 export type iUnlockdPoolAssets<T> = Pick<
   iAssetsWithoutUSD<T>,
-  "WETH"
-  //| "DAI"
+  | "WETH"
+  | "DAI"
   //| 'BUSD'
-  //| "USDC"
+  | "USDC"
   //| 'USDT'
 >;
 
@@ -264,9 +266,9 @@ export type iAssetAggregatorBase<T> = iAssetsWithoutETH<T>;
 
 export enum TokenContractId {
   WETH = "WETH",
-  //DAI = "DAI",
+  DAI = "DAI",
   //BUSD = 'BUSD',
-  //USDC = "USDC",
+  USDC = "USDC",
   //USDT = 'USDT',
 }
 

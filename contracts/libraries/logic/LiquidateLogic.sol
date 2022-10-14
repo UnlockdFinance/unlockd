@@ -565,6 +565,25 @@ library LiquidateLogic {
 
     ValidationLogic.validateLiquidateNFTX(reserveData, nftData, nftConfig, loanData);
 
+    // Check for health factor
+    (, , uint256 healthFactor) = GenericLogic.calculateLoanData(
+      loanData.reserveAsset,
+      reserveData,
+      loanData.nftAsset,
+      loanData.nftTokenId,
+      nftConfig,
+      vars.poolLoan,
+      vars.loanId,
+      vars.reserveOracle,
+      vars.nftOracle
+    );
+
+    //Loan must be unhealthy in order to get liquidated
+    require(
+      healthFactor <= GenericLogic.HEALTH_FACTOR_LIQUIDATION_THRESHOLD,
+      Errors.VL_HEALTH_FACTOR_LOWER_THAN_LIQUIDATION_THRESHOLD
+    );
+
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();
 
@@ -614,6 +633,15 @@ library LiquidateLogic {
     // update interest rate according latest borrow amount (utilizaton)
     reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.borrowAmount, 0);
 
+    // NFTX selling price was lower than borrow amount. Treasury must cover the loss
+    if (vars.extraDebtAmount > 0) {
+      IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(
+        IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS(),
+        address(this),
+        vars.extraDebtAmount
+      );
+    }
+
     // transfer borrow amount from lend pool to uToken, repay debt
     IERC20Upgradeable(loanData.reserveAsset).safeTransfer(reserveData.uTokenAddress, vars.borrowAmount);
 
@@ -624,8 +652,6 @@ library LiquidateLogic {
     if (vars.remainAmount > 0) {
       IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.borrower, vars.remainAmount);
     }
-
-    // TODO: transfer extra debt from protocol treasury
 
     emit LiquidateNFTX(
       loanData.reserveAsset,

@@ -47,6 +47,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     CALLER_NOT_LTV_MANAGER,
     LP_INVALID_OVERFLOW_VALUE,
   } = ProtocolErrors;
+
   const tokenSupply = MOCK_NFT_AGGREGATORS_MAXSUPPLY.BAYC;
   var maxSupply: number = +tokenSupply;
 

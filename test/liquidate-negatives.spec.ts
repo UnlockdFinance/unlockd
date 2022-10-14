@@ -283,7 +283,6 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
   it("User 3 auction after duration is end", async () => {
     const { bayc, pool, users } = testEnv;
     const user3 = users[3];
-
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(2.0).toFixed(0);
 
@@ -299,6 +298,7 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(2.0).toFixed(0);
 
+    //Current bid is from user 2, thus, it should revert
     await expect(
       pool.connect(user2.signer).auction(bayc.address, "101", auctionPrice, user2.address)
     ).to.be.revertedWith(ProtocolErrors.LP_CONSECUTIVE_BIDS_NOT_ALLOWED);

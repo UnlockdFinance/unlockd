@@ -21,8 +21,8 @@ library Errors {
   string public constant INVALID_TO_BALANCE_AFTER_TRANSFER = "103";
   string public constant CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST = "104";
   string public constant CALLER_NOT_POOL_LIQUIDATOR = "105";
-  string public constant CALLER_NOT_LTV_MANAGER = "106";
-  string public constant INVALID_ZERO_ADDRESS = "107";
+  string public constant INVALID_ZERO_ADDRESS = "106";
+  string public constant CALLER_NOT_LTV_MANAGER = "107";
   string public constant CALLER_NOT_PRICE_MANAGER = "108";
 
   //math library erros

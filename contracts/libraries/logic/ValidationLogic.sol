@@ -301,6 +301,10 @@ library ValidationLogic {
      */
     require(nftConfig.getActive(), Errors.VL_NO_ACTIVE_NFT);
 
+    /**
+     * @dev Loan requires to be in `Active` state. The NFTX process is triggered if there has not been any auction
+     * and the auction time has passed. In that case, loan is not in `Auction` nor `Defaulted`,  and needs to be liquidated in NFTX.
+     */
     require(loanData.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
   }
 

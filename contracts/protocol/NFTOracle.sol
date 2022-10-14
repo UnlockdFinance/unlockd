@@ -56,7 +56,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   mapping(address => bool) public collections;
   //Keeps track of token IDs in a collection
   mapping(address => uint256[]) public collectionTokenIds;
-  
+
   //TODO: Remove this variable previously to deploying the protocol
   address public priceFeedAdmin;
   mapping(address => bool) public collectionPaused;
@@ -65,7 +65,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   address public sushiswapRouter;
 
   mapping(address => bool) isPriceManager;
-
 
   modifier onlyPriceManager() {
     require(isPriceManager[msg.sender], Errors.CALLER_NOT_PRICE_MANAGER);
@@ -99,6 +98,10 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     address _nftxVaultFactory,
     address _sushiswapRouter
   ) public initializer {
+    require(
+      _admin != address(0) && _nftxVaultFactory != address(0) && _sushiswapRouter != address(0),
+      Errors.INVALID_ZERO_ADDRESS
+    );
     __Ownable_init();
     require(
       _admin != address(0) && _nftxVaultFactory != address(0) && _sushiswapRouter != address(0),
@@ -135,7 +138,8 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
    */
   function setCollections(address[] calldata _collections) external onlyOwner {
     uint256 collectionsLength = _collections.length;
-    for (uint256 i = 0; i < collectionsLength; ) {
+
+    for (uint256 i = 0; i != collectionsLength; ) {
       _addCollection(_collections[i]);
       unchecked {
         ++i;
@@ -185,9 +189,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     address _collection,
     uint256 _tokenId,
     uint256 _price
-
   ) external override onlyPriceManager {
-
     _setNFTPrice(_collection, _tokenId, _price);
   }
 
@@ -201,7 +203,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   ) external override onlyPriceManager {
     uint256 collectionsLength = _collections.length;
     if (collectionsLength != _tokenIds.length || collectionsLength != _prices.length) revert ArraysLengthInconsistent();
-    for (uint256 i = 0; i < collectionsLength; ) {
+    for (uint256 i = 0; i != collectionsLength; ) {
       _setNFTPrice(_collections[i], _tokenIds[i], _prices[i]);
       unchecked {
         ++i;
@@ -254,7 +256,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
 
     uint256[] memory _nftPrices = new uint256[](collectionsLength);
 
-    for (uint256 i = 0; i < collectionsLength; ) {
+    for (uint256 i = 0; i != collectionsLength; ) {
       _nftPrices[i] = this.getNFTPrice(_collections[i], _tokenIds[i]);
       unchecked {
         ++i;
@@ -269,6 +271,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
    */
   function setPause(address _collection, bool paused) external override onlyOwner onlyExistingCollection(_collection) {
     collectionPaused[_collection] = paused;
+    emit CollectionPaused(paused);
   }
 
   function setPriceManagerStatus(address newLtvManager, bool val) external onlyOwner {
@@ -291,7 +294,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     uint256[] memory tokenIds = new uint256[](1);
     tokenIds[0] = _tokenId;
 
-    for (uint256 i = 0; i < vaultAddresses.length; ) {
+    for (uint256 i = 0; i != vaultAddresses.length; ) {
       INFTXVault nftxVault = INFTXVault(vaultAddresses[i]);
       if (nftxVault.allValidNFTs(tokenIds)) {
         // Swap path is NFTX Vault -> WETH

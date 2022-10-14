@@ -746,7 +746,7 @@ contract LendPool is
   function getReservesList() external view override returns (address[] memory) {
     address[] memory _activeReserves = new address[](_reservesCount);
 
-    for (uint256 i = 0; i < _reservesCount; ) {
+    for (uint256 i = 0; i != _reservesCount; ) {
       _activeReserves[i] = _reservesList[i];
       unchecked {
         ++i;
@@ -760,10 +760,11 @@ contract LendPool is
    **/
   function getNftsList() external view override returns (address[] memory) {
     address[] memory _activeNfts = new address[](_nftsCount);
-
-    for (uint256 i = 0; i < _nftsCount; ) {
+    for (uint256 i = 0; i != _nftsCount; ) {
       _activeNfts[i] = _nftsList[i];
-      ++i;
+      unchecked {
+        ++i;
+      }
     }
     return _activeNfts;
   }

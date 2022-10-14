@@ -121,7 +121,7 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   function UNDERLYING_ASSET_ADDRESS() external view returns (address);
 
   /**
-   * @dev Returns the address of the treasury wallet/contract
-   */
+   * @dev Returns the address of the treasury set to this uToken
+   **/
   function RESERVE_TREASURY_ADDRESS() external view returns (address);
 }
