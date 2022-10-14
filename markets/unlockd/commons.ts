@@ -78,7 +78,7 @@ export const CommonsConfig: ICommonConfiguration = {
   PoolAdmin: {
     [eEthereumNetwork.coverage]: undefined,
     // [eEthereumNetwork.hardhat]: '0x5b69e6884c70f42819fb35bf3c25578ee11aaa15',
-    [eEthereumNetwork.hardhat]: undefined,
+    [eEthereumNetwork.hardhat]: '0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014',
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.develop]: '0xad93fB0e59eC703422dD38dCb7AcB8e323C8cc5B',
     [eEthereumNetwork.kovan]: '0x249D0dF00d8ca96952A9fc29ddD3199bD035A05B',
@@ -89,7 +89,7 @@ export const CommonsConfig: ICommonConfiguration = {
   PoolAdminIndex: 0,
   EmergencyAdmin: {
     // [eEthereumNetwork.hardhat]: '0x51d25beeef0193c96cfda7fff9bd7411c2bdbdd3',
-    [eEthereumNetwork.hardhat]: undefined,
+    [eEthereumNetwork.hardhat]: '0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014',
     [eEthereumNetwork.coverage]: undefined,
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.develop]: '0x14048d069A5E821eB82E01a275fdfC915C5BcfC4',
@@ -101,8 +101,7 @@ export const CommonsConfig: ICommonConfiguration = {
   EmergencyAdminIndex: 1,
   LendPoolLiquidator: {
     [eEthereumNetwork.coverage]: undefined,
-    // [eEthereumNetwork.hardhat]: '0x5b69e6884c70f42819fb35bf3c25578ee11aaa15',
-    [eEthereumNetwork.hardhat]: undefined,
+    [eEthereumNetwork.hardhat]: '0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014',
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.develop]: '0xad93fB0e59eC703422dD38dCb7AcB8e323C8cc5B',
     [eEthereumNetwork.kovan]: '0x249D0dF00d8ca96952A9fc29ddD3199bD035A05B',
@@ -113,7 +112,7 @@ export const CommonsConfig: ICommonConfiguration = {
   LendPoolLiquidatorIndex: 0,
   LtvManager: {                             // The wallet address that will be set as loan to value Manager
     [eEthereumNetwork.coverage]: '',
-    [eEthereumNetwork.hardhat]: '',
+    [eEthereumNetwork.hardhat]: '0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014',
     [eEthereumNetwork.localhost]: '',
     [eEthereumNetwork.develop]: '',
     [eEthereumNetwork.rinkeby]: '0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014', // Primary wallet but IT MUST BE THE ADDRESS OF THE SERVER WALLET
@@ -288,24 +287,26 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.goerli]: '0x62a6381Aaa2429dd389B7e481161fb8E2c0631D6',
     [eEthereumNetwork.main]: '0x26FC1f11E612366d3367fc0cbFfF9e819da91C8d',
   },
+  // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
   NFTXVaultFactory: {
     [eEthereumNetwork.coverage]: ZERO_ADDRESS,
-    [eEthereumNetwork.hardhat]: '',
+    [eEthereumNetwork.hardhat]: '0xe01Cf5099e700c282A56E815ABd0C4948298Afae',//goerli address for forking tests
     [eEthereumNetwork.localhost]: '',
     [eEthereumNetwork.develop]: '',
     [eEthereumNetwork.rinkeby]: '0xbbc53022Af15Bb973AD906577c84784c47C14371',
     [eEthereumNetwork.kovan]: '',
-    [eEthereumNetwork.goerli]: '0x5b4D67A4712083d1A405625453289E5cf8BcceEF',
+    [eEthereumNetwork.goerli]: '0xe01Cf5099e700c282A56E815ABd0C4948298Afae',
     [eEthereumNetwork.main]: '0xBE86f647b167567525cCAAfcd6f881F1Ee558216',
   },
+  // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
   SushiSwapRouter: {
     [eEthereumNetwork.coverage]: ZERO_ADDRESS,
-    [eEthereumNetwork.hardhat]: '',
+    [eEthereumNetwork.hardhat]: '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506', //goerli address for forking tests
     [eEthereumNetwork.localhost]: '',
     [eEthereumNetwork.develop]: '',
     [eEthereumNetwork.rinkeby]: '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506',
     [eEthereumNetwork.kovan]: '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506',
-    [eEthereumNetwork.goerli]: '0x6E47a4a36a3D11BebCeca49Fa25E91Cd8b037BB7',
+    [eEthereumNetwork.goerli]: '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506', 
     [eEthereumNetwork.main]: '0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F',
   },
 };

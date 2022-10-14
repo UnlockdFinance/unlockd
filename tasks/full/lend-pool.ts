@@ -95,6 +95,7 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       await insertContractAddressInDb(eContractid.LendPoolConfigurator, lendPoolConfiguratorProxy.address);
 
       //////////////////////////////////////////////////////////////////////////
+
       const admin = await DRE.ethers.getSigner(await getEmergencyAdmin(poolConfig));
       // Pause market during deployment
       await waitForTx(await lendPoolConfiguratorProxy.connect(admin).setPoolPause(true));

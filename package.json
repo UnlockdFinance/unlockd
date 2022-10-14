@@ -38,6 +38,7 @@
     "unlockd:goerli:mock:migration": "npm run compile && npm run hardhat:goerli -- unlockd:mock",
     "unlockd:kovan:mock:migration": "npm run compile && npm run hardhat:kovan -- unlockd:mock",
     "unlockd:localhost:full:migration": "npm run compile && npm run hardhat:localhost -- unlockd:mainnet",
+    "unlockd:hardhat:full:migration": "npm run compile && npm run hardhat -- unlockd:mainnet",
     "unlockd:develop:full:migration": "npm run compile && npm run hardhat:develop -- unlockd:mainnet",
     "unlockd:rinkeby:full:migration": "npm run compile && npm run hardhat:rinkeby -- unlockd:mainnet",
     "unlockd:goerli:full:migration": "npm run compile && npm run hardhat:goerli -- unlockd:mainnet",
