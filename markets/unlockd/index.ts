@@ -29,23 +29,23 @@ export const UnlockdConfig: IUnlockdConfiguration = {
   ...CommonsConfig,
   MarketId: 'Unlockd genesis market',
   ProviderId: 1,
-  ReservesConfig: {
+  ReservesConfig: { 
     WETH: strategyWETH,
-    DAI: strategyDAI,
-    USDC: strategyUSDC,
+    //DAI: strategyDAI,
+    //USDC: strategyUSDC,
   },
   NftsConfig: {
     WPUNKS: strategyNft_WPUNKS,
     BAYC: strategyNft_BAYC,
     DOODLE: strategyNft_DOODLE,
-    MAYC: strategyNft_MAYC,
+    /*  MAYC: strategyNft_MAYC,
     CLONEX: strategyNft_CLONEX,
     AZUKI: strategyNft_AZUKI,
     KONGZ: strategyNft_KONGZ,
     COOL: strategyNft_COOL,
     MEEBITS: strategyNft_MEEBITS,
     WOW: strategyNft_WOW,
-    LAND: strategyNft_LAND,
+    LAND: strategyNft_LAND, */
   },
 
   ReserveAssets: {

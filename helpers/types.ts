@@ -249,10 +249,10 @@ export type iAssetsWithoutUSD<T> = Omit<iAssetBase<T>, "USD">;
 
 export type iUnlockdPoolAssets<T> = Pick<
   iAssetsWithoutUSD<T>,
-  | "WETH"
-  | "DAI"
+  "WETH"
+  //| "DAI"
   //| 'BUSD'
-  | "USDC"
+  //| "USDC"
   //| 'USDT'
 >;
 
@@ -264,9 +264,9 @@ export type iAssetAggregatorBase<T> = iAssetsWithoutETH<T>;
 
 export enum TokenContractId {
   WETH = "WETH",
-  DAI = "DAI",
+  //DAI = "DAI",
   //BUSD = 'BUSD',
-  USDC = "USDC",
+  //USDC = "USDC",
   //USDT = 'USDT',
 }
 
@@ -277,14 +277,14 @@ export interface iNftBase<T> {
   WPUNKS: T;
   BAYC: T;
   DOODLE: T;
-  COOL: T;
+  /* COOL: T;
   MEEBITS: T;
   MAYC: T;
   WOW: T;
   CLONEX: T;
   AZUKI: T;
   KONGZ: T;
-  LAND: T;
+  LAND: T; */
 }
 
 export type iMultiPoolsNfts<T> = iNftCommon<T> | iUnlockdPoolNfts<T>;
@@ -297,14 +297,14 @@ export enum NftContractId {
   WPUNKS = "WPUNKS",
   BAYC = "BAYC",
   DOODLE = "DOODLE",
-  COOL = "COOL",
+  /* COOL = "COOL",
   MEEBITS = "MEEBITS",
   MAYC = "MAYC",
   WOW = "WOW",
   CLONEX = "CLONEX",
   AZUKI = "AZUKI",
   KONGZ = "KONGZ",
-  LAND = "LAND",
+  LAND = "LAND", */
 }
 
 export interface IReserveParams extends IReserveBorrowParams, IReserveCollateralParams {
