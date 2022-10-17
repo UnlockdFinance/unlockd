@@ -52,23 +52,23 @@ task("unlockd:mainnet", "Deploy full enviroment")
 
     console.log("\n\nMigration started");
 
-    //////////////////////////////////////////////////////////////////////////
-    console.log("\n\nDeploy proxy admin");
-    await DRE.run("full:deploy-proxy-admin", { pool: POOL_NAME });
+    // ////////////////////////////////////////////////////////////////////////
+    // console.log("\n\nDeploy proxy admin");
+    // await DRE.run("full:deploy-proxy-admin", { pool: POOL_NAME });
 
-    //////////////////////////////////////////////////////////////////////////
-    console.log("\n\nDeploy address provider");
-    await DRE.run("full:deploy-address-provider", { pool: POOL_NAME, skipRegistry: skipRegistry });
+    // //////////////////////////////////////////////////////////////////////////
+    // console.log("\n\nDeploy address provider");
+    // await DRE.run("full:deploy-address-provider", { pool: POOL_NAME, skipRegistry: skipRegistry });
 
-    //////////////////////////////////////////////////////////////////////////
-    console.log("\n\nDeploy lend pool");
-    await DRE.run("full:deploy-lend-pool", { pool: POOL_NAME });
+    // //////////////////////////////////////////////////////////////////////////
+    // console.log("\n\nDeploy lend pool");
+    // await DRE.run("full:deploy-lend-pool", { pool: POOL_NAME });
 
-    console.log("\n\nDeploy reserve oracle");
-    await DRE.run("full:deploy-oracle-reserve", { pool: POOL_NAME, skipOracle });
+    // console.log("\n\nDeploy reserve oracle");
+    // await DRE.run("full:deploy-oracle-reserve", { pool: POOL_NAME, skipOracle });
 
-    console.log("\n\nDeploy nft oracle");
-    await DRE.run("full:deploy-oracle-nft", { pool: POOL_NAME, skipOracle });
+    // console.log("\n\nDeploy nft oracle");
+    // await DRE.run("full:deploy-oracle-nft", { pool: POOL_NAME, skipOracle });
 
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nInitialize lend pool");
