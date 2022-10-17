@@ -121,6 +121,11 @@
         "internalType": "uint16",
         "name": "referralCode",
         "type": "uint16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftConfigFees",
+        "type": "uint256"
       }
     ],
     "name": "batchBorrowETH",
@@ -188,6 +193,11 @@
         "internalType": "uint16",
         "name": "referralCode",
         "type": "uint16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftConfigFee",
+        "type": "uint256"
       }
     ],
     "name": "borrowETH",
@@ -372,6 +382,59 @@
       }
     ],
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "nftAsset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "liquidateNFTX",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "nftAsset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "priceInEth",
+        "type": "uint256"
+      }
+    ],
+    "name": "liquidateOpensea",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
