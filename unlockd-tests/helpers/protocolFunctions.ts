@@ -183,6 +183,7 @@ const getAssetPrice = async (wallet: Wallet, asset: string) => {
 //#region AddressProvider for any doubts in the parameters check the LendPoolAddressProvider Contract
 //Addresses provider for any doubts in the parameters check the LendPoolAddressProvider Contract
 const getAddress = async (wallet: Wallet, bytesAddress: string) => {
+    console.log(bytesAddress);
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getAddress(bytesAddress);
 }
 const setAddress = async (wallet: Wallet, id: string, address: string) => {

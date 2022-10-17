@@ -212,7 +212,7 @@ export const CommonsConfig: ICommonConfiguration = {
     },
   },
   ReserveAssets: {
-    [eEthereumNetwork.coverage]: {},
+    [eEthereumNetwork.coverage]: {}, 
     [eEthereumNetwork.hardhat]: {},
     [eEthereumNetwork.localhost]: {},
     [eEthereumNetwork.main]: {},

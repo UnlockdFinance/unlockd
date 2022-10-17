@@ -1,6 +1,6 @@
 {
   "WETH": {
-    "address": "0x35e48c95Faa6B39542B033f7Dd761A27F4A5c63C",
+    "address": "0x543977735EF30E603b0DE334a84E0f285B9A87aa",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "MintableERC20": {
@@ -32,7 +32,7 @@
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "BAYC": {
-    "address": "0x81c392eF3f7802d748dd05394ed434C258EF8AD6",
+    "address": "0x39F14ED58de5955b85EF0832aD9bBa009202f0EB",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "DOODLE": {
@@ -175,29 +175,29 @@
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "WETHGatewayImpl": {
-    "address": "0x48B0f6652725731b00b299017E827e3576A2EA33"
+    "address": "0x8D9569C92f12922d8D4C54beBff3FAF61F0B1eAD"
   },
   "WETHGateway": {
-    "address": "0xD6ed37BD3Ec6f5812a3C8539dF792F79F73eFf0B",
+    "address": "0x04983232522D1a2f55C68d5e22473f2160ac3db1",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "PunkGatewayImpl": {
-    "address": "0x085cC43636335Fb26c5055B6CF62575443f24B58"
+    "address": "0xf41af0DFd7dc7F3ce3Cb5BC395f980d407070f1B"
   },
   "PunkGateway": {
-    "address": "0x12e545c40cBED2AD25C9f3A4249Ee6F7B6AdF8BF",
+    "address": "0xBBa0d20bb0991A8e2F09eB9e2A8aEb1EfE6aa0C3",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "UnlockdProtocolDataProvider": {
-    "address": "0x9a346eA9839080123328C2CEc1dB55B0b9123d32",
+    "address": "0x2eef013674E487757a4458118267D21663002ED0",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "InterestRate": {
-    "address": "0x65A2c65bbf7B844c482CB865E107aEa0a8579964",
+    "address": "0x611A285E13E4E06709196E0e9903006483af2857",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "rateStrategyWETH": {
-    "address": "0x65A2c65bbf7B844c482CB865E107aEa0a8579964"
+    "address": "0x611A285E13E4E06709196E0e9903006483af2857"
   },
   "rateStrategyStableTwo": {
     "address": "0xC2775AD7D155d251781d5E222B4f50787684bA06"
@@ -206,11 +206,11 @@
     "address": "0x4113374ac29eA3f7ab7cb955005d2BE8762faD47"
   },
   "WalletBalanceProvider": {
-    "address": "0xeA4D80De2991A04afCfc38931A1DC9829245663d",
+    "address": "0xc19D6E65ddf17Ef3a7B3D9B6e01fc4d6D586B2dc",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "UIPoolDataProvider": {
-    "address": "0x11E204EC5336FBD32C3C5818B19D3fFB6aA6925c",
+    "address": "0xf16D42cF918e34945fB2df2f5e1107adb7c6E6fd",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "NFTXVaultFactory": {
@@ -229,6 +229,10 @@
   },
   "MockIncentivesController": {
     "address": "0x259bb0Bb88EC193B847BB13449dD0876B26bD243",
+    "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
+  },
+  "CustomERC721": {
+    "address": "0x39F14ED58de5955b85EF0832aD9bBa009202f0EB",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   }
 }

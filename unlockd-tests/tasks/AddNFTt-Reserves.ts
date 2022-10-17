@@ -11,7 +11,7 @@ task("deploy-new-NFT" )
   .addParam("symbol", `The NFT symbol`)
   .setAction(async ({ name, symbol }, localBRE) => {
     await localBRE.run("set-DRE"); 
-    await deployCustomERC721([name, symbol], symbol, true); //add nft to database with symbol as ID
+    await deployCustomERC721([name, symbol], true); //add nft to database with symbol as ID
   }
 ); 
 

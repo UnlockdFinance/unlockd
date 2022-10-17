@@ -40,7 +40,7 @@ task("verify:general", "Verify general contracts at Etherscan")
     const poolConfig = loadPoolConfig(pool);
     const { MarketId, CryptoPunksMarket, WrappedPunkToken } = poolConfig as ICommonConfiguration;
 
-    const unlockdCollectorImpl = await getUnlockdCollectorImpl();
+    // const unlockdCollectorImpl = await getUnlockdCollectorImpl();
     const providerRegistry = await getLendPoolAddressesProviderRegistry();
     const addressesProvider = await getLendPoolAddressesProvider();
 
@@ -80,8 +80,8 @@ task("verify:general", "Verify general contracts at Etherscan")
       const uiProvider = await getUIPoolDataProvider();
 
       // UnlockdCollector
-      console.log("\n- Verifying Collector...\n");
-      await verifyContract(eContractid.UnlockdCollectorImpl, unlockdCollectorImpl, []);
+      // console.log("\n- Verifying Collector...\n");
+      // await verifyContract(eContractid.UnlockdCollectorImpl, unlockdCollectorImpl, []);
 
       // Address Provider
       console.log("\n- Verifying provider registry...\n");
@@ -133,14 +133,14 @@ task("verify:general", "Verify general contracts at Etherscan")
     }
 
     // UnlockdCollector Proxy
-    console.log("\n- Verifying Collector...\n");
+    /*  console.log("\n- Verifying Collector...\n");
     const unlockdCollectorProxy = await getUnlockdCollectorProxy();
     const collectorProxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminFund);
     await verifyContract(eContractid.UnlockdCollector, unlockdCollectorProxy, [
       unlockdCollectorImpl.address,
       collectorProxyAdmin.address,
       unlockdCollectorImpl.interface.encodeFunctionData("initialize"),
-    ]);
+    ]); */
 
     // Lend Pool proxy
     console.log("\n- Verifying Lend Pool Proxy...\n");

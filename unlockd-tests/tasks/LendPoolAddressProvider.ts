@@ -11,15 +11,16 @@ task("provider:getAddress", "User sets a new Market Id name")
 .addParam("bytesaddress", "The new Market Id string/name") 
 .setAction( async ({bytesaddress}) => {
     const wallet = await getOwnerWallet();  
-
+    console.log(wallet); 
+    console.log(bytesaddress);
     const tx = await Functions.LENDPOOLADDRESSPROVIDER.getAddress(wallet, bytesaddress)
-    console.log(tx);
+    console.log(tx);  
 }); 
 task("provider:setAddress", "User sets a new Market Id name")
 .addParam("id", "The new Market Id string/name") 
 .addParam("newaddress", "The new address") 
 .setAction( async ({id, newaddress}) => {
-    const wallet = await getOwnerWallet();  
+    const wallet = await getOwnerWallet();   
 
     const tx = await Functions.LENDPOOLADDRESSPROVIDER.setAddress(wallet, id, newaddress)
     console.log(tx);

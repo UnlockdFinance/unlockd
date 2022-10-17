@@ -111,7 +111,7 @@ library Errors {
   string public constant LPC_RESERVE_LIQUIDITY_NOT_0 = "700"; // 'The liquidity of the reserve needs to be 0'
   string public constant LPC_INVALID_CONFIGURATION = "701"; // 'Invalid risk parameters for the reserve'
   string public constant LPC_CALLER_NOT_EMERGENCY_ADMIN = "702"; // 'The caller must be the emergency admin'
-  string public constant LPC_INVALIED_UNFT_ADDRESS = "703";
+  string public constant LPC_INVALID_UNFT_ADDRESS = "703";
   string public constant LPC_INVALIED_LOAN_ADDRESS = "704";
   string public constant LPC_NFT_LIQUIDITY_NOT_0 = "705";
   string public constant LPC_PARAMS_MISMATCH = "706"; // NFT assets & token ids mismatch

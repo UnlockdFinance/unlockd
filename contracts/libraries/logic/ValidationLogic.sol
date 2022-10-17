@@ -95,7 +95,7 @@ library ValidationLogic {
   ) external view {
     ValidateBorrowLocalVars memory vars;
     require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
-    require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
+    require(nftData.uNftAddress != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
     require(params.amount > 0, Errors.VL_INVALID_AMOUNT);
 
     if (loanId != 0) {
@@ -169,7 +169,7 @@ library ValidationLogic {
     uint256 amountSent,
     uint256 borrowAmount
   ) external view {
-    require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
+    require(nftData.uNftAddress != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
     require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
@@ -201,7 +201,7 @@ library ValidationLogic {
     DataTypes.LoanData memory loanData,
     uint256 bidPrice
   ) internal view {
-    require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
+    require(nftData.uNftAddress != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
     require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
@@ -233,7 +233,7 @@ library ValidationLogic {
     DataTypes.LoanData memory loanData,
     uint256 amount
   ) external view {
-    require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
+    require(nftData.uNftAddress != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
     require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
@@ -262,7 +262,7 @@ library ValidationLogic {
     DataTypes.NftConfigurationMap storage nftConfig,
     DataTypes.LoanData memory loanData
   ) internal view {
-    require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
+    require(nftData.uNftAddress != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
     require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
@@ -289,7 +289,7 @@ library ValidationLogic {
     DataTypes.NftConfigurationMap storage nftConfig,
     DataTypes.LoanData memory loanData
   ) internal view {
-    require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
+    require(nftData.uNftAddress != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
     require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);

@@ -71,23 +71,23 @@ task("unlockd:mainnet", "Deploy full enviroment")
     // await DRE.run("full:deploy-oracle-nft", { pool: POOL_NAME, skipOracle });
 
     //////////////////////////////////////////////////////////////////////////
-    console.log("\n\nInitialize lend pool");
-    await DRE.run("full:initialize-lend-pool", { pool: POOL_NAME });
+    //console.log("\n\nInitialize lend pool");
+    //await DRE.run("full:initialize-lend-pool", { pool: POOL_NAME });
 
     // //////////////////////////////////////////////////////////////////////////
-    // console.log("\n\nDeploy WETH Gateway");
-    // await DRE.run("full:deploy-weth-gateway", { pool: POOL_NAME });
+    //console.log("\n\nDeploy WETH Gateway");
+    //await DRE.run("full:deploy-weth-gateway", { pool: POOL_NAME });
 
-    // console.log("\n\nDeploy PUNK Gateway"); // MUST AFTER WETH GATEWAY
-    // await DRE.run("full:deploy-punk-gateway", { pool: POOL_NAME });
-
-    // //////////////////////////////////////////////////////////////////////////
-    // console.log("\n\nInitialize gateway");
-    // await DRE.run("full:initialize-gateway", { pool: POOL_NAME });
+    //console.log("\n\nDeploy PUNK Gateway"); // MUST AFTER WETH GATEWAY
+    //await DRE.run("full:deploy-punk-gateway", { pool: POOL_NAME });
 
     // //////////////////////////////////////////////////////////////////////////
-    // console.log("\n\nDeploy data provider");
-    // await DRE.run("full:deploy-data-provider", { pool: POOL_NAME, wallet: true, ui: true, protocol: true });
+    //console.log("\n\nInitialize gateway");
+    //await DRE.run("full:initialize-gateway", { pool: POOL_NAME });
+
+    // //////////////////////////////////////////////////////////////////////////
+    //console.log("\n\nDeploy data provider");
+    //await DRE.run("full:deploy-data-provider", { pool: POOL_NAME, wallet: true, ui: true, protocol: true });
 
     if (verify) {
       printContracts();

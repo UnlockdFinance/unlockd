@@ -383,8 +383,13 @@ export const deployMintableERC721 = async (args: [string, string], verify?: bool
     verify
   );
 
-export const deployCustomERC721 = async (args: [string, string], id: string, verify?: boolean): Promise<CustomERC721> =>
-  withSaveAndVerify(await new CustomERC721Factory(await getDeploySigner()).deploy(...args), id, args, verify);
+export const deployCustomERC721 = async (args: [string, string], verify?: boolean): Promise<CustomERC721> =>
+  withSaveAndVerify(
+    await new CustomERC721Factory(await getDeploySigner()).deploy(...args),
+    eContractid.CustomERC721,
+    args,
+    verify
+  );
 
 export const deployInterestRate = async (args: [tEthereumAddress, string, string, string, string], verify: boolean) =>
   withSaveAndVerify(
@@ -435,20 +440,22 @@ export const deployAllMockTokens = async (forTestCases: boolean, verify?: boolea
 };
 
 export const deployAllMockNfts = async (verify?: boolean) => {
-  const tokens: { [symbol: string]: MockContract | MintableERC721 | WrappedPunk } = {};
+  const tokens: { [symbol: string]: MockContract | MintableERC721 | WrappedPunk | CustomERC721 } = {};
 
   for (const tokenSymbol of Object.keys(NftContractId)) {
     const tokenName = "Unlockd Mock " + tokenSymbol;
-    if (tokenSymbol === "WPUNKS") {
+    /* if (tokenSymbol === "WPUNKS") {
       const cryptoPunksMarket = await deployCryptoPunksMarket([], verify);
       const wrappedPunk = await deployWrappedPunk([cryptoPunksMarket.address], verify);
       tokens[tokenSymbol] = wrappedPunk;
       await registerContractInJsonDb(tokenSymbol.toUpperCase(), tokens[tokenSymbol]);
       continue;
+    }  */
+    if (tokenSymbol === "BAYC") {
+      console.log("Deploying BAYC...");
+      tokens[tokenSymbol] = await deployCustomERC721([tokenName, tokenSymbol], verify);
+      await registerContractInJsonDb(tokenSymbol.toUpperCase(), tokens[tokenSymbol]);
     }
-
-    tokens[tokenSymbol] = await deployMintableERC721([tokenName, tokenSymbol], verify);
-    await registerContractInJsonDb(tokenSymbol.toUpperCase(), tokens[tokenSymbol]);
   }
   return tokens;
 };

@@ -24,6 +24,7 @@ export enum UnlockdPools {
 export enum eContractid {
   MintableERC20 = "MintableERC20",
   MintableERC721 = "MintableERC721",
+  CustomERC721 = "CustomERC721",
   LendPoolAddressesProvider = "LendPoolAddressesProvider",
   LendPoolAddressesProviderRegistry = "LendPoolAddressesProviderRegistry",
   LendPoolParametersProvider = "LendPoolParametersProvider",
@@ -202,7 +203,7 @@ export enum ProtocolErrors {
   LPC_RESERVE_LIQUIDITY_NOT_0 = "700", // 'The liquidity of the reserve needs to be 0'
   LPC_INVALID_CONFIGURATION = "701", // 'Invalid risk parameters for the reserve'
   LPC_CALLER_NOT_EMERGENCY_ADMIN = "702", // 'The caller must be the emergency admin'
-  LPC_INVALIED_UNFT_ADDRESS = "703",
+  LPC_INVALID_UNFT_ADDRESS = "703",
   LPC_INVALIED_LOAN_ADDRESS = "704",
   LPC_NFT_LIQUIDITY_NOT_0 = "705",
   LPC_PARAMS_MISMATCH = "706",
