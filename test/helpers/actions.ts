@@ -56,6 +56,7 @@ import { ReserveData, UserReserveData, LoanData } from "./utils/interfaces";
 import { ContractReceipt } from "ethers";
 import { UToken } from "../../types/UToken";
 import { tEthereumAddress } from "../../helpers/types";
+import { Signer } from "crypto";
 
 const { expect } = chai;
 
@@ -256,9 +257,7 @@ export const setNftAssetPriceForDebt = async (
   const { nftOracle, reserveOracle, dataProvider, users } = testEnv;
 
   await nftOracle.setPriceManagerStatus(users[0].address, true);
-  const priceAdmin = users[0].address;
-  console.log("PriceAdmin", priceAdmin);
-  console.log(await nftOracle.isPriceManager(users[0].address));
+  const priceAdmin = users[0].signer;
 
   const reserve = await getReserveAddressFromSymbol(reserveSymbol);
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
@@ -304,9 +303,7 @@ export const setNftAssetPrice = async (
   const { nftOracle, dataProvider, users } = testEnv;
 
   await nftOracle.setPriceManagerStatus(users[0].address, true);
-  const priceAdmin = users[0].address;
-  console.log("PriceAdmin", priceAdmin);
-  console.log(await nftOracle.isPriceManager(users[0].address));
+  const priceAdmin = users[0].signer;
 
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
 
