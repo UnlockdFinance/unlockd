@@ -439,23 +439,28 @@ export const deployAllMockTokens = async (forTestCases: boolean, verify?: boolea
   return tokens;
 };
 
-export const deployAllMockNfts = async (verify?: boolean) => {
+export const deployAllMockNfts = async (verify?: boolean, custom?: boolean) => {
   const tokens: { [symbol: string]: MockContract | MintableERC721 | WrappedPunk | CustomERC721 } = {};
 
   for (const tokenSymbol of Object.keys(NftContractId)) {
     const tokenName = "Unlockd Mock " + tokenSymbol;
-    /* if (tokenSymbol === "WPUNKS") {
+    if (tokenSymbol === "WPUNKS") {
       const cryptoPunksMarket = await deployCryptoPunksMarket([], verify);
       const wrappedPunk = await deployWrappedPunk([cryptoPunksMarket.address], verify);
       tokens[tokenSymbol] = wrappedPunk;
       await registerContractInJsonDb(tokenSymbol.toUpperCase(), tokens[tokenSymbol]);
       continue;
-    }  */
-    if (tokenSymbol === "BAYC") {
-      console.log("Deploying BAYC...");
-      tokens[tokenSymbol] = await deployCustomERC721([tokenName, tokenSymbol], verify);
-      await registerContractInJsonDb(tokenSymbol.toUpperCase(), tokens[tokenSymbol]);
     }
+    if (custom) {
+      //if (tokenSymbol === "BAYC") {
+      //  console.log("Deploying BAYC...");
+      tokens[tokenSymbol] = await deployCustomERC721([tokenName, tokenSymbol], verify);
+      //}
+    } else {
+      tokens[tokenSymbol] = await deployMintableERC721([tokenName, tokenSymbol], verify);
+    }
+
+    await registerContractInJsonDb(tokenSymbol.toUpperCase(), tokens[tokenSymbol]);
   }
   return tokens;
 };

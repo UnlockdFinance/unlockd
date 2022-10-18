@@ -429,7 +429,8 @@ const configureNftAsCollateral = async (
         auctionDuration,
         redeemFine,
         active,
-        false //TODO: always active running the function from the task. Need Fix.
+        false,
+        {gasLimit: 500000} //TODO: always active running the function from the task. Need Fix.
     );
 }
 

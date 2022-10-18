@@ -57,14 +57,12 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   //Keeps track of token IDs in a collection
   mapping(address => uint256[]) public collectionTokenIds;
 
-  //TODO: Remove this variable previously to deploying the protocol
-  address public priceFeedAdmin;
   mapping(address => bool) public collectionPaused;
 
   address public nftxVaultFactory;
   address public sushiswapRouter;
 
-  mapping(address => bool) isPriceManager;
+  mapping(address => bool) public isPriceManager;
 
   modifier onlyPriceManager() {
     require(isPriceManager[msg.sender], Errors.CALLER_NOT_PRICE_MANAGER);
@@ -96,7 +94,8 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   function initialize(
     address _admin,
     address _nftxVaultFactory,
-    address _sushiswapRouter
+    address _sushiswapRouter,
+    address _lendPoolConfigurator
   ) public initializer {
     require(
       _admin != address(0) && _nftxVaultFactory != address(0) && _sushiswapRouter != address(0),
@@ -107,10 +106,10 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
       _admin != address(0) && _nftxVaultFactory != address(0) && _sushiswapRouter != address(0),
       Errors.INVALID_ZERO_ADDRESS
     );
-    priceFeedAdmin = _admin;
     nftxVaultFactory = _nftxVaultFactory;
     sushiswapRouter = _sushiswapRouter;
     isPriceManager[_msgSender()] = true;
+    isPriceManager[_lendPoolConfigurator] = true;
   }
 
   /**
@@ -120,16 +119,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   function _whenNotPaused(address _contract) internal view {
     bool _paused = collectionPaused[_contract];
     if (_paused) revert NFTPaused();
-  }
-
-  /**
-  @dev sets the price feed admin of the oracle
-  @param _admin the address to become the admin
-   */
-  function setPriceFeedAdmin(address _admin) external onlyOwner {
-    require(_admin != address(0), Errors.INVALID_ZERO_ADDRESS);
-    priceFeedAdmin = _admin;
-    emit FeedAdminUpdated(_admin);
   }
 
   /**

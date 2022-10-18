@@ -66,14 +66,14 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
         throw Error("Invalid SushiSwap Router address in config");
       }
 
+      const lendpoolConfigurator = await addressesProvider.getLendPoolConfigurator();
+
       const nftOracleImpl = await deployNFTOracle(verify);
-      console.log("feedAdmin: ", feedAdmin);
-      console.log("nftxVaultFactory: ", nftxVaultFactory);
-      console.log("sushiSwapRouter: ", sushiSwapRouter);
       const initEncodedData = nftOracleImpl.interface.encodeFunctionData("initialize", [
         feedAdmin,
         nftxVaultFactory,
         sushiSwapRouter,
+        lendpoolConfigurator,
       ]);
 
       let nftOracle: NFTOracle;
@@ -105,7 +105,6 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
 
         nftOracle = await getNFTOracle(nftOracleProxy.address);
 
-        const lendpoolConfigurator = await addressesProvider.getLendPoolConfigurator();
         await nftOracle.setPriceManagerStatus(lendpoolConfigurator, true);
 
         const mockNfts = await getAllMockedNfts();

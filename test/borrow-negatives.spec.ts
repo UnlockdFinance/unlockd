@@ -152,7 +152,6 @@ makeSuite("LendPool: Borrow negative test cases", (testEnv: TestEnv) => {
       .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
 
     const timestamp = await timeLatest();
-    console.log("timestamp:", timestamp);
 
     await configurator.setTimeframe(1800);
 
@@ -160,7 +159,6 @@ makeSuite("LendPool: Borrow negative test cases", (testEnv: TestEnv) => {
     nftTokenIdCfgData.configTimestamp.sub(1810).toNumber();
 
     const timestampIncreased = await timeLatest();
-    console.log("timestampIncreased:", timestampIncreased);
 
     await expect(
       pool.connect(users[1].signer).borrow(weth.address, "10", bayc.address, tokenId, user1.address, "0", "1")

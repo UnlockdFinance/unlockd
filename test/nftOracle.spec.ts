@@ -8,9 +8,8 @@ makeSuite("NFTOracle: General functioning", (testEnv: TestEnv) => {
 
   it("Set Admin correctly", async () => {
     const { mockNftOracle, users } = testEnv;
-    const admin = await mockNftOracle.priceFeedAdmin();
-    await mockNftOracle.setPriceFeedAdmin(users[0].address);
-    expect(await mockNftOracle.priceFeedAdmin()).eq(users[0].address);
+    const admin = await mockNftOracle.setPriceManagerStatus(users[0], true);
+    expect(await mockNftOracle.isPriceManager(users[0])).eq(users[0].address);
     await mockNftOracle.setPriceFeedAdmin(admin);
     expect(await mockNftOracle.priceFeedAdmin()).eq(admin);
   });
@@ -116,7 +115,7 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
   it("Should be reverted as NFTOracle is already initialized", async () => {
     const { mockNftOracle, users } = testEnv;
     const admin = await mockNftOracle.priceFeedAdmin();
-    await expect(mockNftOracle.initialize(admin, admin, admin)).to.be.revertedWith(
+    await expect(mockNftOracle.initialize(admin, admin, admin, admin)).to.be.revertedWith(
       "Initializable: contract is already initialized"
     );
   });

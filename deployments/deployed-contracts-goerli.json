@@ -1,6 +1,6 @@
 {
   "WETH": {
-    "address": "0x543977735EF30E603b0DE334a84E0f285B9A87aa",
+    "address": "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "MintableERC20": {
@@ -137,10 +137,11 @@
     "address": "0x2feC42b0C341025B97f5E2785C01646C6F793a82"
   },
   "LendPoolConfiguratorImpl": {
-    "address": "0x65849C5D2443aF0400Ce1968C16f971f4949373d"
+    "address": "0x9c4983d2601adB37aa565DDAca75211Cf8bE17DB"
   },
   "LendPoolConfigurator": {
-    "address": "0x5c80c62a9524368b0dff21Bf769918B037BE8112"
+    "address": "0x9c4983d2601adB37aa565DDAca75211Cf8bE17DB",
+    "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "LendPoolLoanImpl": {
     "address": "0x25df5A627D6deff75914D7E978a0a2509147545C"
@@ -214,14 +215,14 @@
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "NFTXVaultFactory": {
-    "address": "0x5b4D67A4712083d1A405625453289E5cf8BcceEF"
+    "address": "0xe01Cf5099e700c282A56E815ABd0C4948298Afae"
   },
   "UniswapV2Factory": {
     "address": "0xEcAeE89b5d87eF906471c25EEBE8e13a82356e76",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "SushiSwapRouter": {
-    "address": "0x6E47a4a36a3D11BebCeca49Fa25E91Cd8b037BB7"
+    "address": "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506"
   },
   "NFTXHelper": {
     "address": "0x9f5f96eAB3C1c2a13Ea8f57eB845F468479bD1dC",

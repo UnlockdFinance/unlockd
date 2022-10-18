@@ -30,7 +30,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   using NftConfiguration for DataTypes.NftConfigurationMap;
   ILendPoolAddressesProvider internal _addressesProvider;
 
-  mapping(address => bool) isLtvManager;
+  mapping(address => bool) public isLtvManager;
 
   modifier onlyLtvManager() {
     require(isLtvManager[msg.sender], Errors.CALLER_NOT_LTV_MANAGER);

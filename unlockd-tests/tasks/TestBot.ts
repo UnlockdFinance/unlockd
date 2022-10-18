@@ -10,7 +10,7 @@ import { getMintableERC20 } from "../../helpers/contracts-getters";
 // the user addresses are random from a wallet just to improve simulation
 
 var amounts = [10000, 15000, 20000, 10000, 30000]; 
-const reserves = ["DAI", "USDC"];
+const reserves = ["WETH"];
 const reservesAddresses = ["0xba8E26A7ea78c628331baFD32eB0C77047F2cBCa", "0x103a065B2c676123dF6EdDbf41e06d361Dd15905"];
 const userAddresses = [
     "0x94aBa23b9Bbfe7bb62A9eB8b1215D72b5f6F33a1",
@@ -19,7 +19,7 @@ const userAddresses = [
     "0xa2440E27b00f59520c473652b16786B18639518E",
     "0xAf441B4b092ef6c932957E19876940a72EdEE702"
 ];
-const nftAssets = ["0x685660C0E5Aa3c06DAddF2e4E0219120a13993Dd"];
+const nftAssets = ["0x39F14ED58de5955b85EF0832aD9bBa009202f0EB"];
 const nftNames = ["BAYC"];
 const ltv = "4000";
 const treshold = "7000";

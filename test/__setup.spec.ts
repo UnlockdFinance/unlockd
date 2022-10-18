@@ -73,7 +73,7 @@ import { WETH9Mocked } from "../types/WETH9Mocked";
 import { getNftAddressFromSymbol } from "./helpers/utils/helpers";
 import { WrappedPunk } from "../types/WrappedPunk";
 import { ADDRESS_ID_PUNK_GATEWAY, ADDRESS_ID_WETH_GATEWAY } from "../helpers/constants";
-import { WETH9 } from "../types";
+import { CustomERC721, WETH9 } from "../types";
 
 const MOCK_USD_PRICE = UnlockdConfig.ProtocolGlobalParams.MockUsdPrice;
 const ALL_ASSETS_INITIAL_PRICES = UnlockdConfig.Mocks.AllAssetsInitialPrices;
@@ -114,9 +114,9 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
 
   console.log("-> Prepare mock external ERC721 NFTs, such as WPUNKS, BAYC...");
   const mockNfts: {
-    [symbol: string]: MockContract | MintableERC721 | WrappedPunk;
+    [symbol: string]: MockContract | MintableERC721 | WrappedPunk | CustomERC721;
   } = {
-    ...(await deployAllMockNfts(false)),
+    ...(await deployAllMockNfts(false, false)),
   };
   const cryptoPunksMarket = await getCryptoPunksMarket();
   await waitForTx(await cryptoPunksMarket.allInitialOwnersAssigned());
@@ -170,7 +170,6 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   await waitForTx(await addressesProvider.setPoolAdmin(poolAdmin));
   await waitForTx(await addressesProvider.setEmergencyAdmin(emergencyAdmin));
   await waitForTx(await addressesProvider.setLendPoolLiquidator(poolLiquidator));
-  await waitForTx(await addressesProvider.setLtvManager(ltvManager));
 
   await waitForTx(
     await addressesProviderRegistry.registerAddressesProvider(addressesProvider.address, UnlockdConfig.ProviderId)
@@ -294,6 +293,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   // --------------------//
   // ASK WHY 6 ARGUMENTS //
   // ------------------- //
+  const lendpoolConfigurator = await addressesProvider.getLendPoolConfigurator();
 
   console.log("-> Prepare nft oracle...");
   const nftOracleImpl = await deployNFTOracle();
@@ -301,13 +301,14 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     await nftOracleImpl.initialize(
       await addressesProvider.getPoolAdmin(),
       nftxVaultFactory.address,
-      sushiSwapRouter.address
+      sushiSwapRouter.address,
+      lendpoolConfigurator
     )
   );
   await waitForTx(await addressesProvider.setNFTOracle(nftOracleImpl.address));
   await addAssetsInNFTOracle(allNftAddresses, nftOracleImpl);
   await setPricesInNFTOracle(allNftPrices, allNftAddresses, allNftMaxSupply, nftOracleImpl);
-  const lendpoolConfigurator = await addressesProvider.getLendPoolConfigurator();
+
   await nftOracleImpl.setPriceManagerStatus(lendpoolConfigurator, true);
 
   console.log("-> Prepare mock nft oracle...");
@@ -316,7 +317,8 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     await mockNftOracleImpl.initialize(
       await addressesProvider.getPoolAdmin(),
       nftxVaultFactory.address,
-      sushiSwapRouter.address
+      sushiSwapRouter.address,
+      lendpoolConfigurator
     )
   );
 
