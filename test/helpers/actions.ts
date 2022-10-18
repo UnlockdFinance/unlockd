@@ -257,6 +257,8 @@ export const setNftAssetPriceForDebt = async (
 
   await nftOracle.setPriceManagerStatus(users[0].address, true);
   const priceAdmin = users[0].address;
+  console.log("PriceAdmin", priceAdmin);
+  console.log(await nftOracle.isPriceManager(users[0].address));
 
   const reserve = await getReserveAddressFromSymbol(reserveSymbol);
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
@@ -303,6 +305,8 @@ export const setNftAssetPrice = async (
 
   await nftOracle.setPriceManagerStatus(users[0].address, true);
   const priceAdmin = users[0].address;
+  console.log("PriceAdmin", priceAdmin);
+  console.log(await nftOracle.isPriceManager(users[0].address));
 
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
 
