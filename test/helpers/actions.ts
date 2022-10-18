@@ -253,9 +253,10 @@ export const setNftAssetPriceForDebt = async (
   debtAmount: string,
   healthPercent: string
 ): Promise<{ oldNftPrice: string; newNftPrice: string }> => {
-  const { nftOracle, reserveOracle, dataProvider } = testEnv;
+  const { nftOracle, reserveOracle, dataProvider, users } = testEnv;
 
-  const priceAdmin = await getEthersSignerByAddress(await nftOracle.priceFeedAdmin());
+  await nftOracle.setPriceManagerStatus(users[0].address, true);
+  const priceAdmin = users[0].address;
 
   const reserve = await getReserveAddressFromSymbol(reserveSymbol);
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
@@ -298,9 +299,10 @@ export const setNftAssetPrice = async (
   tokenId: number,
   price: string
 ): Promise<string> => {
-  const { nftOracle, dataProvider } = testEnv;
+  const { nftOracle, dataProvider, users } = testEnv;
 
-  const priceAdmin = await getEthersSignerByAddress(await nftOracle.priceFeedAdmin());
+  await nftOracle.setPriceManagerStatus(users[0].address, true);
+  const priceAdmin = users[0].address;
 
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
 
