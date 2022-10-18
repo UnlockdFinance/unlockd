@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
 import { Functions } from "../helpers/protocolFunctions";
-import { getOwnerWallet } from "../helpers/config"; 
+import { getOwnerWallet } from "../helpers/config";  
  
 /** 
  * This file will use the lendpoolProvider to get and set addresses or names
@@ -20,7 +20,7 @@ task("provider:setAddress", "User sets a new Market Id name")
 .addParam("id", "The new Market Id string/name") 
 .addParam("newaddress", "The new address") 
 .setAction( async ({id, newaddress}) => {
-    const wallet = await getOwnerWallet();   
+    const wallet = await getOwnerWallet();    
 
     const tx = await Functions.LENDPOOLADDRESSPROVIDER.setAddress(wallet, id, newaddress)
     console.log(tx);
@@ -88,7 +88,7 @@ task("provider:getLtvManager", "User gets the Loan to Value Manager Address")
 task("provider:setLtvManager", "User sets a new Loan to Value Manager Address")
 .addParam("ltvaddress", "The new Loan to Value Manager Address") 
 .setAction( async ({ltvaddress}) => {
-    const wallet = await getOwnerWallet();  
+    const wallet = await getOwnerWallet();   
 
     const tx = await Functions.LENDPOOLADDRESSPROVIDER.setLtvManager(wallet, ltvaddress)
     console.log(tx);
@@ -289,12 +289,12 @@ task("provider:getNFTXVaultFactory", "User gets the NFTXVaultFactory Address")
     console.log(JSON.stringify(tx));
 }); 
 
-task("provider:setNFTXZapMarketplace", "User sets a new NFTXVaultFactory address")
-.addParam("nftxzapmarketplace", "The NFTXVaultFactory Address") 
-.setAction( async ({nftxzapmarketplace}) => {
+task("provider:setNFTXVaultFactory", "User sets a new NFTXVaultFactory address")
+.addParam("nftxvaultaddress", "The NFTXVaultFactory Address") 
+.setAction( async ({nftxvaultaddress}) => {
     const wallet = await getOwnerWallet();  
 
-    const tx = await Functions.LENDPOOLADDRESSPROVIDER.setNFTXVaultFactory(wallet, nftxzapmarketplace)
+    const tx = await Functions.LENDPOOLADDRESSPROVIDER.setNFTXVaultFactory(wallet, nftxvaultaddress)
     console.log(tx);
 }); 
 
