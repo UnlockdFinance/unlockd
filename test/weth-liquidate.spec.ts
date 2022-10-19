@@ -102,7 +102,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     // Borrow with NFT
     console.log("borrowETH:", amountBorrow);
     await waitForTx(
-      await wethGateway.connect(user.signer).borrowETH(amountBorrow, nftAsset, tokenId, user.address, "0", 0)
+      await wethGateway.connect(user.signer).borrowETH(amountBorrow, nftAsset, tokenId, user.address, "0")
     );
     const nftDebtDataAfterBorrow = await pool.getNftDebtData(bayc.address, tokenId);
     expect(nftDebtDataAfterBorrow.healthFactor.toString()).to.be.bignumber.gt(oneEther.toFixed(0));
