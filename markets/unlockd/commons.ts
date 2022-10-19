@@ -60,7 +60,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.develop]: '0x740A26A9aa27e193C8d15d75A1ca1C19AE735c21',
     [eEthereumNetwork.kovan]: '0x8da1Cb92f02f5c441A275036Ed26BB03ad6C40Cb',
     [eEthereumNetwork.rinkeby]: '0xF0ca13A171aDEBAa16c9349f6A5cAa3ffa49cd6e', //UnlockdProxyAdminPool
-    [eEthereumNetwork.goerli]: undefined,
+    [eEthereumNetwork.goerli]: '0xc4738F82A7945816755E8e12c06E8eCF71526167',
     [eEthereumNetwork.main]: '0x501c991E0D31D408c25bCf00da27BdF2759A394a',
   },
   ProxyAdminFund: {
@@ -70,7 +70,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.develop]: '0x0B815174656df530906CC39E983431f0Ec442C59',
     [eEthereumNetwork.kovan]: '0x4C8FA526099383508D1AdAE511EaEc7D587DB99b',
     [eEthereumNetwork.rinkeby]: '0x0747e3d5e6232b962a91b2958F064d81B69DA86a', //  UnlockdProxyAdminFund
-    [eEthereumNetwork.goerli]: '',
+    [eEthereumNetwork.goerli]: '0xc0025E8b72EE8e2792be48F0a39f3F6b4d5D73B0',
     [eEthereumNetwork.main]: '0x2A71a0F5cef1fFc519027AD12f19453110e70666',
   },
 
@@ -127,7 +127,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.develop]: '0xf440346C93868879B5D3b8e5f96fEc57D4f2dcdf',
     [eEthereumNetwork.kovan]: '0xC5d1624B46db4F3F628400C0F41c49220c210c3F',
     [eEthereumNetwork.rinkeby]: '0x7c2255083c3eE888E2EC8043F7d228cc8F8234e3',// dev:deploy-mock-unft-registry Second Address
-    [eEthereumNetwork.goerli]: '0x469E9478FA80E344E802d5D1F7194Fcce7Bd94F7',
+    [eEthereumNetwork.goerli]: '0x478F4396227b863D4e299BA94aB9A01Db825ab2f',
     [eEthereumNetwork.main]: '0x79d922DD382E42A156bC0A354861cDBC4F09110d',
   },
 
@@ -138,7 +138,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.develop]: '',
     [eEthereumNetwork.kovan]: '',
     [eEthereumNetwork.rinkeby]: '0x5688efdf796DD26e1B6bF4B900BFF37175Ac4b72', // LendPoolAddressesProviderRegistry address from deployed address-provider
-    [eEthereumNetwork.goerli]: '0xcE32326fbDf00e2201B3aA5F92811c452B8bDAA6',
+    [eEthereumNetwork.goerli]: '0x8817F99eb2528eB42b025bE419cbe07f59cEd295',
     [eEthereumNetwork.main]: '',
   },
   ProviderRegistryOwner: {
@@ -282,7 +282,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.develop]: '0x602bE80f0Bf54E0AffaCD794dfe3ac0f867F7581',
     [eEthereumNetwork.rinkeby]: '0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59', // Primary Account
     [eEthereumNetwork.kovan]: '0x0c5E94DC433A0c67Bbc25801759284A6e1Dd85Bb',
-    [eEthereumNetwork.goerli]: '0x259bb0Bb88EC193B847BB13449dD0876B26bD243',
+    [eEthereumNetwork.goerli]: '0x676DA7Ad769870970EdE52D896057331fC4892F7',
     [eEthereumNetwork.main]: '0x26FC1f11E612366d3367fc0cbFfF9e819da91C8d',
   },
   // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES

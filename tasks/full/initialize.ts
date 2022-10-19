@@ -28,7 +28,7 @@ task("full:initialize-lend-pool", "Initialize lend pool configuration.")
 
       const treasuryAddress = await getTreasuryAddress(poolConfig);
 
-      /* //////////////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////////////////////////
       console.log("Init & Config Reserve assets");
       const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
       if (!reserveAssets) {
@@ -47,7 +47,7 @@ task("full:initialize-lend-pool", "Initialize lend pool configuration.")
         pool,
         verify
       );
-      await configureReservesByHelper(poolConfig.ReservesConfig, reserveAssets, admin); */
+      await configureReservesByHelper(poolConfig.ReservesConfig, reserveAssets, admin);
 
       //////////////////////////////////////////////////////////////////////////
       console.log("Init & Config NFT assets");

@@ -33,52 +33,52 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       const poolConfig = loadPoolConfig(pool);
       const addressesProvider = await getLendPoolAddressesProvider();
 
+      // //////////////////////////////////////////////////////////////////////////
+      const unftRegistryAddress = getParamPerNetwork(poolConfig.UNFTRegistry, network);
+      console.log("UNFTRegistry", poolConfig.UNFTRegistry);
+      if (unftRegistryAddress == undefined || !notFalsyOrZeroAddress(unftRegistryAddress)) {
+        throw Error("Invalid UNFT Registry address in pool config");
+      }
+      const unftRegistryProxy = await getUNFTRegistryProxy(unftRegistryAddress);
+      console.log("Setting UNFTRegistry to address provider...");
+      await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
+
+      // Reserves Init & NFTs Init need IncentivesController
+      const incentivesControllerAddress = getParamPerNetwork(poolConfig.IncentivesController, network);
+      console.log("IncentivesController", poolConfig.IncentivesController);
+      if (incentivesControllerAddress == undefined || !notFalsyOrZeroAddress(incentivesControllerAddress)) {
+        throw Error("Invalid IncentivesController address in pool config");
+      }
+      console.log("Setting IncentivesController to address provider...");
+      await waitForTx(await addressesProvider.setIncentivesController(incentivesControllerAddress));
+
       //////////////////////////////////////////////////////////////////////////
-      // const unftRegistryAddress = getParamPerNetwork(poolConfig.UNFTRegistry, network);
-      // console.log("UNFTRegistry", poolConfig.UNFTRegistry);
-      // if (unftRegistryAddress == undefined || !notFalsyOrZeroAddress(unftRegistryAddress)) {
-      //   throw Error("Invalid UNFT Registry address in pool config");
-      // }
-      // const unftRegistryProxy = await getUNFTRegistryProxy(unftRegistryAddress);
-      // console.log("Setting UNFTRegistry to address provider...");
-      // await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
+      console.log("Deploying new libraries implementation...");
+      await deployUnlockdLibraries(verify);
 
-      // // Reserves Init & NFTs Init need IncentivesController
-      // const incentivesControllerAddress = getParamPerNetwork(poolConfig.IncentivesController, network);
-      // console.log("IncentivesController", poolConfig.IncentivesController);
-      // if (incentivesControllerAddress == undefined || !notFalsyOrZeroAddress(incentivesControllerAddress)) {
-      //   throw Error("Invalid IncentivesController address in pool config");
-      // }
-      // console.log("Setting IncentivesController to address provider...");
-      // await waitForTx(await addressesProvider.setIncentivesController(incentivesControllerAddress));
+      // Reuse/deploy lend pool implementation
+      console.log("Deploying new lend pool implementation & libraries...");
+      const lendPoolImpl = await deployLendPool(verify);
+      console.log("Setting lend pool implementation with address:", lendPoolImpl.address);
+      // Set lending pool impl to Address provider
+      await waitForTx(await addressesProvider.setLendPoolImpl(lendPoolImpl.address, []));
 
-      // //////////////////////////////////////////////////////////////////////////
-      // console.log("Deploying new libraries implementation...");
-      // await deployUnlockdLibraries(verify);
+      const address = await addressesProvider.getLendPool();
+      const lendPoolProxy = await getLendPool(address);
 
-      // // Reuse/deploy lend pool implementation
-      // console.log("Deploying new lend pool implementation & libraries...");
-      // const lendPoolImpl = await deployLendPool(verify);
-      // console.log("Setting lend pool implementation with address:", lendPoolImpl.address);
-      // // Set lending pool impl to Address provider
-      // await waitForTx(await addressesProvider.setLendPoolImpl(lendPoolImpl.address, []));
+      await insertContractAddressInDb(eContractid.LendPool, lendPoolProxy.address);
 
-      // const address = await addressesProvider.getLendPool();
-      // const lendPoolProxy = await getLendPool(address);
+      //////////////////////////////////////////////////////////////////////////
+      // Reuse/deploy lend pool loan
+      console.log("Deploying new loan implementation...");
+      const lendPoolLoanImpl = await deployLendPoolLoan(verify);
+      console.log("Setting lend pool loan implementation with address:", lendPoolLoanImpl.address);
+      // Set lend pool conf impl to Address Provider
+      await waitForTx(await addressesProvider.setLendPoolLoanImpl(lendPoolLoanImpl.address, []));
 
-      // await insertContractAddressInDb(eContractid.LendPool, lendPoolProxy.address);
+      const lendPoolLoanProxy = await getLendPoolLoanProxy(await addressesProvider.getLendPoolLoan());
 
-      // //////////////////////////////////////////////////////////////////////////
-      // // Reuse/deploy lend pool loan
-      // console.log("Deploying new loan implementation...");
-      // const lendPoolLoanImpl = await deployLendPoolLoan(verify);
-      // console.log("Setting lend pool loan implementation with address:", lendPoolLoanImpl.address);
-      // // Set lend pool conf impl to Address Provider
-      // await waitForTx(await addressesProvider.setLendPoolLoanImpl(lendPoolLoanImpl.address, []));
-
-      // const lendPoolLoanProxy = await getLendPoolLoanProxy(await addressesProvider.getLendPoolLoan());
-
-      // await insertContractAddressInDb(eContractid.LendPoolLoan, lendPoolLoanProxy.address);
+      await insertContractAddressInDb(eContractid.LendPoolLoan, lendPoolLoanProxy.address);
 
       // //////////////////////////////////////////////////////////////////////////
       // Reuse/deploy lend pool configurator
