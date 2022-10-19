@@ -53,12 +53,12 @@ task("unlockd:mainnet", "Deploy full enviroment")
     console.log("\n\nMigration started");
 
     // ////////////////////////////////////////////////////////////////////////
-    // console.log("\n\nDeploy proxy admin");
-    // await DRE.run("full:deploy-proxy-admin", { pool: POOL_NAME });
+    console.log("\n\nDeploy proxy admin");
+    await DRE.run("full:deploy-proxy-admin", { pool: POOL_NAME });
 
     // //////////////////////////////////////////////////////////////////////////
-    // console.log("\n\nDeploy address provider");
-    // await DRE.run("full:deploy-address-provider", { pool: POOL_NAME, skipRegistry: skipRegistry });
+    //console.log("\n\nDeploy address provider");
+    //await DRE.run("full:deploy-address-provider", { pool: POOL_NAME, skipRegistry: skipRegistry });
 
     // //////////////////////////////////////////////////////////////////////////
     // console.log("\n\nDeploy lend pool");

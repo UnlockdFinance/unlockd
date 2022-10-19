@@ -72,12 +72,10 @@
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "UnlockdProxyAdminPool": {
-    "address": "0x414DCA12B3e2e439c2276Ef6c69D86e94599EfE1",
-    "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
+    "address": "0x414DCA12B3e2e439c2276Ef6c69D86e94599EfE1"
   },
   "UnlockdProxyAdminFund": {
-    "address": "0x9397b6dD690B3c46B39DbC2D4F3E61c31d10eE82",
-    "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
+    "address": "0x9397b6dD690B3c46B39DbC2D4F3E61c31d10eE82"
   },
   "LendPoolAddressesProvider": {
     "address": "0xe00ce2aC1a1918914E2d0c36138b3D05837a8a60",

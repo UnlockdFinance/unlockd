@@ -60,7 +60,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.develop]: '0x740A26A9aa27e193C8d15d75A1ca1C19AE735c21',
     [eEthereumNetwork.kovan]: '0x8da1Cb92f02f5c441A275036Ed26BB03ad6C40Cb',
     [eEthereumNetwork.rinkeby]: '0xF0ca13A171aDEBAa16c9349f6A5cAa3ffa49cd6e', //UnlockdProxyAdminPool
-    [eEthereumNetwork.goerli]: '0x414DCA12B3e2e439c2276Ef6c69D86e94599EfE1',
+    [eEthereumNetwork.goerli]: undefined,
     [eEthereumNetwork.main]: '0x501c991E0D31D408c25bCf00da27BdF2759A394a',
   },
   ProxyAdminFund: {
@@ -70,30 +70,30 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.develop]: '0x0B815174656df530906CC39E983431f0Ec442C59',
     [eEthereumNetwork.kovan]: '0x4C8FA526099383508D1AdAE511EaEc7D587DB99b',
     [eEthereumNetwork.rinkeby]: '0x0747e3d5e6232b962a91b2958F064d81B69DA86a', //  UnlockdProxyAdminFund
-    [eEthereumNetwork.goerli]: '0x9397b6dD690B3c46B39DbC2D4F3E61c31d10eE82',
+    [eEthereumNetwork.goerli]: '',
     [eEthereumNetwork.main]: '0x2A71a0F5cef1fFc519027AD12f19453110e70666',
   },
 
   // If PoolAdmin/emergencyAdmin is set, will take priority over PoolAdminIndex/emergencyAdminIndex
   PoolAdmin: {
     [eEthereumNetwork.coverage]: undefined,
-    [eEthereumNetwork.hardhat]: '0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014',
+    [eEthereumNetwork.hardhat]: '0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59',
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.develop]: '0xad93fB0e59eC703422dD38dCb7AcB8e323C8cc5B',
     [eEthereumNetwork.kovan]: '0x249D0dF00d8ca96952A9fc29ddD3199bD035A05B',
-    [eEthereumNetwork.rinkeby]: '0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014', // Primary account
-    [eEthereumNetwork.goerli]: '0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014',
+    [eEthereumNetwork.rinkeby]: '0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59', // Primary account
+    [eEthereumNetwork.goerli]: '0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59',
     [eEthereumNetwork.main]: '0x868964fa49a6fd6e116FE82c8f4165904406f479',
   },
   PoolAdminIndex: 0,
   EmergencyAdmin: {
-    [eEthereumNetwork.hardhat]: '0x225EBB792a900B29918feF50389d4AD2CD49321D',
+    [eEthereumNetwork.hardhat]: '0x2db0E3e340c561a0DBc92B07173d4FbC5c47f062',
     [eEthereumNetwork.coverage]: undefined,
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.develop]: '0x14048d069A5E821eB82E01a275fdfC915C5BcfC4',
     [eEthereumNetwork.kovan]: '0x8956D65982Edc6397540d9f2C2be249E98DAFE8b',
-    [eEthereumNetwork.rinkeby]: '0x225EBB792a900B29918feF50389d4AD2CD49321D', // Secundary Acc
-    [eEthereumNetwork.goerli]: '0x225EBB792a900B29918feF50389d4AD2CD49321D',
+    [eEthereumNetwork.rinkeby]: '0x2db0E3e340c561a0DBc92B07173d4FbC5c47f062', // Secundary Acc
+    [eEthereumNetwork.goerli]: '0x2db0E3e340c561a0DBc92B07173d4FbC5c47f062',
     [eEthereumNetwork.main]: '0x2CFa21b4dEc4409670899d05b8644e9C432250de',
   },
   EmergencyAdminIndex: 1,
@@ -103,8 +103,8 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.develop]: '0xad93fB0e59eC703422dD38dCb7AcB8e323C8cc5B',
     [eEthereumNetwork.kovan]: '0x249D0dF00d8ca96952A9fc29ddD3199bD035A05B',
-    [eEthereumNetwork.rinkeby]: '0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014', // Primary account
-    [eEthereumNetwork.goerli]: '0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014',
+    [eEthereumNetwork.rinkeby]: '0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59', // Primary account
+    [eEthereumNetwork.goerli]: '0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59',
     [eEthereumNetwork.main]: '0x868964fa49a6fd6e116FE82c8f4165904406f479',
   },
   LendPoolLiquidatorIndex: 0,
@@ -113,11 +113,11 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: '0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15',
     [eEthereumNetwork.localhost]: '',
     [eEthereumNetwork.develop]: '',
-    [eEthereumNetwork.rinkeby]: '0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014', // Primary wallet but IT MUST BE THE ADDRESS OF THE SERVER WALLET
+    [eEthereumNetwork.rinkeby]: '0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59', // Primary wallet but IT MUST BE THE ADDRESS OF THE SERVER WALLET
     [eEthereumNetwork.kovan]: '',
-    [eEthereumNetwork.goerli]: '0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014',
+    [eEthereumNetwork.goerli]: '0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59',
     [eEthereumNetwork.main]: '',
-  },
+  }, 
   LtvManagerIndex: 0,
 
   UNFTRegistry: { /// Add contract From U
@@ -145,11 +145,11 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.develop]: '0xad93fB0e59eC703422dD38dCb7AcB8e323C8cc5B',
     [eEthereumNetwork.kovan]: '0x249D0dF00d8ca96952A9fc29ddD3199bD035A05B',
     [eEthereumNetwork.rinkeby]: '',
-    [eEthereumNetwork.main]: '0x868964fa49a6fd6e116FE82c8f4165904406f479',
     [eEthereumNetwork.coverage]: '',
     [eEthereumNetwork.hardhat]: '0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15',
     [eEthereumNetwork.localhost]: '',
-    [eEthereumNetwork.goerli]: '0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014',
+    [eEthereumNetwork.goerli]: '0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59',
+    [eEthereumNetwork.main]: '0x868964fa49a6fd6e116FE82c8f4165904406f479',
   },
  
   ReserveOracle: {
@@ -272,7 +272,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.develop]: '0xA9620F4655620863FaC5AD87DcB4e3ab5e1C5b86',
     [eEthereumNetwork.rinkeby]: '0x65d68d5A1eC6Ef3c454BBA4Af0DdF08C0Ba5F10e', // 3rd Account
     [eEthereumNetwork.kovan]: '0xBC6E81c410FF3b32cDa031267772713f93599077',
-    [eEthereumNetwork.goerli]: '0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014',
+    [eEthereumNetwork.goerli]: '0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59',
     [eEthereumNetwork.main]: '0x43078AbfB76bd24885Fd64eFFB22049f92a8c495',
   },
   IncentivesController: {
@@ -280,7 +280,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: '0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15',
     [eEthereumNetwork.localhost]: "0x1eaA4a267eDcde0eB5e08D08810Aa1696b123a2D",
     [eEthereumNetwork.develop]: '0x602bE80f0Bf54E0AffaCD794dfe3ac0f867F7581',
-    [eEthereumNetwork.rinkeby]: '0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014', // Primary Account
+    [eEthereumNetwork.rinkeby]: '0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59', // Primary Account
     [eEthereumNetwork.kovan]: '0x0c5E94DC433A0c67Bbc25801759284A6e1Dd85Bb',
     [eEthereumNetwork.goerli]: '0x259bb0Bb88EC193B847BB13449dD0876B26bD243',
     [eEthereumNetwork.main]: '0x26FC1f11E612366d3367fc0cbFfF9e819da91C8d',

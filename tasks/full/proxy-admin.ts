@@ -15,14 +15,20 @@ task("full:deploy-proxy-admin", "Deploy proxy admin contract")
   .setAction(async ({ verify, pool, skipPool, skipFund }, DRE) => {
     await DRE.run("set-DRE");
     const poolConfig = loadPoolConfig(pool);
+
     const network = <eNetwork>DRE.network.name;
 
     if (!skipPool) {
+      console.log("NOT SKIPPING POOL");
       let proxyAdmin: UnlockdProxyAdmin;
       const proxyAdminAddress = getParamPerNetwork(poolConfig.ProxyAdminPool, network);
       if (proxyAdminAddress == undefined || !notFalsyOrZeroAddress(proxyAdminAddress)) {
+        console.log("UNDEFINEEEED");
+        console.log(verify);
         proxyAdmin = await deployUnlockdProxyAdmin(eContractid.UnlockdProxyAdminPool, verify);
       } else {
+        console.log(" SKIPPING POOL");
+
         await insertContractAddressInDb(eContractid.UnlockdProxyAdminPool, proxyAdminAddress);
         proxyAdmin = await getUnlockdProxyAdminByAddress(proxyAdminAddress);
       }

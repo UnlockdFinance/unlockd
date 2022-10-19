@@ -65,7 +65,7 @@ export const Contracts = {
     wethGateway: wethGatewayContract,
     unftRegistry: unftRegistryContract,
     nftxVaultFactory: nftxVaultFactoryContract,
-    dataProvider: dataProviderContract,
+    dataProvider: dataProviderContract
 }
 
 

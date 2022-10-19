@@ -48,7 +48,7 @@ const isApprovedNft = async(wallet: Wallet, collection: Contract, owner: string,
 }
 
 //#endregion 
-
+ 
 //#region  LendPool 
 const getNftConfigByTokenId = async (wallet: Wallet, nftAddress: string, nftTokenId: number) => {
     return await Contracts.lendPool.connect(wallet).getNftConfigByTokenId(nftAddress, nftTokenId);
@@ -143,7 +143,29 @@ const liquidateNFTX = async (wallet: Wallet, nftAsset: string, nftTokenId: numbe
     return await Contracts.lendPool.connect(wallet).liquidateNFTX(nftAsset, nftTokenId, {gasLimit: 30000000});
 }
 //#endregion
+//#region WETHGateway
+const depositETH = async (wallet: Wallet, amount: number, onBehalfOf: string) => {
+    return await Contracts.wethGateway.connect(wallet).depositETH(onBehalfOf, 0, {value: amount});
+}
 
+const withdrawETH = async (wallet: Wallet, amount: BigNumber, to: string) => {
+    const tx = await Contracts.wethGateway.connect(wallet).withdrawETH(amount, to);
+    await tx.wait();
+}
+
+const borrowETH = async (wallet: Wallet, amount: BigNumber, nftAsset: string, 
+    nftTokenId: number, onBehalfOf: string, nftConfigFee: BigNumber) => {
+        
+    var gas = await Contracts.wethGateway.connect(wallet).estimateGas.borroweth( amount, nftAsset, 
+        nftTokenId, onBehalfOf, 0, nftConfigFee);
+
+    var strGas = gas.toString();
+    const gasPrice = Math.round(parseInt(strGas)*1.1);
+
+    return await Contracts.wethGateway.connect(wallet).borrowETH(amount, nftAsset, nftTokenId, 
+        onBehalfOf, 0, nftConfigFee, {gasLimit: gasPrice.toFixed(0)});
+}
+//#endregion
 //#region Lendpool loan
 const getLoanIdTracker = async (wallet: Wallet) => {
     return await Contracts.lendPoolLoan.connect(wallet).getLoanIdTracker();
@@ -553,6 +575,11 @@ export const Functions = {
         getReserveNormalizedIncome: getReserveNormalizedIncome,
         getReserveNormalizedVariableDebt: getReserveNormalizedVariableDebt,
         getReservesList: getReservesList,
+    },
+    WETH_GATEWAY: {
+        depositETH: depositETH,
+        withdrawETH: withdrawETH,
+        borrowETH: borrowETH,
     },
     LENDPOOL_LOAN: {
         getLoanIdTracker: getLoanIdTracker,
