@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
 import { Functions } from "../helpers/protocolFunctions";
-import { getOwnerWallet } from "../helpers/config"; 
+import { getMnemonicEmergencyWallet, getOwnerWallet } from "../helpers/config"; 
  
 /** 
  * This file will use the LendPoolConfigurator 
@@ -197,10 +197,9 @@ task("configurator:setLiquidationFeePercentage", "sets the liquidation fee perce
 });
 
 task("configurator:setPoolPause", "pauses or unpauses all the actions of the protocol, including uToken transfers")
-.addParam("val", "true if protocol needs to be paused, false otherwise") 
+.addFlag("val", "true if protocol needs to be paused, false otherwise") 
 .setAction( async ({val}) => {
-    const wallet = await getOwnerWallet();  
-
+    const wallet = await getMnemonicEmergencyWallet();  
     const tx = await Functions.LENDPOOLCONFIGURATOR.setPoolPause(wallet, val)
     console.log(tx);
 });
