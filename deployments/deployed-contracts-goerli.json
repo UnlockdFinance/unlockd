@@ -99,39 +99,39 @@
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "GenericLogic": {
-    "address": "0x18103A894DDA262BA3604994946fa4052D8F9abe",
+    "address": "0x7cAa4c8D0E322695F438e742F978CfF71925ec38",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "ReserveLogic": {
-    "address": "0x0F366744152Ae054EfEB3Fd41099f49E0523Ab96",
+    "address": "0xE8742b7DEA1D35f85a19092539C09dD11CeCE894",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "NftLogic": {
-    "address": "0x67c8e8f75370c4441D898c1C5E9E8a80a0BA64a4",
+    "address": "0xec41e0f2A91126a2a24424D9DFA2949260fCb1AB",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "ValidationLogic": {
-    "address": "0x7478B6b797C438FAE53e19D5936C9A146abAdE52",
+    "address": "0xfA7739b561501C6Ee38428e498ebB4A34FF23605",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "SupplyLogic": {
-    "address": "0x145FE2eb1CDa6D111150491f2D2B1BCA85fca1eB",
+    "address": "0x1A3Bc78F0086523a2e66ABAcD24FE44D5089c9cD",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "BorrowLogic": {
-    "address": "0x84369c7DaE652318459996BdC04dcde5395fA92f",
+    "address": "0x2b064FA52af44ab2E91cAf06C6024e3bA8969c0E",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "LiquidateLogic": {
-    "address": "0x3B16602a61beBca6d1155D031A7f2E42E296A18d",
+    "address": "0xbaA37347154144a96278f447E95a70519d96d59F",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "ConfiguratorLogic": {
-    "address": "0x874F2E5C6593e414f4E49Ad94CC4BAe2FA165a22",
+    "address": "0x59aD58186bF2D2ce9C1Ad8B162391E01108e879d",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "LendPoolImpl": {
-    "address": "0xe1BcA0f67d041aeBf61138c50609f3C46C75da51"
+    "address": "0x39F34b2B1fA123182Dd42777F6Ff93461a4367d9"
   },
   "LendPool": {
     "address": "0xA0cf099d1547B15823d96C7663A1EA0b5C25231e"
@@ -168,10 +168,10 @@
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "NFTOracleImpl": {
-    "address": "0x2786766240397B34760249DF4E41a997C230867e"
+    "address": "0xd77b96Fc494500F46f61ACeAFCd376A6f74ce28B"
   },
   "NFTOracle": {
-    "address": "0x7b336a6137a6d2c130C4b2043A4905E285Da42c4",
+    "address": "0x6146f9F446Dc3b2dD18e82b9bd5F0EE983bE47dF",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "WETHGatewayImpl": {
