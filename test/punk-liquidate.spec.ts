@@ -114,7 +114,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     );
 
     await waitForTx(
-      await punkGateway.connect(borrower.signer).borrow(usdc.address, amountBorrow, punkIndex, borrower.address, "0", 0)
+      await punkGateway.connect(borrower.signer).borrow(usdc.address, amountBorrow, punkIndex, borrower.address, "0")
     );
 
     await waitForTx(await wrappedPunk.connect(liquidator.signer).setApprovalForAll(punkGateway.address, true));
@@ -305,7 +305,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     );
 
     await waitForTx(
-      await punkGateway.connect(borrower.signer).borrow(usdc.address, amountBorrow, punkIndex, borrower.address, "0", 0)
+      await punkGateway.connect(borrower.signer).borrow(usdc.address, amountBorrow, punkIndex, borrower.address, "0")
     );
 
     await waitForTx(await wrappedPunk.connect(borrower.signer).setApprovalForAll(punkGateway.address, true));
@@ -422,7 +422,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
         .toFixed(0)
     );
 
-    await waitForTx(await punkGateway.connect(user.signer).borrowETH(amountBorrow, punkIndex, user.address, "0", 0));
+    await waitForTx(await punkGateway.connect(user.signer).borrowETH(amountBorrow, punkIndex, user.address, "0"));
 
     await waitForTx(await wrappedPunk.connect(liquidator.signer).setApprovalForAll(punkGateway.address, true));
 
@@ -610,7 +610,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     );
 
     await waitForTx(
-      await punkGateway.connect(borrower.signer).borrowETH(amountBorrow, punkIndex, borrower.address, "0", 0)
+      await punkGateway.connect(borrower.signer).borrowETH(amountBorrow, punkIndex, borrower.address, "0")
     );
 
     await waitForTx(await wrappedPunk.connect(borrower.signer).setApprovalForAll(punkGateway.address, true));

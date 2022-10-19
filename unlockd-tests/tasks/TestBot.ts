@@ -141,7 +141,6 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         console.log("amount: ", amounts[i].toString());
         console.log("reserve: ", reserves[j].toString());
         console.log("wallet: ", (n).toString());
-        console.log("nftConfigFee: 200");
         await localBRE.run("lendpool:borrow", {
             amount: borrowAmount.toString(), 
             reserve: reserves[j], 
@@ -149,8 +148,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
             collection: nftAssets[k],
             tokenid: tokenIds[b].toString(),
             to: userAddresses[i].toString(),
-            walletnumber: (n).toString(),
-            nftconfigfee: "200"
+            walletnumber: (n).toString()
         });
         await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");
@@ -183,7 +181,6 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         console.log("amount: ", amounts[i].toString());
         console.log("reserve: ", reserves[j].toString());
         console.log("wallet: ", (n).toString());
-        console.log("nftConfigFee: 100");
         await localBRE.run("lendpool:borrow", {
             amount: borrowAmountv2.toString(), 
             reserve: reserves[j], 
@@ -191,8 +188,7 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
             collection: nftAssets[k],
             tokenid: tokenIds[b].toString(),
             to: userAddresses[i].toString(),
-            walletnumber: (n).toString(),
-            nftconfigfee: "100"
+            walletnumber: (n).toString()
         });
         await delay(20000);
         console.log("\n-------------------------------------------------------------------------\n");

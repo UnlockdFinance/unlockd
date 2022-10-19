@@ -161,7 +161,7 @@ makeSuite("LendPool: Borrow negative test cases", (testEnv: TestEnv) => {
     const timestampIncreased = await timeLatest();
 
     await expect(
-      pool.connect(users[1].signer).borrow(weth.address, "10", bayc.address, tokenId, user1.address, "0", "1")
+      pool.connect(users[1].signer).borrow(weth.address, "10", bayc.address, tokenId, user1.address, "0")
     ).to.be.revertedWith(VL_TIMEFRAME_EXCEEDED);
   });
 });

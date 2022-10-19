@@ -48,7 +48,7 @@ task("dev:recycle-pool-eths", "Doing recycle all ETHs in pool task")
       await waitForTx(await bayc.setApprovalForAll(wethGateway.address, true));
     }
 
-    await waitForTx(await wethGateway.borrowETH(availableBalance, bayc.address, id, to, "0", 0));
+    await waitForTx(await wethGateway.borrowETH(availableBalance, bayc.address, id, to, "0"));
   });
 
 task("dev:recycle-signer-tokens", "Doing recycle all ETHs and Tokens in signers")

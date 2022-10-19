@@ -165,8 +165,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     uint256 amount,
     uint256 punkIndex,
     address onBehalfOf,
-    uint16 referralCode,
-    uint256 nftConfigFee
+    uint16 referralCode
   ) external override nonReentrant {
     _checkValidCallerAndOnBehalfOf(onBehalfOf);
 
@@ -174,7 +173,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
 
     _depositPunk(punkIndex);
 
-    cachedPool.borrow(reserveAsset, amount, address(wrappedPunks), punkIndex, onBehalfOf, referralCode, nftConfigFee);
+    cachedPool.borrow(reserveAsset, amount, address(wrappedPunks), punkIndex, onBehalfOf, referralCode);
     IERC20Upgradeable(reserveAsset).transfer(onBehalfOf, amount);
   }
 
@@ -322,13 +321,12 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     uint256 amount,
     uint256 punkIndex,
     address onBehalfOf,
-    uint16 referralCode,
-    uint256 nftConfigFee
+    uint16 referralCode
   ) external override nonReentrant {
     _checkValidCallerAndOnBehalfOf(onBehalfOf);
 
     _depositPunk(punkIndex);
-    _wethGateway.borrowETH(amount, address(wrappedPunks), punkIndex, onBehalfOf, referralCode, nftConfigFee);
+    _wethGateway.borrowETH(amount, address(wrappedPunks), punkIndex, onBehalfOf, referralCode);
   }
 
   /**

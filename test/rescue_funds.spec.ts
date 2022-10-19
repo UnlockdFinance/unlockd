@@ -5,7 +5,7 @@ import {
   transferERC20,
   deposit,
   setPoolRescuer,
-  rescueERC20,
+  rescue,
   getERC20Balance,
 } from "./helpers/actions";
 import { configuration as actionsConfiguration } from "./helpers/actions";
@@ -53,7 +53,7 @@ makeSuite("LendPool: Rescue locked funds", (testEnv: TestEnv) => {
     //Set new rescuer
     await setPoolRescuer(testEnv, rescuer);
 
-    await rescueERC20(testEnv, rescuer, user1, "DAI", "100");
+    await rescue(testEnv, rescuer, user1, "DAI", "100", false);
 
     const finalBalance = await getERC20Balance(testEnv, user1, "DAI");
 
@@ -71,7 +71,7 @@ makeSuite("LendPool: Rescue locked funds", (testEnv: TestEnv) => {
 
     //Set new rescuer
     await setPoolRescuer(testEnv, realRescuer);
-    await expect(rescueERC20(testEnv, fakeRescuer, recipient, "DAI", "100")).to.be.revertedWith(
+    await expect(rescue(testEnv, fakeRescuer, recipient, "DAI", "100", false)).to.be.revertedWith(
       "Rescuable: caller is not the rescuer"
     );
   });

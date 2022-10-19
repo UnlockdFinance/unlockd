@@ -111,8 +111,7 @@ task("lendpool:borrow", "User 0 Withdraws {amount} {reserve} from the reserves")
 .addParam("tokenid", "the NFT token ID")
 .addParam("to", "Who will reveive the borrowed amount")
 .addParam("walletnumber", "the wallet number in ur .env from 2 to 5 otherwise it's default userWallet")
-.addParam("nftconfigfee", "the gas cost of configuring the nft")
-.setAction( async ({reserve, amount, collectionname, collection, tokenid, to, walletnumber, nftconfigfee}) => {
+.setAction( async ({reserve, amount, collectionname, collection, tokenid, to, walletnumber}) => {
     const wallet = await getWalletByNumber(walletnumber); 
     const tokenContract = MockContracts[reserve];
     
@@ -127,7 +126,7 @@ task("lendpool:borrow", "User 0 Withdraws {amount} {reserve} from the reserves")
         await Functions.NFTS.setApproveForAllNft(wallet, nftContract, Contracts.lendPool.address, true);
     }
 
-    const tx = await Functions.LENDPOOL.borrow(wallet, tokenContract.address, amount, collection, tokenid, to, nftconfigfee);
+    const tx = await Functions.LENDPOOL.borrow(wallet, tokenContract.address, amount, collection, tokenid, to);
     console.log(tx);
 }); 
 

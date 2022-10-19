@@ -159,8 +159,7 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     address nftAsset,
     uint256 nftTokenId,
     address onBehalfOf,
-    uint16 referralCode,
-    uint256 nftConfigFee
+    uint16 referralCode
   ) external override nonReentrant {
     _checkValidCallerAndOnBehalfOf(onBehalfOf);
 
@@ -171,7 +170,7 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     if (loanId == 0) {
       IERC721Upgradeable(nftAsset).safeTransferFrom(msg.sender, address(this), nftTokenId);
     }
-    cachedPool.borrow(address(WETH), amount, nftAsset, nftTokenId, onBehalfOf, referralCode, nftConfigFee);
+    cachedPool.borrow(address(WETH), amount, nftAsset, nftTokenId, onBehalfOf, referralCode);
     WETH.withdraw(amount);
     _safeTransferETH(onBehalfOf, amount);
   }

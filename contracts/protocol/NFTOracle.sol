@@ -54,8 +54,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   mapping(address => mapping(uint256 => uint256)) public nftPrices;
   //Keeps track of collections currently supported by the protocol
   mapping(address => bool) public collections;
-  //Keeps track of token IDs in a collection
-  mapping(address => uint256[]) public collectionTokenIds;
 
   mapping(address => bool) public collectionPaused;
 
@@ -167,7 +165,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
    */
   function _removeCollection(address _collection) internal onlyExistingCollection(_collection) {
     delete collections[_collection];
-    delete collectionTokenIds[_collection];
     emit CollectionRemoved(_collection);
   }
 
@@ -213,7 +210,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   ) internal onlyExistingCollection(_collection) whenNotPaused(_collection) {
     if (_price <= 0) revert PriceIsZero();
     nftPrices[_collection][_tokenId] = _price;
-    collectionTokenIds[_collection].push(_tokenId);
     emit NFTPriceAdded(_collection, _tokenId, _price);
   }
 

@@ -267,7 +267,6 @@ interface ILendPool {
    * if he has been given credit delegation allowance
    * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
    *   0 if the action is executed directly by the user, without any middle-man
-   * @param nftConfigFee an estimated gas cost fee for configuring the NFT
    **/
   function borrow(
     address reserveAsset,
@@ -275,8 +274,7 @@ interface ILendPool {
     address nftAsset,
     uint256 nftTokenId,
     address onBehalfOf,
-    uint16 referralCode,
-    uint256 nftConfigFee
+    uint16 referralCode
   ) external;
 
   /**
@@ -352,7 +350,7 @@ interface ILendPool {
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
-  function triggerUserCollateral(address nftAsset, uint256 nftTokenId) external;
+  function triggerUserCollateral(address nftAsset, uint256 nftTokenId) external payable;
 
   /**
    * @dev Validates and finalizes an uToken transfer
@@ -645,15 +643,17 @@ interface ILendPool {
   function updateRescuer(address newRescuer) external;
 
   /**
-   * @notice Rescue ERC20 tokens locked up in this contract.
+   * @notice Rescue tokens or ETH locked up in this contract.
    * @param tokenContract ERC20 token contract address
    * @param to        Recipient address
    * @param amount    Amount to withdraw
+   * @param rescueETH bool to know if we want to rescue ETH or other token
    */
-  function rescueERC20(
+  function rescue(
     IERC20 tokenContract,
     address to,
-    uint256 amount
+    uint256 amount,
+    bool rescueETH
   ) external;
 
   /**
@@ -667,6 +667,12 @@ interface ILendPool {
    * @param timeframe the number of seconds for the timeframe
    **/
   function setTimeframe(uint256 timeframe) external;
+
+  /**
+   * @dev sets the fee for configuringNFTAsCollateral
+   * @param configFee the amount to charge to the user
+   **/
+  function setConfigFee(uint256 configFee) external;
 
   /**
    * @dev Returns the maximum number of reserves supported to be listed in this LendPool
@@ -693,4 +699,9 @@ interface ILendPool {
    * @dev Returns the max timeframe between NFT config triggers and borrows
    **/
   function getTimeframe() external view returns (uint256);
+
+  /**
+   * @dev Returns the configFee amount
+   **/
+  function getConfigFee() external view returns (uint256);
 }

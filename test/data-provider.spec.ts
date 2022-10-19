@@ -55,7 +55,7 @@ makeSuite("DataProvider", (testEnv) => {
 
     await pool
       .connect(borrower.signer)
-      .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", borrower.address, "0", 0);
+      .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", borrower.address, "0");
   });
 
   it("Query UI Reserve Data", async () => {

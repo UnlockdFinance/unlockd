@@ -15,15 +15,13 @@ interface IPunkGateway {
    * if he has been given credit delegation allowance
    * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
    *   0 if the action is executed directly by the user, without any middle-man
-   * @param nftConfigFee an estimated gas cost fee for configuring the NFT
    **/
   function borrow(
     address reserveAsset,
     uint256 amount,
     uint256 punkIndex,
     address onBehalfOf,
-    uint16 referralCode,
-    uint256 nftConfigFee
+    uint16 referralCode
   ) external;
 
   /**
@@ -82,14 +80,12 @@ interface IPunkGateway {
    * if he has been given credit delegation allowance
    * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
    *   0 if the action is executed directly by the user, without any middle-man
-   * @param nftConfigFee gas estimation fees to pay the NFT Configuration
    **/
   function borrowETH(
     uint256 amount,
     uint256 punkIndex,
     address onBehalfOf,
-    uint16 referralCode,
-    uint256 nftConfigFee
+    uint16 referralCode
   ) external;
 
   /**

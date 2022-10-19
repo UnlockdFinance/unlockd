@@ -68,7 +68,7 @@ contract LendPool is
 
   bytes32 public constant ADDRESS_ID_WETH_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000001;
   bytes32 public constant ADDRESS_ID_PUNK_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000002;
-
+  uint256 internal _configFee; // todo: move this for the storage
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
    * Calling a `nonReentrant` function from another `nonReentrant`
@@ -220,7 +220,6 @@ contract LendPool is
    * calling the function if he wants to borrow against his own collateral
    * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
    * 0 if the action is executed directly by the user, without any middle-man
-   * @param nftConfigFee the estimate gas cost of configuring each NFT.
    **/
   function borrow(
     address asset,
@@ -228,8 +227,7 @@ contract LendPool is
     address nftAsset,
     uint256 nftTokenId,
     address onBehalfOf,
-    uint16 referralCode,
-    uint256 nftConfigFee
+    uint16 referralCode
   ) external override nonReentrant whenNotPaused {
     BorrowLogic.executeBorrow(
       _addressesProvider,
@@ -244,8 +242,7 @@ contract LendPool is
         nftTokenId: nftTokenId,
         onBehalfOf: onBehalfOf,
         referralCode: referralCode
-      }),
-      nftConfigFee
+      })
     );
   }
 
@@ -397,10 +394,12 @@ contract LendPool is
 
   function triggerUserCollateral(address nftAsset, uint256 nftTokenId)
     external
+    payable
     override
     onlyHolder(nftAsset, nftTokenId)
     whenNotPaused
   {
+    require(_configFee == msg.value);
     emit UserCollateralTriggered(_msgSender(), nftAsset, nftTokenId);
   }
 
@@ -870,6 +869,21 @@ contract LendPool is
   }
 
   /**
+   * @dev Sets configFee amount to be charged for ConfigureNFTAsColleteral
+   * @param configFee the number of seconds for the timeframe
+   **/
+  function setConfigFee(uint256 configFee) external override onlyLendPoolConfigurator {
+    _configFee = configFee;
+  }
+
+  /**
+   * @dev Returns the configFee amount
+   **/
+  function getConfigFee() external view override returns (uint256) {
+    return _configFee;
+  }
+
+  /**
    * @dev Initializes a reserve, activating it, assigning an uToken and nft loan and an
    * interest rate strategy
    * - Only callable by the LendPoolConfigurator contract
@@ -982,17 +996,23 @@ contract LendPool is
   }
 
   /**
-   * @notice Rescue ERC20 tokens locked up in this contract.
+   * @notice Rescue tokens and ETH locked up in this contract.
    * @param tokenContract ERC20 token contract address
    * @param to        Recipient address
    * @param amount    Amount to withdraw
    */
-  function rescueERC20(
+  function rescue(
     IERC20 tokenContract,
     address to,
-    uint256 amount
+    uint256 amount,
+    bool rescueETH
   ) external override onlyRescuer {
-    tokenContract.safeTransfer(to, amount);
+    if (rescueETH) {
+      (bool sent, ) = to.call{value: amount}("");
+      require(sent, "Failed to send Ether");
+    } else {
+      tokenContract.safeTransfer(to, amount);
+    }
   }
 
   /**

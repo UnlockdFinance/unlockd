@@ -154,18 +154,19 @@ export const setPoolRescuer = async (testEnv: TestEnv, rescuer: SignerWithAddres
   //Set new rescuer
   await testEnv.configurator.connect(poolAdmin).setPoolRescuer(rescuer.address);
 };
-export const rescueERC20 = async (
+export const rescue = async (
   testEnv: TestEnv,
   rescuer: SignerWithAddress,
   to: SignerWithAddress,
   reserveSymbol: string,
-  amount: string
+  amount: string,
+  rescueETH: boolean
 ) => {
   const { configurator } = testEnv;
   const reserve = await getReserveAddressFromSymbol(reserveSymbol);
   await testEnv.pool
     .connect(rescuer.signer)
-    .rescueERC20(reserve, to.address, await convertToCurrencyDecimals(reserve, amount));
+    .rescue(reserve, to.address, await convertToCurrencyDecimals(reserve, amount), rescueETH);
 };
 export const mintERC721 = async (testEnv: TestEnv, user: SignerWithAddress, nftSymbol: string, tokenId: string) => {
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
@@ -536,7 +537,7 @@ export const borrow = async (
 
   if (expectedResult === "success") {
     const txResult = await waitForTx(
-      await pool.connect(user.signer).borrow(reserve, amountToBorrow, nftAsset, nftTokenId, onBehalfOf, "0", 0)
+      await pool.connect(user.signer).borrow(reserve, amountToBorrow, nftAsset, nftTokenId, onBehalfOf, "0")
     );
 
     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
@@ -587,7 +588,7 @@ export const borrow = async (
     expectEqual(loanDataAfter, expectedLoanData);
   } else if (expectedResult === "revert") {
     await expect(
-      pool.connect(user.signer).borrow(reserve, amountToBorrow, nftAsset, nftTokenId, onBehalfOf, "0", 0),
+      pool.connect(user.signer).borrow(reserve, amountToBorrow, nftAsset, nftTokenId, onBehalfOf, "0"),
       revertMessage
     ).to.be.reverted;
   }
