@@ -599,7 +599,7 @@ library LiquidateLogic {
       vars.nftOracle
     );
 
-    uint256 priceInReserve = ILendPoolLoan(vars.poolLoan).liquidateLoanNFTX(
+    uint256 priceNFTX = ILendPoolLoan(vars.poolLoan).liquidateLoanNFTX(
       vars.loanId,
       nftData.uNftAddress,
       vars.borrowAmount,
@@ -607,17 +607,17 @@ library LiquidateLogic {
     );
 
     // Liquidation Fee
-    vars.feeAmount = priceInReserve.percentMul(params.liquidateFeePercentage);
-    priceInReserve = priceInReserve - vars.feeAmount;
+    vars.feeAmount = priceNFTX.percentMul(params.liquidateFeePercentage);
+    priceNFTX = priceNFTX - vars.feeAmount;
 
     // Remaining Amount
-    if (priceInReserve > vars.borrowAmount) {
-      vars.remainAmount = priceInReserve - vars.borrowAmount;
+    if (priceNFTX > vars.borrowAmount) {
+      vars.remainAmount = priceNFTX - vars.borrowAmount;
     }
 
     // Extra Debt Amount
-    if (priceInReserve < vars.borrowAmount) {
-      vars.extraDebtAmount = vars.borrowAmount - priceInReserve;
+    if (priceNFTX < vars.borrowAmount) {
+      vars.extraDebtAmount = vars.borrowAmount - priceNFTX;
     }
 
     IDebtToken(reserveData.debtTokenAddress).burn(
@@ -625,10 +625,6 @@ library LiquidateLogic {
       vars.borrowAmount,
       reserveData.variableBorrowIndex
     );
-
-    if (priceInReserve < vars.borrowAmount) {
-      vars.borrowAmount = priceInReserve;
-    }
 
     // update interest rate according latest borrow amount (utilizaton)
     reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.borrowAmount, 0);
