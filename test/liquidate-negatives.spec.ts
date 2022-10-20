@@ -40,7 +40,7 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     const amountBorrow = await convertToCurrencyDecimals(weth.address, "10");
     await pool
       .connect(user1.signer)
-      .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", user1.address, "0", 0);
+      .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", user1.address, "0");
     // user 2, 3 mint 100 WETH
     await weth.connect(user2.signer).mint(await convertToCurrencyDecimals(weth.address, "100"));
     await weth.connect(user2.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
@@ -283,7 +283,6 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
   it("User 3 auction after duration is end", async () => {
     const { bayc, pool, users } = testEnv;
     const user3 = users[3];
-
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(2.0).toFixed(0);
 

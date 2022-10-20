@@ -33,7 +33,7 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       const poolConfig = loadPoolConfig(pool);
       const addressesProvider = await getLendPoolAddressesProvider();
 
-      //////////////////////////////////////////////////////////////////////////
+      // //////////////////////////////////////////////////////////////////////////
       const unftRegistryAddress = getParamPerNetwork(poolConfig.UNFTRegistry, network);
       console.log("UNFTRegistry", poolConfig.UNFTRegistry);
       if (unftRegistryAddress == undefined || !notFalsyOrZeroAddress(unftRegistryAddress)) {
@@ -41,7 +41,7 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       }
       const unftRegistryProxy = await getUNFTRegistryProxy(unftRegistryAddress);
       console.log("Setting UNFTRegistry to address provider...");
-      await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
+      //await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
 
       // Reserves Init & NFTs Init need IncentivesController
       const incentivesControllerAddress = getParamPerNetwork(poolConfig.IncentivesController, network);
@@ -50,7 +50,7 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
         throw Error("Invalid IncentivesController address in pool config");
       }
       console.log("Setting IncentivesController to address provider...");
-      await waitForTx(await addressesProvider.setIncentivesController(incentivesControllerAddress));
+      //await waitForTx(await addressesProvider.setIncentivesController(incentivesControllerAddress));
 
       //////////////////////////////////////////////////////////////////////////
       console.log("Deploying new libraries implementation...");
@@ -68,12 +68,12 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
 
       await insertContractAddressInDb(eContractid.LendPool, lendPoolProxy.address);
 
-      //////////////////////////////////////////////////////////////////////////
-      // Reuse/deploy lend pool loan
+      ////////////////////////////////////////////////////////////////////////
+      //Reuse/deploy lend pool loan
       console.log("Deploying new loan implementation...");
       const lendPoolLoanImpl = await deployLendPoolLoan(verify);
       console.log("Setting lend pool loan implementation with address:", lendPoolLoanImpl.address);
-      // Set lend pool conf impl to Address Provider
+      //Set lend pool conf impl to Address Provider
       await waitForTx(await addressesProvider.setLendPoolLoanImpl(lendPoolLoanImpl.address, []));
 
       const lendPoolLoanProxy = await getLendPoolLoanProxy(await addressesProvider.getLendPoolLoan());
@@ -81,7 +81,7 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       await insertContractAddressInDb(eContractid.LendPoolLoan, lendPoolLoanProxy.address);
 
       //////////////////////////////////////////////////////////////////////////
-      // Reuse/deploy lend pool configurator
+      //Reuse/deploy lend pool configurator
       console.log("Deploying new configurator implementation...");
       const lendPoolConfiguratorImpl = await deployLendPoolConfigurator(verify);
       console.log("Setting lend pool configurator implementation with address:", lendPoolConfiguratorImpl.address);
@@ -94,11 +94,10 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
 
       await insertContractAddressInDb(eContractid.LendPoolConfigurator, lendPoolConfiguratorProxy.address);
 
-      //////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////
       const admin = await DRE.ethers.getSigner(await getEmergencyAdmin(poolConfig));
       // Pause market during deployment
       await waitForTx(await lendPoolConfiguratorProxy.connect(admin).setPoolPause(true));
-
       // Generic UToken & DebtToken Implementation in Pool
       await deployUTokenImplementations(pool, poolConfig.ReservesConfig, verify);
 

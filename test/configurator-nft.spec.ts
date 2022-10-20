@@ -3,7 +3,9 @@ import { APPROVAL_AMOUNT_LENDING_POOL, MOCK_NFT_AGGREGATORS_MAXSUPPLY, RAY } fro
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { ProtocolErrors } from "../helpers/types";
 import { strategyNftClassB } from "../markets/unlockd/nftsConfigs";
-import { BigNumberish } from "ethers";
+import { BigNumberish, BigNumber } from "ethers";
+import { timeLatest } from "../helpers/misc-utils";
+import { timeStamp } from "console";
 
 const { expect } = require("chai");
 
@@ -38,14 +40,20 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     },
   ];
 
-  const { CALLER_NOT_POOL_ADMIN, LPC_INVALID_CONFIGURATION, LPC_NFT_LIQUIDITY_NOT_0, LP_INVALID_OVERFLOW_VALUE } =
-    ProtocolErrors;
+  const {
+    CALLER_NOT_POOL_ADMIN,
+    LPC_INVALID_CONFIGURATION,
+    LPC_NFT_LIQUIDITY_NOT_0,
+    CALLER_NOT_LTV_MANAGER,
+    LP_INVALID_OVERFLOW_VALUE,
+  } = ProtocolErrors;
+
   const tokenSupply = MOCK_NFT_AGGREGATORS_MAXSUPPLY.BAYC;
   var maxSupply: number = +tokenSupply;
 
   it("Deactivates the BAYC NFT", async () => {
     const { configurator, bayc, dataProvider } = testEnv;
-    await configurator.setActiveFlagOnNft([bayc.address], false);
+    await configurator.setActiveFlagOnNft(bayc.address, false);
     const { isActive } = await dataProvider.getNftConfigurationData(bayc.address);
     expect(isActive).to.be.equal(false);
   });
@@ -59,7 +67,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
 
   it("Rectivates the BAYC NFT", async () => {
     const { configurator, bayc, dataProvider } = testEnv;
-    await configurator.setActiveFlagOnNft([bayc.address], true);
+    await configurator.setActiveFlagOnNft(bayc.address, true);
 
     const { isActive } = await dataProvider.getNftConfigurationData(bayc.address);
     expect(isActive).to.be.equal(true);
@@ -76,7 +84,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   it("Check the onlyAdmin on deactivateRNft ", async () => {
     const { configurator, users, bayc } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).setActiveFlagOnNft([bayc.address], false),
+      configurator.connect(users[2].signer).setActiveFlagOnNft(bayc.address, false),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
@@ -84,7 +92,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   it("Check the onlyAdmin on activateNft ", async () => {
     const { configurator, users, bayc } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).setActiveFlagOnNft([bayc.address], true),
+      configurator.connect(users[2].signer).setActiveFlagOnNft(bayc.address, true),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
@@ -92,7 +100,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   it("Freezes the BAYC NFT", async () => {
     const { configurator, bayc, dataProvider } = testEnv;
 
-    await configurator.setFreezeFlagOnNft([bayc.address], true);
+    await configurator.setFreezeFlagOnNft(bayc.address, true);
     const { isFrozen } = await dataProvider.getNftConfigurationData(bayc.address);
 
     expect(isFrozen).to.be.equal(true);
@@ -109,7 +117,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
 
   it("Unfreezes the BAYC NFT", async () => {
     const { configurator, dataProvider, bayc } = testEnv;
-    await configurator.setFreezeFlagOnNft([bayc.address], false);
+    await configurator.setFreezeFlagOnNft(bayc.address, false);
 
     const { isFrozen } = await dataProvider.getNftConfigurationData(bayc.address);
 
@@ -128,7 +136,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   it("Check the onlyAdmin on freezeNft ", async () => {
     const { configurator, users, bayc } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).setFreezeFlagOnNft([bayc.address], true),
+      configurator.connect(users[2].signer).setFreezeFlagOnNft(bayc.address, true),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
@@ -136,7 +144,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   it("Check the onlyAdmin on unfreezeNft ", async () => {
     const { configurator, users, bayc } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).setFreezeFlagOnNft([bayc.address], false),
+      configurator.connect(users[2].signer).setFreezeFlagOnNft(bayc.address, false),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
@@ -339,9 +347,9 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     await bayc.setApprovalForAll(pool.address, true);
 
     const amountToBorrow = await convertToCurrencyDecimals(weth.address, "1");
-    await pool.borrow(weth.address, amountToBorrow, bayc.address, tokenId, userAddress, "0", 0);
+    await pool.borrow(weth.address, amountToBorrow, bayc.address, tokenId, userAddress, "0");
 
-    await expect(configurator.setActiveFlagOnNft([bayc.address], false), LPC_NFT_LIQUIDITY_NOT_0).to.be.revertedWith(
+    await expect(configurator.setActiveFlagOnNft(bayc.address, false), LPC_NFT_LIQUIDITY_NOT_0).to.be.revertedWith(
       LPC_NFT_LIQUIDITY_NOT_0
     );
   });
@@ -366,5 +374,22 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
       configurator.connect(users[2].signer).setMaxNumberOfNfts(512),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+  });
+
+  it("Config the timeFrame for an X amount of time", async () => {
+    const { configurator, pool } = testEnv;
+    await configurator.setTimeframe(1800);
+    await expect(await pool.getTimeframe()).to.be.equal(1800);
+  });
+
+  it("Check if the config timestamp is correct", async () => {
+    const { users, configurator, pool, tokenId, bayc, dataProvider } = testEnv;
+    const timestamp = await (await timeLatest()).toString();
+    let timestampAux = BigNumber.from(timestamp);
+    await configurator
+      .connect(users[0].signer)
+      .configureNftAsCollateral(bayc.address, tokenId, "8000", "8000", "8250", "500", 1, 2, 25, true, false);
+    const { configTimestamp } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, tokenId);
+    expect(configTimestamp).to.be.within(timestamp, timestampAux.add(10));
   });
 });

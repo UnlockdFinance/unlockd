@@ -24,6 +24,7 @@ export enum UnlockdPools {
 export enum eContractid {
   MintableERC20 = "MintableERC20",
   MintableERC721 = "MintableERC721",
+  CustomERC721 = "CustomERC721",
   LendPoolAddressesProvider = "LendPoolAddressesProvider",
   LendPoolAddressesProviderRegistry = "LendPoolAddressesProviderRegistry",
   LendPoolParametersProvider = "LendPoolParametersProvider",
@@ -87,6 +88,7 @@ export enum eContractid {
   NFTXVaultFactory = "NFTXVaultFactory",
   UniswapV2Factory = "UniswapV2Factory",
   SushiSwapRouter = "SushiSwapRouter",
+  NFTXHelper = "NFTXHelper",
 }
 
 export enum ProtocolLoanState {
@@ -112,7 +114,9 @@ export enum ProtocolErrors {
   INVALID_TO_BALANCE_AFTER_TRANSFER = "103",
   CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST = "104",
   CALLER_NOT_POOL_LIQUIDATOR = "105",
-  CALLER_NOT_LTV_MANAGER = "106",
+  INVALID_ZERO_ADDRESS = "106",
+  CALLER_NOT_LTV_MANAGER = "107",
+  CALLER_NOT_PRICE_MANAGER = "108",
 
   //math library erros
   MATH_MULTIPLICATION_OVERFLOW = "200",
@@ -138,6 +142,8 @@ export enum ProtocolErrors {
   VL_INVALID_RESERVE_ADDRESS = "316",
   VL_SPECIFIED_LOAN_NOT_BORROWED_BY_USER = "317",
   VL_SPECIFIED_RESERVE_NOT_BORROWED_BY_USER = "318",
+  VL_HEALTH_FACTOR_HIGHER_THAN_LIQUIDATION_THRESHOLD = "319",
+  VL_TIMEFRAME_EXCEEDED = "320",
 
   //lend pool errors
   LP_CALLER_NOT_LEND_POOL_CONFIGURATOR = "400", // 'The caller of the function is not the lending pool configurator'
@@ -197,9 +203,11 @@ export enum ProtocolErrors {
   LPC_RESERVE_LIQUIDITY_NOT_0 = "700", // 'The liquidity of the reserve needs to be 0'
   LPC_INVALID_CONFIGURATION = "701", // 'Invalid risk parameters for the reserve'
   LPC_CALLER_NOT_EMERGENCY_ADMIN = "702", // 'The caller must be the emergency admin'
-  LPC_INVALIED_UNFT_ADDRESS = "703",
+  LPC_INVALID_UNFT_ADDRESS = "703",
   LPC_INVALIED_LOAN_ADDRESS = "704",
   LPC_NFT_LIQUIDITY_NOT_0 = "705",
+  LPC_PARAMS_MISMATCH = "706",
+  LPC_FEE_PERCENTAGE_TOO_HIGH = "707",
 
   //reserve config errors
   RC_INVALID_LTV = "730",
@@ -272,14 +280,14 @@ export interface iNftBase<T> {
   WPUNKS: T;
   BAYC: T;
   DOODLE: T;
-  COOL: T;
+  /* COOL: T;
   MEEBITS: T;
   MAYC: T;
   WOW: T;
   CLONEX: T;
   AZUKI: T;
   KONGZ: T;
-  LAND: T;
+  LAND: T; */
 }
 
 export type iMultiPoolsNfts<T> = iNftCommon<T> | iUnlockdPoolNfts<T>;
@@ -292,14 +300,14 @@ export enum NftContractId {
   WPUNKS = "WPUNKS",
   BAYC = "BAYC",
   DOODLE = "DOODLE",
-  COOL = "COOL",
+  /* COOL = "COOL",
   MEEBITS = "MEEBITS",
   MAYC = "MAYC",
   WOW = "WOW",
   CLONEX = "CLONEX",
   AZUKI = "AZUKI",
   KONGZ = "KONGZ",
-  LAND = "LAND",
+  LAND = "LAND", */
 }
 
 export interface IReserveParams extends IReserveBorrowParams, IReserveCollateralParams {

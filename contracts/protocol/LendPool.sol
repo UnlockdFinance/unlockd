@@ -4,6 +4,7 @@ pragma solidity 0.8.4;
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
+import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
@@ -67,6 +68,8 @@ contract LendPool is
 
   bytes32 public constant ADDRESS_ID_WETH_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000001;
   bytes32 public constant ADDRESS_ID_PUNK_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000002;
+  uint256 internal _configFee; // todo: move this to the storage
+  mapping(address => bool) public _isAllowedToSell; // todo: move this to the storage
 
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
@@ -108,7 +111,12 @@ contract LendPool is
    * @notice Revert if called by any account other than the rescuer.
    */
   modifier onlyRescuer() {
-    require(msg.sender == _rescuer, "Rescuable: caller is not the rescuer");
+    require(_msgSender() == _rescuer, "Rescuable: caller is not the rescuer");
+    _;
+  }
+
+  modifier onlyHolder(address nftAsset, uint256 nftTokenId) {
+    require(_msgSender() == IERC721Upgradeable(nftAsset).ownerOf(nftTokenId), Errors.LP_CALLER_NOT_NFT_HOLDER);
     _;
   }
 
@@ -143,10 +151,10 @@ contract LendPool is
    **/
   function initialize(ILendPoolAddressesProvider provider) public initializer {
     require(address(provider) != address(0), Errors.INVALID_ZERO_ADDRESS);
+
     _maxNumberOfReserves = 32;
     _maxNumberOfNfts = 255;
     _liquidateFeePercentage = 250;
-
     _addressesProvider = provider;
   }
 
@@ -207,23 +215,21 @@ contract LendPool is
    * - E.g. User borrows 100 USDC, receiving the 100 USDC in his wallet
    *   and lock collateral asset in contract
    * @param asset The address of the underlying asset to borrow
-   * @param totalAmount The amount to be borrowed
+   * @param amount The amount to be borrowed
    * @param nftAsset The address of the underlying nft used as collateral
    * @param nftTokenId The token ID of the underlying nft used as collateral
    * @param onBehalfOf Address of the user who will receive the loan. Should be the address of the borrower itself
    * calling the function if he wants to borrow against his own collateral
    * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
    * 0 if the action is executed directly by the user, without any middle-man
-   * @param nftConfigFee the estimate gas cost of configuring each NFT.
    **/
   function borrow(
     address asset,
-    uint256 totalAmount, // Total Amount
+    uint256 amount,
     address nftAsset,
     uint256 nftTokenId,
     address onBehalfOf,
-    uint16 referralCode,
-    uint256 nftConfigFee // Will deduct from Total Amount amount - nftConfigFee
+    uint16 referralCode
   ) external override nonReentrant whenNotPaused {
     BorrowLogic.executeBorrow(
       _addressesProvider,
@@ -233,47 +239,13 @@ contract LendPool is
       DataTypes.ExecuteBorrowParams({
         initiator: _msgSender(),
         asset: asset,
-        amount: totalAmount - nftConfigFee,
+        amount: amount,
         nftAsset: nftAsset,
         nftTokenId: nftTokenId,
         onBehalfOf: onBehalfOf,
         referralCode: referralCode
-      }),
-      nftConfigFee
+      })
     );
-  }
-
-  /**
-   * @dev Allows users to borrow a specific `amount` of the reserve underlying asset array
-   * @param assets The array of addresses of the underlying asset to borrow
-   * @param totalAmounts The array of amounts to be borrowed
-   * @param nftAssets The array of addresses of the underlying nft used as collateral
-   * @param nftTokenIds The token ID of the underlying nft used as collateral
-   * @param onBehalfOf Address of the user who will receive the loan. Should be the address of the borrower itself
-   * calling the function if he wants to borrow against his own collateral
-   * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
-   *   0 if the action is executed directly by the user, without any middle-man
-   * @param nftConfigFees An array os estimation fees to config each NFT
-   **/
-  function batchBorrow(
-    address[] calldata assets,
-    uint256[] calldata totalAmounts,
-    address[] calldata nftAssets,
-    uint256[] calldata nftTokenIds,
-    address onBehalfOf,
-    uint16 referralCode,
-    uint256 nftConfigFees
-  ) external override nonReentrant whenNotPaused {
-    DataTypes.ExecuteBatchBorrowParams memory params;
-    params.initiator = _msgSender();
-    params.assets = assets;
-    params.amounts = totalAmounts;
-    params.nftAssets = nftAssets;
-    params.nftTokenIds = nftTokenIds;
-    params.onBehalfOf = onBehalfOf;
-    params.referralCode = referralCode;
-
-    BorrowLogic.executeBatchBorrow(_addressesProvider, _reserves, _nfts, _nftConfig, params, nftConfigFees);
   }
 
   /**
@@ -299,32 +271,6 @@ contract LendPool is
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
           amount: amount
-        })
-      );
-  }
-
-  /**
-   * @notice Repays a borrowed `amounts` on a specific array of reserves, burning the equivalent loan owned
-   * @param nftAssets The array of addresses of the underlying NFT used as collateral
-   * @param nftTokenIds The array of token IDs of the underlying NFT used as collateral
-   * @param amounts The array of amounts to repay
-   **/
-  function batchRepay(
-    address[] calldata nftAssets,
-    uint256[] calldata nftTokenIds,
-    uint256[] calldata amounts
-  ) external override nonReentrant whenNotPaused returns (uint256[] memory, bool[] memory) {
-    return
-      BorrowLogic.executeBatchRepay(
-        _addressesProvider,
-        _reserves,
-        _nfts,
-        _nftConfig,
-        DataTypes.ExecuteBatchRepayParams({
-          initiator: _msgSender(),
-          nftAssets: nftAssets,
-          nftTokenIds: nftTokenIds,
-          amounts: amounts
         })
       );
   }
@@ -422,33 +368,7 @@ contract LendPool is
 
   /**
    * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The collateral asset is sold on Opensea
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param nftTokenId The token ID of the underlying NFT used as collateral
-   **/
-  function liquidateOpensea(
-    address nftAsset,
-    uint256 nftTokenId,
-    uint256 priceInEth
-  ) external override nonReentrant onlyLendPoolLiquidatorOrGateway whenNotPaused returns (uint256) {
-    return
-      LiquidateLogic.executeLiquidateOpensea(
-        _addressesProvider,
-        _reserves,
-        _nfts,
-        _nftConfig,
-        DataTypes.ExecuteLiquidateOpenseaParams({
-          nftAsset: nftAsset,
-          nftTokenId: nftTokenId,
-          priceInEth: priceInEth,
-          liquidateFeePercentage: _liquidateFeePercentage
-        })
-      );
-  }
-
-  /**
-   * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The collateral asset is sold on Opensea
+   * - The collateral asset is sold on NFTX
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
@@ -466,12 +386,24 @@ contract LendPool is
         _reserves,
         _nfts,
         _nftConfig,
+        _isAllowedToSell,
         DataTypes.ExecuteLiquidateNFTXParams({
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
           liquidateFeePercentage: _liquidateFeePercentage
         })
       );
+  }
+
+  function triggerUserCollateral(address nftAsset, uint256 nftTokenId)
+    external
+    payable
+    override
+    onlyHolder(nftAsset, nftTokenId)
+    whenNotPaused
+  {
+    require(_configFee == msg.value);
+    emit UserCollateralTriggered(_msgSender(), nftAsset, nftTokenId);
   }
 
   function onERC721Received(
@@ -830,7 +762,6 @@ contract LendPool is
    **/
   function getNftsList() external view override returns (address[] memory) {
     address[] memory _activeNfts = new address[](_nftsCount);
-
     for (uint256 i = 0; i != _nftsCount; ) {
       _activeNfts[i] = _nftsList[i];
       unchecked {
@@ -923,6 +854,51 @@ contract LendPool is
    */
   function getLiquidateFeePercentage() external view override returns (uint256) {
     return _liquidateFeePercentage;
+  }
+
+  /**
+   * @dev Sets the max timeframe between NFT config triggers and borrows
+   * @param timeframe the number of seconds for the timeframe
+   **/
+  function setTimeframe(uint256 timeframe) external override onlyLendPoolConfigurator {
+    _timeframe = timeframe;
+  }
+
+  /**
+   * @dev Returns the max timeframe between NFT config triggers and borrows
+   **/
+  function getTimeframe() external view override returns (uint256) {
+    return _timeframe;
+  }
+
+  /**
+   * @dev Allows and address to be sold on NFTX
+   * @param nftAsset the address of the NFT
+   **/
+  function setAllowToSellNFTX(address nftAsset, bool val) external override onlyLendPoolConfigurator {
+    _isAllowedToSell[nftAsset] = val;
+  }
+
+  /**
+   * @dev Returns the max timeframe between NFT config triggers and borrows
+   **/
+  function getAllowToSellNFTX(address nftAsset) external view override returns (bool) {
+    return _isAllowedToSell[nftAsset];
+  }
+
+  /**
+   * @dev Sets configFee amount to be charged for ConfigureNFTAsColleteral
+   * @param configFee the number of seconds for the timeframe
+   **/
+  function setConfigFee(uint256 configFee) external override onlyLendPoolConfigurator {
+    _configFee = configFee;
+  }
+
+  /**
+   * @dev Returns the configFee amount
+   **/
+  function getConfigFee() external view override returns (uint256) {
+    return _configFee;
   }
 
   /**
@@ -1038,17 +1014,23 @@ contract LendPool is
   }
 
   /**
-   * @notice Rescue ERC20 tokens locked up in this contract.
+   * @notice Rescue tokens and ETH locked up in this contract.
    * @param tokenContract ERC20 token contract address
    * @param to        Recipient address
    * @param amount    Amount to withdraw
    */
-  function rescueERC20(
+  function rescue(
     IERC20 tokenContract,
     address to,
-    uint256 amount
+    uint256 amount,
+    bool rescueETH
   ) external override onlyRescuer {
-    tokenContract.safeTransfer(to, amount);
+    if (rescueETH) {
+      (bool sent, ) = to.call{value: amount}("");
+      require(sent, "Failed to send Ether");
+    } else {
+      tokenContract.safeTransfer(to, amount);
+    }
   }
 
   /**

@@ -6,6 +6,11 @@ import { Contracts } from "./constants";
 const getNftConfigurationDataByTokenId = async (wallet: Wallet, nftAddress: string, nftTokenId: string) => {
     return await Contracts.dataProvider.connect(wallet).getNftConfigurationDataByTokenId(nftAddress, nftTokenId);
 }
+
+const getLoanDataByCollateral = async (wallet: Wallet, nftAddress: string, nftTokenId: string) => {
+    return await Contracts.dataProvider.connect(wallet).getLoanDataByCollateral(nftAddress, nftTokenId);
+}
+
 //#endregion
 
 //#region  Reserves Mintable ERC20
@@ -43,8 +48,12 @@ const isApprovedNft = async(wallet: Wallet, collection: Contract, owner: string,
 }
 
 //#endregion 
-
+ 
 //#region  LendPool 
+const getNftConfigByTokenId = async (wallet: Wallet, nftAddress: string, nftTokenId: number) => {
+    return await Contracts.lendPool.connect(wallet).getNftConfigByTokenId(nftAddress, nftTokenId);
+}
+
 const getReserveConfiguration = async (wallet: Wallet, asset: string) => {
     return await Contracts.lendPool.connect(wallet).getReserveConfiguration(asset);
 }
@@ -58,6 +67,9 @@ const getNftConfiguration = async(wallet: Wallet, nftAddress: string) => {
 }
 
 const deposit = async (wallet: Wallet, asset: string, amount: BigNumber, onBehalfOf: string) => {
+    // var gas = await Contracts.lendPool.connect(wallet).deposit(asset, amount, onBehalfOf, 0);
+    // var strGas = gas.toString();
+    // const gasPrice = Math.round(parseInt(strGas)*1.1);
     return await Contracts.lendPool.connect(wallet).deposit(asset, amount, onBehalfOf, 0);
 }
 
@@ -67,16 +79,16 @@ const withdraw = async (wallet: Wallet, asset: string, amount: BigNumber, to: st
 }
 
 const borrow = async (wallet: Wallet, asset: string, amount: BigNumber, nftAsset: string, 
-    nftTokenId: number, onBehalfOf: string, nftConfigFee: BigNumber) => {
+    nftTokenId: number, onBehalfOf: string) => {
         
     var gas = await Contracts.lendPool.connect(wallet).estimateGas.borrow(asset, amount, nftAsset, 
-        nftTokenId, onBehalfOf, 0, nftConfigFee);
+        nftTokenId, onBehalfOf, 0);
 
     var strGas = gas.toString();
     const gasPrice = Math.round(parseInt(strGas)*1.1);
 
     return await Contracts.lendPool.connect(wallet).borrow(asset, amount, nftAsset, nftTokenId, 
-        onBehalfOf, 0, nftConfigFee, {gasLimit: gasPrice.toFixed(0)});
+        onBehalfOf, 0, {gasLimit: gasPrice.toFixed(0)});
 }
 
 const getCollateralData = async (wallet: Wallet, collection: string, nftTokenId: number, reserve: string) => {
@@ -126,10 +138,37 @@ const getReservesList = async (wallet: Wallet) => {
     return await Contracts.lendPool.connect(wallet).getReservesList();
 }
 const liquidateNFTX = async (wallet: Wallet, nftAsset: string, nftTokenId: number) => {
-    return await Contracts.lendPool.connect(wallet).liquidateNFTX(nftAsset, nftTokenId);
+    var gas = await Contracts.lendPool.connect(wallet).estimateGas.liquidateNFTX(nftAsset, nftTokenId);
+
+    var strGas = gas.toString();
+    const gasPrice = Math.round(parseInt(strGas)*1.1);
+    console.log(gasPrice);
+    return await Contracts.lendPool.connect(wallet).liquidateNFTX(nftAsset, nftTokenId, {gasLimit: gasPrice.toFixed(0)});
 }
 //#endregion
+//#region WETHGateway
+const depositETH = async (wallet: Wallet, amount: number, onBehalfOf: string) => {
+    return await Contracts.wethGateway.connect(wallet).depositETH(onBehalfOf, 0, {value: amount});
+}
 
+const withdrawETH = async (wallet: Wallet, amount: BigNumber, to: string) => {
+    const tx = await Contracts.wethGateway.connect(wallet).withdrawETH(amount, to);
+    await tx.wait();
+}
+
+const borrowETH = async (wallet: Wallet, amount: BigNumber, nftAsset: string, 
+    nftTokenId: number, onBehalfOf: string, nftConfigFee: BigNumber) => {
+        
+    var gas = await Contracts.wethGateway.connect(wallet).estimateGas.borroweth( amount, nftAsset, 
+        nftTokenId, onBehalfOf, 0, nftConfigFee);
+
+    var strGas = gas.toString();
+    const gasPrice = Math.round(parseInt(strGas)*1.1);
+
+    return await Contracts.wethGateway.connect(wallet).borrowETH(amount, nftAsset, nftTokenId, 
+        onBehalfOf, 0, nftConfigFee, {gasLimit: gasPrice.toFixed(0)});
+}
+//#endregion
 //#region Lendpool loan
 const getLoanIdTracker = async (wallet: Wallet) => {
     return await Contracts.lendPoolLoan.connect(wallet).getLoanIdTracker();
@@ -168,6 +207,13 @@ const getAssetPrice = async (wallet: Wallet, asset: string) => {
 
 //#region AddressProvider for any doubts in the parameters check the LendPoolAddressProvider Contract
 //Addresses provider for any doubts in the parameters check the LendPoolAddressProvider Contract
+const getAddress = async (wallet: Wallet, bytesAddress: string) => {
+    console.log(bytesAddress);
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).getAddress(bytesAddress);
+}
+const setAddress = async (wallet: Wallet, id: string, address: string) => {
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setAddress(id, address);
+} 
 const getMarketId = async (wallet: Wallet) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getMarketId();
 }
@@ -188,8 +234,8 @@ const getLendPoolConfigurator = async (wallet: Wallet) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getLendPoolConfigurator();
 }
 
-const setLendPoolConfiguratorImpl = async (wallet: Wallet, lendpoolAddress: string, encodedCallData: string) => { 
-    return await Contracts.lendPoolAddressesProvider.connect(wallet).setLendPoolConfiguratorImpl(lendpoolAddress, encodedCallData);
+const setLendPoolConfiguratorImpl = async (wallet: Wallet, lendpoolAddress: string) => { 
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setLendPoolConfiguratorImpl(lendpoolAddress, []);
 }
 
 const getLtvManager = async (wallet: Wallet) => {
@@ -244,8 +290,8 @@ const getLendPoolLoan = async (wallet: Wallet) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).getLendPool().wait();
 }
 
-const setLendPoolLoanImpl = async (wallet: Wallet, loanAddress: string, encodedCallData: string) => { 
-    return await Contracts.lendPoolAddressesProvider.connect(wallet).setLendPoolImpl(loanAddress, encodedCallData);
+const setLendPoolLoanImpl = async (wallet: Wallet, loanAddress: string) => { 
+    return await Contracts.lendPoolAddressesProvider.connect(wallet).setLendPoolImpl(loanAddress, []);
 }
 
 const getUNFTRegistry = async (wallet: Wallet) => {
@@ -286,14 +332,6 @@ const getWalletBalanceProvider = async (wallet: Wallet) => {
 
 const setWalletBalanceProvider = async (wallet: Wallet, provider: string) => {
     return await Contracts.lendPoolAddressesProvider.connect(wallet).setWalletBalanceProvider(provider);
-}
-
-const getOpenseaSeaport = async (wallet: Wallet) => {
-    return await Contracts.lendPoolAddressesProvider.connect(wallet).getOpenseaSeaport();
-}
-
-const setOpenseaSeaport = async (wallet: Wallet, exchange: string) => {
-    return await Contracts.lendPoolAddressesProvider.connect(wallet).setOpenseaSeaport(exchange);
 }
 
 const setProtocolDataProvider = async (wallet: Wallet, protocolDataProviderAddress: string) => {
@@ -346,7 +384,7 @@ const getTotalVaults = async (wallet: Wallet) => {
     return await Contracts.nftxVaultFactory.connect(wallet).numVaults();
 }
 
-const getNFTXVault = async (wallet: Wallet, assetAddress: string) => {
+const vaultsForAsset = async (wallet: Wallet, assetAddress: string) => {
     return await Contracts.nftxVaultFactory.connect(wallet).vaultsForAsset(assetAddress);
 }
 
@@ -359,33 +397,36 @@ const createNFTXVault = async (wallet: Wallet, name: string, symbol: string, ass
 const mintNFTX = async (wallet: Wallet, token: Contract, tokenIds: string[], amounts: string[]) => {
     return await token.connect(wallet).mint(tokenIds, amounts);
 }
-
 //#endregion
 
 //#region LendPoolConfigurator for any doubts in the parameters 
 // check the LendPoolConfigurator.sol or ILendPoolconfigurator.sol     
-const setBorrowingFlagOnReserve = async (wallet:Wallet, assets: string[], flag: boolean) => {
-    return await Contracts.lendPoolConfigurator.connect(wallet).setBorrowingFlagOnReserve(assets, flag);
+const setAllowToSellNFTX = async (wallet: Wallet, nftAsset: string, val: boolean) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setAllowToSellNFTX(nftAsset, val);
 }
 
-const setActiveFlagOnReserve = async (wallet:Wallet, assets: string[], flag: boolean) => {
-    return await Contracts.lendPoolConfigurator.connect(wallet).setActiveFlagOnReserve(assets, flag);
+const setBorrowingFlagOnReserve = async (wallet:Wallet, asset: string, flag: boolean) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setBorrowingFlagOnReserve(asset, flag);
 }
 
-const setFreezeFlagOnReserve = async (wallet:Wallet, assets: string[], flag: boolean) => {
-    return await Contracts.lendPoolConfigurator.connect(wallet).setFreezeFlagOnReserve(assets, flag);
+const setActiveFlagOnReserve = async (wallet:Wallet, asset: string, flag: boolean) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setActiveFlagOnReserve(asset, flag);
 }
 
-const setReserveFactor = async (wallet:Wallet, assets: string[], factor: string) => {
-    return await Contracts.lendPoolConfigurator.connect(wallet).setReserveFactor(assets, factor);
+const setFreezeFlagOnReserve = async (wallet:Wallet, asset: string, flag: boolean) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setFreezeFlagOnReserve(asset, flag);
+}
+
+const setReserveFactor = async (wallet:Wallet, asset: string, factor: string) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setReserveFactor(asset, factor);
 }
 
 const setReserveInterestRateAddress = async (wallet:Wallet, assets: string[], rateAddress: string) => {
     return await Contracts.lendPoolConfigurator.connect(wallet).setReserveInterestRateAddress(assets, rateAddress);
 }
 
-const setActiveFlagOnNft = async (wallet:Wallet, assets: string[], flag: boolean) => {
-    return await Contracts.lendPoolConfigurator.connect(wallet).setActiveFlagOnNft(assets, flag);
+const setActiveFlagOnNft = async (wallet:Wallet, asset: string, flag: boolean) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setActiveFlagOnNft(asset, flag);
 }
 
 const setFreezeFlagOnNft = async (wallet:Wallet, assets: string[], flag: boolean) => {
@@ -417,7 +458,8 @@ const configureNftAsCollateral = async (
         auctionDuration,
         redeemFine,
         active,
-        false //TODO: always active running the function from the task. Need Fix.
+        false,
+        {gasLimit: 500000} //TODO: always active running the function from the task. Need Fix.
     );
 }
 
@@ -433,9 +475,9 @@ const configureNftAsAuction = async (
     );
 }
 
-const setNftRedeemThreshold = async (wallet:Wallet, assets: string[], redeemThreshold: string) => {
-    return await Contracts.lendPoolConfigurator.connect(wallet).setReserveFactor(assets, redeemThreshold);
-}
+const setNftRedeemThreshold = async (wallet:Wallet, asset: string, nftTokenId: number, redeemThreshold: string) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setNftRedeemThreshold(asset, nftTokenId, redeemThreshold);
+}  
 
 const setNftMinBidFine = async (wallet:Wallet, assets: string[], minBidFine: string) => {
     return await Contracts.lendPoolConfigurator.connect(wallet).setNftMinBidFine(assets, minBidFine);
@@ -503,6 +545,7 @@ const RESERVE_TREASURY_ADDRESS = async(wallet: Wallet) => {
 export const Functions = {
     DATAPROVIDER: {
         getNftConfigurationDataByTokenId: getNftConfigurationDataByTokenId,
+        getLoanDataByCollateral: getLoanDataByCollateral,
     },
     UTOKEN: {
         RESERVE_TREASURY_ADDRESS: RESERVE_TREASURY_ADDRESS,  
@@ -518,6 +561,7 @@ export const Functions = {
         isApprovedNft: isApprovedNft,
     },
     LENDPOOL: {
+        getNftConfigByTokenId: getNftConfigByTokenId,
         liquidateNFTX: liquidateNFTX,
         getReserveConfiguration: getReserveConfiguration,
         getNftConfiguration: getNftConfiguration,
@@ -539,6 +583,11 @@ export const Functions = {
         getReserveNormalizedVariableDebt: getReserveNormalizedVariableDebt,
         getReservesList: getReservesList,
     },
+    WETH_GATEWAY: {
+        depositETH: depositETH,
+        withdrawETH: withdrawETH,
+        borrowETH: borrowETH,
+    },
     LENDPOOL_LOAN: {
         getLoanIdTracker: getLoanIdTracker,
         getLoan: getLoan,
@@ -554,6 +603,8 @@ export const Functions = {
         getAssetPrice: getAssetPrice,
     },
     LENDPOOLADDRESSPROVIDER: {
+        getAddress: getAddress,
+        setAddress: setAddress,
         getMarketId: getMarketId,
         setMarketId: setMarketId,
         getLendPool: getLendPool,
@@ -590,8 +641,6 @@ export const Functions = {
         setUnlockdDataProvider: setUnlockdDataProvider,
         getWalletBalanceProvider: getWalletBalanceProvider,
         setWalletBalanceProvider: setWalletBalanceProvider,
-        getOpenseaSeaport: getOpenseaSeaport,
-        setOpenseaSeaport: setOpenseaSeaport
        
     },
     INTERESTRATE: {
@@ -621,9 +670,10 @@ export const Functions = {
         setPoolPause: setPoolPause,
         setLtvManagerStatus: setLtvManagerStatus,
         getTokenImplementation: getTokenImplementation,
+        setAllowToSellNFTX: setAllowToSellNFTX,
     },
     NFTXFACTORY: {
-        getNFTXVault: getNFTXVault,
+        vaultsForAsset: vaultsForAsset,
         createNFTXVault: createNFTXVault,
         getTotalVaults: getTotalVaults,
     },

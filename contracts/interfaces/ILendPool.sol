@@ -142,23 +142,6 @@ interface ILendPool {
   );
 
   /**
-   * @dev Emitted when a borrower's loan is liquidated on Opensea.
-   * @param reserve The address of the underlying asset of the reserve
-   * @param repayAmount The amount of reserve repaid by the liquidator
-   * @param remainAmount The amount of reserve received by the borrower
-   * @param loanId The loan ID of the NFT loans
-   **/
-  event LiquidateOpensea(
-    address indexed reserve,
-    uint256 repayAmount,
-    uint256 remainAmount,
-    address indexed nftAsset,
-    uint256 nftTokenId,
-    address indexed borrower,
-    uint256 loanId
-  );
-
-  /**
    * @dev Emitted when a borrower's loan is liquidated on NFTX.
    * @param reserve The address of the underlying asset of the reserve
    * @param repayAmount The amount of reserve repaid by the liquidator
@@ -174,7 +157,13 @@ interface ILendPool {
     address indexed borrower,
     uint256 loanId
   );
-
+  /**
+   * @dev Emitted when an NFT configuration is triggered.
+   * @param user The NFT holder
+   * @param nftAsset The NFT collection address
+   * @param nftTokenId The NFT token Id
+   **/
+  event UserCollateralTriggered(address indexed user, address indexed nftAsset, uint256 indexed nftTokenId);
   /**
    * @dev Emitted when the pause is triggered.
    */
@@ -270,7 +259,7 @@ interface ILendPool {
    * - E.g. User borrows 100 USDC, receiving the 100 USDC in his wallet
    *   and lock collateral asset in contract
    * @param reserveAsset The address of the underlying asset to borrow
-   * @param totalAmount The amount to be borrowed
+   * @param amount The amount to be borrowed
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    * @param onBehalfOf Address of the user who will receive the loan. Should be the address of the borrower itself
@@ -278,38 +267,14 @@ interface ILendPool {
    * if he has been given credit delegation allowance
    * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
    *   0 if the action is executed directly by the user, without any middle-man
-   * @param nftConfigFee an estimated gas cost fee for configuring the NFT
    **/
   function borrow(
     address reserveAsset,
-    uint256 totalAmount,
+    uint256 amount,
     address nftAsset,
     uint256 nftTokenId,
     address onBehalfOf,
-    uint16 referralCode,
-    uint256 nftConfigFee
-  ) external;
-
-  /**
-   * @dev Allows users to borrow a specific `amount` of the reserve underlying asset array
-   * @param assets The array of addresses of the underlying asset to borrow
-   * @param totalAmounts The array of amounts to be borrowed
-   * @param nftAssets The array of addresses of the underlying nft used as collateral
-   * @param nftTokenIds The token ID of the underlying nft used as collateral
-   * @param onBehalfOf Address of the user who will receive the loan. Should be the address of the borrower itself
-   * calling the function if he wants to borrow against his own collateral
-   * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
-   *   0 if the action is executed directly by the user, without any middle-man
-   * @param nftConfigFee an estimated gas cost fee for configuring the NFT
-   **/
-  function batchBorrow(
-    address[] calldata assets,
-    uint256[] calldata totalAmounts,
-    address[] calldata nftAssets,
-    uint256[] calldata nftTokenIds,
-    address onBehalfOf,
-    uint16 referralCode,
-    uint256 nftConfigFee
+    uint16 referralCode
   ) external;
 
   /**
@@ -325,18 +290,6 @@ interface ILendPool {
     uint256 nftTokenId,
     uint256 amount
   ) external returns (uint256, bool);
-
-  /**
-   * @notice Repays a borrowed `amounts` on a specific array of reserves, burning the equivalent loan owned
-   * @param nftAssets The array of addresses of the underlying NFT used as collateral
-   * @param nftTokenIds The array of token IDs of the underlying NFT used as collateral
-   * @param amounts The array of amounts to repay
-   **/
-  function batchRepay(
-    address[] calldata nftAssets,
-    uint256[] calldata nftTokenIds,
-    uint256[] calldata amounts
-  ) external returns (uint256[] memory, bool[] memory);
 
   /**
    * @dev Function to auction a non-healthy position collateral-wise
@@ -385,23 +338,19 @@ interface ILendPool {
 
   /**
    * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The collateral asset is sold on Opensea
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param nftTokenId The token ID of the underlying NFT used as collateral
-   **/
-  function liquidateOpensea(
-    address nftAsset,
-    uint256 nftTokenId,
-    uint256 priceInEth
-  ) external returns (uint256);
-
-  /**
-   * @dev Function to liquidate a non-healthy position collateral-wise
    * - The collateral asset is sold on NFTX & Sushiswap
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
   function liquidateNFTX(address nftAsset, uint256 nftTokenId) external returns (uint256);
+
+  /**
+   * @dev Triggers the configuration of an NFT
+   * @dev Just the NFT holder can trigger the configuration
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   **/
+  function triggerUserCollateral(address nftAsset, uint256 nftTokenId) external payable;
 
   /**
    * @dev Validates and finalizes an uToken transfer
@@ -694,15 +643,17 @@ interface ILendPool {
   function updateRescuer(address newRescuer) external;
 
   /**
-   * @notice Rescue ERC20 tokens locked up in this contract.
+   * @notice Rescue tokens or ETH locked up in this contract.
    * @param tokenContract ERC20 token contract address
    * @param to        Recipient address
    * @param amount    Amount to withdraw
+   * @param rescueETH bool to know if we want to rescue ETH or other token
    */
-  function rescueERC20(
+  function rescue(
     IERC20 tokenContract,
     address to,
-    uint256 amount
+    uint256 amount,
+    bool rescueETH
   ) external;
 
   /**
@@ -710,6 +661,25 @@ interface ILendPool {
    * @param percentage the fee percentage to be set
    **/
   function setLiquidateFeePercentage(uint256 percentage) external;
+
+  /**
+   * @dev Sets the max timeframe between NFT config triggers and borrows
+   * @param timeframe the number of seconds for the timeframe
+   **/
+  function setTimeframe(uint256 timeframe) external;
+
+  /**
+   * @dev Adds and address to be allowed to sell on NFTX
+   * @param nftAsset the nft address of the NFT to sell
+   * @param val if true is allowed to sell if false is not
+   **/
+  function setAllowToSellNFTX(address nftAsset, bool val) external;
+
+  /**
+   * @dev sets the fee for configuringNFTAsCollateral
+   * @param configFee the amount to charge to the user
+   **/
+  function setConfigFee(uint256 configFee) external;
 
   /**
    * @dev Returns the maximum number of reserves supported to be listed in this LendPool
@@ -731,4 +701,19 @@ interface ILendPool {
    * @return Rescuer's address
    */
   function rescuer() external view returns (address);
+
+  /**
+   * @dev Returns the max timeframe between NFT config triggers and borrows
+   **/
+  function getTimeframe() external view returns (uint256);
+
+  /**
+   * @dev Returns the configFee amount
+   **/
+  function getConfigFee() external view returns (uint256);
+
+  /**
+   * @dev Returns if the address is allowed to sell or not on NFTX
+   */
+  function getAllowToSellNFTX(address nftAsset) external view returns (bool);
 }

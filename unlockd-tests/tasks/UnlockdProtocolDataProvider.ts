@@ -10,3 +10,12 @@ task("dataProvider:getNftConfigurationDataByTokenId", "Gets individual NFT confi
     const wallet = await getUserWallet();  
     await Functions.DATAPROVIDER.getNftConfigurationDataByTokenId(wallet, nftaddress, nfttokenid);
 });
+
+task("dataProvider:getLoanDataByCollateral", "Gets individual NFT loan")
+.addParam("nftaddress", "The asset address")
+.addParam("nfttokenid", "The tokenId of the asset")
+.setAction(async ({ nftaddress, nfttokenid }) => {
+    const wallet = await getUserWallet();  
+    const tx = await Functions.DATAPROVIDER.getLoanDataByCollateral(wallet, nftaddress, nfttokenid).then(v => v.toString());
+    console.log(tx);
+});

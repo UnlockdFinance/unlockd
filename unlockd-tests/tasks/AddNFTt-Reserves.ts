@@ -11,15 +11,15 @@ task("deploy-new-NFT" )
   .addParam("symbol", `The NFT symbol`)
   .setAction(async ({ name, symbol }, localBRE) => {
     await localBRE.run("set-DRE"); 
-    await deployCustomERC721([name, symbol], symbol, true); //add nft to database with symbol as ID
+    await deployCustomERC721([name, symbol], true); //add nft to database with symbol as ID
   }
 ); 
-
+ 
 task("unft-registerNFT", "Deploy unft tokens for dev enviroment")
   .addParam("nftaddress", `The address of the NFT to use`)
-  .setAction(async ({ nftaddress }) => {
-
-    const unftRegistryProxy = await getUNFTRegistryProxy();
+  .setAction(async ({ nftaddress }, localBRE) => {
+    await localBRE.run("set-DRE");
+    const unftRegistryProxy = await getUNFTRegistryProxy(); 
     await waitForTx(await unftRegistryProxy.createUNFT(nftaddress));
     const { uNftProxy } = await unftRegistryProxy.getUNFTAddresses(nftaddress);
     console.log("UNFT Token:", nftaddress, uNftProxy);

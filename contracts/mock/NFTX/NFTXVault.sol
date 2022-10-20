@@ -14,7 +14,7 @@ import {INFTXVaultFactoryV2} from "../../interfaces/INFTXVaultFactoryV2.sol";
 contract NFTXVault is INFTXVault, ERC20, IERC721Receiver {
   uint256 constant base = 10**18;
 
-  uint256 public vaultId;
+  uint256 public override vaultId;
   address public assetAddress;
   INFTXVaultFactoryV2 public vaultFactory;
   bool public is1155;

@@ -52,12 +52,12 @@ makeSuite("PunkGateway: Delegate", (testEnv: TestEnv) => {
 
     console.log("borrow");
     await expect(
-      punkGateway.connect(hacker.signer).borrow(weth.address, borrowSize2, tokenId, borrower.address, "0", 0)
+      punkGateway.connect(hacker.signer).borrow(weth.address, borrowSize2, tokenId, borrower.address, "0")
     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
 
     console.log("borrowETH");
     await expect(
-      punkGateway.connect(hacker.signer).borrowETH(borrowSize2, tokenId, borrower.address, "0", 0)
+      punkGateway.connect(hacker.signer).borrowETH(borrowSize2, tokenId, borrower.address, "0")
     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
   });
 

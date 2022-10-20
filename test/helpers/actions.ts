@@ -56,6 +56,7 @@ import { ReserveData, UserReserveData, LoanData } from "./utils/interfaces";
 import { ContractReceipt } from "ethers";
 import { UToken } from "../../types/UToken";
 import { tEthereumAddress } from "../../helpers/types";
+import { Signer } from "crypto";
 
 const { expect } = chai;
 
@@ -153,18 +154,19 @@ export const setPoolRescuer = async (testEnv: TestEnv, rescuer: SignerWithAddres
   //Set new rescuer
   await testEnv.configurator.connect(poolAdmin).setPoolRescuer(rescuer.address);
 };
-export const rescueERC20 = async (
+export const rescue = async (
   testEnv: TestEnv,
   rescuer: SignerWithAddress,
   to: SignerWithAddress,
   reserveSymbol: string,
-  amount: string
+  amount: string,
+  rescueETH: boolean
 ) => {
   const { configurator } = testEnv;
   const reserve = await getReserveAddressFromSymbol(reserveSymbol);
   await testEnv.pool
     .connect(rescuer.signer)
-    .rescueERC20(reserve, to.address, await convertToCurrencyDecimals(reserve, amount));
+    .rescue(reserve, to.address, await convertToCurrencyDecimals(reserve, amount), rescueETH);
 };
 export const mintERC721 = async (testEnv: TestEnv, user: SignerWithAddress, nftSymbol: string, tokenId: string) => {
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
@@ -186,7 +188,6 @@ export const approveERC20 = async (testEnv: TestEnv, user: SignerWithAddress, re
 export const getERC20Balance = async (testEnv: TestEnv, user: SignerWithAddress, reserveSymbol: string) => {
   const { pool } = testEnv;
   const reserve = await getReserveAddressFromSymbol(reserveSymbol);
-
   const token = await getMintableERC20(reserve);
 
   const balance = await token.connect(user.signer).balanceOf(user.address);
@@ -254,9 +255,10 @@ export const setNftAssetPriceForDebt = async (
   debtAmount: string,
   healthPercent: string
 ): Promise<{ oldNftPrice: string; newNftPrice: string }> => {
-  const { nftOracle, reserveOracle, dataProvider } = testEnv;
+  const { nftOracle, reserveOracle, dataProvider, users } = testEnv;
 
-  const priceAdmin = await getEthersSignerByAddress(await nftOracle.priceFeedAdmin());
+  await nftOracle.setPriceManagerStatus(users[0].address, true);
+  const priceAdmin = users[0].signer;
 
   const reserve = await getReserveAddressFromSymbol(reserveSymbol);
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
@@ -299,9 +301,10 @@ export const setNftAssetPrice = async (
   tokenId: number,
   price: string
 ): Promise<string> => {
-  const { nftOracle, dataProvider } = testEnv;
+  const { nftOracle, dataProvider, users } = testEnv;
 
-  const priceAdmin = await getEthersSignerByAddress(await nftOracle.priceFeedAdmin());
+  await nftOracle.setPriceManagerStatus(users[0].address, true);
+  const priceAdmin = users[0].signer;
 
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
 
@@ -534,7 +537,7 @@ export const borrow = async (
 
   if (expectedResult === "success") {
     const txResult = await waitForTx(
-      await pool.connect(user.signer).borrow(reserve, amountToBorrow, nftAsset, nftTokenId, onBehalfOf, "0", 0)
+      await pool.connect(user.signer).borrow(reserve, amountToBorrow, nftAsset, nftTokenId, onBehalfOf, "0")
     );
 
     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
@@ -585,7 +588,7 @@ export const borrow = async (
     expectEqual(loanDataAfter, expectedLoanData);
   } else if (expectedResult === "revert") {
     await expect(
-      pool.connect(user.signer).borrow(reserve, amountToBorrow, nftAsset, nftTokenId, onBehalfOf, "0", 0),
+      pool.connect(user.signer).borrow(reserve, amountToBorrow, nftAsset, nftTokenId, onBehalfOf, "0"),
       revertMessage
     ).to.be.reverted;
   }

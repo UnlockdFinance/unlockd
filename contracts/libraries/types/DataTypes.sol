@@ -54,6 +54,12 @@ library DataTypes {
     //bit 32-47: Liq. bonus
     //bit 56: NFT is active
     //bit 57: NFT is frozen
+    //bit 64-71: Redeem duration
+    //bit 72-79: Auction duration
+    //bit 80-95: Redeem fine
+    //bit 96-111: Redeem threshold
+    //bit 112-127: Min bid fine
+    //bit 128-159: Timestamp Config
     uint256 data;
   }
 
@@ -130,28 +136,11 @@ library DataTypes {
     uint16 referralCode;
   }
 
-  struct ExecuteBatchBorrowParams {
-    address initiator;
-    address[] assets;
-    uint256[] amounts;
-    address[] nftAssets;
-    uint256[] nftTokenIds;
-    address onBehalfOf;
-    uint16 referralCode;
-  }
-
   struct ExecuteRepayParams {
     address initiator;
     address nftAsset;
     uint256 nftTokenId;
     uint256 amount;
-  }
-
-  struct ExecuteBatchRepayParams {
-    address initiator;
-    address[] nftAssets;
-    uint256[] nftTokenIds;
-    uint256[] amounts;
   }
 
   struct ExecuteAuctionParams {
@@ -175,13 +164,6 @@ library DataTypes {
     address nftAsset;
     uint256 nftTokenId;
     uint256 amount;
-  }
-
-  struct ExecuteLiquidateOpenseaParams {
-    address nftAsset;
-    uint256 nftTokenId;
-    uint256 priceInEth;
-    uint256 liquidateFeePercentage;
   }
 
   struct ExecuteLiquidateNFTXParams {

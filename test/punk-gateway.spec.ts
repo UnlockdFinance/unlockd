@@ -124,14 +124,14 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
 
     // borrow first usdc
     await waitForTx(
-      await punkGateway.connect(borrower.signer).borrow(usdc.address, borrowSize1, punkIndex, borrower.address, "0", 0)
+      await punkGateway.connect(borrower.signer).borrow(usdc.address, borrowSize1, punkIndex, borrower.address, "0")
     );
 
     await advanceTimeAndBlock(100);
 
     // borrow more usdc
     await waitForTx(
-      await punkGateway.connect(borrower.signer).borrow(usdc.address, borrowSize2, punkIndex, borrower.address, "0", 0)
+      await punkGateway.connect(borrower.signer).borrow(usdc.address, borrowSize2, punkIndex, borrower.address, "0")
     );
 
     const usdcBalanceAfterBorrow = await getERC20TokenBalance(usdc.address, borrower.address);
@@ -194,9 +194,7 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
 
     // borrow all usdc
     await waitForTx(
-      await punkGateway
-        .connect(user.signer)
-        .borrow(usdc.address, borrowSize.toFixed(0), punkIndex, user.address, "0", 0)
+      await punkGateway.connect(user.signer).borrow(usdc.address, borrowSize.toFixed(0), punkIndex, user.address, "0")
     );
 
     // Check results
@@ -262,12 +260,12 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
     await waitForTx(await debtToken.connect(user.signer).approveDelegation(wethGateway.address, MAX_UINT_AMOUNT));
 
     // borrow first eth
-    await waitForTx(await punkGateway.connect(user.signer).borrowETH(borrowSize1, punkIndex, user.address, "0", 0));
+    await waitForTx(await punkGateway.connect(user.signer).borrowETH(borrowSize1, punkIndex, user.address, "0"));
 
     await advanceTimeAndBlock(100);
 
     // borrow more eth
-    await waitForTx(await punkGateway.connect(user.signer).borrowETH(borrowSize2, punkIndex, user.address, "0", 0));
+    await waitForTx(await punkGateway.connect(user.signer).borrowETH(borrowSize2, punkIndex, user.address, "0"));
 
     // Check debt
     const loanDataAfterBorrow = await dataProvider.getLoanDataByCollateral(wrappedPunk.address, punkIndex);
@@ -342,7 +340,7 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
 
     // borrow all eth
     await waitForTx(
-      await punkGateway.connect(user.signer).borrowETH(borrowSize.toFixed(0), punkIndex, user.address, "0", 0)
+      await punkGateway.connect(user.signer).borrowETH(borrowSize.toFixed(0), punkIndex, user.address, "0")
     );
 
     // Check results

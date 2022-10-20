@@ -67,13 +67,13 @@
     "prepublishOnly": "npm run compile"
   },
   "devDependencies": {
-    "@chainlink/contracts": "^0.2.2",
+    "@chainlink/contracts": "0.2.3",
     "@nomiclabs/hardhat-ethers": "^2.0.0",
     "@nomiclabs/hardhat-etherscan": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.0",
-    "@openzeppelin/contracts": "^4.3.3",
-    "@openzeppelin/contracts-upgradeable": "^4.3.3",
-    "@openzeppelin/test-helpers": "^0.5.15",
+    "@openzeppelin/contracts": "4.4.1",
+    "@openzeppelin/contracts-upgradeable": "4.4.1",
+    "@openzeppelin/test-helpers": "0.5.15",
     "@typechain/ethers-v5": "^2.0.0",
     "@typechain/hardhat": "^1.0.1",
     "@typechain/truffle-v5": "^2.0.2",

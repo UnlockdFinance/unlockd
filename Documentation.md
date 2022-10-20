@@ -199,23 +199,6 @@ _Allows users to borrow a specific `amount` of the reserve underlying asset
 | onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral |
 | referralCode | uint16 | Code used to register the integrator originating the operation, for potential rewards.   0 if the action is executed directly by the user, without any middle-man |
 
-### batchBorrow
-
-```solidity
-function batchBorrow(address[] assets, uint256[] amounts, address[] nftAssets, uint256[] nftTokenIds, address onBehalfOf, uint16 referralCode) external
-```
-
-_Allows users to borrow a specific `amount` of the reserve underlying asset array_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| assets | address[] | The array of addresses of the underlying asset to borrow |
-| amounts | uint256[] | The array of amounts to be borrowed |
-| nftAssets | address[] | The array of addresses of the underlying nft used as collateral |
-| nftTokenIds | uint256[] | The token ID of the underlying nft used as collateral |
-| onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral |
-| referralCode | uint16 | Code used to register the integrator originating the operation, for potential rewards.   0 if the action is executed directly by the user, without any middle-man |
-
 ### repay
 
 ```solidity
@@ -231,20 +214,6 @@ Repays a borrowed `amount` on a specific reserve, burning the equivalent loan ow
 | nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
 | amount | uint256 | The amount to repay |
 
-### batchRepay
-
-```solidity
-function batchRepay(address[] nftAssets, uint256[] nftTokenIds, uint256[] amounts) external returns (uint256[], bool[])
-```
-
-Repays a borrowed `amounts` on a specific array of reserves, burning the equivalent loan owned
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nftAssets | address[] | The array of addresses of the underlying NFT used as collateral |
-| nftTokenIds | uint256[] | The array of token IDs of the underlying NFT used as collateral |
-| amounts | uint256[] | The array of amounts to repay |
-
 ### auction
 
 ```solidity
@@ -252,7 +221,7 @@ function auction(address nftAsset, uint256 nftTokenId) external
 ```
 
 _Function to auction a non-healthy position collateral-wise
-- The collateral asset of the user getting liquidated is auctioned on Looksrare & Opensea_
+- The collateral asset of the user getting liquidated is auctioned
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
@@ -273,51 +242,6 @@ Redeem a NFT loan which state is in Auction
 | nftAsset | address | The address of the underlying NFT used as collateral |
 | nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
 | amount | uint256 | The amount to repay the debt |
-
-### liquidateLooksRare
-
-```solidity
-function liquidateLooksRare(address nftAsset, uint256 nftTokenId, struct OrderTypes.TakerOrder takerAsk, struct OrderTypes.MakerOrder makerBid) external returns (uint256)
-```
-
-_Function to liquidate a non-healthy position collateral-wise
-- The collateral asset is sold on LooksRare_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nftAsset | address | The address of the underlying NFT used as collateral |
-| nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
-| takerAsk | struct OrderTypes.TakerOrder |  |
-| makerBid | struct OrderTypes.MakerOrder |  |
-
-### liquidateOpensea
-
-```solidity
-function liquidateOpensea(address nftAsset, uint256 nftTokenId, uint256 priceInEth) external returns (uint256)
-```
-
-_Function to liquidate a non-healthy position collateral-wise
-- The collateral asset is sold on Opensea_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nftAsset | address | The address of the underlying NFT used as collateral |
-| nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
-| priceInEth | uint256 |  |
-
-### liquidateNFTX
-
-```solidity
-function liquidateNFTX(address nftAsset, uint256 nftTokenId) external returns (uint256)
-```
-
-_Function to liquidate a non-healthy position collateral-wise
-- The collateral asset is sold on Opensea_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nftAsset | address | The address of the underlying NFT used as collateral |
-| nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
 
 ### onERC721Received
 
@@ -852,18 +776,6 @@ bytes32 UI_DATA_PROVIDER
 bytes32 WALLET_BALANCE_PROVIDER
 ```
 
-### LOOKSRARE_EXCHANGE
-
-```solidity
-bytes32 LOOKSRARE_EXCHANGE
-```
-
-### OPENSEA_SEAPORT
-
-```solidity
-bytes32 OPENSEA_SEAPORT
-```
-
 ### NFTX_VAULT_FACTORY
 
 ```solidity
@@ -1243,45 +1155,6 @@ _sets the address of the wallet balance provider_
 | ---- | ---- | ----------- |
 | provider | address | the WalletBalanceProvider address |
 
-### getLooksRareExchange
-
-```solidity
-function getLooksRareExchange() external view returns (address)
-```
-
-_returns the address of the LooksRare exchange contract_
-
-### setLooksRareExchange
-
-```solidity
-function setLooksRareExchange(address exchange) external
-```
-
-_sets the address of the LooksRare contract_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| exchange | address | the LooksRare address |
-
-### getOpenseaSeaport
-
-```solidity
-function getOpenseaSeaport() external view returns (address)
-```
-
-_returns the address of the Seaport contract_
-
-### setOpenseaSeaport
-
-```solidity
-function setOpenseaSeaport(address exchange) external
-```
-
-_sets the address of the Seaport contract_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| exchange | address | the Seaport address |
 
 ### getNFTXVaultFactory
 
@@ -2002,44 +1875,6 @@ Requirements:
 | amountTaken | uint256 | The taken amount |
 | borrowIndex | uint256 | The index to get the scaled loan amount |
 
-### liquidateLoanLooksRare
-
-```solidity
-function liquidateLoanLooksRare(uint256 loanId, address uNftAddress, uint256 borrowAmount, uint256 borrowIndex, struct DataTypes.ExecuteLiquidateLooksRareParams params) external returns (uint256 sellPrice)
-```
-
-_Liquidate the given loan on LooksRare
-
-Requirements:
- - The caller must send in principal + interest
- - The loan must be in state Auction_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| loanId | uint256 | The loan getting burned |
-| uNftAddress | address | The address of uNFT |
-| borrowAmount | uint256 | The borrow amount |
-| borrowIndex | uint256 | The index to get the scaled loan amount |
-| params | struct DataTypes.ExecuteLiquidateLooksRareParams |  |
-
-### liquidateLoanOpensea
-
-```solidity
-function liquidateLoanOpensea(uint256 loanId, uint256 borrowAmount, uint256 borrowIndex) external
-```
-
-_Liquidate the given loan on Opensea
-
-Requirements:
- - The caller must send in principal + interest
- - The loan must be in state Auction_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| loanId | uint256 | The loan getting burned |
-| borrowAmount | uint256 |  |
-| borrowIndex | uint256 |  |
-
 ### liquidateLoanNFTX
 
 ```solidity
@@ -2753,23 +2588,6 @@ already deposited enough collateral
 | onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
 | referralCode | uint16 | Code used to register the integrator originating the operation, for potential rewards.   0 if the action is executed directly by the user, without any middle-man |
 
-### batchBorrow
-
-```solidity
-function batchBorrow(address[] reserveAssets, uint256[] amounts, uint256[] punkIndexs, address onBehalfOf, uint16 referralCode) external
-```
-
-_Allows users to borrow a specific `amount` of multiple reserve underlying assets, provided that the borrower
-already deposited enough collateral_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| reserveAssets | address[] | The array of addresses of the underlying assets to borrow |
-| amounts | uint256[] | The array of amounts to be borrowed |
-| punkIndexs | uint256[] | The array of indexes of the CryptoPunks used as collateral |
-| onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
-| referralCode | uint16 | Code used to register the integrator originating the operation, for potential rewards.   0 if the action is executed directly by the user, without any middle-man |
-
 ### _withdrawPunk
 
 ```solidity
@@ -2794,24 +2612,6 @@ Repays a borrowed `amount` on a specific punk, burning the equivalent loan owned
 | ---- | ---- | ----------- |
 | [0] | uint256 | The final amount repaid, loan is burned or not |
 | [1] | bool |  |
-
-### batchRepay
-
-```solidity
-function batchRepay(uint256[] punkIndexs, uint256[] amounts) external returns (uint256[], bool[])
-```
-
-Repays multiple borrowed `amounts` on multiple punks, burning the equivalent loan owned for each one
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| punkIndexs | uint256[] | The array of indexs of the CryptoPunks used as collateral |
-| amounts | uint256[] | The array of amounts to repay |
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256[] | The final amount repaid, loan is burned or not |
-| [1] | bool[] |  |
 
 ### _repay
 
@@ -2857,33 +2657,6 @@ Redeem loan for a specific punk in auction
 | punkIndex | uint256 | The index of the CryptoPunk to redeem |
 | amount | uint256 | amount to pay for the redeem |
 
-### liquidateLooksRare
-
-```solidity
-function liquidateLooksRare(uint256 punkIndex, struct OrderTypes.TakerOrder takerAsk, struct OrderTypes.MakerOrder makerBid) external returns (uint256)
-```
-
-liquidate a unhealth punk loan on LooksRare
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| punkIndex | uint256 | The index of the CryptoPunk used as collateral |
-| takerAsk | struct OrderTypes.TakerOrder |  |
-| makerBid | struct OrderTypes.MakerOrder |  |
-
-### liquidateOpensea
-
-```solidity
-function liquidateOpensea(uint256 punkIndex, uint256 priceInEth) external returns (uint256)
-```
-
-liquidate a unhealth punk loan on Opensea
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| punkIndex | uint256 | The index of the CryptoPunk used as collateral |
-| priceInEth | uint256 |  |
-
 ### liquidateNFTX
 
 ```solidity
@@ -2914,22 +2687,6 @@ already deposited enough collateral
 | onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
 | referralCode | uint16 | Code used to register the integrator originating the operation, for potential rewards.   0 if the action is executed directly by the user, without any middle-man |
 
-### batchBorrowETH
-
-```solidity
-function batchBorrowETH(uint256[] amounts, uint256[] punkIndexs, address onBehalfOf, uint16 referralCode) external
-```
-
-_Allows users to borrow multiple `amounts` of multiple reserve underlying assets, provided that the borrower
-already deposited enough collateral_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| amounts | uint256[] | The array of amounts to be borrowed |
-| punkIndexs | uint256[] | The array of indexs of the CryptoPunks to deposit |
-| onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
-| referralCode | uint16 | Code used to register the integrator originating the operation, for potential rewards.   0 if the action is executed directly by the user, without any middle-man |
-
 ### repayETH
 
 ```solidity
@@ -2949,23 +2706,6 @@ Repays a borrowed `amount` on a specific punk with native ETH
 | [0] | uint256 | The final amount repaid, loan is burned or not |
 | [1] | bool |  |
 
-### batchRepayETH
-
-```solidity
-function batchRepayETH(uint256[] punkIndexs, uint256[] amounts) external payable returns (uint256[], bool[])
-```
-
-Repays multiple borrowed `amounts` on multiple punks with native ETH
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| punkIndexs | uint256[] | The indexs of the CryptoPunks to repay |
-| amounts | uint256[] | The amounts to repay |
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256[] | The final amounts repaid, loan is burned or not |
-| [1] | bool[] |  |
 
 ### _repayETH
 
@@ -3658,22 +3398,6 @@ _borrow WETH, unwraps to ETH and send both the ETH and DebtTokens to msg.sender,
 | onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
 | referralCode | uint16 | integrators are assigned a referral code and can potentially receive rewards |
 
-### batchBorrowETH
-
-```solidity
-function batchBorrowETH(uint256[] amounts, address[] nftAssets, uint256[] nftTokenIds, address onBehalfOf, uint16 referralCode) external
-```
-
-_borrows multiple amounts of WETH, unwraps to ETH and send both the ETH and DebtTokens to msg.sender, via `approveDelegation` and onBehalf argument in `LendPool.borrow`._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| amounts | uint256[] | the amount of ETH to borrow |
-| nftAssets | address[] | The array of addresses of the underlying NFTs used as collateral |
-| nftTokenIds | uint256[] | The array of token IDs of the underlying NFTs used as collateral |
-| onBehalfOf | address | Address of the user who will receive the loans. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
-| referralCode | uint16 | integrators are assigned a referral code and can potentially receive rewards |
-
 ### repayETH
 
 ```solidity
@@ -3687,20 +3411,6 @@ _repays a borrow on the WETH reserve, for the specified amount (or for the whole
 | nftAsset | address | The address of the underlying NFT used as collateral |
 | nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
 | amount | uint256 | the amount to repay, or uint256(-1) if the user wants to repay everything |
-
-### batchRepayETH
-
-```solidity
-function batchRepayETH(address[] nftAssets, uint256[] nftTokenIds, uint256[] amounts) external payable returns (uint256[], bool[])
-```
-
-_repays multiple borrows on the WETH reserves, for the specified amounts (or for the whole amounts, if uint256(-1) is specified)._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nftAssets | address[] | The array of addresses of the underlying NFTs used as collateral |
-| nftTokenIds | uint256[] | The token IDs of the underlying NFTs used as collateral |
-| amounts | uint256[] | the amounts to repay, or uint256(-1) if the user wants to repay everything |
 
 ### _repayETH
 
@@ -3743,35 +3453,6 @@ _redeems a borrow on the WETH reserve_
 | nftAsset | address | The address of the underlying NFT used as collateral |
 | nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
 | amount | uint256 | The amount to repay the debt |
-
-### liquidateLooksRare
-
-```solidity
-function liquidateLooksRare(address nftAsset, uint256 nftTokenId, struct OrderTypes.TakerOrder takerAsk, struct OrderTypes.MakerOrder makerBid) external returns (uint256)
-```
-
-_liquidates a borrow on the WETH reserve on LooksRare_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nftAsset | address | The address of the underlying NFT used as collateral |
-| nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
-| takerAsk | struct OrderTypes.TakerOrder |  |
-| makerBid | struct OrderTypes.MakerOrder |  |
-
-### liquidateOpensea
-
-```solidity
-function liquidateOpensea(address nftAsset, uint256 nftTokenId, uint256 priceInEth) external returns (uint256)
-```
-
-_liquidates a borrow on the WETH reserve on Opensea_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nftAsset | address | The address of the underlying NFT used as collateral |
-| nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
-| priceInEth | uint256 |  |
 
 ### liquidateNFTX
 
@@ -3934,18 +3615,6 @@ bytes32 UI_DATA_PROVIDER
 bytes32 WALLET_BALANCE_PROVIDER
 ```
 
-### LOOKSRARE_EXCHANGE
-
-```solidity
-bytes32 LOOKSRARE_EXCHANGE
-```
-
-### OPENSEA_SEAPORT
-
-```solidity
-bytes32 OPENSEA_SEAPORT
-```
-
 ### NFTX_VAULT_FACTORY
 
 ```solidity
@@ -4324,46 +3993,6 @@ _sets the address of the wallet balance provider_
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | provider | address | the WalletBalanceProvider address |
-
-### getLooksRareExchange
-
-```solidity
-function getLooksRareExchange() external view returns (address)
-```
-
-_returns the address of the LooksRare exchange contract_
-
-### setLooksRareExchange
-
-```solidity
-function setLooksRareExchange(address exchange) external
-```
-
-_sets the address of the LooksRare contract_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| exchange | address | the LooksRare address |
-
-### getOpenseaSeaport
-
-```solidity
-function getOpenseaSeaport() external view returns (address)
-```
-
-_returns the address of the Seaport contract_
-
-### setOpenseaSeaport
-
-```solidity
-function setOpenseaSeaport(address exchange) external
-```
-
-_sets the address of the Seaport contract_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| exchange | address | the Seaport address |
 
 ### getNFTXVaultFactory
 
@@ -5083,44 +4712,6 @@ Requirements:
 | uNftAddress | address |  |
 | amountTaken | uint256 | The taken amount |
 | borrowIndex | uint256 | The index to get the scaled loan amount |
-
-### liquidateLoanLooksRare
-
-```solidity
-function liquidateLoanLooksRare(uint256 loanId, address uNftAddress, uint256 borrowAmount, uint256 borrowIndex, struct DataTypes.ExecuteLiquidateLooksRareParams params) external returns (uint256 sellPrice)
-```
-
-_Liquidate the given loan on LooksRare
-
-Requirements:
- - The caller must send in principal + interest
- - The loan must be in state Auction_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| loanId | uint256 | The loan getting burned |
-| uNftAddress | address | The address of uNFT |
-| borrowAmount | uint256 | The borrow amount |
-| borrowIndex | uint256 | The index to get the scaled loan amount |
-| params | struct DataTypes.ExecuteLiquidateLooksRareParams |  |
-
-### liquidateLoanOpensea
-
-```solidity
-function liquidateLoanOpensea(uint256 loanId, uint256 borrowAmount, uint256 borrowIndex) external
-```
-
-_Liquidate the given loan on Opensea
-
-Requirements:
- - The caller must send in principal + interest
- - The loan must be in state Auction_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| loanId | uint256 | The loan getting burned |
-| borrowAmount | uint256 |  |
-| borrowIndex | uint256 |  |
 
 ### liquidateLoanNFTX
 
@@ -6149,23 +5740,6 @@ already deposited enough collateral
 | onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
 | referralCode | uint16 | Code used to register the integrator originating the operation, for potential rewards.   0 if the action is executed directly by the user, without any middle-man |
 
-### batchBorrow
-
-```solidity
-function batchBorrow(address[] reserveAssets, uint256[] amounts, uint256[] punkIndexs, address onBehalfOf, uint16 referralCode) external
-```
-
-_Allows users to borrow a specific `amount` of multiple reserve underlying assets, provided that the borrower
-already deposited enough collateral_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| reserveAssets | address[] | The array of addresses of the underlying assets to borrow |
-| amounts | uint256[] | The array of amounts to be borrowed |
-| punkIndexs | uint256[] | The array of indexes of the CryptoPunks used as collateral |
-| onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
-| referralCode | uint16 | Code used to register the integrator originating the operation, for potential rewards.   0 if the action is executed directly by the user, without any middle-man |
-
 ### _withdrawPunk
 
 ```solidity
@@ -6190,24 +5764,6 @@ Repays a borrowed `amount` on a specific punk, burning the equivalent loan owned
 | ---- | ---- | ----------- |
 | [0] | uint256 | The final amount repaid, loan is burned or not |
 | [1] | bool |  |
-
-### batchRepay
-
-```solidity
-function batchRepay(uint256[] punkIndexs, uint256[] amounts) external returns (uint256[], bool[])
-```
-
-Repays multiple borrowed `amounts` on multiple punks, burning the equivalent loan owned for each one
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| punkIndexs | uint256[] | The array of indexs of the CryptoPunks used as collateral |
-| amounts | uint256[] | The array of amounts to repay |
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256[] | The final amount repaid, loan is burned or not |
-| [1] | bool[] |  |
 
 ### _repay
 
@@ -6253,33 +5809,6 @@ Redeem loan for a specific punk in auction
 | punkIndex | uint256 | The index of the CryptoPunk to redeem |
 | amount | uint256 | amount to pay for the redeem |
 
-### liquidateLooksRare
-
-```solidity
-function liquidateLooksRare(uint256 punkIndex, struct OrderTypes.TakerOrder takerAsk, struct OrderTypes.MakerOrder makerBid) external returns (uint256)
-```
-
-liquidate a unhealth punk loan on LooksRare
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| punkIndex | uint256 | The index of the CryptoPunk used as collateral |
-| takerAsk | struct OrderTypes.TakerOrder |  |
-| makerBid | struct OrderTypes.MakerOrder |  |
-
-### liquidateOpensea
-
-```solidity
-function liquidateOpensea(uint256 punkIndex, uint256 priceInEth) external returns (uint256)
-```
-
-liquidate a unhealth punk loan on Opensea
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| punkIndex | uint256 | The index of the CryptoPunk used as collateral |
-| priceInEth | uint256 |  |
-
 ### liquidateNFTX
 
 ```solidity
@@ -6310,22 +5839,6 @@ already deposited enough collateral
 | onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
 | referralCode | uint16 | Code used to register the integrator originating the operation, for potential rewards.   0 if the action is executed directly by the user, without any middle-man |
 
-### batchBorrowETH
-
-```solidity
-function batchBorrowETH(uint256[] amounts, uint256[] punkIndexs, address onBehalfOf, uint16 referralCode) external
-```
-
-_Allows users to borrow multiple `amounts` of multiple reserve underlying assets, provided that the borrower
-already deposited enough collateral_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| amounts | uint256[] | The array of amounts to be borrowed |
-| punkIndexs | uint256[] | The array of indexs of the CryptoPunks to deposit |
-| onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
-| referralCode | uint16 | Code used to register the integrator originating the operation, for potential rewards.   0 if the action is executed directly by the user, without any middle-man |
-
 ### repayETH
 
 ```solidity
@@ -6344,24 +5857,6 @@ Repays a borrowed `amount` on a specific punk with native ETH
 | ---- | ---- | ----------- |
 | [0] | uint256 | The final amount repaid, loan is burned or not |
 | [1] | bool |  |
-
-### batchRepayETH
-
-```solidity
-function batchRepayETH(uint256[] punkIndexs, uint256[] amounts) external payable returns (uint256[], bool[])
-```
-
-Repays multiple borrowed `amounts` on multiple punks with native ETH
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| punkIndexs | uint256[] | The indexs of the CryptoPunks to repay |
-| amounts | uint256[] | The amounts to repay |
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256[] | The final amounts repaid, loan is burned or not |
-| [1] | bool[] |  |
 
 ### _repayETH
 
@@ -7054,22 +6549,6 @@ _borrow WETH, unwraps to ETH and send both the ETH and DebtTokens to msg.sender,
 | onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
 | referralCode | uint16 | integrators are assigned a referral code and can potentially receive rewards |
 
-### batchBorrowETH
-
-```solidity
-function batchBorrowETH(uint256[] amounts, address[] nftAssets, uint256[] nftTokenIds, address onBehalfOf, uint16 referralCode) external
-```
-
-_borrows multiple amounts of WETH, unwraps to ETH and send both the ETH and DebtTokens to msg.sender, via `approveDelegation` and onBehalf argument in `LendPool.borrow`._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| amounts | uint256[] | the amount of ETH to borrow |
-| nftAssets | address[] | The array of addresses of the underlying NFTs used as collateral |
-| nftTokenIds | uint256[] | The array of token IDs of the underlying NFTs used as collateral |
-| onBehalfOf | address | Address of the user who will receive the loans. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
-| referralCode | uint16 | integrators are assigned a referral code and can potentially receive rewards |
-
 ### repayETH
 
 ```solidity
@@ -7083,20 +6562,6 @@ _repays a borrow on the WETH reserve, for the specified amount (or for the whole
 | nftAsset | address | The address of the underlying NFT used as collateral |
 | nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
 | amount | uint256 | the amount to repay, or uint256(-1) if the user wants to repay everything |
-
-### batchRepayETH
-
-```solidity
-function batchRepayETH(address[] nftAssets, uint256[] nftTokenIds, uint256[] amounts) external payable returns (uint256[], bool[])
-```
-
-_repays multiple borrows on the WETH reserves, for the specified amounts (or for the whole amounts, if uint256(-1) is specified)._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nftAssets | address[] | The array of addresses of the underlying NFTs used as collateral |
-| nftTokenIds | uint256[] | The token IDs of the underlying NFTs used as collateral |
-| amounts | uint256[] | the amounts to repay, or uint256(-1) if the user wants to repay everything |
 
 ### _repayETH
 
@@ -7139,35 +6604,6 @@ _redeems a borrow on the WETH reserve_
 | nftAsset | address | The address of the underlying NFT used as collateral |
 | nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
 | amount | uint256 | The amount to repay the debt |
-
-### liquidateLooksRare
-
-```solidity
-function liquidateLooksRare(address nftAsset, uint256 nftTokenId, struct OrderTypes.TakerOrder takerAsk, struct OrderTypes.MakerOrder makerBid) external returns (uint256)
-```
-
-_liquidates a borrow on the WETH reserve on LooksRare_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nftAsset | address | The address of the underlying NFT used as collateral |
-| nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
-| takerAsk | struct OrderTypes.TakerOrder |  |
-| makerBid | struct OrderTypes.MakerOrder |  |
-
-### liquidateOpensea
-
-```solidity
-function liquidateOpensea(address nftAsset, uint256 nftTokenId, uint256 priceInEth) external returns (uint256)
-```
-
-_liquidates a borrow on the WETH reserve on Opensea_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nftAsset | address | The address of the underlying NFT used as collateral |
-| nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
-| priceInEth | uint256 |  |
 
 ### liquidateNFTX
 
@@ -7296,22 +6732,6 @@ _Emits the `Borrow()` event._
 | nftsData | mapping(address &#x3D;&gt; struct DataTypes.NftData) | The state of all the nfts |
 | params | struct DataTypes.ExecuteBorrowParams | The additional parameters needed to execute the borrow function |
 
-### executeBatchBorrow
-
-```solidity
-function executeBatchBorrow(contract ILendPoolAddressesProvider addressesProvider, mapping(address => struct DataTypes.ReserveData) reservesData, mapping(address => struct DataTypes.NftData) nftsData, struct DataTypes.ExecuteBatchBorrowParams params) external
-```
-
-Implements the batch borrow feature. Through `batchBorrow()`, users repay borrow to the protocol.
-
-_Emits the `Borrow()` event._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| addressesProvider | contract ILendPoolAddressesProvider |  |
-| reservesData | mapping(address &#x3D;&gt; struct DataTypes.ReserveData) | The state of all the reserves |
-| nftsData | mapping(address &#x3D;&gt; struct DataTypes.NftData) | The state of all the nfts |
-| params | struct DataTypes.ExecuteBatchBorrowParams | The additional parameters needed to execute the batchBorrow function |
 
 ### _borrow
 
@@ -7361,22 +6781,6 @@ _Emits the `Repay()` event._
 | nftsData | mapping(address &#x3D;&gt; struct DataTypes.NftData) | The state of all the nfts |
 | params | struct DataTypes.ExecuteRepayParams | The additional parameters needed to execute the repay function |
 
-### executeBatchRepay
-
-```solidity
-function executeBatchRepay(contract ILendPoolAddressesProvider addressesProvider, mapping(address => struct DataTypes.ReserveData) reservesData, mapping(address => struct DataTypes.NftData) nftsData, struct DataTypes.ExecuteBatchRepayParams params) external returns (uint256[], bool[])
-```
-
-Implements the batch repay feature. Through `batchRepay()`, users repay assets to the protocol.
-
-_Emits the `repay()` event._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| addressesProvider | contract ILendPoolAddressesProvider |  |
-| reservesData | mapping(address &#x3D;&gt; struct DataTypes.ReserveData) | The state of all the reserves |
-| nftsData | mapping(address &#x3D;&gt; struct DataTypes.NftData) | The state of all the nfts |
-| params | struct DataTypes.ExecuteBatchRepayParams | The additional parameters needed to execute the batchRepay function |
 
 ### _repay
 
@@ -7802,42 +7206,6 @@ _Emitted when a borrower's loan is liquidated._
 | borrower | address |  |
 | loanId | uint256 | The loan ID of the NFT loans |
 
-### LiquidateLooksRare
-
-```solidity
-event LiquidateLooksRare(address reserve, uint256 repayAmount, uint256 remainAmount, address nftAsset, uint256 nftTokenId, address borrower, uint256 loanId)
-```
-
-_Emitted when a borrower's loan is liquidated on LooksRare._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| reserve | address | The address of the underlying asset of the reserve |
-| repayAmount | uint256 | The amount of reserve repaid by the liquidator |
-| remainAmount | uint256 | The amount of reserve received by the borrower |
-| nftAsset | address |  |
-| nftTokenId | uint256 |  |
-| borrower | address |  |
-| loanId | uint256 | The loan ID of the NFT loans |
-
-### LiquidateOpensea
-
-```solidity
-event LiquidateOpensea(address reserve, uint256 repayAmount, uint256 remainAmount, address nftAsset, uint256 nftTokenId, address borrower, uint256 loanId)
-```
-
-_Emitted when a borrower's loan is liquidated on Opensea._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| reserve | address | The address of the underlying asset of the reserve |
-| repayAmount | uint256 | The amount of reserve repaid by the liquidator |
-| remainAmount | uint256 | The amount of reserve received by the borrower |
-| nftAsset | address |  |
-| nftTokenId | uint256 |  |
-| borrower | address |  |
-| loanId | uint256 | The loan ID of the NFT loans |
-
 ### LiquidateNFTX
 
 ```solidity
@@ -7932,72 +7300,6 @@ _Emits the `Redeem()` event._
 | reservesData | mapping(address &#x3D;&gt; struct DataTypes.ReserveData) | The state of all the reserves |
 | nftsData | mapping(address &#x3D;&gt; struct DataTypes.NftData) | The state of all the nfts |
 | params | struct DataTypes.ExecuteRedeemParams | The additional parameters needed to execute the redeem function |
-
-### LiquidateLooksRareLocalVars
-
-```solidity
-struct LiquidateLooksRareLocalVars {
-  address poolLoan;
-  address reserveOracle;
-  address nftOracle;
-  uint256 loanId;
-  uint256 borrowAmount;
-  uint256 extraDebtAmount;
-  uint256 remainAmount;
-  uint256 auctionEndTimestamp;
-}
-```
-
-### executeLiquidateLooksRare
-
-```solidity
-function executeLiquidateLooksRare(contract ILendPoolAddressesProvider addressesProvider, mapping(address => struct DataTypes.ReserveData) reservesData, mapping(address => struct DataTypes.NftData) nftsData, struct DataTypes.ExecuteLiquidateLooksRareParams params) external returns (uint256)
-```
-
-Implements the liquidate feature on LooksRare. Through `liquidateLooksRare()`, users liquidate assets in the protocol.
-
-_Emits the `LiquidateLooksRare()` event._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| addressesProvider | contract ILendPoolAddressesProvider |  |
-| reservesData | mapping(address &#x3D;&gt; struct DataTypes.ReserveData) | The state of all the reserves |
-| nftsData | mapping(address &#x3D;&gt; struct DataTypes.NftData) | The state of all the nfts |
-| params | struct DataTypes.ExecuteLiquidateLooksRareParams | The additional parameters needed to execute the liquidate function |
-
-### LiquidateOpenseaLocalVars
-
-```solidity
-struct LiquidateOpenseaLocalVars {
-  address poolLoan;
-  address reserveOracle;
-  address nftOracle;
-  address liquidator;
-  uint256 loanId;
-  uint256 borrowAmount;
-  uint256 feeAmount;
-  uint256 extraDebtAmount;
-  uint256 remainAmount;
-  uint256 auctionEndTimestamp;
-}
-```
-
-### executeLiquidateOpensea
-
-```solidity
-function executeLiquidateOpensea(contract ILendPoolAddressesProvider addressesProvider, mapping(address => struct DataTypes.ReserveData) reservesData, mapping(address => struct DataTypes.NftData) nftsData, struct DataTypes.ExecuteLiquidateOpenseaParams params) external returns (uint256)
-```
-
-Implements the liquidate feature on Opensea. Through `liquidateOpensea()`, users liquidate assets in the protocol.
-
-_Emits the `LiquidateOpensea()` event._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| addressesProvider | contract ILendPoolAddressesProvider |  |
-| reservesData | mapping(address &#x3D;&gt; struct DataTypes.ReserveData) | The state of all the reserves |
-| nftsData | mapping(address &#x3D;&gt; struct DataTypes.NftData) | The state of all the nfts |
-| params | struct DataTypes.ExecuteLiquidateOpenseaParams | The additional parameters needed to execute the liquidate function |
 
 ### LiquidateNFTXLocalVars
 
@@ -8808,42 +8110,6 @@ _Emitted when a borrower's loan is liquidated._
 | borrower | address |  |
 | loanId | uint256 | The loan ID of the NFT loans |
 
-### LiquidateLooksRare
-
-```solidity
-event LiquidateLooksRare(address reserve, uint256 repayAmount, uint256 remainAmount, address nftAsset, uint256 nftTokenId, address borrower, uint256 loanId)
-```
-
-_Emitted when a borrower's loan is liquidated on LooksRare._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| reserve | address | The address of the underlying asset of the reserve |
-| repayAmount | uint256 | The amount of reserve repaid by the liquidator |
-| remainAmount | uint256 | The amount of reserve received by the borrower |
-| nftAsset | address |  |
-| nftTokenId | uint256 |  |
-| borrower | address |  |
-| loanId | uint256 | The loan ID of the NFT loans |
-
-### LiquidateOpensea
-
-```solidity
-event LiquidateOpensea(address reserve, uint256 repayAmount, uint256 remainAmount, address nftAsset, uint256 nftTokenId, address borrower, uint256 loanId)
-```
-
-_Emitted when a borrower's loan is liquidated on Opensea._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| reserve | address | The address of the underlying asset of the reserve |
-| repayAmount | uint256 | The amount of reserve repaid by the liquidator |
-| remainAmount | uint256 | The amount of reserve received by the borrower |
-| nftAsset | address |  |
-| nftTokenId | uint256 |  |
-| borrower | address |  |
-| loanId | uint256 | The loan ID of the NFT loans |
-
 ### LiquidateNFTX
 
 ```solidity
@@ -8952,23 +8218,6 @@ already deposited enough collateral
 | onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
 | referralCode | uint16 | Code used to register the integrator originating the operation, for potential rewards.   0 if the action is executed directly by the user, without any middle-man |
 
-### batchBorrow
-
-```solidity
-function batchBorrow(address[] assets, uint256[] amounts, address[] nftAssets, uint256[] nftTokenIds, address onBehalfOf, uint16 referralCode) external
-```
-
-_Allows users to borrow a specific `amount` of the reserve underlying asset array_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| assets | address[] | The array of addresses of the underlying asset to borrow |
-| amounts | uint256[] | The array of amounts to be borrowed |
-| nftAssets | address[] | The array of addresses of the underlying nft used as collateral |
-| nftTokenIds | uint256[] | The token ID of the underlying nft used as collateral |
-| onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral |
-| referralCode | uint16 | Code used to register the integrator originating the operation, for potential rewards.   0 if the action is executed directly by the user, without any middle-man |
-
 ### repay
 
 ```solidity
@@ -8988,20 +8237,6 @@ Repays a borrowed `amount` on a specific reserve, burning the equivalent loan ow
 | ---- | ---- | ----------- |
 | [0] | uint256 | The final amount repaid, loan is burned or not |
 | [1] | bool |  |
-
-### batchRepay
-
-```solidity
-function batchRepay(address[] nftAssets, uint256[] nftTokenIds, uint256[] amounts) external returns (uint256[], bool[])
-```
-
-Repays a borrowed `amounts` on a specific array of reserves, burning the equivalent loan owned
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nftAssets | address[] | The array of addresses of the underlying NFT used as collateral |
-| nftTokenIds | uint256[] | The array of token IDs of the underlying NFT used as collateral |
-| amounts | uint256[] | The array of amounts to repay |
 
 ### auction
 
@@ -9031,37 +8266,6 @@ Redeem a NFT loan which state is in Auction
 | nftAsset | address | The address of the underlying NFT used as collateral |
 | nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
 | amount | uint256 | The amount to repay the debt |
-
-### liquidateLooksRare
-
-```solidity
-function liquidateLooksRare(address nftAsset, uint256 nftTokenId, struct OrderTypes.TakerOrder takerAsk, struct OrderTypes.MakerOrder makerBid) external returns (uint256)
-```
-
-_Function to liquidate a non-healthy position collateral-wise
-- The collateral asset is sold on LooksRare_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nftAsset | address | The address of the underlying NFT used as collateral |
-| nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
-| takerAsk | struct OrderTypes.TakerOrder |  |
-| makerBid | struct OrderTypes.MakerOrder |  |
-
-### liquidateOpensea
-
-```solidity
-function liquidateOpensea(address nftAsset, uint256 nftTokenId, uint256 priceInEth) external returns (uint256)
-```
-
-_Function to liquidate a non-healthy position collateral-wise
-- The collateral asset is sold on Opensea_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nftAsset | address | The address of the underlying NFT used as collateral |
-| nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
-| priceInEth | uint256 |  |
 
 ### liquidateNFTX
 
@@ -9563,18 +8767,6 @@ event UnlockdDataProviderUpdated(address newAddress)
 event WalletBalanceProviderUpdated(address newAddress)
 ```
 
-### LooksRareExchangeUpdated
-
-```solidity
-event LooksRareExchangeUpdated(address newAddress)
-```
-
-### OpenseaSeaportUpdated
-
-```solidity
-event OpenseaSeaportUpdated(address newAddress)
-```
-
 ### NFTXVaultFactoryUpdated
 
 ```solidity
@@ -9953,46 +9145,6 @@ _sets the address of the wallet balance provider_
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | provider | address | the WalletBalanceProvider address |
-
-### getOpenseaSeaport
-
-```solidity
-function getOpenseaSeaport() external view returns (address)
-```
-
-_returns the address of the Seaport contract_
-
-### setOpenseaSeaport
-
-```solidity
-function setOpenseaSeaport(address exchange) external
-```
-
-_sets the address of the Seaport contract_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| exchange | address | the Seaport address |
-
-### getLooksRareExchange
-
-```solidity
-function getLooksRareExchange() external view returns (address)
-```
-
-_returns the address of the LooksRare exchange contract_
-
-### setLooksRareExchange
-
-```solidity
-function setLooksRareExchange(address exchange) external
-```
-
-_sets the address of the LooksRare contract_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| exchange | address | the LooksRare address |
 
 ### getNFTXVaultFactory
 
@@ -10507,22 +9659,6 @@ _Emitted when a loan is redeemed_
 | amountTaken | uint256 |  |
 | borrowIndex | uint256 |  |
 
-### LoanLiquidatedLooksRare
-
-```solidity
-event LoanLiquidatedLooksRare(uint256 loanId, address nftAsset, uint256 nftTokenId, address reserveAsset, uint256 amount, uint256 borrowIndex, uint256 sellPrice)
-```
-
-_Emitted when a loan is liquidate on LooksRare_
-
-### LoanLiquidatedOpensea
-
-```solidity
-event LoanLiquidatedOpensea(uint256 loanId, address nftAsset, uint256 nftTokenId, address reserveAsset, uint256 amount, uint256 borrowIndex)
-```
-
-_Emitted when a loan is liquidate on Opensea_
-
 ### LoanLiquidatedNFTX
 
 ```solidity
@@ -10635,44 +9771,6 @@ Requirements:
 | uNftAddress | address |  |
 | amountTaken | uint256 | The taken amount |
 | borrowIndex | uint256 | The index to get the scaled loan amount |
-
-### liquidateLoanLooksRare
-
-```solidity
-function liquidateLoanLooksRare(uint256 loanId, address uNftAddress, uint256 borrowAmount, uint256 borrowIndex, struct DataTypes.ExecuteLiquidateLooksRareParams params) external returns (uint256 sellPrice)
-```
-
-_Liquidate the given loan on LooksRare
-
-Requirements:
- - The caller must send in principal + interest
- - The loan must be in state Auction_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| loanId | uint256 | The loan getting burned |
-| uNftAddress | address | The address of uNFT |
-| borrowAmount | uint256 | The borrow amount |
-| borrowIndex | uint256 | The index to get the scaled loan amount |
-| params | struct DataTypes.ExecuteLiquidateLooksRareParams |  |
-
-### liquidateLoanOpensea
-
-```solidity
-function liquidateLoanOpensea(uint256 loanId, uint256 borrowAmount, uint256 borrowIndex) external
-```
-
-_Liquidate the given loan on Opensea
-
-Requirements:
- - The caller must send in principal + interest
- - The loan must be in state Auction_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| loanId | uint256 | The loan getting burned |
-| borrowAmount | uint256 |  |
-| borrowIndex | uint256 |  |
 
 ### liquidateLoanNFTX
 
@@ -10926,23 +10024,6 @@ already deposited enough collateral
 | onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
 | referralCode | uint16 | Code used to register the integrator originating the operation, for potential rewards.   0 if the action is executed directly by the user, without any middle-man |
 
-### batchBorrow
-
-```solidity
-function batchBorrow(address[] reserveAssets, uint256[] amounts, uint256[] punkIndexs, address onBehalfOf, uint16 referralCode) external
-```
-
-_Allows users to borrow a specific `amount` of multiple reserve underlying assets, provided that the borrower
-already deposited enough collateral_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| reserveAssets | address[] | The array of addresses of the underlying assets to borrow |
-| amounts | uint256[] | The array of amounts to be borrowed |
-| punkIndexs | uint256[] | The array of indexes of the CryptoPunks used as collateral |
-| onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
-| referralCode | uint16 | Code used to register the integrator originating the operation, for potential rewards.   0 if the action is executed directly by the user, without any middle-man |
-
 ### repay
 
 ```solidity
@@ -10961,24 +10042,6 @@ Repays a borrowed `amount` on a specific punk, burning the equivalent loan owned
 | ---- | ---- | ----------- |
 | [0] | uint256 | The final amount repaid, loan is burned or not |
 | [1] | bool |  |
-
-### batchRepay
-
-```solidity
-function batchRepay(uint256[] punkIndexs, uint256[] amounts) external returns (uint256[], bool[])
-```
-
-Repays multiple borrowed `amounts` on multiple punks, burning the equivalent loan owned for each one
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| punkIndexs | uint256[] | The array of indexs of the CryptoPunks used as collateral |
-| amounts | uint256[] | The array of amounts to repay |
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256[] | The final amount repaid, loan is burned or not |
-| [1] | bool[] |  |
 
 ### auction
 
@@ -11004,33 +10067,6 @@ redeem a unhealth punk loan with ERC20 reserve
 | ---- | ---- | ----------- |
 | punkIndex | uint256 | The index of the CryptoPunk used as collateral |
 | amount | uint256 | The amount to repay the debt |
-
-### liquidateLooksRare
-
-```solidity
-function liquidateLooksRare(uint256 punkIndex, struct OrderTypes.TakerOrder takerAsk, struct OrderTypes.MakerOrder makerBid) external returns (uint256)
-```
-
-liquidate a unhealth punk loan on LooksRare
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| punkIndex | uint256 | The index of the CryptoPunk used as collateral |
-| takerAsk | struct OrderTypes.TakerOrder |  |
-| makerBid | struct OrderTypes.MakerOrder |  |
-
-### liquidateOpensea
-
-```solidity
-function liquidateOpensea(uint256 punkIndex, uint256 priceInEth) external returns (uint256)
-```
-
-liquidate a unhealth punk loan on Opensea
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| punkIndex | uint256 | The index of the CryptoPunk used as collateral |
-| priceInEth | uint256 |  |
 
 ### liquidateNFTX
 
@@ -11062,22 +10098,6 @@ already deposited enough collateral
 | onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
 | referralCode | uint16 | Code used to register the integrator originating the operation, for potential rewards.   0 if the action is executed directly by the user, without any middle-man |
 
-### batchBorrowETH
-
-```solidity
-function batchBorrowETH(uint256[] amounts, uint256[] punkIndexs, address onBehalfOf, uint16 referralCode) external
-```
-
-_Allows users to borrow multiple `amounts` of multiple reserve underlying assets, provided that the borrower
-already deposited enough collateral_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| amounts | uint256[] | The array of amounts to be borrowed |
-| punkIndexs | uint256[] | The array of indexs of the CryptoPunks to deposit |
-| onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
-| referralCode | uint16 | Code used to register the integrator originating the operation, for potential rewards.   0 if the action is executed directly by the user, without any middle-man |
-
 ### repayETH
 
 ```solidity
@@ -11096,24 +10116,6 @@ Repays a borrowed `amount` on a specific punk with native ETH
 | ---- | ---- | ----------- |
 | [0] | uint256 | The final amount repaid, loan is burned or not |
 | [1] | bool |  |
-
-### batchRepayETH
-
-```solidity
-function batchRepayETH(uint256[] punkIndexs, uint256[] amounts) external payable returns (uint256[], bool[])
-```
-
-Repays multiple borrowed `amounts` on multiple punks with native ETH
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| punkIndexs | uint256[] | The indexs of the CryptoPunks to repay |
-| amounts | uint256[] | The amounts to repay |
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256[] | The final amounts repaid, loan is burned or not |
-| [1] | bool[] |  |
 
 ### redeemETH
 
@@ -12102,22 +11104,6 @@ _borrow WETH, unwraps to ETH and send both the ETH and DebtTokens to msg.sender,
 | onBehalfOf | address | Address of the user who will receive the loan. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
 | referralCode | uint16 | integrators are assigned a referral code and can potentially receive rewards |
 
-### batchBorrowETH
-
-```solidity
-function batchBorrowETH(uint256[] amounts, address[] nftAssets, uint256[] nftTokenIds, address onBehalfOf, uint16 referralCode) external
-```
-
-_borrows multiple amounts of WETH, unwraps to ETH and send both the ETH and DebtTokens to msg.sender, via `approveDelegation` and onBehalf argument in `LendPool.borrow`._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| amounts | uint256[] | the amount of ETH to borrow |
-| nftAssets | address[] | The array of addresses of the underlying NFTs used as collateral |
-| nftTokenIds | uint256[] | The array of token IDs of the underlying NFTs used as collateral |
-| onBehalfOf | address | Address of the user who will receive the loans. Should be the address of the borrower itself calling the function if he wants to borrow against his own collateral, or the address of the credit delegator if he has been given credit delegation allowance |
-| referralCode | uint16 | integrators are assigned a referral code and can potentially receive rewards |
-
 ### repayETH
 
 ```solidity
@@ -12131,20 +11117,6 @@ _repays a borrow on the WETH reserve, for the specified amount (or for the whole
 | nftAsset | address | The address of the underlying NFT used as collateral |
 | nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
 | amount | uint256 | the amount to repay, or uint256(-1) if the user wants to repay everything |
-
-### batchRepayETH
-
-```solidity
-function batchRepayETH(address[] nftAssets, uint256[] nftTokenIds, uint256[] amounts) external payable returns (uint256[], bool[])
-```
-
-_repays multiple borrows on the WETH reserves, for the specified amounts (or for the whole amounts, if uint256(-1) is specified)._
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nftAssets | address[] | The array of addresses of the underlying NFTs used as collateral |
-| nftTokenIds | uint256[] | The token IDs of the underlying NFTs used as collateral |
-| amounts | uint256[] | the amounts to repay, or uint256(-1) if the user wants to repay everything |
 
 ### auction
 
@@ -12172,35 +11144,6 @@ _redeems a borrow on the WETH reserve_
 | nftAsset | address | The address of the underlying NFT used as collateral |
 | nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
 | amount | uint256 | The amount to repay the debt |
-
-### liquidateLooksRare
-
-```solidity
-function liquidateLooksRare(address nftAsset, uint256 nftTokenId, struct OrderTypes.TakerOrder takerAsk, struct OrderTypes.MakerOrder makerBid) external returns (uint256)
-```
-
-_liquidates a borrow on the WETH reserve on LooksRare_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nftAsset | address | The address of the underlying NFT used as collateral |
-| nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
-| takerAsk | struct OrderTypes.TakerOrder |  |
-| makerBid | struct OrderTypes.MakerOrder |  |
-
-### liquidateOpensea
-
-```solidity
-function liquidateOpensea(address nftAsset, uint256 nftTokenId, uint256 priceInEth) external returns (uint256)
-```
-
-_liquidates a borrow on the WETH reserve on Opensea_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nftAsset | address | The address of the underlying NFT used as collateral |
-| nftTokenId | uint256 | The token ID of the underlying NFT used as collateral |
-| priceInEth | uint256 |  |
 
 ### liquidateNFTX
 
@@ -12275,9 +11218,6 @@ _Gets the proxy address_
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | user | address | the user address |
-## ISeaportInterface
-
-_https://github.com/ProjectOpenSea/seaport/blob/main/contracts/interfaces/SeaportInterface.sol_
 
 ### cancel
 
@@ -13361,9 +12301,6 @@ _Gets the configuration flags of the reserve from a memory object_
 
 ## **Types**
 ## OrderTypes
-
-_https://github.com/LooksRare/contracts-exchange-v1/blob/master/contracts/libraries/OrderTypes.sol_
-
 ### MakerOrder
 
 ```solidity
@@ -13560,20 +12497,6 @@ struct ExecuteBorrowParams {
 }
 ```
 
-### ExecuteBatchBorrowParams
-
-```solidity
-struct ExecuteBatchBorrowParams {
-  address initiator;
-  address[] assets;
-  uint256[] amounts;
-  address[] nftAssets;
-  uint256[] nftTokenIds;
-  address onBehalfOf;
-  uint16 referralCode;
-}
-```
-
 ### ExecuteRepayParams
 
 ```solidity
@@ -13582,17 +12505,6 @@ struct ExecuteRepayParams {
   address nftAsset;
   uint256 nftTokenId;
   uint256 amount;
-}
-```
-
-### ExecuteBatchRepayParams
-
-```solidity
-struct ExecuteBatchRepayParams {
-  address initiator;
-  address[] nftAssets;
-  uint256[] nftTokenIds;
-  uint256[] amounts;
 }
 ```
 
@@ -13624,28 +12536,6 @@ struct ExecuteLiquidateParams {
   address nftAsset;
   uint256 nftTokenId;
   uint256 amount;
-}
-```
-
-### ExecuteLiquidateLooksRareParams
-
-```solidity
-struct ExecuteLiquidateLooksRareParams {
-  address nftAsset;
-  uint256 nftTokenId;
-  struct OrderTypes.TakerOrder takerAsk;
-  struct OrderTypes.MakerOrder makerBid;
-}
-```
-
-### ExecuteLiquidateOpenseaParams
-
-```solidity
-struct ExecuteLiquidateOpenseaParams {
-  address nftAsset;
-  uint256 nftTokenId;
-  uint256 priceInEth;
-  uint256 liquidateFeePercentage;
 }
 ```
 

@@ -51,7 +51,7 @@ task("full:deploy-address-provider", "Deploy address provider for full enviromen
     await waitForTx(await addressesProvider.setPoolAdmin(await getGenesisPoolAdmin(poolConfig)));
     await waitForTx(await addressesProvider.setEmergencyAdmin(await getEmergencyAdmin(poolConfig)));
     await waitForTx(await addressesProvider.setLendPoolLiquidator(await getLendPoolLiquidator(poolConfig)));
-    await waitForTx(await addressesProvider.setLtvManager(await getLtvManager(poolConfig)));
+    //await waitForTx(await addressesProvider.setLtvManager(await getLtvManager(poolConfig)));
     await waitForTx(await addressesProvider.setSushiSwapRouter(sushiRouter.address));
     await waitForTx(await addressesProvider.setNFTXVaultFactory(nftx.address));
     await waitForTx(await addressesProvider.setUnlockdDataProvider(dataProvider.address));

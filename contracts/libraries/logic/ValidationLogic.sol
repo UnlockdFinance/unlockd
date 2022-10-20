@@ -11,6 +11,7 @@ import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
 import {IInterestRate} from "../../interfaces/IInterestRate.sol";
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
+import {ILendPool} from "../../interfaces/ILendPool.sol";
 
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
@@ -94,7 +95,7 @@ library ValidationLogic {
   ) external view {
     ValidateBorrowLocalVars memory vars;
     require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
-    require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
+    require(nftData.uNftAddress != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
     require(params.amount > 0, Errors.VL_INVALID_AMOUNT);
 
     if (loanId != 0) {
@@ -121,6 +122,11 @@ library ValidationLogic {
     (vars.nftIsActive, vars.nftIsFrozen) = nftConfig.getFlags();
     require(vars.nftIsActive, Errors.VL_NO_ACTIVE_NFT);
     require(!vars.nftIsFrozen, Errors.VL_NFT_FROZEN);
+
+    require(
+      (nftConfig.getConfigTimestamp() + ILendPool(address(this)).getTimeframe()) <= block.timestamp,
+      Errors.VL_TIMEFRAME_EXCEEDED
+    );
 
     (vars.currentLtv, vars.currentLiquidationThreshold, ) = nftConfig.getCollateralParams();
 
@@ -163,7 +169,7 @@ library ValidationLogic {
     uint256 amountSent,
     uint256 borrowAmount
   ) external view {
-    require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
+    require(nftData.uNftAddress != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
     require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
@@ -195,7 +201,7 @@ library ValidationLogic {
     DataTypes.LoanData memory loanData,
     uint256 bidPrice
   ) internal view {
-    require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
+    require(nftData.uNftAddress != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
     require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
@@ -227,7 +233,7 @@ library ValidationLogic {
     DataTypes.LoanData memory loanData,
     uint256 amount
   ) external view {
-    require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
+    require(nftData.uNftAddress != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
     require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
@@ -256,7 +262,7 @@ library ValidationLogic {
     DataTypes.NftConfigurationMap storage nftConfig,
     DataTypes.LoanData memory loanData
   ) internal view {
-    require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
+    require(nftData.uNftAddress != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
     require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
@@ -283,7 +289,7 @@ library ValidationLogic {
     DataTypes.NftConfigurationMap storage nftConfig,
     DataTypes.LoanData memory loanData
   ) internal view {
-    require(nftData.uNftAddress != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
+    require(nftData.uNftAddress != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
     require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
     require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);

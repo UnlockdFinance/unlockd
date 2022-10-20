@@ -147,6 +147,7 @@ contract UnlockdProtocolDataProvider {
     uint256 minBidFine;
     bool isActive;
     bool isFrozen;
+    uint256 configTimestamp;
   }
 
   /**
@@ -196,6 +197,7 @@ contract UnlockdProtocolDataProvider {
     (configData.isActive, configData.isFrozen) = configuration.getFlagsMemory();
 
     (configData.minBidFine) = configuration.getMinBidFineMemory();
+    (configData.configTimestamp) = configuration.getConfigTimestampMemory();
   }
 
   /**

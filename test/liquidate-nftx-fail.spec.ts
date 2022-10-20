@@ -65,7 +65,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
 
     await pool
       .connect(borrower.signer)
-      .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", borrower.address, "0", 0);
+      .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", borrower.address, "0");
 
     const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "101");
 
@@ -134,9 +134,10 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
   });
 
   it("WETH - Can't liquidate on NFTX", async () => {
-    const { weth, bayc, users, pool, dataProvider, liquidator } = testEnv;
+    const { weth, bayc, users, pool, dataProvider, liquidator, configurator } = testEnv;
     const borrower = users[1];
 
+    await configurator.setAllowToSellNFTX(bayc.address, true);
     const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
 
     const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, "101");
@@ -193,7 +194,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
 
     await pool
       .connect(borrower.signer)
-      .borrow(usdc.address, amountBorrow.toString(), bayc.address, "102", borrower.address, "0", 0);
+      .borrow(usdc.address, amountBorrow.toString(), bayc.address, "102", borrower.address, "0");
 
     const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "102");
 
@@ -299,9 +300,10 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
   });
 
   it("USDC - Can't liquidate on NFTX", async () => {
-    const { usdc, bayc, users, pool, dataProvider, liquidator } = testEnv;
+    const { usdc, bayc, users, pool, dataProvider, liquidator, configurator } = testEnv;
     const borrower = users[1];
 
+    await configurator.setAllowToSellNFTX(bayc.address, true);
     const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
 
     const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, "102");

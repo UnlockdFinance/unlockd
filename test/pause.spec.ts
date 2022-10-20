@@ -116,9 +116,9 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     await configurator.connect(emergencyAdminSigner).setPoolPause(true);
 
     // Try to execute liquidation
-    await expect(
-      pool.connect(user.signer).borrow(dai.address, "1", bayc.address, "1", user.address, "0", 0)
-    ).revertedWith(ProtocolErrors.LP_IS_PAUSED);
+    await expect(pool.connect(user.signer).borrow(dai.address, "1", bayc.address, "1", user.address, "0")).revertedWith(
+      ProtocolErrors.LP_IS_PAUSED
+    );
 
     // Unpause the pool
     await configurator.connect(emergencyAdminSigner).setPoolPause(false);
@@ -175,7 +175,7 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
 
     await pool
       .connect(borrower.signer)
-      .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", borrower.address, "0", 0);
+      .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", borrower.address, "0");
 
     // Drops HF below 1
     const baycPrice = await nftOracle.getNFTPrice(bayc.address, "101");
@@ -242,7 +242,7 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
 
     await pool
       .connect(borrower.signer)
-      .borrow(weth.address, amountBorrow.toString(), bayc.address, "102", borrower.address, "0", 0);
+      .borrow(weth.address, amountBorrow.toString(), bayc.address, "102", borrower.address, "0");
 
     // Drops HF below 1
     const baycPrice = await nftOracle.getNFTPrice(bayc.address, 102);

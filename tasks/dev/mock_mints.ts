@@ -2,6 +2,7 @@ import { task } from "hardhat/config";
 import { eNetwork, eContractid } from "../../helpers/types";
 import {
   getCryptoPunksMarket,
+  getCustomERC721,
   getDeploySigner,
   getMintableERC20,
   getMintableERC721,
@@ -15,6 +16,24 @@ import {
   getParamPerNetwork,
 } from "../../helpers/contracts-helpers";
 import { waitForTx } from "../../helpers/misc-utils";
+
+task("dev:mint-mock-bayc", "Mint mock nfts for dev enviroment")
+  .addParam("amount", "NFT Amount (<=10)")
+  .addParam("user", "Targe user address")
+  .setAction(async ({ amount, user }, DRE) => {
+    await DRE.run("set-DRE");
+    const network = <eNetwork>DRE.network.name;
+    if (network.includes("main")) {
+      throw new Error("Mint mock not used at mainnet configuration.");
+    }
+
+    // BAYC
+    const baycAddress = await getContractAddressInDb("BAYC");
+    const bayc = await getCustomERC721(baycAddress);
+    console.log("Total amount to mint BAYC:", amount);
+    await waitForTx(await bayc.mint(user, amount));
+    console.log("BAYC Balances:", (await bayc.balanceOf(user)).toString());
+  });
 
 task("dev:mint-mock-nfts", "Mint mock nfts for dev enviroment")
   .addParam("index", "NFT Index of start")
@@ -57,7 +76,6 @@ task("dev:mint-mock-nfts", "Mint mock nfts for dev enviroment")
     for (let tokenIndex = Number(index); tokenIndex < Number(index) + Number(amount); tokenIndex++) {
       console.log("Mint BAYC:", tokenIndex);
       await waitForTx(await bayc.mint(tokenIndex));
-      await waitForTx(await bayc["safeTransferFrom(address,address,uint256)"](deployerAddress, user, tokenIndex));
     }
     console.log("BAYC Balances:", (await bayc.balanceOf(user)).toString());
   });

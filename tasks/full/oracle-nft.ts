@@ -10,6 +10,7 @@ import {
   getUnlockdUpgradeableProxy,
   getUnlockdProxyAdminById,
   getAllMockedNfts,
+  getDeploySigner,
 } from "../../helpers/contracts-getters";
 import { NFTOracle, UnlockdUpgradeableProxy } from "../../types";
 import { addAssetsInNFTOraclewithSigner, setPricesInNFTOracleWithSigner } from "../../helpers/oracles-helpers";
@@ -28,13 +29,13 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
       const { NftsAssets, NFTXVaultFactory, SushiSwapRouter } = poolConfig as ICommonConfiguration;
 
       const nftOracleAddress = getParamPerNetwork(poolConfig.NFTOracle, network);
+      const addressesProvider = await getLendPoolAddressesProvider();
 
       if (skipOracle) {
         if (nftOracleAddress == undefined || !notFalsyOrZeroAddress(nftOracleAddress)) {
           throw Error("Invalid NFT Oracle address in pool config");
         }
         console.log("Reuse existed nft oracle proxy:", nftOracleAddress);
-        const addressesProvider = await getLendPoolAddressesProvider();
         await waitForTx(await addressesProvider.setNFTOracle(nftOracleAddress));
         return;
       }
@@ -65,11 +66,14 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
         throw Error("Invalid SushiSwap Router address in config");
       }
 
+      const lendpoolConfigurator = await addressesProvider.getLendPoolConfigurator();
+
       const nftOracleImpl = await deployNFTOracle(verify);
       const initEncodedData = nftOracleImpl.interface.encodeFunctionData("initialize", [
         feedAdmin,
         nftxVaultFactory,
         sushiSwapRouter,
+        lendpoolConfigurator,
       ]);
 
       let nftOracle: NFTOracle;
@@ -90,7 +94,7 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
         nftOracle = await getNFTOracle(nftOracleProxy.address);
       } else {
         console.log("Deploying new nft oracle proxy & implementation...");
-
+        console.log("oracle data", initEncodedData);
         nftOracleProxy = await deployUnlockdUpgradeableProxy(
           eContractid.NFTOracle,
           proxyAdmin.address,
@@ -100,6 +104,8 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
         );
 
         nftOracle = await getNFTOracle(nftOracleProxy.address);
+
+        await nftOracle.setPriceManagerStatus(lendpoolConfigurator, true);
 
         const mockNfts = await getAllMockedNfts();
 
@@ -131,13 +137,13 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
         const oracleOwnerSigner = DRE.ethers.provider.getSigner(oracleOwnerAddress);
         // await waitForTx(await nftOracle.connect(oracleOwnerSigner).setCollections(tokens));
         await addAssetsInNFTOraclewithSigner(allNftAddresses, nftOracle, oracleOwnerSigner);
-        await setPricesInNFTOracleWithSigner(
-          allNftPrices,
-          allNftAddresses,
-          allNftMaxSupply,
-          nftOracle,
-          oracleOwnerSigner
-        );
+        // await setPricesInNFTOracleWithSigner(
+        //   allNftPrices,
+        //   allNftAddresses,
+        //   allNftMaxSupply,
+        //   nftOracle,
+        //   oracleOwnerSigner
+        // );
       }
 
       // Register the proxy oracle on the addressesProvider

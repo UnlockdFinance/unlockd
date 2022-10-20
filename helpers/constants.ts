@@ -46,7 +46,6 @@ export const MOCK_RESERVE_AGGREGATORS_PRICES = {
 };
 
 //Price source: https://nftpricefloor.com/
-//Price source: https://opensea.io/
 export const MOCK_NFT_AGGREGATORS_PRICES = {
   WPUNKS: oneEther.multipliedBy("66.99").toFixed(),
   BAYC: oneEther.multipliedBy("52.77").toFixed(),

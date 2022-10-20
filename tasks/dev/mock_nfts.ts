@@ -18,7 +18,7 @@ task("dev:deploy-mock-nfts", "Deploy mock nfts for dev enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")
   .setAction(async ({ verify }, localBRE) => {
     await localBRE.run("set-DRE");
-    await deployAllMockNfts(verify);
+    await deployAllMockNfts(verify, false);
   });
 
 task("dev:add-mock-nfts", "Add mock nfts for dev enviroment")
