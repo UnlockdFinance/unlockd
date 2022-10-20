@@ -99,15 +99,15 @@
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "GenericLogic": {
-    "address": "0x7cAa4c8D0E322695F438e742F978CfF71925ec38",
+    "address": "0x8C5A33BC04d331786a10AF8396a32cE2968a28fb",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "ReserveLogic": {
-    "address": "0xE8742b7DEA1D35f85a19092539C09dD11CeCE894",
+    "address": "0x5352ab83074020DEDcB4A7198E80802228b297e6",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "NftLogic": {
-    "address": "0xec41e0f2A91126a2a24424D9DFA2949260fCb1AB",
+    "address": "0x915371d976594791f5C36DD55919626DC5657142",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "ValidationLogic": {

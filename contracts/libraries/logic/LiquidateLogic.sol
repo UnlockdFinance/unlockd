@@ -564,7 +564,7 @@ library LiquidateLogic {
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
     DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
 
-    require(isAllowedToSell[loanData.nftAsset] == true, Errors.LP_NFT_NOT_ALLOWED_TO_SELL);
+    require(isAllowedToSell[loanData.nftAsset], Errors.LP_NFT_NOT_ALLOWED_TO_SELL);
     ValidationLogic.validateLiquidateNFTX(reserveData, nftData, nftConfig, loanData);
 
     // Check for health factor
