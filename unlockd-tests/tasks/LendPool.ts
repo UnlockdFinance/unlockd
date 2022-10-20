@@ -79,7 +79,8 @@ task("lendpool:deposit", "User Deposits {amount} {reserve} in an empty reserve")
     const tokenContract = MockContracts['WETH'];
 
     await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount);
-    await Functions.LENDPOOL.deposit(wallet, tokenContract.address, amount, to);
+    const tx = await Functions.LENDPOOL.deposit(wallet, tokenContract.address, amount, to);
+    console.log(tx);
 }); 
 
 //Withdrawing funds from the pool
