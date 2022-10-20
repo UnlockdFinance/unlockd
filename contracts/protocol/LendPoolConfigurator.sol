@@ -571,6 +571,24 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   }
 
   /**
+   * @dev Allows and address to be sold on NFTX
+   * @param nftAsset the address of the NFT
+   **/
+  function setAllowToSellNFTX(address nftAsset, bool val) external onlyPoolAdmin {
+    ILendPool cachedPool = _getLendPool();
+    cachedPool.setAllowToSellNFTX(nftAsset, val);
+  }
+
+  /**
+   * @dev Sets configFee amount to be charged for ConfigureNFTAsColleteral
+   * @param configFee the number of seconds for the timeframe
+   **/
+  function setConfigFee(uint256 configFee) external onlyPoolAdmin {
+    ILendPool cachedPool = _getLendPool();
+    cachedPool.setConfigFee(configFee);
+  }
+
+  /**
    * @dev pauses or unpauses all the actions of the protocol, including uToken transfers
    * @param val true if protocol needs to be paused, false otherwise
    **/

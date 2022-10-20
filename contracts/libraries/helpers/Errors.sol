@@ -76,6 +76,7 @@ library Errors {
   string public constant LP_CONSECUTIVE_BIDS_NOT_ALLOWED = "420";
   string public constant LP_INVALID_OVERFLOW_VALUE = "421";
   string public constant LP_CALLER_NOT_NFT_HOLDER = "422";
+  string public constant LP_NFT_NOT_ALLOWED_TO_SELL = "423";
 
   //lend pool loan errors
   string public constant LPL_INVALID_LOAN_STATE = "480";

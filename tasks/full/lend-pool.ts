@@ -41,7 +41,7 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       }
       const unftRegistryProxy = await getUNFTRegistryProxy(unftRegistryAddress);
       console.log("Setting UNFTRegistry to address provider...");
-      //await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
+      await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
 
       // Reserves Init & NFTs Init need IncentivesController
       const incentivesControllerAddress = getParamPerNetwork(poolConfig.IncentivesController, network);
@@ -50,7 +50,7 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
         throw Error("Invalid IncentivesController address in pool config");
       }
       console.log("Setting IncentivesController to address provider...");
-      //await waitForTx(await addressesProvider.setIncentivesController(incentivesControllerAddress));
+      await waitForTx(await addressesProvider.setIncentivesController(incentivesControllerAddress));
 
       //////////////////////////////////////////////////////////////////////////
       console.log("Deploying new libraries implementation...");
@@ -68,38 +68,38 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
 
       await insertContractAddressInDb(eContractid.LendPool, lendPoolProxy.address);
 
+      ////////////////////////////////////////////////////////////////////////
+      //Reuse/deploy lend pool loan
+      console.log("Deploying new loan implementation...");
+      const lendPoolLoanImpl = await deployLendPoolLoan(verify);
+      console.log("Setting lend pool loan implementation with address:", lendPoolLoanImpl.address);
+      //Set lend pool conf impl to Address Provider
+      await waitForTx(await addressesProvider.setLendPoolLoanImpl(lendPoolLoanImpl.address, []));
+
+      const lendPoolLoanProxy = await getLendPoolLoanProxy(await addressesProvider.getLendPoolLoan());
+
+      await insertContractAddressInDb(eContractid.LendPoolLoan, lendPoolLoanProxy.address);
+
       //////////////////////////////////////////////////////////////////////////
-      // Reuse/deploy lend pool loan
-      //console.log("Deploying new loan implementation...");
-      //const lendPoolLoanImpl = await deployLendPoolLoan(verify);
-      //console.log("Setting lend pool loan implementation with address:", lendPoolLoanImpl.address);
+      //Reuse/deploy lend pool configurator
+      console.log("Deploying new configurator implementation...");
+      const lendPoolConfiguratorImpl = await deployLendPoolConfigurator(verify);
+      console.log("Setting lend pool configurator implementation with address:", lendPoolConfiguratorImpl.address);
       // Set lend pool conf impl to Address Provider
-      //await waitForTx(await addressesProvider.setLendPoolLoanImpl(lendPoolLoanImpl.address, []));
+      await waitForTx(await addressesProvider.setLendPoolConfiguratorImpl(lendPoolConfiguratorImpl.address, []));
 
-      //const lendPoolLoanProxy = await getLendPoolLoanProxy(await addressesProvider.getLendPoolLoan());
+      const lendPoolConfiguratorProxy = await getLendPoolConfiguratorProxy(
+        await addressesProvider.getLendPoolConfigurator()
+      );
 
-      //await insertContractAddressInDb(eContractid.LendPoolLoan, lendPoolLoanProxy.address);
+      await insertContractAddressInDb(eContractid.LendPoolConfigurator, lendPoolConfiguratorProxy.address);
 
-      // //////////////////////////////////////////////////////////////////////////
-      // Reuse/deploy lend pool configurator
-      // console.log("Deploying new configurator implementation...");
-      // const lendPoolConfiguratorImpl = await deployLendPoolConfigurator(verify);
-      // console.log("Setting lend pool configurator implementation with address:", lendPoolConfiguratorImpl.address);
-      // // Set lend pool conf impl to Address Provider
-      // await waitForTx(await addressesProvider.setLendPoolConfiguratorImpl(lendPoolConfiguratorImpl.address, []));
-
-      // const lendPoolConfiguratorProxy = await getLendPoolConfiguratorProxy(
-      //   await addressesProvider.getLendPoolConfigurator()
-      // );
-
-      // await insertContractAddressInDb(eContractid.LendPoolConfigurator, lendPoolConfiguratorProxy.address);
-
-      //////////////////////////////////////////////////////////////////////////
-      // const admin = await DRE.ethers.getSigner(await getEmergencyAdmin(poolConfig));
-      // // Pause market during deployment
-      // await waitForTx(await lendPoolConfiguratorProxy.connect(admin).setPoolPause(true));
-      // // Generic UToken & DebtToken Implementation in Pool
-      // await deployUTokenImplementations(pool, poolConfig.ReservesConfig, verify);
+      ////////////////////////////////////////////////////////////////////////
+      const admin = await DRE.ethers.getSigner(await getEmergencyAdmin(poolConfig));
+      // Pause market during deployment
+      await waitForTx(await lendPoolConfiguratorProxy.connect(admin).setPoolPause(true));
+      // Generic UToken & DebtToken Implementation in Pool
+      await deployUTokenImplementations(pool, poolConfig.ReservesConfig, verify);
 
       // Generic UNFT Implementation in UNFT step, not here
       //await deployUNFTImplementations(pool, poolConfig.NftsConfig, verify);

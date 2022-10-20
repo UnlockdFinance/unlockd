@@ -70,19 +70,19 @@ task("lendpool:getNftConfiguration", "Get the NFT Struct with the configuration"
 
 //Deposit funds to the pool
 task("lendpool:deposit", "User Deposits {amount} {reserve} in an empty reserve")
-.addParam("amount", "Reserve amount") 
+.addParam("amount", "Reserve amount in WEI") 
 .addParam("reserve", "The reserve")  //must be set to 'DAI' or 'USDC' or 'WETH'
 .addParam("to", "Who will receive the interest bearing tokens")
 .addParam("walletnumber", "the wallet number in ur .env from 2 to 5 otherwise it's default userWallet")
 .setAction( async ({amount, reserve, to, walletnumber}) => {
     const wallet = await getWalletByNumber(walletnumber);  
-    let tokenContract; 
-    reserve == 'USDC' ?  
-        amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString())
+    const tokenContract = MockContracts[reserve];
+    // reserve == 'USDC' ?  
+    //     amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString());
     
-    tokenContract = MockContracts[reserve];
-     
-    await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount)  
+    await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount);
+    console.log("approved");
+    console.log("wallet address:", wallet.address);
     await Functions.LENDPOOL.deposit(wallet, tokenContract.address, amount, to);
 }); 
 

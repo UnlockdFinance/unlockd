@@ -68,7 +68,9 @@ contract LendPool is
 
   bytes32 public constant ADDRESS_ID_WETH_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000001;
   bytes32 public constant ADDRESS_ID_PUNK_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000002;
-  uint256 internal _configFee; // todo: move this for the storage
+  uint256 internal _configFee; // todo: move this to the storage
+  mapping(address => bool) public _isAllowedToSell; // todo: move this to the storage
+
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
    * Calling a `nonReentrant` function from another `nonReentrant`
@@ -384,6 +386,7 @@ contract LendPool is
         _reserves,
         _nfts,
         _nftConfig,
+        _isAllowedToSell,
         DataTypes.ExecuteLiquidateNFTXParams({
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
@@ -866,6 +869,21 @@ contract LendPool is
    **/
   function getTimeframe() external view override returns (uint256) {
     return _timeframe;
+  }
+
+  /**
+   * @dev Allows and address to be sold on NFTX
+   * @param nftAsset the address of the NFT
+   **/
+  function setAllowToSellNFTX(address nftAsset, bool val) external override onlyLendPoolConfigurator {
+    _isAllowedToSell[nftAsset] = val;
+  }
+
+  /**
+   * @dev Returns the max timeframe between NFT config triggers and borrows
+   **/
+  function getAllowToSellNFTX(address nftAsset) external view override returns (bool) {
+    return _isAllowedToSell[nftAsset];
   }
 
   /**

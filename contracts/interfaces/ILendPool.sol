@@ -669,6 +669,13 @@ interface ILendPool {
   function setTimeframe(uint256 timeframe) external;
 
   /**
+   * @dev Adds and address to be allowed to sell on NFTX
+   * @param nftAsset the nft address of the NFT to sell
+   * @param val if true is allowed to sell if false is not
+   **/
+  function setAllowToSellNFTX(address nftAsset, bool val) external;
+
+  /**
    * @dev sets the fee for configuringNFTAsCollateral
    * @param configFee the amount to charge to the user
    **/
@@ -704,4 +711,9 @@ interface ILendPool {
    * @dev Returns the configFee amount
    **/
   function getConfigFee() external view returns (uint256);
+
+  /**
+   * @dev Returns if the address is allowed to sell or not on NFTX
+   */
+  function getAllowToSellNFTX(address nftAsset) external view returns (bool);
 }

@@ -134,9 +134,10 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
   });
 
   it("WETH - Can't liquidate on NFTX", async () => {
-    const { weth, bayc, users, pool, dataProvider, liquidator } = testEnv;
+    const { weth, bayc, users, pool, dataProvider, liquidator, configurator } = testEnv;
     const borrower = users[1];
 
+    await configurator.setAllowToSellNFTX(bayc.address, true);
     const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
 
     const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, "101");
@@ -299,9 +300,10 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
   });
 
   it("USDC - Can't liquidate on NFTX", async () => {
-    const { usdc, bayc, users, pool, dataProvider, liquidator } = testEnv;
+    const { usdc, bayc, users, pool, dataProvider, liquidator, configurator } = testEnv;
     const borrower = users[1];
 
+    await configurator.setAllowToSellNFTX(bayc.address, true);
     const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
 
     const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, "102");

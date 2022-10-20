@@ -61,8 +61,8 @@ task("unlockd:mainnet", "Deploy full enviroment")
     //await DRE.run("full:deploy-address-provider", { pool: POOL_NAME, skipRegistry: skipRegistry, verify: verify });
 
     // //////////////////////////////////////////////////////////////////////////
-    //console.log("\n\nDeploy lend pool");
-    //await DRE.run("full:deploy-lend-pool", { pool: POOL_NAME, verify: verify });
+    console.log("\n\nDeploy lend pool");
+    await DRE.run("full:deploy-lend-pool", { pool: POOL_NAME, verify: verify });
 
     // console.log("\n\nDeploy reserve oracle");
     // await DRE.run("full:deploy-oracle-reserve", { pool: POOL_NAME, skipOracle,verify: verify });

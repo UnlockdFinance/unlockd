@@ -545,6 +545,7 @@ library LiquidateLogic {
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
+    mapping(address => bool) storage isAllowedToSell,
     DataTypes.ExecuteLiquidateNFTXParams memory params
   ) external returns (uint256) {
     LiquidateNFTXLocalVars memory vars;
@@ -563,6 +564,7 @@ library LiquidateLogic {
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
     DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
 
+    require(isAllowedToSell[loanData.nftAsset] == true, Errors.LP_NFT_NOT_ALLOWED_TO_SELL);
     ValidationLogic.validateLiquidateNFTX(reserveData, nftData, nftConfig, loanData);
 
     // Check for health factor
