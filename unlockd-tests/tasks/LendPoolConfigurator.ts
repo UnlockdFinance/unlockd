@@ -6,6 +6,16 @@ import { getMnemonicEmergencyWallet, getOwnerWallet } from "../helpers/config";
  * This file will use the LendPoolConfigurator 
  * for full reference check the ILendPoolConfigurator.sol
 */
+task("configurator:setAllowToSellNFTX", "Enables or disables borrowing on each reserve")
+.addParam("nftasset", "NFT addresses") 
+.addParam("val", "A boolean, true to enable ; false to disable") 
+.setAction( async ({nftasset, val }) => {
+    const wallet = await getOwnerWallet();  
+
+    const tx = await Functions.LENDPOOLCONFIGURATOR.setAllowToSellNFTX(wallet, nftasset, val)
+    console.log(tx);
+}); 
+
 
 task("configurator:setBorrowingFlagOnReserve", "Enables or disables borrowing on each reserve")
 .addParam("asset", "NFT addresses") 

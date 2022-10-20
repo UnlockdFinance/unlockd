@@ -401,6 +401,10 @@ const mintNFTX = async (wallet: Wallet, token: Contract, tokenIds: string[], amo
 
 //#region LendPoolConfigurator for any doubts in the parameters 
 // check the LendPoolConfigurator.sol or ILendPoolconfigurator.sol     
+const setAllowToSellNFTX = async (wallet: Wallet, nftAsset: string, val: boolean) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setAllowToSellNFTX(nftAsset, val);
+}
+
 const setBorrowingFlagOnReserve = async (wallet:Wallet, asset: string, flag: boolean) => {
     return await Contracts.lendPoolConfigurator.connect(wallet).setBorrowingFlagOnReserve(asset, flag);
 }
@@ -666,6 +670,7 @@ export const Functions = {
         setPoolPause: setPoolPause,
         setLtvManagerStatus: setLtvManagerStatus,
         getTokenImplementation: getTokenImplementation,
+        setAllowToSellNFTX: setAllowToSellNFTX,
     },
     NFTXFACTORY: {
         vaultsForAsset: vaultsForAsset,
