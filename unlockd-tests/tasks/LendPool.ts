@@ -91,9 +91,9 @@ task("lendpool:withdraw", "User 0 Withdraws {amount} {reserve} from the reserves
 .addParam("walletnumber", "the wallet number in ur .env from 2 to 5 otherwise it's default userWallet")
 .setAction( async ({amount, reserve, to, walletnumber}) => {
     const wallet = await getWalletByNumber(walletnumber);  
-    const tokenContract = MockContracts[reserve];
-    reserve == 'USDC' ? 
-        amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString())    
+    const tokenContract = MockContracts['WETH'];
+    // reserve == 'USDC' ? 
+    //     amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString())    
     
     await Functions.LENDPOOL.withdraw(wallet, tokenContract.address, amount, to);
 });  
