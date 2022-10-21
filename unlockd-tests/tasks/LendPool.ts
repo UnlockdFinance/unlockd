@@ -5,6 +5,22 @@ import {  Contracts, MockContracts } from "../helpers/constants";
 import { parseUnits } from "@ethersproject/units";
 
 
+task("lendpool:getTimeframe", "Gets the list of NFTs in the reserves")
+.setAction( async () => {
+    const wallet = await getUserWallet();  
+
+    const tx = await Functions.LENDPOOL.getTimeframe(wallet)
+    console.log(tx);
+});
+
+task("lendpool:getConfigFee", "Gets the list of NFTs in the reserves")
+.setAction( async () => {
+    const wallet = await getUserWallet();  
+
+    const tx = await Functions.LENDPOOL.getConfigFee(wallet)
+    console.log(tx);
+});
+
 task("lendpool:getNftConfigByTokenId", "Get the NFT Configuration")
   .addParam("nftaddress", "The asset address")
   .addParam("nfttokenid", "The tokenId of the asset")

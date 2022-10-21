@@ -50,6 +50,15 @@ const isApprovedNft = async(wallet: Wallet, collection: Contract, owner: string,
 //#endregion 
  
 //#region  LendPool 
+
+const getTimeframe = async (wallet:Wallet) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).getTimeframe();
+}
+
+const getConfigFee = async (wallet:Wallet) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).getConfigFee();
+}
+
 const getNftConfigByTokenId = async (wallet: Wallet, nftAddress: string, nftTokenId: number) => {
     return await Contracts.lendPool.connect(wallet).getNftConfigByTokenId(nftAddress, nftTokenId);
 }
@@ -146,6 +155,7 @@ const liquidateNFTX = async (wallet: Wallet, nftAsset: string, nftTokenId: numbe
     return await Contracts.lendPool.connect(wallet).liquidateNFTX(nftAsset, nftTokenId, {gasLimit: gasPrice.toFixed(0)});
 }
 //#endregion
+
 //#region WETHGateway
 const depositETH = async (wallet: Wallet, amount: number, onBehalfOf: string) => {
     return await Contracts.wethGateway.connect(wallet).depositETH(onBehalfOf, 0, {value: amount});
@@ -169,6 +179,7 @@ const borrowETH = async (wallet: Wallet, amount: BigNumber, nftAsset: string,
         onBehalfOf, 0, nftConfigFee, {gasLimit: gasPrice.toFixed(0)});
 }
 //#endregion
+
 //#region Lendpool loan
 const getLoanIdTracker = async (wallet: Wallet) => {
     return await Contracts.lendPoolLoan.connect(wallet).getLoanIdTracker();
@@ -400,7 +411,15 @@ const mintNFTX = async (wallet: Wallet, token: Contract, tokenIds: string[], amo
 //#endregion
 
 //#region LendPoolConfigurator for any doubts in the parameters 
-// check the LendPoolConfigurator.sol or ILendPoolconfigurator.sol     
+// check the LendPoolConfigurator.sol or ILendPoolconfigurator.sol    
+const setTimeframe = async (wallet: Wallet, newTimeframe: string) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setTimeframe(newTimeframe);
+}
+
+const setConfigFee = async (wallet: Wallet, configFee: BigNumber) => {
+    return await Contracts.lendPoolConfigurator.connect(wallet).setConfigFee(configFee);
+}
+
 const setAllowToSellNFTX = async (wallet: Wallet, nftAsset: string, val: boolean) => {
     return await Contracts.lendPoolConfigurator.connect(wallet).setAllowToSellNFTX(nftAsset, val);
 }
@@ -561,6 +580,8 @@ export const Functions = {
         isApprovedNft: isApprovedNft,
     },
     LENDPOOL: {
+        getConfigFee: getConfigFee,
+        getTimeframe: getTimeframe,
         getNftConfigByTokenId: getNftConfigByTokenId,
         liquidateNFTX: liquidateNFTX,
         getReserveConfiguration: getReserveConfiguration,
@@ -652,6 +673,8 @@ export const Functions = {
         getUNFTAddresses: getUNFTAddresses,
     },
     LENDPOOLCONFIGURATOR: {
+        setConfigFee: setConfigFee,
+        setTimeframe: setTimeframe,
         setActiveFlagOnNft: setActiveFlagOnNft,
         configureNftAsCollateral: configureNftAsCollateral,
         setBorrowingFlagOnReserve: setBorrowingFlagOnReserve,
