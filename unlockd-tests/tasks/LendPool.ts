@@ -4,6 +4,15 @@ import { getOwnerWallet, getUserWallet, getWalletByNumber } from "../helpers/con
 import {  Contracts, MockContracts } from "../helpers/constants";
 import { parseUnits } from "@ethersproject/units";
 
+task("lendpool:triggerUserCollateral", "Triggers the NFT Configuration ConfigureNFTAsCollateral")
+  .addParam("nftaddress", "The asset address")
+  .addParam("nfttokenid", "The tokenId of the asset")
+  .setAction(async ({ nftaddress, nfttokenid }) => {
+    const wallet = await getUserWallet();
+    const tx = await Functions.LENDPOOL.triggerUserCollateral(wallet, nftaddress, nfttokenid);
+    console.log(tx);
+  }
+);
 
 task("lendpool:getTimeframe", "Gets the list of NFTs in the reserves")
 .setAction( async () => {

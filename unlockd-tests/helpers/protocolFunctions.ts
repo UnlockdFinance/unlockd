@@ -51,6 +51,10 @@ const isApprovedNft = async(wallet: Wallet, collection: Contract, owner: string,
  
 //#region  LendPool 
 
+const triggerUserCollateral = async (wallet: Wallet, nftAsset: string, nftTokenId: string) => {
+    return await Contracts.lendPool.connect(wallet).triggerUserCollateral(nftAsset, nftTokenId, { value: 1000000000000000 });
+}
+
 const getTimeframe = async (wallet:Wallet) => {
     return await Contracts.lendPoolConfigurator.connect(wallet).getTimeframe();
 }
@@ -580,6 +584,7 @@ export const Functions = {
         isApprovedNft: isApprovedNft,
     },
     LENDPOOL: {
+        triggerUserCollateral: triggerUserCollateral,
         getConfigFee: getConfigFee,
         getTimeframe: getTimeframe,
         getNftConfigByTokenId: getNftConfigByTokenId,

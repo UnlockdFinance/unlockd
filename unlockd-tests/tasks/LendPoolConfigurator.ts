@@ -6,6 +6,15 @@ import { getMnemonicEmergencyWallet, getOwnerWallet } from "../helpers/config";
  * This file will use the LendPoolConfigurator 
  * for full reference check the ILendPoolConfigurator.sol
 */
+task("configurator:setTimeframe", "Set the config fee for the User to pay when TriggerUser is called")
+.addParam("newtimeframe", "Set the configFee") 
+.setAction( async ({ newtimeframe }) => {
+    const wallet = await getOwnerWallet();  
+
+    const tx = await Functions.LENDPOOLCONFIGURATOR.setTimeframe(wallet, newtimeframe);
+    console.log(tx);
+});
+
 task("configurator:setConfigFee", "Set the config fee for the User to pay when TriggerUser is called")
 .addParam("configfee", "Set the configFee") 
 .setAction( async ({configfee}) => {
