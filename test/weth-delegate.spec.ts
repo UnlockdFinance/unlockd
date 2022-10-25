@@ -126,16 +126,6 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     const ethBalanceBefore = await borrower.signer.getBalance();
 
-    const price = await convertToCurrencyDecimals(weth.address, "5");
-    await configurator.setLtvManagerStatus(deployer.address, true);
-    await nftOracle.setPriceManagerStatus(bayc.address, true);
-
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, "101", price, 4000, 7000, 100, 1, 2, 25, true, false);
-
-    await configurator.setTimeframe(3600);
-
     console.log("Borrow first ETH with NFT");
     await waitForTx(
       await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, nftAsset, tokenId, borrower.address, "0")

@@ -112,12 +112,13 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
         .toFixed(0)
     );
 
+    const price = amountBorrow.mul(3);
     await configurator.setLtvManagerStatus(deployer.address, true);
-    await nftOracle.setPriceManagerStatus(configurator.address, true);
+    await nftOracle.setPriceManagerStatus(nftAsset, true);
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(nftAsset, tokenId, +amountBorrow * 5, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(nftAsset, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
 
     await configurator.setTimeframe(3600);
 

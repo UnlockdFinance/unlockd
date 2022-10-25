@@ -27,7 +27,7 @@ import {
   repay,
 } from "./helpers/actions";
 import { increaseTime, waitForTx } from "../helpers/misc-utils";
-import { convertToCurrencyUnits } from "../helpers/contracts-helpers";
+import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
 
 const { expect } = require("chai");
 
@@ -66,7 +66,7 @@ makeSuite("Subgraph tests", async (testEnv) => {
   });
 
   it("borrow-repay", async () => {
-    const { users } = testEnv;
+    const { users, deployer, weth, nftOracle, configurator, bayc } = testEnv;
     const borrower = users[1];
 
     await mintERC20(testEnv, borrower, "WETH", "100");
@@ -77,6 +77,17 @@ makeSuite("Subgraph tests", async (testEnv) => {
     await mintERC721(testEnv, borrower, "BAYC", tokenId);
 
     await setApprovalForAll(testEnv, borrower, "BAYC");
+
+    const price = await convertToCurrencyDecimals(weth.address, "50");
+
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.setTimeframe(3600);
 
     await borrow(testEnv, borrower, "WETH", "5", "BAYC", tokenId, borrower.address, "365", "success", "");
 
@@ -94,7 +105,7 @@ makeSuite("Subgraph tests", async (testEnv) => {
   });
 
   it("borrow-auction-redeem", async () => {
-    const { users, pool, weth, bayc } = testEnv;
+    const { users, pool, weth, bayc, deployer, configurator, nftOracle } = testEnv;
     const borrower = users[1];
     const liquidator = users[2];
 
@@ -103,6 +114,17 @@ makeSuite("Subgraph tests", async (testEnv) => {
     await mintERC721(testEnv, borrower, "BAYC", tokenId);
 
     await setApprovalForAll(testEnv, borrower, "BAYC");
+
+    const price = await convertToCurrencyDecimals(weth.address, "50");
+
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.setTimeframe(3600);
 
     await borrow(testEnv, borrower, "WETH", "10", "BAYC", tokenId, borrower.address, "365", "success", "");
 
@@ -128,7 +150,7 @@ makeSuite("Subgraph tests", async (testEnv) => {
   });
 
   it("borrow-auction-liquidate", async () => {
-    const { users, pool, weth } = testEnv;
+    const { users, pool, weth, deployer, configurator, nftOracle, bayc } = testEnv;
     const borrower = users[1];
     const liquidator = users[2];
 
@@ -139,6 +161,17 @@ makeSuite("Subgraph tests", async (testEnv) => {
     await mintERC721(testEnv, borrower, "BAYC", tokenId);
 
     await setApprovalForAll(testEnv, borrower, "BAYC");
+
+    const price = await convertToCurrencyDecimals(weth.address, "50");
+
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.setTimeframe(3600);
 
     await borrow(testEnv, borrower, "WETH", "10", "BAYC", tokenId, borrower.address, "365", "success", "");
 
