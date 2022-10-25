@@ -17,6 +17,7 @@ import { getLoanData, getNftAddressFromSymbol } from "./helpers/utils/helpers";
 import { NETWORKS_DEFAULT_GAS } from "../helper-hardhat-config";
 import { getDebtToken } from "../helpers/contracts-getters";
 import { advanceTimeAndBlock, sleep, waitForTx } from "../helpers/misc-utils";
+import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 
 const chai = require("chai");
 const { expect } = chai;
@@ -86,7 +87,8 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
   });
 
   it("Borrower try to Borrow more ETH to different onBehalf (should revert)", async () => {
-    const { users, wethGateway, pool, loan, weth, uWETH, bayc, dataProvider } = testEnv;
+    const { users, wethGateway, pool, loan, weth, uWETH, bayc, dataProvider, configurator, deployer, nftOracle } =
+      testEnv;
     const depositor = users[0];
     const borrower = users[1];
     const hacker = users[2];
@@ -123,6 +125,16 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
     };
 
     const ethBalanceBefore = await borrower.signer.getBalance();
+
+    const price = await convertToCurrencyDecimals(weth.address, "5");
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(bayc.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, "101", price, 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.setTimeframe(3600);
 
     console.log("Borrow first ETH with NFT");
     await waitForTx(

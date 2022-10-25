@@ -91,6 +91,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
+    await configurator.setTimeframe(3600);
 
     await configurator
       .connect(deployer.signer)

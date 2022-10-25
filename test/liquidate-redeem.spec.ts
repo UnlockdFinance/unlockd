@@ -28,7 +28,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
   });
 
   it("WETH - Borrows WETH", async () => {
-    const { users, pool, reserveOracle, weth, bayc, configurator, dataProvider } = testEnv;
+    const { users, pool, reserveOracle, weth, bayc, configurator, deployer, nftOracle } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
 
@@ -62,6 +62,17 @@ makeSuite("LendPool: Redeem", (testEnv) => {
         .toFixed(0)
     );
 
+    const price = await convertToCurrencyDecimals(weth.address, "50");
+
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, "101", price, 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.setTimeframe(3600);
+
     await pool
       .connect(borrower.signer)
       .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", borrower.address, "0");
@@ -75,8 +86,10 @@ makeSuite("LendPool: Redeem", (testEnv) => {
   });
 
   it("WETH - Drop the health factor below 1", async () => {
-    const { weth, bayc, users, pool } = testEnv;
+    const { weth, bayc, users, pool, configurator, nftOracle } = testEnv;
     const borrower = users[1];
+
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
 
     const nftDebtDataBefore = await pool.getNftDebtData(bayc.address, "101");
 

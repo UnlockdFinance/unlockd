@@ -134,7 +134,7 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
   });
 
   it("Borrow WETH and Full Repay with ETH", async () => {
-    const { users, wethGateway, pool, loan, uWETH, bayc, dataProvider, configurator, deployer, nftOracle } = testEnv;
+    const { users, wethGateway, pool, weth, uWETH, bayc, dataProvider, configurator, deployer, nftOracle } = testEnv;
     const depositor = users[0];
     const user = users[1];
     const borrowSize = parseEther("1");
@@ -162,12 +162,15 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
       return BN.from(loan.currentAmount.toFixed(0));
     };
 
+    const price = await convertToCurrencyDecimals(weth.address, "5");
     await configurator.setLtvManagerStatus(deployer.address, true);
-    await nftOracle.setPriceManagerStatus(configurator.address, true);
+    await nftOracle.setPriceManagerStatus(nftAsset, true);
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(nftAsset, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.setTimeframe(3600);
 
     // Borrow with NFT
     await borrow(testEnv, user, "WETH", "1", "BAYC", tokenId, user.address, "365", "success", "");
@@ -202,7 +205,7 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
   });
 
   it("Borrow ETH and Full Repay with ETH", async () => {
-    const { users, wethGateway, pool, loan, weth, uWETH, bayc, dataProvider } = testEnv;
+    const { users, wethGateway, pool, configurator, nftOracle, deployer, weth, uWETH, bayc, dataProvider } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
     const borrowSize1 = parseEther("1");
@@ -238,6 +241,16 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
 
       return BN.from(loan.currentAmount.toFixed(0));
     };
+
+    const price = repaySize.mul(5);
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(nftAsset, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(nftAsset, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.setTimeframe(3600);
 
     const ethBalanceBefore = await borrower.signer.getBalance();
 

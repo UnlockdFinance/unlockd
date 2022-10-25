@@ -112,14 +112,14 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
         .toFixed(0)
     );
 
-    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
-    await configurator.connect(deployer.signer).setTimeframe(360000);
-    await pool.connect(user.signer).triggerUserCollateral(nftAsset, tokenId);
-    await waitForTx(
-      await configurator
-        .connect(deployer.signer)
-        .configureNftAsCollateral(nftAsset, tokenId, "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false)
-    );
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(nftAsset, tokenId, +amountBorrow * 5, 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.setTimeframe(3600);
 
     // Borrow with NFT
     console.log("borrowETH:", amountBorrow);
