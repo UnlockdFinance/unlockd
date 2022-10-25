@@ -59,7 +59,7 @@ makeSuite("DataProvider", (testEnv) => {
     await waitForTx(
       await configurator
         .connect(deployer.signer)
-        .configureNftAsCollateral(bayc.address, "101", "7000", 4000, 7000, 500, 1, 2, 25, true, false)
+        .configureNftAsCollateral(bayc.address, "101", "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false)
     );
 
     await pool

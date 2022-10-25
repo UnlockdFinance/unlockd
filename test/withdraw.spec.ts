@@ -142,11 +142,14 @@ makeSuite("LendPool: Withdraw", (testEnv: TestEnv) => {
 
     await setApprovalForAll(testEnv, user1, "BAYC");
 
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
     await pool.connect(user1.signer).triggerUserCollateral(bayc.address, "101");
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, "101", "7000", 4000, 7000, 500, 1, 2, 25, true, false);
+    await waitForTx(
+      await configurator
+        .connect(deployer.signer)
+        .configureNftAsCollateral(bayc.address, "101", "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false)
+    );
 
     await borrow(testEnv, user1, "WETH", "0.01", "BAYC", "101", user1.address, "", "success", "");
 

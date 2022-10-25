@@ -4,7 +4,7 @@ import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { ProtocolErrors } from "../helpers/types";
 import { strategyNftClassB } from "../markets/unlockd/nftsConfigs";
 import { BigNumberish, BigNumber } from "ethers";
-import { timeLatest } from "../helpers/misc-utils";
+import { timeLatest, waitForTx } from "../helpers/misc-utils";
 import { timeStamp } from "console";
 
 const { expect } = require("chai");
@@ -333,7 +333,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   });
 
   it("Reverts when trying to disable the BAYC nft with liquidity on it", async () => {
-    const { weth, bayc, pool, configurator } = testEnv;
+    const { weth, bayc, pool, configurator, deployer } = testEnv;
     const userAddress = await pool.signer.getAddress();
 
     await weth.mint(await convertToCurrencyDecimals(weth.address, "10"));
@@ -345,6 +345,14 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const tokenId = testEnv.tokenIdTracker++;
     await bayc.mint(tokenId);
     await bayc.setApprovalForAll(pool.address, true);
+
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+    await configurator.connect(deployer.signer).setTimeframe(360000);
+    await waitForTx(
+      await configurator
+        .connect(deployer.signer)
+        .configureNftAsCollateral(bayc.address, tokenId, "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false)
+    );
 
     const amountToBorrow = await convertToCurrencyDecimals(weth.address, "1");
     await pool.borrow(weth.address, amountToBorrow, bayc.address, tokenId, userAddress, "0");

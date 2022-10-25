@@ -53,7 +53,8 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
   });
 
   it("Hacker try to delegate different onBehalf (should revert)", async () => {
-    const { users, wethGateway, pool, loan, weth, uWETH, bayc, dataProvider } = testEnv;
+    const { users, wethGateway, pool, loan, weth, uWETH, bayc, dataProvider, configurator, nftOracle, deployer } =
+      testEnv;
     const depositor = users[0];
     const borrower = users[1];
     const liquidator = users[1];
@@ -70,6 +71,13 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
     const nftAsset = await getNftAddressFromSymbol("BAYC");
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
+
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
 
     console.log("borrowETH");
     await expect(

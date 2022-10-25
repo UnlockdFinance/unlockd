@@ -57,7 +57,20 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
   });
 
   it("Borrow ETH and Liquidate it", async () => {
-    const { users, wethGateway, pool, loan, reserveOracle, nftOracle, weth, uWETH, bayc, dataProvider } = testEnv;
+    const {
+      users,
+      wethGateway,
+      pool,
+      loan,
+      reserveOracle,
+      nftOracle,
+      weth,
+      uWETH,
+      bayc,
+      dataProvider,
+      configurator,
+      deployer,
+    } = testEnv;
     const depositor = users[0];
     const user = users[1];
     const user3 = users[3];
@@ -97,6 +110,15 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
         .div(wethPrice.toString())
         .multipliedBy(0.95)
         .toFixed(0)
+    );
+
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+    await configurator.connect(deployer.signer).setTimeframe(360000);
+    await pool.connect(user.signer).triggerUserCollateral(nftAsset, tokenId);
+    await waitForTx(
+      await configurator
+        .connect(deployer.signer)
+        .configureNftAsCollateral(nftAsset, tokenId, "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false)
     );
 
     // Borrow with NFT
@@ -250,6 +272,8 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
       uBAYC,
       dataProvider,
       liquidator,
+      deployer,
+      configurator,
     } = testEnv;
     const depositor = users[0];
     const user = users[1];
@@ -284,6 +308,15 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
         .div(wethPrice.toString())
         .multipliedBy(0.95)
         .toFixed(0)
+    );
+
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+    await configurator.connect(deployer.signer).setTimeframe(360000);
+    await pool.connect(user.signer).triggerUserCollateral(nftAsset, tokenId);
+    await waitForTx(
+      await configurator
+        .connect(deployer.signer)
+        .configureNftAsCollateral(nftAsset, tokenId, "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false)
     );
 
     // Borrow with NFT

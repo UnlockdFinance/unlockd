@@ -61,7 +61,7 @@ makeSuite("LendPool: Withdraw negative test cases", (testEnv: TestEnv) => {
   });
 
   it("Users 1 borrows 100 DAI, users 0 tries to withdraw the 1000 DAI deposited (revert expected)", async () => {
-    const { users } = testEnv;
+    const { users, configurator, deployer, bayc, pool } = testEnv;
     const user0 = users[0];
     const user1 = users[1];
 
@@ -71,13 +71,20 @@ makeSuite("LendPool: Withdraw negative test cases", (testEnv: TestEnv) => {
 
     await setApprovalForAll(testEnv, user1, "BAYC");
 
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+    await configurator.connect(deployer.signer).setTimeframe(360000);
+    await pool.connect(user1.signer).triggerUserCollateral(bayc.address, tokenId);
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false);
+
     await borrow(testEnv, user1, "DAI", "100", "BAYC", tokenId, user1.address, "", "success", "");
 
     await withdraw(testEnv, user0, "DAI", "1000", "revert", "User cannot withdraw more than the available balance");
   });
 
   it("Users 1 deposits 1 WETH, users 0 borrows 0.01 WETH, users 1 tries to withdraw the 1 WETH deposited (revert expected)", async () => {
-    const { users } = testEnv;
+    const { users, configurator, pool, deployer, bayc } = testEnv;
     const user0 = users[0];
     const user1 = users[1];
 
@@ -93,6 +100,13 @@ makeSuite("LendPool: Withdraw negative test cases", (testEnv: TestEnv) => {
     await mintERC721(testEnv, user0, "BAYC", tokenId);
 
     await setApprovalForAll(testEnv, user0, "BAYC");
+
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+    await configurator.connect(deployer.signer).setTimeframe(360000);
+    await pool.connect(user0.signer).triggerUserCollateral(bayc.address, tokenId);
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false);
 
     await borrow(testEnv, user0, "WETH", "0.01", "BAYC", tokenId, user0.address, "", "success", "");
 

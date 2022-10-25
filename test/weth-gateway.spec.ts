@@ -134,7 +134,7 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
   });
 
   it("Borrow WETH and Full Repay with ETH", async () => {
-    const { users, wethGateway, pool, loan, uWETH, bayc, dataProvider } = testEnv;
+    const { users, wethGateway, pool, loan, uWETH, bayc, dataProvider, configurator, deployer, nftOracle } = testEnv;
     const depositor = users[0];
     const user = users[1];
     const borrowSize = parseEther("1");
@@ -161,6 +161,13 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
 
       return BN.from(loan.currentAmount.toFixed(0));
     };
+
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
 
     // Borrow with NFT
     await borrow(testEnv, user, "WETH", "1", "BAYC", tokenId, user.address, "365", "success", "");
