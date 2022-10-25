@@ -10,7 +10,7 @@ task("lendpool:triggerUserCollateral", "Triggers the NFT Configuration Configure
   .setAction(async ({ nftaddress, nfttokenid }) => {
     const wallet = await getUserWallet();
     const tx = await Functions.LENDPOOL.triggerUserCollateral(wallet, nftaddress, nfttokenid);
-    console.log(tx);
+    console.log(await tx.wait());
   }
 );
 

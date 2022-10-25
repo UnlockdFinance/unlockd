@@ -9,15 +9,11 @@ import { getMintableERC20 } from "../../helpers/contracts-getters";
 // are working properly.
 // the user addresses are random from a wallet just to improve simulation
 
-var amounts = [10000, 15000, 20000, 10000, 30000]; 
+var amounts = [10000000000000000]; 
 const reserves = ["WETH"];
-const reservesAddresses = ["0xba8E26A7ea78c628331baFD32eB0C77047F2cBCa", "0x103a065B2c676123dF6EdDbf41e06d361Dd15905"];
+const reservesAddresses = ["0xba8E26A7ea78c628331baFD32eB0C77047F2cBCa"];
 const userAddresses = [
-    "0x94aBa23b9Bbfe7bb62A9eB8b1215D72b5f6F33a1",
-    "0x429796dAc057E7C15724196367007F1e9Cff82F9",
-    "0xb9C0467b04224a7940D198EE1C8578Aa18fcfCA6",
-    "0xa2440E27b00f59520c473652b16786B18639518E",
-    "0xAf441B4b092ef6c932957E19876940a72EdEE702"
+    "0x94aBa23b9Bbfe7bb62A9eB8b1215D72b5f6F33a1"
 ];
 const nftAssets = ["0x39F14ED58de5955b85EF0832aD9bBa009202f0EB"];
 const nftNames = ["BAYC"];
@@ -31,8 +27,8 @@ const activeState = "true";
 const freezeState = "false";
 
 let tokenIds;
-let i = 0; // wallets; amounts, nfts and userAddresses 
-let j = 0; // reserves
+let i = 1; // wallets; amounts, nfts and userAddresses 
+let j = 1; // reserves
 let k = 0; // nfts
 let a = 1; // just counts iterations
 let b = 0; // tokenIds
@@ -48,21 +44,9 @@ task("bot:runtests", "Runs a set of configures tests.").setAction(
         ///////////////////////////////////////////////////////////////////////////////////////
         // Variables 
         var n = i + 1; // for user wallet numbers
-        switch (n) { // each user should change the numbers to their own NFT TokenIds. WE ARE ONLY USING BAYC ATM!!! each number is a dif wallet
+        switch (1) { // each user should change the numbers to their own NFT TokenIds. WE ARE ONLY USING BAYC ATM!!! each number is a dif wallet
             case 1:
-                tokenIds = [230, 201, 202, 203, 201];
-                break;
-            case 2:
-                tokenIds = [205, 206, 207, 208, 209];
-                break;
-            case 3:
-                tokenIds = [210, 211, 212, 213, 214];
-                break;
-            case 4:
-                tokenIds = [215, 216, 217, 218, 219];
-                break;
-            case 5:
-                tokenIds = [224, 223, 222, 221, 220];
+                tokenIds = [12, 13, 14, 15, 16];
                 break;
         }
         if(b == tokenIds.length)  b = 0;

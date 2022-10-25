@@ -33,7 +33,7 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       const poolConfig = loadPoolConfig(pool);
       const addressesProvider = await getLendPoolAddressesProvider();
 
-      // //////////////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////////////////////////
       const unftRegistryAddress = getParamPerNetwork(poolConfig.UNFTRegistry, network);
       console.log("UNFTRegistry", poolConfig.UNFTRegistry);
       if (unftRegistryAddress == undefined || !notFalsyOrZeroAddress(unftRegistryAddress)) {

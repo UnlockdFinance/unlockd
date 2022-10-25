@@ -18,7 +18,7 @@ makeSuite("DataProvider", (testEnv) => {
   });
 
   it("Borrows WETH using 1 BAYC", async () => {
-    const { users, pool, reserveOracle, weth, bayc, dataProvider, uiProvider, walletProvider } = testEnv;
+    const { users, pool, reserveOracle, weth, bayc, configurator, deployer } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
 
@@ -51,6 +51,15 @@ makeSuite("DataProvider", (testEnv) => {
         .div(wethPrice.toString())
         .multipliedBy(0.5)
         .toFixed(0)
+    );
+
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+    await configurator.connect(deployer.signer).setTimeframe(360000);
+    await pool.connect(borrower.signer).triggerUserCollateral(bayc.address, "101");
+    await waitForTx(
+      await configurator
+        .connect(deployer.signer)
+        .configureNftAsCollateral(bayc.address, "101", "7000", 4000, 7000, 500, 1, 2, 25, true, false)
     );
 
     await pool

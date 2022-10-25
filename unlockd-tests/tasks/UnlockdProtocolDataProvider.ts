@@ -8,7 +8,8 @@ task("dataProvider:getNftConfigurationDataByTokenId", "Gets individual NFT confi
 .addParam("nfttokenid", "The tokenId of the asset")
 .setAction(async ({ nftaddress, nfttokenid }) => {
     const wallet = await getUserWallet();  
-    await Functions.DATAPROVIDER.getNftConfigurationDataByTokenId(wallet, nftaddress, nfttokenid);
+    const tx = await Functions.DATAPROVIDER.getNftConfigurationDataByTokenId(wallet, nftaddress, nfttokenid).then(data => data.toString());
+    console.log(await tx);
 });
 
 task("dataProvider:getLoanDataByCollateral", "Gets individual NFT loan")

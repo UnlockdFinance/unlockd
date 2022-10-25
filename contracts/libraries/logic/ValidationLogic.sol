@@ -124,7 +124,7 @@ library ValidationLogic {
     require(!vars.nftIsFrozen, Errors.VL_NFT_FROZEN);
 
     require(
-      (nftConfig.getConfigTimestamp() + ILendPool(address(this)).getTimeframe()) <= block.timestamp,
+      (nftConfig.getConfigTimestamp() + ILendPool(address(this)).getTimeframe()) >= block.timestamp,
       Errors.VL_TIMEFRAME_EXCEEDED
     );
 
