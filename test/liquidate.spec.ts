@@ -247,16 +247,16 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     );
 
     console.log(amountBorrow);
-    const price = await convertToCurrencyDecimals(usdc.address, "500000");
+    const price = amountBorrow.mul(5);
+    console.log(price);
+    await configurator.connect(deployer.signer).setTimeframe(7200);
 
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, "102", price, 4000, 7000, 100, 1, 2, 25, true, false);
-
-    await configurator.setTimeframe(3600);
+      .configureNftAsCollateral(bayc.address, "102", 10000000, 4000, 7000, 100, 1, 2, 250, true, false);
 
     await pool
       .connect(borrower.signer)

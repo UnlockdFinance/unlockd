@@ -91,11 +91,12 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
-    await configurator.setTimeframe(3600);
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, "100000000000000000000", 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
 
     await borrow(testEnv, user1, "WETH", "1", "BAYC", tokenId, user1.address, "365", "success", "");
 
@@ -118,7 +119,21 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(
+        bayc.address,
+        tokenId,
+        "2000000000000000000000",
+        4000,
+        7000,
+        100,
+        1,
+        2,
+        25,
+        true,
+        false
+      );
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
 
     await borrow(
       testEnv,
@@ -146,7 +161,19 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(
+        bayc.address,
+        tokenId,
+        "2000000000000000000000",
+        4000,
+        7000,
+        100,
+        1,
+        2,
+        25,
+        true,
+        false
+      );
 
     await borrow(testEnv, user1, "WETH", "2", "BAYC", tokenId, user1.address, "365", "success", "");
 
@@ -156,11 +183,32 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
   });
 
   it("User 1 tries to borrow the rest of the WETH liquidity (revert expected)", async () => {
-    const { users } = testEnv;
+    const { users, configurator, deployer, nftOracle, bayc } = testEnv;
     const user1 = users[1];
 
     expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
+
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(
+        bayc.address,
+        tokenId,
+        "2000000000000000000000",
+        4000,
+        7000,
+        100,
+        1,
+        2,
+        25,
+        true,
+        false
+      );
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
 
     await borrow(
       testEnv,
@@ -265,7 +313,9 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, "10000000000000000000", 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
 
     await borrow(testEnv, user3, "USDC", "10", "BAYC", tokenId, user3.address, "", "revert", "NFT is not owned");
 
@@ -287,7 +337,9 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, "10000000000000000000", 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
 
     await borrow(testEnv, user2, "USDC", "10", "BAYC", tokenId, user3.address, "365", "success", "");
   });
@@ -305,9 +357,9 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, "20000000000000000000", 4000, 7000, 100, 1, 2, 25, true, false);
 
-    await delegateBorrowAllowance(testEnv, user3, "USDC", "20", user2.address, "success", "");
+    await configurator.connect(deployer.signer).setTimeframe(720000);
 
     await borrow(testEnv, user2, "USDC", "20", "BAYC", tokenId, user3.address, "365", "success", "");
   });

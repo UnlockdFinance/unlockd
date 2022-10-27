@@ -232,7 +232,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
   });
 
   it("USDC - Borrows USDC", async () => {
-    const { users, pool, reserveOracle, usdc, bayc, configurator, dataProvider } = testEnv;
+    const { users, pool, reserveOracle, usdc, bayc, configurator, dataProvider, nftOracle, deployer } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
 
@@ -258,6 +258,15 @@ makeSuite("LendPool: Redeem", (testEnv) => {
 
     const usdcPrice = await reserveOracle.getAssetPrice(usdc.address);
 
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, "102", "2000000000000000000000", 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
+
     const amountBorrow = await convertToCurrencyDecimals(
       usdc.address,
       new BigNumber(nftColDataBefore.availableBorrowsInETH.toString())
@@ -279,8 +288,11 @@ makeSuite("LendPool: Redeem", (testEnv) => {
   });
 
   it("USDC - Drop the health factor below 1", async () => {
-    const { usdc, bayc, users, pool } = testEnv;
+    const { usdc, bayc, users, pool, configurator, nftOracle, deployer } = testEnv;
     const borrower = users[1];
+
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
 
     const nftDebtDataBefore = await pool.getNftDebtData(bayc.address, "102");
 

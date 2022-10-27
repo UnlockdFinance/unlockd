@@ -78,7 +78,9 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, borrowSizeAll.mul(3), 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
 
     console.log("borrowETH");
     await expect(
@@ -126,6 +128,15 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     const ethBalanceBefore = await borrower.signer.getBalance();
 
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, borrowSizeAll.mul(3), 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
+
     console.log("Borrow first ETH with NFT");
     await waitForTx(
       await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, nftAsset, tokenId, borrower.address, "0")
@@ -136,6 +147,15 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
     const debtBalance = await getLoanDebtBalance();
     expect(debtBalance, "debt should gte borrowSize").to.be.gte(borrowSize1);
 
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, borrowSizeAll.mul(3), 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
+
     console.log("Borrower try Borrow more ETH with NFT on different onBehalfOf");
     await expect(
       wethGateway.connect(borrower.signer).borrowETH(borrowSize2, nftAsset, tokenId, hacker.address, "0")
@@ -143,7 +163,8 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
   });
 
   it("Hacker try to Borrow more ETH (should revert)", async () => {
-    const { users, wethGateway, pool, loan, weth, uWETH, bayc, dataProvider } = testEnv;
+    const { users, wethGateway, pool, loan, weth, uWETH, bayc, dataProvider, deployer, configurator, nftOracle } =
+      testEnv;
     const depositor = users[0];
     const borrower = users[1];
     const hacker = users[2];
@@ -181,12 +202,30 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     const ethBalanceBefore = await borrower.signer.getBalance();
 
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, borrowSizeAll.mul(3), 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
+
     console.log("Borrow first ETH with NFT");
     await waitForTx(
       await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, nftAsset, tokenId, borrower.address, "0")
     );
 
     expect(await borrower.signer.getBalance(), "current eth balance shoud increase").to.be.gt(ethBalanceBefore);
+
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, borrowSizeAll.mul(3), 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
 
     const debtBalance = await getLoanDebtBalance();
     expect(debtBalance, "debt should gte borrowSize").to.be.gte(borrowSize1);

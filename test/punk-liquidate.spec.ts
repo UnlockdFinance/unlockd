@@ -65,6 +65,8 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
       dataProvider,
       reserveOracle,
       nftOracle,
+      configurator,
+      deployer,
     } = testEnv;
 
     const [depositor, borrower] = users;
@@ -103,6 +105,30 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
 
     // borrow usdc, health factor above 1
     const nftColDataBefore = await pool.getNftCollateralData(wrappedPunk.address, 101, usdc.address);
+
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+
+    await nftOracle.connect(deployer.signer).setPriceManagerStatus(configurator.address, true);
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
+
+    await waitForTx(
+      await configurator
+        .connect(deployer.signer)
+        .configureNftAsCollateral(
+          wrappedPunk.address,
+          punkIndex,
+          "500000000000000000000",
+          4000,
+          7000,
+          1000,
+          1,
+          2,
+          250,
+          true,
+          false
+        )
+    );
 
     const usdcPrice = await reserveOracle.getAssetPrice(usdc.address);
     const amountBorrow = await convertToCurrencyDecimals(
@@ -262,6 +288,8 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
       dataProvider,
       reserveOracle,
       nftOracle,
+      configurator,
+      deployer,
     } = testEnv;
 
     const [depositor, borrower] = users;
@@ -294,6 +322,30 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
 
     // borrow usdc, health factor above 1
     const nftColDataBefore = await pool.getNftCollateralData(wrappedPunk.address, 101, usdc.address);
+
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+
+    await nftOracle.connect(deployer.signer).setPriceManagerStatus(configurator.address, true);
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
+
+    await waitForTx(
+      await configurator
+        .connect(deployer.signer)
+        .configureNftAsCollateral(
+          wrappedPunk.address,
+          punkIndex,
+          "500000000000000000000",
+          4000,
+          7000,
+          1000,
+          1,
+          2,
+          250,
+          true,
+          false
+        )
+    );
 
     const usdcPrice = await reserveOracle.getAssetPrice(usdc.address);
     const amountBorrow = await convertToCurrencyDecimals(
@@ -374,6 +426,8 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
       loan,
       reserveOracle,
       nftOracle,
+      configurator,
+      deployer,
     } = testEnv;
 
     const [depositor, user] = users;
@@ -414,6 +468,29 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     const nftColDataBefore = await pool.getNftCollateralData(wrappedPunk.address, punkIndex, weth.address);
 
     const wethPrice = await reserveOracle.getAssetPrice(weth.address);
+
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+
+    await nftOracle.connect(deployer.signer).setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(
+        wrappedPunk.address,
+        punkIndex,
+        depositSize.mul(5),
+        4000,
+        7000,
+        1000,
+        1,
+        2,
+        250,
+        true,
+        false
+      );
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
+
     const amountBorrow = await convertToCurrencyDecimals(
       weth.address,
       new BigNumber(nftColDataBefore.availableBorrowsInETH.toString())
@@ -562,6 +639,8 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
       reserveOracle,
       nftOracle,
       liquidator,
+      configurator,
+      deployer,
     } = testEnv;
 
     const [depositor, borrower] = users;
@@ -599,6 +678,28 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     const reserveData = await pool.getReserveData(weth.address);
     const debtToken = await getDebtToken(reserveData.debtTokenAddress);
     await waitForTx(await debtToken.connect(borrower.signer).approveDelegation(wethGateway.address, MAX_UINT_AMOUNT));
+
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+
+    await nftOracle.connect(deployer.signer).setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(
+        wrappedPunk.address,
+        punkIndex,
+        depositSize.mul(5),
+        4000,
+        7000,
+        1000,
+        1,
+        2,
+        250,
+        true,
+        false
+      );
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
 
     const wethPrice = await reserveOracle.getAssetPrice(weth.address);
     const amountBorrow = await convertToCurrencyDecimals(

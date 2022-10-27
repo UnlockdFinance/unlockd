@@ -83,23 +83,34 @@ makeSuite("Subgraph tests", async (testEnv) => {
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
 
+    await configurator.connect(deployer.signer).setTimeframe(720000);
     await configurator
       .connect(deployer.signer)
       .configureNftAsCollateral(bayc.address, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
 
-    await configurator.setTimeframe(3600);
-
     await borrow(testEnv, borrower, "WETH", "5", "BAYC", tokenId, borrower.address, "365", "success", "");
 
     await increaseTime(100);
+    await configurator.connect(deployer.signer).setTimeframe(720000);
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
 
     await borrow(testEnv, borrower, "WETH", "2", "BAYC", tokenId, borrower.address, "365", "success", "");
 
     await increaseTime(100);
+    await configurator.connect(deployer.signer).setTimeframe(720000);
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
 
     await repay(testEnv, borrower, "", "BAYC", tokenId, "3", borrower, "success", "");
 
     await increaseTime(100);
+    await configurator.connect(deployer.signer).setTimeframe(720000);
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
 
     await repay(testEnv, borrower, "", "BAYC", tokenId, "-1", borrower, "success", "");
   });
@@ -115,14 +126,14 @@ makeSuite("Subgraph tests", async (testEnv) => {
 
     await setApprovalForAll(testEnv, borrower, "BAYC");
 
-    const price = await convertToCurrencyDecimals(weth.address, "50");
+    const price = await convertToCurrencyDecimals(weth.address, "25");
 
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, price, 4000, 7000, 1000, 1, 2, 25, true, false);
 
     await configurator.setTimeframe(3600);
 
