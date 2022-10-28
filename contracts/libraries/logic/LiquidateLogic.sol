@@ -648,11 +648,12 @@ library LiquidateLogic {
 
     // NFTX selling price was lower than borrow amount. Treasury must cover the loss
     if (vars.extraDebtAmount > 0) {
-      IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(
-        IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS(),
-        address(this),
-        vars.extraDebtAmount
+      address treasury = IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS();
+      require(
+        IERC20Upgradeable(loanData.reserveAsset).balanceOf(treasury) > vars.extraDebtAmount,
+        Errors.VL_VALUE_EXCEED_TREASURY_BALANCE
       );
+      IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(treasury, address(this), vars.extraDebtAmount);
     }
 
     // transfer borrow amount from lend pool to uToken, repay debt

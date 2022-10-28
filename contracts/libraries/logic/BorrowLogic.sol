@@ -154,6 +154,11 @@ library BorrowLogic {
       vars.nftOracle
     );
 
+    require(
+      IERC20Upgradeable(params.asset).balanceOf(reserveData.uTokenAddress) >= params.amount,
+      Errors.LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY
+    );
+
     if (vars.loanId == 0) {
       IERC721Upgradeable(params.nftAsset).safeTransferFrom(vars.initiator, address(this), params.nftTokenId);
 
