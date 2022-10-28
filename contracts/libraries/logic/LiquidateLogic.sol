@@ -503,8 +503,23 @@ library LiquidateLogic {
       IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.borrower, vars.remainAmount);
     }
 
-    // transfer erc721 to bidder
-    IERC721Upgradeable(loanData.nftAsset).safeTransferFrom(address(this), loanData.bidderAddress, params.nftTokenId);
+    // transfer erc721 to bidder.
+    //avoid DoS by transferring NFT to a malicious contract that reverts on ERC721 receive
+    (bool success, ) = address(loanData.nftAsset).call(
+      abi.encodeWithSignature(
+        "safeTransferFrom(address,address,uint256)",
+        address(this),
+        loanData.bidderAddress,
+        params.nftTokenId
+      )
+    );
+    //If transfer was made to a malicious contract, send NFT to treasury
+    if (!success)
+      IERC721Upgradeable(loanData.nftAsset).safeTransferFrom(
+        address(this),
+        IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS(),
+        params.nftTokenId
+      );
 
     emit Liquidate(
       vars.initiator,
