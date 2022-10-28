@@ -598,6 +598,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   }
 
   function setLtvManagerStatus(address newLtvManager, bool val) external onlyPoolAdmin {
+    require(newLtvManager != address(0), Errors.LPC_INVALID_LTVMANAGER_ADDRESS);
     isLtvManager[newLtvManager] = val;
   }
 

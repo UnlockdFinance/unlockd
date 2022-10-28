@@ -140,7 +140,7 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
   });
 
   it("Liquidate", async () => {
-    const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, dataProvider } = testEnv;
+    const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, deployer } = testEnv;
     const depositor = users[3];
     const borrower = users[4];
     const liquidator = users[5];
@@ -164,6 +164,14 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     await bayc.connect(borrower.signer).setApprovalForAll(pool.address, true);
 
     //user 4 borrows
+    const price = await convertToCurrencyDecimals(weth.address, "1000");
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(bayc.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, "101", price, 4000, 7000, 100, 1, 2, 25, true, false);
+
     const loanData = await pool.getNftCollateralData(bayc.address, "101", weth.address);
 
     const wethPrice = await reserveOracle.getAssetPrice(weth.address);
@@ -208,7 +216,7 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
   });
 
   it("LiquidateNFTX", async () => {
-    const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, dataProvider, liquidator } = testEnv;
+    const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, deployer, liquidator } = testEnv;
     const depositor = users[3];
     const borrower = users[4];
     const emergencyAdminSigner = await getEmergencyAdminSigner();
@@ -231,6 +239,14 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     await bayc.connect(borrower.signer).setApprovalForAll(pool.address, true);
 
     //user 4 borrows
+    const price = await convertToCurrencyDecimals(weth.address, "1000");
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(bayc.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, "101", price, 4000, 7000, 100, 1, 2, 25, true, false);
+
     const loanData = await pool.getNftCollateralData(bayc.address, 102, weth.address);
 
     const wethPrice = await reserveOracle.getAssetPrice(weth.address);

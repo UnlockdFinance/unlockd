@@ -133,7 +133,7 @@ makeSuite("Subgraph tests", async (testEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, price, 4000, 7000, 1000, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, price.mul(5), 4000, 7000, 1000, 1, 2, 25, true, false);
 
     await configurator.setTimeframe(3600);
 

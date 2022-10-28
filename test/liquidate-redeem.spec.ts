@@ -50,6 +50,17 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     await bayc.connect(borrower.signer).setApprovalForAll(pool.address, true);
 
     //borrows
+    const price = await convertToCurrencyDecimals(weth.address, "1000");
+
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, "101", price, 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.setTimeframe(3600);
+
     const nftColDataBefore = await pool.getNftCollateralData(bayc.address, 101, weth.address);
 
     const wethPrice = await reserveOracle.getAssetPrice(weth.address);
@@ -61,17 +72,6 @@ makeSuite("LendPool: Redeem", (testEnv) => {
         .multipliedBy(0.95)
         .toFixed(0)
     );
-
-    const price = await convertToCurrencyDecimals(weth.address, "50");
-
-    await configurator.setLtvManagerStatus(deployer.address, true);
-    await nftOracle.setPriceManagerStatus(configurator.address, true);
-
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, "101", price, 4000, 7000, 100, 1, 2, 25, true, false);
-
-    await configurator.setTimeframe(3600);
 
     await pool
       .connect(borrower.signer)
@@ -263,7 +263,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, "102", "2000000000000000000000", 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, "102", "500000000000000000000", 4000, 7000, 100, 1, 2, 25, true, false);
 
     await configurator.connect(deployer.signer).setTimeframe(720000);
 
@@ -291,7 +291,6 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     const { usdc, bayc, users, pool, configurator, nftOracle, deployer } = testEnv;
     const borrower = users[1];
 
-    await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
 
     const nftDebtDataBefore = await pool.getNftDebtData(bayc.address, "102");
@@ -315,19 +314,19 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     await advanceTimeAndBlock(100);
 
     //mints USDC to the liquidator
-    await usdc.connect(liquidator.signer).mint(await convertToCurrencyDecimals(usdc.address, "100000"));
+    await usdc.connect(liquidator.signer).mint(await convertToCurrencyDecimals(usdc.address, "1000000"));
 
     //approve protocol to access the liquidator wallet
     await usdc.connect(liquidator.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
 
     const lendPoolBalanceBefore = await usdc.balanceOf(pool.address);
-
+    console.log("lendPoolBalanceBefore: ", lendPoolBalanceBefore.toString());
     // accurate borrow index, increment interest to loanDataBefore.scaledAmount
     await increaseTime(100);
 
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "102");
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.1).toFixed(0);
-
+    console.log("auction price: ", auctionPrice.toString());
     await pool.connect(liquidator.signer).auction(bayc.address, "102", auctionPrice, liquidator.address);
 
     // check result
@@ -339,18 +338,6 @@ makeSuite("LendPool: Redeem", (testEnv) => {
 
     const tokenOwner = await bayc.ownerOf("102");
     expect(tokenOwner).to.be.equal(uBAYC.address, "Invalid token owner after redeem");
-
-    /*
-    const nftColData = await testEnv.pool.getNftCollateralData(bayc.address, usdc.address);
-    console.log("nftColData:", nftColData);
-
-    const simpleLoansData = await testEnv.uiProvider.getSimpleLoansData(
-      testEnv.addressesProvider.address,
-      [bayc.address],
-      ["102"],
-      );
-    console.log("simpleLoansData:", simpleLoansData);
-    */
   });
 
   it("USDC - Redeems the borrow", async () => {
@@ -361,7 +348,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     await advanceTimeAndBlock(100);
 
     //mints USDC to borrower
-    await usdc.connect(borrower.signer).mint(await convertToCurrencyDecimals(usdc.address, "100000"));
+    await usdc.connect(borrower.signer).mint(await convertToCurrencyDecimals(usdc.address, "1000000"));
     //approve protocol to access borrower wallet
     await usdc.connect(borrower.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
 

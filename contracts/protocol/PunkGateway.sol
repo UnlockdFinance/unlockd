@@ -101,6 +101,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
    **/
   function authorizeLendPoolERC20(address[] calldata tokens) external nonReentrant onlyOwner {
     for (uint256 i = 0; i < tokens.length; i++) {
+      IERC20Upgradeable(tokens[i]).approve(address(_getLendPool()), 0);
       IERC20Upgradeable(tokens[i]).approve(address(_getLendPool()), type(uint256).max);
     }
   }
