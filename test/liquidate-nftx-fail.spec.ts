@@ -51,7 +51,6 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     await bayc.connect(borrower.signer).setApprovalForAll(pool.address, true);
 
     //borrows
-
     const price = await convertToCurrencyDecimals(weth.address, "1000");
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(bayc.address, true);

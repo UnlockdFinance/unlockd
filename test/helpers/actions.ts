@@ -879,6 +879,15 @@ export const redeem = async (
       timestamp
     );
 
+    console.log("reserveDataAfter", reserveDataAfter);
+    console.log("expectedReserveData", expectedReserveData);
+
+    console.log("userDataAfter", userDataAfter);
+    console.log("expectedUserData", expectedUserData);
+
+    console.log("loanDataAfter", loanDataAfter);
+    console.log("expectedLoanData", expectedLoanData);
+
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);
     expectEqual(loanDataAfter, expectedLoanData);

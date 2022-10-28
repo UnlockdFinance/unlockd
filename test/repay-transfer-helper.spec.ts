@@ -11,6 +11,7 @@ import { increaseTime, waitForTx } from "../helpers/misc-utils";
 import { RepayAndTransferHelper, RepayAndTransferHelperFactory } from "../types";
 import { getDeploySigner } from "../helpers/contracts-getters";
 import { parseEther } from "ethers/lib/utils";
+import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 
 const { expect } = require("chai");
 
@@ -40,7 +41,7 @@ makeSuite("Repay and transfer helper tests", async (testEnv) => {
   });
 
   it("borrow-repay-transfer", async () => {
-    const { users, bayc } = testEnv;
+    const { users, bayc, deployer, weth, configurator, nftOracle } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
     const borrower2 = users[2];
@@ -64,6 +65,14 @@ makeSuite("Repay and transfer helper tests", async (testEnv) => {
     await setApprovalForAll(testEnv, borrower, "BAYC");
 
     // borrow
+    const price = await convertToCurrencyDecimals(weth.address, "100");
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(bayc.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
+
     await borrow(testEnv, borrower, "WETH", "5", "BAYC", tokenId, borrower.address, "365", "success", "");
 
     await increaseTime(100);
