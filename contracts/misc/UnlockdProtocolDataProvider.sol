@@ -315,7 +315,11 @@ contract UnlockdProtocolDataProvider {
     loanData.bidBorrowAmount = loan.bidBorrowAmount;
   }
 
-  function getNFTXPrice(address asset, uint256 tokenId) external view returns (uint256) {
-    return NFTXHelper.getNFTXPrice(ADDRESSES_PROVIDER, asset, tokenId);
+  function getNFTXPrice(
+    address asset,
+    uint256 tokenId,
+    address reserveAsset
+  ) external view returns (uint256) {
+    return NFTXHelper.getNFTXPrice(ADDRESSES_PROVIDER, asset, tokenId, reserveAsset);
   }
 }

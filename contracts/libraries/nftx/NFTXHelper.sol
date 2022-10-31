@@ -11,6 +11,8 @@ import {Errors} from "../../libraries/helpers/Errors.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title NFTXHelper library
  * @author Unlockd
@@ -90,7 +92,8 @@ library NFTXHelper {
   function getNFTXPrice(
     ILendPoolAddressesProvider addressesProvider,
     address nftAsset,
-    uint256 nftTokenId
+    uint256 nftTokenId,
+    address reserveAsset
   ) internal view returns (uint256) {
     address vaultFactoryAddress = addressesProvider.getNFTXVaultFactory();
     address sushiSwapRouterAddress = addressesProvider.getSushiSwapRouter();
@@ -111,7 +114,7 @@ library NFTXHelper {
     if (nftxVault.allValidNFTs(tokenIds)) {
       address[] memory swapPath = new address[](2);
       swapPath[0] = vaultAddress;
-      swapPath[1] = WETH;
+      swapPath[1] = reserveAsset;
 
       uint256 depositAmount = 1 ether - mintFee;
 
