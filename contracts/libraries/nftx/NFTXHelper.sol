@@ -80,4 +80,46 @@ library NFTXHelper {
 
     revert("NFTX: vault not available");
   }
+
+  /**
+   * @dev Get the NFTX price in ETH
+   * @param addressesProvider The addresses provider
+   * @param nftAsset The underlying NFT address
+   * @param nftTokenId The underlying NFT token Id
+   */
+  function getNFTXPrice(
+    ILendPoolAddressesProvider addressesProvider,
+    address nftAsset,
+    uint256 nftTokenId
+  ) internal view returns (uint256) {
+    address vaultFactoryAddress = addressesProvider.getNFTXVaultFactory();
+    address sushiSwapRouterAddress = addressesProvider.getSushiSwapRouter();
+
+    // Get NFTX Vaults for the asset
+    address[] memory vaultAddresses = INFTXVaultFactoryV2(vaultFactoryAddress).vaultsForAsset(nftAsset);
+
+    require(vaultAddresses.length > 0, Errors.NFTX_INVALID_VAULTS_LENGTH);
+
+    uint256[] memory tokenIds = new uint256[](1);
+    tokenIds[0] = nftTokenId;
+
+    // Always get the first vault address
+    address vaultAddress = vaultAddresses[0];
+    INFTXVault nftxVault = INFTXVault(vaultAddress);
+    (uint256 mintFee, , , , ) = INFTXVaultFactoryV2(vaultFactoryAddress).vaultFees(nftxVault.vaultId());
+
+    if (nftxVault.allValidNFTs(tokenIds)) {
+      address[] memory swapPath = new address[](2);
+      swapPath[0] = vaultAddress;
+      swapPath[1] = WETH;
+
+      uint256 depositAmount = 1 ether - mintFee;
+
+      uint256[] memory amounts = IUniswapV2Router02(sushiSwapRouterAddress).getAmountsOut(depositAmount, swapPath);
+
+      return amounts[1];
+    }
+
+    revert("NFTX: vault not available");
+  }
 }
