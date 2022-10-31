@@ -112,14 +112,23 @@ library NFTXHelper {
     (uint256 mintFee, , , , ) = INFTXVaultFactoryV2(vaultFactoryAddress).vaultFees(nftxVault.vaultId());
 
     if (nftxVault.allValidNFTs(tokenIds)) {
-      address[] memory swapPath = new address[](2);
+      address[] memory swapPath;
+      if (reserveAsset != address(WETH)) {
+        swapPath = new address[](3);
+        swapPath[2] = reserveAsset;
+      } else {
+        swapPath = new address[](2);
+      }
       swapPath[0] = vaultAddress;
-      swapPath[1] = reserveAsset;
+      swapPath[1] = WETH;
 
       uint256 depositAmount = 1 ether - mintFee;
 
       uint256[] memory amounts = IUniswapV2Router02(sushiSwapRouterAddress).getAmountsOut(depositAmount, swapPath);
 
+      if (amounts.length == 3) {
+        return amounts[2];
+      }
       return amounts[1];
     }
 

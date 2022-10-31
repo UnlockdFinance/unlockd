@@ -380,7 +380,7 @@ makeSuite("DataProvider", (testEnv) => {
     expect(borrowerPunkIndexs[0]).to.be.equal(punkIndex);
   });
 
-  it("Query NFTX price for the token", async () => {
+  it.skip("Query NFTX price for the token", async () => {
     const { bayc, weth, dataProvider } = testEnv;
 
     const nftxPrice = await dataProvider.getNFTXPrice(bayc.address, 101, weth.address);
