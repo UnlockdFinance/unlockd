@@ -379,4 +379,12 @@ makeSuite("DataProvider", (testEnv) => {
     expect(borrowerPunkIndexs.length).to.be.equal(1);
     expect(borrowerPunkIndexs[0]).to.be.equal(punkIndex);
   });
+
+  it.skip("Query NFTX price for the token", async () => {
+    const { bayc, weth, dataProvider } = testEnv;
+
+    const nftxPrice = await dataProvider.getNFTXPrice(bayc.address, 101, weth.address);
+
+    expect(nftxPrice.toString()).to.equal("73289363526841320727");
+  });
 });

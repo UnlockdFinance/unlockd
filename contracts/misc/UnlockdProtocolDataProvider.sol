@@ -10,6 +10,7 @@ import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
+import {NFTXHelper} from "../libraries/nftx/NFTXHelper.sol";
 
 contract UnlockdProtocolDataProvider {
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
@@ -320,5 +321,13 @@ contract UnlockdProtocolDataProvider {
     loanData.bidderAddress = loan.bidderAddress;
     loanData.bidPrice = loan.bidPrice;
     loanData.bidBorrowAmount = loan.bidBorrowAmount;
+  }
+
+  function getNFTXPrice(
+    address asset,
+    uint256 tokenId,
+    address reserveAsset
+  ) external view returns (uint256) {
+    return NFTXHelper.getNFTXPrice(ADDRESSES_PROVIDER, asset, tokenId, reserveAsset);
   }
 }
