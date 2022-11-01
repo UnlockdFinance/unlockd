@@ -4,6 +4,31 @@ import { getOwnerWallet, getUserWallet, getWalletByNumber } from "../helpers/con
 import {  Contracts, MockContracts } from "../helpers/constants";
 import { parseUnits } from "@ethersproject/units";
 
+task("lendpool:triggerUserCollateral", "Triggers the NFT Configuration ConfigureNFTAsCollateral")
+  .addParam("nftaddress", "The asset address")
+  .addParam("nfttokenid", "The tokenId of the asset")
+  .setAction(async ({ nftaddress, nfttokenid }) => {
+    const wallet = await getUserWallet();
+    const tx = await Functions.LENDPOOL.triggerUserCollateral(wallet, nftaddress, nfttokenid);
+    console.log(await tx.wait());
+  }
+);
+
+task("lendpool:getTimeframe", "Gets the list of NFTs in the reserves")
+.setAction( async () => {
+    const wallet = await getUserWallet();  
+
+    const tx = await Functions.LENDPOOL.getTimeframe(wallet)
+    console.log(tx);
+});
+
+task("lendpool:getConfigFee", "Gets the list of NFTs in the reserves")
+.setAction( async () => {
+    const wallet = await getUserWallet();  
+
+    const tx = await Functions.LENDPOOL.getConfigFee(wallet)
+    console.log(tx);
+});
 
 task("lendpool:getNftConfigByTokenId", "Get the NFT Configuration")
   .addParam("nftaddress", "The asset address")
@@ -12,6 +37,17 @@ task("lendpool:getNftConfigByTokenId", "Get the NFT Configuration")
     const wallet = await getUserWallet();
     const tx = await Functions.LENDPOOL.getNftConfigByTokenId(wallet, nftaddress, nfttokenid);
     console.log(tx);
+  }
+);
+
+task("lendpool:liquidate", "Get the NFT Configuration")
+  .addParam("nftaddress", "The asset address")
+  .addParam("nfttokenid", "The tokenId of the asset")
+  .addParam("amount", "The tokenId of the asset")
+  .setAction(async ({ nftaddress, nfttokenid, amount }) => {
+    const wallet = await getUserWallet();
+    const tx = await Functions.LENDPOOL.liquidate(wallet, nftaddress, nfttokenid, amount);
+    console.log(await tx);
   }
 );
 

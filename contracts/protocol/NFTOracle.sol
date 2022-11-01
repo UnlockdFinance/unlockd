@@ -259,8 +259,9 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     emit CollectionPaused(paused);
   }
 
-  function setPriceManagerStatus(address newLtvManager, bool val) external onlyOwner {
-    isPriceManager[newLtvManager] = val;
+  function setPriceManagerStatus(address newPriceManager, bool val) external onlyOwner {
+    require(newPriceManager != address(0), Errors.NFTO_INVALID_PRICEM_ADDRESS);
+    isPriceManager[newPriceManager] = val;
   }
 
   /**

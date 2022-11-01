@@ -503,8 +503,23 @@ library LiquidateLogic {
       IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.borrower, vars.remainAmount);
     }
 
-    // transfer erc721 to bidder
-    IERC721Upgradeable(loanData.nftAsset).safeTransferFrom(address(this), loanData.bidderAddress, params.nftTokenId);
+    // transfer erc721 to bidder.
+    //avoid DoS by transferring NFT to a malicious contract that reverts on ERC721 receive
+    (bool success, ) = address(loanData.nftAsset).call(
+      abi.encodeWithSignature(
+        "safeTransferFrom(address,address,uint256)",
+        address(this),
+        loanData.bidderAddress,
+        params.nftTokenId
+      )
+    );
+    //If transfer was made to a malicious contract, send NFT to treasury
+    if (!success)
+      IERC721Upgradeable(loanData.nftAsset).safeTransferFrom(
+        address(this),
+        IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS(),
+        params.nftTokenId
+      );
 
     emit Liquidate(
       vars.initiator,
@@ -633,11 +648,12 @@ library LiquidateLogic {
 
     // NFTX selling price was lower than borrow amount. Treasury must cover the loss
     if (vars.extraDebtAmount > 0) {
-      IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(
-        IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS(),
-        address(this),
-        vars.extraDebtAmount
+      address treasury = IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS();
+      require(
+        IERC20Upgradeable(loanData.reserveAsset).balanceOf(treasury) > vars.extraDebtAmount,
+        Errors.VL_VALUE_EXCEED_TREASURY_BALANCE
       );
+      IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(treasury, address(this), vars.extraDebtAmount);
     }
 
     // transfer borrow amount from lend pool to uToken, repay debt

@@ -294,6 +294,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   // ASK WHY 6 ARGUMENTS //
   // ------------------- //
   const lendpoolConfigurator = await addressesProvider.getLendPoolConfigurator();
+  await waitForTx(await lendPoolConfiguratorProxy.setTimeframe(3600000));
 
   console.log("-> Prepare nft oracle...");
   const nftOracleImpl = await deployNFTOracle();

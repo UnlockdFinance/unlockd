@@ -73,7 +73,19 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
   });
 
   it("Borrow some USDC and repay it", async () => {
-    const { users, cryptoPunksMarket, wrappedPunk, punkGateway, wethGateway, pool, dataProvider, usdc } = testEnv;
+    const {
+      users,
+      cryptoPunksMarket,
+      wrappedPunk,
+      punkGateway,
+      wethGateway,
+      pool,
+      dataProvider,
+      usdc,
+      deployer,
+      configurator,
+      nftOracle,
+    } = testEnv;
 
     const [depositor, borrower] = users;
     const depositUnit = "10000";
@@ -122,12 +134,54 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
     const debtToken = await getDebtToken(reserveData.debtTokenAddress);
     await waitForTx(await debtToken.connect(borrower.signer).approveDelegation(punkGateway.address, MAX_UINT_AMOUNT));
 
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+
+    await nftOracle.connect(deployer.signer).setPriceManagerStatus(configurator.address, true);
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
+
+    await waitForTx(
+      await configurator
+        .connect(deployer.signer)
+        .configureNftAsCollateral(
+          wrappedPunk.address,
+          punkIndex,
+          "5000000000000000000",
+          4000,
+          7000,
+          1000,
+          1,
+          2,
+          250,
+          true,
+          false
+        )
+    );
+
     // borrow first usdc
     await waitForTx(
       await punkGateway.connect(borrower.signer).borrow(usdc.address, borrowSize1, punkIndex, borrower.address, "0")
     );
 
     await advanceTimeAndBlock(100);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(
+        wrappedPunk.address,
+        punkIndex,
+        "5000000000000000000",
+        5000,
+        9500,
+        1000,
+        1,
+        2,
+        250,
+        true,
+        false
+      );
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
 
     // borrow more usdc
     await waitForTx(
@@ -147,7 +201,6 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
     await waitForTx(await punkGateway.connect(borrower.signer).repay(punkIndex, repaySize.div(2)));
     const usdcBalanceAfterPartialRepay = await getERC20TokenBalance(usdc.address, borrower.address);
     const debtAfterPartialRepay = await getDebtBalance();
-
     expect(usdcBalanceAfterPartialRepay).to.be.lt(usdcBalanceAfterBorrow);
     expect(debtAfterPartialRepay).to.be.lt(debtAfterBorrow);
     expect(await getPunkOwner()).to.be.eq(wrappedPunk.address);
@@ -162,14 +215,25 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
     await waitForTx(await punkGateway.connect(borrower.signer).repay(punkIndex, repaySize));
     const usdcBalanceAfterFullRepay = await getERC20TokenBalance(usdc.address, borrower.address);
     const debtAfterFullRepay = await getDebtBalance();
-
     expect(usdcBalanceAfterFullRepay).to.be.lt(usdcBalanceAfterPartialRepay);
     expect(debtAfterFullRepay).to.be.eq(zero);
     expect(await getPunkOwner()).to.be.eq(borrower.address);
   });
 
   it("Borrow all USDC and repay it", async () => {
-    const { users, cryptoPunksMarket, wrappedPunk, punkGateway, wethGateway, usdc, pool, dataProvider } = testEnv;
+    const {
+      users,
+      cryptoPunksMarket,
+      wrappedPunk,
+      punkGateway,
+      wethGateway,
+      usdc,
+      pool,
+      dataProvider,
+      configurator,
+      deployer,
+      nftOracle,
+    } = testEnv;
 
     const [depositor, user] = users;
 
@@ -192,6 +256,27 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
     const debtToken = await getDebtToken(reserveData.debtTokenAddress);
     await waitForTx(await debtToken.connect(user.signer).approveDelegation(punkGateway.address, MAX_UINT_AMOUNT));
 
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(
+        wrappedPunk.address,
+        punkIndex,
+        "10000000000000000000",
+        4000,
+        7000,
+        100,
+        1,
+        2,
+        25,
+        true,
+        false
+      );
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
+
     // borrow all usdc
     await waitForTx(
       await punkGateway.connect(user.signer).borrow(usdc.address, borrowSize.toFixed(0), punkIndex, user.address, "0")
@@ -211,7 +296,20 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
   });
 
   it("Borrow some ETH and repay it", async () => {
-    const { users, cryptoPunksMarket, wrappedPunk, punkGateway, wethGateway, weth, pool, dataProvider, loan } = testEnv;
+    const {
+      users,
+      cryptoPunksMarket,
+      wrappedPunk,
+      punkGateway,
+      wethGateway,
+      weth,
+      pool,
+      dataProvider,
+      loan,
+      configurator,
+      nftOracle,
+      deployer,
+    } = testEnv;
 
     const [depositor, user, anotherUser] = users;
     const depositSize = parseEther("5");
@@ -259,10 +357,50 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
     const debtToken = await getDebtToken(reserveData.debtTokenAddress);
     await waitForTx(await debtToken.connect(user.signer).approveDelegation(wethGateway.address, MAX_UINT_AMOUNT));
 
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+
+    await nftOracle.connect(deployer.signer).setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(
+        wrappedPunk.address,
+        punkIndex,
+        borrowSizeAll.mul(3),
+        4000,
+        7000,
+        1000,
+        1,
+        2,
+        250,
+        true,
+        false
+      );
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
+
     // borrow first eth
     await waitForTx(await punkGateway.connect(user.signer).borrowETH(borrowSize1, punkIndex, user.address, "0"));
 
     await advanceTimeAndBlock(100);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(
+        wrappedPunk.address,
+        punkIndex,
+        borrowSizeAll.mul(3),
+        4000,
+        7000,
+        1000,
+        1,
+        2,
+        250,
+        true,
+        false
+      );
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
 
     // borrow more eth
     await waitForTx(await punkGateway.connect(user.signer).borrowETH(borrowSize2, punkIndex, user.address, "0"));
@@ -313,8 +451,20 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
   });
 
   it("Borrow all ETH and repay it", async () => {
-    const { users, pool, cryptoPunksMarket, wrappedPunk, punkGateway, weth, uWETH, wethGateway, dataProvider } =
-      testEnv;
+    const {
+      users,
+      pool,
+      cryptoPunksMarket,
+      wrappedPunk,
+      punkGateway,
+      weth,
+      uWETH,
+      wethGateway,
+      dataProvider,
+      configurator,
+      deployer,
+      nftOracle,
+    } = testEnv;
 
     const [depositor, user] = users;
     const depositSize = parseEther("5");
@@ -337,6 +487,28 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
     const reserveData = await pool.getReserveData(weth.address);
     const debtToken = await getDebtToken(reserveData.debtTokenAddress);
     await waitForTx(await debtToken.connect(user.signer).approveDelegation(wethGateway.address, MAX_UINT_AMOUNT));
+
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+
+    await nftOracle.connect(deployer.signer).setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(
+        wrappedPunk.address,
+        punkIndex,
+        depositSize.mul(3),
+        4000,
+        7000,
+        1000,
+        1,
+        2,
+        250,
+        true,
+        false
+      );
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
 
     // borrow all eth
     await waitForTx(

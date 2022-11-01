@@ -116,7 +116,7 @@ makeSuite("LendPool: Withdraw", (testEnv: TestEnv) => {
   });
 
   it("Users 0 deposits 1000 DAI, user 1 Deposit 1000 USDC and 1 WETH, borrows 100 DAI. User 1 tries to withdraw all the USDC", async () => {
-    const { users } = testEnv;
+    const { users, deployer, bayc, configurator, pool } = testEnv;
     const user0 = users[0];
     const user1 = users[1];
 
@@ -141,6 +141,15 @@ makeSuite("LendPool: Withdraw", (testEnv: TestEnv) => {
     await mintERC721(testEnv, user1, "BAYC", "101");
 
     await setApprovalForAll(testEnv, user1, "BAYC");
+
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+    await configurator.connect(deployer.signer).setTimeframe(360000);
+    await pool.connect(user1.signer).triggerUserCollateral(bayc.address, "101");
+    await waitForTx(
+      await configurator
+        .connect(deployer.signer)
+        .configureNftAsCollateral(bayc.address, "101", "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false)
+    );
 
     await borrow(testEnv, user1, "WETH", "0.01", "BAYC", "101", user1.address, "", "success", "");
 

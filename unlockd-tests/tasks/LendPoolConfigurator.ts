@@ -6,13 +6,31 @@ import { getMnemonicEmergencyWallet, getOwnerWallet } from "../helpers/config";
  * This file will use the LendPoolConfigurator 
  * for full reference check the ILendPoolConfigurator.sol
 */
+task("configurator:setTimeframe", "Set the config fee for the User to pay when TriggerUser is called")
+.addParam("newtimeframe", "Set the configFee") 
+.setAction( async ({ newtimeframe }) => {
+    const wallet = await getOwnerWallet();  
+
+    const tx = await Functions.LENDPOOLCONFIGURATOR.setTimeframe(wallet, newtimeframe);
+    console.log(tx);
+});
+
+task("configurator:setConfigFee", "Set the config fee for the User to pay when TriggerUser is called")
+.addParam("configfee", "Set the configFee") 
+.setAction( async ({configfee}) => {
+    const wallet = await getOwnerWallet();  
+
+    const tx = await Functions.LENDPOOLCONFIGURATOR.setConfigFee(wallet, configfee);
+    console.log(tx);
+});
+
 task("configurator:setAllowToSellNFTX", "Enables or disables borrowing on each reserve")
 .addParam("nftasset", "NFT addresses") 
 .addParam("val", "A boolean, true to enable ; false to disable") 
 .setAction( async ({nftasset, val }) => {
     const wallet = await getOwnerWallet();  
 
-    const tx = await Functions.LENDPOOLCONFIGURATOR.setAllowToSellNFTX(wallet, nftasset, val)
+    const tx = await Functions.LENDPOOLCONFIGURATOR.setAllowToSellNFTX(wallet, nftasset, val);
     console.log(tx);
 }); 
 
@@ -23,7 +41,7 @@ task("configurator:setBorrowingFlagOnReserve", "Enables or disables borrowing on
 .setAction( async ({asset, flag }) => {
     const wallet = await getOwnerWallet();  
 
-    const tx = await Functions.LENDPOOLCONFIGURATOR.setBorrowingFlagOnReserve(wallet, asset, flag)
+    const tx = await Functions.LENDPOOLCONFIGURATOR.setBorrowingFlagOnReserve(wallet, asset, flag);
     console.log(tx);
 }); 
 
@@ -33,7 +51,7 @@ task("configurator:setActiveFlagOnReserve", "Activates or deactivates each reser
 .setAction( async ({asset, flag }) => {
     const wallet = await getOwnerWallet();  
 
-    const tx = await Functions.LENDPOOLCONFIGURATOR.setActiveFlagOnReserve(wallet, asset, flag)
+    const tx = await Functions.LENDPOOLCONFIGURATOR.setActiveFlagOnReserve(wallet, asset, flag);
     console.log(tx);
 }); 
 

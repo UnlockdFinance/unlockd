@@ -11,16 +11,21 @@ task("wethgateway:depositETH", "Deposits raw ETH")
 .setAction(async ({ amount, to, walletnumber }) => {
     const wallet = await getWalletByNumber(walletnumber);  
     //amount must be in WEI!!
+    const utokenContract = MockContracts['uWETH']; 
+    await Functions.RESERVES.approve(wallet, utokenContract, Contracts.wethGateway.address, '99999999999999999999999999999999999999') 
+    console.log("approved utoken");  
     await Functions.WETH_GATEWAY.depositETH(wallet, amount, to);
 });
+
 task("wethgateway:withdrawETH", "Withdraws raw ETH")
 .addParam("amount", "The amount in WEI")
-.addParam("to", "The on behalf of")
+.addParam("to", "The on behalf of")  
 .addParam("walletnumber", "The wallet in the env file")
 .setAction(async ({ amount, to, walletnumber }) => {
     const wallet = await getWalletByNumber(walletnumber);  
-    const tokenContract = MockContracts['WETH']; 
-    await Functions.RESERVES.approve(wallet, tokenContract, Contracts.wethGateway.address, amount) 
+    const tokenContract = MockContracts['uWETH']; 
+ 
+    console.log(wallet.address);  
     //amount must be in WEI!!
     await Functions.WETH_GATEWAY.withdrawETH(wallet, amount, to);
 });

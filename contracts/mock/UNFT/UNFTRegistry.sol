@@ -141,8 +141,12 @@ contract UNFTRegistry is IUNFTRegistry, Initializable, OwnableUpgradeable {
   function addCustomeSymbols(address[] memory nftAssets_, string[] memory symbols_) external override onlyOwner {
     require(nftAssets_.length == symbols_.length, "UNFTR: inconsistent parameters");
 
-    for (uint256 i = 0; i < nftAssets_.length; i++) {
+    for (uint256 i = 0; i < nftAssets_.length; ) {
       customSymbols[nftAssets_[i]] = symbols_[i];
+
+      unchecked {
+        ++i;
+      }
     }
   }
 
