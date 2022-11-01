@@ -40,6 +40,17 @@ task("lendpool:getNftConfigByTokenId", "Get the NFT Configuration")
   }
 );
 
+task("lendpool:liquidate", "Get the NFT Configuration")
+  .addParam("nftaddress", "The asset address")
+  .addParam("nfttokenid", "The tokenId of the asset")
+  .addParam("amount", "The tokenId of the asset")
+  .setAction(async ({ nftaddress, nfttokenid, amount }) => {
+    const wallet = await getUserWallet();
+    const tx = await Functions.LENDPOOL.liquidate(wallet, nftaddress, nfttokenid, amount);
+    console.log(await tx);
+  }
+);
+
 // Get Nft Reserve data 
 task("lendpool:liquidateNFTX", "Liquidates the NFT on NFTx Vault")
   .addParam("nftaddress", "The asset address")

@@ -46,7 +46,7 @@ contract UnlockdProtocolDataProvider {
     ILendPool pool = ILendPool(ADDRESSES_PROVIDER.getLendPool());
     address[] memory reserves = pool.getReservesList();
     ReserveTokenData[] memory reservesTokens = new ReserveTokenData[](reserves.length);
-    for (uint256 i = 0; i < reserves.length; i++) {
+    for (uint256 i = 0; i < reserves.length; ) {
       DataTypes.ReserveData memory reserveData = pool.getReserveData(reserves[i]);
       reservesTokens[i] = ReserveTokenData({
         tokenSymbol: IERC20Detailed(reserves[i]).symbol(),
@@ -56,6 +56,10 @@ contract UnlockdProtocolDataProvider {
         debtTokenSymbol: IERC20Detailed(reserveData.debtTokenAddress).symbol(),
         debtTokenAddress: reserveData.debtTokenAddress
       });
+
+      unchecked {
+        ++i;
+      }
     }
     return reservesTokens;
   }
@@ -85,7 +89,7 @@ contract UnlockdProtocolDataProvider {
     ILendPool pool = ILendPool(ADDRESSES_PROVIDER.getLendPool());
     address[] memory nfts = pool.getNftsList();
     NftTokenData[] memory nftTokens = new NftTokenData[](nfts.length);
-    for (uint256 i = 0; i < nfts.length; i++) {
+    for (uint256 i = 0; i < nfts.length; ) {
       DataTypes.NftData memory nftData = pool.getNftData(nfts[i]);
       nftTokens[i] = NftTokenData({
         nftSymbol: IERC721Detailed(nfts[i]).symbol(),
@@ -93,6 +97,10 @@ contract UnlockdProtocolDataProvider {
         uNftSymbol: IERC721Detailed(nftData.uNftAddress).symbol(),
         uNftAddress: nftData.uNftAddress
       });
+
+      unchecked {
+        ++i;
+      }
     }
     return nftTokens;
   }

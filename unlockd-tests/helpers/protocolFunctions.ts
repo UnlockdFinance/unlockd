@@ -50,6 +50,9 @@ const isApprovedNft = async(wallet: Wallet, collection: Contract, owner: string,
 //#endregion 
  
 //#region  LendPool 
+const liquidate = async (wallet: Wallet, nftAsset: string, nftTokenId: string, amount: string) => {
+    return await Contracts.lendPool.connect(wallet).liquidate(nftAsset, nftTokenId, amount);
+}
 
 const triggerUserCollateral = async (wallet: Wallet, nftAsset: string, nftTokenId: string) => {
     return await Contracts.lendPool.connect(wallet).triggerUserCollateral(nftAsset, nftTokenId, { value: 1000000000000000 });
@@ -608,6 +611,7 @@ export const Functions = {
         getReserveNormalizedIncome: getReserveNormalizedIncome,
         getReserveNormalizedVariableDebt: getReserveNormalizedVariableDebt,
         getReservesList: getReservesList,
+        liquidate: liquidate,
     },
     WETH_GATEWAY: {
         depositETH: depositETH,

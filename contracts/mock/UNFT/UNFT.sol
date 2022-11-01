@@ -99,13 +99,21 @@ contract UNFT is ERC721EnumerableUpgradeable, IUNFT {
     // !!!CAUTION: receiver contract may reentry mint, burn, flashloan again
 
     // only token owner can do flashloan
-    for (i = 0; i < nftTokenIds.length; i++) {
+    for (i = 0; i < nftTokenIds.length; ) {
       require(ownerOf(nftTokenIds[i]) == _msgSender(), "UNFT: caller is not owner");
+
+      unchecked {
+        ++i;
+      }
     }
 
     // step 1: moving underlying asset forward to receiver contract
-    for (i = 0; i < nftTokenIds.length; i++) {
+    for (i = 0; i < nftTokenIds.length; ) {
       IERC721Upgradeable(_underlyingAsset).safeTransferFrom(address(this), receiverAddress, nftTokenIds[i]);
+
+      unchecked {
+        ++i;
+      }
     }
 
     // setup 2: execute receiver contract, doing something like aidrop
@@ -115,10 +123,13 @@ contract UNFT is ERC721EnumerableUpgradeable, IUNFT {
     );
 
     // setup 3: moving underlying asset backword from receiver contract
-    for (i = 0; i < nftTokenIds.length; i++) {
+    for (i = 0; i < nftTokenIds.length; ) {
       IERC721Upgradeable(_underlyingAsset).safeTransferFrom(receiverAddress, address(this), nftTokenIds[i]);
 
       emit FlashLoan(receiverAddress, _msgSender(), _underlyingAsset, nftTokenIds[i]);
+      unchecked {
+        ++i;
+      }
     }
   }
 
