@@ -395,6 +395,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     currentConfig.setRedeemFine(redeemFine);
     currentConfig.setConfigTimestamp(block.timestamp);
 
+
     cachedPool.setNftConfigByTokenId(asset, nftTokenId, currentConfig.data);
 
     INFTOracle(_addressesProvider.getNFTOracle()).setNFTPrice(asset, nftTokenId, newPrice);
