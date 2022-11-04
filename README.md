@@ -29,55 +29,22 @@ You can join at the [Discord](https://discord.gg/unlockddao) channel or at the [
 
 ## Getting Started
 
-You can install `@unlockddao/unlockd-protocol` as an NPM package in your Hardhat, Buidler or Truffle project to import the contracts and interfaces:
-
-`npm install @unlockddao/unlockd-protocol`
-
-Import at Solidity files:
-
-```
-import {ILendPool} from "@unlockddao/unlockd-protocol/contracts/interfaces/ILendPool.sol";
-
-contract Misc {
-
-  function deposit(address pool, address token, address user, uint256 amount) public {
-    ILendPool(pool).deposit(token, amount, user, 0);
-    {...}
-  }
-}
-```
-
-The JSON artifacts with the ABI and Bytecode are also included into the bundled NPM package at `artifacts/` directory.
-
-Import JSON file via Node JS `require`:
-
-```
-const LendPoolArtifact = require('@unlockddao/unlockd-protocol/artifacts/contracts/protocol/LendPool.sol/LendPool.json');
-
-// Log the ABI into console
-console.log(LendPoolArtifact.abi)
-```
-
 ## Setup
 
-The repository uses Docker Compose to manage sensitive keys and load the configuration. Prior any action like test or deploy, you must run `docker-compose up` to start the `contracts-env` container, and then connect to the container console via `docker-compose exec contracts-env bash`.
+- install using yarn install
 
-Follow the next steps to setup the repository:
-
-- Install `docker` and `docker-compose`
 - Create an enviroment file named `.env` and fill the next enviroment variables
 
 ```
 # Mnemonic, only first address will be used
 MNEMONIC=""
 
-# Add Alchemy or Infura provider keys, alchemy takes preference at the config level
-ALCHEMY_KEY=""
-INFURA_KEY=""
+# Add Alchemy or Infura RPC Endpoint keys, alchemy takes preference at the config level
+RPC_ENDPOINT=""
 
 # Optional Etherscan key, for automatize the verification of the contracts at Etherscan
 ETHERSCAN_KEY=""
-
+ETHERSCAN_NETWORK="" # network in use
 ```
 
 ## Markets configuration
@@ -91,12 +58,6 @@ Each market should have his own Market configuration file, and their own set of 
 You can run the full test suite with the following commands:
 
 ```
-# In one terminal
-docker-compose up
-
-# Open another tab or terminal
-docker-compose exec contracts-env bash
-
 # install dependencies
 yarn install
 
@@ -110,12 +71,6 @@ For deploying Unlockd Protocol, you can use the available scripts located at `pa
 
 ### Prepare
 ```
-# In one terminal
-docker-compose up
-
-# Open another tab or terminal
-docker-compose exec contracts-env bash
-
 # install dependencies
 yarn install
 
@@ -156,7 +111,7 @@ npx hardhat --network localhost "dev:deploy-mock-unft-tokens" --pool Unlockd
 ### Rinkeby mock deployment (a full deployment may not run because of ERC20 and ERC721 Reserves)
 ```
 # In one terminal
-npm run unlockd:rinkeby:mock:migration
+npm run unlockd:goerli:mock:migration
 ```
 
 ## Interact with Unlockd in Mainnet via console
@@ -182,10 +137,10 @@ const contractGetters = require('./helpers/contracts-getters');
 const signer = await contractGetters.getFirstSigner();
 
 // Lend pool instance
-const lendPool = await contractGetters.getLendPool("0x3AF6fC17EbD751E4D11F5A1d6823b2aE64723B87");
+const lendPool = await contractGetters.getLendPool("");
 
 // ERC20 token WETH Mainnet instance
-const WETH = await contractGetters.getIErc20Detailed("0xbe4d36E2C69Aa9658e937f6cC584E60167484381");
+const WETH = await contractGetters.getIErc20Detailed("");
 
 // Approve 10 WETH to LendPool address
 await WETH.connect(signer).approve(lendPool.address, ethers.utils.parseUnits('10'));
@@ -226,17 +181,17 @@ npx hardhat lendpoolloan:getloan
 
 ## Etherscan verification
 
-To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
+To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Goerli.
 
-In this project, copy the .env.template file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
+In this project, copy the .env.template file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Goerli node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
 
 ```shell
-hardhat run --network ropsten scripts/deploy.js
+hardhat run --network goerli scripts/deploy.js
 ```
 
 Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
 
 ```shell
-npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
+npx hardhat verify --network goerli DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
 ```
 # unlockd-core
