@@ -1,7 +1,3 @@
-[![Build pass](https://github.com/UnlockdDAO/unlockd-protocol/actions/workflows/node.js.yml/badge.svg)](https://github.com/UnlockdDAO/unlockd-protocol/actions/workflows/node.js.yml)
-[![codecov](https://codecov.io/gh/UnlockdDAO/unlockd-protocol/branch/main/graph/badge.svg?token=Z4Y9S158JS)](https://codecov.io/gh/UnlockdDAO/unlockd-protocol)
-
-
 # Unlockd Protocol
 
 This repository contains the smart contracts source code and markets configuration for Unlockd Protocol. The repository uses Hardhat as development enviroment for compilation, testing and deployment tasks.
