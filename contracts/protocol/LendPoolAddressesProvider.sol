@@ -5,6 +5,7 @@ pragma solidity 0.8.4;
 // prettier-ignore
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
 import {UnlockdUpgradeableProxy} from "../libraries/proxy/UnlockdUpgradeableProxy.sol";
+import {Errors} from "../libraries/helpers/Errors.sol";
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
@@ -34,10 +35,8 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   bytes32 private constant UNLOCKD_DATA_PROVIDER = "UNLOCKD_DATA_PROVIDER";
   bytes32 private constant UI_DATA_PROVIDER = "UI_DATA_PROVIDER";
   bytes32 private constant WALLET_BALANCE_PROVIDER = "WALLET_BALANCE_PROVIDER";
-  bytes32 private constant OPENSEA_SEAPORT = "OPENSEA_SEAPORT";
   bytes32 private constant NFTX_VAULT_FACTORY = "NFTX_VAULT_FACTORY";
   bytes32 private constant SUSHI_SWAP_ROUTER = "SUSHI_SWAP_ROUTER";
-  bytes32 private constant LTV_MANAGER = "LTV_MANAGER";
 
   constructor(string memory marketId) {
     _setMarketId(marketId);
@@ -73,6 +72,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
     address implementationAddress,
     bytes memory encodedCallData
   ) external override onlyOwner {
+    require(implementationAddress != address(0), Errors.INVALID_ZERO_ADDRESS);
     _updateImpl(id, implementationAddress);
     emit AddressSet(id, implementationAddress, true, encodedCallData);
 
@@ -88,6 +88,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    * @param newAddress The address to set
    */
   function setAddress(bytes32 id, address newAddress) external override onlyOwner {
+    require(newAddress != address(0), Errors.INVALID_ZERO_ADDRESS);
     _addresses[id] = newAddress;
     emit AddressSet(id, newAddress, false, new bytes(0));
   }
@@ -115,6 +116,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    * @param encodedCallData calldata to execute
    **/
   function setLendPoolImpl(address pool, bytes memory encodedCallData) external override onlyOwner {
+    require(pool != address(0), Errors.INVALID_ZERO_ADDRESS);
     _updateImpl(LEND_POOL, pool);
     emit LendPoolUpdated(pool, encodedCallData);
 
@@ -138,30 +140,13 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    * @param encodedCallData calldata to execute
    **/
   function setLendPoolConfiguratorImpl(address configurator, bytes memory encodedCallData) external override onlyOwner {
+    require(configurator != address(0), Errors.INVALID_ZERO_ADDRESS);
     _updateImpl(LEND_POOL_CONFIGURATOR, configurator);
     emit LendPoolConfiguratorUpdated(configurator, encodedCallData);
 
     if (encodedCallData.length > 0) {
       Address.functionCall(_addresses[LEND_POOL_CONFIGURATOR], encodedCallData);
     }
-  }
-
-  /**
-   * @dev returns the address of the Loan to Value Manager
-   * @return the LendPoolAdmin address
-   **/
-
-  function getLtvManager() external view override returns (address) {
-    return getAddress(LTV_MANAGER);
-  }
-
-  /**
-   * @dev sets the address of the Loan to Value Manager
-   * @param ltvManager the LtvManager Wallet address
-   **/
-  function setLtvManager(address ltvManager) external override onlyOwner {
-    _addresses[LTV_MANAGER] = ltvManager;
-    emit LtvManagerUpdated(ltvManager);
   }
 
   /**
@@ -178,6 +163,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    * @param admin the LendPoolAdmin address
    **/
   function setPoolAdmin(address admin) external override onlyOwner {
+    require(admin != address(0), Errors.INVALID_ZERO_ADDRESS);
     _addresses[POOL_ADMIN] = admin;
     emit ConfigurationAdminUpdated(admin);
   }
@@ -195,6 +181,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    * @param emergencyAdmin the EmergencyAdmin address
    **/
   function setEmergencyAdmin(address emergencyAdmin) external override onlyOwner {
+    require(emergencyAdmin != address(0), Errors.INVALID_ZERO_ADDRESS);
     _addresses[EMERGENCY_ADMIN] = emergencyAdmin;
     emit EmergencyAdminUpdated(emergencyAdmin);
   }
@@ -212,6 +199,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    * @param reserveOracle the ReserveOracle address
    **/
   function setReserveOracle(address reserveOracle) external override onlyOwner {
+    require(reserveOracle != address(0), Errors.INVALID_ZERO_ADDRESS);
     _addresses[RESERVE_ORACLE] = reserveOracle;
     emit ReserveOracleUpdated(reserveOracle);
   }
@@ -229,6 +217,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    * @param nftOracle the NFTOracle address
    **/
   function setNFTOracle(address nftOracle) external override onlyOwner {
+    require(nftOracle != address(0), Errors.INVALID_ZERO_ADDRESS);
     _addresses[NFT_ORACLE] = nftOracle;
     emit NftOracleUpdated(nftOracle);
   }
@@ -247,6 +236,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    * @param encodedCallData calldata to execute
    **/
   function setLendPoolLoanImpl(address loanAddress, bytes memory encodedCallData) external override onlyOwner {
+    require(loanAddress != address(0), Errors.INVALID_ZERO_ADDRESS);
     _updateImpl(LEND_POOL_LOAN, loanAddress);
     emit LendPoolLoanUpdated(loanAddress, encodedCallData);
 
@@ -268,6 +258,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    * @param factory the UNFTRegistry address
    **/
   function setUNFTRegistry(address factory) external override onlyOwner {
+    require(factory != address(0), Errors.INVALID_ZERO_ADDRESS);
     _addresses[UNFT_REGISTRY] = factory;
     emit UNFTRegistryUpdated(factory);
   }
@@ -285,6 +276,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    * @param controller the IncentivesController address
    **/
   function setIncentivesController(address controller) external override onlyOwner {
+    require(controller != address(0), Errors.INVALID_ZERO_ADDRESS);
     _addresses[INCENTIVES_CONTROLLER] = controller;
     emit IncentivesControllerUpdated(controller);
   }
@@ -319,6 +311,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    * @param provider the UnlockdDataProvider address
    **/
   function setUnlockdDataProvider(address provider) external override onlyOwner {
+    require(provider != address(0), Errors.INVALID_ZERO_ADDRESS);
     _addresses[UNLOCKD_DATA_PROVIDER] = provider;
     emit UnlockdDataProviderUpdated(provider);
   }
@@ -336,20 +329,9 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    * @param provider the WalletBalanceProvider address
    **/
   function setWalletBalanceProvider(address provider) external override onlyOwner {
+    require(provider != address(0), Errors.INVALID_ZERO_ADDRESS);
     _addresses[WALLET_BALANCE_PROVIDER] = provider;
     emit WalletBalanceProviderUpdated(provider);
-  }
-
-  function getOpenseaSeaport() external view override returns (address) {
-    return getAddress(OPENSEA_SEAPORT);
-  }
-
-  /**
-   * @inheritdoc ILendPoolAddressesProvider
-   */
-  function setOpenseaSeaport(address exchange) external override onlyOwner {
-    _addresses[OPENSEA_SEAPORT] = exchange;
-    emit OpenseaSeaportUpdated(exchange);
   }
 
   /**
@@ -363,6 +345,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    * @inheritdoc ILendPoolAddressesProvider
    */
   function setNFTXVaultFactory(address factory) external override onlyOwner {
+    require(factory != address(0), Errors.INVALID_ZERO_ADDRESS);
     _addresses[NFTX_VAULT_FACTORY] = factory;
     emit NFTXVaultFactoryUpdated(factory);
   }
@@ -385,6 +368,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    * @inheritdoc ILendPoolAddressesProvider
    */
   function setLendPoolLiquidator(address liquidator) external override onlyOwner {
+    require(liquidator != address(0), Errors.INVALID_ZERO_ADDRESS);
     _addresses[LEND_POOL_LIQUIDATOR] = liquidator;
     emit LendPoolLiquidatorUpdated(liquidator);
   }
@@ -393,6 +377,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    * @inheritdoc ILendPoolAddressesProvider
    */
   function setSushiSwapRouter(address router) external override onlyOwner {
+    require(router != address(0), Errors.INVALID_ZERO_ADDRESS);
     _addresses[SUSHI_SWAP_ROUTER] = router;
     emit SushiSwapRouterUpdated(router);
   }

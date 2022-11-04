@@ -100,8 +100,13 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
    * @param tokens the array of tokens
    **/
   function authorizeLendPoolERC20(address[] calldata tokens) external nonReentrant onlyOwner {
-    for (uint256 i = 0; i < tokens.length; i++) {
+    for (uint256 i = 0; i < tokens.length; ) {
+      IERC20Upgradeable(tokens[i]).approve(address(_getLendPool()), 0);
       IERC20Upgradeable(tokens[i]).approve(address(_getLendPool()), type(uint256).max);
+
+      unchecked {
+        ++i;
+      }
     }
   }
 
@@ -111,8 +116,12 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
    * @param callers the authorization status
    **/
   function authorizeCallerWhitelist(address[] calldata callers, bool flag) external nonReentrant onlyOwner {
-    for (uint256 i = 0; i < callers.length; i++) {
+    for (uint256 i = 0; i < callers.length; ) {
       _callerWhitelists[callers[i]] = flag;
+
+      unchecked {
+        ++i;
+      }
     }
   }
 
@@ -177,32 +186,6 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     IERC20Upgradeable(reserveAsset).transfer(onBehalfOf, amount);
   }
 
-  /**
-   * @inheritdoc IPunkGateway
-   */
-  function batchBorrow(
-    address[] calldata reserveAssets,
-    uint256[] calldata amounts,
-    uint256[] calldata punkIndexs,
-    address onBehalfOf,
-    uint16 referralCode
-  ) external override nonReentrant {
-    require(punkIndexs.length == reserveAssets.length, "inconsistent reserveAssets length");
-    require(punkIndexs.length == amounts.length, "inconsistent amounts length");
-
-    _checkValidCallerAndOnBehalfOf(onBehalfOf);
-
-    ILendPool cachedPool = _getLendPool();
-
-    for (uint256 i = 0; i < punkIndexs.length; i++) {
-      _depositPunk(punkIndexs[i]);
-
-      cachedPool.borrow(reserveAssets[i], amounts[i], address(wrappedPunks), punkIndexs[i], onBehalfOf, referralCode);
-
-      IERC20Upgradeable(reserveAssets[i]).transfer(onBehalfOf, amounts[i]);
-    }
-  }
-
   function _withdrawPunk(uint256 punkIndex, address onBehalfOf) internal {
     address owner = wrappedPunks.ownerOf(punkIndex);
     require(owner == _msgSender(), "PunkGateway: caller is not owner");
@@ -218,27 +201,6 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
    */
   function repay(uint256 punkIndex, uint256 amount) external override nonReentrant returns (uint256, bool) {
     return _repay(punkIndex, amount);
-  }
-
-  /**
-   * @inheritdoc IPunkGateway
-   */
-  function batchRepay(uint256[] calldata punkIndexs, uint256[] calldata amounts)
-    external
-    override
-    nonReentrant
-    returns (uint256[] memory, bool[] memory)
-  {
-    require(punkIndexs.length == amounts.length, "inconsistent amounts length");
-
-    uint256[] memory repayAmounts = new uint256[](punkIndexs.length);
-    bool[] memory repayAlls = new bool[](punkIndexs.length);
-
-    for (uint256 i = 0; i < punkIndexs.length; i++) {
-      (repayAmounts[i], repayAlls[i]) = _repay(punkIndexs[i], amounts[i]);
-    }
-
-    return (repayAmounts, repayAlls);
   }
 
   /**
@@ -343,20 +305,6 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (extraRetAmount);
   }
 
-  function liquidateOpensea(uint256 punkIndex, uint256 priceInEth) external override nonReentrant returns (uint256) {
-    require(_addressProvider.getLendPoolLiquidator() == _msgSender(), Errors.CALLER_NOT_POOL_LIQUIDATOR);
-
-    ILendPool cachedPool = _getLendPool();
-    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
-
-    uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
-    require(loanId != 0, "PunkGateway: no loan with such punkIndex");
-
-    uint256 remainAmount = cachedPool.liquidateOpensea(address(wrappedPunks), punkIndex, priceInEth);
-
-    return (remainAmount);
-  }
-
   /**
    * @notice Liquidate punk in NFTX
    * @param punkIndex The index of the CryptoPunk to liquidate
@@ -393,28 +341,6 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
   /**
    * @inheritdoc IPunkGateway
    */
-  function batchBorrowETH(
-    uint256[] calldata amounts,
-    uint256[] calldata punkIndexs,
-    address onBehalfOf,
-    uint16 referralCode
-  ) external override nonReentrant {
-    require(punkIndexs.length == amounts.length, "inconsistent amounts length");
-
-    _checkValidCallerAndOnBehalfOf(onBehalfOf);
-
-    address[] memory nftAssets = new address[](punkIndexs.length);
-    for (uint256 i = 0; i < punkIndexs.length; i++) {
-      nftAssets[i] = address(wrappedPunks);
-      _depositPunk(punkIndexs[i]);
-    }
-
-    _wethGateway.batchBorrowETH(amounts, nftAssets, punkIndexs, onBehalfOf, referralCode);
-  }
-
-  /**
-   * @inheritdoc IPunkGateway
-   */
   function repayETH(uint256 punkIndex, uint256 amount) external payable override nonReentrant returns (uint256, bool) {
     (uint256 paybackAmount, bool burn) = _repayETH(punkIndex, amount, 0);
 
@@ -424,35 +350,6 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     }
 
     return (paybackAmount, burn);
-  }
-
-  /**
-   * @inheritdoc IPunkGateway
-   */
-  function batchRepayETH(uint256[] calldata punkIndexs, uint256[] calldata amounts)
-    external
-    payable
-    override
-    nonReentrant
-    returns (uint256[] memory, bool[] memory)
-  {
-    require(punkIndexs.length == amounts.length, "inconsistent amounts length");
-
-    uint256[] memory repayAmounts = new uint256[](punkIndexs.length);
-    bool[] memory repayAlls = new bool[](punkIndexs.length);
-    uint256 allRepayAmount = 0;
-
-    for (uint256 i = 0; i < punkIndexs.length; i++) {
-      (repayAmounts[i], repayAlls[i]) = _repayETH(punkIndexs[i], amounts[i], allRepayAmount);
-      allRepayAmount += repayAmounts[i];
-    }
-
-    // refund remaining dust eth
-    if (msg.value > allRepayAmount) {
-      _safeTransferETH(msg.sender, msg.value - allRepayAmount);
-    }
-
-    return (repayAmounts, repayAlls);
   }
 
   /**

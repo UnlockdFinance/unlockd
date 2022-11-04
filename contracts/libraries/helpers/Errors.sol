@@ -21,7 +21,9 @@ library Errors {
   string public constant INVALID_TO_BALANCE_AFTER_TRANSFER = "103";
   string public constant CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST = "104";
   string public constant CALLER_NOT_POOL_LIQUIDATOR = "105";
-  string public constant CALLER_NOT_LTV_MANAGER = "106";
+  string public constant INVALID_ZERO_ADDRESS = "106";
+  string public constant CALLER_NOT_LTV_MANAGER = "107";
+  string public constant CALLER_NOT_PRICE_MANAGER = "108";
 
   //math library erros
   string public constant MATH_MULTIPLICATION_OVERFLOW = "200";
@@ -48,6 +50,8 @@ library Errors {
   string public constant VL_SPECIFIED_LOAN_NOT_BORROWED_BY_USER = "317";
   string public constant VL_SPECIFIED_RESERVE_NOT_BORROWED_BY_USER = "318";
   string public constant VL_HEALTH_FACTOR_HIGHER_THAN_LIQUIDATION_THRESHOLD = "319";
+  string public constant VL_TIMEFRAME_EXCEEDED = "320";
+  string public constant VL_VALUE_EXCEED_TREASURY_BALANCE = "321";
 
   //lend pool errors
   string public constant LP_CALLER_NOT_LEND_POOL_CONFIGURATOR = "400"; // 'The caller of the function is not the lending pool configurator'
@@ -70,6 +74,11 @@ library Errors {
   string public constant LP_NFT_TOKEN_ID_EXCEED_MAX_LIMIT = "417";
   string public constant LP_NFT_SUPPLY_NUM_EXCEED_MAX_LIMIT = "418";
   string public constant LP_CALLER_NOT_LEND_POOL_LIQUIDATOR_NOR_GATEWAY = "419";
+  string public constant LP_CONSECUTIVE_BIDS_NOT_ALLOWED = "420";
+  string public constant LP_INVALID_OVERFLOW_VALUE = "421";
+  string public constant LP_CALLER_NOT_NFT_HOLDER = "422";
+  string public constant LP_NFT_NOT_ALLOWED_TO_SELL = "423";
+  string public constant LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY = "424";
 
   //lend pool loan errors
   string public constant LPL_INVALID_LOAN_STATE = "480";
@@ -105,10 +114,12 @@ library Errors {
   string public constant LPC_RESERVE_LIQUIDITY_NOT_0 = "700"; // 'The liquidity of the reserve needs to be 0'
   string public constant LPC_INVALID_CONFIGURATION = "701"; // 'Invalid risk parameters for the reserve'
   string public constant LPC_CALLER_NOT_EMERGENCY_ADMIN = "702"; // 'The caller must be the emergency admin'
-  string public constant LPC_INVALIED_UNFT_ADDRESS = "703";
+  string public constant LPC_INVALID_UNFT_ADDRESS = "703";
   string public constant LPC_INVALIED_LOAN_ADDRESS = "704";
   string public constant LPC_NFT_LIQUIDITY_NOT_0 = "705";
   string public constant LPC_PARAMS_MISMATCH = "706"; // NFT assets & token ids mismatch
+  string public constant LPC_FEE_PERCENTAGE_TOO_HIGH = "707";
+  string public constant LPC_INVALID_LTVMANAGER_ADDRESS = "708";
 
   //reserve config errors
   string public constant RC_INVALID_LTV = "730";
@@ -122,8 +133,15 @@ library Errors {
   string public constant RC_INVALID_REDEEM_THRESHOLD = "738";
   string public constant RC_INVALID_MIN_BID_FINE = "739";
   string public constant RC_INVALID_MAX_BID_FINE = "740";
+  string public constant RC_INVALID_MAX_CONFIG_TIMESTAMP = "741";
 
   //address provider erros
   string public constant LPAPR_PROVIDER_NOT_REGISTERED = "760"; // 'Provider is not registered'
   string public constant LPAPR_INVALID_ADDRESSES_PROVIDER_ID = "761";
+
+  //NFTXHelper
+  string public constant NFTX_INVALID_VAULTS_LENGTH = "800";
+
+  //NFTOracleErrors
+  string public constant NFTO_INVALID_PRICEM_ADDRESS = "900";
 }

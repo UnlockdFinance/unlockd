@@ -14,7 +14,7 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {ConfigTypes} from "../libraries/types/ConfigTypes.sol";
-
+import {INFTOracle} from "../interfaces/INFTOracle.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -30,8 +30,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   using NftConfiguration for DataTypes.NftConfigurationMap;
   ILendPoolAddressesProvider internal _addressesProvider;
 
+  mapping(address => bool) public isLtvManager;
+
   modifier onlyLtvManager() {
-    require(_addressesProvider.getLtvManager() == msg.sender, Errors.CALLER_NOT_LTV_MANAGER);
+    require(isLtvManager[msg.sender], Errors.CALLER_NOT_LTV_MANAGER);
     _;
   }
 
@@ -60,8 +62,12 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    **/
   function batchInitReserve(ConfigTypes.InitReserveInput[] calldata input) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < input.length; i++) {
+    for (uint256 i = 0; i < input.length; ) {
       ConfiguratorLogic.executeInitReserve(_addressesProvider, cachedPool, input[i]);
+
+      unchecked {
+        ++i;
+      }
     }
   }
 
@@ -73,8 +79,12 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     ILendPool cachedPool = _getLendPool();
     IUNFTRegistry cachedRegistry = _getUNFTRegistry();
 
-    for (uint256 i = 0; i < input.length; i++) {
+    for (uint256 i = 0; i < input.length; ) {
       ConfiguratorLogic.executeInitNft(cachedPool, cachedRegistry, input[i]);
+
+      unchecked {
+        ++i;
+      }
     }
   }
 
@@ -85,8 +95,12 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function updateUToken(ConfigTypes.UpdateUTokenInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
 
-    for (uint256 i = 0; i < inputs.length; i++) {
+    for (uint256 i = 0; i < inputs.length; ) {
       ConfiguratorLogic.executeUpdateUToken(cachedPool, inputs[i]);
+
+      unchecked {
+        ++i;
+      }
     }
   }
 
@@ -97,98 +111,93 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function updateDebtToken(ConfigTypes.UpdateDebtTokenInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
 
-    for (uint256 i = 0; i < inputs.length; i++) {
+    for (uint256 i = 0; i < inputs.length; ) {
       ConfiguratorLogic.executeUpdateDebtToken(cachedPool, inputs[i]);
+
+      unchecked {
+        ++i;
+      }
     }
   }
 
   /**
    * @dev Enables or disables borrowing on each reserve
-   * @param assets the assets to update the flag to
+   * @param asset the assets to update the flag to
    * @param flag the flag to set to the each reserve
    **/
-  function setBorrowingFlagOnReserve(address[] calldata assets, bool flag) external onlyPoolAdmin {
+  function setBorrowingFlagOnReserve(address asset, bool flag) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; i++) {
-      DataTypes.ReserveConfigurationMap memory currentConfig = cachedPool.getReserveConfiguration(assets[i]);
+    DataTypes.ReserveConfigurationMap memory currentConfig = cachedPool.getReserveConfiguration(asset);
 
-      if (flag) {
-        currentConfig.setBorrowingEnabled(true);
-      } else {
-        currentConfig.setBorrowingEnabled(false);
-      }
+    if (flag) {
+      currentConfig.setBorrowingEnabled(true);
+    } else {
+      currentConfig.setBorrowingEnabled(false);
+    }
 
-      cachedPool.setReserveConfiguration(assets[i], currentConfig.data);
+    cachedPool.setReserveConfiguration(asset, currentConfig.data);
 
-      if (flag) {
-        emit BorrowingEnabledOnReserve(assets[i]);
-      } else {
-        emit BorrowingDisabledOnReserve(assets[i]);
-      }
+    if (flag) {
+      emit BorrowingEnabledOnReserve(asset);
+    } else {
+      emit BorrowingDisabledOnReserve(asset);
     }
   }
 
   /**
    * @dev Activates or deactivates each reserve
-   * @param assets the assets to update the flag to
+   * @param asset the assets to update the flag to
    * @param flag the flag to set to the each reserve
    **/
-  function setActiveFlagOnReserve(address[] calldata assets, bool flag) external onlyPoolAdmin {
+  function setActiveFlagOnReserve(address asset, bool flag) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; i++) {
-      DataTypes.ReserveConfigurationMap memory currentConfig = cachedPool.getReserveConfiguration(assets[i]);
+    DataTypes.ReserveConfigurationMap memory currentConfig = cachedPool.getReserveConfiguration(asset);
 
-      if (!flag) {
-        _checkReserveNoLiquidity(assets[i]);
-      }
-      currentConfig.setActive(flag);
-      cachedPool.setReserveConfiguration(assets[i], currentConfig.data);
-
-      if (flag) {
-        emit ReserveActivated(assets[i]);
-      } else {
-        emit ReserveDeactivated(assets[i]);
-      }
+    if (!flag) {
+      _checkReserveNoLiquidity(asset);
+    }
+    currentConfig.setActive(flag);
+    cachedPool.setReserveConfiguration(asset, currentConfig.data);
+    if (flag) {
+      emit ReserveActivated(asset);
+    } else {
+      emit ReserveDeactivated(asset);
     }
   }
 
   /**
    * @dev Freezes or unfreezes each reserve
-   * @param assets the assets to update the flag to
+   * @param asset the assets to update the flag to
    * @param flag the flag to set to the each reserve
    **/
-  function setFreezeFlagOnReserve(address[] calldata assets, bool flag) external onlyPoolAdmin {
+  function setFreezeFlagOnReserve(address asset, bool flag) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; i++) {
-      DataTypes.ReserveConfigurationMap memory currentConfig = cachedPool.getReserveConfiguration(assets[i]);
+    DataTypes.ReserveConfigurationMap memory currentConfig = cachedPool.getReserveConfiguration(asset);
 
-      currentConfig.setFrozen(flag);
-      cachedPool.setReserveConfiguration(assets[i], currentConfig.data);
+    currentConfig.setFrozen(flag);
+    cachedPool.setReserveConfiguration(asset, currentConfig.data);
 
-      if (flag) {
-        emit ReserveFrozen(assets[i]);
-      } else {
-        emit ReserveUnfrozen(assets[i]);
-      }
+    if (flag) {
+      emit ReserveFrozen(asset);
+    } else {
+      emit ReserveUnfrozen(asset);
     }
   }
 
   /**
    * @dev Updates the reserve factor of a reserve
-   * @param assets The address of the underlying asset of the reserve
+   * @param asset The address of the underlying asset of the reserve
    * @param reserveFactor The new reserve factor of the reserve
    **/
-  function setReserveFactor(address[] calldata assets, uint256 reserveFactor) external onlyPoolAdmin {
+  function setReserveFactor(address asset, uint256 reserveFactor) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; i++) {
-      DataTypes.ReserveConfigurationMap memory currentConfig = cachedPool.getReserveConfiguration(assets[i]);
+    DataTypes.ReserveConfigurationMap memory currentConfig = cachedPool.getReserveConfiguration(asset);
 
-      currentConfig.setReserveFactor(reserveFactor);
+    currentConfig.setReserveFactor(reserveFactor);
 
-      cachedPool.setReserveConfiguration(assets[i], currentConfig.data);
+    cachedPool.setReserveConfiguration(asset, currentConfig.data);
 
-      emit ReserveFactorChanged(assets[i], reserveFactor);
-    }
+    emit ReserveFactorChanged(asset, reserveFactor);
   }
 
   /**
@@ -198,9 +207,13 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    **/
   function setReserveInterestRateAddress(address[] calldata assets, address rateAddress) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; i++) {
+    for (uint256 i = 0; i < assets.length; ) {
       cachedPool.setReserveInterestRateAddress(assets[i], rateAddress);
       emit ReserveInterestRateChanged(assets[i], rateAddress);
+
+      unchecked {
+        ++i;
+      }
     }
   }
 
@@ -210,7 +223,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    **/
   function batchConfigReserve(ConfigReserveInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < inputs.length; i++) {
+    for (uint256 i = 0; i < inputs.length; ) {
       DataTypes.ReserveConfigurationMap memory currentConfig = cachedPool.getReserveConfiguration(inputs[i].asset);
 
       currentConfig.setReserveFactor(inputs[i].reserveFactor);
@@ -218,30 +231,32 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
       cachedPool.setReserveConfiguration(inputs[i].asset, currentConfig.data);
 
       emit ReserveFactorChanged(inputs[i].asset, inputs[i].reserveFactor);
+
+      unchecked {
+        ++i;
+      }
     }
   }
 
   /**
    * @dev Activates or deactivates each NFT
-   * @param assets the NFTs to update the flag to
+   * @param asset the NFTs to update the flag to
    * @param flag the flag to set to the each NFT
    **/
-  function setActiveFlagOnNft(address[] calldata assets, bool flag) external onlyPoolAdmin {
+  function setActiveFlagOnNft(address asset, bool flag) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; i++) {
-      DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfiguration(assets[i]);
+    DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfiguration(asset);
 
-      if (!flag) {
-        _checkNftNoLiquidity(assets[i]);
-      }
-      currentConfig.setActive(flag);
-      cachedPool.setNftConfiguration(assets[i], currentConfig.data);
+    if (!flag) {
+      _checkNftNoLiquidity(asset);
+    }
+    currentConfig.setActive(flag);
+    cachedPool.setNftConfiguration(asset, currentConfig.data);
 
-      if (flag) {
-        emit NftActivated(assets[i]);
-      } else {
-        emit NftDeactivated(assets[i]);
-      }
+    if (flag) {
+      emit NftActivated(asset);
+    } else {
+      emit NftDeactivated(asset);
     }
   }
 
@@ -259,7 +274,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     require(assets.length == tokenIds.length, Errors.LPC_PARAMS_MISMATCH);
 
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; i++) {
+    for (uint256 i = 0; i < assets.length; ) {
       DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(assets[i], tokenIds[i]);
 
       currentConfig.setActive(flag);
@@ -270,27 +285,27 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
       } else {
         emit NftTokenDeactivated(assets[i], tokenIds[i]);
       }
+
+      unchecked {
+        ++i;
+      }
     }
   }
 
   /**
    * @dev Freezes or unfreezes each NFT
-   * @param assets the assets to update the flag to
+   * @param asset the assets to update the flag to
    * @param flag the flag to set to the each NFT
    **/
-  function setFreezeFlagOnNft(address[] calldata assets, bool flag) external onlyPoolAdmin {
+  function setFreezeFlagOnNft(address asset, bool flag) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; i++) {
-      DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfiguration(assets[i]);
-
-      currentConfig.setFrozen(flag);
-      cachedPool.setNftConfiguration(assets[i], currentConfig.data);
-
-      if (flag) {
-        emit NftFrozen(assets[i]);
-      } else {
-        emit NftUnfrozen(assets[i]);
-      }
+    DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfiguration(asset);
+    currentConfig.setFrozen(flag);
+    cachedPool.setNftConfiguration(asset, currentConfig.data);
+    if (flag) {
+      emit NftFrozen(asset);
+    } else {
+      emit NftUnfrozen(asset);
     }
   }
 
@@ -306,7 +321,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     bool flag
   ) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; i++) {
+    for (uint256 i = 0; i < assets.length; ) {
       DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(assets[i], tokenIds[i]);
 
       currentConfig.setFrozen(flag);
@@ -316,6 +331,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
         emit NftTokenFrozen(assets[i], tokenIds[i]);
       } else {
         emit NftTokenUnfrozen(assets[i], tokenIds[i]);
+      }
+
+      unchecked {
+        ++i;
       }
     }
   }
@@ -335,6 +354,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function configureNftAsCollateral(
     address asset,
     uint256 nftTokenId,
+    uint256 newPrice,
     uint256 ltv,
     uint256 liquidationThreshold,
     uint256 liquidationBonus,
@@ -345,6 +365,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     bool freezeFlag
   ) external onlyLtvManager {
     ILendPool cachedPool = _getLendPool();
+
     DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(asset, nftTokenId);
 
     //validation of the parameters: the LTV can
@@ -372,8 +393,12 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     currentConfig.setRedeemDuration(redeemDuration);
     currentConfig.setAuctionDuration(auctionDuration);
     currentConfig.setRedeemFine(redeemFine);
+    currentConfig.setConfigTimestamp(block.timestamp);
+
 
     cachedPool.setNftConfigByTokenId(asset, nftTokenId, currentConfig.data);
+
+    INFTOracle(_addressesProvider.getNFTOracle()).setNFTPrice(asset, nftTokenId, newPrice);
 
     emit NftConfigurationChanged(asset, nftTokenId, ltv, liquidationThreshold, liquidationBonus);
   }
@@ -462,10 +487,14 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     uint256 maxTokenId
   ) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; i++) {
+    for (uint256 i = 0; i < assets.length; ) {
       cachedPool.setNftMaxSupplyAndTokenId(assets[i], maxSupply, maxTokenId);
 
       emit NftMaxSupplyAndTokenIdChanged(assets[i], maxSupply, maxTokenId);
+
+      unchecked {
+        ++i;
+      }
     }
   }
 
@@ -476,7 +505,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   //TODO: solve this to accept multi Ids
   function batchConfigNft(ConfigNftInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < inputs.length; i++) {
+    for (uint256 i = 0; i < inputs.length; ) {
       DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(
         inputs[i].asset,
         inputs[i].tokenId
@@ -532,6 +561,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
       // max limit
       cachedPool.setNftMaxSupplyAndTokenId(inputs[i].asset, inputs[i].maxSupply, inputs[i].maxTokenId);
       emit NftMaxSupplyAndTokenIdChanged(inputs[i].asset, inputs[i].maxSupply, inputs[i].maxTokenId);
+
+      unchecked {
+        ++i;
+      }
     }
   }
 
@@ -564,8 +597,36 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    * @param newVal the new value to set as the max fee percentage
    **/
   function setLiquidationFeePercentage(uint256 newVal) external onlyPoolAdmin {
+    require(newVal < 1000, Errors.LPC_FEE_PERCENTAGE_TOO_HIGH); //prevent setting incorrect values and ensure fee is not too high (10% max)
     ILendPool cachedPool = _getLendPool();
     cachedPool.setLiquidateFeePercentage(newVal);
+  }
+
+  /**
+   * @dev sets the max timeframe between an NFT config trigger and a borrow
+   * @param newTimeframe the new value to set as the timeframe
+   **/
+  function setTimeframe(uint256 newTimeframe) external onlyPoolAdmin {
+    ILendPool cachedPool = _getLendPool();
+    cachedPool.setTimeframe(newTimeframe);
+  }
+
+  /**
+   * @dev Allows and address to be sold on NFTX
+   * @param nftAsset the address of the NFT
+   **/
+  function setAllowToSellNFTX(address nftAsset, bool val) external onlyPoolAdmin {
+    ILendPool cachedPool = _getLendPool();
+    cachedPool.setAllowToSellNFTX(nftAsset, val);
+  }
+
+  /**
+   * @dev Sets configFee amount to be charged for ConfigureNFTAsColleteral
+   * @param configFee the number of seconds for the timeframe
+   **/
+  function setConfigFee(uint256 configFee) external onlyPoolAdmin {
+    ILendPool cachedPool = _getLendPool();
+    cachedPool.setConfigFee(configFee);
   }
 
   /**
@@ -575,6 +636,20 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function setPoolPause(bool val) external onlyEmergencyAdmin {
     ILendPool cachedPool = _getLendPool();
     cachedPool.setPause(val);
+  }
+
+  function setLtvManagerStatus(address newLtvManager, bool val) external onlyPoolAdmin {
+    require(newLtvManager != address(0), Errors.LPC_INVALID_LTVMANAGER_ADDRESS);
+    isLtvManager[newLtvManager] = val;
+  }
+
+  /**
+   * @dev Sets new pool rescuer
+   * @param rescuer the new rescuer address
+   **/
+  function setPoolRescuer(address rescuer) external onlyPoolAdmin {
+    ILendPool cachedPool = _getLendPool();
+    cachedPool.updateRescuer(rescuer);
   }
 
   /**

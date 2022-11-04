@@ -48,7 +48,7 @@ task("dev:deploy-lend-pool", "Deploy lend pool for dev enviroment")
     // deploy lend pool configurator
     const lendPoolConfiguratorImpl = await deployLendPoolConfigurator(verify);
 
-    // Set lend pool conf impl to Address Provider
+    //Set lend pool conf impl to Address Provider
     await waitForTx(await addressesProvider.setLendPoolConfiguratorImpl(lendPoolConfiguratorImpl.address, []));
 
     const lendPoolConfiguratorProxy = await getLendPoolConfiguratorProxy(
@@ -57,7 +57,7 @@ task("dev:deploy-lend-pool", "Deploy lend pool for dev enviroment")
     await insertContractAddressInDb(eContractid.LendPoolConfigurator, lendPoolConfiguratorProxy.address);
 
     ////////////////////////////////////////////////////////////////////////////
-    // deploy lend pool loan
+    //deploy lend pool loan
     const lendPoolLoanImpl = await deployLendPoolLoan(verify);
 
     // Set lend pool conf impl to Address Provider

@@ -37,6 +37,7 @@ import {
   getLendPoolLoanProxy,
   getIErc20Detailed,
   getDebtToken,
+  getPoolAdminSigner,
 } from "../../helpers/contracts-getters";
 import { MAX_UINT_AMOUNT, oneEther, ONE_DAY, ONE_HOUR, ONE_YEAR } from "../../helpers/constants";
 import { SignerWithAddress, TestEnv } from "./make-suite";
@@ -55,6 +56,7 @@ import { ReserveData, UserReserveData, LoanData } from "./utils/interfaces";
 import { ContractReceipt } from "ethers";
 import { UToken } from "../../types/UToken";
 import { tEthereumAddress } from "../../helpers/types";
+import { Signer } from "crypto";
 
 const { expect } = chai;
 
@@ -130,7 +132,42 @@ export const mintERC20 = async (testEnv: TestEnv, user: SignerWithAddress, reser
 
   await waitForTx(await token.connect(user.signer).mint(await convertToCurrencyDecimals(reserve, amount)));
 };
+export const transferERC20 = async (
+  testEnv: TestEnv,
+  from: SignerWithAddress,
+  to: SignerWithAddress,
+  reserveSymbol: string,
+  amount: string
+) => {
+  const reserve = await getReserveAddressFromSymbol(reserveSymbol);
 
+  const token = await getMintableERC20(reserve);
+
+  await waitForTx(
+    await token.connect(from.signer).transfer(to.address, await convertToCurrencyDecimals(reserve, amount))
+  );
+};
+
+export const setPoolRescuer = async (testEnv: TestEnv, rescuer: SignerWithAddress) => {
+  const poolAdmin = await getPoolAdminSigner();
+
+  //Set new rescuer
+  await testEnv.configurator.connect(poolAdmin).setPoolRescuer(rescuer.address);
+};
+export const rescue = async (
+  testEnv: TestEnv,
+  rescuer: SignerWithAddress,
+  to: SignerWithAddress,
+  reserveSymbol: string,
+  amount: string,
+  rescueETH: boolean
+) => {
+  const { configurator } = testEnv;
+  const reserve = await getReserveAddressFromSymbol(reserveSymbol);
+  await testEnv.pool
+    .connect(rescuer.signer)
+    .rescue(reserve, to.address, await convertToCurrencyDecimals(reserve, amount), rescueETH);
+};
 export const mintERC721 = async (testEnv: TestEnv, user: SignerWithAddress, nftSymbol: string, tokenId: string) => {
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
 
@@ -146,6 +183,15 @@ export const approveERC20 = async (testEnv: TestEnv, user: SignerWithAddress, re
   const token = await getMintableERC20(reserve);
 
   await waitForTx(await token.connect(user.signer).approve(pool.address, "100000000000000000000000000000"));
+};
+
+export const getERC20Balance = async (testEnv: TestEnv, user: SignerWithAddress, reserveSymbol: string) => {
+  const { pool } = testEnv;
+  const reserve = await getReserveAddressFromSymbol(reserveSymbol);
+  const token = await getMintableERC20(reserve);
+
+  const balance = await token.connect(user.signer).balanceOf(user.address);
+  return balance;
 };
 
 export const approveERC20PunkGateway = async (testEnv: TestEnv, user: SignerWithAddress, reserveSymbol: string) => {
@@ -209,9 +255,10 @@ export const setNftAssetPriceForDebt = async (
   debtAmount: string,
   healthPercent: string
 ): Promise<{ oldNftPrice: string; newNftPrice: string }> => {
-  const { nftOracle, reserveOracle, dataProvider } = testEnv;
+  const { nftOracle, reserveOracle, dataProvider, users } = testEnv;
 
-  const priceAdmin = await getEthersSignerByAddress(await nftOracle.priceFeedAdmin());
+  await nftOracle.setPriceManagerStatus(users[0].address, true);
+  const priceAdmin = users[0].signer;
 
   const reserve = await getReserveAddressFromSymbol(reserveSymbol);
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
@@ -254,9 +301,10 @@ export const setNftAssetPrice = async (
   tokenId: number,
   price: string
 ): Promise<string> => {
-  const { nftOracle, dataProvider } = testEnv;
+  const { nftOracle, dataProvider, users } = testEnv;
 
-  const priceAdmin = await getEthersSignerByAddress(await nftOracle.priceFeedAdmin());
+  await nftOracle.setPriceManagerStatus(users[0].address, true);
+  const priceAdmin = users[0].signer;
 
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
 
@@ -830,6 +878,15 @@ export const redeem = async (
       txTimestamp,
       timestamp
     );
+
+    console.log("reserveDataAfter", reserveDataAfter);
+    console.log("expectedReserveData", expectedReserveData);
+
+    console.log("userDataAfter", userDataAfter);
+    console.log("expectedUserData", expectedUserData);
+
+    console.log("loanDataAfter", loanDataAfter);
+    console.log("expectedLoanData", expectedLoanData);
 
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);

@@ -101,17 +101,6 @@ interface ILendPoolLoan {
   );
 
   /**
-   * @dev Emitted when a loan is liquidate on Opensea
-   */
-  event LoanLiquidatedOpensea(
-    uint256 indexed loanId,
-    address nftAsset,
-    uint256 nftTokenId,
-    address reserveAsset,
-    uint256 amount,
-    uint256 borrowIndex
-  );
-  /**
    * @dev Emitted when a loan is liquidate on NFTX
    */
   event LoanLiquidatedNFTX(
@@ -245,21 +234,6 @@ interface ILendPoolLoan {
     address initiator,
     uint256 loanId,
     address uNftAddress,
-    uint256 borrowAmount,
-    uint256 borrowIndex
-  ) external;
-
-  /**
-   * @dev Liquidate the given loan on Opensea
-   *
-   * Requirements:
-   *  - The caller must send in principal + interest
-   *  - The loan must be in state Auction
-   *
-   * @param loanId The loan getting burned
-   */
-  function liquidateLoanOpensea(
-    uint256 loanId,
     uint256 borrowAmount,
     uint256 borrowIndex
   ) external;

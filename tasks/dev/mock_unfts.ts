@@ -23,7 +23,7 @@ task("dev:deploy-mock-unft-registry", "Deploy unft registry for dev enviroment")
     await localBRE.run("set-DRE");
 
     const proxyAdminAddress = await (await getProxyAdminSigner()).getAddress();
-
+    console.log(proxyAdminAddress);
     const poolConfig = loadPoolConfig(pool);
 
     const unftGenericImpl = await deployGenericUNFTImpl(verify);
@@ -58,8 +58,10 @@ task("dev:deploy-mock-unft-tokens", "Deploy unft tokens for dev enviroment")
     const mockedNfts = await getConfigMockedNfts(poolConfig);
 
     for (const [nftSymbol, mockedNft] of Object.entries(mockedNfts) as [string, MintableERC721][]) {
-      await waitForTx(await unftRegistryProxy.createUNFT(mockedNft.address));
-      const { uNftProxy } = await unftRegistryProxy.getUNFTAddresses(mockedNft.address);
-      console.log("UNFT Token:", nftSymbol, uNftProxy);
+      if (nftSymbol === "BAYC") {
+        await waitForTx(await unftRegistryProxy.createUNFT(mockedNft.address));
+        const { uNftProxy } = await unftRegistryProxy.getUNFTAddresses(mockedNft.address);
+        console.log("UNFT Token:", nftSymbol, uNftProxy);
+      }
     }
   });

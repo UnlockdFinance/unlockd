@@ -81,8 +81,12 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
    * @param nftAssets the array of nft assets
    */
   function authorizeLendPoolNFT(address[] calldata nftAssets) external nonReentrant onlyOwner {
-    for (uint256 i = 0; i < nftAssets.length; i++) {
+    for (uint256 i = 0; i < nftAssets.length; ) {
       IERC721Upgradeable(nftAssets[i]).setApprovalForAll(address(_getLendPool()), true);
+
+      unchecked {
+        ++i;
+      }
     }
   }
 
@@ -92,8 +96,12 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
    * @param flag the flag to authorize/unauthorize
    */
   function authorizeCallerWhitelist(address[] calldata callers, bool flag) external nonReentrant onlyOwner {
-    for (uint256 i = 0; i < callers.length; i++) {
+    for (uint256 i = 0; i < callers.length; ) {
       _callerWhitelists[callers[i]] = flag;
+
+      unchecked {
+        ++i;
+      }
     }
   }
 
@@ -178,36 +186,6 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
   /**
    * @inheritdoc IWETHGateway
    */
-  function batchBorrowETH(
-    uint256[] calldata amounts,
-    address[] calldata nftAssets,
-    uint256[] calldata nftTokenIds,
-    address onBehalfOf,
-    uint16 referralCode
-  ) external override nonReentrant {
-    require(nftAssets.length == nftTokenIds.length, "inconsistent tokenIds length");
-    require(nftAssets.length == amounts.length, "inconsistent amounts length");
-
-    _checkValidCallerAndOnBehalfOf(onBehalfOf);
-
-    ILendPool cachedPool = _getLendPool();
-    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
-
-    for (uint256 i = 0; i < nftAssets.length; i++) {
-      uint256 loanId = cachedPoolLoan.getCollateralLoanId(nftAssets[i], nftTokenIds[i]);
-      if (loanId == 0) {
-        IERC721Upgradeable(nftAssets[i]).safeTransferFrom(msg.sender, address(this), nftTokenIds[i]);
-      }
-      cachedPool.borrow(address(WETH), amounts[i], nftAssets[i], nftTokenIds[i], onBehalfOf, referralCode);
-
-      WETH.withdraw(amounts[i]);
-      _safeTransferETH(onBehalfOf, amounts[i]);
-    }
-  }
-
-  /**
-   * @inheritdoc IWETHGateway
-   */
   function repayETH(
     address nftAsset,
     uint256 nftTokenId,
@@ -221,35 +199,6 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     }
 
     return (repayAmount, repayAll);
-  }
-
-  /**
-   * @inheritdoc IWETHGateway
-   */
-  function batchRepayETH(
-    address[] calldata nftAssets,
-    uint256[] calldata nftTokenIds,
-    uint256[] calldata amounts
-  ) external payable override nonReentrant returns (uint256[] memory, bool[] memory) {
-    require(nftAssets.length == amounts.length, "inconsistent amounts length");
-    require(nftAssets.length == nftTokenIds.length, "inconsistent tokenIds length");
-
-    uint256[] memory repayAmounts = new uint256[](nftAssets.length);
-    bool[] memory repayAlls = new bool[](nftAssets.length);
-    uint256 allRepayDebtAmount = 0;
-
-    for (uint256 i = 0; i < nftAssets.length; i++) {
-      (repayAmounts[i], repayAlls[i]) = _repayETH(nftAssets[i], nftTokenIds[i], amounts[i], allRepayDebtAmount);
-
-      allRepayDebtAmount += repayAmounts[i];
-    }
-
-    // refund remaining dust eth
-    if (msg.value > allRepayDebtAmount) {
-      _safeTransferETH(msg.sender, msg.value - allRepayDebtAmount);
-    }
-
-    return (repayAmounts, repayAlls);
   }
 
   /**
@@ -359,27 +308,6 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     }
 
     return (extraAmount);
-  }
-
-  function liquidateOpensea(
-    address nftAsset,
-    uint256 nftTokenId,
-    uint256 priceInEth
-  ) external override nonReentrant returns (uint256) {
-    require(_addressProvider.getLendPoolLiquidator() == _msgSender(), Errors.CALLER_NOT_POOL_LIQUIDATOR);
-
-    ILendPool cachedPool = _getLendPool();
-    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
-
-    uint256 loanId = cachedPoolLoan.getCollateralLoanId(nftAsset, nftTokenId);
-    require(loanId > 0, "collateral loan id not exist");
-
-    DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
-    require(loan.reserveAsset == address(WETH), "loan reserve not WETH");
-
-    uint256 remainAmount = cachedPool.liquidateOpensea(nftAsset, nftTokenId, priceInEth);
-
-    return (remainAmount);
   }
 
   function liquidateNFTX(address nftAsset, uint256 nftTokenId) external override nonReentrant returns (uint256) {

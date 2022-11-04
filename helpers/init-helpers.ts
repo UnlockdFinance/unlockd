@@ -194,11 +194,12 @@ export const initNftsByHelper = async (
   // Deploy init nfts per chunks
   const chunkedSymbols = chunk(nftSymbols, initChunks);
   const chunkedInitInputParams = chunk(initInputParams, initChunks);
-
+  console.log(chunkedInitInputParams);
   const configurator = await getLendPoolConfiguratorProxy();
 
   console.log(`- NFTs initialization in ${chunkedInitInputParams.length} txs`);
   for (let chunkIndex = 0; chunkIndex < chunkedInitInputParams.length; chunkIndex++) {
+    console.log(chunkedInitInputParams[chunkIndex]);
     const tx3 = await waitForTx(await configurator.batchInitNft(chunkedInitInputParams[chunkIndex]));
 
     console.log(
@@ -292,7 +293,11 @@ export const configureReservesByHelper = async (
       console.log(`  - batchConfigReserve for: ${chunkedSymbols[chunkIndex].join(", ")}`);
     }
 
-    await waitForTx(await configuator.setBorrowingFlagOnReserve(assetsParams, true));
+    await Promise.all(
+      assetsParams.map(async (asset) => {
+        await waitForTx(await configuator.setBorrowingFlagOnReserve(asset, true));
+      })
+    );
   }
 };
 

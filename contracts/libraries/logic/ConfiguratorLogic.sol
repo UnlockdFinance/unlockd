@@ -132,7 +132,7 @@ library ConfiguratorLogic {
   ) external {
     // UNFT proxy and implementation are created in UNFTRegistry
     (address uNftProxy, ) = registry_.getUNFTAddresses(input.underlyingAsset);
-    require(uNftProxy != address(0), Errors.LPC_INVALIED_UNFT_ADDRESS);
+    require(uNftProxy != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
 
     pool_.initNft(input.underlyingAsset, uNftProxy);
 

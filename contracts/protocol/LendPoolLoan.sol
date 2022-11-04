@@ -43,8 +43,10 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
 
   // called once by the factory at time of deployment
   function initialize(ILendPoolAddressesProvider provider) external initializer {
-    __Context_init();
+    require(address(provider) != address(0), Errors.INVALID_ZERO_ADDRESS);
 
+    __Context_init();
+    require(address(provider) != address(0), Errors.INVALID_ZERO_ADDRESS);
     _addressesProvider = provider;
 
     // Avoid having loanId = 0
@@ -307,35 +309,6 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
       borrowAmount,
       borrowIndex
     );
-  }
-
-  /**
-   * @inheritdoc ILendPoolLoan
-   */
-  function liquidateLoanOpensea(
-    uint256 loanId,
-    uint256 borrowAmount,
-    uint256 borrowIndex
-  ) external override onlyLendPool {
-    // Must use storage to change state
-    DataTypes.LoanData storage loan = _loans[loanId];
-
-    // Ensure valid loan state
-    require(loan.state == DataTypes.LoanState.Auction, Errors.LPL_INVALID_LOAN_STATE);
-
-    // state changes and cleanup
-    // NOTE: these must be performed before assets are released to prevent reentrance
-    _loans[loanId].state = DataTypes.LoanState.Defaulted;
-
-    _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
-
-    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALIED_USER_NFT_AMOUNT);
-    _userNftCollateral[loan.borrower][loan.nftAsset] -= 1;
-
-    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALIED_NFT_AMOUNT);
-    _nftTotalCollateral[loan.nftAsset] -= 1;
-
-    emit LoanLiquidatedOpensea(loanId, loan.nftAsset, loan.nftTokenId, loan.reserveAsset, borrowAmount, borrowIndex);
   }
 
   /**

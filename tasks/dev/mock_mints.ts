@@ -2,6 +2,7 @@ import { task } from "hardhat/config";
 import { eNetwork, eContractid } from "../../helpers/types";
 import {
   getCryptoPunksMarket,
+  getCustomERC721,
   getDeploySigner,
   getMintableERC20,
   getMintableERC721,
@@ -15,6 +16,24 @@ import {
   getParamPerNetwork,
 } from "../../helpers/contracts-helpers";
 import { waitForTx } from "../../helpers/misc-utils";
+
+task("dev:mint-mock-bayc", "Mint mock nfts for dev enviroment")
+  .addParam("amount", "NFT Amount (<=10)")
+  .addParam("user", "Targe user address")
+  .setAction(async ({ amount, user }, DRE) => {
+    await DRE.run("set-DRE");
+    const network = <eNetwork>DRE.network.name;
+    if (network.includes("main")) {
+      throw new Error("Mint mock not used at mainnet configuration.");
+    }
+
+    // BAYC
+    const baycAddress = await getContractAddressInDb("BAYC");
+    const bayc = await getCustomERC721(baycAddress);
+    console.log("Total amount to mint BAYC:", amount);
+    await waitForTx(await bayc.mint(user, amount));
+    console.log("BAYC Balances:", (await bayc.balanceOf(user)).toString());
+  });
 
 task("dev:mint-mock-nfts", "Mint mock nfts for dev enviroment")
   .addParam("index", "NFT Index of start")
@@ -30,13 +49,12 @@ task("dev:mint-mock-nfts", "Mint mock nfts for dev enviroment")
     const deployerSigner = await getDeploySigner();
     const deployerAddress = await deployerSigner.getAddress();
 
-    // PUNK
+    //PUNK
     const cryptoPunksMarket = await getCryptoPunksMarket();
     if (index <= 1) {
       // first time to open market to public
       await waitForTx(await cryptoPunksMarket.allInitialOwnersAssigned());
     }
-
     for (let punkIndex = Number(index); punkIndex < Number(index) + Number(amount); punkIndex++) {
       console.log("Mint PUNK:", punkIndex);
       await waitForTx(await cryptoPunksMarket.getPunk(punkIndex));
@@ -44,9 +62,9 @@ task("dev:mint-mock-nfts", "Mint mock nfts for dev enviroment")
     }
     console.log("PUNK Balances:", (await cryptoPunksMarket.balanceOf(user)).toString());
 
-    //const wpunkAddress = await getContractAddressInDb("WPUNK");
-    //const wpunk = await getWrappedPunk(wpunkAddress);
-    //await waitForTx(await wpunk.registerProxy());
+    // const wpunkAddress = await getContractAddressInDb("WPUNKS");
+    // const wpunk = await getWrappedPunk(wpunkAddress);
+    // await waitForTx(await wpunk.registerProxy());
 
     // BAYC
     const baycAddress = await getContractAddressInDb("BAYC");
@@ -58,7 +76,6 @@ task("dev:mint-mock-nfts", "Mint mock nfts for dev enviroment")
     for (let tokenIndex = Number(index); tokenIndex < Number(index) + Number(amount); tokenIndex++) {
       console.log("Mint BAYC:", tokenIndex);
       await waitForTx(await bayc.mint(tokenIndex));
-      await waitForTx(await bayc["safeTransferFrom(address,address,uint256)"](deployerAddress, user, tokenIndex));
     }
     console.log("BAYC Balances:", (await bayc.balanceOf(user)).toString());
   });

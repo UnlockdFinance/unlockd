@@ -10,6 +10,7 @@ import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
+import {NFTXHelper} from "../libraries/nftx/NFTXHelper.sol";
 
 contract UnlockdProtocolDataProvider {
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
@@ -46,7 +47,7 @@ contract UnlockdProtocolDataProvider {
     ILendPool pool = ILendPool(ADDRESSES_PROVIDER.getLendPool());
     address[] memory reserves = pool.getReservesList();
     ReserveTokenData[] memory reservesTokens = new ReserveTokenData[](reserves.length);
-    for (uint256 i = 0; i < reserves.length; i++) {
+    for (uint256 i = 0; i < reserves.length; ) {
       DataTypes.ReserveData memory reserveData = pool.getReserveData(reserves[i]);
       reservesTokens[i] = ReserveTokenData({
         tokenSymbol: IERC20Detailed(reserves[i]).symbol(),
@@ -56,6 +57,10 @@ contract UnlockdProtocolDataProvider {
         debtTokenSymbol: IERC20Detailed(reserveData.debtTokenAddress).symbol(),
         debtTokenAddress: reserveData.debtTokenAddress
       });
+
+      unchecked {
+        ++i;
+      }
     }
     return reservesTokens;
   }
@@ -85,7 +90,7 @@ contract UnlockdProtocolDataProvider {
     ILendPool pool = ILendPool(ADDRESSES_PROVIDER.getLendPool());
     address[] memory nfts = pool.getNftsList();
     NftTokenData[] memory nftTokens = new NftTokenData[](nfts.length);
-    for (uint256 i = 0; i < nfts.length; i++) {
+    for (uint256 i = 0; i < nfts.length; ) {
       DataTypes.NftData memory nftData = pool.getNftData(nfts[i]);
       nftTokens[i] = NftTokenData({
         nftSymbol: IERC721Detailed(nfts[i]).symbol(),
@@ -93,6 +98,10 @@ contract UnlockdProtocolDataProvider {
         uNftSymbol: IERC721Detailed(nftData.uNftAddress).symbol(),
         uNftAddress: nftData.uNftAddress
       });
+
+      unchecked {
+        ++i;
+      }
     }
     return nftTokens;
   }
@@ -147,6 +156,7 @@ contract UnlockdProtocolDataProvider {
     uint256 minBidFine;
     bool isActive;
     bool isFrozen;
+    uint256 configTimestamp;
   }
 
   /**
@@ -196,6 +206,7 @@ contract UnlockdProtocolDataProvider {
     (configData.isActive, configData.isFrozen) = configuration.getFlagsMemory();
 
     (configData.minBidFine) = configuration.getMinBidFineMemory();
+    (configData.configTimestamp) = configuration.getConfigTimestampMemory();
   }
 
   /**
@@ -310,5 +321,13 @@ contract UnlockdProtocolDataProvider {
     loanData.bidderAddress = loan.bidderAddress;
     loanData.bidPrice = loan.bidPrice;
     loanData.bidBorrowAmount = loan.bidBorrowAmount;
+  }
+
+  function getNFTXPrice(
+    address asset,
+    uint256 tokenId,
+    address reserveAsset
+  ) external view returns (uint256) {
+    return NFTXHelper.getNFTXPrice(ADDRESSES_PROVIDER, asset, tokenId, reserveAsset);
   }
 }

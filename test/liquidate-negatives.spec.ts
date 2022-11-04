@@ -20,7 +20,7 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
   });
 
   it("User 0 deposit 100 WETH, user 1 mint NFT and borrow 10 WETH", async () => {
-    const { weth, bayc, pool, users } = testEnv;
+    const { weth, bayc, pool, users, configurator, deployer, nftOracle } = testEnv;
     const user0 = users[0];
     const user1 = users[1];
     const user2 = users[2];
@@ -38,6 +38,17 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     await bayc.connect(user1.signer).mint("101");
     await bayc.connect(user1.signer).setApprovalForAll(pool.address, true);
     const amountBorrow = await convertToCurrencyDecimals(weth.address, "10");
+
+    const price = await convertToCurrencyDecimals(weth.address, "100");
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(bayc.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, "101", price, 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.setTimeframe(3600);
+
     await pool
       .connect(user1.signer)
       .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", user1.address, "0");
@@ -121,13 +132,14 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
   });
 
   it("Drop loan health factor below 1", async () => {
-    const { bayc, nftOracle, pool, users } = testEnv;
+    const { bayc, nftOracle, pool, users, configurator } = testEnv;
 
     const poolLoanData = await pool.getNftDebtData(bayc.address, "101");
     const baycPrice = new BigNumber(poolLoanData.totalDebt.toString())
       .percentMul(new BigNumber(5000)) // 50%
       .toFixed(0);
     await advanceTimeAndBlock(100);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
     await nftOracle.setNFTPrice(bayc.address, 101, baycPrice);
     await advanceTimeAndBlock(200);
     await nftOracle.setNFTPrice(bayc.address, 101, baycPrice);
@@ -282,13 +294,25 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
 
   it("User 3 auction after duration is end", async () => {
     const { bayc, pool, users } = testEnv;
+    const user3 = users[3];
+    const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
+    const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(2.0).toFixed(0);
+
+    await expect(
+      pool.connect(user3.signer).auction(bayc.address, "101", auctionPrice, user3.address)
+    ).to.be.revertedWith(ProtocolErrors.LPL_BID_AUCTION_DURATION_HAS_END);
+  });
+
+  it("User 2 auction consecutively", async () => {
+    const { bayc, pool, users } = testEnv;
     const user2 = users[2];
 
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(2.0).toFixed(0);
 
+    //Current bid is from user 2, thus, it should revert
     await expect(
       pool.connect(user2.signer).auction(bayc.address, "101", auctionPrice, user2.address)
-    ).to.be.revertedWith(ProtocolErrors.LPL_BID_AUCTION_DURATION_HAS_END);
+    ).to.be.revertedWith(ProtocolErrors.LP_CONSECUTIVE_BIDS_NOT_ALLOWED);
   });
 });

@@ -28,7 +28,7 @@ makeSuite("LendPool: Malicious Hacker Rentrant", (testEnv) => {
   });
 
   it("Malicious hacker try to reentrant (should revert)", async () => {
-    const { weth, bayc, pool, users } = testEnv;
+    const { weth, bayc, pool, users, configurator, deployer, nftOracle } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
     const user2 = users[2];
@@ -49,6 +49,17 @@ makeSuite("LendPool: Malicious Hacker Rentrant", (testEnv) => {
     await bayc.connect(borrower.signer).mint("101");
     await bayc.connect(borrower.signer).setApprovalForAll(pool.address, true);
     const amountBorrow = await convertToCurrencyDecimals(weth.address, "10");
+    const price = await convertToCurrencyDecimals(weth.address, "50");
+
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, "101", price, 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.setTimeframe(3600);
+
     await pool
       .connect(borrower.signer)
       .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", maliciousHackerErc721.address, "0");

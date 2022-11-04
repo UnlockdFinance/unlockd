@@ -21,8 +21,8 @@ task("nftoracle:setnftprice", "User 0 Deposits {amount} {reserve} in an empty re
 .addParam("price", "The asset price")
 .setAction( async ({collection, tokenid, price}) => {
     const wallet = await getOwnerWallet();  
-    price = await parseEther(price);  
-    console.log("New price: ", price.toString() / 10**18);
+    //price = await parseEther(price);  
+    //console.log("New price: ", price.toString() / 10**18);
     await Functions.NFTORACLE.setNftPrice(wallet, collection, tokenid, price);
    
 });  
@@ -33,4 +33,13 @@ task("nftoracle:getoracleowner", "User 0 Deposits {amount} {reserve} in an empty
     const wallet = await getUserWallet();   
     const owner = await Functions.NFTORACLE.getNFTOracleOwner(wallet);
     console.log(owner);
-}); 
+});
+
+task("nftoracle:setpricemanager", "adds an address as Price Manager")
+.addParam("newpricemanager", "the address to add as Price Manager") 
+.addParam("val", "true for new price manager") 
+.setAction( async ({newpricemanager, val}) => {
+    const wallet = await getOwnerWallet(); 
+    await Functions.NFTORACLE.setPriceManagerStatus(wallet, newpricemanager, val);
+    console.log("address added");
+});

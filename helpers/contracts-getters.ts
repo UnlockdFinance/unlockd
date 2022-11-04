@@ -38,6 +38,7 @@ import {
   SupplyLogicFactory,
   LiquidateLogic,
   LiquidateLogicFactory,
+  CustomERC721Factory,
 } from "../types";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { IERC721DetailedFactory } from "../types/IERC721DetailedFactory";
@@ -187,6 +188,12 @@ export const getMintableERC20 = async (address: tEthereumAddress) =>
 export const getMintableERC721 = async (address: tEthereumAddress) =>
   await MintableERC721Factory.connect(
     address || (await getDb(DRE.network.name).get(`${eContractid.MintableERC721}`).value()).address,
+    await getDeploySigner()
+  );
+
+export const getCustomERC721 = async (address: tEthereumAddress) =>
+  await CustomERC721Factory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.CustomERC721}`).value()).address,
     await getDeploySigner()
   );
 

@@ -110,6 +110,12 @@
         "internalType": "uint16",
         "name": "referral",
         "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "nftConfigFee",
+        "type": "uint256"
       }
     ],
     "name": "Borrow",
@@ -209,8 +215,169 @@
   },
   {
     "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "reserve",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "repayAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "remainAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "nftAsset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "borrower",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "loanId",
+        "type": "uint256"
+      }
+    ],
+    "name": "LiquidateNFTX",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "reserve",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "repayAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "remainAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "nftAsset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "borrower",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "loanId",
+        "type": "uint256"
+      }
+    ],
+    "name": "LiquidateOpensea",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "configuration",
+        "type": "uint256"
+      }
+    ],
+    "name": "NftConfigurationByIdChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "configuration",
+        "type": "uint256"
+      }
+    ],
+    "name": "NftConfigurationChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
     "inputs": [],
     "name": "Paused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "startTime",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "durationTime",
+        "type": "uint256"
+      }
+    ],
+    "name": "PausedTimeUpdated",
     "type": "event"
   },
   {
@@ -323,6 +490,38 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "newRescuer",
+        "type": "address"
+      }
+    ],
+    "name": "RescuerChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "configuration",
+        "type": "uint256"
+      }
+    ],
+    "name": "ReserveConfigurationChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "reserve",
         "type": "address"
       },
@@ -352,6 +551,25 @@
       }
     ],
     "name": "ReserveDataUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "rateAddress",
+        "type": "address"
+      }
+    ],
+    "name": "ReserveInterestRateAddressChanged",
     "type": "event"
   },
   {
@@ -392,6 +610,32 @@
     "type": "event"
   },
   {
+    "inputs": [],
+    "name": "ADDRESS_ID_PUNK_GATEWAY",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ADDRESS_ID_WETH_GATEWAY",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -428,7 +672,7 @@
       },
       {
         "internalType": "uint256[]",
-        "name": "amounts",
+        "name": "totalAmounts",
         "type": "uint256[]"
       },
       {
@@ -450,6 +694,11 @@
         "internalType": "uint16",
         "name": "referralCode",
         "type": "uint16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftConfigFees",
+        "type": "uint256"
       }
     ],
     "name": "batchBorrow",
@@ -500,7 +749,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "totalAmount",
         "type": "uint256"
       },
       {
@@ -522,6 +771,11 @@
         "internalType": "uint16",
         "name": "referralCode",
         "type": "uint16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftConfigFee",
+        "type": "uint256"
       }
     ],
     "name": "borrow",
@@ -610,6 +864,19 @@
   },
   {
     "inputs": [],
+    "name": "getLiquidateFeePercentage",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getMaxNumberOfNfts",
     "outputs": [
       {
@@ -629,6 +896,37 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getNftAssetConfig",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "data",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct DataTypes.NftConfigurationMap",
+        "name": "",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -686,6 +984,11 @@
         "type": "address"
       },
       {
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
+      },
+      {
         "internalType": "address",
         "name": "reserveAsset",
         "type": "address"
@@ -727,6 +1030,37 @@
         "internalType": "uint256",
         "name": "liquidationBonus",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getNftConfigByTokenId",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "data",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct DataTypes.NftConfigurationMap",
+        "name": "",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -897,6 +1231,24 @@
         "internalType": "address[]",
         "name": "",
         "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getPausedTime",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1149,6 +1501,59 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "nftAsset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "liquidateNFTX",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "nftAsset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "priceInEth",
+        "type": "uint256"
+      }
+    ],
+    "name": "liquidateOpensea",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "operator",
         "type": "address"
       },
@@ -1263,6 +1668,55 @@
   {
     "inputs": [
       {
+        "internalType": "contract IERC20",
+        "name": "tokenContract",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "rescueERC20",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "rescuer",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "percentage",
+        "type": "uint256"
+      }
+    ],
+    "name": "setLiquidateFeePercentage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "val",
         "type": "uint256"
@@ -1282,6 +1736,29 @@
       }
     ],
     "name": "setMaxNumberOfReserves",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "configuration",
+        "type": "uint256"
+      }
+    ],
+    "name": "setNftConfigByTokenId",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1343,6 +1820,24 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "startTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "durationTime",
+        "type": "uint256"
+      }
+    ],
+    "name": "setPausedTime",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "asset",
         "type": "address"
@@ -1372,6 +1867,19 @@
       }
     ],
     "name": "setReserveInterestRateAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newRescuer",
+        "type": "address"
+      }
+    ],
+    "name": "updateRescuer",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

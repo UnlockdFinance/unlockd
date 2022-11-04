@@ -18,6 +18,7 @@ import { getReservesConfigByPool } from "../helpers/configuration";
 import { UnlockdPools, iUnlockdPoolAssets, IReserveParams } from "../helpers/types";
 import { string } from "hardhat/internal/core/params/argumentTypes";
 import { waitForTx } from "../helpers/misc-utils";
+import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 
 const { expect } = require("chai");
 
@@ -65,7 +66,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
   });
 
   it("User 0 deposits 100 WETH, user 1 uses NFT as collateral and borrows 1 WETH", async () => {
-    const { users } = testEnv;
+    const { users, configurator, nftOracle, deployer, bayc, weth } = testEnv;
     const user0 = users[0];
     const user1 = users[1];
 
@@ -89,6 +90,17 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
 
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    const price = await convertToCurrencyDecimals(weth.address, "100");
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(bayc.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
+
     await borrow(testEnv, user1, "WETH", "1", "BAYC", tokenId, user1.address, "365", "success", "");
 
     const checkResult2 = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
@@ -99,11 +111,32 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
   });
 
   it("User 1 uses existed collateral and borrows more 100 DAI (revert expected)", async () => {
-    const { users } = testEnv;
+    const { users, configurator, deployer, nftOracle, bayc } = testEnv;
     const user1 = users[1];
 
     expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
+
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(
+        bayc.address,
+        tokenId,
+        "2000000000000000000000",
+        4000,
+        7000,
+        100,
+        1,
+        2,
+        25,
+        true,
+        false
+      );
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
 
     await borrow(
       testEnv,
@@ -120,11 +153,30 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
   });
 
   it("User 1 uses existed collateral and borrows more 2 WETH", async () => {
-    const { users } = testEnv;
+    const { users, configurator, deployer, nftOracle, bayc } = testEnv;
     const user1 = users[1];
 
     expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
+
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(
+        bayc.address,
+        tokenId,
+        "2000000000000000000000",
+        4000,
+        7000,
+        100,
+        1,
+        2,
+        25,
+        true,
+        false
+      );
 
     await borrow(testEnv, user1, "WETH", "2", "BAYC", tokenId, user1.address, "365", "success", "");
 
@@ -134,11 +186,20 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
   });
 
   it("User 1 tries to borrow the rest of the WETH liquidity (revert expected)", async () => {
-    const { users } = testEnv;
+    const { users, configurator, deployer, nftOracle, bayc } = testEnv;
     const user1 = users[1];
 
     expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
+
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, "200", 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
 
     await borrow(
       testEnv,
@@ -221,7 +282,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
   });
 
   it("User 1 deposits 1000 USDC, user 3 uses not owned NFT as collateral and borrows 10 USDC", async () => {
-    const { users } = testEnv;
+    const { users, configurator, nftOracle, deployer, bayc } = testEnv;
     const user1 = users[1];
     const user2 = users[2];
     const user3 = users[3];
@@ -238,13 +299,22 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await setApprovalForAll(testEnv, user2, "BAYC");
 
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, "10000000000000000000", 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
+
     await borrow(testEnv, user3, "USDC", "10", "BAYC", tokenId, user3.address, "", "revert", "NFT is not owned");
 
     cachedTokenId = tokenId;
   });
 
   it("user 2 uses owned NFT as collateral on behalf of user 3 and borrows 10 USDC", async () => {
-    const { users } = testEnv;
+    const { users, configurator, nftOracle, deployer, bayc } = testEnv;
     const user2 = users[2];
     const user3 = users[3];
 
@@ -253,18 +323,35 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await delegateBorrowAllowance(testEnv, user3, "USDC", "10", user2.address, "success", "");
 
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, "10000000000000000000", 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
+
     await borrow(testEnv, user2, "USDC", "10", "BAYC", tokenId, user3.address, "365", "success", "");
   });
 
   it("user 2 uses existed collateral on behalf of user 3 and borrows more 20 USDC", async () => {
-    const { users } = testEnv;
+    const { users, configurator, nftOracle, deployer, bayc } = testEnv;
     const user2 = users[2];
     const user3 = users[3];
 
     expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
 
-    await delegateBorrowAllowance(testEnv, user3, "USDC", "20", user2.address, "success", "");
+    await delegateBorrowAllowance(testEnv, user3, "USDC", "100", user2.address, "success", "");
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+
+    await configurator
+      .connect(deployer.signer)
+      .configureNftAsCollateral(bayc.address, tokenId, "20000000000000000", 4000, 7000, 100, 1, 2, 25, true, false);
+
+    await configurator.connect(deployer.signer).setTimeframe(720000);
 
     await borrow(testEnv, user2, "USDC", "20", "BAYC", tokenId, user3.address, "365", "success", "");
   });

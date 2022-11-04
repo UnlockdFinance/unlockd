@@ -7,31 +7,6 @@
         "internalType": "address",
         "name": "asset",
         "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "proxy",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "implementation",
-        "type": "address"
-      }
-    ],
-    "name": "UTokenUpgraded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "asset",
-        "type": "address"
       }
     ],
     "name": "BorrowingDisabledOnReserve",
@@ -98,6 +73,12 @@
         "type": "address"
       },
       {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
         "indexed": false,
         "internalType": "uint256",
         "name": "redeemDuration",
@@ -127,6 +108,12 @@
         "internalType": "address",
         "name": "asset",
         "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -230,6 +217,12 @@
         "type": "address"
       },
       {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
         "indexed": false,
         "internalType": "uint256",
         "name": "minBidFine",
@@ -249,6 +242,12 @@
         "type": "address"
       },
       {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
         "indexed": false,
         "internalType": "uint256",
         "name": "redeemThreshold",
@@ -256,6 +255,82 @@
       }
     ],
     "name": "NftRedeemThresholdChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "NftTokenActivated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "NftTokenDeactivated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "NftTokenFrozen",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "NftTokenUnfrozen",
     "type": "event"
   },
   {
@@ -412,6 +487,31 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "proxy",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "implementation",
+        "type": "address"
+      }
+    ],
+    "name": "UTokenUpgraded",
+    "type": "event"
+  },
+  {
     "inputs": [
       {
         "components": [
@@ -419,6 +519,11 @@
             "internalType": "address",
             "name": "asset",
             "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -599,9 +704,14 @@
   {
     "inputs": [
       {
-        "internalType": "address[]",
-        "name": "assets",
-        "type": "address[]"
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
       },
       {
         "internalType": "uint256",
@@ -627,9 +737,19 @@
   {
     "inputs": [
       {
-        "internalType": "address[]",
-        "name": "assets",
-        "type": "address[]"
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "newPrice",
+        "type": "uint256"
       },
       {
         "internalType": "uint256",
@@ -645,6 +765,31 @@
         "internalType": "uint256",
         "name": "liquidationBonus",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "redeemDuration",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "auctionDuration",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "redeemFine",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "activeFlag",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "freezeFlag",
+        "type": "bool"
       }
     ],
     "name": "configureNftAsCollateral",
@@ -698,6 +843,29 @@
       }
     ],
     "name": "setActiveFlagOnNft",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "assets",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "tokenIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "bool",
+        "name": "flag",
+        "type": "bool"
+      }
+    ],
+    "name": "setActiveFlagOnNftByTokenId",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -764,12 +932,66 @@
         "type": "address[]"
       },
       {
+        "internalType": "uint256[]",
+        "name": "tokenIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "bool",
+        "name": "flag",
+        "type": "bool"
+      }
+    ],
+    "name": "setFreezeFlagOnNftByTokenId",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "assets",
+        "type": "address[]"
+      },
+      {
         "internalType": "bool",
         "name": "flag",
         "type": "bool"
       }
     ],
     "name": "setFreezeFlagOnReserve",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "newVal",
+        "type": "uint256"
+      }
+    ],
+    "name": "setLiquidationFeePercentage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newLtvManager",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "val",
+        "type": "bool"
+      }
+    ],
+    "name": "setLtvManagerStatus",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -826,9 +1048,14 @@
   {
     "inputs": [
       {
-        "internalType": "address[]",
-        "name": "assets",
-        "type": "address[]"
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
       },
       {
         "internalType": "uint256",
@@ -844,9 +1071,14 @@
   {
     "inputs": [
       {
-        "internalType": "address[]",
-        "name": "assets",
-        "type": "address[]"
+        "internalType": "address",
+        "name": "asset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "nftTokenId",
+        "type": "uint256"
       },
       {
         "internalType": "uint256",
@@ -868,6 +1100,19 @@
       }
     ],
     "name": "setPoolPause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "rescuer",
+        "type": "address"
+      }
+    ],
+    "name": "setPoolRescuer",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -928,12 +1173,12 @@
             "type": "bytes"
           }
         ],
-        "internalType": "struct ConfigTypes.UpdateUTokenInput[]",
+        "internalType": "struct ConfigTypes.UpdateDebtTokenInput[]",
         "name": "inputs",
         "type": "tuple[]"
       }
     ],
-    "name": "updateUToken",
+    "name": "updateDebtToken",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -958,12 +1203,12 @@
             "type": "bytes"
           }
         ],
-        "internalType": "struct ConfigTypes.UpdateDebtTokenInput[]",
+        "internalType": "struct ConfigTypes.UpdateUTokenInput[]",
         "name": "inputs",
         "type": "tuple[]"
       }
     ],
-    "name": "updateDebtToken",
+    "name": "updateUToken",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

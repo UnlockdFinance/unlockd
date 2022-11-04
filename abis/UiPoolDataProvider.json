@@ -48,46 +48,6 @@
             "type": "string"
           },
           {
-            "internalType": "uint256",
-            "name": "ltv",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "liquidationThreshold",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "liquidationBonus",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "redeemDuration",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "auctionDuration",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "redeemFine",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "redeemThreshold",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "minBidFine",
-            "type": "uint256"
-          },
-          {
             "internalType": "bool",
             "name": "isActive",
             "type": "bool"
@@ -101,11 +61,6 @@
             "internalType": "address",
             "name": "uNftAddress",
             "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "priceInEth",
-            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -431,9 +386,19 @@
         "internalType": "contract ILendPoolAddressesProvider",
         "name": "provider",
         "type": "address"
+      },
+      {
+        "internalType": "address[]",
+        "name": "nftAssets",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "nftTokenIds",
+        "type": "uint256[]"
       }
     ],
-    "name": "getSimpleNftsData",
+    "name": "getSimpleNftsConfiguration",
     "outputs": [
       {
         "components": [
@@ -443,14 +408,9 @@
             "type": "address"
           },
           {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "symbol",
-            "type": "string"
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
           },
           {
             "internalType": "uint256",
@@ -503,14 +463,60 @@
             "type": "bool"
           },
           {
-            "internalType": "address",
-            "name": "uNftAddress",
-            "type": "address"
-          },
-          {
             "internalType": "uint256",
             "name": "priceInEth",
             "type": "uint256"
+          }
+        ],
+        "internalType": "struct IUiPoolDataProvider.AggregatedNftConfiguration[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ILendPoolAddressesProvider",
+        "name": "provider",
+        "type": "address"
+      }
+    ],
+    "name": "getSimpleNftsData",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "underlyingAsset",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isFrozen",
+            "type": "bool"
+          },
+          {
+            "internalType": "address",
+            "name": "uNftAddress",
+            "type": "address"
           },
           {
             "internalType": "uint256",

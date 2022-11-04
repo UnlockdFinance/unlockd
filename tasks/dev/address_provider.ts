@@ -27,7 +27,6 @@ task("dev:deploy-address-provider", "Deploy address provider for dev enviroment"
     const addressesProvider = await deployLendPoolAddressesProvider(poolConfig.MarketId, verify);
     await waitForTx(await addressesProvider.setPoolAdmin(admin));
     await waitForTx(await addressesProvider.setEmergencyAdmin(admin));
-    await waitForTx(await addressesProvider.setLtvManager(admin));
     await waitForTx(await addressesProvider.setSushiSwapRouter(sushiRouter.address));
     await waitForTx(await addressesProvider.setNFTXVaultFactory(nftx.address));
     await waitForTx(await addressesProvider.setUnlockdDataProvider(dataProvider.address));

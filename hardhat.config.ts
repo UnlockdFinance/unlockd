@@ -75,6 +75,9 @@ const getCommonNetworkConfig = (networkName: eNetwork, networkId: number) => ({
     initialIndex: 0,
     count: 20,
   },
+  forking: {
+    url: "https://eth-goerli.g.alchemy.com/v2/LcF7N0KNHVfZCgFXfiDXa7yhwBPFlha",
+  }
 });
 
 const buidlerConfig: HardhatUserConfig = {

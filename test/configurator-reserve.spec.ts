@@ -8,8 +8,13 @@ import { BigNumberish } from "ethers";
 const { expect } = require("chai");
 
 makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
-  const { CALLER_NOT_POOL_ADMIN, LPC_RESERVE_LIQUIDITY_NOT_0, LPC_INVALID_CONFIGURATION, RC_INVALID_RESERVE_FACTOR } =
-    ProtocolErrors;
+  const {
+    CALLER_NOT_POOL_ADMIN,
+    LPC_RESERVE_LIQUIDITY_NOT_0,
+    LPC_INVALID_CONFIGURATION,
+    RC_INVALID_RESERVE_FACTOR,
+    LP_INVALID_OVERFLOW_VALUE,
+  } = ProtocolErrors;
 
   it("Reverts trying to set an invalid reserve factor", async () => {
     const { configurator, weth } = testEnv;
@@ -26,14 +31,14 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
 
   it("Deactivates the ETH reserve", async () => {
     const { configurator, weth, dataProvider } = testEnv;
-    await configurator.setActiveFlagOnReserve([weth.address], false);
+    await configurator.setActiveFlagOnReserve(weth.address, false);
     const { isActive } = await dataProvider.getReserveConfigurationData(weth.address);
     expect(isActive).to.be.equal(false);
   });
 
   it("Rectivates the ETH reserve", async () => {
     const { configurator, weth, dataProvider } = testEnv;
-    await configurator.setActiveFlagOnReserve([weth.address], true);
+    await configurator.setActiveFlagOnReserve(weth.address, true);
 
     const { isActive } = await dataProvider.getReserveConfigurationData(weth.address);
     expect(isActive).to.be.equal(true);
@@ -42,7 +47,7 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
   it("Check the onlyAdmin on deactivateReserve ", async () => {
     const { configurator, users, weth } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).setActiveFlagOnReserve([weth.address], false),
+      configurator.connect(users[2].signer).setActiveFlagOnReserve(weth.address, false),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
@@ -50,7 +55,7 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
   it("Check the onlyAdmin on activateReserve ", async () => {
     const { configurator, users, weth } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).setActiveFlagOnReserve([weth.address], true),
+      configurator.connect(users[2].signer).setActiveFlagOnReserve(weth.address, true),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
@@ -58,7 +63,7 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
   it("Freezes the ETH reserve", async () => {
     const { configurator, weth, dataProvider } = testEnv;
 
-    await configurator.setFreezeFlagOnReserve([weth.address], true);
+    await configurator.setFreezeFlagOnReserve(weth.address, true);
     const { decimals, reserveFactor, borrowingEnabled, isActive, isFrozen } =
       await dataProvider.getReserveConfigurationData(weth.address);
 
@@ -71,7 +76,7 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
 
   it("Unfreezes the ETH reserve", async () => {
     const { configurator, dataProvider, weth } = testEnv;
-    await configurator.setFreezeFlagOnReserve([weth.address], false);
+    await configurator.setFreezeFlagOnReserve(weth.address, false);
 
     const { decimals, reserveFactor, borrowingEnabled, isActive, isFrozen } =
       await dataProvider.getReserveConfigurationData(weth.address);
@@ -86,7 +91,7 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
   it("Check the onlyAdmin on freezeReserve ", async () => {
     const { configurator, users, weth } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).setFreezeFlagOnReserve([weth.address], true),
+      configurator.connect(users[2].signer).setFreezeFlagOnReserve(weth.address, true),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
@@ -94,14 +99,14 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
   it("Check the onlyAdmin on unfreezeReserve ", async () => {
     const { configurator, users, weth } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).setFreezeFlagOnReserve([weth.address], false),
+      configurator.connect(users[2].signer).setFreezeFlagOnReserve(weth.address, false),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
 
   it("Deactivates the ETH reserve for borrowing", async () => {
     const { configurator, dataProvider, weth } = testEnv;
-    await configurator.setBorrowingFlagOnReserve([weth.address], false);
+    await configurator.setBorrowingFlagOnReserve(weth.address, false);
     const { decimals, reserveFactor, borrowingEnabled, isActive, isFrozen } =
       await dataProvider.getReserveConfigurationData(weth.address);
 
@@ -114,7 +119,7 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
 
   it("Activates the ETH reserve for borrowing", async () => {
     const { configurator, weth, dataProvider } = testEnv;
-    await configurator.setBorrowingFlagOnReserve([weth.address], true);
+    await configurator.setBorrowingFlagOnReserve(weth.address, true);
     const { variableBorrowIndex } = await dataProvider.getReserveData(weth.address);
 
     const { decimals, reserveFactor, borrowingEnabled, isActive, isFrozen } =
@@ -132,7 +137,7 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
   it("Check the onlyAdmin on disableBorrowingOnReserve ", async () => {
     const { configurator, users, weth } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).setBorrowingFlagOnReserve([weth.address], false),
+      configurator.connect(users[2].signer).setBorrowingFlagOnReserve(weth.address, false),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
@@ -140,14 +145,14 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
   it("Check the onlyAdmin on enableBorrowingOnReserve ", async () => {
     const { configurator, users, weth } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).setBorrowingFlagOnReserve([weth.address], true),
+      configurator.connect(users[2].signer).setBorrowingFlagOnReserve(weth.address, true),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
 
   it("Changes the reserve factor of WETH", async () => {
     const { configurator, dataProvider, weth } = testEnv;
-    await configurator.setReserveFactor([weth.address], "1000");
+    await configurator.setReserveFactor(weth.address, "1000");
     const { reserveFactor } = await dataProvider.getReserveConfigurationData(weth.address);
 
     expect(reserveFactor).to.be.equal(1000);
@@ -156,7 +161,7 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
   it("Check the onlyLendPoolManager on setReserveFactor", async () => {
     const { configurator, users, weth } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).setReserveFactor([weth.address], "2000"),
+      configurator.connect(users[2].signer).setReserveFactor(weth.address, "2000"),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
@@ -219,7 +224,7 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
     await pool.deposit(dai.address, amountDAItoDeposit, userAddress, "0");
 
     await expect(
-      configurator.setActiveFlagOnReserve([dai.address], false),
+      configurator.setActiveFlagOnReserve(dai.address, false),
       LPC_RESERVE_LIQUIDITY_NOT_0
     ).to.be.revertedWith(LPC_RESERVE_LIQUIDITY_NOT_0);
   });
@@ -236,6 +241,13 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
     const { configurator, users, pool } = testEnv;
     await expect(configurator.setMaxNumberOfReserves(2), LPC_INVALID_CONFIGURATION).to.be.revertedWith(
       LPC_INVALID_CONFIGURATION
+    );
+  });
+
+  it("Config setMaxNumberOfReserves invalid value overflow", async () => {
+    const { configurator, users, pool } = testEnv;
+    await expect(configurator.setMaxNumberOfReserves(256), LP_INVALID_OVERFLOW_VALUE).to.be.revertedWith(
+      LP_INVALID_OVERFLOW_VALUE
     );
   });
 

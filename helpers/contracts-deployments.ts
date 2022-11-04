@@ -62,6 +62,8 @@ import {
   NFTXVaultFactoryV2Factory,
   UniswapV2FactoryFactory,
   UniswapV2Router02Factory,
+  CustomERC721,
+  CustomERC721Factory,
 } from "../types";
 import {
   withSaveAndVerify,
@@ -150,6 +152,17 @@ export const deployGenericLogic = async (verify?: boolean) => {
   );
 };
 
+export const deployNFTXHelperLibrary = async (verify?: boolean) => {
+  const nftxHelperArtifact = await readArtifact(eContractid.NFTXHelper);
+  const linkedNFTXHelperByteCode = linkBytecode(nftxHelperArtifact, {});
+
+  const nftxHelperFactory = await DRE.ethers.getContractFactory(nftxHelperArtifact.abi, linkedNFTXHelperByteCode);
+
+  const nftxHelper = await (await nftxHelperFactory.connect(await getDeploySigner()).deploy()).deployed();
+
+  return withSaveAndVerify(nftxHelper, eContractid.NFTXHelper, [], verify);
+};
+
 export const deployValidationLogic = async (reserveLogic: Contract, genericLogic: Contract, verify?: boolean) => {
   const validationLogicArtifact = await readArtifact(eContractid.ValidationLogic);
 
@@ -213,6 +226,7 @@ export const deployLiquidateLogicLibrary = async (verify?: boolean) => {
 export const deployUnlockdLibraries = async (verify?: boolean) => {
   await deployLendPoolLibraries(verify);
   await deployConfiguratorLibraries(verify);
+  //await deployLendPoolLoanLibraries(verify);
 };
 
 export const deployLendPoolLibraries = async (verify?: boolean) => {
@@ -220,10 +234,13 @@ export const deployLendPoolLibraries = async (verify?: boolean) => {
   const reserveLogic = await deployReserveLogicLibrary(verify);
   const nftLogic = await deployNftLogicLibrary(verify);
   const validationLogic = await deployValidationLogic(reserveLogic, genericLogic, verify);
-
   const supplyLogic = await deploySupplyLogicLibrary(verify);
   const borrowLogic = await deployBorrowLogicLibrary(verify);
   const liquidateLogic = await deployLiquidateLogicLibrary(verify);
+};
+
+export const deployLendPoolLoanLibraries = async (verify?: boolean) => {
+  const nftxHelper = await deployNFTXHelperLibrary(verify);
 };
 
 export const getLendPoolLibraries = async (verify?: boolean): Promise<LendPoolLibraryAddresses> => {
@@ -366,6 +383,14 @@ export const deployMintableERC721 = async (args: [string, string], verify?: bool
     verify
   );
 
+export const deployCustomERC721 = async (args: [string, string], verify?: boolean): Promise<CustomERC721> =>
+  withSaveAndVerify(
+    await new CustomERC721Factory(await getDeploySigner()).deploy(...args),
+    eContractid.CustomERC721,
+    args,
+    verify
+  );
+
 export const deployInterestRate = async (args: [tEthereumAddress, string, string, string, string], verify: boolean) =>
   withSaveAndVerify(
     await new InterestRateFactory(await getDeploySigner()).deploy(...args),
@@ -414,8 +439,8 @@ export const deployAllMockTokens = async (forTestCases: boolean, verify?: boolea
   return tokens;
 };
 
-export const deployAllMockNfts = async (verify?: boolean) => {
-  const tokens: { [symbol: string]: MockContract | MintableERC721 | WrappedPunk } = {};
+export const deployAllMockNfts = async (verify?: boolean, custom?: boolean) => {
+  const tokens: { [symbol: string]: MockContract | MintableERC721 | WrappedPunk | CustomERC721 } = {};
 
   for (const tokenSymbol of Object.keys(NftContractId)) {
     const tokenName = "Unlockd Mock " + tokenSymbol;
@@ -426,8 +451,15 @@ export const deployAllMockNfts = async (verify?: boolean) => {
       await registerContractInJsonDb(tokenSymbol.toUpperCase(), tokens[tokenSymbol]);
       continue;
     }
+    if (custom) {
+      //if (tokenSymbol === "BAYC") {
+      //  console.log("Deploying BAYC...");
+      tokens[tokenSymbol] = await deployCustomERC721([tokenName, tokenSymbol], verify);
+      //}
+    } else {
+      tokens[tokenSymbol] = await deployMintableERC721([tokenName, tokenSymbol], verify);
+    }
 
-    tokens[tokenSymbol] = await deployMintableERC721([tokenName, tokenSymbol], verify);
     await registerContractInJsonDb(tokenSymbol.toUpperCase(), tokens[tokenSymbol]);
   }
   return tokens;
