@@ -189,7 +189,7 @@
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "UnlockdProtocolDataProvider": {
-    "address": "0xe5DA255571753A3A82d74BF1A309fA5d689B9E54",
+    "address": "0xb5DB7e58d1c9B8761205483bfb7Fa8114f601e10",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "InterestRate": {

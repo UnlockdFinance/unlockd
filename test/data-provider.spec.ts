@@ -385,6 +385,6 @@ makeSuite("DataProvider", (testEnv) => {
 
     const nftxPrice = await dataProvider.getNFTXPrice(bayc.address, 101, weth.address);
 
-    expect(nftxPrice.toString()).to.equal("73289363526841320727");
+    expect(await nftxPrice.toString()).to.equal("73289363526841320727");
   });
 });
