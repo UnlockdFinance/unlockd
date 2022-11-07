@@ -62,7 +62,8 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    **/
   function batchInitReserve(ConfigTypes.InitReserveInput[] calldata input) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < input.length; ) {
+    uint256 inputLength = input.length;
+    for (uint256 i = 0; i < inputLength; ) {
       ConfiguratorLogic.executeInitReserve(_addressesProvider, cachedPool, input[i]);
 
       unchecked {
@@ -78,8 +79,8 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function batchInitNft(ConfigTypes.InitNftInput[] calldata input) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     IUNFTRegistry cachedRegistry = _getUNFTRegistry();
-
-    for (uint256 i = 0; i < input.length; ) {
+    uint256 inputLength = input.length;
+    for (uint256 i = 0; i < inputLength; ) {
       ConfiguratorLogic.executeInitNft(cachedPool, cachedRegistry, input[i]);
 
       unchecked {
@@ -94,8 +95,8 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    **/
   function updateUToken(ConfigTypes.UpdateUTokenInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-
-    for (uint256 i = 0; i < inputs.length; ) {
+    uint256 inputLength = inputs.length;
+    for (uint256 i = 0; i < inputLength; ) {
       ConfiguratorLogic.executeUpdateUToken(cachedPool, inputs[i]);
 
       unchecked {
@@ -110,8 +111,8 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    **/
   function updateDebtToken(ConfigTypes.UpdateDebtTokenInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-
-    for (uint256 i = 0; i < inputs.length; ) {
+    uint256 inputLength = inputs.length;
+    for (uint256 i = 0; i < inputLength; ) {
       ConfiguratorLogic.executeUpdateDebtToken(cachedPool, inputs[i]);
 
       unchecked {
@@ -207,7 +208,8 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    **/
   function setReserveInterestRateAddress(address[] calldata assets, address rateAddress) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; ) {
+    uint256 assetsLength = assets.length;
+    for (uint256 i = 0; i < assetsLength; ) {
       cachedPool.setReserveInterestRateAddress(assets[i], rateAddress);
       emit ReserveInterestRateChanged(assets[i], rateAddress);
 
@@ -223,7 +225,8 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    **/
   function batchConfigReserve(ConfigReserveInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < inputs.length; ) {
+    uint256 inputLength = inputs.length;
+    for (uint256 i = 0; i < inputLength; ) {
       DataTypes.ReserveConfigurationMap memory currentConfig = cachedPool.getReserveConfiguration(inputs[i].asset);
 
       currentConfig.setReserveFactor(inputs[i].reserveFactor);
@@ -271,10 +274,12 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     uint256[] calldata tokenIds,
     bool flag
   ) external onlyPoolAdmin {
-    require(assets.length == tokenIds.length, Errors.LPC_PARAMS_MISMATCH);
+    uint256 assetsLength = assets.length;
+    require(assetsLength == tokenIds.length, Errors.LPC_PARAMS_MISMATCH);
 
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; ) {
+
+    for (uint256 i = 0; i < assetsLength; ) {
       DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(assets[i], tokenIds[i]);
 
       currentConfig.setActive(flag);
@@ -321,7 +326,8 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     bool flag
   ) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; ) {
+    uint256 assetsLength = assets.length;
+    for (uint256 i = 0; i < assetsLength; ) {
       DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(assets[i], tokenIds[i]);
 
       currentConfig.setFrozen(flag);
@@ -394,7 +400,6 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     currentConfig.setAuctionDuration(auctionDuration);
     currentConfig.setRedeemFine(redeemFine);
     currentConfig.setConfigTimestamp(block.timestamp);
-
 
     cachedPool.setNftConfigByTokenId(asset, nftTokenId, currentConfig.data);
 
@@ -487,7 +492,8 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     uint256 maxTokenId
   ) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < assets.length; ) {
+    uint256 assetsLength = assets.length;
+    for (uint256 i = 0; i < assetsLength; ) {
       cachedPool.setNftMaxSupplyAndTokenId(assets[i], maxSupply, maxTokenId);
 
       emit NftMaxSupplyAndTokenIdChanged(assets[i], maxSupply, maxTokenId);
@@ -505,7 +511,8 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   //TODO: solve this to accept multi Ids
   function batchConfigNft(ConfigNftInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
-    for (uint256 i = 0; i < inputs.length; ) {
+    uint256 inputsLength = inputs.length;
+    for (uint256 i = 0; i < inputsLength; ) {
       DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(
         inputs[i].asset,
         inputs[i].tokenId
