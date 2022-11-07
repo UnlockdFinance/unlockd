@@ -39,5 +39,3 @@ jobs:
         run: yarn
       - name: Test
         run: npm run test
-      - name: Coverage
-        run: npm run dev:coverage
