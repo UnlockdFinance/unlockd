@@ -4,14 +4,11 @@ import { HardhatUserConfig } from "hardhat/types";
 // @ts-ignore
 import { accounts } from "./test-wallets.js";
 import { eEthereumNetwork, eNetwork } from "./helpers/types";
-import { BUIDLEREVM_CHAINID, COVERAGE_CHAINID } from "./helpers/buidler-constants";
+import { BUIDLEREVM_CHAINID } from "./helpers/buidler-constants";
 import { NETWORKS_RPC_URL, NETWORKS_DEFAULT_GAS, BLOCK_TO_FORK, buildForkConfig, buildUnlockdForkConfig } from "./helper-hardhat-config";
 import 'solidity-docgen';
 require("dotenv").config();
 
-
-const INFURA_KEY = process.env.INFURA_KEY || "";
-const ALCHEMY_KEY = process.env.ALCHEMY_KEY || "";
 import {bootstrap} from 'global-agent'
 if (process.env.GLOBAL_AGENT_HTTP_PROXY) {
   console.log("Enable Global Agent:", process.env.GLOBAL_AGENT_HTTP_PROXY);
@@ -105,23 +102,15 @@ const buidlerConfig: HardhatUserConfig = {
     apiKey: ETHERSCAN_KEY,
   },
   mocha: {
-    timeout: 0,
+    timeout: 100000000,
   },
   networks: {
-    coverage: {
-      hardfork: "istanbul",
-      url: "http://localhost:8555",
-      chainId: COVERAGE_CHAINID,
-    },
     localhost: {
       hardfork: "london",
       url: "http://localhost:8545",
       chainId: BUIDLEREVM_CHAINID,
       accounts: accounts.map(({ secretKey, balance }: { secretKey: string; balance: string }) => (secretKey)),
     },
-    develop: getCommonNetworkConfig(eEthereumNetwork.develop, 4),
-    rinkeby: getCommonNetworkConfig(eEthereumNetwork.rinkeby, 4),
-    kovan: getCommonNetworkConfig(eEthereumNetwork.kovan, 42),
     goerli: getCommonNetworkConfig(eEthereumNetwork.goerli, 5),
     main: getCommonNetworkConfig(eEthereumNetwork.main, 1),
     hardhat: {

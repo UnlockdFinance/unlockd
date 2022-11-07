@@ -104,7 +104,7 @@ npx hardhat --network localhost "dev:deploy-mock-unft-registry" --pool Unlockd
 npx hardhat --network localhost "dev:deploy-mock-unft-tokens" --pool Unlockd
 ```
 
-### Rinkeby mock deployment (a full deployment may not run because of ERC20 and ERC721 Reserves)
+### Goerli mock deployment (a full deployment may not run because of ERC20 and ERC721 Reserves)
 ```
 # In one terminal
 npm run unlockd:goerli:mock:migration

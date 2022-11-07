@@ -1,12 +1,11 @@
 // @ts-ignore
-import { HardhatNetworkForkingUserConfig, HardhatNetworkUserConfig, HardhatUserConfig } from "hardhat/types";
+import { HardhatNetworkForkingUserConfig } from "hardhat/types";
 import { eEthereumNetwork, iParamsPerNetwork } from "./helpers/types";
 
 require("dotenv").config();
 
 const INFURA_KEY = process.env.INFURA_KEY || "";
 const ALCHEMY_KEY = process.env.ALCHEMY_KEY || "";
-const TENDERLY_FORK_ID = process.env.TENDERLY_FORK_ID || "";
 const FORK = process.env.FORK || "";
 const FORK_BLOCK_NUMBER = process.env.FORK_BLOCK_NUMBER ? parseInt(process.env.FORK_BLOCK_NUMBER) : 0;
 const FORK_NETWORK = process.env.FORK || "";
@@ -36,13 +35,6 @@ export const buildUnlockdForkConfig = (): HardhatNetworkForkingUserConfig | unde
           : `https://mainnet.infura.io/v3/${INFURA_KEY}`,
         };
       break;
-      case "RINKEBY":
-        forkMode = {
-          url: ALCHEMY_KEY
-          ? `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_KEY}`
-          : `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
-        };
-      break;
       case "GOERLI":
         forkMode = {
           url: ALCHEMY_KEY
@@ -60,44 +52,26 @@ export const buildUnlockdForkConfig = (): HardhatNetworkForkingUserConfig | unde
 };
 
 export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
-  [eEthereumNetwork.develop]: ALCHEMY_KEY
-    ? `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_KEY}`
-    : `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
-  [eEthereumNetwork.rinkeby]: ALCHEMY_KEY
-    ? `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_KEY}`
-    : `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
-  [eEthereumNetwork.kovan]: ALCHEMY_KEY
-    ? `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_KEY}`
-    : `https://kovan.infura.io/v3/${INFURA_KEY}`,
   [eEthereumNetwork.goerli]: ALCHEMY_KEY
     ? `https://eth-goerli.alchemyapi.io/v2/${ALCHEMY_KEY}`
     : `https://goerli.infura.io/v3/${INFURA_KEY}`,
   [eEthereumNetwork.main]: ALCHEMY_KEY
     ? `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_KEY}`
     : `https://mainnet.infura.io/v3/${INFURA_KEY}`,
-  [eEthereumNetwork.coverage]: "http://localhost:8555",
   [eEthereumNetwork.hardhat]: "http://localhost:8545",
-  [eEthereumNetwork.localhost]: "http://localhost:8545",
+  [eEthereumNetwork.localhost]: "http://localhost:8545"
 };
 
 export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number> = {
-  [eEthereumNetwork.develop]: 65 * GWEI,
-  [eEthereumNetwork.rinkeby]: 65 * GWEI,
-  [eEthereumNetwork.kovan]: 65 * GWEI,
   [eEthereumNetwork.goerli]: 65 * GWEI,
   [eEthereumNetwork.main]: 65 * GWEI,
-  [eEthereumNetwork.coverage]: 65 * GWEI,
   [eEthereumNetwork.hardhat]: 65 * GWEI,
-  [eEthereumNetwork.localhost]: 65 * GWEI,
+  [eEthereumNetwork.localhost]: 65 * GWEI
 };
 
 export const BLOCK_TO_FORK: iParamsPerNetwork<number | undefined> = {
   [eEthereumNetwork.main]: 13623705,
   [eEthereumNetwork.goerli]: 0,
-  [eEthereumNetwork.rinkeby]: 0,
-  [eEthereumNetwork.kovan]: 0,
-  [eEthereumNetwork.develop]: 0,
-  [eEthereumNetwork.coverage]: 0,
   [eEthereumNetwork.hardhat]: 0,
-  [eEthereumNetwork.localhost]: 0,
+  [eEthereumNetwork.localhost]: 0
 };

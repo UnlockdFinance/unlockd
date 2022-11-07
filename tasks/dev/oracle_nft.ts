@@ -58,4 +58,5 @@ task("dev:deploy-oracle-nft", "Deploy nft oracle for dev environment")
     await waitForTx(await addressesProvider.setNFTOracle(nftOracleImpl.address));
     await addAssetsInNFTOracle(allNftAddresses, nftOracleImpl);
     await setPricesInNFTOracle(allNftPrices, allNftAddresses, allNftMaxSupply, nftOracleImpl);
+    console.log("Done!!");
   });
