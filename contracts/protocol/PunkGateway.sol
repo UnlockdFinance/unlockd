@@ -100,7 +100,8 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
    * @param tokens the array of tokens
    **/
   function authorizeLendPoolERC20(address[] calldata tokens) external nonReentrant onlyOwner {
-    for (uint256 i = 0; i < tokens.length; ) {
+    uint256 tokensLength = tokens.length;
+    for (uint256 i = 0; i < tokensLength; ) {
       IERC20Upgradeable(tokens[i]).approve(address(_getLendPool()), 0);
       IERC20Upgradeable(tokens[i]).approve(address(_getLendPool()), type(uint256).max);
 
@@ -116,7 +117,8 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
    * @param callers the authorization status
    **/
   function authorizeCallerWhitelist(address[] calldata callers, bool flag) external nonReentrant onlyOwner {
-    for (uint256 i = 0; i < callers.length; ) {
+    uint256 callersLength = callers.length;
+    for (uint256 i = 0; i < callersLength; ) {
       _callerWhitelists[callers[i]] = flag;
 
       unchecked {

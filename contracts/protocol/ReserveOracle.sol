@@ -30,8 +30,9 @@ contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext
    * @param _aggregators the array of aggregators
    **/
   function setAggregators(address[] calldata _priceFeedKeys, address[] calldata _aggregators) external onlyOwner {
-    require(_priceFeedKeys.length == _aggregators.length, "ReserveOracle: INCONSISTENT_PARAMS_LENGTH");
-    for (uint256 i = 0; i < _priceFeedKeys.length; ) {
+    uint256 priceFeedKeysLength = _priceFeedKeys.length;
+    require(priceFeedKeysLength == _aggregators.length, "ReserveOracle: INCONSISTENT_PARAMS_LENGTH");
+    for (uint256 i = 0; i < priceFeedKeysLength; ) {
       _addAggregator(_priceFeedKeys[i], _aggregators[i]);
 
       unchecked {

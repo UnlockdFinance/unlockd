@@ -55,11 +55,17 @@ contract WalletBalanceProvider {
     view
     returns (uint256[] memory)
   {
-    uint256[] memory balances = new uint256[](users.length * tokens.length);
+    uint256 usersLength = users.length;
+    uint256 tokensLength = tokens.length;
 
-    for (uint256 i = 0; i < users.length; ) {
-      for (uint256 j = 0; j < tokens.length; j++) {
-        balances[i * tokens.length + j] = balanceOfReserve(users[i], tokens[j]);
+    uint256[] memory balances = new uint256[](usersLength * tokensLength);
+
+    for (uint256 i = 0; i < usersLength; ) {
+      for (uint256 j = 0; j < tokensLength; ) {
+        balances[i * tokensLength + j] = balanceOfReserve(users[i], tokens[j]);
+        unchecked {
+          ++j;
+        }
       }
 
       unchecked {
@@ -79,21 +85,21 @@ contract WalletBalanceProvider {
     returns (address[] memory, uint256[] memory)
   {
     ILendPool pool = ILendPool(ILendPoolAddressesProvider(provider).getLendPool());
-
     address[] memory reserves = pool.getReservesList();
-    address[] memory reservesWithEth = new address[](reserves.length + 1);
-    for (uint256 i = 0; i < reserves.length; ) {
+    uint256 reservesLength = reserves.length;
+    address[] memory reservesWithEth = new address[](reservesLength + 1);
+    for (uint256 i = 0; i < reservesLength; ) {
       reservesWithEth[i] = reserves[i];
 
       unchecked {
         ++i;
       }
     }
-    reservesWithEth[reserves.length] = MOCK_ETH_ADDRESS;
+    reservesWithEth[reservesLength] = MOCK_ETH_ADDRESS;
 
     uint256[] memory balances = new uint256[](reservesWithEth.length);
 
-    for (uint256 j = 0; j < reserves.length; ) {
+    for (uint256 j = 0; j < reservesLength; ) {
       DataTypes.ReserveConfigurationMap memory configuration = pool.getReserveConfiguration(reservesWithEth[j]);
 
       (bool isActive, , , ) = configuration.getFlagsMemory();
@@ -108,7 +114,7 @@ contract WalletBalanceProvider {
         ++j;
       }
     }
-    balances[reserves.length] = balanceOfReserve(user, MOCK_ETH_ADDRESS);
+    balances[reservesLength] = balanceOfReserve(user, MOCK_ETH_ADDRESS);
 
     return (reservesWithEth, balances);
   }
@@ -137,11 +143,16 @@ contract WalletBalanceProvider {
     view
     returns (uint256[] memory)
   {
-    uint256[] memory balances = new uint256[](users.length * tokens.length);
+    uint256 usersLength = users.length;
+    uint256 tokensLength = tokens.length;
+    uint256[] memory balances = new uint256[](usersLength * tokensLength);
 
-    for (uint256 i = 0; i < users.length; ) {
-      for (uint256 j = 0; j < tokens.length; j++) {
-        balances[i * tokens.length + j] = balanceOfNft(users[i], tokens[j]);
+    for (uint256 i = 0; i < usersLength; ) {
+      for (uint256 j = 0; j < tokensLength; ) {
+        balances[i * tokensLength + j] = balanceOfNft(users[i], tokens[j]);
+        unchecked {
+          ++j;
+        }
       }
 
       unchecked {
@@ -163,10 +174,10 @@ contract WalletBalanceProvider {
     ILendPool pool = ILendPool(ILendPoolAddressesProvider(provider).getLendPool());
 
     address[] memory nfts = pool.getNftsList();
+    uint256 nftsLength = nfts.length;
+    uint256[] memory balances = new uint256[](nftsLength);
 
-    uint256[] memory balances = new uint256[](nfts.length);
-
-    for (uint256 j = 0; j < nfts.length; j++) {
+    for (uint256 j = 0; j < nftsLength; ) {
       /*
       DataTypes.NftConfigurationMap memory configuration = pool.getNftConfiguration(nfts[j]);
 
@@ -178,6 +189,10 @@ contract WalletBalanceProvider {
       }
       */
       balances[j] = balanceOfNft(user, nfts[j]);
+
+      unchecked {
+        ++j;
+      }
     }
 
     return (nfts, balances);
