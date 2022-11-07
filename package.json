@@ -86,6 +86,7 @@
     "chai": "^4.2.0",
     "chai-bignumber": "^3.0.0",
     "chai-bn": "^0.2.1",
+    "cross-env": "^7.0.3",
     "defender-relay-client": "^1.7.0",
     "dotenv": "^8.2.0",
     "eth-sig-util": "2.5.3",
