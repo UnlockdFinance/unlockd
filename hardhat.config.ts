@@ -102,14 +102,18 @@ const buidlerConfig: HardhatUserConfig = {
     apiKey: ETHERSCAN_KEY,
   },
   mocha: {
-    timeout: 100000000,
+    timeout: 0,
   },
   networks: {
     localhost: {
       hardfork: "london",
-      url: "http://localhost:8545",
+      url: "http://127.0.0.1:8545",
       chainId: BUIDLEREVM_CHAINID,
       accounts: accounts.map(({ secretKey, balance }: { secretKey: string; balance: string }) => (secretKey)),
+      blockGasLimit: 30000000,
+      throwOnTransactionFailures: true,
+      throwOnCallFailures: true,
+      allowUnlimitedContractSize: true,
     },
     goerli: getCommonNetworkConfig(eEthereumNetwork.goerli, 5),
     main: getCommonNetworkConfig(eEthereumNetwork.main, 1),

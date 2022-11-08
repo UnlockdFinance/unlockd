@@ -83,7 +83,10 @@ export const setPricesInNFTOracle = async (
     }
     const [, maxSupply] = (Object.entries(assetsMaxSupply) as [string, string][])[maxSupplyIndex];
     const tokenIds = [...Array(parseInt(maxSupply)).keys()];
-    tokenIds.map(async (tokenId) => await waitForTx(await nftOracleInstance.setNFTPrice(assetAddress, tokenId, price)));
+
+    for (const tokenId of tokenIds) {
+      await waitForTx(await nftOracleInstance.setNFTPrice(assetAddress, tokenId, price));
+    }
   }
 };
 

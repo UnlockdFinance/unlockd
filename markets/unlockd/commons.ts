@@ -95,7 +95,7 @@ export const CommonsConfig: ICommonConfiguration = {
 
   UNFTRegistry: { /// Add contract From U
     [eEthereumNetwork.hardhat]: '0x8b89F971cA1A5dE1B7df7f554a3024eE84FeeB05',
-    [eEthereumNetwork.localhost]: '0x10f8Fe9c6a70968D86384cf1b6decC6Dc2C595f0',
+    [eEthereumNetwork.localhost]: '0x8b89F971cA1A5dE1B7df7f554a3024eE84FeeB05',
     [eEthereumNetwork.goerli]: '0x478F4396227b863D4e299BA94aB9A01Db825ab2f',
     [eEthereumNetwork.main]: '0x79d922DD382E42A156bC0A354861cDBC4F09110d',
   },
@@ -131,9 +131,9 @@ export const CommonsConfig: ICommonConfiguration = {
     // https://docs.chain.link/docs/ethereum-addresses/
     [eEthereumNetwork.hardhat]: {},
     [eEthereumNetwork.localhost]: {
-      DAI: '0x76F965B99e9E216a648A8dB9F8aB459e880181Ff',
-      USDC: '0x667094bFA646469650E0A3D462F6f6735218c269',
-      USD: '0x51998F16F707a0cdd5ECE2a56c034552dF3fb855',
+      DAI: '0x53933349dA8E97b77c1f43Ba01192adb8C510fA7',
+      USDC: '0x51998F16F707a0cdd5ECE2a56c034552dF3fb855',
+      USD: '0x8e090D5B023252bE8d05d4c33b959A6F4A8BdD9e',
     },
     [eEthereumNetwork.goerli]: {
       DAI: '0x0d79df66BE487753B02D015Fb622DED7f0E9798d',
@@ -161,7 +161,7 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   WrappedNativeToken: { //WETH
     [eEthereumNetwork.hardhat]: '', // deployed in local evm
-    [eEthereumNetwork.localhost]: '0xe83eC7DdC55b673f852c5e2c230D353F45FE1739',
+    [eEthereumNetwork.localhost]: '0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104',
     [eEthereumNetwork.goerli]: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
     [eEthereumNetwork.main]: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   },
@@ -186,21 +186,21 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   IncentivesController: {
     [eEthereumNetwork.hardhat]: ZERO_ADDRESS,
-    [eEthereumNetwork.localhost]: "0xd062F368df81E0A7f4fB6e8F5ce5AC7deD388796",
+    [eEthereumNetwork.localhost]: "0xF9107B537482fE7cE75a6646BEad2A97BFA4eB0E",
     [eEthereumNetwork.goerli]: '0x676DA7Ad769870970EdE52D896057331fC4892F7',
     [eEthereumNetwork.main]: '0x26FC1f11E612366d3367fc0cbFfF9e819da91C8d',
   },
   // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
   NFTXVaultFactory: {
     [eEthereumNetwork.hardhat]: '0xe01Cf5099e700c282A56E815ABd0C4948298Afae',//goerli address for forking tests
-    [eEthereumNetwork.localhost]: '0x10F6794a3Df86bD8B97c7d6D625BAB54677D443b',
+    [eEthereumNetwork.localhost]: '0x2cC3790f7CF280fA898E4913CA980410cF38e53b',
     [eEthereumNetwork.goerli]: '0xe01Cf5099e700c282A56E815ABd0C4948298Afae',
     [eEthereumNetwork.main]: '0xBE86f647b167567525cCAAfcd6f881F1Ee558216',
   },
   // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
   SushiSwapRouter: {
     [eEthereumNetwork.hardhat]: '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506', //goerli address for forking tests
-    [eEthereumNetwork.localhost]: '0x2cC3790f7CF280fA898E4913CA980410cF38e53b',
+    [eEthereumNetwork.localhost]: '0x6B8dcBD1bb131ED184221902df1Fe21019ccD7dc',
     [eEthereumNetwork.goerli]: '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506', 
     [eEthereumNetwork.main]: '0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F',
   },
