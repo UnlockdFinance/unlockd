@@ -60,19 +60,18 @@ export const MOCK_NFT_AGGREGATORS_PRICES = {
   LAND: oneEther.multipliedBy("2.16").toFixed(),
 };
 
-// TODO: Replace 150 for 1000
 export const MOCK_NFT_AGGREGATORS_MAXSUPPLY = {
-  WPUNKS: "100", //10000
-  BAYC: "100", //10000
-  DOODLE: "100", //9999
-  COOL: "100", //9999
-  MEEBITS: "100", //20000
-  MAYC: "100", //19422
-  WOW: "100", //5555
-  CLONEX: "100", //19310
-  AZUKI: "100", //10000
-  KONGZ: "100", //14826
-  LAND: "100", //90000
+  WPUNKS: "150", //10000
+  BAYC: "150", //10000
+  DOODLE: "150", //9999
+  COOL: "150", //9999
+  MEEBITS: "150", //20000
+  MAYC: "150", //19422
+  WOW: "150", //5555
+  CLONEX: "150", //19310
+  AZUKI: "150", //10000
+  KONGZ: "150", //14826
+  LAND: "150", //90000
 };
 
 export const MOCK_NFT_BASE_URIS = {

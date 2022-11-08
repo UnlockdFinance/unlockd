@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
 import { checkVerification } from "../../helpers/etherscan-verification";
 import { ConfigNames } from "../../helpers/configuration";
-import { increaseTime, printContracts } from "../../helpers/misc-utils";
+import { printContracts } from "../../helpers/misc-utils";
 
 task("unlockd:dev", "Deploy development enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")
