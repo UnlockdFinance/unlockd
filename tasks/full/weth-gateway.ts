@@ -43,7 +43,7 @@ task(`full:deploy-weth-gateway`, `Deploys the WETHGateway contract`)
       addressesProvider.address,
       weth,
     ]);
-    //const initEncodedData = '0x';
+    //const initEncodedData = "0x";
 
     let wethGateWay: WETHGateway;
     let wethGatewayProxy: UnlockdUpgradeableProxy;

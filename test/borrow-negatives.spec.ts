@@ -88,7 +88,7 @@ makeSuite("LendPool: Borrow negative test cases", (testEnv: TestEnv) => {
     const { users, configurator, deployer, pool, bayc, nftOracle } = testEnv;
     const user2 = users[2];
 
-    expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId.toString();
 
     await configurator.setLtvManagerStatus(deployer.address, true);
