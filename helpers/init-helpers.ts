@@ -295,9 +295,7 @@ export const configureReservesByHelper = async (
     increaseTime(3600);
     await Promise.all(
       assetsParams.map(async (asset) => {
-        console.log("hey", asset);
         await waitForTx(await configurator.setBorrowingFlagOnReserve(asset, true));
-        console.log(` - BorrowingFlagOnReserve: ${asset}`);
       })
     );
   }

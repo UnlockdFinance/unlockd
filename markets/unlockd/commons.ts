@@ -94,14 +94,14 @@ export const CommonsConfig: ICommonConfiguration = {
   LtvManagerIndex: 0,
 
   UNFTRegistry: { /// Add contract From U
-    [eEthereumNetwork.hardhat]: '0x38b9ACfdFCB9072CBEE195172AEC60ED14880327',
+    [eEthereumNetwork.hardhat]: '0x8b89F971cA1A5dE1B7df7f554a3024eE84FeeB05',
     [eEthereumNetwork.localhost]: '0x10f8Fe9c6a70968D86384cf1b6decC6Dc2C595f0',
     [eEthereumNetwork.goerli]: '0x478F4396227b863D4e299BA94aB9A01Db825ab2f',
     [eEthereumNetwork.main]: '0x79d922DD382E42A156bC0A354861cDBC4F09110d',
   },
 
   ProviderRegistry: {
-    [eEthereumNetwork.hardhat]: '',
+    [eEthereumNetwork.hardhat]: '0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15',
     [eEthereumNetwork.localhost]: '',
     [eEthereumNetwork.goerli]: '0x8817F99eb2528eB42b025bE419cbe07f59cEd295',
     [eEthereumNetwork.main]: '',
@@ -131,13 +131,13 @@ export const CommonsConfig: ICommonConfiguration = {
     // https://docs.chain.link/docs/ethereum-addresses/
     [eEthereumNetwork.hardhat]: {},
     [eEthereumNetwork.localhost]: {
-      DAI: '0xF10Eab9FAe6941230401A3574535FE088207CC27',
+      DAI: '0x76F965B99e9E216a648A8dB9F8aB459e880181Ff',
       USDC: '0x667094bFA646469650E0A3D462F6f6735218c269',
-      USD: '0x6CfC9ba6CbEf7211bA89c1A8895341dD87A64c3a',
+      USD: '0x51998F16F707a0cdd5ECE2a56c034552dF3fb855',
     },
     [eEthereumNetwork.goerli]: {
       DAI: '0x0d79df66BE487753B02D015Fb622DED7f0E9798d',
-      USDC: '0xAb5c49580294Aff77670F839ea425f5b78ab3Ae7',
+      USDC: '0x53933349dA8E97b77c1f43Ba01192adb8C510fA7',
       USD: '0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e',//ETH - USD
     },
     [eEthereumNetwork.main]: {

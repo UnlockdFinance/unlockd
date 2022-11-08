@@ -70,9 +70,9 @@ export const UnlockdConfig: IUnlockdConfiguration = {
   },
   NftsAssets: {
     [eEthereumNetwork.hardhat]: { //dev:deploy-mock-nfts
-      // WPUNKS: '0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847',
-      // BAYC: '0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457',
-      // DOODLE: '0x2F7f69a3cd22FcfFB5E0C0fB7Ae5Eb278b3919Ff',
+      WPUNKS: '0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847',
+      BAYC: '0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457',
+      DOODLE: '0x2F7f69a3cd22FcfFB5E0C0fB7Ae5Eb278b3919Ff',
       // COOL: '0xC7F247a33C79BB0fABc3605479372D3Ba188fcbc',
       // MEEBITS: '0x69D1108D37825212736aC101B445b6B57a390d13',
       // MAYC: '0x8b89F971cA1A5dE1B7df7f554a3024eE84FeeB05',

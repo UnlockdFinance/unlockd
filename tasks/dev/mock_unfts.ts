@@ -58,10 +58,8 @@ task("dev:deploy-mock-unft-tokens", "Deploy unft tokens for dev enviroment")
     const mockedNfts = await getConfigMockedNfts(poolConfig);
 
     for (const [nftSymbol, mockedNft] of Object.entries(mockedNfts) as [string, MintableERC721][]) {
-      if (nftSymbol === "BAYC") {
-        await waitForTx(await unftRegistryProxy.createUNFT(mockedNft.address));
-        const { uNftProxy } = await unftRegistryProxy.getUNFTAddresses(mockedNft.address);
-        console.log("UNFT Token:", nftSymbol, uNftProxy);
-      }
+      await waitForTx(await unftRegistryProxy.createUNFT(mockedNft.address));
+      const { uNftProxy } = await unftRegistryProxy.getUNFTAddresses(mockedNft.address);
+      console.log("UNFT Token:", nftSymbol, uNftProxy);
     }
   });
