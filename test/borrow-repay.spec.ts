@@ -80,7 +80,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     const checkResult1 = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
     await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
-    expect(checkResult1).to.be.equal(true, "IncentivesController not called");
+    await expect(checkResult1).to.be.equal(true, "IncentivesController not called");
 
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
@@ -105,7 +105,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     const checkResult2 = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
     await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
-    expect(checkResult2).to.be.equal(true, "IncentivesController not called");
+    await expect(checkResult2).to.be.equal(true, "IncentivesController not called");
 
     cachedTokenId = tokenId;
   });
@@ -114,7 +114,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     const { users, configurator, deployer, nftOracle, bayc } = testEnv;
     const user1 = users[1];
 
-    expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
 
     await configurator.setLtvManagerStatus(deployer.address, true);
@@ -156,7 +156,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     const { users, configurator, deployer, nftOracle, bayc } = testEnv;
     const user1 = users[1];
 
-    expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
 
     await configurator.setLtvManagerStatus(deployer.address, true);
@@ -182,14 +182,14 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     const checkResult = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
     await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
-    expect(checkResult).to.be.equal(true, "IncentivesController not called");
+    await expect(checkResult).to.be.equal(true, "IncentivesController not called");
   });
 
   it("User 1 tries to borrow the rest of the WETH liquidity (revert expected)", async () => {
     const { users, configurator, deployer, nftOracle, bayc } = testEnv;
     const user1 = users[1];
 
-    expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
 
     await configurator.setLtvManagerStatus(deployer.address, true);
@@ -219,7 +219,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     const { users } = testEnv;
     const user1 = users[1];
 
-    expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
 
     await repay(testEnv, user1, "", "BAYC", tokenId, "0", user1, "revert", "Amount must be greater than 0");
@@ -229,7 +229,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     const { users } = testEnv;
     const user1 = users[1];
 
-    expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
 
     await approveERC20(testEnv, user1, "WETH");
@@ -240,7 +240,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     const checkResult = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
     await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
-    expect(checkResult).to.be.equal(true, "IncentivesController not called");
+    await expect(checkResult).to.be.equal(true, "IncentivesController not called");
   });
 
   it("User 1 repays all WETH borrow after one year", async () => {
@@ -249,7 +249,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await mintERC20(testEnv, user1, "WETH", "10");
 
-    expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
 
     await approveERC20(testEnv, user1, "WETH");
@@ -260,7 +260,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     const checkResult = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
     await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
-    expect(checkResult).to.be.equal(true, "IncentivesController not called");
+    await expect(checkResult).to.be.equal(true, "IncentivesController not called");
   });
 
   it("User 0 withdraws the deposited WETH plus interest", async () => {
@@ -318,7 +318,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     const user2 = users[2];
     const user3 = users[3];
 
-    expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
 
     await delegateBorrowAllowance(testEnv, user3, "USDC", "10", user2.address, "success", "");
@@ -340,7 +340,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     const user2 = users[2];
     const user3 = users[3];
 
-    expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
 
     await delegateBorrowAllowance(testEnv, user3, "USDC", "100", user2.address, "success", "");
@@ -365,7 +365,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await approveERC20(testEnv, user3, "USDC");
 
-    expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
 
     await repay(testEnv, user3, "", "BAYC", tokenId, "10", user3, "success", "");
@@ -380,7 +380,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await approveERC20(testEnv, user3, "USDC");
 
-    expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
 
     await repay(testEnv, user3, "", "BAYC", tokenId, "-1", user3, "success", "");

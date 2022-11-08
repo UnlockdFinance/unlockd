@@ -30,9 +30,9 @@ export const createRandomAddress = () => Wallet.createRandom().address;
 
 export const evmSnapshot = async () => await DRE.ethers.provider.send("evm_snapshot", []);
 
-export const evmRevert = async (id: string) => DRE.ethers.provider.send("evm_revert", [id]);
+//export const evmRevert = async (id: string) => DRE.ethers.provider.send("evm_revert", [id]);
 
-//export const evmRevert = async () => DRE.ethers.provider.send("evm_revert", [evmSnapshot]);
+export const evmRevert = async () => DRE.ethers.provider.send("evm_revert", [evmSnapshot]);
 
 export const timeLatest = async () => {
   const block = await DRE.ethers.provider.getBlock("latest");

@@ -55,9 +55,9 @@ export const UnlockdConfig: IUnlockdConfiguration = {
       // USDC: '0x025FE4760c6f14dE878C22cEb09A3235F16dAe53',
     },
     [eEthereumNetwork.localhost]: {
-      WETH: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
-      DAI: '0xa05ffF82bcC0C599984b0839218DC6ee9328d1Fb',
-      USDC: '0x025FE4760c6f14dE878C22cEb09A3235F16dAe53',
+      WETH: '0xe83eC7DdC55b673f852c5e2c230D353F45FE1739',
+      DAI: '0x4C791a863374043b7270aE67B8bbE3483A4B1FD1',
+      USDC: '0xCfacF3D15F03441930535686014E84Fb91153966',
     },
     [eEthereumNetwork.goerli]: {
       WETH: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
@@ -84,6 +84,7 @@ export const UnlockdConfig: IUnlockdConfiguration = {
     [eEthereumNetwork.localhost]: {
       WPUNKS: '0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847',
       BAYC: '0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457',
+      DOODLE: '0x2F7f69a3cd22FcfFB5E0C0fB7Ae5Eb278b3919Ff',
     },
     [eEthereumNetwork.goerli]: {
       //WPUNKS: '0xa9ED41c141d04647276F24EE06258e57a041a158',

@@ -54,8 +54,8 @@ task("unlockd:dev", "Deploy development enviroment")
     console.log("\n\nDeploy reserve oracle");
     await localBRE.run("dev:deploy-oracle-reserve", { verify, pool: POOL_NAME });
 
-    console.log("\n\nDeploy nft oracle");
-    await localBRE.run("dev:deploy-oracle-nft", { verify, pool: POOL_NAME });
+    //console.log("\n\nDeploy nft oracle");
+    //await localBRE.run("dev:deploy-oracle-nft", { verify, pool: POOL_NAME });
 
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy WETH Gateway");
