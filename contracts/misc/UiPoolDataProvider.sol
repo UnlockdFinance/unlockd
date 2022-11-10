@@ -58,9 +58,10 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
   {
     ILendPool lendPool = ILendPool(provider.getLendPool());
     address[] memory reserves = lendPool.getReservesList();
-    AggregatedReserveData[] memory reservesData = new AggregatedReserveData[](reserves.length);
+    uint256 reservesLength = reserves.length;
+    AggregatedReserveData[] memory reservesData = new AggregatedReserveData[](reservesLength);
 
-    for (uint256 i = 0; i < reserves.length; ) {
+    for (uint256 i = 0; i < reservesLength; ) {
       AggregatedReserveData memory reserveData = reservesData[i];
 
       DataTypes.ReserveData memory baseData = lendPool.getReserveData(reserves[i]);
@@ -113,11 +114,11 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
   {
     ILendPool lendPool = ILendPool(provider.getLendPool());
     address[] memory reserves = lendPool.getReservesList();
+    uint256 reservesLength = reserves.length;
+    AggregatedReserveData[] memory reservesData = new AggregatedReserveData[](reservesLength);
+    UserReserveData[] memory userReservesData = new UserReserveData[](user != address(0) ? reservesLength : 0);
 
-    AggregatedReserveData[] memory reservesData = new AggregatedReserveData[](reserves.length);
-    UserReserveData[] memory userReservesData = new UserReserveData[](user != address(0) ? reserves.length : 0);
-
-    for (uint256 i = 0; i < reserves.length; ) {
+    for (uint256 i = 0; i < reservesLength; ) {
       AggregatedReserveData memory reserveData = reservesData[i];
 
       DataTypes.ReserveData memory baseData = lendPool.getReserveData(reserves[i]);
@@ -214,9 +215,10 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     ILendPool lendPool = ILendPool(provider.getLendPool());
     ILendPoolLoan lendPoolLoan = ILendPoolLoan(provider.getLendPoolLoan());
     address[] memory nfts = lendPool.getNftsList();
-    AggregatedNftData[] memory nftsData = new AggregatedNftData[](nfts.length);
+    uint256 nftsLength = nfts.length;
+    AggregatedNftData[] memory nftsData = new AggregatedNftData[](nftsLength);
 
-    for (uint256 i = 0; i < nfts.length; ) {
+    for (uint256 i = 0; i < nftsLength; ) {
       AggregatedNftData memory nftData = nftsData[i];
 
       DataTypes.NftData memory baseData = lendPool.getNftData(nfts[i]);
@@ -273,11 +275,11 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     ILendPool lendPool = ILendPool(provider.getLendPool());
     ILendPoolLoan lendPoolLoan = ILendPoolLoan(provider.getLendPoolLoan());
     address[] memory nfts = lendPool.getNftsList();
+    uint256 nftsLength = nfts.length;
+    AggregatedNftData[] memory nftsData = new AggregatedNftData[](nftsLength);
+    UserNftData[] memory userNftsData = new UserNftData[](user != address(0) ? nftsLength : 0);
 
-    AggregatedNftData[] memory nftsData = new AggregatedNftData[](nfts.length);
-    UserNftData[] memory userNftsData = new UserNftData[](user != address(0) ? nfts.length : 0);
-
-    for (uint256 i = 0; i < nfts.length; ) {
+    for (uint256 i = 0; i < nftsLength; ) {
       AggregatedNftData memory nftData = nftsData[i];
       UserNftData memory userNftData = userNftsData[i];
 
@@ -354,12 +356,13 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     address[] memory nftAssets,
     uint256[] memory nftTokenIds
   ) external view override returns (AggregatedNftConfiguration[] memory) {
-    require(nftAssets.length == nftTokenIds.length, Errors.LP_INCONSISTENT_PARAMS);
+    uint256 nftAssetsLength = nftAssets.length;
+    require(nftAssetsLength == nftTokenIds.length, Errors.LP_INCONSISTENT_PARAMS);
 
     ILendPool lendPool = ILendPool(provider.getLendPool());
-    AggregatedNftConfiguration[] memory nftConfigs = new AggregatedNftConfiguration[](nftAssets.length);
+    AggregatedNftConfiguration[] memory nftConfigs = new AggregatedNftConfiguration[](nftAssetsLength);
 
-    for (uint256 i = 0; i < nftAssets.length; ) {
+    for (uint256 i = 0; i < nftAssetsLength; ) {
       AggregatedNftConfiguration memory nftConfig = nftConfigs[i];
 
       DataTypes.NftConfigurationMap memory baseConfig = lendPool.getNftConfigByTokenId(nftAssets[i], nftTokenIds[i]);
@@ -415,7 +418,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
 
     AggregatedLoanData[] memory loansData = new AggregatedLoanData[](nftAssets.length);
 
-    for (uint256 i = 0; i < nftAssets.length; ++i) {
+    for (uint256 i = 0; i < nftAssets.length; ) {
       AggregatedLoanData memory loanData = loansData[i];
 
       // NFT debt data

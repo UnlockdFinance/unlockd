@@ -23,9 +23,9 @@ const lendPoolContract = require(
 );
 
 // Provider
-//const alchemyProvider = new ethers.providers.AlchemyProvider("rinkeby", API_KEY);
+//const alchemyProvider = new ethers.providers.AlchemyProvider("Goerli", API_KEY);
 const rpc = new ethers.providers.JsonRpcProvider(
-    "https://eth-rinkeby.alchemyapi.io/v2/Of-DqQaxFY2o3kSLGxDqXJpc3py7EsDt"
+    "https://goerli.infura.io/v3/daf6274673de4818800cfdaaf6ed1c57"
 );
 
 // Signer
@@ -34,7 +34,7 @@ const signer = new ethers.Wallet(PK1, rpc);
 // Contracts
 const punksMarket = new ethers.Contract(MARKET_ADDRESS, marketContract.abi, signer);
 const erc721 = new ethers.Contract(MINT_ADDRESS, mintContract.abi, signer);
-const lendPool = new ethers.Contract("0xE5564C8aAD053fBb83C22C249F8c86d61247117d", mintContract.abi, signer);
+const lendPool = new ethers.Contract("0xA0cf099d1547B15823d96C7663A1EA0b5C25231e", mintContract.abi, signer);
 
 async function main() {
     const test = await lendPool.deposit("");

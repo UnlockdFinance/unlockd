@@ -13,7 +13,7 @@ task(
     const addressesProvider = await getLendPoolAddressesProvider();
 
     //////////////////////////////////////////////////////////////////////////
-    const NFTVaultAddress = CommonsConfig.NFTXVaultFactory.rinkeby.toString();
+    const NFTVaultAddress = CommonsConfig.NFTXVaultFactory.goerli.toString();
     console.log("NFTVaultFactory", NFTVaultAddress);
     if (NFTVaultAddress == undefined || !notFalsyOrZeroAddress(NFTVaultAddress)) {
       throw Error("Invalid NFT Vault address in Markets, commons.ts");
@@ -22,7 +22,7 @@ task(
     await waitForTx(await addressesProvider.setNFTXVaultFactory(NFTVaultAddress));
 
     //////////////////////////////////////////////////////////////////////////
-    const SushiswapAddress = CommonsConfig.SushiSwapRouter.rinkeby.toString();
+    const SushiswapAddress = CommonsConfig.SushiSwapRouter.goerli.toString();
     console.log("Sushiswap Address", SushiswapAddress);
     if (NFTVaultAddress == undefined || !notFalsyOrZeroAddress(SushiswapAddress)) {
       throw Error("Invalid Sushiswap router address in Markets, commons.ts");

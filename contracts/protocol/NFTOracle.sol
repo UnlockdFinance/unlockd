@@ -279,8 +279,9 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
 
     uint256[] memory tokenIds = new uint256[](1);
     tokenIds[0] = _tokenId;
+    uint256 vaultAddressesLength = vaultAddresses.length;
 
-    for (uint256 i = 0; i != vaultAddresses.length; ) {
+    for (uint256 i = 0; i != vaultAddressesLength; ) {
       INFTXVault nftxVault = INFTXVault(vaultAddresses[i]);
       if (nftxVault.allValidNFTs(tokenIds)) {
         // Swap path is NFTX Vault -> WETH
@@ -293,7 +294,9 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
         uint256[] memory amounts = IUniswapV2Router02(sushiswapRouter).getAmountsOut(amountIn, swapPath);
         return amounts[1];
       }
-      ++i;
+      unchecked {
+        ++i;
+      }
     }
 
     revert PriceIsZero();

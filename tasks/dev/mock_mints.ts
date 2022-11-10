@@ -19,7 +19,7 @@ import { waitForTx } from "../../helpers/misc-utils";
 
 task("dev:mint-mock-bayc", "Mint mock nfts for dev enviroment")
   .addParam("amount", "NFT Amount (<=10)")
-  .addParam("user", "Targe user address")
+  .addParam("user", "Target user address")
   .setAction(async ({ amount, user }, DRE) => {
     await DRE.run("set-DRE");
     const network = <eNetwork>DRE.network.name;

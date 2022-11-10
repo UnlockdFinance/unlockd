@@ -116,7 +116,11 @@ contract LendPool is
   }
 
   modifier onlyHolder(address nftAsset, uint256 nftTokenId) {
-    require(_msgSender() == IERC721Upgradeable(nftAsset).ownerOf(nftTokenId), Errors.LP_CALLER_NOT_NFT_HOLDER);
+    require(
+      _msgSender() == IERC721Upgradeable(nftAsset).ownerOf(nftTokenId) ||
+        _msgSender() == IERC721Upgradeable(_nfts[nftAsset].uNftAddress).ownerOf(nftTokenId),
+      Errors.LP_CALLER_NOT_NFT_HOLDER
+    );
     _;
   }
 

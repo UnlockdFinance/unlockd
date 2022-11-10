@@ -112,9 +112,10 @@ task("lendpool:deposit", "User Deposits {amount} {reserve} in an empty reserve")
 .addParam("walletnumber", "the wallet number in ur .env from 2 to 5 otherwise it's default userWallet")
 .setAction( async ({amount, reserve, to, walletnumber}) => {
     const wallet = await getWalletByNumber(walletnumber);  
-    const tokenContract = MockContracts['WETH'];
+    const tokenContract = MockContracts[reserve];
 
     await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount);
+    console.log("approved");
     const tx = await Functions.LENDPOOL.deposit(wallet, tokenContract.address, amount, to);
     console.log(tx);
 }); 

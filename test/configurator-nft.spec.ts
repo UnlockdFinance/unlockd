@@ -55,14 +55,14 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const { configurator, bayc, dataProvider } = testEnv;
     await configurator.setActiveFlagOnNft(bayc.address, false);
     const { isActive } = await dataProvider.getNftConfigurationData(bayc.address);
-    expect(isActive).to.be.equal(false);
+    await expect(isActive).to.be.equal(false);
   });
 
   it("Deactivates the BAYC NFT Token", async () => {
     const { configurator, bayc, dataProvider } = testEnv;
     await configurator.setActiveFlagOnNftByTokenId([bayc.address], ["101"], false);
     const { isActive } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
-    expect(isActive).to.be.equal(false);
+    await expect(isActive).to.be.equal(false);
   });
 
   it("Rectivates the BAYC NFT", async () => {
@@ -70,7 +70,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     await configurator.setActiveFlagOnNft(bayc.address, true);
 
     const { isActive } = await dataProvider.getNftConfigurationData(bayc.address);
-    expect(isActive).to.be.equal(true);
+    await expect(isActive).to.be.equal(true);
   });
 
   it("Rectivates the BAYC NFT Token", async () => {
@@ -78,7 +78,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     await configurator.setActiveFlagOnNftByTokenId([bayc.address], ["101"], true);
 
     const { isActive } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
-    expect(isActive).to.be.equal(true);
+    await expect(isActive).to.be.equal(true);
   });
 
   it("Check the onlyAdmin on deactivateRNft ", async () => {
@@ -103,7 +103,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     await configurator.setFreezeFlagOnNft(bayc.address, true);
     const { isFrozen } = await dataProvider.getNftConfigurationData(bayc.address);
 
-    expect(isFrozen).to.be.equal(true);
+    await expect(isFrozen).to.be.equal(true);
   });
 
   it("Freezes the BAYC NFT Token", async () => {
@@ -112,7 +112,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     await configurator.setFreezeFlagOnNftByTokenId([bayc.address], ["101"], true);
     const { isFrozen } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
 
-    expect(isFrozen).to.be.equal(true);
+    await expect(isFrozen).to.be.equal(true);
   });
 
   it("Unfreezes the BAYC NFT", async () => {
@@ -121,7 +121,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
 
     const { isFrozen } = await dataProvider.getNftConfigurationData(bayc.address);
 
-    expect(isFrozen).to.be.equal(false);
+    await expect(isFrozen).to.be.equal(false);
   });
 
   it("Unfreezes the BAYC NFT Token", async () => {
@@ -130,7 +130,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
 
     const { isFrozen } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
 
-    expect(isFrozen).to.be.equal(false);
+    await expect(isFrozen).to.be.equal(false);
   });
 
   it("Check the onlyAdmin on freezeNft ", async () => {
@@ -163,9 +163,9 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
       tokenId
     );
 
-    expect(ltv).to.be.equal(0);
-    expect(liquidationThreshold).to.be.equal(0);
-    expect(liquidationBonus).to.be.equal(0);
+    await expect(ltv).to.be.equal(0);
+    await expect(liquidationThreshold).to.be.equal(0);
+    await expect(liquidationBonus).to.be.equal(0);
   });
 
   it("Activates the BAYC NFT as collateral", async () => {
@@ -181,9 +181,9 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
       tokenId
     );
 
-    expect(ltv).to.be.equal(8000);
-    expect(liquidationThreshold).to.be.equal(8250);
-    expect(liquidationBonus).to.be.equal(500);
+    await expect(ltv).to.be.equal(8000);
+    await expect(liquidationThreshold).to.be.equal(8250);
+    await expect(liquidationBonus).to.be.equal(500);
   });
 
   it("Check the onlyLtvManager on configureNftAsCollateral ", async () => {
@@ -207,11 +207,11 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const { redeemDuration, auctionDuration, redeemFine, redeemThreshold, minBidFine } =
       await dataProvider.getNftConfigurationDataByTokenId(bayc.address, tokenId);
 
-    expect(redeemDuration).to.be.equal(0);
-    expect(auctionDuration).to.be.equal(0);
-    expect(redeemFine).to.be.equal(0);
-    expect(redeemThreshold).to.be.equal(0);
-    expect(minBidFine).to.be.equal(0);
+    await expect(redeemDuration).to.be.equal(0);
+    await expect(auctionDuration).to.be.equal(0);
+    await expect(redeemFine).to.be.equal(0);
+    await expect(redeemThreshold).to.be.equal(0);
+    await expect(minBidFine).to.be.equal(0);
   });
 
   it("Activates the BAYC NFT as auction", async () => {
@@ -223,11 +223,11 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const { redeemDuration, auctionDuration, redeemFine, redeemThreshold, minBidFine } =
       await dataProvider.getNftConfigurationDataByTokenId(bayc.address, tokenId);
 
-    expect(redeemDuration).to.be.equal(1);
-    expect(auctionDuration).to.be.equal(1);
-    expect(redeemFine).to.be.equal(100);
-    expect(redeemThreshold).to.be.equal(5000);
-    expect(minBidFine).to.be.equal(5000);
+    await expect(redeemDuration).to.be.equal(1);
+    await expect(auctionDuration).to.be.equal(1);
+    await expect(redeemFine).to.be.equal(100);
+    await expect(redeemThreshold).to.be.equal(5000);
+    await expect(minBidFine).to.be.equal(5000);
   });
 
   it("Check the onlyAdmin on configureNftAsAuction ", async () => {
@@ -254,11 +254,11 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const { ltv, liquidationBonus, liquidationThreshold, isActive, isFrozen } =
       await dataProvider.getNftConfigurationDataByTokenId(bayc.address, tokenId);
 
-    expect(isActive).to.be.equal(true);
-    expect(isFrozen).to.be.equal(false);
-    expect(ltv).to.be.equal(0);
-    expect(liquidationThreshold).to.be.equal(0);
-    expect(liquidationBonus).to.be.equal(0);
+    await expect(isActive).to.be.equal(true);
+    await expect(isFrozen).to.be.equal(false);
+    await expect(ltv).to.be.equal(0);
+    await expect(liquidationThreshold).to.be.equal(0);
+    await expect(liquidationBonus).to.be.equal(0);
   });
 
   it("Batch Activates the BAYC NFT as collateral", async () => {
@@ -273,11 +273,11 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const { ltv, liquidationBonus, liquidationThreshold, isActive, isFrozen } =
       await dataProvider.getNftConfigurationDataByTokenId(bayc.address, tokenId);
 
-    expect(isActive).to.be.equal(true);
-    expect(isFrozen).to.be.equal(false);
-    expect(ltv).to.be.equal(8000);
-    expect(liquidationThreshold).to.be.equal(8250);
-    expect(liquidationBonus).to.be.equal(500);
+    await expect(isActive).to.be.equal(true);
+    await expect(isFrozen).to.be.equal(false);
+    await expect(ltv).to.be.equal(8000);
+    await expect(liquidationThreshold).to.be.equal(8250);
+    await expect(liquidationBonus).to.be.equal(500);
   });
 
   it("Check the onlyAdmin on batchConfigNft ", async () => {
@@ -303,11 +303,11 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const { redeemDuration, auctionDuration, redeemFine, redeemThreshold, minBidFine } =
       await dataProvider.getNftConfigurationDataByTokenId(bayc.address, tokenId);
 
-    expect(redeemDuration).to.be.equal(0);
-    expect(auctionDuration).to.be.equal(0);
-    expect(redeemFine).to.be.equal(0);
-    expect(redeemThreshold).to.be.equal(0);
-    expect(minBidFine).to.be.equal(0);
+    await expect(redeemDuration).to.be.equal(0);
+    await expect(auctionDuration).to.be.equal(0);
+    await expect(redeemFine).to.be.equal(0);
+    await expect(redeemThreshold).to.be.equal(0);
+    await expect(minBidFine).to.be.equal(0);
   });
 
   it("Batch Activates the BAYC NFT as auction", async () => {
@@ -325,11 +325,11 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const { redeemDuration, auctionDuration, redeemFine, redeemThreshold, minBidFine } =
       await dataProvider.getNftConfigurationDataByTokenId(bayc.address, tokenId);
 
-    expect(redeemDuration).to.be.equal(1);
-    expect(auctionDuration).to.be.equal(1);
-    expect(redeemFine).to.be.equal(100);
-    expect(redeemThreshold).to.be.equal(5000);
-    expect(minBidFine).to.be.equal(2000);
+    await expect(redeemDuration).to.be.equal(1);
+    await expect(auctionDuration).to.be.equal(1);
+    await expect(redeemFine).to.be.equal(100);
+    await expect(redeemThreshold).to.be.equal(5000);
+    await expect(minBidFine).to.be.equal(2000);
   });
 
   it("Reverts when trying to disable the BAYC nft with liquidity on it", async () => {
@@ -398,6 +398,6 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
       .connect(users[0].signer)
       .configureNftAsCollateral(bayc.address, tokenId, "8000", "8000", "8250", "500", 1, 2, 25, true, false);
     const { configTimestamp } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, tokenId);
-    expect(configTimestamp).to.be.within(timestamp, timestampAux.add(10));
+    await expect(configTimestamp).to.be.within(timestamp, timestampAux.add(10));
   });
 });

@@ -81,7 +81,8 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
    * @param nftAssets the array of nft assets
    */
   function authorizeLendPoolNFT(address[] calldata nftAssets) external nonReentrant onlyOwner {
-    for (uint256 i = 0; i < nftAssets.length; ) {
+    uint256 nftAssetsLength = nftAssets.length;
+    for (uint256 i = 0; i < nftAssetsLength; ) {
       IERC721Upgradeable(nftAssets[i]).setApprovalForAll(address(_getLendPool()), true);
 
       unchecked {
@@ -96,7 +97,8 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
    * @param flag the flag to authorize/unauthorize
    */
   function authorizeCallerWhitelist(address[] calldata callers, bool flag) external nonReentrant onlyOwner {
-    for (uint256 i = 0; i < callers.length; ) {
+    uint256 callerLength = callers.length;
+    for (uint256 i = 0; i < callerLength; ) {
       _callerWhitelists[callers[i]] = flag;
 
       unchecked {

@@ -22,14 +22,14 @@ task("dev:deploy-address-provider", "Deploy address provider for dev enviroment"
     const admin = await signer.getAddress();
     const sushiRouter = await getSushiSwapRouter();
     const nftx = await getNFTXVaultFactory();
-    const dataProvider = await getUnlockdProtocolDataProvider();
+    //const dataProvider = await getUnlockdProtocolDataProvider();
 
     const addressesProvider = await deployLendPoolAddressesProvider(poolConfig.MarketId, verify);
     await waitForTx(await addressesProvider.setPoolAdmin(admin));
     await waitForTx(await addressesProvider.setEmergencyAdmin(admin));
     await waitForTx(await addressesProvider.setSushiSwapRouter(sushiRouter.address));
     await waitForTx(await addressesProvider.setNFTXVaultFactory(nftx.address));
-    await waitForTx(await addressesProvider.setUnlockdDataProvider(dataProvider.address));
+    //await waitForTx(await addressesProvider.setUnlockdDataProvider(dataProvider.address));
 
     const addressesProviderRegistry = await deployLendPoolAddressesProviderRegistry(verify);
     await waitForTx(

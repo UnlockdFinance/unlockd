@@ -68,11 +68,11 @@ makeSuite("LendPoolAddressesProvider", (testEnv: TestEnv) => {
       throw new Error("INVALID_EVENT_EMMITED");
     }
 
-    expect(proxiedAddressSetReceipt.events[2].event).to.be.equal("ProxyCreated");
-    expect(proxiedAddressSetReceipt.events[3].event).to.be.equal("AddressSet");
-    expect(proxiedAddressSetReceipt.events[3].args?.id).to.be.equal(proxiedAddressId);
-    expect(proxiedAddressSetReceipt.events[3].args?.newAddress).to.be.equal(mockLendPool.address);
-    expect(proxiedAddressSetReceipt.events[3].args?.hasProxy).to.be.equal(true);
+    await expect(proxiedAddressSetReceipt.events[2].event).to.be.equal("ProxyCreated");
+    await expect(proxiedAddressSetReceipt.events[3].event).to.be.equal("AddressSet");
+    await expect(proxiedAddressSetReceipt.events[3].args?.id).to.be.equal(proxiedAddressId);
+    await expect(proxiedAddressSetReceipt.events[3].args?.newAddress).to.be.equal(mockLendPool.address);
+    await expect(proxiedAddressSetReceipt.events[3].args?.hasProxy).to.be.equal(true);
   });
 
   it("Tests adding a non proxied address with `setAddress()`", async () => {
@@ -89,7 +89,7 @@ makeSuite("LendPoolAddressesProvider", (testEnv: TestEnv) => {
         .setAddress(nonProxiedAddressId, mockNonProxiedAddress)
     );
 
-    expect(mockNonProxiedAddress.toLowerCase()).to.be.equal(
+    await expect(mockNonProxiedAddress.toLowerCase()).to.be.equal(
       (await addressesProvider.getAddress(nonProxiedAddressId)).toLowerCase()
     );
 
@@ -97,9 +97,9 @@ makeSuite("LendPoolAddressesProvider", (testEnv: TestEnv) => {
       throw new Error("INVALID_EVENT_EMMITED");
     }
 
-    expect(nonProxiedAddressSetReceipt.events[0].event).to.be.equal("AddressSet");
-    expect(nonProxiedAddressSetReceipt.events[0].args?.id).to.be.equal(nonProxiedAddressId);
-    expect(nonProxiedAddressSetReceipt.events[0].args?.newAddress).to.be.equal(mockNonProxiedAddress);
-    expect(nonProxiedAddressSetReceipt.events[0].args?.hasProxy).to.be.equal(false);
+    await expect(nonProxiedAddressSetReceipt.events[0].event).to.be.equal("AddressSet");
+    await expect(nonProxiedAddressSetReceipt.events[0].args?.id).to.be.equal(nonProxiedAddressId);
+    await expect(nonProxiedAddressSetReceipt.events[0].args?.newAddress).to.be.equal(mockNonProxiedAddress);
+    await expect(nonProxiedAddressSetReceipt.events[0].args?.hasProxy).to.be.equal(false);
   });
 });

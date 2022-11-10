@@ -7,7 +7,7 @@ import {
   INftParams,
   tEthereumAddress,
 } from "./types";
-import { chunk, waitForTx } from "./misc-utils";
+import { chunk, increaseTime, waitForTx } from "./misc-utils";
 import {
   getCryptoPunksMarket,
   getDeploySigner,
@@ -240,12 +240,12 @@ export const configureReservesByHelper = async (
   admin: tEthereumAddress
 ) => {
   const addressProvider = await getLendPoolAddressesProvider();
-  const configuator = await getLendPoolConfiguratorProxy();
+  const configurator = await getLendPoolConfiguratorProxy();
   const tokens: string[] = [];
   const symbols: string[] = [];
 
   console.log("addressesProvider:", addressProvider.address);
-  console.log("configuator:", configuator.address);
+  console.log("configuator:", configurator.address);
 
   const inputParams: {
     asset: string;
@@ -289,15 +289,13 @@ export const configureReservesByHelper = async (
 
     console.log(`- Configure reserves in ${chunkedInputParams.length} txs`);
     for (let chunkIndex = 0; chunkIndex < chunkedInputParams.length; chunkIndex++) {
-      await waitForTx(await configuator.batchConfigReserve(chunkedInputParams[chunkIndex]));
+      await waitForTx(await configurator.batchConfigReserve(chunkedInputParams[chunkIndex]));
       console.log(`  - batchConfigReserve for: ${chunkedSymbols[chunkIndex].join(", ")}`);
     }
 
-    await Promise.all(
-      assetsParams.map(async (asset) => {
-        await waitForTx(await configuator.setBorrowingFlagOnReserve(asset, true));
-      })
-    );
+    for (const assetParam of assetsParams) {
+      await waitForTx(await configurator.setBorrowingFlagOnReserve(assetParam, true));
+    }
   }
 };
 

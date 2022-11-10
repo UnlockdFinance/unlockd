@@ -2,7 +2,7 @@ import { task } from "hardhat/config";
 import { Functions } from "../helpers/protocolFunctions";
 import { getOwnerWallet } from "../helpers/config"; 
 import { usdcContract, daiContract } from "../helpers/constants"
-import deployments from "../../deployments/deployed-contracts-rinkeby.json"
+import deployments from "../../deployments/deployed-contracts-goerli.json"
 import { parseUnits } from "@ethersproject/units";
 /** 
  * This file will use the lendpoolProvider to get and set addresses or names
