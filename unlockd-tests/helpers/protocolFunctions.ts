@@ -83,9 +83,9 @@ const getNftConfiguration = async(wallet: Wallet, nftAddress: string) => {
 }
 
 const deposit = async (wallet: Wallet, asset: string, amount: BigNumber, onBehalfOf: string) => {
-    // var gas = await Contracts.lendPool.connect(wallet).deposit(asset, amount, onBehalfOf, 0);
-    // var strGas = gas.toString();
-    // const gasPrice = Math.round(parseInt(strGas)*1.1);
+    //var gas = await Contracts.lendPool.connect(wallet).deposit(asset, amount, onBehalfOf, 0);
+    //var strGas = gas.toString();
+    //const gasPrice = Math.round(parseInt(strGas)*1.1);
     return await Contracts.lendPool.connect(wallet).deposit(asset, amount, onBehalfOf, 0);
 }
 
