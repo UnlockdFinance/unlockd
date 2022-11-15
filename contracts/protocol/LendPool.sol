@@ -16,6 +16,7 @@ import {ValidationLogic} from "../libraries/logic/ValidationLogic.sol";
 import {SupplyLogic} from "../libraries/logic/SupplyLogic.sol";
 import {BorrowLogic} from "../libraries/logic/BorrowLogic.sol";
 import {LiquidateLogic} from "../libraries/logic/LiquidateLogic.sol";
+import {LiquidateMarketsLogic} from "../libraries/logic/LiquidateMarketsLogic.sol";
 
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
@@ -385,7 +386,7 @@ contract LendPool is
     returns (uint256)
   {
     return
-      LiquidateLogic.executeLiquidateNFTX(
+      LiquidateMarketsLogic.executeLiquidateNFTX(
         _addressesProvider,
         _reserves,
         _nfts,
