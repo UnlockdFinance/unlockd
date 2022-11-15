@@ -65,28 +65,28 @@ export const CommonsConfig: ICommonConfiguration = {
 
   // If PoolAdmin/emergencyAdmin is set, will take priority over PoolAdminIndex/emergencyAdminIndex
   PoolAdmin: {
-    [eEthereumNetwork.hardhat]: undefined,
+    [eEthereumNetwork.hardhat]: '0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15',
     [eEthereumNetwork.localhost]: undefined,
-    [eEthereumNetwork.goerli]: '0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59',
+    [eEthereumNetwork.goerli]: '0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15',
     [eEthereumNetwork.main]: '0x868964fa49a6fd6e116FE82c8f4165904406f479',
   },
   PoolAdminIndex: 0,
   EmergencyAdmin: {
-    [eEthereumNetwork.hardhat]: undefined,
+    [eEthereumNetwork.hardhat]: '0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15',
     [eEthereumNetwork.localhost]: undefined,
-    [eEthereumNetwork.goerli]: '0x2db0E3e340c561a0DBc92B07173d4FbC5c47f062',
+    [eEthereumNetwork.goerli]: '0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15',
     [eEthereumNetwork.main]: '0x2CFa21b4dEc4409670899d05b8644e9C432250de',
   },
   EmergencyAdminIndex: 1,
   LendPoolLiquidator: {
-    [eEthereumNetwork.hardhat]: '0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15',
+    [eEthereumNetwork.hardhat]: '0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59',
     [eEthereumNetwork.localhost]: '0x5b69e6884c70f42819fb35bf3c25578ee11aaa15',
     [eEthereumNetwork.goerli]: '0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59',
     [eEthereumNetwork.main]: '0x868964fa49a6fd6e116FE82c8f4165904406f479',
   },
   LendPoolLiquidatorIndex: 0,
   LtvManager: {                             // The wallet address that will be set as loan to value Manager
-    [eEthereumNetwork.hardhat]: '0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15',
+    [eEthereumNetwork.hardhat]: '0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59',
     [eEthereumNetwork.localhost]: '0x5b69e6884c70f42819fb35bf3c25578ee11aaa15',
     [eEthereumNetwork.goerli]: '0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59',
     [eEthereumNetwork.main]: '',

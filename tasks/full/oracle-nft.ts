@@ -104,6 +104,9 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
         );
 
         nftOracle = await getNFTOracle(nftOracleProxy.address);
+        console.log("NFT ORACLE", nftOracle);
+        console.log("ADDRESSES PROVIDER: ", addressesProvider.address);
+        console.log("CONFIGURATOR: ", lendpoolConfigurator);
 
         await nftOracle.setPriceManagerStatus(lendpoolConfigurator, true);
 

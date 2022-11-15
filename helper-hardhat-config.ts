@@ -14,6 +14,7 @@ const GWEI = 1000 * 1000 * 1000;
 export const buildForkConfig = (): HardhatNetworkForkingUserConfig | undefined => {
   let forkMode;
   if (FORK) {
+    console.log("FORK");
     forkMode = {
       url: NETWORKS_RPC_URL[FORK],
     };
