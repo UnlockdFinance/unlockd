@@ -1,19 +1,19 @@
-<p align="center">
+<p align="center" style="margin-bottom:32px">
   <a href="https://unlockd.finance">
-    <img alt="Unlockd logo" src="https://miro.medium.com/fit/c/176/176/1*f4w6xlpTN1lgQg07rnWBNw.png" width="auto" height="92px" style="border-radius:50px"/>
+    <img alt="Unlockd logo" src="https://miro.medium.com/max/660/1*YEp9mC_4sVUuFpBzatz3dQ.png" width="auto" height="92px" />
   </a>
 </p>
 
-<h1 align="center">
-   Unlockd
-</h1>
+
 
 <p align="center">
     <img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white" alt="figma"/>
     <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="typescript"/>   
     <img src="https://img.shields.io/badge/Solidity-e6e6e6?style=for-the-badge&logo=solidity&logoColor=black" alt="solidity"/>  
     <img src="https://img.shields.io/badge/Google_Cloud-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white" alt="google-cloud"/>
-   
+
+[![](https://dcbadge.vercel.app/api/server/unlockd)](https://discord.gg/unlockd)
+
 </p>
 
 <p align="center">
@@ -29,11 +29,9 @@ This repository contains the smart contracts source code and markets configurati
 > Unlockd protocol refers to the architecture design and adopts some of the code of [AAVE](https://github.com/aave).
 We are very grateful to AAVE for providing us with an excellent DeFi platform.
 
+You can join at the [Discord](https://discord.gg/unlockd) channel or at the [Governance](https://snapshot.org/#/unlockddao.eth) for asking questions about the protocol or talk about Unlockd with other peers.
 
 
-You can join at the [Discord](https://discord.gg/unlockddao) channel or at the [Governance](https://snapshot.org/#/unlockddao.eth) for asking questions about the protocol or talk about Unlockd with other peers.
-
-[![](https://dcbadge.vercel.app/api/server/unlockddao)](https://discord.gg/unlockddao)
 
 # 🗂️ Index
 - [Documentation](#documentation)
@@ -220,4 +218,3 @@ Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_
 ```shell
 npx hardhat verify --network goerli DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
 ```
-# unlockd-core
