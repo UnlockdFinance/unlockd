@@ -1,33 +1,63 @@
-# Unlockd Protocol
+<p align="center">
+  <a href="https://unlockd.finance">
+    <img alt="Unlockd logo" src="https://miro.medium.com/fit/c/176/176/1*f4w6xlpTN1lgQg07rnWBNw.png" width="auto" height="92px" style="border-radius:50px"/>
+  </a>
+</p>
 
-This repository contains the smart contracts source code and markets configuration for Unlockd Protocol. The repository uses Hardhat as development enviroment for compilation, testing and deployment tasks.
+<h1 align="center">
+   Unlockd
+</h1>
 
-## What is Unlockd?
+<p align="center">
+    <img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white" alt="figma"/>
+    <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="typescript"/>   
+    <img src="https://img.shields.io/badge/Solidity-e6e6e6?style=for-the-badge&logo=solidity&logoColor=black" alt="solidity"/>  
+    <img src="https://img.shields.io/badge/Google_Cloud-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white" alt="google-cloud"/>
+   
+</p>
 
+<p align="center">
 Unlockd is a decentralized non-custodial NFT lending protocol where users can participate as depositors or borrowers. Depositors provide liquidity to the market to earn a passive income, while borrowers are able to borrow in an overcollateralized fashion, using NFTs as collaterl.
+</p>
 
-## Documentation
+<p align="center">
+This repository contains the smart contracts source code and markets configuration for Unlockd Protocol. The repository uses Hardhat as development enviroment for compilation, testing and deployment tasks.
+</p>
+<br/>
+
+> **🙇‍♂️ Thanks**
+> Unlockd protocol refers to the architecture design and adopts some of the code of [AAVE](https://github.com/aave).
+We are very grateful to AAVE for providing us with an excellent DeFi platform.
+
+
+
+You can join at the [Discord](https://discord.gg/unlockddao) channel or at the [Governance](https://snapshot.org/#/unlockddao.eth) for asking questions about the protocol or talk about Unlockd with other peers.
+
+[![](https://dcbadge.vercel.app/api/server/unlockddao)](https://discord.gg/unlockddao)
+
+# 🗂️ Index
+- [Documentation](#documentation)
+- [Setup](#setup)
+- [Tasks](#tasks)
+- [Deployment](#deployment)
+- [Audit](#deployment)
+
+# 📝 Documentation
 
 The documentation of Unlockd Protocol is in the following [Unlockd documentation](https://github.com/UnlockdFinance/unlockd-protocol-v1/blob/development__documentation/Documentation.md) link. At the documentation you can learn more about the protocol, see the contract interfaces, integration guides and audits.
 
 For getting the latest contracts addresses, please check the [Deployed contracts](https://docs.unlockddao.xyz/developers/deployed-contracts) page at the documentation to stay up to date.
 
-## Audits
+# 👁️ Audits
 1. [Halborn](link-to-docs).
 
-## Thanks
-Unlockd protocol refers to the architecture design and adopts some of the code of [AAVE](https://github.com/aave).
-We are very grateful to AAVE for providing us with an excellent DeFi platform.
 
-## Connect with the community
+# 🎬 Setup
 
-You can join at the [Discord](https://discord.gg/unlockddao) channel or at the [Governance](https://snapshot.org/#/unlockddao.eth) for asking questions about the protocol or talk about Unlockd with other peers.
-
-## Getting Started
-
-## Setup
-
-- install using yarn install
+- Install
+```bash
+yarn install
+```
 
 - Create an enviroment file named `.env` and fill the next enviroment variables
 
@@ -61,7 +91,7 @@ yarn install
 npm run test
 ```
 
-## Deployments
+# 🚀 Deployments
 
 For deploying Unlockd Protocol, you can use the available scripts located at `package.json`. For a complete list, run `npm run` to see all the tasks.
 
