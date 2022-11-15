@@ -34,11 +34,12 @@ You can join at the [Discord](https://discord.gg/unlockd) channel or at the [Gov
 
 
 # 🗂️ Index
-- [Documentation](#documentation)
-- [Setup](#setup)
+- [Documentation](#-documentation)
+- [Setup](#-setup)
+- [Test](#-test)
 - [Tasks](#tasks)
-- [Deployment](#deployment)
-- [Audit](#deployment)
+- [Deployment](#-deployment)
+- [Audit](#%EF%B8%8F-audits)
 
 # 📝 Documentation
 
@@ -53,13 +54,13 @@ For getting the latest contracts addresses, please check the [Deployed contracts
 # 🎬 Setup
 
 - Install
-```bash
+``` bash
 yarn install
 ```
 
 - Create an enviroment file named `.env` and fill the next enviroment variables
 
-```
+``` bash
 # Mnemonic, only first address will be used
 MNEMONIC=""
 
@@ -71,30 +72,28 @@ ETHERSCAN_KEY=""
 ETHERSCAN_NETWORK="" # network in use
 ```
 
+# 🧪 Test
+
+You can run the full test suite with the following commands:
+
+``` bash
+npm run test
+```
+
 ## Markets configuration
 
 The configurations related with the Unlockd Markets are located at `markets` directory. You can follow the `IUnlockdConfiguration` interface to create new Markets configuration or extend the current Unlockd configuration.
 
 Each market should have his own Market configuration file, and their own set of deployment tasks, using the Unlockd market config and tasks as a reference.
 
-## Test
 
-You can run the full test suite with the following commands:
-
-```
-# install dependencies
-yarn install
-
-# A new Bash terminal is prompted, connected to the container
-npm run test
-```
 
 # 🚀 Deployments
 
 For deploying Unlockd Protocol, you can use the available scripts located at `package.json`. For a complete list, run `npm run` to see all the tasks.
 
 ### Prepare
-```
+``` bash
 # install dependencies
 yarn install
 
@@ -103,7 +102,7 @@ yarn install
 ```
 
 ### Localhost dev deployment
-```
+``` bash
 # In first terminal
 npm run hardhat:node
 
@@ -112,7 +111,7 @@ npm run unlockd:localhost:dev:migration
 ```
 
 ### Localhost full deployment
-```
+``` bash
 # In first terminal
 npm run hardhat:node
 
@@ -133,7 +132,7 @@ npx hardhat --network localhost "dev:deploy-mock-unft-tokens" --pool Unlockd
 ```
 
 ### Goerli mock deployment (a full deployment may not run because of ERC20 and ERC721 Reserves)
-```
+``` bash
 # In one terminal
 npm run unlockd:goerli:mock:migration
 ```
@@ -144,13 +143,13 @@ You can interact with Unlockd at Mainnet network using the Hardhat console, in t
 
 Run the Hardhat console pointing to the Mainnet network:
 
-```
+``` bash
 npx hardhat --network main console
 ```
 
 At the Hardhat console, you can interact with the protocol:
 
-```
+``` javascript
 // Load the HRE into helpers to access signers
 run("set-DRE")
 
@@ -181,7 +180,7 @@ It also comes with a variety of other tools, preconfigured to work with the proj
 
 Try running some of the following tasks:
 
-```shell
+``` shell
 npx hardhat tests:interestRate:variableRateSlope1
 npx hardhat tests:interestRate:variableRateSlope2
 npx hardhat tests:interestRate:baseVariableBorrowRate
