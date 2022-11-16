@@ -28,23 +28,23 @@ export const buildForkConfig = (): HardhatNetworkForkingUserConfig | undefined =
 export const buildUnlockdForkConfig = (): HardhatNetworkForkingUserConfig | undefined => {
   let forkMode;
   if (FORK_NETWORK) {
-    switch(FORK_NETWORK){
+    switch (FORK_NETWORK) {
       case "MAINNET":
         forkMode = {
           url: ALCHEMY_KEY
-          ? `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_KEY}`
-          : `https://mainnet.infura.io/v3/${INFURA_KEY}`,
+            ? `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_KEY}`
+            : `https://mainnet.infura.io/v3/${INFURA_KEY}`,
         };
-      break;
+        break;
       case "GOERLI":
         forkMode = {
           url: ALCHEMY_KEY
-          ? `https://eth-goerli.alchemyapi.io/v2/${ALCHEMY_KEY}`
-          : `https://goerli.infura.io/v3/${INFURA_KEY}`,
+            ? `https://eth-goerli.alchemyapi.io/v2/${ALCHEMY_KEY}`
+            : `https://goerli.infura.io/v3/${INFURA_KEY}`,
         };
-      break;
+        break;
     }
-    
+
     if (FORK_BLOCK_NUMBER || BLOCK_TO_FORK[FORK]) {
       forkMode.blockNumber = FORK_BLOCK_NUMBER || BLOCK_TO_FORK[FORK];
     }
@@ -60,19 +60,19 @@ export const NETWORKS_RPC_URL: iParamsPerNetwork<string> = {
     ? `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_KEY}`
     : `https://mainnet.infura.io/v3/${INFURA_KEY}`,
   [eEthereumNetwork.hardhat]: "http://localhost:8545",
-  [eEthereumNetwork.localhost]: "http://localhost:8545"
+  [eEthereumNetwork.localhost]: "http://localhost:8545",
 };
 
 export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number> = {
   [eEthereumNetwork.goerli]: 65 * GWEI,
   [eEthereumNetwork.main]: 65 * GWEI,
   [eEthereumNetwork.hardhat]: 65 * GWEI,
-  [eEthereumNetwork.localhost]: 65 * GWEI
+  [eEthereumNetwork.localhost]: 65 * GWEI,
 };
 
 export const BLOCK_TO_FORK: iParamsPerNetwork<number | undefined> = {
   [eEthereumNetwork.main]: 13623705,
   [eEthereumNetwork.goerli]: 0,
   [eEthereumNetwork.hardhat]: 0,
-  [eEthereumNetwork.localhost]: 0
+  [eEthereumNetwork.localhost]: 0,
 };

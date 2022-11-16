@@ -1,4 +1,4 @@
-const fs = require("fs")
+const fs = require("fs");
 const path = require("path");
 
 const protocolContractList = [
@@ -33,9 +33,9 @@ const updateAbis = async (subDir, contractList) => {
 };
 
 function deleteFolderRecursive(directoryPath) {
-    if (fs.existsSync(directoryPath)) {
-        fs.rmSync(directoryPath, {recursive: true})
-    }
+  if (fs.existsSync(directoryPath)) {
+    fs.rmSync(directoryPath, { recursive: true });
+  }
 }
 
 deleteFolderRecursive("../abis");

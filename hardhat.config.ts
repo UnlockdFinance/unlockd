@@ -5,11 +5,17 @@ import { HardhatUserConfig } from "hardhat/types";
 import { accounts } from "./test-wallets.js";
 import { eEthereumNetwork, eNetwork } from "./helpers/types";
 import { BUIDLEREVM_CHAINID } from "./helpers/buidler-constants";
-import { NETWORKS_RPC_URL, NETWORKS_DEFAULT_GAS, BLOCK_TO_FORK, buildForkConfig, buildUnlockdForkConfig } from "./helper-hardhat-config";
-import 'solidity-docgen';
+import {
+  NETWORKS_RPC_URL,
+  NETWORKS_DEFAULT_GAS,
+  BLOCK_TO_FORK,
+  buildForkConfig,
+  buildUnlockdForkConfig,
+} from "./helper-hardhat-config";
+import "solidity-docgen";
 require("dotenv").config();
 
-import {bootstrap} from 'global-agent'
+import { bootstrap } from "global-agent";
 if (process.env.GLOBAL_AGENT_HTTP_PROXY) {
   console.log("Enable Global Agent:", process.env.GLOBAL_AGENT_HTTP_PROXY);
   bootstrap();
@@ -20,11 +26,11 @@ import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-gas-reporter";
-import 'hardhat-contract-sizer';
-import 'hardhat-dependency-compiler';
+import "hardhat-contract-sizer";
+import "hardhat-dependency-compiler";
 import "solidity-coverage";
 import { fork } from "child_process";
-require('hardhat-storage-layout-diff');
+require("hardhat-storage-layout-diff");
 
 const SKIP_LOAD = process.env.SKIP_LOAD === "true";
 const DEFAULT_BLOCK_GAS_LIMIT = 12450000;
@@ -34,7 +40,7 @@ const ETHERSCAN_KEY = process.env.ETHERSCAN_KEY || "";
 const MNEMONIC_PATH = "m/44'/60'/0'/0";
 const MNEMONIC = process.env.MNEMONIC || "";
 const UNLIMITED_BYTECODE_SIZE = process.env.UNLIMITED_BYTECODE_SIZE === "true";
-const PRIVATE_KEY = process.env.PRIVATE_KEY || '';
+const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
 
 // Prevent to load scripts before compilation and typechain
 if (!SKIP_LOAD) {
@@ -52,7 +58,6 @@ if (!SKIP_LOAD) {
     .forEach((task) => {
       require(`${tasksPath}/${task}`);
     });
-
 }
 
 require(`${path.join(__dirname, "tasks/misc")}/set-bre.ts`);
@@ -65,16 +70,16 @@ const getCommonNetworkConfig = (networkName: eNetwork, networkId: number) => ({
   gasPrice: NETWORKS_DEFAULT_GAS[networkName],
   chainId: networkId,
   accounts: PRIVATE_KEY
-  ? [PRIVATE_KEY]
-  : {
-    mnemonic: MNEMONIC,
-    path: MNEMONIC_PATH,
-    initialIndex: 0,
-    count: 20,
-  },
+    ? [PRIVATE_KEY]
+    : {
+        mnemonic: MNEMONIC,
+        path: MNEMONIC_PATH,
+        initialIndex: 0,
+        count: 20,
+      },
   forking: {
     url: "https://eth-goerli.g.alchemy.com/v2/LcF7N0KNHVfZCgFXfiDXa7yhwBPFlha",
-  }
+  },
 });
 
 const buidlerConfig: HardhatUserConfig = {
@@ -109,7 +114,7 @@ const buidlerConfig: HardhatUserConfig = {
       hardfork: "london",
       url: "http://127.0.0.1:8545",
       chainId: BUIDLEREVM_CHAINID,
-      accounts: accounts.map(({ secretKey, balance }: { secretKey: string; balance: string }) => (secretKey)),
+      accounts: accounts.map(({ secretKey, balance }: { secretKey: string; balance: string }) => secretKey),
       blockGasLimit: 30000000,
       throwOnTransactionFailures: true,
       throwOnCallFailures: true,
@@ -131,7 +136,6 @@ const buidlerConfig: HardhatUserConfig = {
         balance: balance,
       })),
       forking: buildForkConfig(),
-      
     },
     ganache: {
       hardfork: "istanbul",
