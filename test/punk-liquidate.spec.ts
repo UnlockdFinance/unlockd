@@ -1,11 +1,11 @@
 import BigNumber from "bignumber.js";
 import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import { ConfigNames, getReservesConfigByPool, getTreasuryAddress, loadPoolConfig } from "../helpers/configuration";
+import { getReservesConfigByPool } from "../helpers/configuration";
 import { MAX_UINT_AMOUNT, oneEther, ONE_DAY } from "../helpers/constants";
-import { getDebtToken, getDeploySigner, getNFTXVault } from "../helpers/contracts-getters";
+import { getDebtToken } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
-import { advanceBlock, advanceTimeAndBlock, increaseTime, sleep, waitForTx } from "../helpers/misc-utils";
+import { advanceTimeAndBlock, increaseTime, sleep, waitForTx } from "../helpers/misc-utils";
 import { IReserveParams, iUnlockdPoolAssets, ProtocolLoanState, UnlockdPools } from "../helpers/types";
 import {
   approveERC20,

@@ -1,5 +1,12 @@
-import { Contract } from "ethers";
 import dotenv from "dotenv";
+import { Contract } from "ethers";
+//NFTX
+import nftxVaultFactoryArtifact from "../../artifacts/contracts/interfaces/INFTXVaultFactoryV2.sol/INFTXVaultFactoryV2.json";
+import unftRegistryArtifact from "../../artifacts/contracts/interfaces/IUNFTRegistry.sol/IUNFTRegistry.json";
+import protocolDataProviderArtifact from "../../artifacts/contracts/misc/UnlockdProtocolDataProvider.sol/UnlockdProtocolDataProvider.json";
+//Mock imports
+import erc20Artifact from "../../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
+import erc721Artifact from "../../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
 //Protocol imports
 import debtTokenArtifact from "../../artifacts/contracts/protocol/DebtToken.sol/DebtToken.json";
 import interestRateArtifact from "../../artifacts/contracts/protocol/InterestRate.sol/InterestRate.json";
@@ -13,14 +20,6 @@ import punkGatewayArtifact from "../../artifacts/contracts/protocol/PunkGateway.
 import reserveOracleArtifact from "../../artifacts/contracts/protocol/ReserveOracle.sol/ReserveOracle.json";
 import uTokenArtifact from "../../artifacts/contracts/protocol/UToken.sol/UToken.json";
 import wethGatewayArtifact from "../../artifacts/contracts/protocol/WETHGateway.sol/WETHGateway.json";
-import unftRegistryArtifact from "../../artifacts/contracts/interfaces/IUNFTRegistry.sol/IUNFTRegistry.json";
-import protocolDataProviderArtifact from "../../artifacts/contracts/misc/UnlockdProtocolDataProvider.sol/UnlockdProtocolDataProvider.json";
-
-//Mock imports
-import erc20Artifact from "../../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
-import erc721Artifact from "../../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
-//NFTX
-import nftxVaultFactoryArtifact from "../../artifacts/contracts/interfaces/INFTXVaultFactoryV2.sol/INFTXVaultFactoryV2.json";
 import deployments from "../../deployments/deployed-contracts-goerli.json";
 
 dotenv.config();

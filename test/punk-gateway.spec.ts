@@ -2,28 +2,21 @@ import BigNumber from "bignumber.js";
 import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { getReservesConfigByPool } from "../helpers/configuration";
-import { MAX_UINT_AMOUNT, oneEther, ONE_DAY, ONE_YEAR } from "../helpers/constants";
+import { MAX_UINT_AMOUNT, ONE_YEAR } from "../helpers/constants";
 import { getDebtToken } from "../helpers/contracts-getters";
-import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
-import { advanceBlock, advanceTimeAndBlock, sleep, waitForTx } from "../helpers/misc-utils";
+import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
+import { advanceTimeAndBlock, waitForTx } from "../helpers/misc-utils";
 import { IReserveParams, iUnlockdPoolAssets, ProtocolLoanState, UnlockdPools } from "../helpers/types";
-import { ERC721Factory } from "../types";
 import {
   approveERC20,
   approveERC20PunkGateway,
   configuration as actionsConfiguration,
   deposit,
   mintERC20,
-  setNftAssetPrice,
 } from "./helpers/actions";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";
-import {
-  getERC20TokenBalance,
-  getLoanData,
-  getReserveAddressFromSymbol,
-  getReserveData,
-} from "./helpers/utils/helpers";
+import { getERC20TokenBalance, getLoanData, getReserveData } from "./helpers/utils/helpers";
 
 const chai = require("chai");
 const { expect } = chai;

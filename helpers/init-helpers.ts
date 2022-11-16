@@ -20,16 +20,8 @@ import {
   getContractAddressWithJsonFallback,
   rawInsertContractAddressInDb,
 } from "./contracts-helpers";
-import { chunk, increaseTime, waitForTx } from "./misc-utils";
-import {
-  eContractid,
-  eNetwork,
-  iMultiPoolsAssets,
-  iMultiPoolsNfts,
-  INftParams,
-  IReserveParams,
-  tEthereumAddress,
-} from "./types";
+import { chunk, waitForTx } from "./misc-utils";
+import { eContractid, iMultiPoolsAssets, iMultiPoolsNfts, INftParams, IReserveParams, tEthereumAddress } from "./types";
 
 export const getUTokenExtraParams = async (uTokenName: string, tokenAddress: tEthereumAddress) => {
   //console.log(uTokenName);
@@ -57,9 +49,9 @@ export const initReservesByHelper = async (
   const initChunks = 1;
 
   // Initialize variables for future reserves initialization
-  let reserveSymbols: string[] = [];
+  const reserveSymbols: string[] = [];
 
-  let initInputParams: {
+  const initInputParams: {
     uTokenImpl: string;
     debtTokenImpl: string;
     underlyingAssetDecimals: BigNumberish;
@@ -80,12 +72,12 @@ export const initReservesByHelper = async (
     string,
     string
   ];
-  let rateStrategies: Record<string, typeof strategyRates> = {};
-  let strategyAddresses: Record<string, tEthereumAddress> = {};
+  const rateStrategies: Record<string, typeof strategyRates> = {};
+  const strategyAddresses: Record<string, tEthereumAddress> = {};
 
   const reserves = Object.entries(reservesParams);
 
-  for (let [symbol, params] of reserves) {
+  for (const [symbol, params] of reserves) {
     if (!tokenAddresses[symbol]) {
       console.log(`- Skipping init of ${symbol} due token address is not set at markets config`);
       continue;
@@ -168,15 +160,15 @@ export const initNftsByHelper = async (
   const initChunks = 1;
 
   // Initialize variables for future nfts initialization
-  let nftSymbols: string[] = [];
+  const nftSymbols: string[] = [];
 
-  let initInputParams: {
+  const initInputParams: {
     underlyingAsset: string;
   }[] = [];
 
   const nfts = Object.entries(nftsParams);
 
-  for (let [symbol, params] of nfts) {
+  for (const [symbol, params] of nfts) {
     if (!nftAddresses[symbol]) {
       console.log(`- Skipping init of ${symbol} due nft address is not set at markets config`);
       continue;

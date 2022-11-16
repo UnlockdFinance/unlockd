@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
-import { Functions } from "../helpers/protocolFunctions";
 import { getOwnerWallet } from "../helpers/config";
+import { Functions } from "../helpers/protocolFunctions";
 
 /**
  * This file will use the lendpoolProvider to get and set addresses or names

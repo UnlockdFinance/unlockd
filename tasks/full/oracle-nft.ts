@@ -3,7 +3,6 @@ import { ConfigNames, getGenesisPoolAdmin, loadPoolConfig } from "../../helpers/
 import { deployNFTOracle, deployUnlockdUpgradeableProxy } from "../../helpers/contracts-deployments";
 import {
   getAllMockedNfts,
-  getDeploySigner,
   getLendPoolAddressesProvider,
   getNFTOracle,
   getUnlockdProxyAdminById,
@@ -11,7 +10,7 @@ import {
 } from "../../helpers/contracts-getters";
 import { getParamPerNetwork, insertContractAddressInDb } from "../../helpers/contracts-helpers";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
-import { addAssetsInNFTOraclewithSigner, setPricesInNFTOracleWithSigner } from "../../helpers/oracles-helpers";
+import { addAssetsInNFTOraclewithSigner } from "../../helpers/oracles-helpers";
 import { eContractid, eNetwork, ICommonConfiguration, tEthereumAddress } from "../../helpers/types";
 import { NFTOracle, UnlockdUpgradeableProxy } from "../../types";
 

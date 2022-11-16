@@ -1,11 +1,10 @@
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { ConfigNames, getEmergencyAdmin, getGenesisPoolAdmin, loadPoolConfig } from "../../helpers/configuration";
+import { ConfigNames, getEmergencyAdmin, loadPoolConfig } from "../../helpers/configuration";
 import {
   deployLendPool,
   deployLendPoolConfigurator,
   deployLendPoolLoan,
-  deployUNFTImplementations,
   deployUnlockdLibraries,
   deployUTokenImplementations,
 } from "../../helpers/contracts-deployments";
@@ -16,11 +15,7 @@ import {
   getLendPoolLoanProxy,
   getUNFTRegistryProxy,
 } from "../../helpers/contracts-getters";
-import {
-  getEthersSignerByAddress,
-  getParamPerNetwork,
-  insertContractAddressInDb,
-} from "../../helpers/contracts-helpers";
+import { getParamPerNetwork, insertContractAddressInDb } from "../../helpers/contracts-helpers";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import { eContractid, eNetwork } from "../../helpers/types";
 

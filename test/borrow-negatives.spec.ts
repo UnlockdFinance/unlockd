@@ -1,18 +1,14 @@
 import BigNumber from "bignumber.js";
 import { getReservesConfigByPool } from "../helpers/configuration";
-import { increaseTime, timeLatest, waitForTx } from "../helpers/misc-utils";
 import { IReserveParams, iUnlockdPoolAssets, ProtocolErrors, UnlockdPools } from "../helpers/types";
 import {
   approveERC20,
-  approveERC721,
   borrow,
   configuration as actionsConfiguration,
   deposit,
   mintERC20,
   mintERC721,
-  repay,
   setApprovalForAll,
-  withdraw,
 } from "./helpers/actions";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";

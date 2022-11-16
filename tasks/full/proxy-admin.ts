@@ -3,7 +3,7 @@ import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import { deployUnlockdProxyAdmin } from "../../helpers/contracts-deployments";
 import { getUnlockdProxyAdminByAddress } from "../../helpers/contracts-getters";
 import { getParamPerNetwork, insertContractAddressInDb } from "../../helpers/contracts-helpers";
-import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
+import { notFalsyOrZeroAddress } from "../../helpers/misc-utils";
 import { eContractid, eNetwork } from "../../helpers/types";
 import { UnlockdProxyAdmin } from "../../types";
 

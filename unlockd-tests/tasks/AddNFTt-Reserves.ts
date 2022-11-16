@@ -7,7 +7,6 @@ import {
   getWETHGateway,
 } from "../../helpers/contracts-getters";
 import { waitForTx } from "../../helpers/misc-utils";
-import { TokenContractId } from "../../helpers/types";
 
 task("deploy-new-NFT")
   .addParam("name", `The NFT name`)

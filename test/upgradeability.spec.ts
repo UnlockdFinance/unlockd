@@ -1,15 +1,7 @@
 import { BytesLike } from "@ethersproject/bytes";
 import { expect } from "chai";
-import { MAX_UINT_AMOUNT, ZERO_ADDRESS } from "../helpers/constants";
-import {
-  getDebtToken,
-  getDeploySigner,
-  getLendPoolLoanProxy,
-  getUnlockdUpgradeableProxy,
-  getUToken,
-} from "../helpers/contracts-getters";
-import { deployContract, getContract } from "../helpers/contracts-helpers";
-import { eContractid, ProtocolErrors } from "../helpers/types";
+import { getDebtToken, getDeploySigner, getLendPoolLoanProxy } from "../helpers/contracts-getters";
+import { ProtocolErrors } from "../helpers/types";
 import { DebtToken, DebtTokenFactory, LendPoolLoan, LendPoolLoanFactory, UToken, UTokenFactory } from "../types";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 

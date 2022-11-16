@@ -5,9 +5,8 @@ import DRE from "hardhat";
 import { NETWORKS_DEFAULT_GAS } from "../helper-hardhat-config";
 import { getReservesConfigByPool } from "../helpers/configuration";
 import { getDebtToken } from "../helpers/contracts-getters";
-import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
-import { advanceTimeAndBlock, sleep, waitForTx } from "../helpers/misc-utils";
-import { IReserveParams, iUnlockdPoolAssets, ProtocolErrors, ProtocolLoanState, UnlockdPools } from "../helpers/types";
+import { advanceTimeAndBlock, waitForTx } from "../helpers/misc-utils";
+import { IReserveParams, iUnlockdPoolAssets, ProtocolErrors, UnlockdPools } from "../helpers/types";
 import {
   configuration as actionsConfiguration,
   mintERC721,

@@ -1,12 +1,10 @@
 import BigNumber from "bignumber.js";
-import { string } from "hardhat/internal/core/params/argumentTypes";
 import { getReservesConfigByPool } from "../helpers/configuration";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { waitForTx } from "../helpers/misc-utils";
 import { IReserveParams, iUnlockdPoolAssets, UnlockdPools } from "../helpers/types";
 import {
   approveERC20,
-  approveERC721,
   borrow,
   configuration as actionsConfiguration,
   delegateBorrowAllowance,

@@ -4,14 +4,11 @@ import bignumberChai from "chai-bignumber";
 import { solidity } from "ethereum-waffle";
 import { Signer } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { USD_ADDRESS } from "../../helpers/constants";
 import {
   getCryptoPunksMarket,
-  getDebtToken,
   getLendPool,
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
-  getLendPoolLiquidatorSigner,
   getLendPoolLoanProxy,
   getMintableERC20,
   getMintableERC721,
@@ -34,10 +31,9 @@ import {
   getWETHMocked,
   getWrappedPunk,
 } from "../../helpers/contracts-getters";
-import { getEthersSigners, getParamPerNetwork } from "../../helpers/contracts-helpers";
+import { getEthersSigners } from "../../helpers/contracts-helpers";
 import { DRE, evmRevert, evmSnapshot, getNowTimeInSeconds } from "../../helpers/misc-utils";
-import { eEthereumNetwork, eNetwork, tEthereumAddress } from "../../helpers/types";
-import { UnlockdConfig } from "../../markets/unlockd";
+import { tEthereumAddress } from "../../helpers/types";
 import {
   CryptoPunksMarket,
   LendPoolLoan,
@@ -119,7 +115,7 @@ export interface TestEnv {
   sushiSwapRouter: IUniswapV2Router02;
 }
 
-let buidlerevmSnapshotId: string = "0x1";
+let buidlerevmSnapshotId = "0x1";
 const setBuidlerevmSnapshotId = (id: string) => {
   buidlerevmSnapshotId = id;
 };

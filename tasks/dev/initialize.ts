@@ -1,6 +1,5 @@
 import { task } from "hardhat/config";
 import { ConfigNames, getTreasuryAddress, loadPoolConfig } from "../../helpers/configuration";
-import { ZERO_ADDRESS } from "../../helpers/constants";
 import {
   deployUiPoolDataProvider,
   deployUnlockdProtocolDataProvider,
@@ -13,16 +12,16 @@ import {
   getPunkGateway,
   getWETHGateway,
 } from "../../helpers/contracts-getters";
-import { getParamPerNetwork, insertContractAddressInDb } from "../../helpers/contracts-helpers";
+import { insertContractAddressInDb } from "../../helpers/contracts-helpers";
 import {
   configureNftsByHelper,
   configureReservesByHelper,
   initNftsByHelper,
   initReservesByHelper,
 } from "../../helpers/init-helpers";
-import { filterMapBy, notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
+import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import { getAllNftAddresses, getAllTokenAddresses } from "../../helpers/mock-helpers";
-import { eContractid, eNetwork, tEthereumAddress, UnlockdPools } from "../../helpers/types";
+import { eContractid, eNetwork } from "../../helpers/types";
 
 task("dev:initialize-lend-pool", "Initialize lend pool configuration.")
   .addFlag("verify", "Verify contracts at Etherscan")
@@ -97,7 +96,7 @@ task("dev:initialize-lend-pool", "Initialize lend pool configuration.")
 
     ////////////////////////////////////////////////////////////////////////////
     const wethGateway = await getWETHGateway();
-    let nftAddresses: string[] = [];
+    const nftAddresses: string[] = [];
     for (const [assetSymbol, assetAddress] of Object.entries(allNftAddresses) as [string, string][]) {
       nftAddresses.push(assetAddress);
     }
@@ -105,7 +104,7 @@ task("dev:initialize-lend-pool", "Initialize lend pool configuration.")
 
     ////////////////////////////////////////////////////////////////////////////
     const punkGateway = await getPunkGateway();
-    let reserveAddresses: string[] = [];
+    const reserveAddresses: string[] = [];
     for (const [assetSymbol, assetAddress] of Object.entries(allTokenAddresses) as [string, string][]) {
       reserveAddresses.push(assetAddress);
     }

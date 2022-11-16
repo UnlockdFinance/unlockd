@@ -1,6 +1,5 @@
 import { expect } from "chai";
 import { ethers } from "ethers";
-import { ZERO_ADDRESS } from "../helpers/constants";
 import { deployLendPool } from "../helpers/contracts-deployments";
 import { createRandomAddress, waitForTx } from "../helpers/misc-utils";
 import { ProtocolErrors } from "../helpers/types";

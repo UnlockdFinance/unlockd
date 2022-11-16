@@ -1,12 +1,12 @@
 import { task } from "hardhat/config";
+import { ConfigNames, getTreasuryAddress, loadPoolConfig } from "../../helpers/configuration";
+import { deployRateStrategy } from "../../helpers/contracts-deployments";
 import {
   getDebtToken,
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
   getUToken,
 } from "../../helpers/contracts-getters";
-import { getTreasuryAddress, ConfigNames, loadPoolConfig } from "../../helpers/configuration";
-import { deployRateStrategy } from "../../helpers/contracts-deployments";
 
 // Deploy UToken, DebtToken, (configurator)InitializeReserve, (configurator)ConfigReserve
 
@@ -31,7 +31,7 @@ task("uToken-register", "Deploy uToken")
     const treasury = await getTreasuryAddress(config);
 
     const strategy = reservesParams[stratname].strategy;
-    let rateStrategy: [string, string, string, string, string] = [
+    const rateStrategy: [string, string, string, string, string] = [
       addressProviderAddress,
       strategy.optimalUtilizationRate,
       strategy.baseVariableBorrowRate,

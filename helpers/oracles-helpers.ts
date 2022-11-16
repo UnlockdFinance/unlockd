@@ -2,9 +2,8 @@ import { ethers } from "ethers";
 import { MockChainlinkOracle } from "../types/MockChainlinkOracle";
 import { NFTOracle } from "../types/NFTOracle";
 import { ReserveOracle } from "../types/ReserveOracle";
-import { MOCK_USD_PRICE, USD_ADDRESS } from "./constants";
+import { MOCK_USD_PRICE } from "./constants";
 import { deployMockChainlinkOracle } from "./contracts-deployments";
-import { getAllMockedTokens } from "./contracts-getters";
 import { getNowTimeInSeconds, waitForTx } from "./misc-utils";
 import { iAssetAggregatorBase, PoolConfiguration, SymbolMap, tEthereumAddress } from "./types";
 

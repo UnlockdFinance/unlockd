@@ -1,7 +1,5 @@
-import { parseUnits } from "@ethersproject/units";
 import { task } from "hardhat/config";
-import { getOwnerWallet, getUserWallet } from "../helpers/config";
-import { Contracts, MockContracts } from "../helpers/constants";
+import { getUserWallet } from "../helpers/config";
 import { Functions } from "../helpers/protocolFunctions";
 
 //Deposit funds to the pool

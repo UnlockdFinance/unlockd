@@ -4,7 +4,6 @@ import {
   getDeploySigner,
   getIErc20Detailed,
   getIErc721Detailed,
-  getLendPoolLoanProxy,
   getMintableERC20,
   getMintableERC721,
   getUToken,
@@ -14,7 +13,6 @@ import { tEthereumAddress } from "../../../helpers/types";
 import { ERC20Factory } from "../../../types";
 import { LendPool } from "../../../types/LendPool";
 import { UnlockdProtocolDataProvider } from "../../../types/UnlockdProtocolDataProvider";
-import { SignerWithAddress } from "../make-suite";
 import { LoanData, NftData, ReserveData, UserReserveData } from "./interfaces";
 
 export const getReserveData = async (

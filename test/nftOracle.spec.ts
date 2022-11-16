@@ -1,5 +1,3 @@
-import { ethers } from "hardhat";
-import { MockNFTOracle, NFTOracle } from "../types";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 const { expect } = require("chai");
 

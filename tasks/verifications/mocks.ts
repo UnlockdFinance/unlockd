@@ -8,7 +8,6 @@ import {
   getWrappedPunk,
 } from "../../helpers/contracts-getters";
 import { getParamPerNetwork, verifyContract } from "../../helpers/contracts-helpers";
-import { notFalsyOrZeroAddress } from "../../helpers/misc-utils";
 import { eContractid, eNetwork, ICommonConfiguration } from "../../helpers/types";
 
 task("verify:mocks", "Verify mock contracts at Etherscan")

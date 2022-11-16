@@ -3,7 +3,8 @@
   "parser": "@typescript-eslint/parser",
   "plugins": [
     "@typescript-eslint",
-    "prettier"
+    "prettier",
+    "unused-imports"
   ],
   "extends": [
     "eslint:recommended",
@@ -14,6 +15,7 @@
   "rules": {
     "prettier/prettier": "warn",
     "@typescript-eslint/ban-ts-comment":"off",
-    "@typescript-eslint/no-var-requires":"off"
+    "@typescript-eslint/no-var-requires":"off",
+    "unused-imports/no-unused-imports": "warn"
   }
 }

@@ -1,11 +1,8 @@
 import BigNumber from "bignumber.js";
 import { getReservesConfigByPool } from "../helpers/configuration";
-import { waitForTx } from "../helpers/misc-utils";
 import { IReserveParams, iUnlockdPoolAssets, UnlockdPools } from "../helpers/types";
 import {
-  approveERC20,
   configuration as actionsConfiguration,
-  deposit,
   getERC20Balance,
   mintERC20,
   rescue,

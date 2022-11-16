@@ -8,9 +8,7 @@ import {
   getUnlockdProtocolDataProvider,
   getUToken,
 } from "../../helpers/contracts-getters";
-import { getParamPerNetwork } from "../../helpers/contracts-helpers";
-import { DRE } from "../../helpers/misc-utils";
-import { eEthereumNetwork, eNetwork } from "../../helpers/types";
+import { eNetwork } from "../../helpers/types";
 
 task("print-reserve", "Print data of specified reserve and user")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)

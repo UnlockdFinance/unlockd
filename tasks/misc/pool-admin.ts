@@ -1,5 +1,5 @@
 import { task } from "hardhat/config";
-import { ConfigNames, getEmergencyAdmin, getGenesisPoolAdmin, loadPoolConfig } from "../../helpers/configuration";
+import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import {
   getLendPool,
   getLendPoolAddressesProvider,
