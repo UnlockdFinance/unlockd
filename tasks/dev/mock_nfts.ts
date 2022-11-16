@@ -3,7 +3,7 @@ import { parseEther } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import { MOCK_NFT_BASE_URIS } from "../../helpers/constants";
 import { deployAllMockNfts, deployMintableERC721 } from "../../helpers/contracts-deployments";
-import { getDeploySigner, getCryptoPunksMarket, getMintableERC721 } from "../../helpers/contracts-getters";
+import { getCryptoPunksMarket, getDeploySigner, getMintableERC721 } from "../../helpers/contracts-getters";
 import {
   getContractAddressInDb,
   getEthersSigners,

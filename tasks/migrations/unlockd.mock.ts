@@ -1,11 +1,10 @@
+import { formatEther } from "@ethersproject/units";
 import { task } from "hardhat/config";
-import { checkVerification } from "../../helpers/etherscan-verification";
-import { ConfigNames } from "../../helpers/configuration";
-import { printContracts } from "../../helpers/misc-utils";
-import { loadPoolConfig, getGenesisPoolAdmin, getEmergencyAdmin } from "../../helpers/configuration";
+import { ConfigNames, getEmergencyAdmin, getGenesisPoolAdmin, loadPoolConfig } from "../../helpers/configuration";
 import { getDeploySigner } from "../../helpers/contracts-getters";
 import { getEthersSignerByAddress } from "../../helpers/contracts-helpers";
-import { formatEther } from "@ethersproject/units";
+import { checkVerification } from "../../helpers/etherscan-verification";
+import { printContracts } from "../../helpers/misc-utils";
 
 task("unlockd:mock", "Deploy a mock enviroment for testnets")
   .addFlag("verify", "Verify contracts at Etherscan")

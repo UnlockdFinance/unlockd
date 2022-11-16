@@ -8,17 +8,15 @@ import {
   loadPoolConfig,
 } from "../../helpers/configuration";
 import {
-  MOCK_NFT_AGGREGATORS_PRICES,
-  USD_ADDRESS,
   MAX_UINT_AMOUNT,
-  ZERO_ADDRESS,
+  MOCK_NFT_AGGREGATORS_PRICES,
   oneEther,
+  USD_ADDRESS,
+  ZERO_ADDRESS,
 } from "../../helpers/constants";
 import {
   getAllMockedNfts,
   getAllMockedTokens,
-  getUnlockdProtocolDataProvider,
-  getUToken,
   getCryptoPunksMarket,
   getDebtToken,
   getDeploySigner,
@@ -31,6 +29,8 @@ import {
   getPunkGateway,
   getReserveOracle,
   getUIPoolDataProvider,
+  getUnlockdProtocolDataProvider,
+  getUToken,
   getWalletProvider,
   getWETHGateway,
   getWETHMocked,

@@ -1,9 +1,6 @@
 import { task } from "hardhat/config";
 import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
-import {
-  getUnlockdProtocolDataProvider,
-  //getLendPoolAddressesProviderRegistry,
-} from "../../helpers/contracts-getters";
+import { getUnlockdProtocolDataProvider } from "../../helpers/contracts-getters";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { DRE } from "../../helpers/misc-utils";
 import { eEthereumNetwork, eNetwork } from "../../helpers/types";

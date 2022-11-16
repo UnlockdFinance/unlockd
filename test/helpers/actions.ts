@@ -1,46 +1,18 @@
 import BigNumber from "bignumber.js";
-
+import chai from "chai";
+import { Signer } from "crypto";
+import { ContractReceipt } from "ethers";
+import { MAX_UINT_AMOUNT, oneEther, ONE_DAY, ONE_HOUR, ONE_YEAR } from "../../helpers/constants";
 import {
-  calcExpectedReserveDataAfterDeposit,
-  calcExpectedReserveDataAfterWithdraw,
-  calcExpectedReserveDataAfterBorrow,
-  calcExpectedReserveDataAfterRepay,
-  calcExpectedReserveDataAfterAuction,
-  calcExpectedReserveDataAfterRedeem,
-  calcExpectedReserveDataAfterLiquidate,
-  calcExpectedUserDataAfterDeposit,
-  calcExpectedUserDataAfterWithdraw,
-  calcExpectedUserDataAfterBorrow,
-  calcExpectedUserDataAfterRepay,
-  calcExpectedUserDataAfterAuction,
-  calcExpectedUserDataAfterRedeem,
-  calcExpectedUserDataAfterLiquidate,
-  calcExpectedLoanDataAfterBorrow,
-  calcExpectedLoanDataAfterRepay,
-  calcExpectedLoanDataAfterAuction,
-  calcExpectedLoanDataAfterRedeem,
-  calcExpectedLoanDataAfterLiquidate,
-} from "./utils/calculations";
-import {
-  getReserveAddressFromSymbol,
-  getNftAddressFromSymbol,
-  getReserveData,
-  getUserData,
-  getLoanData,
-} from "./utils/helpers";
-
-import { convertToCurrencyDecimals, getEthersSignerByAddress } from "../../helpers/contracts-helpers";
-import {
-  getUToken,
+  getDebtToken,
+  getIErc20Detailed,
+  getLendPoolLoanProxy,
   getMintableERC20,
   getMintableERC721,
-  getLendPoolLoanProxy,
-  getIErc20Detailed,
-  getDebtToken,
   getPoolAdminSigner,
+  getUToken,
 } from "../../helpers/contracts-getters";
-import { MAX_UINT_AMOUNT, oneEther, ONE_DAY, ONE_HOUR, ONE_YEAR } from "../../helpers/constants";
-import { SignerWithAddress, TestEnv } from "./make-suite";
+import { convertToCurrencyDecimals, getEthersSignerByAddress } from "../../helpers/contracts-helpers";
 import {
   advanceTimeAndBlock,
   DRE,
@@ -50,13 +22,38 @@ import {
   timeLatest,
   waitForTx,
 } from "../../helpers/misc-utils";
-
-import chai from "chai";
-import { ReserveData, UserReserveData, LoanData } from "./utils/interfaces";
-import { ContractReceipt } from "ethers";
-import { UToken } from "../../types/UToken";
 import { tEthereumAddress } from "../../helpers/types";
-import { Signer } from "crypto";
+import { UToken } from "../../types/UToken";
+import { SignerWithAddress, TestEnv } from "./make-suite";
+import {
+  calcExpectedLoanDataAfterAuction,
+  calcExpectedLoanDataAfterBorrow,
+  calcExpectedLoanDataAfterLiquidate,
+  calcExpectedLoanDataAfterRedeem,
+  calcExpectedLoanDataAfterRepay,
+  calcExpectedReserveDataAfterAuction,
+  calcExpectedReserveDataAfterBorrow,
+  calcExpectedReserveDataAfterDeposit,
+  calcExpectedReserveDataAfterLiquidate,
+  calcExpectedReserveDataAfterRedeem,
+  calcExpectedReserveDataAfterRepay,
+  calcExpectedReserveDataAfterWithdraw,
+  calcExpectedUserDataAfterAuction,
+  calcExpectedUserDataAfterBorrow,
+  calcExpectedUserDataAfterDeposit,
+  calcExpectedUserDataAfterLiquidate,
+  calcExpectedUserDataAfterRedeem,
+  calcExpectedUserDataAfterRepay,
+  calcExpectedUserDataAfterWithdraw,
+} from "./utils/calculations";
+import {
+  getLoanData,
+  getNftAddressFromSymbol,
+  getReserveAddressFromSymbol,
+  getReserveData,
+  getUserData,
+} from "./utils/helpers";
+import { LoanData, ReserveData, UserReserveData } from "./utils/interfaces";
 
 const { expect } = chai;
 

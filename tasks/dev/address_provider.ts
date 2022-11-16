@@ -6,8 +6,8 @@ import {
 } from "../../helpers/contracts-deployments";
 import {
   getDeploySigner,
-  getSushiSwapRouter,
   getNFTXVaultFactory,
+  getSushiSwapRouter,
   getUnlockdProtocolDataProvider,
 } from "../../helpers/contracts-getters";
 import { waitForTx } from "../../helpers/misc-utils";

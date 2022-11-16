@@ -1,12 +1,11 @@
 import BigNumber from "bignumber.js";
-
-import { DRE, increaseTime, waitForTx } from "../helpers/misc-utils";
 import { APPROVAL_AMOUNT_LENDING_POOL, MAX_UINT_AMOUNT, oneEther, ONE_DAY } from "../helpers/constants";
-import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
-import { makeSuite } from "./helpers/make-suite";
-import { ProtocolErrors } from "../helpers/types";
-import { MaliciousHackerERC721Factory, MaliciousHackerERC721 } from "../types";
 import { getDebtToken, getDeploySigner } from "../helpers/contracts-getters";
+import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
+import { DRE, increaseTime, waitForTx } from "../helpers/misc-utils";
+import { ProtocolErrors } from "../helpers/types";
+import { MaliciousHackerERC721, MaliciousHackerERC721Factory } from "../types";
+import { makeSuite } from "./helpers/make-suite";
 
 const chai = require("chai");
 

@@ -1,31 +1,28 @@
 import { task } from "hardhat/config";
-import {
-  deployWalletBalancerProvider,
-  deployUnlockdProtocolDataProvider,
-  deployUiPoolDataProvider,
-} from "../../helpers/contracts-deployments";
-import { getParamPerNetwork } from "../../helpers/contracts-helpers";
-import { eNetwork } from "../../helpers/types";
 import { ConfigNames, getTreasuryAddress, loadPoolConfig } from "../../helpers/configuration";
-
-import { tEthereumAddress, UnlockdPools, eContractid } from "../../helpers/types";
-import { waitForTx, filterMapBy, notFalsyOrZeroAddress } from "../../helpers/misc-utils";
-import {
-  configureReservesByHelper,
-  initReservesByHelper,
-  configureNftsByHelper,
-  initNftsByHelper,
-} from "../../helpers/init-helpers";
-import { getAllTokenAddresses, getAllNftAddresses } from "../../helpers/mock-helpers";
 import { ZERO_ADDRESS } from "../../helpers/constants";
 import {
-  getAllMockedTokens,
+  deployUiPoolDataProvider,
+  deployUnlockdProtocolDataProvider,
+  deployWalletBalancerProvider,
+} from "../../helpers/contracts-deployments";
+import {
   getAllMockedNfts,
+  getAllMockedTokens,
   getLendPoolAddressesProvider,
-  getWETHGateway,
   getPunkGateway,
+  getWETHGateway,
 } from "../../helpers/contracts-getters";
-import { insertContractAddressInDb } from "../../helpers/contracts-helpers";
+import { getParamPerNetwork, insertContractAddressInDb } from "../../helpers/contracts-helpers";
+import {
+  configureNftsByHelper,
+  configureReservesByHelper,
+  initNftsByHelper,
+  initReservesByHelper,
+} from "../../helpers/init-helpers";
+import { filterMapBy, notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
+import { getAllNftAddresses, getAllTokenAddresses } from "../../helpers/mock-helpers";
+import { eContractid, eNetwork, tEthereumAddress, UnlockdPools } from "../../helpers/types";
 
 task("dev:initialize-lend-pool", "Initialize lend pool configuration.")
   .addFlag("verify", "Verify contracts at Etherscan")

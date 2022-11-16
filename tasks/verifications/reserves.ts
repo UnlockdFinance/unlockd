@@ -1,14 +1,14 @@
 import { task } from "hardhat/config";
-import { loadPoolConfig, ConfigNames, getTreasuryAddress } from "../../helpers/configuration";
+import { ConfigNames, getTreasuryAddress, loadPoolConfig } from "../../helpers/configuration";
 import {
-  getUToken,
   getDebtToken,
   getInterestRate,
-  getLendPoolAddressesProvider,
-  getUnlockdUpgradeableProxy,
   getLendPool,
+  getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
   getUIPoolDataProvider,
+  getUnlockdUpgradeableProxy,
+  getUToken,
 } from "../../helpers/contracts-getters";
 import { getParamPerNetwork, verifyContract } from "../../helpers/contracts-helpers";
 import { eContractid, eNetwork, ICommonConfiguration, IReserveParams } from "../../helpers/types";

@@ -1,17 +1,24 @@
-import { configuration as actionsConfiguration, setApprovalForAllExt } from "./helpers/actions";
-import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";
-
 import BigNumber from "bignumber.js";
-import { makeSuite } from "./helpers/make-suite";
-import { getReservesConfigByPool } from "../helpers/configuration";
-import { UnlockdPools, iUnlockdPoolAssets, IReserveParams } from "../helpers/types";
-
-import { mintERC20, mintERC721, approveERC20, setApprovalForAll, deposit, borrow, repay } from "./helpers/actions";
-import { increaseTime, waitForTx } from "../helpers/misc-utils";
-import { RepayAndTransferHelper, RepayAndTransferHelperFactory } from "../types";
-import { getDeploySigner } from "../helpers/contracts-getters";
 import { parseEther } from "ethers/lib/utils";
+import { getReservesConfigByPool } from "../helpers/configuration";
+import { getDeploySigner } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
+import { increaseTime, waitForTx } from "../helpers/misc-utils";
+import { IReserveParams, iUnlockdPoolAssets, UnlockdPools } from "../helpers/types";
+import { RepayAndTransferHelper, RepayAndTransferHelperFactory } from "../types";
+import {
+  approveERC20,
+  borrow,
+  configuration as actionsConfiguration,
+  deposit,
+  mintERC20,
+  mintERC721,
+  repay,
+  setApprovalForAll,
+  setApprovalForAllExt,
+} from "./helpers/actions";
+import { makeSuite } from "./helpers/make-suite";
+import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";
 
 const { expect } = require("chai");
 

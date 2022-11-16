@@ -41,7 +41,7 @@ const MNEMONIC = process.env.MNEMONIC || "";
 const UNLIMITED_BYTECODE_SIZE = process.env.UNLIMITED_BYTECODE_SIZE === "true";
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
 const RPC_ENDPOINT = process.env.RPC_ENDPOINT || ""
-console.log(RPC_ENDPOINT);
+
 // Prevent to load scripts before compilation and typechain
 if (!SKIP_LOAD) {
   ["misc", "migrations", "dev", "full", "verifications", "deployments", "helpers"].forEach((folder) => {

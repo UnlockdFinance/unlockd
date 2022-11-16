@@ -1,15 +1,15 @@
 import { task } from "hardhat/config";
-import { Functions } from "../helpers/protocolFunctions";
-import { getOwnerWallet, getUserWallet, getWalletByNumber } from "../helpers/config";
-import { Contracts, MockContracts } from "../helpers/constants";
 import { INFTXVaultFactory } from "../../types/INFTXVaultFactory";
+import { getOwnerWallet, getUserWallet } from "../helpers/config";
+import { Contracts, MockContracts } from "../helpers/constants";
+import { Functions } from "../helpers/protocolFunctions";
 
 task("wethgateway:depositETH", "Deposits raw ETH")
   .addParam("amount", "The amount in WEI")
   .addParam("to", "The on behalf of")
-  .addParam("walletnumber", "The wallet in the env file")
-  .setAction(async ({ amount, to, walletnumber }) => {
-    const wallet = await getWalletByNumber(walletnumber);
+
+  .setAction(async ({ amount, to }) => {
+    const wallet = await getUserWallet();
     //amount must be in WEI!!
     const utokenContract = MockContracts["uWETH"];
     await Functions.RESERVES.approve(
@@ -25,9 +25,8 @@ task("wethgateway:depositETH", "Deposits raw ETH")
 task("wethgateway:withdrawETH", "Withdraws raw ETH")
   .addParam("amount", "The amount in WEI")
   .addParam("to", "The on behalf of")
-  .addParam("walletnumber", "The wallet in the env file")
-  .setAction(async ({ amount, to, walletnumber }) => {
-    const wallet = await getWalletByNumber(walletnumber);
+  .setAction(async ({ amount, to }) => {
+    const wallet = await getUserWallet();
     const tokenContract = MockContracts["uWETH"];
 
     console.log(wallet.address);

@@ -3,12 +3,12 @@ import { task } from "hardhat/config";
 import { ConfigNames, getProviderRegistryAddress, loadPoolConfig } from "../../helpers/configuration";
 import { ADDRESS_ID_WETH_GATEWAY } from "../../helpers/constants";
 import {
-  getUNFTRegistryProxy,
   getIErc721Detailed,
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
-  getWETHGateway,
   getNFTOracle,
+  getUNFTRegistryProxy,
+  getWETHGateway,
 } from "../../helpers/contracts-getters";
 import { getEthersSignerByAddress } from "../../helpers/contracts-helpers";
 import { getNowTimeInSeconds, notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";

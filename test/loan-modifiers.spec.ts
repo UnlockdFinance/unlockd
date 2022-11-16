@@ -1,6 +1,6 @@
 import { expect } from "chai";
-import { makeSuite, TestEnv } from "./helpers/make-suite";
 import { ProtocolErrors } from "../helpers/types";
+import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 makeSuite("LendPoolLoan: Modifiers", (testEnv: TestEnv) => {
   const { CT_CALLER_MUST_BE_LEND_POOL } = ProtocolErrors;

@@ -1,13 +1,6 @@
-import {
-  eContractid,
-  eNetwork,
-  iMultiPoolsAssets,
-  IReserveParams,
-  iMultiPoolsNfts,
-  INftParams,
-  tEthereumAddress,
-} from "./types";
-import { chunk, increaseTime, waitForTx } from "./misc-utils";
+import { BigNumberish } from "ethers";
+import { ConfigNames } from "./configuration";
+import { deployRateStrategy } from "./contracts-deployments";
 import {
   getCryptoPunksMarket,
   getDeploySigner,
@@ -27,9 +20,16 @@ import {
   getContractAddressWithJsonFallback,
   rawInsertContractAddressInDb,
 } from "./contracts-helpers";
-import { BigNumberish } from "ethers";
-import { ConfigNames } from "./configuration";
-import { deployRateStrategy } from "./contracts-deployments";
+import { chunk, increaseTime, waitForTx } from "./misc-utils";
+import {
+  eContractid,
+  eNetwork,
+  iMultiPoolsAssets,
+  iMultiPoolsNfts,
+  INftParams,
+  IReserveParams,
+  tEthereumAddress,
+} from "./types";
 
 export const getUTokenExtraParams = async (uTokenName: string, tokenAddress: tEthereumAddress) => {
   //console.log(uTokenName);

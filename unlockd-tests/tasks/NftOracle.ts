@@ -1,28 +1,28 @@
-import { task } from "hardhat/config";
-import { Functions } from "../helpers/protocolFunctions";
-import { getUserWallet, getOwnerWallet } from "../helpers/config";
 import { parseEther, parseUnits } from "@ethersproject/units";
+import { task } from "hardhat/config";
+import { getOwnerWallet, getUserWallet } from "../helpers/config";
+import { Functions } from "../helpers/protocolFunctions";
 
 //Get NFT price
 task("nftoracle:getnftprice", "User 0 Deposits {amount} {reserve} in an empty reserve")
-  .addParam("collection", "The collection address")
+  .addParam("nftaddress", "The nft address")
   .addParam("tokenid", "The token id")
-  .setAction(async ({ collection, tokenid }) => {
+  .setAction(async ({ nftaddress, tokenid }) => {
     const wallet = await getUserWallet();
-    const price = await Functions.NFTORACLE.getNftPrice(wallet, collection, tokenid);
+    const price = await Functions.NFTORACLE.getNftPrice(wallet, nftaddress, tokenid);
     console.log("NFT price: ", price.toString() / 10 ** 18);
   });
 
 //Set NFT price
 task("nftoracle:setnftprice", "User 0 Deposits {amount} {reserve} in an empty reserve")
-  .addParam("collection", "The collection address")
+  .addParam("nftaddress", "The nft address")
   .addParam("tokenid", "The token id")
   .addParam("price", "The asset price")
-  .setAction(async ({ collection, tokenid, price }) => {
+  .setAction(async ({ nftaddress, tokenid, price }) => {
     const wallet = await getOwnerWallet();
     //price = await parseEther(price);
     //console.log("New price: ", price.toString() / 10**18);
-    await Functions.NFTORACLE.setNftPrice(wallet, collection, tokenid, price);
+    await Functions.NFTORACLE.setNftPrice(wallet, nftaddress, tokenid, price);
   });
 
 //Get NFT owner

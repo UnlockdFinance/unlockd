@@ -32,6 +32,7 @@ You can join at the [Discord](https://discord.gg/unlockd) channel or at the [Gov
 # 🗂️ Index
 
 - [Documentation](#-documentation)
+- [Audits](#-audits)
 - [Setup](#-setup)
 - [Test](#-test)
 - [Tasks](#tasks)
@@ -52,6 +53,7 @@ For getting the latest contracts addresses, please check the [Deployed contracts
 
 - Install
 
+To run Unlockd, install its dependencies using yarn. You will need [yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable) installed in your system.
 ```bash
 yarn install
 ```
@@ -85,10 +87,14 @@ FORK_BLOCK_NUMBER=""
 
 # 🧪 Test
 
-You can run the full test suite with the following commands:
+You can run the full test suite with the following commands. All of them are explained in detail in the [tasks section](#tasks):
 
 ```bash
-npm run test
+yarn test
+
+yarn test:localhost
+
+yarn test:file
 ```
 
 ## Markets configuration
@@ -99,8 +105,14 @@ Each market should have his own Market configuration file, and their own set of 
 
 # ✅ Tasks
 
-| First Header                     | Second Header                                                                                                               |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+## General tasks
+You can run the general tasks defined in the `package.json` file by using yarn and specifying the task you want to run. For example, we can run the `compile` task with the following command:
+``` bash
+yarn compile
+```
+
+| Task                              | Description |
+| -------------                     | ------------- |
 | run-env                          | Installs dependencies without verbose logging                                                                               |
 | hardhat                          | Executes hardhat command                                                                                                    |
 | hardhat:node                     | Starts a Hardhat Network node                                                                                               |
@@ -132,6 +144,18 @@ Each market should have his own Market configuration file, and their own set of 
 | main:verify:reserves             | Verifies in Etherscan all reserves contracts deployed in Ethereum mainnet                                                                                                               |
 | main:print-contracts             | Prints all current deployed contracts in Ethereum mainnet                                                                                                      |
 | main:print-config                | Prints all addresses and configuration set in Ethereum mainnet deployed contracts                                                                                                              
+## Unlockd tasks
+Unlockd tasks are a specific set of tasks that allow direct interaction with the currently deployed contracts. They require a set of params to be passed as flags in the command, which will be translated to be the params passed to the function to be executed. All params are explained in the definition of each task. These set of tasks can be run in terminal by using Hardhat commands. Network specification is fetched from the RPC_ENDPOINT environment variable. As an example, we'll try to run a 1 WETH deposit into the LendPool. The `deposit` task takes three params (`amount`, `reserves`, and `to`), and the task name is `lendpool:deposit`, so the command to run will be:
+
+```bash
+npx hardhat lendpool:deposit --amount 100000000000000000 --reserve WETH --to 0x1a470e9916f3dFF8E268A69A39fa2E9F7B954927
+```
+| Task | Description |
+| ------------- | ------------- |
+| lendpool:deposit | Deposits an amount in the LendPool  |
+| Content Cell  | Content Cell  |
+
+
 
 # 🚀 Deployments
 

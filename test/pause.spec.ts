@@ -1,10 +1,10 @@
-import { makeSuite, TestEnv } from "./helpers/make-suite";
-import { ProtocolErrors } from "../helpers/types";
-import { APPROVAL_AMOUNT_LENDING_POOL, oneEther } from "../helpers/constants";
-import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
-import { parseEther, parseUnits } from "ethers/lib/utils";
 import { BigNumber } from "bignumber.js";
+import { parseEther, parseUnits } from "ethers/lib/utils";
+import { APPROVAL_AMOUNT_LENDING_POOL, oneEther } from "../helpers/constants";
 import { getEmergencyAdminSigner } from "../helpers/contracts-getters";
+import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
+import { ProtocolErrors } from "../helpers/types";
+import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 const { expect } = require("chai");
 

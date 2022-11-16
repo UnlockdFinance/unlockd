@@ -1,11 +1,11 @@
 import { task } from "hardhat/config";
-import { Functions } from "../helpers/protocolFunctions";
+import { INFTXVaultFactory } from "../../types/INFTXVaultFactory";
 import { getOwnerWallet } from "../helpers/config";
 import { MockContracts } from "../helpers/constants";
-import { INFTXVaultFactory } from "../../types/INFTXVaultFactory";
+import { Functions } from "../helpers/protocolFunctions";
 
 task("nftxvault:mintNFTX", "Mints the token in NFTX")
-  .addParam("nftname", "The address of the NFTs going into vault")
+  .addParam("nftname", "The name of the NFTs going into vault")
   .addParam("tokenids", "The tokenIds to mint on the vault")
   .addParam("amounts", "The amounts to mint on the vault")
   .setAction(async ({ nftname, tokenids, amounts }) => {

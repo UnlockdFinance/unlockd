@@ -1,5 +1,5 @@
-import { exit } from "process";
 import fs from "fs";
+import { exit } from "process";
 import { file } from "tmp-promise";
 import { DRE } from "./misc-utils";
 

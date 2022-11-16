@@ -4,7 +4,7 @@ import { deployUnlockdProxyAdmin } from "../../helpers/contracts-deployments";
 import { getUnlockdProxyAdminByAddress } from "../../helpers/contracts-getters";
 import { getParamPerNetwork, insertContractAddressInDb } from "../../helpers/contracts-helpers";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
-import { eNetwork, eContractid } from "../../helpers/types";
+import { eContractid, eNetwork } from "../../helpers/types";
 import { UnlockdProxyAdmin } from "../../types";
 
 task("full:deploy-proxy-admin", "Deploy proxy admin contract")

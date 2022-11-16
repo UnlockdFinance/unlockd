@@ -1,13 +1,12 @@
 import BigNumber from "bignumber.js";
 import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-
 import { getReservesConfigByPool } from "../helpers/configuration";
 import { MAX_UINT_AMOUNT, oneEther, ONE_DAY, ONE_YEAR } from "../helpers/constants";
 import { getDebtToken } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
 import { advanceBlock, advanceTimeAndBlock, sleep, waitForTx } from "../helpers/misc-utils";
-import { UnlockdPools, iUnlockdPoolAssets, IReserveParams, ProtocolLoanState } from "../helpers/types";
+import { IReserveParams, iUnlockdPoolAssets, ProtocolLoanState, UnlockdPools } from "../helpers/types";
 import { ERC721Factory } from "../types";
 import {
   approveERC20,

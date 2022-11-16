@@ -1,25 +1,25 @@
 import { task } from "hardhat/config";
-import { Functions } from "../helpers/protocolFunctions";
 import { getUserWallet } from "../helpers/config";
+import { Functions } from "../helpers/protocolFunctions";
 
 // Get the treasury address from the uToken
 task("dataProvider:getNftConfigurationDataByTokenId", "Gets individual NFT configuration")
-  .addParam("nftaddress", "The asset address")
-  .addParam("nfttokenid", "The tokenId of the asset")
-  .setAction(async ({ nftaddress, nfttokenid }) => {
+  .addParam("nftaddress", "The NFT address")
+  .addParam("tokenid", "The tokenId of the asset")
+  .setAction(async ({ nftaddress, tokenid }) => {
     const wallet = await getUserWallet();
-    const tx = await Functions.DATAPROVIDER.getNftConfigurationDataByTokenId(wallet, nftaddress, nfttokenid).then(
-      (data) => data.toString()
+    const tx = await Functions.DATAPROVIDER.getNftConfigurationDataByTokenId(wallet, nftaddress, tokenid).then((data) =>
+      data.toString()
     );
     console.log(await tx);
   });
 
 task("dataProvider:getLoanDataByCollateral", "Gets individual NFT loan")
   .addParam("nftaddress", "The asset address")
-  .addParam("nfttokenid", "The tokenId of the asset")
-  .setAction(async ({ nftaddress, nfttokenid }) => {
+  .addParam("tokenid", "The tokenId of the asset")
+  .setAction(async ({ nftaddress, tokenid }) => {
     const wallet = await getUserWallet();
-    const tx = await Functions.DATAPROVIDER.getLoanDataByCollateral(wallet, nftaddress, nfttokenid).then((v) =>
+    const tx = await Functions.DATAPROVIDER.getLoanDataByCollateral(wallet, nftaddress, tokenid).then((v) =>
       v.toString()
     );
     console.log(tx);

@@ -1,21 +1,21 @@
-import { TestEnv, makeSuite } from "./helpers/make-suite";
-import {
-  mintERC20,
-  mintERC721,
-  approveERC20,
-  approveERC721,
-  setApprovalForAll,
-  deposit,
-  borrow,
-  withdraw,
-  repay,
-} from "./helpers/actions";
-import { configuration as actionsConfiguration } from "./helpers/actions";
-import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";
 import BigNumber from "bignumber.js";
 import { getReservesConfigByPool } from "../helpers/configuration";
-import { UnlockdPools, iUnlockdPoolAssets, IReserveParams, ProtocolErrors } from "../helpers/types";
 import { increaseTime, timeLatest, waitForTx } from "../helpers/misc-utils";
+import { IReserveParams, iUnlockdPoolAssets, ProtocolErrors, UnlockdPools } from "../helpers/types";
+import {
+  approveERC20,
+  approveERC721,
+  borrow,
+  configuration as actionsConfiguration,
+  deposit,
+  mintERC20,
+  mintERC721,
+  repay,
+  setApprovalForAll,
+  withdraw,
+} from "./helpers/actions";
+import { makeSuite, TestEnv } from "./helpers/make-suite";
+import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";
 
 const { VL_TIMEFRAME_EXCEEDED } = ProtocolErrors;
 const { expect } = require("chai");

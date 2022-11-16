@@ -3,7 +3,7 @@ import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import { deployLendPoolAddressesProviderRegistry } from "../../helpers/contracts-deployments";
 import { getParamPerNetwork, insertContractAddressInDb } from "../../helpers/contracts-helpers";
 import { notFalsyOrZeroAddress } from "../../helpers/misc-utils";
-import { eNetwork, eContractid } from "../../helpers/types";
+import { eContractid, eNetwork } from "../../helpers/types";
 
 task("full:deploy-address-provider-registry", "Deploy address provider registry")
   .addFlag("verify", "Verify contracts at Etherscan")

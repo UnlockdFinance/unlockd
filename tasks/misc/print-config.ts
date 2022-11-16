@@ -2,12 +2,11 @@ import { task } from "hardhat/config";
 import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import { ADDRESS_ID_PUNK_GATEWAY, ADDRESS_ID_WETH_GATEWAY } from "../../helpers/constants";
 import {
-  getUnlockdProtocolDataProvider,
   getLendPool,
   getLendPoolAddressesProvider,
   getLendPoolAddressesProviderRegistry,
   getLendPoolConfiguratorProxy,
-  //getLendPoolAddressesProviderRegistry,
+  getUnlockdProtocolDataProvider,
 } from "../../helpers/contracts-getters";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { DRE } from "../../helpers/misc-utils";

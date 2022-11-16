@@ -1,8 +1,8 @@
+import { parseUnits } from "@ethersproject/units";
 import { task } from "hardhat/config";
-import { Functions } from "../helpers/protocolFunctions";
 import { getOwnerWallet, getUserWallet } from "../helpers/config";
 import { Contracts, MockContracts } from "../helpers/constants";
-import { parseUnits } from "@ethersproject/units";
+import { Functions } from "../helpers/protocolFunctions";
 
 //Deposit funds to the pool
 task("lendpoolloan:getloanidtracker", "Returns the loan ID tracker").setAction(async () => {
@@ -31,10 +31,10 @@ task("lendpoolloan:getloan", "Returns the loan")
   });
 
 task("lendpoolloan:getcollateralloanid", "Returns the loan")
-  .addParam("collection", "The collection address")
+  .addParam("nftaddress", "The nft address")
   .addParam("tokenid", "The NFT id")
-  .setAction(async ({ collection, tokenid }) => {
+  .setAction(async ({ nftaddress, tokenid }) => {
     const wallet = await getUserWallet();
-    const loan = await Functions.LENDPOOL_LOAN.getCollateralLoanId(wallet, collection, tokenid);
+    const loan = await Functions.LENDPOOL_LOAN.getCollateralLoanId(wallet, nftaddress, tokenid);
     console.log(JSON.stringify(loan));
   });

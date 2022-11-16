@@ -1,12 +1,12 @@
 import BigNumber from "bignumber.js";
-import { advanceTimeAndBlock, DRE, getNowTimeInSeconds, increaseTime, waitForTx } from "../helpers/misc-utils";
+import { BigNumber as BN } from "ethers";
 import { APPROVAL_AMOUNT_LENDING_POOL, MAX_UINT_AMOUNT, oneEther, ONE_DAY, ONE_HOUR } from "../helpers/constants";
 import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
-import { makeSuite } from "./helpers/make-suite";
+import { advanceTimeAndBlock, DRE, getNowTimeInSeconds, increaseTime, waitForTx } from "../helpers/misc-utils";
 import { ProtocolErrors, ProtocolLoanState } from "../helpers/types";
-import { getUserData } from "./helpers/utils/helpers";
 import { setNftAssetPrice, setNftAssetPriceForDebt } from "./helpers/actions";
-import { BigNumber as BN } from "ethers";
+import { makeSuite } from "./helpers/make-suite";
+import { getUserData } from "./helpers/utils/helpers";
 
 const chai = require("chai");
 

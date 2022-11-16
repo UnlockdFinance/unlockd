@@ -1,9 +1,9 @@
-import { TestEnv, makeSuite } from "./helpers/make-suite";
+import { BigNumberish } from "ethers";
 import { APPROVAL_AMOUNT_LENDING_POOL, RAY } from "../helpers/constants";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { ProtocolErrors } from "../helpers/types";
 import { strategyWETH } from "../markets/unlockd/reservesConfigs";
-import { BigNumberish } from "ethers";
+import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 const { expect } = require("chai");
 

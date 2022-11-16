@@ -1,20 +1,20 @@
 import { task } from "hardhat/config";
+import { ConfigNames, getWrappedNativeTokenAddress, loadPoolConfig } from "../../helpers/configuration";
+import { deployReserveOracle, deployUnlockdUpgradeableProxy } from "../../helpers/contracts-deployments";
+import {
+  getLendPoolAddressesProvider,
+  getPairsTokenAggregator,
+  getReserveOracle,
+  getUnlockdProxyAdminById,
+  getUnlockdUpgradeableProxy,
+} from "../../helpers/contracts-getters";
 import {
   getEthersSignerByAddress,
   getParamPerNetwork,
   insertContractAddressInDb,
 } from "../../helpers/contracts-helpers";
-import { deployReserveOracle, deployUnlockdUpgradeableProxy } from "../../helpers/contracts-deployments";
-import { ICommonConfiguration, eNetwork, eContractid } from "../../helpers/types";
-import { waitForTx, notFalsyOrZeroAddress } from "../../helpers/misc-utils";
-import { ConfigNames, loadPoolConfig, getWrappedNativeTokenAddress } from "../../helpers/configuration";
-import {
-  getReserveOracle,
-  getLendPoolAddressesProvider,
-  getPairsTokenAggregator,
-  getUnlockdProxyAdminById,
-  getUnlockdUpgradeableProxy,
-} from "../../helpers/contracts-getters";
+import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
+import { eContractid, eNetwork, ICommonConfiguration } from "../../helpers/types";
 import { ReserveOracle, UnlockdUpgradeableProxy } from "../../types";
 
 task("full:deploy-oracle-reserve", "Deploy reserve oracle for full enviroment")

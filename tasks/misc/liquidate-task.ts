@@ -9,13 +9,13 @@ import {
 } from "../../helpers/configuration";
 import { MAX_UINT_AMOUNT } from "../../helpers/constants";
 import {
-  getUnlockdProtocolDataProvider,
-  getUToken,
   getDeploySigner,
   getLendPool,
   getLendPoolAddressesProvider,
   getMintableERC20,
   getPunkGateway,
+  getUnlockdProtocolDataProvider,
+  getUToken,
   getWETHGateway,
 } from "../../helpers/contracts-getters";
 import { convertToCurrencyDecimals, getContractAddressInDb } from "../../helpers/contracts-helpers";

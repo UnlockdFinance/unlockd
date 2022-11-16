@@ -1,7 +1,7 @@
-import { TestEnv, makeSuite } from "./helpers/make-suite";
 import { ZERO_ADDRESS } from "../helpers/constants";
 import { getDeploySigner, getMockChainlinkOracle } from "../helpers/contracts-getters";
 import { MockChainlinkOracle, MockChainlinkOracleFactory, MockReserveOracle } from "../types";
+import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 const { expect } = require("chai");
 

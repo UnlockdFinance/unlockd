@@ -1,28 +1,28 @@
 import { task } from "hardhat/config";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { ConfigNames, getEmergencyAdmin, getGenesisPoolAdmin, loadPoolConfig } from "../../helpers/configuration";
+import {
+  deployLendPool,
+  deployLendPoolConfigurator,
+  deployLendPoolLoan,
+  deployUNFTImplementations,
+  deployUnlockdLibraries,
+  deployUTokenImplementations,
+} from "../../helpers/contracts-deployments";
+import {
+  getLendPool,
+  getLendPoolAddressesProvider,
+  getLendPoolConfiguratorProxy,
+  getLendPoolLoanProxy,
+  getUNFTRegistryProxy,
+} from "../../helpers/contracts-getters";
 import {
   getEthersSignerByAddress,
   getParamPerNetwork,
   insertContractAddressInDb,
 } from "../../helpers/contracts-helpers";
-import {
-  deployUTokenImplementations,
-  deployLendPool,
-  deployLendPoolLoan,
-  deployLendPoolConfigurator,
-  deployUnlockdLibraries,
-  deployUNFTImplementations,
-} from "../../helpers/contracts-deployments";
-import { eContractid, eNetwork } from "../../helpers/types";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
-import {
-  getLendPoolAddressesProvider,
-  getLendPool,
-  getLendPoolLoanProxy,
-  getLendPoolConfiguratorProxy,
-  getUNFTRegistryProxy,
-} from "../../helpers/contracts-getters";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { loadPoolConfig, ConfigNames, getGenesisPoolAdmin, getEmergencyAdmin } from "../../helpers/configuration";
+import { eContractid, eNetwork } from "../../helpers/types";
 
 task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")

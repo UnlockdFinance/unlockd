@@ -8,10 +8,10 @@ import {
   deployUnlockdUpgradeableProxy,
 } from "../../helpers/contracts-deployments";
 import {
+  getIErc20Detailed,
   getUnlockdCollectorProxy,
   getUnlockdProxyAdminById,
   getUnlockdUpgradeableProxy,
-  getIErc20Detailed,
 } from "../../helpers/contracts-getters";
 import {
   convertToCurrencyDecimals,
@@ -20,7 +20,7 @@ import {
   insertContractAddressInDb,
 } from "../../helpers/contracts-helpers";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
-import { eNetwork, eContractid } from "../../helpers/types";
+import { eContractid, eNetwork } from "../../helpers/types";
 import { UnlockdCollector, UnlockdUpgradeableProxy } from "../../types";
 
 task("full:deploy-unlockd-collector", "Deploy unlockd collect contract")

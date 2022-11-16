@@ -1,17 +1,16 @@
 import { task } from "hardhat/config";
+import { exit } from "process";
+import { ConfigNames, getTreasuryAddress, loadPoolConfig } from "../../helpers/configuration";
+import { getLendPoolAddressesProvider, getPunkGateway, getWETHGateway } from "../../helpers/contracts-getters";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
-import { loadPoolConfig, ConfigNames, getTreasuryAddress } from "../../helpers/configuration";
-import { getWETHGateway, getPunkGateway } from "../../helpers/contracts-getters";
-import { eNetwork, ICommonConfiguration } from "../../helpers/types";
-import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
-  initReservesByHelper,
+  configureNftsByHelper,
   configureReservesByHelper,
   initNftsByHelper,
-  configureNftsByHelper,
+  initReservesByHelper,
 } from "../../helpers/init-helpers";
-import { exit } from "process";
-import { getLendPoolAddressesProvider } from "../../helpers/contracts-getters";
+import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
+import { eNetwork, ICommonConfiguration } from "../../helpers/types";
 
 task("full:initialize-lend-pool", "Initialize lend pool configuration.")
   .addFlag("verify", "Verify contracts at Etherscan")

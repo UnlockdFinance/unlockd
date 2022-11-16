@@ -1,10 +1,9 @@
 import BigNumber from "bignumber.js";
-
-import { advanceTimeAndBlock, DRE, increaseTime, waitForTx } from "../helpers/misc-utils";
 import { APPROVAL_AMOUNT_LENDING_POOL, oneEther, ONE_DAY } from "../helpers/constants";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
-import { makeSuite } from "./helpers/make-suite";
+import { advanceTimeAndBlock, DRE, increaseTime, waitForTx } from "../helpers/misc-utils";
 import { ProtocolErrors } from "../helpers/types";
+import { makeSuite } from "./helpers/make-suite";
 
 const chai = require("chai");
 

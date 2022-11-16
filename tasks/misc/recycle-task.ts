@@ -5,11 +5,11 @@ import { oneEther } from "../../helpers/constants";
 import {
   getAllMockedNfts,
   getAllMockedTokens,
-  getUToken,
   getDeploySigner,
   getLendPool,
   getLendPoolAddressesProvider,
   getMintableERC721,
+  getUToken,
   getWETHGateway,
   getWETHMocked,
 } from "../../helpers/contracts-getters";

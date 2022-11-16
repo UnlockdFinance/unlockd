@@ -1,10 +1,13 @@
 import { task } from "hardhat/config";
-import { waitForTx } from "../../helpers/misc-utils";
-import { getWETHGateway, getUNFTRegistryProxy, getNFTOracle } from "../../helpers/contracts-getters";
-import { getLendPoolConfiguratorProxy } from "../../helpers/contracts-getters";
-import { TokenContractId } from "../../helpers/types";
-
 import { deployCustomERC721 } from "../../helpers/contracts-deployments";
+import {
+  getLendPoolConfiguratorProxy,
+  getNFTOracle,
+  getUNFTRegistryProxy,
+  getWETHGateway,
+} from "../../helpers/contracts-getters";
+import { waitForTx } from "../../helpers/misc-utils";
+import { TokenContractId } from "../../helpers/types";
 
 task("deploy-new-NFT")
   .addParam("name", `The NFT name`)
@@ -44,14 +47,14 @@ task("initNFTReserve", "Initializes the NFT Reserve")
 
 task("configNFTReserve", "Initializes the NFT Reserve")
   .addParam("nftaddress", `The address of the NFT to add`)
-  .addParam("tokenId", `The tokenId of the NFT to add`)
+  .addParam("tokenid", `The tokenId of the NFT to add`)
   .addParam("maxsupply", `The address of the NFT to add`)
   .addParam("maxtokenid", `The address of the NFT to add`)
-  .setAction(async ({ nftaddress, tokenId, maxsupply, maxtokenid }) => {
+  .setAction(async ({ nftaddress, tokenid, maxsupply, maxtokenid }) => {
     const configurator = await getLendPoolConfiguratorProxy();
     const nftsParams = {
       asset: nftaddress,
-      tokenId: tokenId,
+      tokenId: tokenid,
       maxSupply: maxsupply,
       maxTokenId: maxtokenid,
       baseLTV: "3000", // 30%

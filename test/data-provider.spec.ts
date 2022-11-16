@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
-import { DRE, increaseTime, waitForTx } from "../helpers/misc-utils";
 import { APPROVAL_AMOUNT_LENDING_POOL, oneEther, ZERO_ADDRESS } from "../helpers/constants";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
+import { DRE, increaseTime, waitForTx } from "../helpers/misc-utils";
 import { makeSuite } from "./helpers/make-suite";
 
 const chai = require("chai");

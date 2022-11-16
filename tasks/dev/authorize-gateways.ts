@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
+import { getAllMockedNfts, getAllMockedTokens, getPunkGateway, getWETHGateway } from "../../helpers/contracts-getters";
 import { waitForTx } from "../../helpers/misc-utils";
-import { getAllTokenAddresses, getAllNftAddresses } from "../../helpers/mock-helpers";
-import { getAllMockedTokens, getAllMockedNfts, getWETHGateway, getPunkGateway } from "../../helpers/contracts-getters";
+import { getAllNftAddresses, getAllTokenAddresses } from "../../helpers/mock-helpers";
 
 task("dev:authorize-gateways", "Authorize Gateways to do transactions.").setAction(
   async ({ verify, pool }, localBRE) => {

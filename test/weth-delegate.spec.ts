@@ -2,9 +2,12 @@ import BigNumber from "bignumber.js";
 import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import DRE from "hardhat";
-
+import { NETWORKS_DEFAULT_GAS } from "../helper-hardhat-config";
 import { getReservesConfigByPool } from "../helpers/configuration";
-import { UnlockdPools, iUnlockdPoolAssets, IReserveParams, ProtocolErrors, ProtocolLoanState } from "../helpers/types";
+import { getDebtToken } from "../helpers/contracts-getters";
+import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
+import { advanceTimeAndBlock, sleep, waitForTx } from "../helpers/misc-utils";
+import { IReserveParams, iUnlockdPoolAssets, ProtocolErrors, ProtocolLoanState, UnlockdPools } from "../helpers/types";
 import {
   configuration as actionsConfiguration,
   mintERC721,
@@ -14,10 +17,6 @@ import {
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";
 import { getLoanData, getNftAddressFromSymbol } from "./helpers/utils/helpers";
-import { NETWORKS_DEFAULT_GAS } from "../helper-hardhat-config";
-import { getDebtToken } from "../helpers/contracts-getters";
-import { advanceTimeAndBlock, sleep, waitForTx } from "../helpers/misc-utils";
-import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 
 const chai = require("chai");
 const { expect } = chai;

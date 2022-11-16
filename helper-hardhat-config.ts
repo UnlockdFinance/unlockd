@@ -15,7 +15,6 @@ const RPC_ENDPOINT = process.env.RPC_ENDPOINT || ""
 export const buildForkConfig = (): HardhatNetworkForkingUserConfig | undefined => {
   let forkMode;
   if (FORK) {
-    console.log("FORK");
     forkMode = {
       url: RPC_ENDPOINT,
     };

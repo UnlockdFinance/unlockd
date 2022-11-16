@@ -1,22 +1,22 @@
 import { task } from "hardhat/config";
+import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import {
-  deployUTokenImplementations,
   deployLendPool,
   deployLendPoolConfigurator,
   deployLendPoolLoan,
   deployUnlockdLibraries,
+  deployUTokenImplementations,
 } from "../../helpers/contracts-deployments";
-import { eContractid } from "../../helpers/types";
-import { waitForTx } from "../../helpers/misc-utils";
 import {
-  getUNFTRegistryProxy,
-  getLendPoolAddressesProvider,
   getLendPool,
+  getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
   getLendPoolLoanProxy,
+  getUNFTRegistryProxy,
 } from "../../helpers/contracts-getters";
 import { insertContractAddressInDb } from "../../helpers/contracts-helpers";
-import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
+import { waitForTx } from "../../helpers/misc-utils";
+import { eContractid } from "../../helpers/types";
 
 task("dev:deploy-lend-pool", "Deploy lend pool for dev enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")

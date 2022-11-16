@@ -1,13 +1,10 @@
-import { TestEnv, makeSuite } from "./helpers/make-suite";
-import { deployInterestRate } from "../helpers/contracts-deployments";
-
-import { APPROVAL_AMOUNT_LENDING_POOL, PERCENTAGE_FACTOR, RAY } from "../helpers/constants";
-
-import { rateStrategyStableOne } from "../markets/unlockd/rateStrategies";
-
-import { strategyDAI } from "../markets/unlockd/reservesConfigs";
-import { UToken, InterestRate, MintableERC20 } from "../types";
 import BigNumber from "bignumber.js";
+import { APPROVAL_AMOUNT_LENDING_POOL, PERCENTAGE_FACTOR, RAY } from "../helpers/constants";
+import { deployInterestRate } from "../helpers/contracts-deployments";
+import { rateStrategyStableOne } from "../markets/unlockd/rateStrategies";
+import { strategyDAI } from "../markets/unlockd/reservesConfigs";
+import { InterestRate, MintableERC20, UToken } from "../types";
+import { makeSuite, TestEnv } from "./helpers/make-suite";
 import "./helpers/utils/math";
 
 const { expect } = require("chai");

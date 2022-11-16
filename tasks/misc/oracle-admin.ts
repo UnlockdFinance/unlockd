@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
 import { ConfigNames, getEmergencyAdmin, loadPoolConfig } from "../../helpers/configuration";
 import { MOCK_NFT_AGGREGATORS_PRICES, USD_ADDRESS } from "../../helpers/constants";
-import { deployUnlockdUpgradeableProxy, deployNFTOracle } from "../../helpers/contracts-deployments";
+import { deployNFTOracle, deployUnlockdUpgradeableProxy } from "../../helpers/contracts-deployments";
 import {
   getIErc721Detailed,
   getLendPool,

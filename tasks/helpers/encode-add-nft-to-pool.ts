@@ -3,10 +3,10 @@ import { task } from "hardhat/config";
 import { ConfigNames, getProviderRegistryAddress, loadPoolConfig } from "../../helpers/configuration";
 import { ADDRESS_ID_WETH_GATEWAY } from "../../helpers/constants";
 import {
-  getUNFTRegistryProxy,
   getIErc721Detailed,
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
+  getUNFTRegistryProxy,
   getWETHGateway,
 } from "../../helpers/contracts-getters";
 import { getEthersSignerByAddress } from "../../helpers/contracts-helpers";
