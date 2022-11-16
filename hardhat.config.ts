@@ -6,7 +6,6 @@ import { accounts } from "./test-wallets.js";
 import { eEthereumNetwork, eNetwork } from "./helpers/types";
 import { BUIDLEREVM_CHAINID } from "./helpers/buidler-constants";
 import {
-  NETWORKS_RPC_URL,
   NETWORKS_DEFAULT_GAS,
   BLOCK_TO_FORK,
   buildForkConfig,
@@ -41,7 +40,8 @@ const MNEMONIC_PATH = "m/44'/60'/0'/0";
 const MNEMONIC = process.env.MNEMONIC || "";
 const UNLIMITED_BYTECODE_SIZE = process.env.UNLIMITED_BYTECODE_SIZE === "true";
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
-
+const RPC_ENDPOINT = process.env.RPC_ENDPOINT || ""
+console.log(RPC_ENDPOINT);
 // Prevent to load scripts before compilation and typechain
 if (!SKIP_LOAD) {
   ["misc", "migrations", "dev", "full", "verifications", "deployments", "helpers"].forEach((folder) => {
@@ -63,7 +63,7 @@ if (!SKIP_LOAD) {
 require(`${path.join(__dirname, "tasks/misc")}/set-bre.ts`);
 
 const getCommonNetworkConfig = (networkName: eNetwork, networkId: number) => ({
-  url: NETWORKS_RPC_URL[networkName],
+  url: RPC_ENDPOINT,
   hardfork: HARDFORK,
   blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,
   gasMultiplier: DEFAULT_GAS_MUL,

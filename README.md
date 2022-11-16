@@ -59,15 +59,28 @@ yarn install
 - Create an enviroment file named `.env` and fill the next enviroment variables
 
 ```bash
-# Mnemonic, only first address will be used
+# Private key. Add it if you just want to interact with Hardhat with a single address.
+PRIVATE_KEY=""
+
+# Mnemonic. Used by Hardhat if PRIVATE_KEY is not set. Also used in  `./unlockd-tests`.
 MNEMONIC=""
 
-# Add Alchemy or Infura RPC Endpoint keys,
+# Used in `./unlockd-tests` to simulate a user different than the owner.
+PRIVATE_KEY_USER=""
+
+# Alchemy/Infura RPC endpoint URL.
 RPC_ENDPOINT=""
 
 # Optional Etherscan key, for automatize the verification of the contracts at Etherscan
 ETHERSCAN_KEY=""
 ETHERSCAN_NETWORK="" # network in use
+
+# Optional, add it if you want to run tasks in a forked network environment
+FORK=""
+
+# Optional, add it if you want to specify block number running tasks in a forked network
+FORK_BLOCK_NUMBER=""
+
 ```
 
 # 🧪 Test
@@ -114,12 +127,11 @@ Each market should have his own Market configuration file, and their own set of 
 | goerli:verify                    | Verifies in Etherscan all contracts deployed in Goerli                                                                      |
 | goerli:verify:reserves           | Verifies in Etherscan all reserves contracts deployed in Goerli testnet                                                     |
 | goerli:print-contracts           | Prints all current deployed contracts in Goerli testnet                                                                     |
-| goerli:print-config              | Content Cell                                                                                                                |
+| goerli:print-config              | Prints all addresses and configuration set in Goerli deployed contracts                                                                                            |
 | main:verify                      | Verifies in Etherscan all reserves contracts deployed in Ethereum mainnet                                                   |
-| main:verify:reserves             | Content Cell                                                                                                                |
-| main:print-contracts             | Content Cell                                                                                                                |
-| main:print-config                | Content Cell                                                                                                                |
-| prepublishOnly                   | Content Cell                                                                                                                |
+| main:verify:reserves             | Verifies in Etherscan all reserves contracts deployed in Ethereum mainnet                                                                                                               |
+| main:print-contracts             | Prints all current deployed contracts in Ethereum mainnet                                                                                                      |
+| main:print-config                | Prints all addresses and configuration set in Ethereum mainnet deployed contracts                                                                                                              
 
 # 🚀 Deployments
 
