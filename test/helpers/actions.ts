@@ -1,27 +1,17 @@
 import BigNumber from "bignumber.js";
 import chai from "chai";
-import { Signer } from "crypto";
 import { ContractReceipt } from "ethers";
-import { MAX_UINT_AMOUNT, oneEther, ONE_DAY, ONE_HOUR, ONE_YEAR } from "../../helpers/constants";
+import { MAX_UINT_AMOUNT, ONE_DAY, ONE_HOUR, ONE_YEAR } from "../../helpers/constants";
 import {
   getDebtToken,
   getIErc20Detailed,
-  getLendPoolLoanProxy,
   getMintableERC20,
   getMintableERC721,
   getPoolAdminSigner,
   getUToken,
 } from "../../helpers/contracts-getters";
-import { convertToCurrencyDecimals, getEthersSignerByAddress } from "../../helpers/contracts-helpers";
-import {
-  advanceTimeAndBlock,
-  DRE,
-  getNowTimeInMilliSeconds,
-  getNowTimeInSeconds,
-  increaseTime,
-  timeLatest,
-  waitForTx,
-} from "../../helpers/misc-utils";
+import { convertToCurrencyDecimals } from "../../helpers/contracts-helpers";
+import { advanceTimeAndBlock, DRE, increaseTime, timeLatest, waitForTx } from "../../helpers/misc-utils";
 import { tEthereumAddress } from "../../helpers/types";
 import { UToken } from "../../types/UToken";
 import { SignerWithAddress, TestEnv } from "./make-suite";
@@ -319,7 +309,7 @@ export const increaseRedeemDuration = async (
   testEnv: TestEnv,
   nftSymbol: string,
   nftTokenId: string,
-  isEnd: Boolean
+  isEnd: boolean
 ) => {
   const { dataProvider } = testEnv;
 
@@ -333,7 +323,7 @@ export const increaseRedeemDuration = async (
   }
 };
 
-export const increaseAuctionDuration = async (testEnv: TestEnv, nftSymbol: string, tokenId: string, isEnd: Boolean) => {
+export const increaseAuctionDuration = async (testEnv: TestEnv, nftSymbol: string, tokenId: string, isEnd: boolean) => {
   const { dataProvider } = testEnv;
 
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
@@ -699,7 +689,7 @@ export const auction = async (
   nftTokenId: string,
   price: string,
   onBehalfOf: SignerWithAddress,
-  isFirstTime: Boolean,
+  isFirstTime: boolean,
   expectedResult: string,
   revertMessage?: string
 ) => {
@@ -821,7 +811,7 @@ export const redeem = async (
   }
   amountToRedeem = "0x" + new BigNumber(amountToRedeem).toString(16);
 
-  let bidFineAmount = loanDataBefore.bidBorrowAmount.multipliedBy(1.1).toFixed(0);
+  const bidFineAmount = loanDataBefore.bidBorrowAmount.multipliedBy(1.1).toFixed(0);
 
   if (expectedResult === "success") {
     const txResult = await waitForTx(

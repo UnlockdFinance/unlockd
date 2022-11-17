@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
-import { APPROVAL_AMOUNT_LENDING_POOL, oneEther, ONE_DAY } from "../helpers/constants";
+import { APPROVAL_AMOUNT_LENDING_POOL, ONE_DAY } from "../helpers/constants";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
-import { advanceTimeAndBlock, DRE, increaseTime, waitForTx } from "../helpers/misc-utils";
+import { advanceTimeAndBlock, increaseTime, waitForTx } from "../helpers/misc-utils";
 import { ProtocolErrors } from "../helpers/types";
 import { makeSuite } from "./helpers/make-suite";
 

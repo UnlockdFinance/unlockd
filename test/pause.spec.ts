@@ -1,6 +1,5 @@
 import { BigNumber } from "bignumber.js";
-import { parseEther, parseUnits } from "ethers/lib/utils";
-import { APPROVAL_AMOUNT_LENDING_POOL, oneEther } from "../helpers/constants";
+import { APPROVAL_AMOUNT_LENDING_POOL } from "../helpers/constants";
 import { getEmergencyAdminSigner } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { ProtocolErrors } from "../helpers/types";

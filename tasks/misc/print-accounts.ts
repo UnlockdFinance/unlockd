@@ -1,8 +1,7 @@
-import { entropyToMnemonic, getAccountPath } from "@ethersproject/hdnode";
+import { entropyToMnemonic } from "@ethersproject/hdnode";
 import { formatEther } from "@ethersproject/units";
 import { Wallet } from "@ethersproject/wallet";
 import { task } from "hardhat/config";
-import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import { getEthersSigners } from "../../helpers/contracts-helpers";
 
 task("print-accounts", "Print accounts").setAction(async ({}, DRE) => {
@@ -60,8 +59,8 @@ task("generate-mnemonics", "Generate mnemonics").setAction(async ({}, DRE) => {
   await DRE.run("set-DRE");
 
   for (let index = 0; index < 20; index++) {
-    let randomBytes = DRE.ethers.utils.randomBytes(16);
-    let mnemonic = entropyToMnemonic(randomBytes);
+    const randomBytes = DRE.ethers.utils.randomBytes(16);
+    const mnemonic = entropyToMnemonic(randomBytes);
     console.log("index:", index, "mnemonic:", mnemonic);
   }
 });

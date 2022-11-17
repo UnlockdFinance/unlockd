@@ -1,5 +1,5 @@
 import { task } from "hardhat/config";
-import { ConfigNames, getWrappedNativeTokenAddress, loadPoolConfig } from "../../helpers/configuration";
+import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import {
   getBorrowLogic,
   getGenericLogic,
@@ -9,7 +9,6 @@ import {
   getLendPoolImpl,
   getLendPoolLoanImpl,
   getLiquidateLogic,
-  getNFTOracle,
   getNFTOracleImpl,
   getPunkGateway,
   getPunkGatewayImpl,
@@ -17,8 +16,6 @@ import {
   getReserveOracleImpl,
   getSupplyLogic,
   getUIPoolDataProvider,
-  getUnlockdCollectorImpl,
-  getUnlockdCollectorProxy,
   getUnlockdProtocolDataProvider,
   getUnlockdProxyAdminById,
   getUnlockdUpgradeableProxy,
@@ -28,7 +25,6 @@ import {
 } from "../../helpers/contracts-getters";
 import { getContractAddressInDb, getParamPerNetwork, verifyContract } from "../../helpers/contracts-helpers";
 import { verifyEtherscanContract } from "../../helpers/etherscan-verification";
-import { notFalsyOrZeroAddress } from "../../helpers/misc-utils";
 import { eContractid, eNetwork, ICommonConfiguration } from "../../helpers/types";
 
 task("verify:general", "Verify general contracts at Etherscan")

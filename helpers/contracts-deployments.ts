@@ -55,7 +55,7 @@ import {
   WrappedPunkFactory,
 } from "../types";
 import { LendPoolLibraryAddresses } from "../types/LendPoolFactory";
-import { ConfigNames, getNftsConfigByPool, getReservesConfigByPool, loadPoolConfig } from "./configuration";
+import { ConfigNames, getReservesConfigByPool, loadPoolConfig } from "./configuration";
 import { ZERO_ADDRESS } from "./constants";
 import { getDeploySigner } from "./contracts-getters";
 import {
@@ -66,7 +66,7 @@ import {
   registerContractInJsonDb,
   withSaveAndVerify,
 } from "./contracts-helpers";
-import { DRE, getDb, notFalsyOrZeroAddress } from "./misc-utils";
+import { DRE, notFalsyOrZeroAddress } from "./misc-utils";
 import {
   eContractid,
   eNetwork,
@@ -445,9 +445,9 @@ export const deployAllMockTokens = async (forTestCases: boolean, verify?: boolea
       continue;
     }
 
-    let decimals = "18";
+    const decimals = "18";
 
-    let configData = (<any>protoConfigData)[tokenSymbol];
+    const configData = (<any>protoConfigData)[tokenSymbol];
 
     tokens[tokenSymbol] = await deployMintableERC20(
       [tokenName, tokenSymbol, configData ? configData.reserveDecimals : decimals],

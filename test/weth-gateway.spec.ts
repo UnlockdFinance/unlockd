@@ -3,12 +3,12 @@ import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import DRE from "hardhat";
 import { getReservesConfigByPool } from "../helpers/configuration";
-import { MAX_UINT_AMOUNT, oneEther, ONE_DAY } from "../helpers/constants";
+import { MAX_UINT_AMOUNT } from "../helpers/constants";
 import { deploySelfdestructTransferMock } from "../helpers/contracts-deployments";
 import { getDebtToken } from "../helpers/contracts-getters";
-import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
-import { advanceTimeAndBlock, getNowTimeInSeconds, increaseTime, waitForTx } from "../helpers/misc-utils";
-import { IReserveParams, iUnlockdPoolAssets, ProtocolLoanState, UnlockdPools } from "../helpers/types";
+import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
+import { advanceTimeAndBlock, waitForTx } from "../helpers/misc-utils";
+import { IReserveParams, iUnlockdPoolAssets, UnlockdPools } from "../helpers/types";
 import {
   borrow,
   configuration as actionsConfiguration,

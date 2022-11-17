@@ -1,6 +1,5 @@
 import { expect } from "chai";
-import { ethers } from "ethers";
-import { APPROVAL_AMOUNT_LENDING_POOL, MAX_UINT_AMOUNT, ZERO_ADDRESS } from "../helpers/constants";
+import { APPROVAL_AMOUNT_LENDING_POOL, ZERO_ADDRESS } from "../helpers/constants";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { waitForTx } from "../helpers/misc-utils";
 import { ProtocolErrors } from "../helpers/types";

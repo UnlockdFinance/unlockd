@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
-import { Functions } from "../helpers/protocolFunctions";
 import { getOwnerWallet } from "../helpers/config";
+import { Functions } from "../helpers/protocolFunctions";
 
 task("tests:interestRate:variableRateSlope1", "User gets variableRateSlope1 rate").setAction(async () => {
   const wallet = await getOwnerWallet();

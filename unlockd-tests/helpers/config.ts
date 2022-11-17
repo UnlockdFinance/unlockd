@@ -4,14 +4,14 @@ dotenv.config();
 
 export const getMnemonicWallet = async (): Promise<Wallet> => {
   const provider = await new providers.JsonRpcProvider(process.env.RPC_ENDPOINT);
-  let mnemonic = process.env.MNEMONIC as string;
+  const mnemonic = process.env.MNEMONIC as string;
   return ethers.Wallet.fromMnemonic(mnemonic).connect(provider);
 };
 
 export const getMnemonicEmergencyWallet = async (): Promise<Wallet> => {
   const provider = await new providers.JsonRpcProvider(process.env.RPC_ENDPOINT);
-  let mnemonic = process.env.MNEMONIC as string;
-  let path = "m/44'/60'/0'/0/1";
+  const mnemonic = process.env.MNEMONIC as string;
+  const path = "m/44'/60'/0'/0/1";
   return ethers.Wallet.fromMnemonic(mnemonic, path).connect(provider);
 };
 

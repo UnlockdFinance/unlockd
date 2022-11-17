@@ -4,12 +4,7 @@ import {
   deployLendPoolAddressesProvider,
   deployLendPoolAddressesProviderRegistry,
 } from "../../helpers/contracts-deployments";
-import {
-  getDeploySigner,
-  getNFTXVaultFactory,
-  getSushiSwapRouter,
-  getUnlockdProtocolDataProvider,
-} from "../../helpers/contracts-getters";
+import { getDeploySigner, getNFTXVaultFactory, getSushiSwapRouter } from "../../helpers/contracts-getters";
 import { waitForTx } from "../../helpers/misc-utils";
 
 task("dev:deploy-address-provider", "Deploy address provider for dev enviroment")

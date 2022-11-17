@@ -4,13 +4,11 @@ import { waitForTx } from "../helpers/misc-utils";
 import { IReserveParams, iUnlockdPoolAssets, UnlockdPools } from "../helpers/types";
 import {
   approveERC20,
-  approveERC721,
   borrow,
   configuration as actionsConfiguration,
   deposit,
   mintERC20,
   mintERC721,
-  repay,
   setApprovalForAll,
   withdraw,
 } from "./helpers/actions";

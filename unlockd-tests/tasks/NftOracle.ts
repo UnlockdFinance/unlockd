@@ -1,4 +1,3 @@
-import { parseEther, parseUnits } from "@ethersproject/units";
 import { task } from "hardhat/config";
 import { getOwnerWallet, getUserWallet } from "../helpers/config";
 import { Functions } from "../helpers/protocolFunctions";

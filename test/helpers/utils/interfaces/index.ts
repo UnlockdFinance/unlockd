@@ -7,7 +7,7 @@ export interface UserReserveData {
   scaledVariableDebt: BigNumber;
   liquidityRate: BigNumber;
   walletBalance: BigNumber;
-  [key: string]: BigNumber | string | Boolean;
+  [key: string]: BigNumber | string | boolean;
 }
 
 export interface ReserveData {
@@ -51,5 +51,5 @@ export interface LoanData {
   bidFine: BigNumber;
   nftCfgRedeemFine: BigNumber;
   nftCfgMinBidFine: BigNumber;
-  [key: string]: BigNumber | string | Boolean;
+  [key: string]: BigNumber | string | boolean;
 }

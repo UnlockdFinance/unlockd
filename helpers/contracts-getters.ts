@@ -1,4 +1,3 @@
-import { ethers, Signer } from "ethers";
 import {
   BorrowLogicFactory,
   ConfiguratorLogicFactory,
@@ -12,7 +11,6 @@ import {
   LendPoolConfiguratorFactory,
   LendPoolFactory,
   LendPoolLoanFactory,
-  LiquidateLogic,
   LiquidateLogicFactory,
   MintableERC20Factory,
   MintableERC721Factory,
@@ -46,7 +44,7 @@ import { INFTXVaultFactory } from "../types/INFTXVaultFactory";
 import { INFTXVaultFactoryV2Factory } from "../types/INFTXVaultFactoryV2Factory";
 import { IUniswapV2Router02Factory } from "../types/IUniswapV2Router02Factory";
 import { getEthersSigners, MockNftMap, MockTokenMap } from "./contracts-helpers";
-import { DRE, getDb, notFalsyOrZeroAddress, omit } from "./misc-utils";
+import { DRE, getDb, omit } from "./misc-utils";
 import { eContractid, NftContractId, PoolConfiguration, tEthereumAddress, TokenContractId } from "./types";
 
 export const getFirstSigner = async () => (await getEthersSigners())[0];

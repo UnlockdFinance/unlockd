@@ -1,9 +1,7 @@
 import { task } from "hardhat/config";
-import { Functions } from "../helpers/protocolFunctions";
-import { getUserWallet, getOwnerWallet } from "../helpers/config";
-import { parseUnits } from "@ethersproject/units";
+import { getUserWallet } from "../helpers/config";
 
-//Get Asset price 
+//Get Asset price
 task("reserveoracle:getassetprice", "User 0 Deposits {amount} {reserve} in an empty reserve")
   .addParam("asset", "The asset address")
   .setAction(async ({ asset }) => {

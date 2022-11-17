@@ -1,4 +1,3 @@
-import { MAX_INTEGER } from "ethereumjs-util";
 import { BigNumber, Contract, Wallet } from "ethers";
 import { Contracts } from "./constants";
 
@@ -15,8 +14,8 @@ const getLoanDataByCollateral = async (wallet: Wallet, nftAddress: string, token
 
 //#region  Reserves Mintable ERC20
 const approve = async (wallet: Wallet, token: Contract, spender: string, amount: string) => {
-  var gas = await token.connect(wallet).estimateGas.approve(spender, amount);
-  var strGas = gas.toString();
+  const gas = await token.connect(wallet).estimateGas.approve(spender, amount);
+  const strGas = gas.toString();
   const gasPrice = Math.round(parseInt(strGas) * 1.1);
   return token.connect(wallet).approve(spender, amount, { gasLimit: gasPrice.toFixed(0) });
 };
@@ -106,8 +105,8 @@ const getDebtData = async (wallet: Wallet, nftAddress: string, tokenId: number) 
 };
 
 const redeem = async (wallet: Wallet, nftAddress: string, tokenId: number, amount: number, bidfine: number) => {
-  var gas = await Contracts.lendPool.connect(wallet).estimateGas.redeem(nftAddress, tokenId, amount, bidfine);
-  var strGas = gas.toString();
+  const gas = await Contracts.lendPool.connect(wallet).estimateGas.redeem(nftAddress, tokenId, amount, bidfine);
+  const strGas = gas.toString();
   const gasPrice = Math.round(parseInt(strGas) * 1.1);
   return Contracts.lendPool
     .connect(wallet)
@@ -146,9 +145,9 @@ const getReservesList = async (wallet: Wallet) => {
   return Contracts.lendPool.connect(wallet).getReservesList();
 };
 const liquidateNFTX = async (wallet: Wallet, nftAddress: string, tokenId: number) => {
-  var gas = await Contracts.lendPool.connect(wallet).estimateGas.liquidateNFTX(nftAddress, tokenId);
+  const gas = await Contracts.lendPool.connect(wallet).estimateGas.liquidateNFTX(nftAddress, tokenId);
 
-  var strGas = gas.toString();
+  const strGas = gas.toString();
   const gasPrice = Math.round(parseInt(strGas) * 1.1);
   console.log(gasPrice);
   return Contracts.lendPool.connect(wallet).liquidateNFTX(nftAddress, tokenId, { gasLimit: gasPrice.toFixed(0) });
@@ -173,11 +172,11 @@ const borrowETH = async (
   onBehalfOf: string,
   nftConfigFee: BigNumber
 ) => {
-  var gas = await Contracts.wethGateway
+  const gas = await Contracts.wethGateway
     .connect(wallet)
     .estimateGas.borroweth(amount, nftAddress, tokenId, onBehalfOf, 0, nftConfigFee);
 
-  var strGas = gas.toString();
+  const strGas = gas.toString();
   const gasPrice = Math.round(parseInt(strGas) * 1.1);
 
   return Contracts.wethGateway

@@ -13,7 +13,6 @@ import {
   deposit,
   mintERC20,
   mintERC721,
-  repay,
   setApprovalForAll,
   setApprovalForAllExt,
 } from "./helpers/actions";

@@ -302,7 +302,7 @@ task("dev:upgrade-all-debtokens", "Update implementation to debt token")
     const debtTokenImpl = await deployGenericDebtToken(verify);
     console.log("DebtToken implementation:", debtTokenImpl.address);
 
-    let inputs: {
+    const inputs: {
       asset: string;
       implementation: string;
       encodedCallData: BytesLike;

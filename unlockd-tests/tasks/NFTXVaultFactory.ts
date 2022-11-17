@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
-import { Functions } from "../helpers/protocolFunctions";
 import { getOwnerWallet, getUserWallet } from "../helpers/config";
+import { Functions } from "../helpers/protocolFunctions";
 
 task("nftxfactory:createNFTXVault", "Creates a Vault on NFTX")
   .addParam("nftname", "The NFT Name")

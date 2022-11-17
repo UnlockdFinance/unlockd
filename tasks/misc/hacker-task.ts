@@ -1,16 +1,6 @@
-import BigNumber from "bignumber.js";
-import { BigNumberish } from "ethers";
 import { task } from "hardhat/config";
 import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
-import { oneEther } from "../../helpers/constants";
-import {
-  getDeploySigner,
-  getLendPool,
-  getLendPoolAddressesProvider,
-  getLendPoolImpl,
-  getUnlockdProtocolDataProvider,
-} from "../../helpers/contracts-getters";
-import { waitForTx } from "../../helpers/misc-utils";
+import { getDeploySigner, getLendPoolAddressesProvider } from "../../helpers/contracts-getters";
 import { eNetwork } from "../../helpers/types";
 
 // LendPool malicious hacker tasks

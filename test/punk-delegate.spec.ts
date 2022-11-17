@@ -1,10 +1,7 @@
 import BigNumber from "bignumber.js";
-import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import DRE from "hardhat";
-import { NETWORKS_DEFAULT_GAS } from "../helper-hardhat-config";
 import { getReservesConfigByPool } from "../helpers/configuration";
-import { IReserveParams, iUnlockdPoolAssets, ProtocolErrors, ProtocolLoanState, UnlockdPools } from "../helpers/types";
+import { IReserveParams, iUnlockdPoolAssets, ProtocolErrors, UnlockdPools } from "../helpers/types";
 import { configuration as actionsConfiguration } from "./helpers/actions";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";

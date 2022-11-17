@@ -1,6 +1,5 @@
 import { task } from "hardhat/config";
-import { INFTXVaultFactory } from "../../types/INFTXVaultFactory";
-import { getOwnerWallet, getUserWallet } from "../helpers/config";
+import { getUserWallet } from "../helpers/config";
 import { Contracts, MockContracts } from "../helpers/constants";
 import { Functions } from "../helpers/protocolFunctions";
 

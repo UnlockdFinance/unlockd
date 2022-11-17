@@ -1,7 +1,6 @@
 import BigNumber from "bignumber.js";
-import { expect } from "chai";
 import { MAX_UINT_AMOUNT, oneEther, ONE_YEAR, PERCENTAGE_FACTOR, RAY, ZERO_ADDRESS } from "../../../helpers/constants";
-import { IReserveParams, iUnlockdPoolAssets, ProtocolLoanState, tEthereumAddress } from "../../../helpers/types";
+import { IReserveParams, iUnlockdPoolAssets, ProtocolLoanState } from "../../../helpers/types";
 import { LoanData, ReserveData, UserReserveData } from "./interfaces";
 import "./math";
 

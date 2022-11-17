@@ -1,11 +1,9 @@
-import { formatEther } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import {
   ConfigNames,
   getEmergencyAdmin,
   getGenesisPoolAdmin,
   getLendPoolLiquidator,
-  getLtvManager,
   loadPoolConfig,
 } from "../../helpers/configuration";
 import { deployLendPoolAddressesProvider } from "../../helpers/contracts-deployments";

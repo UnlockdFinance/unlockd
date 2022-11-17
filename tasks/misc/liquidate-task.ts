@@ -1,5 +1,4 @@
 import BigNumber from "bignumber.js";
-import { BigNumberish } from "ethers";
 import { task } from "hardhat/config";
 import {
   ConfigNames,
@@ -7,7 +6,6 @@ import {
   getWrappedPunkTokenAddress,
   loadPoolConfig,
 } from "../../helpers/configuration";
-import { MAX_UINT_AMOUNT } from "../../helpers/constants";
 import {
   getDeploySigner,
   getLendPool,
@@ -15,7 +13,6 @@ import {
   getMintableERC20,
   getPunkGateway,
   getUnlockdProtocolDataProvider,
-  getUToken,
   getWETHGateway,
 } from "../../helpers/contracts-getters";
 import { convertToCurrencyDecimals, getContractAddressInDb } from "../../helpers/contracts-helpers";

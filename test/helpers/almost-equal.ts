@@ -19,8 +19,8 @@ export function almostEqual() {
     chai.Assertion.overwriteMethod("almostEqual", function (original: any) {
       return function (this: any, value: any, message: string) {
         if (utils.flag(this, "bignumber")) {
-          var expected = new BigNumber(value);
-          var actual = new BigNumber(this._obj);
+          const expected = new BigNumber(value);
+          const actual = new BigNumber(this._obj);
           almostEqualAssertion.apply(this, [expected, actual, message]);
         } else {
           original.apply(this, arguments);

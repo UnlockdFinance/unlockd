@@ -21,7 +21,7 @@
     "dev:update-abis": "npm run compile && node ./scripts/updateAbis && npm run prettier:abis",
     "prettier:abis": "prettier --write 'abis/**/*.json'",
     "prettier:check": "npx prettier -c 'tasks/**/*.ts' 'contracts/**/*.sol' 'helpers/**/*.ts'  'test/**/*.ts'",
-    "prettier:write": "prettier --write 'tasks/**/*.ts' 'contracts/**/*.sol' 'helpers/**/*.ts'  'test/**/*.ts'",
+    "prettier:write": "npm run prettier:abis && prettier --write 'tasks/**/*.ts' 'contracts/**/*.sol' 'helpers/**/*.ts'  'test/**/*.ts'",
     "ci:clean": "hardhat clean && rm -rf ./artifacts ./cache ./types",
     "unlockd:hardhat:dev:migration": "npm run compile && npm run hardhat -- unlockd:dev",
     "unlockd:localhost:dev:migration": "npm run compile && npm run hardhat:localhost -- unlockd:dev",
@@ -37,7 +37,8 @@
     "main:verify": "npm run hardhat:main verify:general -- --all --pool Unlockd",
     "main:verify:reserves": "npm run hardhat:main verify:reserves -- --pool Unlockd",
     "main:print-contracts": "npm run hardhat:main -- print-contracts",
-    "main:print-config": "hardhat --network main print-config --pool Unlockd"
+    "main:print-config": "hardhat --network main print-config --pool Unlockd",
+    "lint:fix": "npm run prettier:write && eslint --fix test/**/*.* tasks/**/*.* helpers/**/*.* unlockd-tests/**/*.*"
   },
   "devDependencies": {
     "@chainlink/contracts": "0.2.3",
@@ -55,6 +56,8 @@
     "@types/lowdb": "^1.0.9",
     "@types/mocha": "^7.0.2",
     "@types/node": "^14.0.5",
+    "@typescript-eslint/eslint-plugin": "^5.43.0",
+    "@typescript-eslint/parser": "^5.43.0",
     "bignumber.js": "^9.0.0",
     "chai": "^4.2.0",
     "chai-bignumber": "^3.0.0",
@@ -68,7 +71,9 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-n": "^15.5.1",
     "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-unused-imports": "^2.0.0",
     "eth-sig-util": "2.5.3",
     "ethereum-waffle": "^3.2.0",
     "ethereumjs-util": "^7.0.0",

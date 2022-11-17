@@ -1,12 +1,11 @@
 import { task } from "hardhat/config";
-import { ConfigNames, getTreasuryAddress, loadPoolConfig } from "../../helpers/configuration";
+import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import {
   getDebtToken,
   getInterestRate,
   getLendPool,
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
-  getUIPoolDataProvider,
   getUnlockdUpgradeableProxy,
   getUToken,
 } from "../../helpers/contracts-getters";

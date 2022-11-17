@@ -5,12 +5,10 @@ import {
   getLendPool,
   getLendPoolAddressesProvider,
   getLendPoolAddressesProviderRegistry,
-  getLendPoolConfiguratorProxy,
   getUnlockdProtocolDataProvider,
 } from "../../helpers/contracts-getters";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
-import { DRE } from "../../helpers/misc-utils";
-import { eEthereumNetwork, eNetwork } from "../../helpers/types";
+import { eNetwork } from "../../helpers/types";
 
 task("print-config", "Print config of all reserves and nfts")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)

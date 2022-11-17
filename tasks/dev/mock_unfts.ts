@@ -5,15 +5,9 @@ import {
   deployUNFTRegistry,
   deployUnlockdUpgradeableProxy,
 } from "../../helpers/contracts-deployments";
-import {
-  getConfigMockedNfts,
-  getLendPoolAddressesProvider,
-  getProxyAdminSigner,
-  getUNFTRegistryProxy,
-  getUnlockdProxyAdminById,
-} from "../../helpers/contracts-getters";
-import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
-import { eContractid, tEthereumAddress, UnlockdPools } from "../../helpers/types";
+import { getConfigMockedNfts, getProxyAdminSigner, getUNFTRegistryProxy } from "../../helpers/contracts-getters";
+import { waitForTx } from "../../helpers/misc-utils";
+import { eContractid } from "../../helpers/types";
 import { MintableERC721 } from "../../types";
 
 task("dev:deploy-mock-unft-registry", "Deploy unft registry for dev enviroment")

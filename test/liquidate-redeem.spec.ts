@@ -1,8 +1,8 @@
 import BigNumber from "bignumber.js";
 import { BigNumber as BN } from "ethers";
-import { APPROVAL_AMOUNT_LENDING_POOL, MAX_UINT_AMOUNT, oneEther, ONE_DAY, ONE_HOUR } from "../helpers/constants";
+import { APPROVAL_AMOUNT_LENDING_POOL, MAX_UINT_AMOUNT, oneEther } from "../helpers/constants";
 import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
-import { advanceTimeAndBlock, DRE, getNowTimeInSeconds, increaseTime, waitForTx } from "../helpers/misc-utils";
+import { advanceTimeAndBlock, increaseTime } from "../helpers/misc-utils";
 import { ProtocolErrors, ProtocolLoanState } from "../helpers/types";
 import { setNftAssetPrice, setNftAssetPriceForDebt } from "./helpers/actions";
 import { makeSuite } from "./helpers/make-suite";

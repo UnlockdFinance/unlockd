@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { APPROVAL_AMOUNT_LENDING_POOL, PERCENTAGE_FACTOR, RAY } from "../helpers/constants";
+import { PERCENTAGE_FACTOR } from "../helpers/constants";
 import { deployInterestRate } from "../helpers/contracts-deployments";
 import { rateStrategyStableOne } from "../markets/unlockd/rateStrategies";
 import { strategyDAI } from "../markets/unlockd/reservesConfigs";

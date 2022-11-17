@@ -1,16 +1,14 @@
-import { timeStamp } from "console";
 import { BigNumber, BigNumberish } from "ethers";
-import { APPROVAL_AMOUNT_LENDING_POOL, MOCK_NFT_AGGREGATORS_MAXSUPPLY, RAY } from "../helpers/constants";
+import { APPROVAL_AMOUNT_LENDING_POOL, MOCK_NFT_AGGREGATORS_MAXSUPPLY } from "../helpers/constants";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { timeLatest, waitForTx } from "../helpers/misc-utils";
 import { ProtocolErrors } from "../helpers/types";
-import { strategyNftClassB } from "../markets/unlockd/nftsConfigs";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 const { expect } = require("chai");
 
 makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
-  let cfgInputParams: {
+  const cfgInputParams: {
     asset: string;
     tokenId: BigNumberish;
     baseLTV: BigNumberish;
@@ -49,7 +47,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   } = ProtocolErrors;
 
   const tokenSupply = MOCK_NFT_AGGREGATORS_MAXSUPPLY.BAYC;
-  var maxSupply: number = +tokenSupply;
+  const maxSupply: number = +tokenSupply;
 
   it("Deactivates the BAYC NFT", async () => {
     const { configurator, bayc, dataProvider } = testEnv;
@@ -393,7 +391,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   it("Check if the config timestamp is correct", async () => {
     const { users, configurator, pool, tokenId, bayc, dataProvider } = testEnv;
     const timestamp = await (await timeLatest()).toString();
-    let timestampAux = BigNumber.from(timestamp);
+    const timestampAux = BigNumber.from(timestamp);
     await configurator
       .connect(users[0].signer)
       .configureNftAsCollateral(bayc.address, tokenId, "8000", "8000", "8250", "500", 1, 2, 25, true, false);
