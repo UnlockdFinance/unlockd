@@ -1,62 +1,49 @@
 import BigNumber from "bignumber.js";
-
+import chai from "chai";
+import { ContractReceipt } from "ethers";
+import { MAX_UINT_AMOUNT, ONE_DAY, ONE_HOUR, ONE_YEAR } from "../../helpers/constants";
 import {
-  calcExpectedReserveDataAfterDeposit,
-  calcExpectedReserveDataAfterWithdraw,
-  calcExpectedReserveDataAfterBorrow,
-  calcExpectedReserveDataAfterRepay,
-  calcExpectedReserveDataAfterAuction,
-  calcExpectedReserveDataAfterRedeem,
-  calcExpectedReserveDataAfterLiquidate,
-  calcExpectedUserDataAfterDeposit,
-  calcExpectedUserDataAfterWithdraw,
-  calcExpectedUserDataAfterBorrow,
-  calcExpectedUserDataAfterRepay,
-  calcExpectedUserDataAfterAuction,
-  calcExpectedUserDataAfterRedeem,
-  calcExpectedUserDataAfterLiquidate,
-  calcExpectedLoanDataAfterBorrow,
-  calcExpectedLoanDataAfterRepay,
-  calcExpectedLoanDataAfterAuction,
-  calcExpectedLoanDataAfterRedeem,
-  calcExpectedLoanDataAfterLiquidate,
-} from "./utils/calculations";
-import {
-  getReserveAddressFromSymbol,
-  getNftAddressFromSymbol,
-  getReserveData,
-  getUserData,
-  getLoanData,
-} from "./utils/helpers";
-
-import { convertToCurrencyDecimals, getEthersSignerByAddress } from "../../helpers/contracts-helpers";
-import {
-  getUToken,
+  getDebtToken,
+  getIErc20Detailed,
   getMintableERC20,
   getMintableERC721,
-  getLendPoolLoanProxy,
-  getIErc20Detailed,
-  getDebtToken,
   getPoolAdminSigner,
+  getUToken,
 } from "../../helpers/contracts-getters";
-import { MAX_UINT_AMOUNT, oneEther, ONE_DAY, ONE_HOUR, ONE_YEAR } from "../../helpers/constants";
+import { convertToCurrencyDecimals } from "../../helpers/contracts-helpers";
+import { advanceTimeAndBlock, DRE, increaseTime, timeLatest, waitForTx } from "../../helpers/misc-utils";
+import { tEthereumAddress } from "../../helpers/types";
+import { UToken } from "../../types/UToken";
 import { SignerWithAddress, TestEnv } from "./make-suite";
 import {
-  advanceTimeAndBlock,
-  DRE,
-  getNowTimeInMilliSeconds,
-  getNowTimeInSeconds,
-  increaseTime,
-  timeLatest,
-  waitForTx,
-} from "../../helpers/misc-utils";
-
-import chai from "chai";
-import { ReserveData, UserReserveData, LoanData } from "./utils/interfaces";
-import { ContractReceipt } from "ethers";
-import { UToken } from "../../types/UToken";
-import { tEthereumAddress } from "../../helpers/types";
-import { Signer } from "crypto";
+  calcExpectedLoanDataAfterAuction,
+  calcExpectedLoanDataAfterBorrow,
+  calcExpectedLoanDataAfterLiquidate,
+  calcExpectedLoanDataAfterRedeem,
+  calcExpectedLoanDataAfterRepay,
+  calcExpectedReserveDataAfterAuction,
+  calcExpectedReserveDataAfterBorrow,
+  calcExpectedReserveDataAfterDeposit,
+  calcExpectedReserveDataAfterLiquidate,
+  calcExpectedReserveDataAfterRedeem,
+  calcExpectedReserveDataAfterRepay,
+  calcExpectedReserveDataAfterWithdraw,
+  calcExpectedUserDataAfterAuction,
+  calcExpectedUserDataAfterBorrow,
+  calcExpectedUserDataAfterDeposit,
+  calcExpectedUserDataAfterLiquidate,
+  calcExpectedUserDataAfterRedeem,
+  calcExpectedUserDataAfterRepay,
+  calcExpectedUserDataAfterWithdraw,
+} from "./utils/calculations";
+import {
+  getLoanData,
+  getNftAddressFromSymbol,
+  getReserveAddressFromSymbol,
+  getReserveData,
+  getUserData,
+} from "./utils/helpers";
+import { LoanData, ReserveData, UserReserveData } from "./utils/interfaces";
 
 const { expect } = chai;
 
@@ -322,7 +309,7 @@ export const increaseRedeemDuration = async (
   testEnv: TestEnv,
   nftSymbol: string,
   nftTokenId: string,
-  isEnd: Boolean
+  isEnd: boolean
 ) => {
   const { dataProvider } = testEnv;
 
@@ -336,7 +323,7 @@ export const increaseRedeemDuration = async (
   }
 };
 
-export const increaseAuctionDuration = async (testEnv: TestEnv, nftSymbol: string, tokenId: string, isEnd: Boolean) => {
+export const increaseAuctionDuration = async (testEnv: TestEnv, nftSymbol: string, tokenId: string, isEnd: boolean) => {
   const { dataProvider } = testEnv;
 
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
@@ -702,7 +689,7 @@ export const auction = async (
   nftTokenId: string,
   price: string,
   onBehalfOf: SignerWithAddress,
-  isFirstTime: Boolean,
+  isFirstTime: boolean,
   expectedResult: string,
   revertMessage?: string
 ) => {
@@ -824,7 +811,7 @@ export const redeem = async (
   }
   amountToRedeem = "0x" + new BigNumber(amountToRedeem).toString(16);
 
-  let bidFineAmount = loanDataBefore.bidBorrowAmount.multipliedBy(1.1).toFixed(0);
+  const bidFineAmount = loanDataBefore.bidBorrowAmount.multipliedBy(1.1).toFixed(0);
 
   if (expectedResult === "success") {
     const txResult = await waitForTx(

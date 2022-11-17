@@ -1,21 +1,10 @@
-import { TestEnv, makeSuite } from "./helpers/make-suite";
-import {
-  mintERC20,
-  mintERC721,
-  approveERC20,
-  approveERC721,
-  setApprovalForAll,
-  deposit,
-  borrow,
-  withdraw,
-  repay,
-} from "./helpers/actions";
-import { configuration as actionsConfiguration } from "./helpers/actions";
-import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";
 import BigNumber from "bignumber.js";
 import { getReservesConfigByPool } from "../helpers/configuration";
-import { UnlockdPools, iUnlockdPoolAssets, IReserveParams } from "../helpers/types";
 import { waitForTx } from "../helpers/misc-utils";
+import { IReserveParams, iUnlockdPoolAssets, UnlockdPools } from "../helpers/types";
+import { approveERC20, configuration as actionsConfiguration, deposit, mintERC20 } from "./helpers/actions";
+import { makeSuite, TestEnv } from "./helpers/make-suite";
+import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";
 
 const { expect } = require("chai");
 

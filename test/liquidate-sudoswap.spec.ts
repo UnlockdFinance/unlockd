@@ -10,10 +10,10 @@ const chai = require("chai");
 
 const { expect } = chai;
 
-makeSuite("LendPool: Liquidation", (testEnv) => {
+makeSuite("LendPool: Liquidation SudoSwap", (testEnv) => {
   let baycInitPrice: BN;
 
-  before("Before liquidation: set config", async () => {
+  before("Before liquidation sudoswap: set config", async () => {
     BigNumber.config({ DECIMAL_PLACES: 0, ROUNDING_MODE: BigNumber.ROUND_DOWN });
 
     baycInitPrice = await testEnv.nftOracle.getNFTPrice(testEnv.bayc.address, 101);
@@ -101,70 +101,6 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     );
   });
 
-  /* it("WETH - Liquidates the borrow on NFTX", async () => {
-    const { weth, bayc, users, pool, dataProvider, liquidator, nftxVaultFactory } = testEnv;
-    const borrower = users[1];
-
-    const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
-
-    const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, "101");
-
-    const ethReserveDataBefore = await dataProvider.getReserveData(weth.address);
-
-    const userReserveDataBefore = await getUserData(pool, dataProvider, weth.address, borrower.address);
-
-    // end auction duration
-    await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
-
-    const extraAmount = await convertToCurrencyDecimals(weth.address, "1");
-    await pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "101");
-
-    // check result
-    const vaultsForAssets = await nftxVaultFactory.vaultsForAsset(bayc.address);
-    const nftxVault = await getNFTXVault(vaultsForAssets[0]);
-    const tokenOwner = await bayc.ownerOf("101");
-    expect(tokenOwner).to.be.equal(nftxVault.address, "Invalid token owner after liquidation");
-
-    const loanDataAfter = await dataProvider.getLoanDataByLoanId(loanDataBefore.loanId);
-
-    expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Defaulted, "Invalid loan state after liquidation");
-
-    const userReserveDataAfter = await getUserData(pool, dataProvider, weth.address, borrower.address);
-
-    const ethReserveDataAfter = await dataProvider.getReserveData(weth.address);
-
-    const userVariableDebtAmountBeforeTx = new BigNumber(userReserveDataBefore.scaledVariableDebt).rayMul(
-      new BigNumber(ethReserveDataAfter.variableBorrowIndex.toString())
-    );
-
-    // expect debt amount to be liquidated
-    const expectedLiquidateAmount = new BigNumber(loanDataBefore.scaledAmount.toString()).rayMul(
-      new BigNumber(ethReserveDataAfter.variableBorrowIndex.toString())
-    );
-
-    expect(userReserveDataAfter.currentVariableDebt.toString()).to.be.bignumber.almostEqual(
-      userVariableDebtAmountBeforeTx.minus(expectedLiquidateAmount).toString(),
-      "Invalid user debt after liquidation"
-    );
-
-    //the liquidity index of the principal reserve needs to be bigger than the index before
-    expect(ethReserveDataAfter.liquidityIndex.toString()).to.be.bignumber.gte(
-      ethReserveDataBefore.liquidityIndex.toString(),
-      "Invalid liquidity index"
-    );
-
-    //the principal APY after a liquidation needs to be lower than the APY before
-    expect(ethReserveDataAfter.liquidityRate.toString()).to.be.bignumber.lt(
-      ethReserveDataBefore.liquidityRate.toString(),
-      "Invalid liquidity APY"
-    );
-
-    expect(ethReserveDataAfter.availableLiquidity.toString()).to.be.bignumber.almostEqual(
-      new BigNumber(ethReserveDataBefore.availableLiquidity.toString()).plus(expectedLiquidateAmount).toFixed(0),
-      "Invalid principal available liquidity"
-    );
-  }); */
-
   it("USDC - Borrows USDC", async () => {
     const { users, pool, reserveOracle, usdc, bayc, uBAYC, configurator, deployer, nftOracle } = testEnv;
     const depositor = users[0];
@@ -242,70 +178,4 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
       ProtocolErrors.VL_INVALID_HEALTH_FACTOR
     );
   });
-
-  /* it("USDC - Liquidates the borrow on NFTX", async () => {
-    const { usdc, bayc, users, pool, dataProvider, liquidator, nftxVaultFactory } = testEnv;
-    const borrower = users[1];
-
-    const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
-
-    const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, "102");
-
-    const usdcReserveDataBefore = await dataProvider.getReserveData(usdc.address);
-
-    const userReserveDataBefore = await getUserData(pool, dataProvider, usdc.address, borrower.address);
-
-    // end auction duration
-    await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
-
-    const extraAmount = await convertToCurrencyDecimals(usdc.address, "10");
-    await pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "102");
-
-    // check result
-    const vaultsForAssets = await nftxVaultFactory.vaultsForAsset(bayc.address);
-    const nftxVault = await getNFTXVault(vaultsForAssets[0]);
-    const tokenOwner = await bayc.ownerOf("102");
-    expect(tokenOwner).to.be.equal(nftxVault.address, "Invalid token owner after liquidation");
-
-    const loanDataAfter = await dataProvider.getLoanDataByLoanId(loanDataBefore.loanId);
-
-    expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Defaulted, "Invalid loan state after liquidation");
-
-    const userReserveDataAfter = await getUserData(pool, dataProvider, usdc.address, borrower.address);
-
-    const usdcReserveDataAfter = await dataProvider.getReserveData(usdc.address);
-
-    const userVariableDebtAmountBeforeTx = new BigNumber(userReserveDataBefore.scaledVariableDebt).rayMul(
-      new BigNumber(usdcReserveDataAfter.variableBorrowIndex.toString())
-    );
-
-    // expect debt amount to be liquidated
-    const expectedLiquidateAmount = new BigNumber(loanDataBefore.scaledAmount.toString()).rayMul(
-      new BigNumber(usdcReserveDataAfter.variableBorrowIndex.toString())
-    );
-
-    expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Defaulted, "Invalid loan state after liquidation");
-
-    expect(userReserveDataAfter.currentVariableDebt.toString()).to.be.bignumber.almostEqual(
-      userVariableDebtAmountBeforeTx.minus(expectedLiquidateAmount).toString(),
-      "Invalid user debt after liquidation"
-    );
-
-    //the liquidity index of the principal reserve needs to be bigger than the index before
-    expect(usdcReserveDataAfter.liquidityIndex.toString()).to.be.bignumber.gte(
-      usdcReserveDataBefore.liquidityIndex.toString(),
-      "Invalid liquidity index"
-    );
-
-    //the principal APY after a liquidation needs to be lower than the APY before
-    expect(usdcReserveDataAfter.liquidityRate.toString()).to.be.bignumber.lt(
-      usdcReserveDataBefore.liquidityRate.toString(),
-      "Invalid liquidity APY"
-    );
-
-    expect(usdcReserveDataAfter.availableLiquidity.toString()).to.be.bignumber.almostEqual(
-      new BigNumber(usdcReserveDataBefore.availableLiquidity.toString()).plus(expectedLiquidateAmount).toFixed(0),
-      "Invalid principal available liquidity"
-    );
-  }); */
 });

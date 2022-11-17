@@ -1,9 +1,9 @@
 import { task } from "hardhat/config";
 import { deployNFTXVaultFactory, deploySushiSwapRouter } from "../../helpers/contracts-deployments";
-import { waitForTx } from "../../helpers/misc-utils";
 import { getLendPoolAddressesProvider } from "../../helpers/contracts-getters";
-import { eContractid } from "../../helpers/types";
 import { insertContractAddressInDb } from "../../helpers/contracts-helpers";
+import { waitForTx } from "../../helpers/misc-utils";
+import { eContractid } from "../../helpers/types";
 
 task("full:deploy-nftx-sushiswap", "Deploy address provider for full enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")

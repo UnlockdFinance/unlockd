@@ -1,28 +1,26 @@
-import { Contract, Signer, utils, ethers, BigNumberish } from "ethers";
-import { signTypedData_v4 } from "eth-sig-util";
-import { fromRpcSig, ECDSASignature } from "ethereumjs-util";
 import BigNumber from "bignumber.js";
-import { ZERO_ADDRESS } from "./constants";
-import { getDb, DRE, waitForTx, notFalsyOrZeroAddress } from "./misc-utils";
-import {
-  tEthereumAddress,
-  eContractid,
-  tStringTokenSmallUnits,
-  eEthereumNetwork,
-  UnlockdPools,
-  iParamsPerNetwork,
-  iParamsPerPool,
-  eNetwork,
-  iParamsPerNetworkAll,
-  iEthereumParamsPerNetwork,
-} from "./types";
+import { signTypedData_v4 } from "eth-sig-util";
+import { ECDSASignature, fromRpcSig } from "ethereumjs-util";
+import { Contract, ethers, Signer, utils } from "ethers";
+import { Artifact } from "hardhat/types";
 import { MintableERC20 } from "../types/MintableERC20";
 import { MintableERC721 } from "../types/MintableERC721";
-import { Artifact } from "hardhat/types";
-import { verifyEtherscanContract } from "./etherscan-verification";
-import { getDeploySigner, getIErc20Detailed } from "./contracts-getters";
 import { ConfigNames, loadPoolConfig } from "./configuration";
-import { string } from "hardhat/internal/core/params/argumentTypes";
+import { ZERO_ADDRESS } from "./constants";
+import { getDeploySigner, getIErc20Detailed } from "./contracts-getters";
+import { verifyEtherscanContract } from "./etherscan-verification";
+import { DRE, getDb, notFalsyOrZeroAddress, waitForTx } from "./misc-utils";
+import {
+  eContractid,
+  eEthereumNetwork,
+  eNetwork,
+  iEthereumParamsPerNetwork,
+  iParamsPerNetwork,
+  iParamsPerPool,
+  tEthereumAddress,
+  tStringTokenSmallUnits,
+  UnlockdPools,
+} from "./types";
 
 export type MockTokenMap = { [symbol: string]: MintableERC20 };
 export type MockNftMap = { [symbol: string]: MintableERC721 };
@@ -211,8 +209,8 @@ export const getParamPerPool = <T>({ proto }: iParamsPerPool<T>, pool: UnlockdPo
 
 export const convertToCurrencyDecimals = async (tokenAddress: tEthereumAddress, amount: string) => {
   const token = await getIErc20Detailed(tokenAddress);
-  let decimals = (await token.decimals()).toString();
-  let tokenAmount = ethers.utils.parseUnits(amount, decimals);
+  const decimals = (await token.decimals()).toString();
+  const tokenAmount = ethers.utils.parseUnits(amount, decimals);
   const symbol = await token.symbol();
   if (symbol == "USDC") {
     //console.log("convertToCurrencyDecimals", symbol, decimals, amount, tokenAmount.toString());
@@ -223,7 +221,7 @@ export const convertToCurrencyDecimals = async (tokenAddress: tEthereumAddress, 
 
 export const convertToCurrencyUnits = async (tokenAddress: string, amount: string) => {
   const token = await getIErc20Detailed(tokenAddress);
-  let decimals = new BigNumber(await token.decimals());
+  const decimals = new BigNumber(await token.decimals());
   const currencyUnit = new BigNumber(10).pow(decimals);
   const amountInCurrencyUnits = new BigNumber(amount).div(currencyUnit);
   return amountInCurrencyUnits.toFixed();

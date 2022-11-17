@@ -1,9 +1,9 @@
-import { TestEnv, makeSuite } from "./helpers/make-suite";
+import { BigNumberish } from "ethers";
 import { APPROVAL_AMOUNT_LENDING_POOL, RAY } from "../helpers/constants";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { ProtocolErrors } from "../helpers/types";
 import { strategyWETH } from "../markets/unlockd/reservesConfigs";
-import { BigNumberish } from "ethers";
+import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 const { expect } = require("chai");
 
@@ -19,7 +19,7 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
   it("Reverts trying to set an invalid reserve factor", async () => {
     const { configurator, weth } = testEnv;
 
-    let inputs: { asset: string; reserveFactor: BigNumberish }[] = [
+    const inputs: { asset: string; reserveFactor: BigNumberish }[] = [
       {
         asset: weth.address,
         reserveFactor: 65536,
@@ -169,7 +169,7 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
   it("Batch Changes the reserve factor of WETH & DAI", async () => {
     const { configurator, dataProvider, weth, dai } = testEnv;
 
-    let inputs: { asset: string; reserveFactor: BigNumberish }[] = [
+    const inputs: { asset: string; reserveFactor: BigNumberish }[] = [
       {
         asset: weth.address,
         reserveFactor: 1000,
@@ -198,7 +198,7 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
   it("Check the onlyPoolAdmin on batchConfigReserve", async () => {
     const { configurator, users, weth } = testEnv;
 
-    let inputs: { asset: string; reserveFactor: BigNumberish }[] = [
+    const inputs: { asset: string; reserveFactor: BigNumberish }[] = [
       {
         asset: weth.address,
         reserveFactor: 2000,

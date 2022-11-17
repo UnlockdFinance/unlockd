@@ -1,22 +1,20 @@
 import { task } from "hardhat/config";
-import { formatEther } from "ethers/lib/utils";
-import { deployLendPoolAddressesProvider } from "../../helpers/contracts-deployments";
-import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
   ConfigNames,
-  loadPoolConfig,
-  getGenesisPoolAdmin,
   getEmergencyAdmin,
+  getGenesisPoolAdmin,
   getLendPoolLiquidator,
-  getLtvManager,
+  loadPoolConfig,
 } from "../../helpers/configuration";
+import { deployLendPoolAddressesProvider } from "../../helpers/contracts-deployments";
 import {
   getDeploySigner,
-  getSushiSwapRouter,
   getNFTXVaultFactory,
+  getSushiSwapRouter,
   getUnlockdProtocolDataProvider,
 } from "../../helpers/contracts-getters";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
+import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import { eNetwork } from "../../helpers/types";
 
 task("full:deploy-address-provider", "Deploy address provider for full enviroment")

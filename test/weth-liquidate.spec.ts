@@ -1,15 +1,12 @@
 import BigNumber from "bignumber.js";
 import { BigNumber as BN, BigNumberish } from "ethers";
-import { parseEther } from "ethers/lib/utils";
-import DRE from "hardhat";
-
 import { getReservesConfigByPool } from "../helpers/configuration";
 import { MAX_UINT_AMOUNT, oneEther, ONE_DAY } from "../helpers/constants";
+import { getDebtToken } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
 import { getNowTimeInSeconds, increaseTime, waitForTx } from "../helpers/misc-utils";
-import { UnlockdPools, iUnlockdPoolAssets, IReserveParams, ProtocolLoanState } from "../helpers/types";
+import { IReserveParams, iUnlockdPoolAssets, ProtocolLoanState, UnlockdPools } from "../helpers/types";
 import {
-  borrow,
   configuration as actionsConfiguration,
   mintERC721,
   setApprovalForAll,
@@ -19,9 +16,7 @@ import {
 } from "./helpers/actions";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";
-import { getLoanData, getNftAddressFromSymbol } from "./helpers/utils/helpers";
-import { NETWORKS_DEFAULT_GAS } from "../helper-hardhat-config";
-import { getDebtToken, getNFTXVault } from "../helpers/contracts-getters";
+import { getNftAddressFromSymbol } from "./helpers/utils/helpers";
 
 const chai = require("chai");
 const { expect } = chai;

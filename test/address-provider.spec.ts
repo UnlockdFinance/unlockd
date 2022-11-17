@@ -1,11 +1,9 @@
 import { expect } from "chai";
-import { createRandomAddress } from "../helpers/misc-utils";
-import { makeSuite, TestEnv } from "./helpers/make-suite";
-import { ProtocolErrors } from "../helpers/types";
 import { ethers } from "ethers";
-import { ZERO_ADDRESS } from "../helpers/constants";
-import { waitForTx } from "../helpers/misc-utils";
 import { deployLendPool } from "../helpers/contracts-deployments";
+import { createRandomAddress, waitForTx } from "../helpers/misc-utils";
+import { ProtocolErrors } from "../helpers/types";
+import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 const { utils } = ethers;
 

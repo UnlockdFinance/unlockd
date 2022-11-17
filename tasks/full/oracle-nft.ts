@@ -1,19 +1,18 @@
 import { task } from "hardhat/config";
-import { getParamPerNetwork, insertContractAddressInDb } from "../../helpers/contracts-helpers";
-import { deployUnlockdUpgradeableProxy, deployNFTOracle } from "../../helpers/contracts-deployments";
-import { ICommonConfiguration, eNetwork, eContractid, tEthereumAddress } from "../../helpers/types";
-import { waitForTx, notFalsyOrZeroAddress } from "../../helpers/misc-utils";
-import { ConfigNames, loadPoolConfig, getGenesisPoolAdmin } from "../../helpers/configuration";
+import { ConfigNames, getGenesisPoolAdmin, loadPoolConfig } from "../../helpers/configuration";
+import { deployNFTOracle, deployUnlockdUpgradeableProxy } from "../../helpers/contracts-deployments";
 import {
-  getNFTOracle,
-  getLendPoolAddressesProvider,
-  getUnlockdUpgradeableProxy,
-  getUnlockdProxyAdminById,
   getAllMockedNfts,
-  getDeploySigner,
+  getLendPoolAddressesProvider,
+  getNFTOracle,
+  getUnlockdProxyAdminById,
+  getUnlockdUpgradeableProxy,
 } from "../../helpers/contracts-getters";
+import { getParamPerNetwork, insertContractAddressInDb } from "../../helpers/contracts-helpers";
+import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
+import { addAssetsInNFTOraclewithSigner } from "../../helpers/oracles-helpers";
+import { eContractid, eNetwork, ICommonConfiguration, tEthereumAddress } from "../../helpers/types";
 import { NFTOracle, UnlockdUpgradeableProxy } from "../../types";
-import { addAssetsInNFTOraclewithSigner, setPricesInNFTOracleWithSigner } from "../../helpers/oracles-helpers";
 
 task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")
@@ -104,6 +103,9 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
         );
 
         nftOracle = await getNFTOracle(nftOracleProxy.address);
+        console.log("NFT ORACLE", nftOracle);
+        console.log("ADDRESSES PROVIDER: ", addressesProvider.address);
+        console.log("CONFIGURATOR: ", lendpoolConfigurator);
 
         await nftOracle.setPriceManagerStatus(lendpoolConfigurator, true);
 

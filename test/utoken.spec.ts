@@ -1,11 +1,10 @@
-import { APPROVAL_AMOUNT_LENDING_POOL, MAX_UINT_AMOUNT, ZERO_ADDRESS } from "../helpers/constants";
-import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { expect } from "chai";
-import { ethers } from "ethers";
-import { ProtocolErrors } from "../helpers/types";
-import { makeSuite, TestEnv } from "./helpers/make-suite";
-import { CommonsConfig } from "../markets/unlockd/commons";
+import { APPROVAL_AMOUNT_LENDING_POOL, ZERO_ADDRESS } from "../helpers/constants";
+import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { waitForTx } from "../helpers/misc-utils";
+import { ProtocolErrors } from "../helpers/types";
+import { CommonsConfig } from "../markets/unlockd/commons";
+import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 makeSuite("UToken", (testEnv: TestEnv) => {
   const { INVALID_FROM_BALANCE_AFTER_TRANSFER, INVALID_TO_BALANCE_AFTER_TRANSFER } = ProtocolErrors;

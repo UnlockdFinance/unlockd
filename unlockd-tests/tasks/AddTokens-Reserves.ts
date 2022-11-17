@@ -1,9 +1,12 @@
 import { task } from "hardhat/config";
-import { getDebtToken, getLendPoolAddressesProvider, getLendPoolConfiguratorProxy, getUToken } from "../../helpers/contracts-getters";
-import { getTreasuryAddress, ConfigNames, loadPoolConfig } from "../../helpers/configuration";
+import { ConfigNames, getTreasuryAddress, loadPoolConfig } from "../../helpers/configuration";
 import { deployRateStrategy } from "../../helpers/contracts-deployments";
-
-// Deploy UToken, DebtToken, (configurator)InitializeReserve, (configurator)ConfigReserve
+import {
+  getDebtToken,
+  getLendPoolAddressesProvider,
+  getLendPoolConfiguratorProxy,
+  getUToken,
+} from "../../helpers/contracts-getters";
 
 task("uToken-register", "Deploy uToken")
   .addParam("stratname", "Strategy name to retrieve configuration")
@@ -25,42 +28,25 @@ task("uToken-register", "Deploy uToken")
     const configurator = await getLendPoolConfiguratorProxy();
     const treasury = await getTreasuryAddress(config);
 
-    const strategy = reservesParams[stratname].strategy
-    let rateStrategy : [
-      string,
-      string,
-      string,
-      string,
-      string
-    ] = [
-      addressProviderAddress, 
-      strategy.optimalUtilizationRate, 
-      strategy.baseVariableBorrowRate, 
+    const strategy = reservesParams[stratname].strategy;
+    const rateStrategy: [string, string, string, string, string] = [
+      addressProviderAddress,
+      strategy.optimalUtilizationRate,
+      strategy.baseVariableBorrowRate,
       strategy.variableRateSlope1,
-      strategy.variableRateSlope2
-    ]
+      strategy.variableRateSlope2,
+    ];
 
     // Get uToken implementation
-    const uTokenImpl = await (await getUToken()).address;  
+    const uTokenImpl = await (await getUToken()).address;
 
     //Get DebtToken implementation
-    const debtTokenImpl  = await (await getDebtToken()).address;
-
-
-    // Mainnet we should add this as parameters to add new strategies.
-    // strategy: rateStrategyWETH,
-    // baseLTVAsCollateral: '8000',
-    // liquidationThreshold: '8250',
-    // liquidationBonus: '500',
-    // borrowingEnabled: true,
-    // reserveDecimals: '18',
-    // uTokenImpl: eContractid.UToken,
-    // reserveFactor: '3000'
+    const debtTokenImpl = await (await getDebtToken()).address;
     const rateStrat = await deployRateStrategy("", rateStrategy, verify);
 
-    const uTokenName =  `${config.UTokenNamePrefix} ${utokensymbol}`;
-    const uTokenSymbol =  `${config.UTokenSymbolPrefix} ${utokensymbol}`;
-    const debtTokenName = `${config.DebtTokenNamePrefix} ${utokensymbol}`; 
+    const uTokenName = `${config.UTokenNamePrefix} ${utokensymbol}`;
+    const uTokenSymbol = `${config.UTokenSymbolPrefix} ${utokensymbol}`;
+    const debtTokenName = `${config.DebtTokenNamePrefix} ${utokensymbol}`;
     const debtTokenSymbol = `${config.DebtTokenSymbolPrefix} ${utokensymbol}`;
 
     const initParam = {
@@ -79,13 +65,9 @@ task("uToken-register", "Deploy uToken")
 
     const inputParams = {
       asset: tokenaddress,
-      reserveFactor: reservesParams[stratname].reserveFactor
+      reserveFactor: reservesParams[stratname].reserveFactor,
     };
 
     await (await configurator).batchInitReserve([initParam]);
     await (await configurator).batchConfigReserve([inputParams]);
-  } 
-);
-
-
-
+  });

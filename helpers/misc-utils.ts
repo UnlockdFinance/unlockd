@@ -1,13 +1,13 @@
 import BigNumber from "bignumber.js";
-import BN = require("bn.js");
+import { isZeroAddress } from "ethereumjs-util";
+import { ContractTransaction, Wallet } from "ethers";
+import { isAddress } from "ethers/lib/utils";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 import low from "lowdb";
 import FileSync from "lowdb/adapters/FileSync";
 import { WAD } from "./constants";
-import { Wallet, ContractTransaction } from "ethers";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { tEthereumAddress } from "./types";
-import { isAddress } from "ethers/lib/utils";
-import { isZeroAddress } from "ethereumjs-util";
+import BN = require("bn.js");
 
 export const toWad = (value: string | number) => new BigNumber(value).times(WAD).toFixed();
 

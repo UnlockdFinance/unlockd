@@ -3,7 +3,7 @@ import { parseEther } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import { MOCK_NFT_BASE_URIS } from "../../helpers/constants";
 import { deployAllMockNfts, deployMintableERC721 } from "../../helpers/contracts-deployments";
-import { getDeploySigner, getCryptoPunksMarket, getMintableERC721 } from "../../helpers/contracts-getters";
+import { getCryptoPunksMarket, getDeploySigner, getMintableERC721 } from "../../helpers/contracts-getters";
 import {
   getContractAddressInDb,
   getEthersSigners,
@@ -81,7 +81,7 @@ task("dev:mint-top-punks", "Mint top sale punks for dev enviroment")
 
     const topSalePunkIndexs = idSplits;
 
-    let topSalePunkOwners: string[] = [];
+    const topSalePunkOwners: string[] = [];
     for (const punkIndex of topSalePunkIndexs) {
       topSalePunkOwners.push(target);
     }
@@ -111,10 +111,10 @@ task("dev:mint-top-tokens", "Mint top sale tokens for dev enviroment")
     console.log("Deployer Balance:", (await deployerSigner.getBalance()).toString());
     console.log("Total Minted Tokens: %d", topSaleTokenIds.length);
 
-    let minterIndex: number = 0;
+    let minterIndex = 0;
     let minterSigner: Signer = allSingers[0];
-    let minterAddress: string = "";
-    let minterLimit: number = -1;
+    let minterAddress = "";
+    let minterLimit = -1;
     const minBalance = parseEther("0.1");
     for (const tokenId of topSaleTokenIds) {
       console.log("Try to mint token: %d", tokenId);

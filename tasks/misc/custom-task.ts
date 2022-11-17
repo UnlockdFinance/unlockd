@@ -1,44 +1,27 @@
 import BigNumber from "bignumber.js";
 import { BigNumberish } from "ethers";
 import { task } from "hardhat/config";
+import { ConfigNames, getWrappedPunkTokenAddress, loadPoolConfig } from "../../helpers/configuration";
+import { MAX_UINT_AMOUNT } from "../../helpers/constants";
 import {
-  ConfigNames,
-  getEmergencyAdmin,
-  getWrappedPunkTokenAddress,
-  loadPoolConfig,
-} from "../../helpers/configuration";
-import {
-  MOCK_NFT_AGGREGATORS_PRICES,
-  USD_ADDRESS,
-  MAX_UINT_AMOUNT,
-  ZERO_ADDRESS,
-  oneEther,
-} from "../../helpers/constants";
-import {
-  getAllMockedNfts,
-  getAllMockedTokens,
-  getUnlockdProtocolDataProvider,
-  getUToken,
   getCryptoPunksMarket,
   getDebtToken,
   getDeploySigner,
   getLendPool,
   getLendPoolAddressesProvider,
-  getLendPoolConfiguratorProxy,
   getMintableERC20,
   getMintableERC721,
-  getNFTOracle,
   getPunkGateway,
-  getReserveOracle,
   getUIPoolDataProvider,
+  getUnlockdProtocolDataProvider,
+  getUToken,
   getWalletProvider,
   getWETHGateway,
-  getWETHMocked,
   getWrappedPunk,
 } from "../../helpers/contracts-getters";
 import { convertToCurrencyDecimals, getContractAddressInDb, getEthersSigners } from "../../helpers/contracts-helpers";
-import { getNowTimeInSeconds, notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
-import { eContractid, eNetwork, PoolConfiguration } from "../../helpers/types";
+import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
+import { eNetwork } from "../../helpers/types";
 
 task("dev:cryptopunks-init", "Doing CryptoPunks init task").setAction(async ({}, DRE) => {
   await DRE.run("set-DRE");
@@ -283,7 +266,7 @@ task("dev:borrow-eth-using-punk", "Doing custom task")
       amountDecimals = await convertToCurrencyDecimals(weth.address, amount);
     }
 
-    let borrowMore: boolean = false;
+    let borrowMore = false;
     const punkAddress = await punk.punkIndexToAddress(id);
     if (notFalsyOrZeroAddress(punkAddress)) {
       if (punkAddress == signerAddress) {

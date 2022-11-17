@@ -1,17 +1,16 @@
 import { task } from "hardhat/config";
+import { exit } from "process";
+import { ConfigNames, getTreasuryAddress, loadPoolConfig } from "../../helpers/configuration";
+import { getLendPoolAddressesProvider, getPunkGateway, getWETHGateway } from "../../helpers/contracts-getters";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
-import { loadPoolConfig, ConfigNames, getTreasuryAddress } from "../../helpers/configuration";
-import { getWETHGateway, getPunkGateway } from "../../helpers/contracts-getters";
-import { eNetwork, ICommonConfiguration } from "../../helpers/types";
-import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import {
-  initReservesByHelper,
+  configureNftsByHelper,
   configureReservesByHelper,
   initNftsByHelper,
-  configureNftsByHelper,
+  initReservesByHelper,
 } from "../../helpers/init-helpers";
-import { exit } from "process";
-import { getLendPoolAddressesProvider } from "../../helpers/contracts-getters";
+import { waitForTx } from "../../helpers/misc-utils";
+import { eNetwork } from "../../helpers/types";
 
 task("full:initialize-lend-pool", "Initialize lend pool configuration.")
   .addFlag("verify", "Verify contracts at Etherscan")
@@ -84,7 +83,7 @@ task("full:initialize-gateway", "Initialize gateway configuration.")
       }
 
       const wethGateway = await getWETHGateway();
-      let nftAddresses: string[] = [];
+      const nftAddresses: string[] = [];
       for (const [assetSymbol, assetAddress] of Object.entries(nftsAssets) as [string, string][]) {
         nftAddresses.push(assetAddress);
       }
@@ -92,7 +91,7 @@ task("full:initialize-gateway", "Initialize gateway configuration.")
       await waitForTx(await wethGateway.authorizeLendPoolNFT(nftAddresses));
 
       const punkGateway = await getPunkGateway();
-      let reserveAddresses: string[] = [];
+      const reserveAddresses: string[] = [];
       for (const [assetSymbol, assetAddress] of Object.entries(reserveAssets) as [string, string][]) {
         reserveAddresses.push(assetAddress);
       }

@@ -1,14 +1,12 @@
 import { task } from "hardhat/config";
-import { formatEther } from "ethers/lib/utils";
+import { ConfigNames } from "../../helpers/configuration";
 import {
-  deployUnlockdProtocolDataProvider,
   deployUiPoolDataProvider,
+  deployUnlockdProtocolDataProvider,
   deployWalletBalancerProvider,
 } from "../../helpers/contracts-deployments";
-import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
-import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
-import { getDeploySigner, getLendPoolAddressesProvider } from "../../helpers/contracts-getters";
-import { eNetwork } from "../../helpers/types";
+import { getLendPoolAddressesProvider } from "../../helpers/contracts-getters";
+import { waitForTx } from "../../helpers/misc-utils";
 
 task("full:deploy-data-provider", "Deploy data provider for full enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")

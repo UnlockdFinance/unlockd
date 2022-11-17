@@ -1,11 +1,11 @@
 import { task } from "hardhat/config";
-import { loadPoolConfig, ConfigNames, getWrappedNativeTokenAddress } from "../../helpers/configuration";
+import { ConfigNames, getWrappedNativeTokenAddress, loadPoolConfig } from "../../helpers/configuration";
 import { ADDRESS_ID_WETH_GATEWAY } from "../../helpers/constants";
 import { deployUnlockdUpgradeableProxy, deployWETHGateway } from "../../helpers/contracts-deployments";
 import {
+  getLendPoolAddressesProvider,
   getUnlockdProxyAdminById,
   getUnlockdUpgradeableProxy,
-  getLendPoolAddressesProvider,
   getWETHGateway,
 } from "../../helpers/contracts-getters";
 import { insertContractAddressInDb } from "../../helpers/contracts-helpers";

@@ -1,10 +1,10 @@
 import { task } from "hardhat/config";
+import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import { deployNFTOracle } from "../../helpers/contracts-deployments";
+import { getAllMockedNfts, getLendPoolAddressesProvider } from "../../helpers/contracts-getters";
+import { waitForTx } from "../../helpers/misc-utils";
 import { addAssetsInNFTOracle, setPricesInNFTOracle } from "../../helpers/oracles-helpers";
 import { tEthereumAddress } from "../../helpers/types";
-import { waitForTx } from "../../helpers/misc-utils";
-import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
-import { getAllMockedNfts, getLendPoolAddressesProvider } from "../../helpers/contracts-getters";
 
 task("dev:deploy-oracle-nft", "Deploy nft oracle for dev environment")
   .addFlag("verify", "Verify contracts at Etherscan")

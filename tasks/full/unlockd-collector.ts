@@ -1,27 +1,19 @@
-import { BigNumber } from "ethers";
 import { task } from "hardhat/config";
 import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import { MAX_UINT_AMOUNT } from "../../helpers/constants";
-import {
-  deployUnlockdCollector,
-  deployUnlockdProxyAdmin,
-  deployUnlockdUpgradeableProxy,
-} from "../../helpers/contracts-deployments";
+import { deployUnlockdCollector, deployUnlockdUpgradeableProxy } from "../../helpers/contracts-deployments";
 import {
   getUnlockdCollectorProxy,
   getUnlockdProxyAdminById,
   getUnlockdUpgradeableProxy,
-  getIErc20Detailed,
 } from "../../helpers/contracts-getters";
 import {
   convertToCurrencyDecimals,
   getEthersSignerByAddress,
-  getParamPerNetwork,
   insertContractAddressInDb,
 } from "../../helpers/contracts-helpers";
-import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
-import { eNetwork, eContractid } from "../../helpers/types";
-import { UnlockdCollector, UnlockdUpgradeableProxy } from "../../types";
+import { waitForTx } from "../../helpers/misc-utils";
+import { eContractid, eNetwork } from "../../helpers/types";
 
 task("full:deploy-unlockd-collector", "Deploy unlockd collect contract")
   .addFlag("verify", "Verify contracts at Etherscan")

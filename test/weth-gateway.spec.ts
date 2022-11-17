@@ -2,13 +2,13 @@ import BigNumber from "bignumber.js";
 import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import DRE from "hardhat";
-
 import { getReservesConfigByPool } from "../helpers/configuration";
-import { MAX_UINT_AMOUNT, oneEther, ONE_DAY } from "../helpers/constants";
+import { MAX_UINT_AMOUNT } from "../helpers/constants";
 import { deploySelfdestructTransferMock } from "../helpers/contracts-deployments";
-import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
-import { advanceTimeAndBlock, getNowTimeInSeconds, increaseTime, waitForTx } from "../helpers/misc-utils";
-import { UnlockdPools, iUnlockdPoolAssets, IReserveParams, ProtocolLoanState } from "../helpers/types";
+import { getDebtToken } from "../helpers/contracts-getters";
+import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
+import { advanceTimeAndBlock, waitForTx } from "../helpers/misc-utils";
+import { IReserveParams, iUnlockdPoolAssets, UnlockdPools } from "../helpers/types";
 import {
   borrow,
   configuration as actionsConfiguration,
@@ -19,7 +19,6 @@ import {
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";
 import { getLoanData, getNftAddressFromSymbol } from "./helpers/utils/helpers";
-import { getDebtToken } from "../helpers/contracts-getters";
 
 const chai = require("chai");
 const { expect } = chai;

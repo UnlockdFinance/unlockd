@@ -1,79 +1,77 @@
-import rawBRE from "hardhat";
 import { MockContract } from "ethereum-waffle";
-import "./helpers/utils/math";
-import { getEthersSigners, insertContractAddressInDb, registerContractInJsonDb } from "../helpers/contracts-helpers";
+import { Signer } from "ethers";
+import rawBRE from "hardhat";
+import { ConfigNames, loadPoolConfig } from "../helpers/configuration";
+import { ADDRESS_ID_PUNK_GATEWAY, ADDRESS_ID_WETH_GATEWAY } from "../helpers/constants";
 import {
-  deployLendPoolAddressesProvider,
-  deployUTokenImplementations,
-  deployLendPoolConfigurator,
+  deployAllMockNfts,
+  deployAllMockTokens,
+  deployGenericUNFTImpl,
   deployLendPool,
+  deployLendPoolAddressesProvider,
+  deployLendPoolAddressesProviderRegistry,
+  deployLendPoolConfigurator,
   deployLendPoolLoan,
-  deployReserveOracle,
-  deployNFTOracle,
+  deployMockChainlinkOracle,
+  deployMockIncentivesController,
   deployMockNFTOracle,
   deployMockReserveOracle,
-  deployWalletBalancerProvider,
-  deployUnlockdProtocolDataProvider,
-  deployWETHGateway,
-  deployUNFTRegistry,
-  deployPunkGateway,
-  deployUnlockdUpgradeableProxy,
-  deployUnlockdProxyAdmin,
-  deployGenericUNFTImpl,
-  deployLendPoolAddressesProviderRegistry,
-  deployMockIncentivesController,
-  deployAllMockTokens,
-  deployAllMockNfts,
-  deployUiPoolDataProvider,
-  deployMockChainlinkOracle,
-  deployUnlockdLibraries,
+  deployNFTOracle,
   deployNFTXVaultFactory,
+  deployPunkGateway,
+  deployReserveOracle,
   deploySushiSwapRouter,
+  deployUiPoolDataProvider,
+  deployUNFTRegistry,
+  deployUnlockdLibraries,
+  deployUnlockdProtocolDataProvider,
+  deployUnlockdProxyAdmin,
+  deployUnlockdUpgradeableProxy,
+  deployUTokenImplementations,
+  deployWalletBalancerProvider,
+  deployWETHGateway,
 } from "../helpers/contracts-deployments";
-import { Signer } from "ethers";
-import { eContractid, tEthereumAddress, UnlockdPools } from "../helpers/types";
-import { MintableERC20 } from "../types/MintableERC20";
-import { MintableERC721 } from "../types/MintableERC721";
-import { ConfigNames, getTreasuryAddress, loadPoolConfig } from "../helpers/configuration";
-import { initializeMakeSuite } from "./helpers/make-suite";
-
 import {
-  setAggregatorsInReserveOracle,
-  addAssetsInNFTOracle,
-  setPricesInNFTOracle,
-  deployAllChainlinkMockAggregators,
-  deployChainlinkMockAggregator,
-} from "../helpers/oracles-helpers";
-import { DRE, waitForTx } from "../helpers/misc-utils";
-import {
-  initReservesByHelper,
-  configureReservesByHelper,
-  initNftsByHelper,
-  configureNftsByHelper,
-  initNFTXByHelper,
-} from "../helpers/init-helpers";
-import UnlockdConfig from "../markets/unlockd";
-import {
-  getSecondSigner,
+  getCryptoPunksMarket,
   getDeploySigner,
-  getPoolAdminSigner,
   getEmergencyAdminSigner,
   getLendPool,
   getLendPoolConfiguratorProxy,
-  getLendPoolLoanProxy,
-  getUNFTRegistryProxy,
-  getCryptoPunksMarket,
-  getWrappedPunk,
-  getWETHGateway,
-  getPunkGateway,
   getLendPoolLiquidatorSigner,
+  getLendPoolLoanProxy,
   getLtvManagerSigner,
+  getPoolAdminSigner,
+  getPunkGateway,
+  getSecondSigner,
+  getUNFTRegistryProxy,
+  getWETHGateway,
+  getWrappedPunk,
 } from "../helpers/contracts-getters";
-import { WETH9Mocked } from "../types/WETH9Mocked";
-import { getNftAddressFromSymbol } from "./helpers/utils/helpers";
-import { WrappedPunk } from "../types/WrappedPunk";
-import { ADDRESS_ID_PUNK_GATEWAY, ADDRESS_ID_WETH_GATEWAY } from "../helpers/constants";
+import { getEthersSigners, insertContractAddressInDb } from "../helpers/contracts-helpers";
+import {
+  configureNftsByHelper,
+  configureReservesByHelper,
+  initNftsByHelper,
+  initNFTXByHelper,
+  initReservesByHelper,
+} from "../helpers/init-helpers";
+import { waitForTx } from "../helpers/misc-utils";
+import {
+  addAssetsInNFTOracle,
+  deployAllChainlinkMockAggregators,
+  deployChainlinkMockAggregator,
+  setAggregatorsInReserveOracle,
+  setPricesInNFTOracle,
+} from "../helpers/oracles-helpers";
+import { eContractid, tEthereumAddress } from "../helpers/types";
+import UnlockdConfig from "../markets/unlockd";
 import { CustomERC721, WETH9 } from "../types";
+import { MintableERC20 } from "../types/MintableERC20";
+import { MintableERC721 } from "../types/MintableERC721";
+import { WETH9Mocked } from "../types/WETH9Mocked";
+import { WrappedPunk } from "../types/WrappedPunk";
+import { initializeMakeSuite } from "./helpers/make-suite";
+import "./helpers/utils/math";
 
 const MOCK_USD_PRICE = UnlockdConfig.ProtocolGlobalParams.MockUsdPrice;
 const ALL_ASSETS_INITIAL_PRICES = UnlockdConfig.Mocks.AllAssetsInitialPrices;

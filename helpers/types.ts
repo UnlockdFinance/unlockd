@@ -32,6 +32,7 @@ export enum eContractid {
   SupplyLogic = "SupplyLogic",
   BorrowLogic = "BorrowLogic",
   LiquidateLogic = "LiquidateLogic",
+  LiquidateMarketsLogic = "LiquidateMarketsLogic",
   ConfiguratorLogic = "ConfiguratorLogic",
   LendPool = "LendPool",
   LendPoolLoan = "LendPoolLoan",
@@ -354,7 +355,7 @@ export interface INftAuctionParams {
 
 export type iParamsPerNetwork<T> = iEthereumParamsPerNetwork<T>;
 
-export interface iParamsPerNetworkAll<T> extends iEthereumParamsPerNetwork<T> {}
+export type iParamsPerNetworkAll<T> = iEthereumParamsPerNetwork<T>;
 
 export interface iEthereumParamsPerNetwork<T> {
   [eEthereumNetwork.hardhat]: T;

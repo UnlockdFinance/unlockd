@@ -1,17 +1,17 @@
 import { BigNumberish } from "@ethersproject/bignumber";
 import { task } from "hardhat/config";
-import { ConfigNames, getProviderRegistryAddress, loadPoolConfig } from "../../helpers/configuration";
+import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import { ADDRESS_ID_WETH_GATEWAY } from "../../helpers/constants";
 import {
-  getUNFTRegistryProxy,
   getIErc721Detailed,
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
+  getUNFTRegistryProxy,
   getWETHGateway,
 } from "../../helpers/contracts-getters";
 import { getEthersSignerByAddress } from "../../helpers/contracts-helpers";
-import { getNowTimeInSeconds, notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
-import { eContractid, eNetwork, INftParams } from "../../helpers/types";
+import { notFalsyOrZeroAddress } from "../../helpers/misc-utils";
+import { eNetwork, INftParams } from "../../helpers/types";
 import { strategyNftParams } from "../../markets/unlockd/nftsConfigs";
 
 task("encode-add-nft-to-pool", "Init and config new nft asset to lend pool")
@@ -71,7 +71,7 @@ task("encode-add-nft-to-pool", "Init and config new nft asset to lend pool")
     console.log("EncodeData: batchInitNft:", batchInitNftEncodeData);
 
     console.log("Configure nft parameters to lend pool");
-    let cfgInputParams: {
+    const cfgInputParams: {
       asset: string;
       tokenId: BigNumberish;
       baseLTV: BigNumberish;

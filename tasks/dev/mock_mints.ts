@@ -1,21 +1,14 @@
 import { task } from "hardhat/config";
-import { eNetwork, eContractid } from "../../helpers/types";
 import {
   getCryptoPunksMarket,
   getCustomERC721,
   getDeploySigner,
   getMintableERC20,
   getMintableERC721,
-  getWrappedPunk,
 } from "../../helpers/contracts-getters";
-import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
-import {
-  convertToCurrencyDecimals,
-  convertToCurrencyUnits,
-  getContractAddressInDb,
-  getParamPerNetwork,
-} from "../../helpers/contracts-helpers";
+import { convertToCurrencyDecimals, getContractAddressInDb } from "../../helpers/contracts-helpers";
 import { waitForTx } from "../../helpers/misc-utils";
+import { eNetwork } from "../../helpers/types";
 
 task("dev:mint-mock-bayc", "Mint mock nfts for dev enviroment")
   .addParam("amount", "NFT Amount (<=10)")

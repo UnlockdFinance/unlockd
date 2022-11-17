@@ -1,13 +1,11 @@
 import { ethers } from "ethers";
-import { tEthereumAddress, iAssetAggregatorBase, SymbolMap, PoolConfiguration } from "./types";
-
-import { ReserveOracle } from "../types/ReserveOracle";
-import { NFTOracle } from "../types/NFTOracle";
 import { MockChainlinkOracle } from "../types/MockChainlinkOracle";
+import { NFTOracle } from "../types/NFTOracle";
+import { ReserveOracle } from "../types/ReserveOracle";
+import { MOCK_USD_PRICE } from "./constants";
 import { deployMockChainlinkOracle } from "./contracts-deployments";
 import { getNowTimeInSeconds, waitForTx } from "./misc-utils";
-import { getAllMockedTokens } from "./contracts-getters";
-import { MOCK_USD_PRICE, USD_ADDRESS } from "./constants";
+import { iAssetAggregatorBase, PoolConfiguration, SymbolMap, tEthereumAddress } from "./types";
 
 export const setPricesInChainlinkMockAggregator = async (
   prices: SymbolMap<string>,
