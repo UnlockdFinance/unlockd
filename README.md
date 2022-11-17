@@ -2,6 +2,10 @@
   <a href="https://unlockd.finance">
     <img alt="Unlockd logo" src="https://miro.medium.com/max/660/1*YEp9mC_4sVUuFpBzatz3dQ.png" width="auto" height="92px" />
   </a>
+  <a href="https://unlockd.finance">
+    <img alt="Unlockd logo" src="https://halborn.com/wp-content/uploads/2021/10/audited-by-halborn-green.png.webp" width="auto" height="92px" />
+  </a>
+  
 </p>
 
 <p align="center">
@@ -29,15 +33,15 @@ This repository contains the smart contracts source code and markets configurati
 
 You can join at the [Discord](https://discord.gg/unlockd) channel or at the [Governance](https://snapshot.org/#/unlockddao.eth) for asking questions about the protocol or talk about Unlockd with other peers.
 
+
 # 🗂️ Index
 
 - [Documentation](#-documentation)
-- [Audits](#-audits)
 - [Setup](#-setup)
 - [Test](#-test)
-- [Tasks](#tasks)
-- [Deployment](#-deployment)
-- [Audit](#%EF%B8%8F-audits)
+- [Tasks](#-tasks)
+- [Deployments](#-deployments)
+
 
 # 📝 Documentation
 
@@ -45,9 +49,6 @@ The documentation of Unlockd Protocol is in the following [Unlockd documentation
 
 For getting the latest contracts addresses, please check the [Deployed contracts](https://docs.unlockddao.xyz/developers/deployed-contracts) page at the documentation to stay up to date.
 
-# 👁️ Audits
-
-1. [Halborn](link-to-docs).
 
 # 🎬 Setup
 
@@ -257,50 +258,4 @@ await WETH.connect(signer).approve(lendPool.address, ethers.utils.parseUnits("10
 
 // Deposit 10 WETH
 await lendPool.connect(signer).deposit(DAI.address, ethers.utils.parseUnits("10"), await signer.getAddress(), "0");
-```
-
-## Tools
-
-This project integrates other tools commonly used alongside Hardhat in the ecosystem.
-
-It also comes with a variety of other tools, preconfigured to work with the project code.
-
-Try running some of the following tasks:
-
-```shell
-npx hardhat tests:interestRate:variableRateSlope1
-npx hardhat tests:interestRate:variableRateSlope2
-npx hardhat tests:interestRate:baseVariableBorrowRate
-npx hardhat lendpool:deposit
-npx hardhat lendpool:withdraw
-npx hardhat lendpool:borrow
-npx hardhat lendpool:getcollateraldata
-npx hardhat lendpool:getdebtdata
-npx hardhat lendpool:redeem
-npx hardhat lendpool:repay
-npx hardhat reserveoracle:getassetprice
-npx hardhat tests:provider:getMarketId
-npx hardhat tests:provider:getLendPoolLiquidator
-npx hardhat tests:provider:setLendPoolLiquidator
-npx hardhat nftoracle:getnftprice
-npx hardhat nftoracle:setnftprice
-npx hardhat nftoracle:getoracleowner
-npx hardhat lendpoolloan:getloanidtracker
-npx hardhat lendpoolloan:getloan
-```
-
-## Etherscan verification
-
-To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Goerli.
-
-In this project, copy the .env.template file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Goerli node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
-
-```shell
-hardhat run --network goerli scripts/deploy.js
-```
-
-Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
-
-```shell
-npx hardhat verify --network goerli DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
 ```
