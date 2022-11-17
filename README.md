@@ -2,6 +2,10 @@
   <a href="https://unlockd.finance">
     <img alt="Unlockd logo" src="https://miro.medium.com/max/660/1*YEp9mC_4sVUuFpBzatz3dQ.png" width="auto" height="92px" />
   </a>
+  <a href="https://unlockd.finance">
+    <img alt="Unlockd logo" src="https://halborn.com/wp-content/uploads/2021/10/audited-by-halborn-green.png.webp" width="auto" height="92px" />
+  </a>
+  
 </p>
 
 <p align="center">
@@ -29,10 +33,10 @@ This repository contains the smart contracts source code and markets configurati
 
 You can join at the [Discord](https://discord.gg/unlockd) channel or at the [Governance](https://snapshot.org/#/unlockddao.eth) for asking questions about the protocol or talk about Unlockd with other peers.
 
+
 # 🗂️ Index
 
 - [Documentation](#-documentation)
-- [Audits](#%EF%B8%8F-audits)
 - [Setup](#-setup)
 - [Test](#-test)
 - [Tasks](#-tasks)
@@ -45,9 +49,6 @@ The documentation of Unlockd Protocol is in the following [Unlockd documentation
 
 For getting the latest contracts addresses, please check the [Deployed contracts](https://docs.unlockddao.xyz/developers/deployed-contracts) page at the documentation to stay up to date.
 
-# 👁️ Audits
-
-1. [Halborn](link-to-docs).
 
 # 🎬 Setup
 
