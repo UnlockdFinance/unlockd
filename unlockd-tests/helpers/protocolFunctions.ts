@@ -94,16 +94,7 @@ const borrow = async (
   tokenId: number,
   onBehalfOf: string
 ) => {
-  var gas = await Contracts.lendPool
-    .connect(wallet)
-    .estimateGas.borrow(asset, amount, nftAddress, tokenId, onBehalfOf, 0);
-
-  var strGas = gas.toString();
-  const gasPrice = Math.round(parseInt(strGas) * 1.1);
-
-  return Contracts.lendPool
-    .connect(wallet)
-    .borrow(asset, amount, nftAddress, tokenId, onBehalfOf, 0, { gasLimit: gasPrice.toFixed(0) });
+  return Contracts.lendPool.connect(wallet).borrow(asset, amount, nftAddress, tokenId, onBehalfOf, 0);
 };
 
 const getCollateralData = async (wallet: Wallet, nftAddress: string, tokenId: number, reserve: string) => {
@@ -488,20 +479,21 @@ const configureNftAsCollateral = async (
   active: boolean,
   freeze: boolean
 ) => {
-  return Contracts.lendPoolConfigurator.connect(wallet).configureNftAsCollateral(
-    asset,
-    tokenId,
-    newPrice,
-    ltv,
-    liquidationThreshold,
-    liquidationBonus,
-    redeemDuration,
-    auctionDuration,
-    redeemFine,
-    active,
-    false,
-    { gasLimit: 500000 } //TODO: always active running the function from the task. Need Fix.
-  );
+  return Contracts.lendPoolConfigurator
+    .connect(wallet)
+    .configureNftAsCollateral(
+      asset,
+      tokenId,
+      newPrice,
+      ltv,
+      liquidationThreshold,
+      liquidationBonus,
+      redeemDuration,
+      auctionDuration,
+      redeemFine,
+      active,
+      freeze
+    );
 };
 
 const configureNftAsAuction = async (

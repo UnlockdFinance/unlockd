@@ -40,32 +40,6 @@ task("lendpool:getNftConfigByTokenId", "Get the NFT Configuration")
     console.log(tx);
   });
 
-task("lendpool:liquidate", "Get the NFT Configuration")
-  .addParam("nftaddress", "The asset address")
-  .addParam("tokenid", "The tokenId of the asset")
-  .addParam("amount", "The tokenId of the asset")
-  .setAction(async ({ nftaddress, tokenid, amount }) => {
-    const wallet = await getUserWallet();
-    const tx = await Functions.LENDPOOL.liquidate(wallet, nftaddress, tokenid, amount);
-    console.log(await tx);
-  });
-
-// Get Nft Reserve data
-task("lendpool:liquidateNFTX", "Liquidates the NFT on NFTx Vault")
-  .addParam("nftaddress", "The asset address")
-  .addParam("tokenid", "The tokenId of the asset")
-  .addParam("reserve", "The reserve Name ex: WETH")
-  .setAction(async ({ nftaddress, tokenid, reserve }) => {
-    const wallet = await getOwnerWallet();
-    const amount = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
-    const tokenContract = MockContracts[reserve];
-    await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount);
-    console.log("approved");
-    const tx = await Functions.LENDPOOL.liquidateNFTX(wallet, nftaddress, tokenid);
-    await tx.wait();
-    console.log(tx);
-  });
-
 task("lendpool:getNftsList", "Gets the list of NFTs in the reserves").setAction(async () => {
   const wallet = await getUserWallet();
 
@@ -106,11 +80,11 @@ task("lendpool:getNftConfiguration", "Get the NFT Struct with the configuration"
 //Deposit funds to the pool
 task("lendpool:deposit", "User Deposits {amount} {reserve} in an empty reserve")
   .addParam("amount", "Reserve amount in WEI")
-  .addParam("reserve", "The reserve") //must be set to 'DAI' or 'USDC' or 'WETH'
+  .addParam("reservename", "The reserve") //must be set to 'DAI' or 'USDC' or 'WETH'
   .addParam("to", "Who will receive the interest bearing tokens")
-  .setAction(async ({ amount, reserve, to }) => {
+  .setAction(async ({ amount, reservename, to }) => {
     const wallet = await getUserWallet();
-    const tokenContract = MockContracts[reserve];
+    const tokenContract = MockContracts[reservename];
     await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount);
     const tx = await Functions.LENDPOOL.deposit(wallet, tokenContract.address, amount, to);
     await tx.wait();
@@ -120,11 +94,11 @@ task("lendpool:deposit", "User Deposits {amount} {reserve} in an empty reserve")
 //Withdrawing funds from the pool
 task("lendpool:withdraw", "User Withdraws {amount} {reserve} from the reserves")
   .addParam("amount", "Amount to withdraw")
-  .addParam("reserve", "The reserve") //must be set to 'DAI' or 'USDC' or 'WETH'
+  .addParam("reservename", "The reserve") //must be set to 'DAI' or 'USDC' or 'WETH'
   .addParam("to", "Who will reveive the withdrawal")
-  .setAction(async ({ amount, reserve, to }) => {
+  .setAction(async ({ amount, reservename, to }) => {
     const wallet = await getUserWallet();
-    const tokenContract = MockContracts[reserve];
+    const tokenContract = MockContracts[reservename];
     const tx = await Functions.LENDPOOL.withdraw(wallet, tokenContract.address, amount, to);
     await tx.wait();
     console.log(tx);
@@ -132,15 +106,15 @@ task("lendpool:withdraw", "User Withdraws {amount} {reserve} from the reserves")
 
 //Borrowing
 task("lendpool:borrow", "User Borrows {amount} {reserve} from the reserves")
-  .addParam("reserve", "reserve asset to borrow")
+  .addParam("reservename", "reserve asset to borrow") //must be set to 'DAI' or 'USDC' or 'WETH'
   .addParam("amount", "amount to borrow in WEI")
-  .addParam("collectionname", "NFT name")
+  .addParam("collectionname", "NFT name") //Just configured 'BAYC' at the moment
   .addParam("nftaddress", "NFT address")
   .addParam("tokenid", "the NFT token ID")
   .addParam("to", "Who will reveive the borrowed amount")
-  .setAction(async ({ reserve, amount, collectionname, nftaddress, tokenid, to }) => {
+  .setAction(async ({ reservename, amount, collectionname, nftaddress, tokenid, to }) => {
     const wallet = await getUserWallet();
-    const tokenContract = MockContracts[reserve];
+    const tokenContract = MockContracts[reservename];
     const nftContract = MockContracts[collectionname];
     const isApprovedForAll = await Functions.NFTS.isApprovedNft(wallet, nftContract, to, Contracts.lendPool.address);
     if (isApprovedForAll == false) {
@@ -155,7 +129,7 @@ task("lendpool:borrow", "User Borrows {amount} {reserve} from the reserves")
 task("lendpool:getcollateraldata", "Returns collateral data")
   .addParam("nftaddress", "NFT address")
   .addParam("tokenid", "nft token id")
-  .addParam("reserve", "reserve") //must be set to 'DAI' or 'USDC'
+  .addParam("reserve", "reserve") //must be set to 'WETH, ''DAI' or 'USDC'
   .setAction(async ({ nftaddress, tokenid, reserve }) => {
     const wallet = await getUserWallet();
     const collateralData = await Functions.LENDPOOL.getCollateralData(wallet, nftaddress, tokenid, reserve).then((v) =>
@@ -189,46 +163,75 @@ task("lendpool:getnftdata", "Returns the NFT data")
     console.log(nftData);
   });
 
+//Get Auction data
+task("lendpool:getauctiondata", "Returns the NFT data")
+  .addParam("nftaddress", "NFT address")
+  .addParam("tokenid", "nft token id")
+  .setAction(async ({ nftaddress, tokenid }) => {
+    const wallet = await getUserWallet();
+    const nftAuctionData = await Functions.LENDPOOL.getNftAuctionData(wallet, nftaddress, tokenid);
+    console.log(nftAuctionData);
+  });
+
 //Redeem
 task("lendpool:redeem", "Redeems a loan")
   .addParam("nftaddress", "NFT address")
   .addParam("tokenid", "nft token id")
   .addParam("amount", "Amount to redeem in WEI")
-  .addParam("bidfine", "Amount to redeem")
-  .setAction(async ({ nftaddress, tokenid, amount, bidfine }) => {
+  .addParam(
+    "bidfine",
+    "The bid fine to be paid by the redeemer, It must be set to at least the `bifine` value returne by the LendPool's getNftAuctionData function"
+  )
+  .addParam("reservename", "Name of the reserve") //must be set to 'WETH, ''DAI' or 'USDC'
+  .setAction(async ({ nftaddress, tokenid, amount, bidfine, reservename }) => {
     const wallet = await getUserWallet();
-    //const loanId = await Functions.LENDPOOL_LOAN.getCollateralLoanId(wallet, nftaddress, tokenid);
-    //const loanData = await Functions.LENDPOOL_LOAN.getLoan(wallet, loanId);
-    //const reserveAddress = loanData.reserveAsset;
-    const tokenContract = MockContracts["WETH"];
 
-    // reserveAddress == MockContracts['DAI'].address ?
-    //    tokenContract = MockContracts['DAI'] : tokenContract = MockContracts['USDC'];
-
-    // reserveAddress == MockContracts['DAI'].address ?
-    // amount = await parseUnits(amount.toString()) : amount = await parseUnits(amount.toString(), 6);
-
-    // reserveAddress == MockContracts['DAI'].address ?
-    // bidfine = await parseUnits(bidfine.toString()) : bidfine = await parseUnits(amount.toString(), 6);
-
-    await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount.add(bidfine));
-    await Functions.LENDPOOL.redeem(wallet, nftaddress, tokenid, amount, bidfine);
+    const tokenContract = MockContracts[reservename];
+    const amountToApprove = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+    await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amountToApprove);
+    const tx = await Functions.LENDPOOL.redeem(wallet, nftaddress, tokenid, amount, bidfine);
+    await tx.wait();
+    console.log(tx);
+  });
+task("lendpool:liquidate", "Liquidates an NFT that has been auctioned")
+  .addParam("nftaddress", "The asset address")
+  .addParam("tokenid", "The tokenId of the asset")
+  .addParam("amount", "The tokenId of the asset")
+  .setAction(async ({ nftaddress, tokenid, amount }) => {
+    const wallet = await getUserWallet();
+    const tx = await Functions.LENDPOOL.liquidate(wallet, nftaddress, tokenid, amount);
+    await tx.wait();
+    console.log(tx);
   });
 
+// Get Nft Reserve data
+task("lendpool:liquidateNFTX", "Liquidates the NFT on NFTx Vault")
+  .addParam("nftaddress", "The asset address")
+  .addParam("tokenid", "The tokenId of the asset")
+  .addParam("reserve", "The reserve Name ex: WETH")
+  .setAction(async ({ nftaddress, tokenid, reserve }) => {
+    const wallet = await getOwnerWallet();
+    const amount = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+    const tokenContract = MockContracts[reserve];
+    await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount);
+    console.log("approved");
+    const tx = await Functions.LENDPOOL.liquidateNFTX(wallet, nftaddress, tokenid);
+    await tx.wait();
+    console.log(tx);
+  });
 //Repay loan
 task("lendpool:repay", "Repays a loan")
   .addParam("nftaddress", "NFT address")
   .addParam("tokenid", "nft token id")
-  .addParam("reserve", "reserve")
+  .addParam("reservename", "reserve") //must be set to 'DAI' or 'USDC' or 'WETH'
   .addParam("amount", "Amount to repay in WEI")
-  .setAction(async ({ nftaddress, tokenid, reserve, amount }) => {
+  .setAction(async ({ nftaddress, tokenid, reservename, amount }) => {
     const wallet = await getUserWallet();
-    // reserve == 'USDC' ?
-    //     amount = await parseUnits(amount.toString(), 6)  :   amount = await parseUnits(amount.toString())
-
-    const tokenContract = MockContracts[reserve];
+    const tokenContract = MockContracts[reservename];
     await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount);
-    await Functions.LENDPOOL.repay(wallet, nftaddress, tokenid, amount);
+    const tx = await Functions.LENDPOOL.repay(wallet, nftaddress, tokenid, amount);
+    await tx.wait();
+    console.log(tx);
   });
 
 //Get liquidation fee percentage
@@ -250,25 +253,20 @@ task("lendpool:getnftliquidateprice", "Get liquidation price for an asset")
 
 //Auction loan
 task("lendpool:auction", "Auctions a loan")
-  .addParam("collection", "NFT collection address")
+  .addParam("nftaddress", "NFT address")
   .addParam("tokenid", "nft token id")
   .addParam("bidprice", "The bid price in WEI")
   .addParam("to", "Receiver")
-  .setAction(async ({ nftaddress, tokenid, bidprice, to }) => {
+  .addParam("reservename", "Reserve name") //must be set to 'DAI' or 'USDC' or 'WETH'
+  .setAction(async ({ nftaddress, tokenid, bidprice, to, reservename }) => {
     const wallet = await getUserWallet();
-    //const loanId = await Functions.LENDPOOL_LOAN.getCollateralLoanId(wallet, nftaddress, tokenid);
-    //const loanData = await Functions.LENDPOOL_LOAN.getLoan(wallet, loanId);
-    //const reserveAddress = loanData.reserveAsset;
-    const tokenContract = MockContracts["WETH"];
 
-    // reserveAddress == MockContracts['DAI'].address ?
-    //    tokenContract = MockContracts['DAI'] :tokenContract = MockContracts['USDC'];
-
-    // reserveAddress == MockContracts['DAI'].address ?
-    //     bidprice = await parseUnits(bidprice.toString()) :bidprice = await parseUnits(bidprice.toString(), 6);
+    const tokenContract = MockContracts[reservename];
 
     await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, bidprice);
-    await Functions.LENDPOOL.auction(wallet, nftaddress, tokenid, bidprice, to);
+    const tx = await Functions.LENDPOOL.auction(wallet, nftaddress, tokenid, bidprice, to);
+    await tx.wait();
+    console.log(tx);
   });
 
 //Get NFT auction data

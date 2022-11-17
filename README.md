@@ -110,7 +110,9 @@ You can run the general tasks defined in the `package.json` file by using yarn a
 ``` bash
 yarn compile
 ```
-
+<details>
+    <summary>Show general tasks</summary>
+    
 | Task                              | Description |
 | -------------                     | ------------- |
 | run-env                          | Installs dependencies without verbose logging                                                                               |
@@ -143,19 +145,33 @@ yarn compile
 | main:verify                      | Verifies in Etherscan all reserves contracts deployed in Ethereum mainnet                                                   |
 | main:verify:reserves             | Verifies in Etherscan all reserves contracts deployed in Ethereum mainnet                                                                                                               |
 | main:print-contracts             | Prints all current deployed contracts in Ethereum mainnet                                                                                                      |
-| main:print-config                | Prints all addresses and configuration set in Ethereum mainnet deployed contracts                                                                                                              
+| main:print-config                | Prints all addresses and configuration set in Ethereum mainnet deployed contracts                                                                
+</details>
+
 ## Unlockd tasks
-Unlockd tasks are a specific set of tasks that allow direct interaction with the currently deployed contracts. They require a set of params to be passed as flags in the command, which will be translated to be the params passed to the function to be executed. All params are explained in the definition of each task. These set of tasks can be run in terminal by using Hardhat commands. Network specification is fetched from the RPC_ENDPOINT environment variable. As an example, we'll try to run a 1 WETH deposit into the LendPool. The `deposit` task takes three params (`amount`, `reserves`, and `to`), and the task name is `lendpool:deposit`, so the command to run will be:
+Unlockd tasks are a specific set of tasks that allow direct interaction with the currently deployed contracts. They require a set of params to be passed as flags in the command, which will be translated to be the params passed to the function to be executed. All params are explained in the definition of each task. These set of tasks can be run in terminal by using Hardhat commands. Network specification is fetched from the RPC_ENDPOINT environment variable. As an example, we'll try to run a 1 WETH deposit into the LendPool. The `deposit` task takes three params (`amount`, `reservename`, and `to`), and the task name is `lendpool:deposit`, so the command to run will be:
 
 ```bash
-npx hardhat lendpool:deposit --amount 100000000000000000 --reserve WETH --to 0x1a470e9916f3dFF8E268A69A39fa2E9F7B954927
+npx hardhat lendpool:deposit --amount 100000000000000000 --reservename WETH --to 0x1a470e9916f3dFF8E268A69A39fa2E9F7B954927
 ```
+<details>
+    <summary>Show Unlockd tasks</summary>
+
 | Task | Description |
 | ------------- | ------------- |
 | lendpool:deposit | Deposits an amount in the LendPool  |
-| Content Cell  | Content Cell  |
+| lendpool:withdraw  | Withdraws an amount from the LendPool  |
+| configurator:configureNftAsCollateral  | Sets the configuration parameters to the specified NFT  |
+| lendpool:borrow  | Borrows an amount of a specific reserve from unlockd, depositing an NFT as collateral  |
+| lendpool:getdebtdata  | Returns de debt data for a given loan  |
+| lendpool:getauctiondata  | Returns de auction data for a given loan that is in auction state  |
+| lendpool:repay  | Repays a specified amount from a previous borrow to the LendPool  |
+| lendpool:redeem | Redeems a specific amount from an auctioned NFT and pays a bid fine  |
+| lendpool:auction | Places a bid for an unhealthy position in the protocol  |
+| lendpool:liquidate | Liquidates an unhealthy position, transferring the NFT to the liquidator |
+| lendpool:liquidateNFTX | Liquidates an unhealthy position in NFTX market |
 
-
+</details>
 
 # 🚀 Deployments
 
@@ -167,8 +183,6 @@ For deploying Unlockd Protocol, you can use the available scripts located at `pa
 # install dependencies
 yarn install
 
-# Runing NPM task
-# npm run xxx
 ```
 
 ### Localhost dev deployment

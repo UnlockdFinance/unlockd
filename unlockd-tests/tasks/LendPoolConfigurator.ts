@@ -110,7 +110,7 @@ task(
 )
   .addParam("nftaddress", "the address of the underlying NFT address")
   .addParam("tokenid", "the tokenId of the underlying NFT address")
-  .addParam("newprice", "The actual price of the NFT")
+  .addParam("newprice", "The actual price of the NFT in WEI")
   .addParam("ltv", "The loan to value of the asset when used as NFT")
   .addParam(
     "threshold",
@@ -120,11 +120,11 @@ task(
     "bonus",
     "The bonus liquidators receive to liquidate this asset. The values is always below 100%. A value of 5% means the liquidator will receive a 5% bonus"
   )
-  .addParam("redeemduration", "the address of the underlying NFT address")
-  .addParam("auctionduration", "the tokenId of the underlying NFT address")
-  .addParam("redeemfine", "The loan to value of the asset when used as NFT")
-  .addParam("active", "if the nft asset is active or not (BOOL true or false)")
-  .addParam("freeze", "if the nft asset is frozen or not (BOOL true or false)")
+  .addParam("redeemduration", "The redeem duration in hours")
+  .addParam("auctionduration", "The auction duration in hours")
+  .addParam("redeemfine", "The redeem fine to be paid by the redeemer")
+  .addFlag("active", "if the nft asset is active or not (set this flag in the command to be set to true)")
+  .addFlag("freeze", "if the nft asset is frozen or not (set this flag in the command to be set to true)")
   .setAction(
     async ({
       nftaddress,
@@ -154,8 +154,8 @@ task(
         active,
         freeze
       );
-
-      console.log("nft configured: ", tx);
+      await tx.wait();
+      console.log(tx);
     }
   );
 
