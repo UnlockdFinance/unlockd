@@ -38,7 +38,6 @@ task("initNFTReserve", "Initializes the NFT Reserve")
   .addParam("nftaddress", `The address of the NFT to add`)
   .setAction(async ({ nftaddress }) => {
     const configurator = await getLendPoolConfiguratorProxy();
-    //const { uNftImpl } = await unftRegistryProxy.getUNFTAddresses(nftaddress);
 
     await waitForTx(await configurator.batchInitNft([{ underlyingAsset: nftaddress }]));
     console.log("ERC721 reserve initialized for: ", nftaddress);
@@ -79,15 +78,3 @@ task("auth-wethgateway", "Authorize Weth Gateway to do transactions.")
     await waitForTx(await wethGateway.authorizeLendPoolNFT([nftaddress]));
     console.log("ERC721 address authorized for: ", nftaddress);
   });
-
-// task("tests:auth-punkgateway", "Authorize Weth Gateway to do transactions.")
-// .addParam("tokenaddress", "the address of the NFT to authorize")
-// .setAction( async ({ tokenaddress } ) => {
-//     ////////////////////////////////////////////////////////////////////////////
-//     // Init & Config NFT assets
-//     const punkGateway = await getPunkGateway();
-//     await waitForTx(await punkGateway.authorizeLendPoolERC20(tokenaddress));
-//     console.log("ERC20 addresses authorized!");
-//     ////////////////////////////////////////////////////////////////////////////
-//   }
-// );

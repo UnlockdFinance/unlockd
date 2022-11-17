@@ -3,9 +3,7 @@ import deployments from "../../deployments/deployed-contracts-goerli.json";
 import { getOwnerWallet } from "../helpers/config";
 import { daiContract, usdcContract } from "../helpers/constants";
 import { Functions } from "../helpers/protocolFunctions";
-/**
- * This file will use the lendpoolProvider to get and set addresses or names
- */
+
 task("tests:ERC20:getBalance", "User gets the balance of the reserve token")
   .addParam("reserveaddress", "the reserve address to get the balance from")
   .addParam("useraddress", "The User we want to check the balance from")

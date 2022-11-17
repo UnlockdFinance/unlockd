@@ -3,7 +3,7 @@ import { getUserWallet } from "../helpers/config";
 import { Functions } from "../helpers/protocolFunctions";
 
 // Get the treasury address from the uToken
-task("dataProvider:getNftConfigurationDataByTokenId", "Gets individual NFT configuration")
+task("dataProvider:getNftConfigurationDataByTokenId", "Gets individual NFT configuration data")
   .addParam("nftaddress", "The NFT address")
   .addParam("tokenid", "The tokenId of the asset")
   .setAction(async ({ nftaddress, tokenid }) => {
@@ -14,7 +14,7 @@ task("dataProvider:getNftConfigurationDataByTokenId", "Gets individual NFT confi
     console.log(await tx);
   });
 
-task("dataProvider:getLoanDataByCollateral", "Gets individual NFT loan")
+task("dataProvider:getLoanDataByCollateral", "Gets individual NFT loan data")
   .addParam("nftaddress", "The asset address")
   .addParam("tokenid", "The tokenId of the asset")
   .setAction(async ({ nftaddress, tokenid }) => {

@@ -2,12 +2,7 @@ import { task } from "hardhat/config";
 import { getOwnerWallet } from "../helpers/config";
 import { Functions } from "../helpers/protocolFunctions";
 
-/**
- * This file will use the lendpoolProvider to get and set addresses or names
- * for full reference check the LendPoolAddressProvider.sol
- */
-
-task("provider:getAddress", "User sets a new Market Id name")
+task("provider:getAddress", "Returns the address for the given Id")
   .addParam("bytesaddress", "The new Market Id string/name")
   .setAction(async ({ bytesaddress }) => {
     const wallet = await getOwnerWallet();
@@ -16,7 +11,7 @@ task("provider:getAddress", "User sets a new Market Id name")
     const tx = await Functions.LENDPOOLADDRESSPROVIDER.getAddress(wallet, bytesaddress);
     console.log(tx);
   });
-task("provider:setAddress", "User sets a new Market Id name")
+task("provider:setAddress", "User sets a new address Id ")
   .addParam("id", "The new Market Id string/name")
   .addParam("newaddress", "The new address")
   .setAction(async ({ id, newaddress }) => {
@@ -25,7 +20,7 @@ task("provider:setAddress", "User sets a new Market Id name")
     const tx = await Functions.LENDPOOLADDRESSPROVIDER.setAddress(wallet, id, newaddress);
     console.log(tx);
   });
-task("provider:getMarketId", "User gets the market id address").setAction(async () => {
+task("provider:getMarketId", "User gets the market id").setAction(async () => {
   const wallet = await getOwnerWallet();
 
   const tx = await Functions.LENDPOOLADDRESSPROVIDER.getMarketId(wallet);
@@ -145,7 +140,7 @@ task("provider:getReserveOracle", "User gets the address of the reserve oracle")
   console.log(JSON.stringify(tx));
 });
 
-task("provider:setReserveOracle", "User sets the address of the reserver oracle")
+task("provider:setReserveOracle", "User sets the address of the reserve oracle")
   .addParam("reserveoracle", "The new reserve oracle address")
   .setAction(async ({ reserveoracle }) => {
     const wallet = await getOwnerWallet();

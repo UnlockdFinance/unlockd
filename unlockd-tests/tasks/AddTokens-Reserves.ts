@@ -8,8 +8,6 @@ import {
   getUToken,
 } from "../../helpers/contracts-getters";
 
-// Deploy UToken, DebtToken, (configurator)InitializeReserve, (configurator)ConfigReserve
-
 task("uToken-register", "Deploy uToken")
   .addParam("stratname", "Strategy name to retrieve configuration")
   .addParam("tokenaddress", "The address of the reserve to add")
@@ -44,16 +42,6 @@ task("uToken-register", "Deploy uToken")
 
     //Get DebtToken implementation
     const debtTokenImpl = await (await getDebtToken()).address;
-
-    // Mainnet we should add this as parameters to add new strategies.
-    // strategy: rateStrategyWETH,
-    // baseLTVAsCollateral: '8000',
-    // liquidationThreshold: '8250',
-    // liquidationBonus: '500',
-    // borrowingEnabled: true,
-    // reserveDecimals: '18',
-    // uTokenImpl: eContractid.UToken,
-    // reserveFactor: '3000'
     const rateStrat = await deployRateStrategy("", rateStrategy, verify);
 
     const uTokenName = `${config.UTokenNamePrefix} ${utokensymbol}`;

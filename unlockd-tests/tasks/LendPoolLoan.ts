@@ -9,7 +9,7 @@ task("lendpoolloan:getloanidtracker", "Returns the loan ID tracker").setAction(a
   console.log("Loan ID: ", loanIdTracker.toString());
 });
 
-task("lendpoolloan:getloan", "Returns the loan")
+task("lendpoolloan:getloan", "Returns the loan data given a loan ID")
   .addParam("loanid", "The loan id")
   .setAction(async ({ loanid }) => {
     const wallet = await getUserWallet();
@@ -28,7 +28,7 @@ task("lendpoolloan:getloan", "Returns the loan")
     console.log("First bidder address: ", loan.firstBidderAddress);
   });
 
-task("lendpoolloan:getcollateralloanid", "Returns the loan")
+task("lendpoolloan:getcollateralloanid", "Returns the loan ID given a collateral")
   .addParam("nftaddress", "The nft address")
   .addParam("tokenid", "The NFT id")
   .setAction(async ({ nftaddress, tokenid }) => {

@@ -3,7 +3,7 @@ import { getUserWallet } from "../helpers/config";
 import { Contracts, MockContracts } from "../helpers/constants";
 import { Functions } from "../helpers/protocolFunctions";
 
-task("wethgateway:depositETH", "Deposits raw ETH")
+task("wethgateway:depositETH", "Deposits raw ETH into Unlockd")
   .addParam("amount", "The amount in WEI")
   .addParam("to", "The on behalf of")
 
@@ -21,7 +21,7 @@ task("wethgateway:depositETH", "Deposits raw ETH")
     await Functions.WETH_GATEWAY.depositETH(wallet, amount, to);
   });
 
-task("wethgateway:withdrawETH", "Withdraws raw ETH")
+task("wethgateway:withdrawETH", "Withdraws raw ETH from Unlockd")
   .addParam("amount", "The amount in WEI")
   .addParam("to", "The on behalf of")
   .setAction(async ({ amount, to }) => {

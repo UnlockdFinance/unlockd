@@ -3,7 +3,7 @@ import { getOwnerWallet, getUserWallet } from "../helpers/config";
 import { Functions } from "../helpers/protocolFunctions";
 
 //Get NFT price
-task("nftoracle:getnftprice", "User 0 Deposits {amount} {reserve} in an empty reserve")
+task("nftoracle:getnftprice", "Returns the price of an nft")
   .addParam("nftaddress", "The nft address")
   .addParam("tokenid", "The token id")
   .setAction(async ({ nftaddress, tokenid }) => {
@@ -13,7 +13,7 @@ task("nftoracle:getnftprice", "User 0 Deposits {amount} {reserve} in an empty re
   });
 
 //Set NFT price
-task("nftoracle:setnftprice", "User 0 Deposits {amount} {reserve} in an empty reserve")
+task("nftoracle:setnftprice", "Sets the price of an nft")
   .addParam("nftaddress", "The nft address")
   .addParam("tokenid", "The token id")
   .addParam("price", "The asset price")
@@ -25,13 +25,13 @@ task("nftoracle:setnftprice", "User 0 Deposits {amount} {reserve} in an empty re
   });
 
 //Get NFT owner
-task("nftoracle:getoracleowner", "User 0 Deposits {amount} {reserve} in an empty reserve").setAction(async () => {
+task("nftoracle:getoracleowner", "Returns the NFT Oracle owner").setAction(async () => {
   const wallet = await getUserWallet();
   const owner = await Functions.NFTORACLE.getNFTOracleOwner(wallet);
   console.log(owner);
 });
 
-task("nftoracle:setpricemanager", "adds an address as Price Manager")
+task("nftoracle:setpricemanager", "Sets an address as Price Manager")
   .addParam("newpricemanager", "the address to add as Price Manager")
   .addParam("val", "true for new price manager")
   .setAction(async ({ newpricemanager, val }) => {

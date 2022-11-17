@@ -13,7 +13,7 @@ task("lendpool:triggerUserCollateral", "Triggers the NFT Configuration Configure
     console.log(tx);
   });
 
-task("lendpool:getTimeframe", "Gets the list of NFTs in the reserves").setAction(async () => {
+task("lendpool:getTimeframe", "Gets the timeframe configured in the protocol").setAction(async () => {
   const wallet = await getUserWallet();
 
   const tx = await Functions.LENDPOOL.getTimeframe(wallet);
@@ -21,7 +21,7 @@ task("lendpool:getTimeframe", "Gets the list of NFTs in the reserves").setAction
   console.log(tx);
 });
 
-task("lendpool:getConfigFee", "Gets the list of NFTs in the reserves").setAction(async () => {
+task("lendpool:getConfigFee", "Gets the configuration fee configured in the prrotocol").setAction(async () => {
   const wallet = await getUserWallet();
 
   const tx = await Functions.LENDPOOL.getConfigFee(wallet);
@@ -29,7 +29,7 @@ task("lendpool:getConfigFee", "Gets the list of NFTs in the reserves").setAction
   console.log(tx);
 });
 
-task("lendpool:getNftConfigByTokenId", "Get the NFT Configuration")
+task("lendpool:getNftConfigByTokenId", "Get the NFT Configuration bt token Id")
   .addParam("nftaddress", "The asset address")
   .addParam("tokenid", "The tokenId of the asset")
   .setAction(async ({ nftaddress, tokenid }) => {
@@ -56,7 +56,7 @@ task("lendpool:getNftData", "Get the NFT Data from the lendpool reserves")
     console.log(tx);
   });
 
-task("lendpool:getNftAssetConfig", "Get the NFT Data from the lendpool reserves")
+task("lendpool:getNftAssetConfig", "Get the NFT configuration of an nft given the id")
   .addParam("nftasset", "The asset address")
   .addParam("tokenid", "The tokenId of the asset")
   .setAction(async ({ nftasset, tokenid }) => {
@@ -67,7 +67,7 @@ task("lendpool:getNftAssetConfig", "Get the NFT Data from the lendpool reserves"
   });
 
 // Get NFT configuration data
-task("lendpool:getNftConfiguration", "Get the NFT Struct with the configuration")
+task("lendpool:getNftConfiguration", "Get the NFT configuration of an collection")
   .addParam("nftaddress", "The asset address")
   .setAction(async ({ nftaddress }) => {
     const wallet = await getUserWallet();
@@ -77,7 +77,7 @@ task("lendpool:getNftConfiguration", "Get the NFT Struct with the configuration"
   });
 
 //Deposit funds to the pool
-task("lendpool:deposit", "User Deposits {amount} {reserve} in an empty reserve")
+task("lendpool:deposit", "User Deposits {amount} {reservename} in a reserve")
   .addParam("amount", "Reserve amount in WEI")
   .addParam("reservename", "The reserve") //must be set to 'DAI' or 'USDC' or 'WETH'
   .addParam("to", "Who will receive the interest bearing tokens")
@@ -91,7 +91,7 @@ task("lendpool:deposit", "User Deposits {amount} {reserve} in an empty reserve")
   });
 
 //Withdrawing funds from the pool
-task("lendpool:withdraw", "User Withdraws {amount} {reserve} from the reserves")
+task("lendpool:withdraw", "User Withdraws {amount} {reservename} from the reserves")
   .addParam("amount", "Amount to withdraw")
   .addParam("reservename", "The reserve") //must be set to 'DAI' or 'USDC' or 'WETH'
   .addParam("to", "Who will reveive the withdrawal")
@@ -163,7 +163,7 @@ task("lendpool:getnftdata", "Returns the NFT data")
   });
 
 //Get Auction data
-task("lendpool:getauctiondata", "Returns the NFT data")
+task("lendpool:getauctiondata", "Returns the auctioned NFT data")
   .addParam("nftaddress", "NFT address")
   .addParam("tokenid", "nft token id")
   .setAction(async ({ nftaddress, tokenid }) => {
@@ -204,7 +204,7 @@ task("lendpool:liquidate", "Liquidates an NFT that has been auctioned")
   });
 
 // Get Nft Reserve data
-task("lendpool:liquidateNFTX", "Liquidates the NFT on NFTx Vault")
+task("lendpool:liquidateNFTX", "Liquidates the NFT on NFTX Vault")
   .addParam("nftaddress", "The asset address")
   .addParam("tokenid", "The tokenId of the asset")
   .addParam("reserve", "The reserve Name ex: WETH")
@@ -269,7 +269,7 @@ task("lendpool:auction", "Auctions a loan")
   });
 
 //Get NFT auction data
-task("lendpool:getnftauctiondata", "Get liquidation price for an asset")
+task("lendpool:getnftauctiondata", "Gets the auction data for an nft")
   .addParam("nftaddress", "NFT address")
   .addParam("tokenid", "nft token id")
   .setAction(async ({ nftaddress, tokenid }) => {
@@ -283,7 +283,7 @@ task("lendpool:getnftauctiondata", "Get liquidation price for an asset")
   });
 
 //Get liquidation fee percentage
-task("lendpool:getReserveNormalizedIncome", "normalized income normalized income of the reserve")
+task("lendpool:getReserveNormalizedIncome", "Returns the normalized income of the reserve")
   .addParam("reserve", "Reserve address")
   .setAction(async ({ reserve }) => {
     const wallet = await getUserWallet();
@@ -294,7 +294,7 @@ task("lendpool:getReserveNormalizedIncome", "normalized income normalized income
   });
 
 // Get liquidation fee percentage
-task("lendpool:getReserveNormalizedVariableDebt", "normalized variable debt per unit of asset")
+task("lendpool:getReserveNormalizedVariableDebt", "Returns the normalized variable debt per unit of asset")
   .addParam("reserve", "Reserve address")
   .setAction(async ({ reserve }) => {
     const wallet = await getUserWallet();
