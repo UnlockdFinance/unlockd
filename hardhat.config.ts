@@ -52,7 +52,7 @@ if (!SKIP_LOAD) {
         require(`${tasksPath}/${task}`);
       });
   });
-  const tasksPath = path.join(__dirname, "unlockd-tests", "tasks");
+  const tasksPath = path.join(__dirname, "unlockd-tasks", "tasks");
   fs.readdirSync(tasksPath)
     .filter((pth) => pth.includes(".ts"))
     .forEach((task) => {
