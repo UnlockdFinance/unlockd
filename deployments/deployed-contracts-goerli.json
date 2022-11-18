@@ -99,39 +99,39 @@
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "GenericLogic": {
-    "address": "0xC32a83b7Eb34a26FA912526c168b515FA76CdBFa",
+    "address": "0xc6e32ebA1A05F5De61973D8f61d3590Bf43e5eFf",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "ReserveLogic": {
-    "address": "0x52957EB385d29ac143FeF1Ef75Bc755bCE28A8D5",
+    "address": "0x22F84411D7009357d906e23Cc978DbB608cDA796",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "NftLogic": {
-    "address": "0xaca04c2d51e88E8B9A26A59C99b0DE2216FDF8D4",
+    "address": "0x423848FE8708858fB734b27661523Dcc72a7C711",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "ValidationLogic": {
-    "address": "0xD7e1DFf06E86766A0316efaa03334b2410a228c0",
+    "address": "0x122140A9468BaCfA73A84cd1FC62c4b6dC241644",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "SupplyLogic": {
-    "address": "0xa2b119a631025Fb10B6622563374464ec8923cb3",
+    "address": "0x48e9407d4B7578e8a12B58a7FCCF1D5dbBF2e59C",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "BorrowLogic": {
-    "address": "0x38bfA0498590570a4b8CaD95C61EB862698d1c78",
+    "address": "0x6cEa80f453dD427683305b3251c4De485e745380",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "LiquidateLogic": {
-    "address": "0x97172Ad86D9f403103F52d221C5d76144Ef4CeE7",
+    "address": "0x39aa6BfbF94eFca75F2aA056aCC4c41d48371b47",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "ConfiguratorLogic": {
-    "address": "0x1E04AE4CD5c3aF09F81759ADe3bbBDCd3Cb7C7DF",
+    "address": "0xafDAe203ca46d919c38Be2F7cAa95309Df4cD439",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "LendPoolImpl": {
-    "address": "0xD30a52AADDC317f0B037f4c89A594e1B775Ba9a6"
+    "address": "0xe583Ef2569e24C4a9643D62a764d837517B045F6"
   },
   "LendPool": {
     "address": "0xA0cf099d1547B15823d96C7663A1EA0b5C25231e"
@@ -224,8 +224,8 @@
     "address": "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506"
   },
   "NFTXHelper": {
-    "address": "0x9f5f96eAB3C1c2a13Ea8f57eB845F468479bD1dC",
-    "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
+    "address": "0x68D7831074659dF073ADe217de6Cd6dd51a4AA8A",
+    "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "MockIncentivesController": {
     "address": "0x676DA7Ad769870970EdE52D896057331fC4892F7",
@@ -234,5 +234,9 @@
   "CustomERC721": {
     "address": "0x39F14ED58de5955b85EF0832aD9bBa009202f0EB",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
+  },
+  "LiquidateMarketsLogic": {
+    "address": "0x492abe4eD20A0B5e599Ff0Af666e19Ad87Ce79ed",
+    "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   }
 }
