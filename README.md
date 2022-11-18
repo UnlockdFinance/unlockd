@@ -65,10 +65,10 @@ yarn install
 # Private key. Add it if you just want to interact with Hardhat with a single address.
 PRIVATE_KEY=""
 
-# Mnemonic. Used by Hardhat if PRIVATE_KEY is not set. Also used in  `./unlockd-tests`.
+# Mnemonic. Used by Hardhat if PRIVATE_KEY is not set. Also used in  `./unlockd-tasks`.
 MNEMONIC=""
 
-# Used in `./unlockd-tests` to simulate a user different than the owner.
+# Used in `./unlockd-tasks` to simulate a user different than the owner.
 PRIVATE_KEY_USER=""
 
 # Alchemy/Infura RPC endpoint URL.
