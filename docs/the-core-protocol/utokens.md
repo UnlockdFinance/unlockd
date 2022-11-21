@@ -160,9 +160,10 @@ _calculates the total supply of the specific uToken since the balance of every s
 
 ### scaledTotalSupply
 
-````solidity
+```solidity
 function scaledTotalSupply() public view virtual returns (uint256)
-```SOLIDITY
+```
+
 _Returns the scaled total supply of the variable debt token. Represents sum(debt/index)_
 
 #### Return Values
