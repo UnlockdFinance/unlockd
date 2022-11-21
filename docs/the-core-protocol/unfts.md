@@ -1,38 +1,12 @@
 # uNFTs
 
-_Implements the methods for the uNFT protocol_
+Implements the methods for the uNFT protocol_
 
-### _underlyingAsset
-
-```solidity
-address _underlyingAsset
-```
-
-### _minters
-
-```solidity
-mapping(uint256 => address) _minters
-```
-
-### initialize
-
-```solidity
-function initialize(address underlyingAsset, string uNftName, string uNftSymbol) external
-```
-
-_Initializes the uNFT_
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| underlyingAsset | address | The address of the underlying asset of this uNFT (E.g. PUNK for bPUNK) |
-| uNftName | string |  |
-| uNftSymbol | string |  |
+## Methods
 
 ### mint
 
-```solidity
+```
 function mint(address to, uint256 tokenId) external
 ```
 
@@ -41,7 +15,7 @@ _Mints uNFT token to the user address
 Requirements:
  - The caller must be contract address_
 
-#### Parameters
+#### Call Params
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
@@ -50,7 +24,7 @@ Requirements:
 
 ### burn
 
-```solidity
+```
 function burn(uint256 tokenId) external
 ```
 
@@ -59,90 +33,88 @@ _Burns user uNFT token
 Requirements:
  - The caller must be contract address_
 
-#### Parameters
+#### Call Params
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | tokenId | uint256 | token id of the underlying asset of NFT |
 
-### flashLoan
-
-```solidity
-function flashLoan(address receiverAddress, uint256[] nftTokenIds, bytes params) external
-```
-
-_See {IUNFT-flashLoan}._
 
 ### tokenURI
 
-```solidity
+```
 function tokenURI(uint256 tokenId) public view virtual returns (string)
 ```
 
-_See {IERC721Metadata-tokenURI}._
+#### Call Params
+
+| Name         | Type    | Description|
+| ------------ | ------- |------------------------------- |
+| tokenId       |uint256  | Nft Id|
+
+#### Return Values
+ Type    | Description|
+ ------- |------------------------------- |
+string  | Uri of the NFT|
 
 ### onERC721Received
 
-```solidity
+```
 function onERC721Received(address operator, address from, uint256 tokenId, bytes data) external pure returns (bytes4)
 ```
+Whenever an IERC721 tokenId token is transferred to this contract via IERC721.safeTransferFrom by operator from from, this function is called.
 
-_See {ERC721EnumerableUpgradeable}._
+It must return its Solidity selector to confirm the token transfer. If any other value is returned or the interface is not implemented by the recipient, the transfer will be reverted.
+
 
 ### minterOf
 
-```solidity
+```
 function minterOf(uint256 tokenId) external view returns (address)
 ```
-
-_See {IUNFT-minterOf}._
+{% hint style="danger" %}
+This method is disabled ,it will revert the transaction
+{% endhint %}
 
 ### approve
 
-```solidity
+```
 function approve(address to, uint256 tokenId) public virtual
 ```
 
-_Being non transferrable, the uNFT token does not implement any of the
-standard ERC721 functions for transfer and allowance._
+{% hint style="danger" %}
+This method is disabled ,it will revert the transaction
+{% endhint %}
 
 ### setApprovalForAll
 
-```solidity
+```
 function setApprovalForAll(address operator, bool approved) public virtual
 ```
+{% hint style="danger" %}
+This method is disabled ,it will revert the transaction
+{% endhint %}
 
-_See {ERC721EnumerableUpgradeable}._
-
-### transferFrom
-
-```solidity
-function transferFrom(address from, address to, uint256 tokenId) public virtual
-```
-
-_See {ERC721EnumerableUpgradeable}._
 
 ### safeTransferFrom
 
-```solidity
+```
 function safeTransferFrom(address from, address to, uint256 tokenId) public virtual
 ```
-
-_See {ERC721EnumerableUpgradeable}._
+{% hint style="danger" %}
+This method is disabled ,it will revert the transaction
+{% endhint %}
 
 ### safeTransferFrom
 
-```solidity
+```
 function safeTransferFrom(address from, address to, uint256 tokenId, bytes _data) public virtual
 ```
+{% hint style="danger" %}
+This method is disabled ,it will revert the transaction
+{% endhint %}
+### flashLoan
 
-_See {ERC721EnumerableUpgradeable}._
-
-### _transfer
-
-```solidity
-function _transfer(address from, address to, uint256 tokenId) internal virtual
 ```
-
-_See {ERC721EnumerableUpgradeable}._
-
+function flashLoan(address receiverAddress, uint256[] nftTokenIds, bytes params) external
+```

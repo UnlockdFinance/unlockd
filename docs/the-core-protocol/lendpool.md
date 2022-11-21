@@ -33,8 +33,8 @@ This can be done via the standard ERC20 `approve()` method.
 
 #### Call Params
 
-| Name         | Type    | Description                                                                                                                 |
-| ------------ | ------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Name         | Type    | Description|
+| ------------ | ------- |------------------------------- |
 | asset        | address | the address of the underlying asset (ERC20)                                                                                 |
 | amount       | uint256 | the amount to deposit expressed in wei units                                                                                |
 | onBehalfOf   | address | <p>address whom will receive the uTokens.<br>Use <code>msg.sender</code> when the uTokens should be sent to the caller.</p> |
