@@ -46,10 +46,6 @@ Deposits the user-chosen amount of ETH into the protocol, minting the same amoun
 
 Example: Bob deposits 100 ETH into Unlockd, and gets 100 uWETH in return as proof of the deposited amount.
 
-{% hint style="danger" %}
-The referral program is coded but inactive. You can pass a 0 as `referralCode.`
-{% endhint %}
-
 {% hint style="warning" %}
 Ensure that the `depositETH()` transaction also includes the amount of ETH you are depositing in the `msg.value`.
 {% endhint %}
@@ -81,70 +77,3 @@ Ensure you set the relevant ERC20 allowance of uWETH, before calling this functi
 | amount | uint256 | The amount to be withdrawn                  |
 | to     | address | address that will receive the unwrapped ETH |
 
-### borrowETH
-
-`function borrowETH(uint256 amount, address nftAsset, uint256 nftTokenId, address onBehalfOf, uint16 referralCode) external override nonReentrant`
-
-Borrows `amount` of WETH, sending the `amount` of unwrapped WETH to `msg.sender`.
-
-Example: Alice borrows 10 ETH using her Lockey NFT with tokenid 1 as collateral.&#x20;
-
-{% hint style="danger" %}
-The referral program is coded but inactive. You can pass a 0 as `referralCode.`
-{% endhint %}
-
-{% hint style="warning" %}
-The borrowing can only be done if your NFT is configured on the protocol.
-
-To do this, the triggerUserCollateral needs to be called first. \
-Also, there's a `_timeFrame` variable configured that will validate the time between configuring the NFT and the borrow. If the time is exceeded, it will revert.\
-
-
-The `_timeFrame` can be checked with the `getTimeframe()` function in the LendPool contract
-{% endhint %}
-
-#### Call params
-
-| Amount       | Type    | Description                                                                                                                       |
-| ------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| amount       | uint256 | Amount to be borrowed, expressed in wei units                                                                                     |
-| nftAsset     | address | The NFT contract address                                                                                                          |
-| nftTokenId   | uint256 | The NFT token Id                                                                                                                  |
-| onBehalfOf   | address | <p>address of user who will incur the debt.</p><p>Use <code>msg.sender</code> when not calling on behalf of a different user.</p> |
-| referralCode | uint16  | Referral code. The referral program is currently in development. Therefore, `referralCode` must be set to 0.                      |
-
-### repayETH
-
-`function _repayETH( address nftAsset, uint256 nftTokenId, uint256 amount, uint256 accAmount ) internal returns (uint256, bool)`
-
-Repays a borrowed `amount` equal to or less than the amount owed from the specified collateral, `nftAsset`. It will burn the same `amount` of `debt tokens`.
-
-Example: Alice decides to pay 2 ETH from the borrowed amount. Alice will use her uNFT to identify the loan, will give 2 ETH and will burn the same amount in debt tokens.
-
-{% hint style="warning" %}
-Ensure that the `repayETH()` transaction also includes the amount of ETH you are repaying in the `msg.value`.
-{% endhint %}
-
-#### Call params
-
-| Name       | Type    | Description                                 |
-| ---------- | ------- | ------------------------------------------- |
-| nftAsset   | address | The NFT contract address                    |
-| nftTokenId | uint256 | The NFT token Id                            |
-| amount     | uint256 | Amount to be repaid, expressed in wei units |
-| accAmount  | uint256 | The accumulated amount                      |
-
-#### Return values
-
-| Type    | Description                                                         |
-| ------- | ------------------------------------------------------------------- |
-| uint256 | The paid amount                                                     |
-| bool    |  `true` if the total amount is repaid or `false` if partially paid. |
-
-### repayETH
-
-`function _repayETH( address nftAsset, uint256 nftTokenId, uint256 amount, uint256 accAmount ) internal returns (uint256, bool)`
-
-Repays a borrowed `amount` equal to or less than the amount owed from the specified collateral, `nftAsset`. It will burn the same `amount` of `debt tokens`.
-
-Example: Alice decides to pay 2 ETH from the borrowed amount. Alice will use her uNFT to identify the loan, will give 2 ETH and will burn the same amount in debt tokens.

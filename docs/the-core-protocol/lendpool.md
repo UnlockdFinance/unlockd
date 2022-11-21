@@ -1,3 +1,7 @@
+---
+description: lendpool.sol
+---
+
 # LendPool
 
 The `LendPool` contract is the main contract of the protocol. It exposes all the user-oriented actions that can be invoked using either Solidity or web3 libraries.
@@ -88,6 +92,159 @@ Returns the normalized variable debt per unit of asset.
 | Type    | Description                     |
 | ------- | ------------------------------- |
 | uint256 | normalized variable debt amount |
+
+### getReserveData
+
+`function getReserveData(address asset) external view override returns (DataTypes.ReserveData memory)`
+
+Returns the state and configuration of the reserve.
+
+#### Call Params
+
+| Name  | Type    | Description                                 |
+| ----- | ------- | ------------------------------------------- |
+| asset | address | the address of the underlying asset (ERC20) |
+
+#### Return Values
+
+| Type                    | Description                                                                                                                                                                                                                                                                                                  |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `DataTypes.ReserveData` | <p>The reserve data struct</p><p>ReserveConfigurationMap configuration, </p><p>liquidityIndex, </p><p>variableBorrowIndex, </p><p>currentLiquidityRate, </p><p>currentVariableBorrowRate, </p><p>lastUpdateTimestamp,</p><p>uTokenAddress,</p><p>debtTokenAddress, </p><p>interestRateAddress,</p><p>id;</p> |
+
+### getNftData
+
+`function getNftData(address asset) external view override returns (DataTypes.NftData memory)`
+
+Returns the state and configuration of the NFT.
+
+#### Call Params
+
+| Name  | Type    | Description                                  |
+| ----- | ------- | -------------------------------------------- |
+| asset | address | the address of the underlying asset (ERC721) |
+
+#### Return Values
+
+| Type                | Description                                                                                                                                  |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DataTypes.NftData` | <p>Returns the NFT data Struct:</p><p>NftConfigurationMap configuration,</p><p>uNftAddress,</p><p>id,</p><p>maxSupply,</p><p>maxTokenId;</p> |
+
+### getNftCollateralData
+
+`function getNftCollateralData(address nftAsset, uint256 nftTokenId, address reserveAsset) external view override returns (uint256 totalCollateralInETH, uint256 totalCollateralInReserve, uint256 availableBorrowsInETH,  uint256 availableBorrowsInReserve, uint256 ltv, uint256 liquidationThreshold, uint256 liquidationBonus)`
+
+Returns the loan data of the NFT by TokenId.
+
+#### Call Params
+
+| Name         | Type    | Description                                         |
+| ------------ | ------- | --------------------------------------------------- |
+| nftAsset     | address | the address of the underlying asset (ERC721)        |
+| nftTokenId   | uint256 | the tokenId of the underlying asset                 |
+| reserveAsset | address | the address of the underlying reserve asset (ERC20) |
+
+#### Return Values
+
+| Name                      | Type    | Description                                |
+| ------------------------- | ------- | ------------------------------------------ |
+| totalCollateralInETH      | uint256 | the total collateral in ETH of the NFT     |
+| totalCollateralInReserve  | uint256 | the total collateral in Reserve of the NFT |
+| availableBorrowsInETH     | uint256 | the borrowing power in ETH of the NFT      |
+| availableBorrowsInReserve | uint256 | the borrowing power in Reserve of the NFT  |
+| ltv                       | uint256 | loan to value for the NFT/User             |
+| liquidationThreshold      | uint256 | the liquidation threshold of the NFT       |
+| liquidationBonus          | uint256 | the liquidation bonus of the NFT           |
+
+### getNftDebtData
+
+`function getNftDebtData(address nftAsset, uint256 nftTokenId) external view override returns (uint256 loanId, address reserveAsset, uint256 totalCollateral, uint256 totalDebt, uint256 availableBorrows, uint256 healthFactor)`
+
+Returns the debt data of the NFT.
+
+#### Call Params
+
+| Name       | Type    | Description                                  |
+| ---------- | ------- | -------------------------------------------- |
+| nftAsset   | address | the address of the underlying asset (ERC721) |
+| nftTokenId | uint256 | the tokenId of the underlying asset          |
+
+#### Return Values
+
+| Name             | Type    | Description                          |
+| ---------------- | ------- | ------------------------------------ |
+| loanId           | uint256 | the loan id of the NFT               |
+| reserveAsset     | address | the address of the Reserve           |
+| totalCollateral  | uint256 | the total power of the NFT           |
+| totalDebt        | uint256 | the total debt of the NFT            |
+| availableBorrows | uint256 | the borrowing power left of the NFT  |
+| healthFactor     | uint256 | the current health factor of the NFT |
+
+### getNftAuctionDatagetNftAuctionData
+
+`function getNftAuctionData(address nftAsset, uint256 nftTokenId) external view override returns (uint256 loanId, address bidderAddress, uint256 bidPrice, uint256 bidBorrowAmount, uint256 bidFine)`
+
+Returns the auction data of the NFT.
+
+#### Call Params
+
+| Name       | Type    | Description                                  |
+| ---------- | ------- | -------------------------------------------- |
+| nftAsset   | address | the address of the underlying asset (ERC721) |
+| nftTokenId | uint256 | the tokenId of the underlying asset          |
+
+#### Return Values
+
+| Name            | Type    | Description                                         |
+| --------------- | ------- | --------------------------------------------------- |
+| loanId          | uint256 | the loan id of the NFT                              |
+| bidderAddress   | address | the highest bidder address of the loan              |
+| bidPrice        | uint256 | the highest bid price in Reserve of the loan        |
+| bidBorrowAmount | uint256 | the borrow amount in Reserve of the loan            |
+| bidFine         | uint256 | the penalty fine of the loan paid to the 1st bidder |
+
+### getNftLiquidatePrice
+
+`function getNftLiquidatePrice(address nftAsset, uint256 nftTokenId) external view override returns (uint256 liquidatePrice, uint256 paybackAmount)`
+
+Returns the liquidation price and the payback amount.
+
+#### Call Params
+
+| Name       | Type    | Description                                  |
+| ---------- | ------- | -------------------------------------------- |
+| nftAsset   | address | the address of the underlying asset (ERC721) |
+| nftTokenId | uint256 | the tokenId of the underlying asset          |
+
+#### Return Values
+
+| Name           | Type    | Description                                                                          |
+| -------------- | ------- | ------------------------------------------------------------------------------------ |
+| liquidatePrice | uint256 | the liquidation price of the NFT is less than the payback amount it becomes the same |
+| paybackAmount  | uint256 | the payback amount for the NFT                                                       |
+
+### getReservesList
+
+`function getReservesList() external view override returns (address[] memory)`
+
+Returns the list of the initialized reserves.
+
+#### Return Values
+
+| Type                          | Description                                 |
+| ----------------------------- | ------------------------------------------- |
+| array of address (address\[]) | A list of address, the initialized reserves |
+
+### getNftsList
+
+`function getNftsList() external view override returns (address[] memory)`
+
+Returns the list of the initialized NFTs.
+
+#### Return Values
+
+| Type                          | Description                                     |
+| ----------------------------- | ----------------------------------------------- |
+| array of address (address\[]) | A list of address, the initialized NFT reserves |
 
 ## Write Methods
 
