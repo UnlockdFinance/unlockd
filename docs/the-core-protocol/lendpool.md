@@ -155,31 +155,3 @@ If there's a second bid, the first bidder will get a 2.5% bidFine for being the 
 | nftTokenId | uint256 | the underlying NFT token Id used as collateral with HF < 1                                             |
 | bidPrice   | uint256 | the amount that the msg.sender decides to bid needs to be higher than previous or the debt amount + 1% |
 | onBehalfOf | address | address whom will receive the NFT in case the auction is successful                                    |
-
-### redeem
-
-`function redeem(address nftAsset, uint256 nftTokenId, uint256 amount, uint256 bidFine) external override nonReentrant whenNotPaused returns (uint256)`
-
-Redeem should be used by the NFT Owner in case the NFT goes into auction and he wants to keep his NFT.
-
-{% hint style="info" %}
-If the auction starts and the redeem duration are still available, the user can pay an amount to increase the Health Factor.&#x20;
-
-The amount needs to be higher than the `(borrowAmount * redeemThreshold)/100`
-{% endhint %}
-
-#### Call Params
-
-| Name       | Type    | Description                                                                                              |
-| ---------- | ------- | -------------------------------------------------------------------------------------------------------- |
-| nftAsset   | address | the underlying NFT address used as collateral with HF < 1 and `redeemDuration` available                 |
-| nftTokenId | uint256 | the underlying NFT token Id used as collateral with HF < 1 and `redeemDuration` available                |
-| amount     | uint256 | the amount that NFT Owner decides to pay                                                                 |
-| bidFine    | uint256 | the 2.5 fee the user needs to pay to the first bidder in case someone bidded during the `redeemDuration` |
-
-#### Return Values
-
-| Type    | Description           |
-| ------- | --------------------- |
-| uint256 | paid amount + bidFine |
-
