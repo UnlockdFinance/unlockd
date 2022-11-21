@@ -1,34 +1,29 @@
-import path from "path";
+import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-etherscan";
+import "@nomiclabs/hardhat-waffle";
+import "@typechain/hardhat";
+import { fork } from "child_process";
 import fs from "fs";
+import { bootstrap } from "global-agent";
+import "hardhat-contract-sizer";
+import "hardhat-dependency-compiler";
+import "hardhat-gas-reporter";
 import { HardhatUserConfig } from "hardhat/types";
+import path from "path";
+import "solidity-coverage";
+import "solidity-docgen";
+import { BLOCK_TO_FORK, buildForkConfig, buildUnlockdForkConfig, NETWORKS_DEFAULT_GAS } from "./helper-hardhat-config";
+import { BUIDLEREVM_CHAINID } from "./helpers/buidler-constants";
+import { eEthereumNetwork, eNetwork } from "./helpers/types";
 // @ts-ignore
 import { accounts } from "./test-wallets.js";
-import { eEthereumNetwork, eNetwork } from "./helpers/types";
-import { BUIDLEREVM_CHAINID } from "./helpers/buidler-constants";
-import {
-  NETWORKS_DEFAULT_GAS,
-  BLOCK_TO_FORK,
-  buildForkConfig,
-  buildUnlockdForkConfig,
-} from "./helper-hardhat-config";
-import "solidity-docgen";
 require("dotenv").config();
 
-import { bootstrap } from "global-agent";
 if (process.env.GLOBAL_AGENT_HTTP_PROXY) {
   console.log("Enable Global Agent:", process.env.GLOBAL_AGENT_HTTP_PROXY);
   bootstrap();
 }
 
-import "@typechain/hardhat";
-import "@nomiclabs/hardhat-ethers";
-import "@nomiclabs/hardhat-waffle";
-import "@nomiclabs/hardhat-etherscan";
-import "hardhat-gas-reporter";
-import "hardhat-contract-sizer";
-import "hardhat-dependency-compiler";
-import "solidity-coverage";
-import { fork } from "child_process";
 require("hardhat-storage-layout-diff");
 
 const SKIP_LOAD = process.env.SKIP_LOAD === "true";
@@ -40,7 +35,7 @@ const MNEMONIC_PATH = "m/44'/60'/0'/0";
 const MNEMONIC = process.env.MNEMONIC || "";
 const UNLIMITED_BYTECODE_SIZE = process.env.UNLIMITED_BYTECODE_SIZE === "true";
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
-const RPC_ENDPOINT = process.env.RPC_ENDPOINT || ""
+const RPC_ENDPOINT = process.env.RPC_ENDPOINT || "";
 
 // Prevent to load scripts before compilation and typechain
 if (!SKIP_LOAD) {
@@ -150,7 +145,7 @@ const buidlerConfig: HardhatUserConfig = {
   },
   docgen: {
     outputDir: "docs",
-    pages:"files"
+    pages: "files",
   },
 };
 
