@@ -89,30 +89,6 @@ Returns the normalized variable debt per unit of asset.
 | ------- | ------------------------------- |
 | uint256 | normalized variable debt amount |
 
-### getReserveData
-
-`function getReserveData(address asset) external view override returns (DataTypes.ReserveData memory)`
-
-Returns the state and configuration of the reserve.
-
-#### Call Params
-
-| Name  | Type    | Description                                 |
-| ----- | ------- | ------------------------------------------- |
-| asset | address | the address of the underlying asset (ERC20) |
-
-#### Return Values
-
-| Type                    | Description                                                                                                                                                                                                                                                                                                  |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `DataTypes.ReserveData` | <p>The reserve data struct</p><p>ReserveConfigurationMap configuration, </p><p>liquidityIndex, </p><p>variableBorrowIndex, </p><p>currentLiquidityRate, </p><p>currentVariableBorrowRate, </p><p>lastUpdateTimestamp,</p><p>uTokenAddress,</p><p>debtTokenAddress, </p><p>interestRateAddress,</p><p>id;</p> |
-
-### getNftData
-
-`function getNftData(address asset) external view override returns (DataTypes.NftData memory)`
-
-
-
 ## Write Methods
 
 ### deposit
