@@ -2,10 +2,10 @@
 
 The `LendPool` contract is the main contract of the protocol. It exposes all the user-oriented actions that can be invoked using either Solidity or web3 libraries.
 
-The source code can be found on [GitHub](https://github.com/UnlockdFinance/unlockd-protocol-v1/blob/master/contracts/protocol/LendPool.sol) here**.**
+The source code can be found on [GitHub](https://github.com/UnlockdFinance/unlockd-protocol-v1/blob/master/contracts/protocol/LendPool.sol) here\*\*.\*\*
 
 {% hint style="info" %}
-LendPool methods deposit, withdraw, triggerUserCollateral, borrow, repay, auction, redeem, liquidate, and liquidateNFTX are only for ERC20 and ERC721. \
+LendPool methods deposit, withdraw, triggerUserCollateral, borrow, repay, auction, redeem, liquidate, and liquidateNFTX are only for ERC20 and ERC721.\
 If you want to deposit, withdraw, triggerUserCollateral, borrow, repay, auction, or redeem using native ETH, use WETHGateway instead.\
 If you want to borrow or repay using CryptoPunks as collateral, use PunkGateway.
 {% endhint %}
@@ -37,14 +37,14 @@ The referral program is coded but inactive. You can pass a 0 as `referralCode.`
 {% endhint %}
 
 {% hint style="warning" %}
-When depositing, the `LendPool` contract must have`allowance()`**to spend funds on behalf of**`msg.sender` for at least the`amount of` the **`asset`** being deposited. \
+When depositing, the `LendPool` contract must have`allowance()`**to spend funds on behalf of**`msg.sender` for at least the`amount of` the **`asset`** being deposited.\
 This can be done via the standard ERC20 `approve()` method.
 {% endhint %}
 
 #### Call Params
 
-| Name         | Type    | Description|
-| ------------ | ------- |------------------------------- |
+| Name         | Type    | Description                                                                                                                 |
+| ------------ | ------- | --------------------------------------------------------------------------------------------------------------------------- |
 | asset        | address | the address of the underlying asset (ERC20)                                                                                 |
 | amount       | uint256 | the amount to deposit expressed in wei units                                                                                |
 | onBehalfOf   | address | <p>address whom will receive the uTokens.<br>Use <code>msg.sender</code> when the uTokens should be sent to the caller.</p> |
@@ -54,7 +54,7 @@ This can be done via the standard ERC20 `approve()` method.
 
 `function withdraw(address asset, uint256 amount, address to) external override nonReentrant whenNotPaused returns (uint256)`
 
-Withdraws the amount of the underlying `asset` based on the `amount` of uTokens being held and burns the same amount of uTokens.&#x20;
+Withdraws the amount of the underlying `asset` based on the `amount` of uTokens being held and burns the same amount of uTokens.
 
 Example: Bob withdraws 10 ETH. Bob will get 10 ETH and will burn the same amount in uTokens.
 
@@ -86,7 +86,7 @@ This will ensure that the user holds the `nftAsset` or the uNFT version of it (E
 This function needs to be done before borrowing. Otherwise, it will revert.
 {% endhint %}
 
-#### Call Params&#x20;
+#### Call Params
 
 | Name       | Type    | Description                                                |
 | ---------- | ------- | ---------------------------------------------------------- |
@@ -99,7 +99,7 @@ This function needs to be done before borrowing. Otherwise, it will revert.
 
 The user will be able to borrow an `amount` of `asset` using his `nftAsset` as collateral to a wallet `onBehalfOf` and will also receive the same `amount` in debt tokens as proof of debt.
 
-Example: Alice borrows 10 ETH using her Lockey NFT with tokenid 1. \
+Example: Alice borrows 10 ETH using her Lockey NFT with tokenid 1.\
 Alice will lock her NFT and get a uNFT (wrapped version of the collateral), debt tokens representing her debt to the protocol and the 10 ETH.
 
 {% hint style="danger" %}
@@ -109,9 +109,8 @@ The referral program is coded but inactive. You can pass a 0 as `referralCode.`
 {% hint style="warning" %}
 The borrowing can only be done if your NFT is configured on the protocol.
 
-To do this, the triggerUserCollateral needs to be called first. \
-Also, there's a `_timeFrame` variable configured that will validate the time between configuring the NFT and the borrow. If the time is exceeded, it will revert.\
-
+To do this, the triggerUserCollateral needs to be called first.\
+Also, there's a `_timeFrame` variable configured that will validate the time between configuring the NFT and the borrow. If the time is exceeded, it will revert.\\
 
 The `_timeFrame` can be checked with `getTimeframe()`
 {% endhint %}
@@ -137,11 +136,11 @@ Example: Alice decides to pay 2 ETH from the borrowed amount. Alice will use her
 
 #### Call Params
 
-| Name       | Type    | Description                                     |
-| ---------- | ------- | ----------------------------------------------- |
-| nftAsset   | address | the underlying NFT address used as collateral   |
-| nftTokenId | uint256 | the underlying NFT token Id used as collateral  |
-| amount     | uint256 | the amount that the user wants to repay         |
+| Name       | Type    | Description                                    |
+| ---------- | ------- | ---------------------------------------------- |
+| nftAsset   | address | the underlying NFT address used as collateral  |
+| nftTokenId | uint256 | the underlying NFT token Id used as collateral |
+| amount     | uint256 | the amount that the user wants to repay        |
 
 #### Return Values
 
@@ -154,11 +153,11 @@ Example: Alice decides to pay 2 ETH from the borrowed amount. Alice will use her
 
 `function auction(address nftAsset, uint256 nftTokenId, uint256 bidPrice, address onBehalfOf) external override nonReentrant whenNotPaused`
 
-When the health factor is below one, the users can trigger an auction if they want to buy the collateral asset, the NFT used in the loan. The `bidPrice` needs to be higher than&#x20;
+When the health factor is below one, the users can trigger an auction if they want to buy the collateral asset, the NFT used in the loan. The `bidPrice` needs to be higher than
 
 When a user bids, the money gets locked on the contract till someone outbids or the liquidation happens.
 
-Example: Alice's NFT price went down, and the health factor (HF) went below 1. Bob, that loves the Lockeys decide to bid. \
+Example: Alice's NFT price went down, and the health factor (HF) went below 1. Bob, that loves the Lockeys decide to bid.\
 If there's a second bid, the first bidder will get a 2.5% bidFine for being the first. The bidFine will also be paid if Alice decides to redeem part of the debt and make the HF go above one.
 
 | Name       | Type    | Description                                                                                            |
@@ -175,7 +174,7 @@ If there's a second bid, the first bidder will get a 2.5% bidFine for being the 
 Redeem should be used by the NFT Owner in case the NFT goes into auction and he wants to keep his NFT.
 
 {% hint style="info" %}
-If the auction starts and the redeem duration are still available, the user can pay an amount to increase the Health Factor.&#x20;
+If the auction starts and the redeem duration are still available, the user can pay an amount to increase the Health Factor.
 
 The amount needs to be higher than the `(borrowAmount * redeemThreshold)/100`
 {% endhint %}
@@ -223,21 +222,21 @@ Example: Bob wins the auction. He can call this function to get his collateral (
 
 `function liquidateNFTX(address nftAsset, uint256 nftTokenId)`
 
-If there are no bids in an auction, and to provide liquidity, we liquidate the NFT on the NFTX marketplace.&#x20;
+If there are no bids in an auction, and to provide liquidity, we liquidate the NFT on the NFTX marketplace.
 
 {% hint style="warning" %}
 The price NFT needs to have liquidity available on NFTX Protocol.
 
-In case of a loss, the protocol reserves will pay for the money lost.
+In case of a loss, the protocol treasury will pay for the money lost.
 {% endhint %}
 
 Example: Alices NFT didn't receive any NFT and the `borrowAmount` + 1% = 10ETH;\
-Case 1: we sell the NFT on NFTX for 12 ETH, we pay the protocol and the remainder goes to the user.
+Case 1: we sell the NFT on NFTX for 12 ETH, pay the protocol, and the remainder goes to the user.
 
-Case 2: we sell the NFT on NFTX for 9.5 ETH. The missing ETH for the debt to get paid will come from the protocol's reserves.&#x20;
+Case 2: we sell the NFT on NFTX for 9.5 ETH. The missing ETH for the debt to get paid will come from the protocol's treasury.&#x20;
 
 {% hint style="warning" %}
-If the protocol reserves are less than the missing amount, it reverts.
+If the protocol treasury has less than the missing amount, it reverts.
 {% endhint %}
 
 ### Call Params
