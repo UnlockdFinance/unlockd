@@ -12,6 +12,8 @@ If you want to borrow or repay using CryptoPunks as collateral, use PunkGateway.
 
 ## View Methods
 
+### getReserveConfiguration
+
 `function getReserveConfiguration(address asset) external view override returns (DataTypes.ReserveConfigurationMap memory)`
 
 Returns the configuration of the reserve.
@@ -21,6 +23,71 @@ Returns the configuration of the reserve.
 | Name  | Type    | Description                                 |
 | ----- | ------- | ------------------------------------------- |
 | asset | address | the address of the underlying asset (ERC20) |
+
+#### Return Values
+
+| Type                              | Description                                                                                                                                                                                                                                                                                             |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DataTypes.ReserveConfigurationMap | <p>The reserve configuration values are stored on-chain: <br>LTV, </p><p>Liq. threshold,</p><p>Liq. bonus,</p><p>Decimals,</p><p>Reserve is active,</p><p>Reserve is frozen,</p><p>Borrowing is enabled, </p><p>Stable rate borrowing enabled, </p><p>Reserved, </p><p>Reserve factor uint256 data;</p> |
+
+### getNftConfigByTokenId
+
+`function getNftConfigByTokenId(address asset, uint256 nftTokenId) external view override returns (DataTypes.NftConfigurationMap memory)`
+
+Returns the configuration of the NFT collection as a default config.&#x20;
+
+{% hint style="info" %}
+Each NFT has its own configuration by `tokenId`, not by collection.
+{% endhint %}
+
+#### Call Params
+
+| Name       | Type    | Description                                  |
+| ---------- | ------- | -------------------------------------------- |
+| asset      | address | the address of the underlying asset (ERC721) |
+| nftTokenId | uint256 | the tokenId of the underlying asset (ERC721) |
+
+#### Return Values
+
+| Type                          | Description                                                                                                                                                                                                                                                                                   |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DataTypes.NftConfigurationMap | <p>The reserve configuration values are stored on-chain: <br>LTV, </p><p>Liq. threshold,</p><p>Liq. bonus,</p><p>NFT is active,</p><p>NFT is frozen,</p><p>Redeem duration,</p><p>Auction duration,</p><p>Redeem fine,</p><p>Redeem threshold</p><p>Min bid fine,</p><p>timestamp config;</p> |
+
+### getReserveNormalizedIncome
+
+`function getReserveNormalizedIncome(address asset) external view override returns (uint256)`
+
+Returns the normalized income of the reserve.
+
+#### Call Params
+
+| Name  | Type    | Description                                 |
+| ----- | ------- | ------------------------------------------- |
+| asset | address | the address of the underlying asset (ERC20) |
+
+#### Return Values
+
+| Type    | Description               |
+| ------- | ------------------------- |
+| uint256 | normalized income amount. |
+
+### getReserveNormalizedVariableDebt
+
+`function getReserveNormalizedVariableDebt(address asset) external view override returns (uint256)`
+
+Returns the normalized variable debt per unit of asset.
+
+#### Call Params
+
+|       |         |                                             |
+| ----- | ------- | ------------------------------------------- |
+| asset | address | the address of the underlying asset (ERC20) |
+
+#### Return Params
+
+| Type    | Description                     |
+| ------- | ------------------------------- |
+| uint256 | normalized variable debt amount |
 
 ## Write Methods
 
