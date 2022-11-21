@@ -1,36 +1,36 @@
 # LendPoolLoan
 
-### _addressesProvider
+### \_addressesProvider
 
 ```solidity
 contract ILendPoolAddressesProvider _addressesProvider
 ```
 
-### _loanIdTracker
+### \_loanIdTracker
 
 ```solidity
 struct CountersUpgradeable.Counter _loanIdTracker
 ```
 
-### _loans
+### \_loans
 
 ```solidity
 mapping(uint256 => struct DataTypes.LoanData) _loans
 ```
 
-### _nftToLoanIds
+### \_nftToLoanIds
 
 ```solidity
 mapping(address => mapping(uint256 => uint256)) _nftToLoanIds
 ```
 
-### _nftTotalCollateral
+### \_nftTotalCollateral
 
 ```solidity
 mapping(address => uint256) _nftTotalCollateral
 ```
 
-### _userNftCollateral
+### \_userNftCollateral
 
 ```solidity
 mapping(address => mapping(address => uint256)) _userNftCollateral
@@ -66,16 +66,16 @@ _Create store a loan object with some params_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| initiator | address | The address of the user initiating the borrow |
-| onBehalfOf | address | The address receiving the loan |
-| nftAsset | address | The address of the underlying NFT asset |
-| nftTokenId | uint256 | The token Id of the underlying NFT asset |
-| uNftAddress | address | The address of the uNFT token |
-| reserveAsset | address | The address of the underlying reserve asset |
-| amount | uint256 | The loan amount |
-| borrowIndex | uint256 | The index to get the scaled loan amount |
+| Name         | Type    | Description                                   |
+| ------------ | ------- | --------------------------------------------- |
+| initiator    | address | The address of the user initiating the borrow |
+| onBehalfOf   | address | The address receiving the loan                |
+| nftAsset     | address | The address of the underlying NFT asset       |
+| nftTokenId   | uint256 | The token Id of the underlying NFT asset      |
+| uNftAddress  | address | The address of the uNFT token                 |
+| reserveAsset | address | The address of the underlying reserve asset   |
+| amount       | uint256 | The loan amount                               |
+| borrowIndex  | uint256 | The index to get the scaled loan amount       |
 
 ### updateLoan
 
@@ -83,21 +83,22 @@ _Create store a loan object with some params_
 function updateLoan(address initiator, uint256 loanId, uint256 amountAdded, uint256 amountTaken, uint256 borrowIndex) external
 ```
 
-_Update the given loan with some params
+\_Update the given loan with some params
 
 Requirements:
- - The caller must be a holder of the loan
- - The loan must be in state Active_
+
+* The caller must be a holder of the loan
+* The loan must be in state Active\_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| initiator | address | The address of the user updating the loan |
-| loanId | uint256 | The loan ID |
-| amountAdded | uint256 | The amount added to the loan |
-| amountTaken | uint256 | The amount taken from the loan |
-| borrowIndex | uint256 | The index to get the scaled loan amount |
+| Name        | Type    | Description                               |
+| ----------- | ------- | ----------------------------------------- |
+| initiator   | address | The address of the user updating the loan |
+| loanId      | uint256 | The loan ID                               |
+| amountAdded | uint256 | The amount added to the loan              |
+| amountTaken | uint256 | The amount taken from the loan            |
+| borrowIndex | uint256 | The index to get the scaled loan amount   |
 
 ### repayLoan
 
@@ -105,22 +106,23 @@ Requirements:
 function repayLoan(address initiator, uint256 loanId, address uNftAddress, uint256 amount, uint256 borrowIndex) external
 ```
 
-_Repay the given loan
+\_Repay the given loan
 
 Requirements:
- - The caller must be a holder of the loan
- - The caller must send in principal + interest
- - The loan must be in state Active_
+
+* The caller must be a holder of the loan
+* The caller must send in principal + interest
+* The loan must be in state Active\_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| initiator | address | The address of the user initiating the repay |
-| loanId | uint256 | The loan getting burned |
-| uNftAddress | address | The address of uNFT |
-| amount | uint256 | The amount repaid |
-| borrowIndex | uint256 | The index to get the scaled loan amount |
+| Name        | Type    | Description                                  |
+| ----------- | ------- | -------------------------------------------- |
+| initiator   | address | The address of the user initiating the repay |
+| loanId      | uint256 | The loan getting burned                      |
+| uNftAddress | address | The address of uNFT                          |
+| amount      | uint256 | The amount repaid                            |
+| borrowIndex | uint256 | The index to get the scaled loan amount      |
 
 ### auctionLoan
 
@@ -128,22 +130,23 @@ Requirements:
 function auctionLoan(address initiator, uint256 loanId, address onBehalfOf, uint256 bidPrice, uint256 borrowAmount, uint256 borrowIndex) external
 ```
 
-_Auction the given loan
+\_Auction the given loan
 
 Requirements:
- - The price must be greater than current highest price
- - The loan must be in state Active or Auction_
+
+* The price must be greater than current highest price
+* The loan must be in state Active or Auction\_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| initiator | address | The address of the user initiating the auction |
-| loanId | uint256 | The loan getting auctioned |
-| onBehalfOf | address |  |
-| bidPrice | uint256 | The bid price of this auction |
-| borrowAmount | uint256 |  |
-| borrowIndex | uint256 |  |
+| Name         | Type    | Description                                    |
+| ------------ | ------- | ---------------------------------------------- |
+| initiator    | address | The address of the user initiating the auction |
+| loanId       | uint256 | The loan getting auctioned                     |
+| onBehalfOf   | address |                                                |
+| bidPrice     | uint256 | The bid price of this auction                  |
+| borrowAmount | uint256 |                                                |
+| borrowIndex  | uint256 |                                                |
 
 ### redeemLoan
 
@@ -151,20 +154,21 @@ Requirements:
 function redeemLoan(address initiator, uint256 loanId, uint256 amountTaken, uint256 borrowIndex) external
 ```
 
-_Redeem the given loan with some params
+\_Redeem the given loan with some params
 
 Requirements:
- - The caller must be a holder of the loan
- - The loan must be in state Auction_
+
+* The caller must be a holder of the loan
+* The loan must be in state Auction\_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| initiator | address | The address of the user initiating the borrow |
-| loanId | uint256 | The loan getting redeemed |
-| amountTaken | uint256 | The taken amount |
-| borrowIndex | uint256 | The index to get the scaled loan amount |
+| Name        | Type    | Description                                   |
+| ----------- | ------- | --------------------------------------------- |
+| initiator   | address | The address of the user initiating the borrow |
+| loanId      | uint256 | The loan getting redeemed                     |
+| amountTaken | uint256 | The taken amount                              |
+| borrowIndex | uint256 | The index to get the scaled loan amount       |
 
 ### liquidateLoan
 
@@ -172,21 +176,22 @@ Requirements:
 function liquidateLoan(address initiator, uint256 loanId, address uNftAddress, uint256 borrowAmount, uint256 borrowIndex) external
 ```
 
-_Liquidate the given loan
+\_Liquidate the given loan
 
 Requirements:
- - The caller must send in principal + interest
- - The loan must be in state Active_
+
+* The caller must send in principal + interest
+* The loan must be in state Active\_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| initiator | address | The address of the user initiating the auction |
-| loanId | uint256 | The loan getting burned |
-| uNftAddress | address | The address of uNFT |
-| borrowAmount | uint256 | The borrow amount |
-| borrowIndex | uint256 | The index to get the scaled loan amount |
+| Name         | Type    | Description                                    |
+| ------------ | ------- | ---------------------------------------------- |
+| initiator    | address | The address of the user initiating the auction |
+| loanId       | uint256 | The loan getting burned                        |
+| uNftAddress  | address | The address of uNFT                            |
+| borrowAmount | uint256 | The borrow amount                              |
+| borrowIndex  | uint256 | The index to get the scaled loan amount        |
 
 ### liquidateLoanNFTX
 
@@ -194,20 +199,21 @@ Requirements:
 function liquidateLoanNFTX(uint256 loanId, address uNftAddress, uint256 borrowAmount, uint256 borrowIndex) external returns (uint256 sellPrice)
 ```
 
-_Liquidate the given loan on NFTX
+\_Liquidate the given loan on NFTX
 
 Requirements:
- - The caller must send in principal + interest
- - The loan must be in state Auction_
+
+* The caller must send in principal + interest
+* The loan must be in state Auction\_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| loanId | uint256 | The loan getting burned |
-| uNftAddress | address |  |
-| borrowAmount | uint256 |  |
-| borrowIndex | uint256 |  |
+| Name         | Type    | Description             |
+| ------------ | ------- | ----------------------- |
+| loanId       | uint256 | The loan getting burned |
+| uNftAddress  | address |                         |
+| borrowAmount | uint256 |                         |
+| borrowIndex  | uint256 |                         |
 
 ### onERC721Received
 
@@ -215,13 +221,11 @@ Requirements:
 function onERC721Received(address operator, address from, uint256 tokenId, bytes data) external pure returns (bytes4)
 ```
 
-_Whenever an {IERC721} `tokenId` token is transferred to this contract via {IERC721-safeTransferFrom}
-by `operator` from `from`, this function is called.
+\_Whenever an {IERC721} `tokenId` token is transferred to this contract via {IERC721-safeTransferFrom} by `operator` from `from`, this function is called.
 
-It must return its Solidity selector to confirm the token transfer.
-If any other value is returned or the interface is not implemented by the recipient, the transfer will be reverted.
+It must return its Solidity selector to confirm the token transfer. If any other value is returned or the interface is not implemented by the recipient, the transfer will be reverted.
 
-The selector can be obtained in Solidity with `IERC721.onERC721Received.selector`._
+The selector can be obtained in Solidity with `IERC721.onERC721Received.selector`.\_
 
 ### borrowerOf
 
@@ -229,8 +233,7 @@ The selector can be obtained in Solidity with `IERC721.onERC721Received.selector
 function borrowerOf(uint256 loanId) external view returns (address)
 ```
 
-@dev returns the borrower of a specific loan
-param loanId the loan to get the borrower from
+@dev returns the borrower of a specific loan param loanId the loan to get the borrower from
 
 ### getCollateralLoanId
 
@@ -238,9 +241,7 @@ param loanId the loan to get the borrower from
 function getCollateralLoanId(address nftAsset, uint256 nftTokenId) external view returns (uint256)
 ```
 
-@dev returns the loan corresponding to a specific NFT
-param nftAsset the underlying NFT asset
-param tokenId the underlying token ID for the NFT
+@dev returns the loan corresponding to a specific NFT param nftAsset the underlying NFT asset param tokenId the underlying token ID for the NFT
 
 ### getLoan
 
@@ -248,8 +249,7 @@ param tokenId the underlying token ID for the NFT
 function getLoan(uint256 loanId) external view returns (struct DataTypes.LoanData loanData)
 ```
 
-@dev returns the loan corresponding to a specific loan Id
-param loanId the loan Id
+@dev returns the loan corresponding to a specific loan Id param loanId the loan Id
 
 ### getLoanCollateralAndReserve
 
@@ -257,8 +257,7 @@ param loanId the loan Id
 function getLoanCollateralAndReserve(uint256 loanId) external view returns (address nftAsset, uint256 nftTokenId, address reserveAsset, uint256 scaledAmount)
 ```
 
-@dev returns the collateral and reserve corresponding to a specific loan
-param loanId the loan Id
+@dev returns the collateral and reserve corresponding to a specific loan param loanId the loan Id
 
 ### getLoanReserveBorrowAmount
 
@@ -266,8 +265,7 @@ param loanId the loan Id
 function getLoanReserveBorrowAmount(uint256 loanId) external view returns (address, uint256)
 ```
 
-@dev returns the reserve and borrow  amount corresponding to a specific loan
-param loanId the loan Id
+@dev returns the reserve and borrow amount corresponding to a specific loan param loanId the loan Id
 
 ### getLoanReserveBorrowScaledAmount
 
@@ -275,8 +273,7 @@ param loanId the loan Id
 function getLoanReserveBorrowScaledAmount(uint256 loanId) external view returns (address, uint256)
 ```
 
-@dev returns the reserve and borrow __scaled__ amount corresponding to a specific loan
-param loanId the loan Id
+@dev returns the reserve and borrow **scaled** amount corresponding to a specific loan param loanId the loan Id
 
 ### getLoanHighestBid
 
@@ -290,8 +287,7 @@ function getLoanHighestBid(uint256 loanId) external view returns (address, uint2
 function getNftCollateralAmount(address nftAsset) external view returns (uint256)
 ```
 
-@dev returns the collateral amount for a given NFT
-param nftAsset the underlying NFT asset
+@dev returns the collateral amount for a given NFT param nftAsset the underlying NFT asset
 
 ### getUserNftCollateralAmount
 
@@ -299,11 +295,9 @@ param nftAsset the underlying NFT asset
 function getUserNftCollateralAmount(address user, address nftAsset) external view returns (uint256)
 ```
 
-@dev returns the collateral amount for a given NFT and a specific user
-param user the user
-param nftAsset the underlying NFT asset
+@dev returns the collateral amount for a given NFT and a specific user param user the user param nftAsset the underlying NFT asset
 
-### _getLendPool
+### \_getLendPool
 
 ```solidity
 function _getLendPool() internal view returns (contract ILendPool)
@@ -318,4 +312,3 @@ function getLoanIdTracker() external view returns (struct CountersUpgradeable.Co
 ```
 
 @dev returns the counter tracker for all the loan ID's in the protocol
-

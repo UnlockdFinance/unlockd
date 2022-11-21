@@ -54,7 +54,7 @@ When withdrawing `to` another address, the `msg.sender`should hold enough uToken
 
 #### Call Params
 
-| Name   | Type    |                                                  |
+| Name   | Type    | Description                                      |
 | ------ | ------- | ------------------------------------------------ |
 | asset  | address | address of the underlying asset (ERC20)          |
 | amount | uint256 | the amount to be withdraw expressed in wei units |

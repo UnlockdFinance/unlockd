@@ -1,5 +1,9 @@
 # NFTOracle
 
+The NFT Oracle contract accounts price data for the Unlockd protocol. The protocol’s LendPool contract uses it as a source of truth for prices, which are updated by Chainlink Price Feeds by using Chainlink Aggregators. Aggregators are added to the Oracle and tracked by a mapping, which maps each unique key  (`_priceFeedKeys)` to a single aggregator address. Each aggregator then provides price data for a specific reserve.
+
+The source code of the proxy price provider can be found on [Github](https://github.com/UnlockdFinance/unlockd-protocol-v1/blob/development/contracts/protocol/ReserveOracle.sol).
+
 ### CollectionAdded
 
 ```solidity
@@ -10,8 +14,8 @@ _Emitted when a collection is added to the oracle_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name       | Type    | Description          |
+| ---------- | ------- | -------------------- |
 | collection | address | The added collection |
 
 ### CollectionRemoved
@@ -24,8 +28,8 @@ _Emitted when a collection is removed from the oracle_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name       | Type    | Description            |
+| ---------- | ------- | ---------------------- |
 | collection | address | The removed collection |
 
 ### NFTPriceAdded
@@ -38,11 +42,11 @@ _Emitted when a price is added for an NFT asset_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _collection | address | The NFT collection |
-| _tokenId | uint256 | The NFT token Id |
-| _price | uint256 |  |
+| Name         | Type    | Description        |
+| ------------ | ------- | ------------------ |
+| \_collection | address | The NFT collection |
+| \_tokenId    | uint256 | The NFT token Id   |
+| \_price      | uint256 |                    |
 
 ### FeedAdminUpdated
 
@@ -54,8 +58,8 @@ _Emitted when the admin has been updated_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name  | Type    | Description   |
+| ----- | ------- | ------------- |
 | admin | address | The new admin |
 
 ### CollectionPaused
@@ -68,8 +72,8 @@ _Emitted when the pause status is set to a collection_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name   | Type | Description          |
+| ------ | ---- | -------------------- |
 | paused | bool | the new pause status |
 
 ### NotAdmin
@@ -174,19 +178,18 @@ modifier whenNotPaused(address _nftContract)
 function initialize(address _admin, address _nftxVaultFactory, address _sushiswapRouter, address _lendPoolConfigurator) public
 ```
 
-_Function is invoked by the proxy contract when the NFTOracle contract is added to the
-LendPoolAddressesProvider of the market._
+_Function is invoked by the proxy contract when the NFTOracle contract is added to the LendPoolAddressesProvider of the market._
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _admin | address | The admin address |
-| _nftxVaultFactory | address |  |
-| _sushiswapRouter | address |  |
-| _lendPoolConfigurator | address |  |
+| Name                   | Type    | Description       |
+| ---------------------- | ------- | ----------------- |
+| \_admin                | address | The admin address |
+| \_nftxVaultFactory     | address |                   |
+| \_sushiswapRouter      | address |                   |
+| \_lendPoolConfigurator | address |                   |
 
-### _whenNotPaused
+### \_whenNotPaused
 
 ```solidity
 function _whenNotPaused(address _contract) internal view
@@ -196,9 +199,9 @@ _checks whether the NFT oracle is paused_
 
 #### Parameters
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| _contract | address | The NFTOracle address |
+| Name       | Type    | Description           |
+| ---------- | ------- | --------------------- |
+| \_contract | address | The NFTOracle address |
 
 ### setCollections
 
@@ -206,8 +209,7 @@ _checks whether the NFT oracle is paused_
 function setCollections(address[] _collections) external
 ```
 
-_adds multiple collections to the oracle
-  @param _collections the array NFT collections to add_
+\_adds multiple collections to the oracle @param _collections the array NFT collections to add_
 
 ### addCollection
 
@@ -215,17 +217,15 @@ _adds multiple collections to the oracle
 function addCollection(address _collection) external
 ```
 
-_adds a collection to the oracle
-  @param _collection the NFT collection to add_
+\_adds a collection to the oracle @param _collection the NFT collection to add_
 
-### _addCollection
+### \_addCollection
 
 ```solidity
 function _addCollection(address _collection) internal
 ```
 
-_adds a collection to the oracle
-  @param _collection the NFT collection to add_
+\_adds a collection to the oracle @param _collection the NFT collection to add_
 
 ### removeCollection
 
@@ -233,17 +233,15 @@ _adds a collection to the oracle
 function removeCollection(address _collection) external
 ```
 
-_removes a collection from the oracle
-  @param _collection the NFT collection to remove_
+\_removes a collection from the oracle @param _collection the NFT collection to remove_
 
-### _removeCollection
+### \_removeCollection
 
 ```solidity
 function _removeCollection(address _collection) internal
 ```
 
-_removes a collection from the oracle
-  @param _collection the NFT collection to remove_
+\_removes a collection from the oracle @param _collection the NFT collection to remove_
 
 ### setNFTPrice
 
@@ -251,10 +249,7 @@ _removes a collection from the oracle
 function setNFTPrice(address _collection, uint256 _tokenId, uint256 _price) external
 ```
 
-_sets the price for a given NFT 
-  @param _collection the NFT collection
-  @param _tokenId the NFT token Id
-  @param _price the price to set to the token_
+\_sets the price for a given NFT @param \_collection the NFT collection @param \_tokenId the NFT token Id @param _price the price to set to the token_
 
 ### setMultipleNFTPrices
 
@@ -262,21 +257,15 @@ _sets the price for a given NFT
 function setMultipleNFTPrices(address[] _collections, uint256[] _tokenIds, uint256[] _prices) external
 ```
 
-_sets the price for a given NFT 
-  @param _collections the array of NFT collections
-  @param _tokenIds the array of  NFT token Ids
-  @param _prices the array of prices to set to the given tokens_
+\_sets the price for a given NFT @param \_collections the array of NFT collections @param \_tokenIds the array of NFT token Ids @param _prices the array of prices to set to the given tokens_
 
-### _setNFTPrice
+### \_setNFTPrice
 
 ```solidity
 function _setNFTPrice(address _collection, uint256 _tokenId, uint256 _price) internal
 ```
 
-_sets the price for a given NFT 
-  @param _collection the NFT collection
-  @param _tokenId the NFT token Id
-  @param _price the price to set to the token_
+\_sets the price for a given NFT @param \_collection the NFT collection @param \_tokenId the NFT token Id @param _price the price to set to the token_
 
 ### getNFTPrice
 
@@ -284,9 +273,7 @@ _sets the price for a given NFT
 function getNFTPrice(address _collection, uint256 _tokenId) external view returns (uint256)
 ```
 
-_returns the NFT price for a given NFT
-  @param _collection the NFT collection
-  @param _tokenId the NFT token Id_
+\_returns the NFT price for a given NFT @param \_collection the NFT collection @param _tokenId the NFT token Id_
 
 ### getMultipleNFTPrices
 
@@ -294,9 +281,7 @@ _returns the NFT price for a given NFT
 function getMultipleNFTPrices(address[] _collections, uint256[] _tokenIds) external view returns (uint256[])
 ```
 
-_returns the NFT price for a given array of NFTs
-  @param _collections the array of NFT collections
-  @param _tokenIds the array NFT token Id_
+\_returns the NFT price for a given array of NFTs @param \_collections the array of NFT collections @param _tokenIds the array NFT token Id_
 
 ### setPause
 
@@ -304,9 +289,7 @@ _returns the NFT price for a given array of NFTs
 function setPause(address _collection, bool paused) external
 ```
 
-_sets the pause status of the NFT oracle
-  @param _nftContract the of NFT collection
-  @param val the value to set the pausing status (true for paused, false for unpaused)_
+\_sets the pause status of the NFT oracle @param _nftContract the of NFT collection @param val the value to set the pausing status (true for paused, false for unpaused)_
 
 ### setPriceManagerStatus
 
@@ -320,7 +303,4 @@ function setPriceManagerStatus(address newPriceManager, bool val) external
 function getNFTPriceNFTX(address _collection, uint256 _tokenId) external view returns (uint256)
 ```
 
-_returns the NFT price for a given NFT valued by NFTX
-  @param _collection the NFT collection
-  @param _tokenId the NFT token Id_
-
+\_returns the NFT price for a given NFT valued by NFTX @param \_collection the NFT collection @param _tokenId the NFT token Id_

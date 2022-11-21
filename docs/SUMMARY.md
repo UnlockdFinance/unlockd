@@ -11,7 +11,7 @@
 * [uTokens](the-core-protocol/utokens.md)
 * [debt Tokens](the-core-protocol/debt-tokens.md)
 * [uNFTs](the-core-protocol/unfts.md)
-* [Reserves Oracle](the-core-protocol/reserves-oracle.md)
+* [Reserve Oracle](the-core-protocol/reserve-oracle.md)
 * [NFTOracle](the-core-protocol/nftoracle.md)
 * [WETH Gateway](the-core-protocol/weth-gateway.md)
 * [Punk Gateway](the-core-protocol/punk-gateway.md)
