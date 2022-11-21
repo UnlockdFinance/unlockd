@@ -46,6 +46,10 @@ Deposits the user-chosen amount of ETH into the protocol, minting the same amoun
 
 Example: Bob deposits 100 ETH into Unlockd, and gets 100 uWETH in return as proof of the deposited amount.
 
+{% hint style="danger" %}
+The referral program is coded but inactive. You can pass a 0 as `referralCode.`
+{% endhint %}
+
 {% hint style="warning" %}
 Ensure that the `depositETH()` transaction also includes the amount of ETH you are depositing in the `msg.value`.
 {% endhint %}
@@ -77,3 +81,108 @@ Ensure you set the relevant ERC20 allowance of uWETH, before calling this functi
 | amount | uint256 | The amount to be withdrawn                  |
 | to     | address | address that will receive the unwrapped ETH |
 
+### borrowETH
+
+`function borrowETH(uint256 amount, address nftAsset, uint256 nftTokenId, address onBehalfOf, uint16 referralCode) external override nonReentrant`
+
+Borrows `amount` of WETH, sending the `amount` of unwrapped WETH to `msg.sender`.
+
+Example: Alice borrows 10 ETH using her Lockey NFT with tokenid 1 as collateral.&#x20;
+
+{% hint style="danger" %}
+The referral program is coded but inactive. You can pass a 0 as `referralCode.`
+{% endhint %}
+
+{% hint style="warning" %}
+The borrowing can only be done if your NFT is configured on the protocol.
+
+To do this, the triggerUserCollateral needs to be called first. \
+Also, there's a `_timeFrame` variable configured that will validate the time between configuring the NFT and the borrow. If the time is exceeded, it will revert.\
+
+
+The `_timeFrame` can be checked with the `getTimeframe()` function in the LendPool contract
+{% endhint %}
+
+#### Call params
+
+| Amount       | Type    | Description                                                                                                                       |
+| ------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| amount       | uint256 | Amount to be borrowed, expressed in wei units                                                                                     |
+| nftAsset     | address | The NFT contract address                                                                                                          |
+| nftTokenId   | uint256 | The NFT token Id                                                                                                                  |
+| onBehalfOf   | address | <p>address of user who will incur the debt.</p><p>Use <code>msg.sender</code> when not calling on behalf of a different user.</p> |
+| referralCode | uint16  | Referral code. The referral program is currently in development. Therefore, `referralCode` must be set to 0.                      |
+
+### repayETH
+
+`function _repayETH( address nftAsset, uint256 nftTokenId, uint256 amount, uint256 accAmount ) internal returns (uint256, bool)`
+
+Repays a borrowed `amount` equal to or less than the amount owed from the specified collateral, `nftAsset`. It will burn the same `amount` of `debt tokens`.
+
+Example: Alice decides to pay 2 ETH from the borrowed amount. Alice will use her uNFT to identify the loan, will give 2 ETH and will burn the same amount in debt tokens.
+
+{% hint style="warning" %}
+Ensure that the `repayETH()` transaction also includes the amount of ETH you are repaying in the `msg.value`.
+{% endhint %}
+
+#### Call params
+
+| Name       | Type    | Description                                 |
+| ---------- | ------- | ------------------------------------------- |
+| nftAsset   | address | The NFT contract address                    |
+| nftTokenId | uint256 | The NFT token Id                            |
+| amount     | uint256 | Amount to be repaid, expressed in wei units |
+| accAmount  | uint256 | The accumulated amount                      |
+
+#### Return values
+
+| Type    | Description                                                        |
+| ------- | ------------------------------------------------------------------ |
+| uint256 | The paid amount                                                    |
+| bool    | `true` if the total amount is repaid or `false` if partially paid. |
+
+### auctionETH
+
+`function auctionETH(address nftAsset, uint256 nftTokenId, address onBehalfOf ) external payable override nonReentrant`
+
+Places a bid for an NFT whose current health factor is below one. The users can trigger an auction if they want to buy the collateral asset, placing a bid for the `msg.value`amount. New bids should always be higher than the loan borrowed amount, and 1% higher than the previous bid (in case there is one). The first user to bid will always receive a 2.5% bid incentive for being the first bidder.
+
+Example: Alice's NFT price went down,  together with her loan's health factor (HF),  which is now below 1. Bob decides to bid for that NFT. \
+If there's a second bid, Bob's bid will be cancelled and the new bid will the the current winning bid. Bob will still receive a 2.5% reward fee for being the first bidder. The bidFine will also be paid if Alice decides to redeem part of the debt and make the HF go above one.
+
+{% hint style="warning" %}
+Ensure that the `auctionETH()` transaction also includes the amount of ETH you are bidding for in the `msg.value`.
+{% endhint %}
+
+#### Call params
+
+| Name       | Type    | Description                                                                                                                          |
+| ---------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| nftAsset   | address | The NFT contract address                                                                                                             |
+| nftTokenId | uint256 | The NFT token Id                                                                                                                     |
+| onBehalfOf | address | <p>address of user who will incur the auction.</p><p>Use <code>msg.sender</code> when not calling on behalf of a different user.</p> |
+
+### redeemETH
+
+`function redeemETH( address nftAsset, uint256 nftTokenId, uint256 amount, uint256 bidFine ) external payable override nonReentrant returns (uint256)`
+
+Allows a borrower to increase his loan's Health Factor in case it is below 1. In order to redeem, a `bidFine`  should be paid by the borrower to the current loan bidder (in case there is one).
+
+Example: Alice's NFT price went down,  together with her loan's health factor (HF),  which is now below 1. Bob decides to bid for that NFT. \
+After Bob's bid, Alice decides to redeem her NFT in order to increase her loan's HF and avoid getting liquidated. Bob will receive his bidding amount back, plus a `bidFine` reward fee for being the first bidder.&#x20;
+
+{% hint style="info" %}
+The redeem `amount` needs to be higher than the `(borrowAmount * redeemThreshold)/100`
+{% endhint %}
+
+{% hint style="warning" %}
+Ensure that the`redeemETH()` transaction also includes the amount of ETH you are redeeming, as well as the bid fine you are transferring in the `msg.value`.
+{% endhint %}
+
+#### Call params
+
+| Name | Type |   |
+| ---- | ---- | - |
+|      |      |   |
+|      |      |   |
+|      |      |   |
