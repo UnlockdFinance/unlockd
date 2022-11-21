@@ -148,6 +148,10 @@ const buidlerConfig: HardhatUserConfig = {
       },
     },
   },
+  docgen: {
+    outputDir: "docs",
+    pages:"files"
+  },
 };
 
 export default buidlerConfig;
