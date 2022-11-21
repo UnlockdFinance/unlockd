@@ -72,9 +72,11 @@ It must return its Solidity selector to confirm the token transfer. If any other
 ```
 function minterOf(uint256 tokenId) external view returns (address)
 ```
-{% hint style="danger" %}
-This method is disabled ,it will revert the transaction
-{% endhint %}
+Returns the owner of the tokenId token.
+
+Requirements:
+
+- tokenId must exist.
 
 ### approve
 
@@ -83,7 +85,7 @@ function approve(address to, uint256 tokenId) public virtual
 ```
 
 {% hint style="danger" %}
-This method is disabled ,it will revert the transaction
+This method is not supported ,it will revert the transaction
 {% endhint %}
 
 ### setApprovalForAll
@@ -92,7 +94,7 @@ This method is disabled ,it will revert the transaction
 function setApprovalForAll(address operator, bool approved) public virtual
 ```
 {% hint style="danger" %}
-This method is disabled ,it will revert the transaction
+This method is not supported ,it will revert the transaction
 {% endhint %}
 
 
@@ -102,7 +104,7 @@ This method is disabled ,it will revert the transaction
 function safeTransferFrom(address from, address to, uint256 tokenId) public virtual
 ```
 {% hint style="danger" %}
-This method is disabled ,it will revert the transaction
+This method is not supported ,it will revert the transaction
 {% endhint %}
 
 ### safeTransferFrom
@@ -111,7 +113,7 @@ This method is disabled ,it will revert the transaction
 function safeTransferFrom(address from, address to, uint256 tokenId, bytes _data) public virtual
 ```
 {% hint style="danger" %}
-This method is disabled ,it will revert the transaction
+This method is not supported ,it will revert the transaction
 {% endhint %}
 ### flashLoan
 
