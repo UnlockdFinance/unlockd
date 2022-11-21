@@ -1,28 +1,27 @@
 # uTokens
 
 _Implementation of the interest bearing token for the Unlockd protocol_
-***
-## Methods
 
+***
+
+## Methods
 
 ### initialize
 
-```solidity
-function initialize(contract ILendPoolAddressesProvider addressProvider, address treasury, address underlyingAsset, uint8 uTokenDecimals, string uTokenName, string uTokenSymbol) external
-```
+`function initialize(contract ILendPoolAddressesProvider addressProvider, address treasury, address underlyingAsset, uint8 uTokenDecimals, string uTokenName, string uTokenSymbol) external`
 
 _Initializes the uToken_
 
 #### Call Params
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| addressProvider | contract ILendPoolAddressesProvider | The address of the address provider where this uToken will be used |
-| treasury | address | The address of the Unlockd treasury, receiving the fees on this uToken |
-| underlyingAsset | address | The address of the underlying asset of this uToken |
-| uTokenDecimals | uint8 |  |
-| uTokenName | string |  |
-| uTokenSymbol | string |  |
+| Name            | Type                                | Description                                                            |
+| --------------- | ----------------------------------- | ---------------------------------------------------------------------- |
+| addressProvider | contract ILendPoolAddressesProvider | The address of the address provider where this uToken will be used     |
+| treasury        | address                             | The address of the Unlockd treasury, receiving the fees on this uToken |
+| underlyingAsset | address                             | The address of the underlying asset of this uToken                     |
+| uTokenDecimals  | uint8                               |                                                                        |
+| uTokenName      | string                              |                                                                        |
+| uTokenSymbol    | string                              |                                                                        |
 
 ### burn
 
@@ -30,17 +29,18 @@ _Initializes the uToken_
 function burn(address user, address receiverOfUnderlying, uint256 amount, uint256 index) external
 ```
 
-_Burns uTokens from `user` and sends the equivalent amount of underlying to `receiverOfUnderlying```
-- Only callable by the LendPool, as extra state updates there need to be managed_
+\_Burns uTokens from `user` and sends the equivalent amount of underlying to \`receiverOfUnderlying\`\`\`
+
+* Only callable by the LendPool, as extra state updates there need to be managed\_
 
 #### Call Params
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| user | address | The owner of the uTokens, getting them burned |
-| receiverOfUnderlying | address | The address that will receive the underlying |
-| amount | uint256 | The amount being burned |
-| index | uint256 | The new liquidity index of the reserve |
+| Name                 | Type    | Description                                   |
+| -------------------- | ------- | --------------------------------------------- |
+| user                 | address | The owner of the uTokens, getting them burned |
+| receiverOfUnderlying | address | The address that will receive the underlying  |
+| amount               | uint256 | The amount being burned                       |
+| index                | uint256 | The new liquidity index of the reserve        |
 
 ### mint
 
@@ -48,22 +48,23 @@ _Burns uTokens from `user` and sends the equivalent amount of underlying to `rec
 function mint(address user, uint256 amount, uint256 index) external returns (bool)
 ```
 
-_Mints `amount` uTokens to `user```
-- Only callable by the LendPool, as extra state updates there need to be managed_
+\_Mints `amount` uTokens to \`user\`\`\`
+
+* Only callable by the LendPool, as extra state updates there need to be managed\_
 
 #### Call Params
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| user | address | The address receiving the minted tokens |
-| amount | uint256 | The amount of tokens getting minted |
-| index | uint256 | The new liquidity index of the reserve |
+| Name   | Type    | Description                             |
+| ------ | ------- | --------------------------------------- |
+| user   | address | The address receiving the minted tokens |
+| amount | uint256 | The amount of tokens getting minted     |
+| index  | uint256 | The new liquidity index of the reserve  |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | bool | `true` if the the previous balance of the user was 0 |
+| Name | Type | Description                                          |
+| ---- | ---- | ---------------------------------------------------- |
+| \[0] | bool | `true` if the the previous balance of the user was 0 |
 
 ### mintToTreasury
 
@@ -71,15 +72,16 @@ _Mints `amount` uTokens to `user```
 function mintToTreasury(uint256 amount, uint256 index) external
 ```
 
-_Mints uTokens to the reserve treasury
-- Only callable by the LendPool_
+\_Mints uTokens to the reserve treasury
+
+* Only callable by the LendPool\_
 
 #### Call Params
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| amount | uint256 | The amount of tokens getting minted |
-| index | uint256 | The new liquidity index of the reserve |
+| Name   | Type    | Description                            |
+| ------ | ------- | -------------------------------------- |
+| amount | uint256 | The amount of tokens getting minted    |
+| index  | uint256 | The new liquidity index of the reserve |
 
 ### balanceOf
 
@@ -91,15 +93,15 @@ _Calculates the balance of the user: principal balance + interest generated by t
 
 #### Call Params
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                          |
+| ---- | ------- | ------------------------------------ |
 | user | address | The user whose balance is calculated |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | The balance of the user |
+| Name | Type    | Description             |
+| ---- | ------- | ----------------------- |
+| \[0] | uint256 | The balance of the user |
 
 ### scaledBalanceOf
 
@@ -107,20 +109,19 @@ _Calculates the balance of the user: principal balance + interest generated by t
 function scaledBalanceOf(address user) external view returns (uint256)
 ```
 
-_Returns the scaled balance of the user. The scaled balance is the sum of all the
-updated stored balance divided by the reserve's liquidity index at the moment of the update_
+_Returns the scaled balance of the user. The scaled balance is the sum of all the updated stored balance divided by the reserve's liquidity index at the moment of the update_
 
 #### Call Params
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description                          |
+| ---- | ------- | ------------------------------------ |
 | user | address | The user whose balance is calculated |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | The scaled balance of the user |
+| Name | Type    | Description                    |
+| ---- | ------- | ------------------------------ |
+| \[0] | uint256 | The scaled balance of the user |
 
 ### getScaledUserBalanceAndSupply
 
@@ -132,16 +133,16 @@ _Returns the scaled balance of the user and the scaled total supply._
 
 #### Call Params
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+| Name | Type    | Description             |
+| ---- | ------- | ----------------------- |
 | user | address | The address of the user |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | The scaled balance of the user |
-| [1] | uint256 | The scaled balance and the scaled total supply |
+| Name | Type    | Description                                    |
+| ---- | ------- | ---------------------------------------------- |
+| \[0] | uint256 | The scaled balance of the user                 |
+| \[1] | uint256 | The scaled balance and the scaled total supply |
 
 ### totalSupply
 
@@ -149,19 +150,17 @@ _Returns the scaled balance of the user and the scaled total supply._
 function totalSupply() public view returns (uint256)
 ```
 
-_calculates the total supply of the specific uToken
-since the balance of every single user increases over time, the total supply
-does that too._
+_calculates the total supply of the specific uToken since the balance of every single user increases over time, the total supply does that too._
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | the current total supply |
+| Name | Type    | Description              |
+| ---- | ------- | ------------------------ |
+| \[0] | uint256 | the current total supply |
 
 ### scaledTotalSupply
 
-```solidity
+````solidity
 function scaledTotalSupply() public view virtual returns (uint256)
 ```SOLIDITY
 _Returns the scaled total supply of the variable debt token. Represents sum(debt/index)_
@@ -176,10 +175,11 @@ _Returns the scaled total supply of the variable debt token. Represents sum(debt
 
 ```solidity
 function RESERVE_TREASURY_ADDRESS() public view returns (address)
-`````
+````
+
 _Returns the address of the Unlockd treasury, receiving the fees on this uToken_
 
-### UNDERLYING_ASSET_ADDRESS
+### UNDERLYING\_ASSET\_ADDRESS
 
 ```solidity
 function UNDERLYING_ASSET_ADDRESS() public view returns (address)
@@ -209,18 +209,17 @@ _Returns the address of the incentives controller contract_
 function transferUnderlyingTo(address target, uint256 amount) external returns (uint256)
 ```
 
-_Transfers the underlying asset to `target`. Used by the LendPool to transfer
-assets in borrow(), withdraw() and flashLoan()_
+_Transfers the underlying asset to `target`. Used by the LendPool to transfer assets in borrow(), withdraw() and flashLoan()_
 
 #### Call Params
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| target | address | The recipient of the uTokens |
+| Name   | Type    | Description                    |
+| ------ | ------- | ------------------------------ |
+| target | address | The recipient of the uTokens   |
 | amount | uint256 | The amount getting transferred |
 
 #### Return Values
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | The amount transferred |
+| Name | Type    | Description            |
+| ---- | ------- | ---------------------- |
+| \[0] | uint256 | The amount transferred |

@@ -10,9 +10,19 @@ If you want to deposit, withdraw, triggerUserCollateral, borrow, repay, auction,
 If you want to borrow or repay using CryptoPunks as collateral, use PunkGateway.
 {% endhint %}
 
-****
+## View Methods
 
-## Methods
+`function getReserveConfiguration(address asset) external view override returns (DataTypes.ReserveConfigurationMap memory)`
+
+Returns the configuration of the reserve.
+
+#### Call Params
+
+| Name  | Type    | Description                                 |
+| ----- | ------- | ------------------------------------------- |
+| asset | address | the address of the underlying asset (ERC20) |
+
+## Write Methods
 
 ### deposit
 
@@ -144,7 +154,9 @@ Example: Alice decides to pay 2 ETH from the borrowed amount. Alice will use her
 
 `function auction(address nftAsset, uint256 nftTokenId, uint256 bidPrice, address onBehalfOf) external override nonReentrant whenNotPaused`
 
-When the health factor is below one, the users can trigger an auction if they want to buy the collateral asset, the NFT used in the loan. The bidPrice needs to be higher than&#x20;
+When the health factor is below one, the users can trigger an auction if they want to buy the collateral asset, the NFT used in the loan. The `bidPrice` needs to be higher than&#x20;
+
+When a user bids, the money gets locked on the contract till someone outbids or the liquidation happens.
 
 Example: Alice's NFT price went down, and the health factor (HF) went below 1. Bob, that loves the Lockeys decide to bid. \
 If there's a second bid, the first bidder will get a 2.5% bidFine for being the first. The bidFine will also be paid if Alice decides to redeem part of the debt and make the HF go above one.
@@ -155,3 +167,82 @@ If there's a second bid, the first bidder will get a 2.5% bidFine for being the 
 | nftTokenId | uint256 | the underlying NFT token Id used as collateral with HF < 1                                             |
 | bidPrice   | uint256 | the amount that the msg.sender decides to bid needs to be higher than previous or the debt amount + 1% |
 | onBehalfOf | address | address whom will receive the NFT in case the auction is successful                                    |
+
+### redeem
+
+`function redeem(address nftAsset, uint256 nftTokenId, uint256 amount, uint256 bidFine) external override nonReentrant whenNotPaused returns (uint256)`
+
+Redeem should be used by the NFT Owner in case the NFT goes into auction and he wants to keep his NFT.
+
+{% hint style="info" %}
+If the auction starts and the redeem duration are still available, the user can pay an amount to increase the Health Factor.&#x20;
+
+The amount needs to be higher than the `(borrowAmount * redeemThreshold)/100`
+{% endhint %}
+
+Example: Alice's NFT was bid by Bob, but since Alice can still redeem, she decides to pay 70% of her debt to get the Health Factor > 1.
+
+#### Call Params
+
+| Name       | Type    | Description                                                                                              |
+| ---------- | ------- | -------------------------------------------------------------------------------------------------------- |
+| nftAsset   | address | the underlying NFT address used as collateral with HF < 1 and `redeemDuration` available                 |
+| nftTokenId | uint256 | the underlying NFT token Id used as collateral with HF < 1 and `redeemDuration` available                |
+| amount     | uint256 | the amount that NFT Owner decides to pay                                                                 |
+| bidFine    | uint256 | the 2.5 fee the user needs to pay to the first bidder in case someone bidded during the `redeemDuration` |
+
+#### Return Values
+
+| Type    | Description           |
+| ------- | --------------------- |
+| uint256 | paid amount + bidFine |
+
+### Liquidate
+
+`function liquidate(address nftAsset, uint256 nftTokenId, uint256 amount) external override nonReentrant whenNotPaused returns (uint256)`
+
+After the auction period ends. The liquidator should trigger this so he can receive his collateral asset.
+
+Example: Bob wins the auction. He can call this function to get his collateral (NFT) into his wallet.
+
+#### Call Params
+
+| Name       | Type    | Description                                                             |
+| ---------- | ------- | ----------------------------------------------------------------------- |
+| nftAsset   | address | the underlying NFT address used as collateral and bought on an auction  |
+| nftTokenId | uint256 | the underlying NFT token Id used as collateral and bought on an auction |
+| amount     | uint256 | the auction amount used to buy the NFT.                                 |
+
+#### Return Values
+
+| Type    | Description               |
+| ------- | ------------------------- |
+| uint256 | `borrowAmount - bidPrice` |
+
+### liquidateNFTX
+
+`function liquidateNFTX(address nftAsset, uint256 nftTokenId)`
+
+If there are no bids in an auction, and to provide liquidity, we liquidate the NFT on the NFTX marketplace.&#x20;
+
+{% hint style="warning" %}
+The price NFT needs to have liquidity available on NFTX Protocol.
+
+In case of a loss, the protocol reserves will pay for the money lost.
+{% endhint %}
+
+Example: Alices NFT didn't receive any NFT and the `borrowAmount` + 1% = 10ETH;\
+Case 1: we sell the NFT on NFTX for 12 ETH, we pay the protocol and the remainder goes to the user.
+
+Case 2: we sell the NFT on NFTX for 9.5 ETH. The missing ETH for the debt to get paid will come from the protocol's reserves.&#x20;
+
+{% hint style="warning" %}
+If the protocol reserves are less than the missing amount, it reverts.
+{% endhint %}
+
+### Call Params
+
+| Name       | Type    | Description                                                           |
+| ---------- | ------- | --------------------------------------------------------------------- |
+| nftAsset   | address | the underlying NFT address used as collateral and to be sold on NFTX  |
+| nftTokenId | uint256 | the underlying NFT token Id used as collateral and to be sold on NFTX |

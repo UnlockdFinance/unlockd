@@ -1,11 +1,11 @@
 # Reserve Oracle
 
-The Reserve Oracle contract accounts price data for the Unlockd protocol. The protocol’s LendPool contract uses it as a source of truth for prices, which are updated by Chainlink Price Feeds by using Chainlink Aggregators. Aggregators are added to the Oracle and tracked by a mapping, which maps each unique key  (`_priceFeedKeys)` to a single aggregator address. Each aggregator then provides price data for a specific reserve.
+The Reserve Oracle contract accounts price data for the reserves in the Unlockd protocol and  manages price sources. The protocol’s LendPool contract uses it as a source of truth for reserves prices, which are updated by Chainlink Price Feeds and Aggregators. Aggregators are added to the Oracle and tracked by a mapping, which maps each unique key  (`_priceFeedKeys)` to a single aggregator address. Each aggregator then provides price data for a specific reserve.
 
-The source code of the proxy price provider can be found on [Github](https://github.com/UnlockdFinance/unlockd-protocol-v1/blob/development/contracts/protocol/ReserveOracle.sol).
+The source code of the proxy reserve price provider can be found on [Github](https://github.com/UnlockdFinance/unlockd-protocol-v1/blob/development/contracts/protocol/ReserveOracle.sol).
 
 {% hint style="warning" %}
-Always get the latest price oracle address by calling `getReserveOracle()` on the `LendPoolAddressesProvider` contract.
+Always get the latest reserve price oracle address by calling `getReserveOracle()` on the `LendPoolAddressesProvider` contract.
 {% endhint %}
 
 ## View methods

@@ -12,7 +12,7 @@
 * [debt Tokens](the-core-protocol/debt-tokens.md)
 * [uNFTs](the-core-protocol/unfts.md)
 * [Reserve Oracle](the-core-protocol/reserve-oracle.md)
-* [NFTOracle](the-core-protocol/nftoracle.md)
+* [NFT Oracle](the-core-protocol/nft-oracle.md)
 * [WETH Gateway](the-core-protocol/weth-gateway.md)
 * [Punk Gateway](the-core-protocol/punk-gateway.md)
 
