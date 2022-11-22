@@ -9,7 +9,7 @@
 * [LendPoolLoan](the-core-protocol/lendpoolloan.md)
 * [Lendpool Address Provider](the-core-protocol/lendpool-address-provider.md)
 * [uTokens](the-core-protocol/utokens.md)
-* [debt Tokens](the-core-protocol/debt-tokens.md)
+* [debtTokens](the-core-protocol/debt-tokens.md)
 * [uNFTs](the-core-protocol/unfts.md)
 * [Reserve Oracle](the-core-protocol/reserve-oracle.md)
 * [NFT Oracle](the-core-protocol/nft-oracle.md)
