@@ -1,204 +1,70 @@
----
-description: LendPoolLoan.sol
----
-
 # LendPoolLoan
 
-The LendPoolLoan is called by the LendPool and does everything related to loans and collaterals.
+### \_addressesProvider
 
-__
+```solidity
+contract ILendPoolAddressesProvider _addressesProvider
+```
 
-## View Methods
+### \_loanIdTracker
 
-`function borrowerOf(uint256 loanId) external view returns (address)`
+```solidity
+struct CountersUpgradeable.Counter _loanIdTracker
+```
 
-Returns the address of the borrower.
+### \_loans
 
-#### Call Params
+```solidity
+mapping(uint256 => struct DataTypes.LoanData) _loans
+```
 
-| Name   | Type    | Description        |
-| ------ | ------- | ------------------ |
-| loanId | uint256 | the id of the loan |
+### \_nftToLoanIds
 
-#### Return Values
+```solidity
+mapping(address => mapping(uint256 => uint256)) _nftToLoanIds
+```
 
-| Type    | Description                                         |
-| ------- | --------------------------------------------------- |
-| address | the `borrower` address associated with the `loanId` |
+### \_nftTotalCollateral
 
-### getCollateralLoanId
+```solidity
+mapping(address => uint256) _nftTotalCollateral
+```
 
-`function getCollateralLoanId(address nftAsset, uint256 nftTokenId) external view returns (uint256)`
+### \_userNftCollateral
 
-&#x20;Returns the loan id corresponding to a specific `nftAsset` and `nftTokenId`
+```solidity
+mapping(address => mapping(address => uint256)) _userNftCollateral
+```
 
-#### Call Params
+### onlyLendPool
 
-| Name       | Type    | Description                          |
-| ---------- | ------- | ------------------------------------ |
-| nftAsset   | address | The address of the underlying asset. |
-| nftTokenId | uint256 | the tokenId of the underlying asset  |
+```solidity
+modifier onlyLendPool()
+```
 
-#### Return Values
+_Only lending pool can call functions marked by this modifier_
 
-| Name    | Description                       |
-| ------- | --------------------------------- |
-| uint256 | the loan Id for the specified NFT |
+### initialize
 
-### getLoanIdTracker
+```solidity
+function initialize(contract ILendPoolAddressesProvider provider) external
+```
 
-`function getLoanIdTracker() external view returns (struct CountersUpgradeable.Counter)`
+### initNft
 
-Returns the counter tracker for all the loan IDs in the protocol
-
-#### Return Values
-
-| Type                          | Description                                   |
-| ----------------------------- | --------------------------------------------- |
-| `CountersUpgradeable.Counter` | the number that will be used in the next loan |
-
-### getUserNftCollateralAmount
-
-`function getUserNftCollateralAmount(address user, address nftAsset) external view returns (uint256)`
-
-Returns the collateral amount for a given user and a specific NFT collection.
-
-#### Call Params
-
-| Name     | Type    | Description                                                    |
-| -------- | ------- | -------------------------------------------------------------- |
-| user     | address | the address of the user we want to chech the collateral amount |
-| nftAsset | address | the address of the underlying asset                            |
-
-#### Return Values
-
-| Type    | Description                                                     |
-| ------- | --------------------------------------------------------------- |
-| uint256 | the amount the user has as collateral for a specific collection |
-
-### getNftCollateralAmount
-
-`function getNftCollateralAmount(address nftAsset) external view returns (uint256)`
-
-Returns the collateral amount for a specific collection.
-
-#### Call Params
-
-| Name     | Type    | Description                                     |
-| -------- | ------- | ----------------------------------------------- |
-| nftAsset | address | the address of the underlying asset, collection |
-
-#### Return Values
-
-| Type    | Description                                     |
-| ------- | ----------------------------------------------- |
-| uint256 | the collateral amount for a specific collection |
-
-### getLoanHighestBid
-
-`function getLoanHighestBid(uint256 loanId) external view returns (address, uint256)`
-
-Returns the address and the bid price of the highest bid during an auction.
-
-#### Call Params
-
-| Name   | Type    | Description        |
-| ------ | ------- | ------------------ |
-| loanId | uint256 | the id of the loan |
-
-#### Return Values
-
-| Type    | Description        |
-| ------- | ------------------ |
-| address | the bidder address |
-| uint256 | the bid price      |
-
-### getLoanReserveBorrowScaledAmount
-
-`function getLoanReserveBorrowScaledAmount(uint256 loanId) external view returns (address, uint256)`
-
-Returns the scaled amount and the reserve asset for a specific loan.
-
-#### Call Params
-
-| Name    | Type   | Description                                                 |
-| ------- | ------ | ----------------------------------------------------------- |
-| uint256 | loanId | the loan id to retrive the scalled amount and reserve asset |
-
-#### Return Values
-
-| Type    | Description               |
-| ------- | ------------------------- |
-| address | the reserve asset (ERC20) |
-| uint256 | the scaled amount         |
-
-### getLoanReserveBorrowAmount
-
-`function getLoanReserveBorrowAmount(uint256 loanId) external view returns (address, uint256)`
-
-Returns the amount borrowed and the reserve address for a specific loan.
-
-#### Call Params
-
-| Name   | Type    | Description                     |
-| ------ | ------- | ------------------------------- |
-| loanId | uint256 | the loan id to retrive the data |
-
-#### Return Values
-
-| Type    | Description         |
-| ------- | ------------------- |
-| address | the reserve address |
-| uint256 | the amount borrowed |
-
-### getLoanCollateralAndReserve
-
-`function getLoanCollateralAndReserve(uint256 loanId) external view returns (address nftAsset, uint256 nftTokenId, address reserveAsset, uint256 scaledAmount)`
-
-Returns the NFT address, tokenId, reserve address and scaled amount for a specific loan.&#x20;
-
-#### Call Params
-
-| Name   | Type    | Description                                 |
-| ------ | ------- | ------------------------------------------- |
-| loanId | uint256 | the id of the loan we want  to retrive data |
-
-#### Return Values
-
-| Name         | Type    | Description                                   |
-| ------------ | ------- | --------------------------------------------- |
-| nftAsset     | address | the address of the underlying asset (ERC721)  |
-| nftTokenId   | uint256 | the token id of the underlying asset (ERC721) |
-| reserveAsset | address | the address of the reserve asset (ERC20)      |
-| scaledAmount | uint256 | the scaled amount                             |
-
-### getLoan
-
-`function getLoan(uint256 loanId) external view returns (struct DataTypes.LoanData loanData)`
-
-Returns the struct containing all the info regarding a specific loan.
-
-#### Call Params
-
-| Name   | Type    | Description                      |
-| ------ | ------- | -------------------------------- |
-| loanId | uint256 | the loan id to retrive data from |
-
-#### Return Values
-
-| Name     | Type               | Description                                                                                                                                                                                                                                  |
-| -------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| loanData | DataTypes.LoanData | <p>LoanData struct:<br>loanId, </p><p>state,</p><p>borrower, </p><p>nftAsset, </p><p>nftTokenId, </p><p>reserveAsset, </p><p>scaledAmount,  bidStartTimestamp, bidderAddress,</p><p>bidPrice,</p><p>bidBorrowAmount, firstBidderAddress;</p> |
-
-## Write Methods
+```solidity
+function initNft(address nftAsset, address uNftAddress) external
+```
 
 ### createLoan
 
-`function createLoan(address initiator, address onBehalfOf, address nftAsset, uint256 nftTokenId, address uNftAddress, address reserveAsset, uint256 amount, uint256 borrowIndex) external returns (uint256)`
+```solidity
+function createLoan(address initiator, address onBehalfOf, address nftAsset, uint256 nftTokenId, address uNftAddress, address reserveAsset, uint256 amount, uint256 borrowIndex) external returns (uint256)
+```
 
-Create and store the loan, and mint the uNFT to the user as proof of deposit.
+_Create store a loan object with some params_
 
-#### Call Params
+#### Parameters
 
 | Name         | Type    | Description                                   |
 | ------------ | ------- | --------------------------------------------- |
@@ -211,25 +77,20 @@ Create and store the loan, and mint the uNFT to the user as proof of deposit.
 | amount       | uint256 | The loan amount                               |
 | borrowIndex  | uint256 | The index to get the scaled loan amount       |
 
-#### Return Values
-
-| Type    | Description |
-| ------- | ----------- |
-| uint256 | the loan id |
-
 ### updateLoan
 
-`function updateLoan(address initiator, uint256 loanId, uint256 amountAdded, uint256 amountTaken, uint256 borrowIndex) external`
+```solidity
+function updateLoan(address initiator, uint256 loanId, uint256 amountAdded, uint256 amountTaken, uint256 borrowIndex) external
+```
 
-It updates an existing loan.
+\_Update the given loan with some params
 
-{% hint style="info" %}
-The caller must be a holder of the loan.
+Requirements:
 
-The loan must be in an active state
-{% endhint %}
+* The caller must be a holder of the loan
+* The loan must be in state Active\_
 
-#### Call Params
+#### Parameters
 
 | Name        | Type    | Description                               |
 | ----------- | ------- | ----------------------------------------- |
@@ -241,19 +102,19 @@ The loan must be in an active state
 
 ### repayLoan
 
-`function repayLoan(address initiator, uint256 loanId, address uNftAddress, uint256 amount, uint256 borrowIndex) external`
+```solidity
+function repayLoan(address initiator, uint256 loanId, address uNftAddress, uint256 amount, uint256 borrowIndex) external
+```
 
-It will repay the given loan, partially or in whole.
+\_Repay the given loan
 
-{% hint style="info" %}
-The caller must be a holder of the loan.
+Requirements:
 
-The caller must send in principal + interest.
+* The caller must be a holder of the loan
+* The caller must send in principal + interest
+* The loan must be in state Active\_
 
-The loan must be in an active state.
-{% endhint %}
-
-#### Call Params
+#### Parameters
 
 | Name        | Type    | Description                                  |
 | ----------- | ------- | -------------------------------------------- |
@@ -265,46 +126,42 @@ The loan must be in an active state.
 
 ### auctionLoan
 
-`function auctionLoan(address initiator, uint256 loanId, address onBehalfOf, uint256 bidPrice, uint256 borrowAmount, uint256 borrowIndex) external`
+```solidity
+function auctionLoan(address initiator, uint256 loanId, address onBehalfOf, uint256 bidPrice, uint256 borrowAmount, uint256 borrowIndex) external
+```
 
-It will start and run an auction at a given loan.
+\_Auction the given loan
 
-{% hint style="info" %}
-The price must be greater than the current highest price.
+Requirements:
 
-The loan must be in an active or auction state.
-{% endhint %}
+* The price must be greater than current highest price
+* The loan must be in state Active or Auction\_
 
-#### Call Params
+#### Parameters
 
 | Name         | Type    | Description                                    |
 | ------------ | ------- | ---------------------------------------------- |
 | initiator    | address | The address of the user initiating the auction |
 | loanId       | uint256 | The loan getting auctioned                     |
-| onBehalfOf   | address | The user address regarding the auction         |
+| onBehalfOf   | address |                                                |
 | bidPrice     | uint256 | The bid price of this auction                  |
-| borrowAmount | uint256 | The amount that was borrowed                   |
-| borrowIndex  | uint256 | the borrow index                               |
+| borrowAmount | uint256 |                                                |
+| borrowIndex  | uint256 |                                                |
 
 ### redeemLoan
 
-`function redeemLoan(address initiator, uint256 loanId, uint256 amountTaken, uint256 borrowIndex) external`
+```solidity
+function redeemLoan(address initiator, uint256 loanId, uint256 amountTaken, uint256 borrowIndex) external
+```
 
-If the loan is in an auction state, and the owner wants to pay it back, making the health factor go above 1.
+\_Redeem the given loan with some params
 
-{% hint style="info" %}
-The caller must be a holder of the loan.
+Requirements:
 
-The loan must be in an auction state.
-{% endhint %}
+* The caller must be a holder of the loan
+* The loan must be in state Auction\_
 
-{% hint style="danger" %}
-redeemLoan = auction state.
-
-repayLoan = active state.
-{% endhint %}
-
-#### Call Params
+#### Parameters
 
 | Name        | Type    | Description                                   |
 | ----------- | ------- | --------------------------------------------- |
@@ -315,17 +172,18 @@ repayLoan = active state.
 
 ### liquidateLoan
 
-`function liquidateLoan(address initiator, uint256 loanId, address uNftAddress, uint256 borrowAmount, uint256 borrowIndex) external`
+```solidity
+function liquidateLoan(address initiator, uint256 loanId, address uNftAddress, uint256 borrowAmount, uint256 borrowIndex) external
+```
 
-Liquidate the given loan, sending the NFT to its new owner.
+\_Liquidate the given loan
 
-{% hint style="info" %}
-The caller must send in principal + interest.
+Requirements:
 
-The loan must be in an active state.
-{% endhint %}
+* The caller must send in principal + interest
+* The loan must be in state Active\_
 
-#### Call Params
+#### Parameters
 
 | Name         | Type    | Description                                    |
 | ------------ | ------- | ---------------------------------------------- |
@@ -337,21 +195,120 @@ The loan must be in an active state.
 
 ### liquidateLoanNFTX
 
-`function liquidateLoanNFTX(uint256 loanId, address uNftAddress, uint256 borrowAmount, uint256 borrowIndex) external returns (uint256 sellPrice)`
+```solidity
+function liquidateLoanNFTX(uint256 loanId, address uNftAddress, uint256 borrowAmount, uint256 borrowIndex) external returns (uint256 sellPrice)
+```
 
-Liquidates a specific loan on NFTX if the auction has no bids.&#x20;
+\_Liquidate the given loan on NFTX
 
-#### Call Params
+Requirements:
 
-| Name         | Type    | Description              |
-| ------------ | ------- | ------------------------ |
-| loanId       | uint256 | The loan getting burned  |
-| uNftAddress  | address | the address of the uNFT  |
-| borrowAmount | uint256 | the borrowed amount      |
-| borrowIndex  | uint256 | the borrowed index       |
+* The caller must send in principal + interest
+* The loan must be in state Auction\_
 
-#### Return Values
+#### Parameters
 
-|           |         |                                          |
-| --------- | ------- | ---------------------------------------- |
-| sellPrice | uint256 | the price which the NFT was sold on NFTX |
+| Name         | Type    | Description             |
+| ------------ | ------- | ----------------------- |
+| loanId       | uint256 | The loan getting burned |
+| uNftAddress  | address |                         |
+| borrowAmount | uint256 |                         |
+| borrowIndex  | uint256 |                         |
+
+### onERC721Received
+
+```solidity
+function onERC721Received(address operator, address from, uint256 tokenId, bytes data) external pure returns (bytes4)
+```
+
+\_Whenever an {IERC721} `tokenId` token is transferred to this contract via {IERC721-safeTransferFrom} by `operator` from `from`, this function is called.
+
+It must return its Solidity selector to confirm the token transfer. If any other value is returned or the interface is not implemented by the recipient, the transfer will be reverted.
+
+The selector can be obtained in Solidity with `IERC721.onERC721Received.selector`.\_
+
+### borrowerOf
+
+```solidity
+function borrowerOf(uint256 loanId) external view returns (address)
+```
+
+@dev returns the borrower of a specific loan param loanId the loan to get the borrower from
+
+### getCollateralLoanId
+
+```solidity
+function getCollateralLoanId(address nftAsset, uint256 nftTokenId) external view returns (uint256)
+```
+
+@dev returns the loan corresponding to a specific NFT param nftAsset the underlying NFT asset param tokenId the underlying token ID for the NFT
+
+### getLoan
+
+```solidity
+function getLoan(uint256 loanId) external view returns (struct DataTypes.LoanData loanData)
+```
+
+@dev returns the loan corresponding to a specific loan Id param loanId the loan Id
+
+### getLoanCollateralAndReserve
+
+```solidity
+function getLoanCollateralAndReserve(uint256 loanId) external view returns (address nftAsset, uint256 nftTokenId, address reserveAsset, uint256 scaledAmount)
+```
+
+@dev returns the collateral and reserve corresponding to a specific loan param loanId the loan Id
+
+### getLoanReserveBorrowAmount
+
+```solidity
+function getLoanReserveBorrowAmount(uint256 loanId) external view returns (address, uint256)
+```
+
+@dev returns the reserve and borrow amount corresponding to a specific loan param loanId the loan Id
+
+### getLoanReserveBorrowScaledAmount
+
+```solidity
+function getLoanReserveBorrowScaledAmount(uint256 loanId) external view returns (address, uint256)
+```
+
+@dev returns the reserve and borrow **scaled** amount corresponding to a specific loan param loanId the loan Id
+
+### getLoanHighestBid
+
+```solidity
+function getLoanHighestBid(uint256 loanId) external view returns (address, uint256)
+```
+
+### getNftCollateralAmount
+
+```solidity
+function getNftCollateralAmount(address nftAsset) external view returns (uint256)
+```
+
+@dev returns the collateral amount for a given NFT param nftAsset the underlying NFT asset
+
+### getUserNftCollateralAmount
+
+```solidity
+function getUserNftCollateralAmount(address user, address nftAsset) external view returns (uint256)
+```
+
+@dev returns the collateral amount for a given NFT and a specific user param user the user param nftAsset the underlying NFT asset
+
+### \_getLendPool
+
+```solidity
+function _getLendPool() internal view returns (contract ILendPool)
+```
+
+_returns the LendPool address_
+
+### getLoanIdTracker
+
+```solidity
+function getLoanIdTracker() external view returns (struct CountersUpgradeable.Counter)
+```
+
+@dev returns the counter tracker for all the loan ID's in the protocol
