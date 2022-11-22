@@ -1,36 +1,60 @@
----
-description: LendPoolLoan.sol
----
-
 # LendPoolLoan
 
-The LendPoolLoan is called by the LendPool and does everything related to loans and collaterals.
+### \_addressesProvider
 
-__
+```solidity
+contract ILendPoolAddressesProvider _addressesProvider
+```
 
-## View Methods
+### \_loanIdTracker
 
-`function borrowerOf(uint256 loanId) external view returns (address)`
+```solidity
+struct CountersUpgradeable.Counter _loanIdTracker
+```
 
-Returns the address of the borrower.
+### \_loans
 
-#### Call Params
+```solidity
+mapping(uint256 => struct DataTypes.LoanData) _loans
+```
 
-| Name   | Type    | Description        |
-| ------ | ------- | ------------------ |
-| loanId | uint256 | the id of the loan |
+### \_nftToLoanIds
 
-#### Return Values
+```solidity
+mapping(address => mapping(uint256 => uint256)) _nftToLoanIds
+```
 
-| Type    | Description                                         |
-| ------- | --------------------------------------------------- |
-| address | the `borrower` address associated with the `loanId` |
+### \_nftTotalCollateral
 
-### getCollateralLoanId
+```solidity
+mapping(address => uint256) _nftTotalCollateral
+```
 
+### \_userNftCollateral
 
+```solidity
+mapping(address => mapping(address => uint256)) _userNftCollateral
+```
 
-## Write Methods
+### onlyLendPool
+
+```solidity
+modifier onlyLendPool()
+```
+
+_Only lending pool can call functions marked by this modifier_
+
+### initialize
+
+```solidity
+function initialize(contract ILendPoolAddressesProvider provider) external
+```
+
+### initNft
+
+```solidity
+function initNft(address nftAsset, address uNftAddress) external
+```
 
 ### createLoan
 
@@ -203,7 +227,13 @@ It must return its Solidity selector to confirm the token transfer. If any other
 
 The selector can be obtained in Solidity with `IERC721.onERC721Received.selector`.\_
 
-## View Methods
+### borrowerOf
+
+```solidity
+function borrowerOf(uint256 loanId) external view returns (address)
+```
+
+@dev returns the borrower of a specific loan param loanId the loan to get the borrower from
 
 ### getCollateralLoanId
 
