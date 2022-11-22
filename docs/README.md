@@ -6,13 +6,13 @@ Unlockd is a decentralized non-custodial liquidity protocol where users can part
 
 ## Risk Framework
 
-At Unlockd, we understand the potential risks of market volatility and how it can affect the protocol. Because of that, we are constantly seeking new ways to make the protocol safer and more reliable. Unlockd’s Risk Framework breaks down some of the key risks of the protocol and the mitigation techniques in place. You can check the risk framework documentation [here](https://github.com/UnlockdFinance/unlockd-protocol-v1/blob/master/RiskFramework.pdf).
+At Unlockd, we understand the potential risks of market volatility and how it can affect the protocol. Because of that, we are constantly seeking new ways to make the protocol safer and more reliable. Unlockd’s Risk Framework breaks down some of the key risks of the protocol and the mitigation techniques in place.
 
 ## Contract interactions and use cases
 
 ### Deposit
 
-Users can deposit ERC-20 tokens to the protocol via the deposit() function in the LendPool.sol contract. It deposits an amount of underlying asset to the reserves of the protocol, receiving in return overlying uTokens representing the deposit position. In order to deposit, the user must provide the contract with information about the asset and amount to be deposited, as well as the address that will receive the corresponding uTokens. You can check the deposit diagrams [here](https://github.com/UnlockdFinance/unlockd-protocol-v1/blob/development\_\_documentation/assets/deposit.png).
+Users can deposit ERC-20 tokens to the protocol via the deposit() function in the LendPool.sol contract. It deposits an amount of underlying asset to the reserves of the protocol, receiving in return overlying uTokens representing the deposit position. To deposit, the user must provide the contract with information about the asset and amount to be deposited, as well as the address that will receive the corresponding uTokens.
 
 ### Withdraw
 
