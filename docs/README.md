@@ -2,7 +2,7 @@
 
 ## Introduction to Unlockd
 
-This documentation describes the public infrastructure we are building, the Unlockd protocol. Unlockd is a decentralized non-custodial liquidity protocol where users can participate as depositors or borrowers. It is, at its core, a set of smart contracts deployed to the Ethereum Mainnet, where depositors provide liquidity in the form of ERC20 tokens to earn a passive income, while borrowers can receive overcollateralized loans by setting their non-fungible ERC721 assets as collateral. The following document contains relevant information about the Smart Contracts designed for the Unlockd protocol, as well as an overview of the most relevant scenarios.
+Unlockd is a decentralized non-custodial liquidity protocol where users can participate as depositors or borrowers. It is, at its core, a set of smart contracts deployed to the Ethereum Mainnet, where depositors provide liquidity in the form of ERC20 tokens to earn a passive income. At the same time, borrowers can receive overcollateralized loans by setting their non-fungible ERC721 assets as collateral. The following document contains relevant information about the Smart Contracts designed for the Unlockd protocol, as well as an overview of the most relevant scenarios.
 
 ## Risk Framework
 
