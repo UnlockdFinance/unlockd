@@ -1,60 +1,36 @@
+---
+description: LendPoolLoan.sol
+---
+
 # LendPoolLoan
 
-### \_addressesProvider
+The LendPoolLoan is called by the LendPool and does everything related to loans and collaterals.
 
-```solidity
-contract ILendPoolAddressesProvider _addressesProvider
-```
+__
 
-### \_loanIdTracker
+## View Methods
 
-```solidity
-struct CountersUpgradeable.Counter _loanIdTracker
-```
+`function borrowerOf(uint256 loanId) external view returns (address)`
 
-### \_loans
+Returns the address of the borrower.
 
-```solidity
-mapping(uint256 => struct DataTypes.LoanData) _loans
-```
+#### Call Params
 
-### \_nftToLoanIds
+| Name   | Type    | Description        |
+| ------ | ------- | ------------------ |
+| loanId | uint256 | the id of the loan |
 
-```solidity
-mapping(address => mapping(uint256 => uint256)) _nftToLoanIds
-```
+#### Return Values
 
-### \_nftTotalCollateral
+| Type    | Description                                         |
+| ------- | --------------------------------------------------- |
+| address | the `borrower` address associated with the `loanId` |
 
-```solidity
-mapping(address => uint256) _nftTotalCollateral
-```
+### getCollateralLoanId
 
-### \_userNftCollateral
 
-```solidity
-mapping(address => mapping(address => uint256)) _userNftCollateral
-```
 
-### onlyLendPool
-
-```solidity
-modifier onlyLendPool()
-```
-
-_Only lending pool can call functions marked by this modifier_
-
-### initialize
-
-```solidity
-function initialize(contract ILendPoolAddressesProvider provider) external
-```
-
-### initNft
-
-```solidity
-function initNft(address nftAsset, address uNftAddress) external
-```
+## Write Methods
 
 ### createLoan
 
@@ -227,13 +203,7 @@ It must return its Solidity selector to confirm the token transfer. If any other
 
 The selector can be obtained in Solidity with `IERC721.onERC721Received.selector`.\_
 
-### borrowerOf
-
-```solidity
-function borrowerOf(uint256 loanId) external view returns (address)
-```
-
-@dev returns the borrower of a specific loan param loanId the loan to get the borrower from
+## View Methods
 
 ### getCollateralLoanId
 
