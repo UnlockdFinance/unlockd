@@ -14,7 +14,7 @@
 * [Reserve Oracle](the-core-protocol/reserve-oracle.md)
 * [NFT Oracle](the-core-protocol/nft-oracle.md)
 * [WETH Gateway](the-core-protocol/weth-gateway.md)
-* [Punk Gateway](the-core-protocol/punk-gateway.md)
+* [Punk Gateway](the-core-protocol/weth-gateway-1.md)
 
 ## uNFT Protocol
 

@@ -85,7 +85,7 @@ Ensure you set the relevant ERC20 allowance of uWETH, before calling this functi
 
 `function borrowETH(uint256 amount, address nftAsset, uint256 nftTokenId, address onBehalfOf, uint16 referralCode) external override nonReentrant`
 
-Borrows `amount` of WETH, sending the `amount` of unwrapped WETH to `msg.sender`.
+Borrows `amount` of ETH, sending the `amount` of unwrapped WETH to `msg.sender`.
 
 Example: Alice borrows 10 ETH using her Lockey NFT with tokenid 1 as collateral.&#x20;
 
@@ -181,8 +181,103 @@ Ensure that the`redeemETH()` transaction also includes the amount of ETH you are
 
 #### Call params
 
-| Name | Type |   |
-| ---- | ---- | - |
-|      |      |   |
-|      |      |   |
-|      |      |   |
+| Name       | Type    | Description                                           |
+| ---------- | ------- | ----------------------------------------------------- |
+| nftAsset   | address | The NFT contract address                              |
+| nftTokenId | uint256 | The NFT token Id                                      |
+| amount     | uint256 | Amount to be redeemed, expressed in wei units         |
+| bidFine    | uint256 | Amount to be paid as bid fine, expressed in wei units |
+
+#### Return values
+
+| Type    | Description                                           |
+| ------- | ----------------------------------------------------- |
+| uint256 | The total payback (amount redeemed plus the bid fine) |
+
+### liquidateETH
+
+`function liquidateETH(address nftAsset, uint256 nftTokenId) external payable override nonReentrant returns (uint256)`
+
+Allows an auction winner to liquidate the position and get the NFT.
+
+Example: Bob wins the auction. He can call this function to get his collateral (NFT) into his wallet.
+
+{% hint style="info" %}
+The `msg.value` amount is the amount to be sent in case the bid price can't cover the borrow amount (for example, if a user takes a long time to redeem and the borrow amount needed to be paid has increased substantially due to interest rates)
+{% endhint %}
+
+{% hint style="warning" %}
+Ensure that the`redeemETH()` transaction also includes the amount of ETH you want to add as amount to `liquidate` as `msg.value`.
+{% endhint %}
+
+#### Call params
+
+| Name       | Type    | Amount                   |
+| ---------- | ------- | ------------------------ |
+| nftAsset   | address | The NFT contract address |
+| nftTokenId | uint256 | The NFT token Id         |
+
+#### Return values
+
+| Type    | Amount                                                                                                  |
+| ------- | ------------------------------------------------------------------------------------------------------- |
+| uint256 | The extra debt amount (in case there is one) paid due to last bid price can not cover the borrow amount |
+
+### liquidateNFTX
+
+`function liquidateNFTX(address nftAsset, uint256 nftTokenId) external override nonReentrant returns (uint256)`
+
+If there are no bids in an auction, and to provide liquidity, the NFT will get liquidated on the NFTX marketplace.
+
+{% hint style="warning" %}
+The price NFT needs to have liquidity available on NFTX Protocol.
+
+In case of a loss, the protocol treasury will pay for the money lost.
+{% endhint %}
+
+Example: Alice's NFT didn't receive any bids and the `borrowAmount` + 1% = 10ETH.\
+Case 1: we sell the NFT on NFTX for 12 ETH, pay the protocol, and the remainder goes to the user.
+
+Case 2: we sell the NFT on NFTX for 9.5 ETH. The missing ETH for the debt to get paid will come from the protocol's treasury.&#x20;
+
+{% hint style="warning" %}
+If the protocol treasury has less than the missing amount, the transaction will revert.
+{% endhint %}
+
+#### Call params
+
+| Name       | Type    | Description              |
+| ---------- | ------- | ------------------------ |
+| nftAsset   | address | The NFT contract address |
+| nftTokenId | uint256 | The NFT tokenId          |
+
+#### Return values
+
+| Type    | Description                                                                                                         |
+| ------- | ------------------------------------------------------------------------------------------------------------------- |
+| uint256 | The remainder amount, in case the price obtained from selling on the NFTX market is higher than the borrowed amount |
+
+### authorizeLendPoolNFT
+
+`function authorizeLendPoolNFT(address[] calldata nftAssets) external nonReentrant onlyOwner`
+
+Approves the LendPool for the given NFT assets
+
+#### Call params
+
+| Name      | Type       | Description             |
+| --------- | ---------- | ----------------------- |
+| nftAssets | address\[] | The array of NFT assets |
+
+### authorizeCallerWhitelist
+
+`function authorizeCallerWhitelist(address[] calldata callers, bool flag) external nonReentrant onlyOwner`
+
+Authorizes/unauthorizes a list of callers for the whitelist
+
+#### Call params
+
+| Name    | Type       | Description                           |
+| ------- | ---------- | ------------------------------------- |
+| callers | address\[] | The array of callers to be authorized |
+| flag    | bool       | The flag to authorize/unauthorize     |
