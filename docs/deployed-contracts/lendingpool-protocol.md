@@ -7,7 +7,6 @@ The address deployed.
 | LendPoolAddressesProvider   | 0x7BC0641be0864771D93C3C4e13d17BdF4084C022 |
 | LendPool                    | 0xA0cf099d1547B15823d96C7663A1EA0b5C25231e |
 | LendPoolLoan                | 0xACb2488CB85c48fcF3167D03dDA4ECC53Fe3c635 |
-| LendPoolConfigurator        | 0x18988dD68199CE28df107ef594BDB554B90a01ED |
 | UNFTRegistry                | 0x478F4396227b863D4e299BA94aB9A01Db825ab2f |
 | UNFT                        | 0x94eA115b3b9e9d8947d94A8be8a8BA46e4C59185 |
 | UToken                      | 0x9F1B69159F7829102C593c4EabD075eF62998d2c |
