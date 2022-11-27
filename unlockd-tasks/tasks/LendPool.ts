@@ -35,7 +35,6 @@ task("lendpool:getNftConfigByTokenId", "Get the NFT Configuration bt token Id")
   .setAction(async ({ nftaddress, tokenid }) => {
     const wallet = await getUserWallet();
     const tx = await Functions.LENDPOOL.getNftConfigByTokenId(wallet, nftaddress, tokenid);
-    await tx.wait();
     console.log(tx);
   });
 
