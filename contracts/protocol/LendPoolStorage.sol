@@ -12,21 +12,27 @@ contract LendPoolStorage {
 
   ILendPoolAddressesProvider internal _addressesProvider;
 
-  mapping(address => DataTypes.ReserveData) internal _reserves;
-  mapping(address => DataTypes.NftData) internal _nfts;
-  mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) internal _nftConfig;
-
-  mapping(uint256 => address) internal _reservesList;
   uint256 internal _reservesCount;
-
-  mapping(uint256 => address) internal _nftsList;
+  uint256 internal _maxNumberOfReserves;
   uint256 internal _nftsCount;
-
+  uint256 internal _maxNumberOfNfts;
+  uint256 internal constant _NOT_ENTERED = 0;
+  uint256 internal constant _ENTERED = 1;
+  uint256 internal _status;
+  uint256 internal _pauseStartTime;
+  uint256 internal _pauseDurationTime;
+  uint256 internal _liquidateFeePercentage;
+  uint256 internal _timeframe;
+  uint256 internal _configFee;
   bool internal _paused;
 
-  uint256 internal _maxNumberOfReserves;
-  uint256 internal _maxNumberOfNfts;
+  mapping(address => DataTypes.ReserveData) internal _reserves;
+  mapping(uint256 => address) internal _reservesList;
+  mapping(address => DataTypes.NftData) internal _nfts;
+  mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) internal _nftConfig;
+  mapping(uint256 => address) internal _nftsList;
+  mapping(address => bool) public _isAllowedToSell;
 
-  // !!! Never add new variable at here, because this contract is inherited by LendPool !!!
-  // !!! Add new variable at LendPool directly !!!
+  // For upgradable, add one new variable above, minus 1 at here
+  uint256[50] private __gap;
 }

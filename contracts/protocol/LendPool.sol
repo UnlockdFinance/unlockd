@@ -22,7 +22,6 @@ import {ReserveConfiguration} from "../libraries/configuration/ReserveConfigurat
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {LendPoolStorage} from "./LendPoolStorage.sol";
-import {LendPoolStorageExt} from "./LendPoolStorageExt.sol";
 
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
@@ -50,14 +49,7 @@ import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Cont
  * @author Unlockd
  **/
 // !!! For Upgradable: DO NOT ADJUST Inheritance Order !!!
-contract LendPool is
-  Initializable,
-  ILendPool,
-  LendPoolStorage,
-  ContextUpgradeable,
-  IERC721ReceiverUpgradeable,
-  LendPoolStorageExt
-{
+contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721ReceiverUpgradeable, LendPoolStorage {
   using WadRayMath for uint256;
   using PercentageMath for uint256;
   using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -69,8 +61,6 @@ contract LendPool is
 
   bytes32 public constant ADDRESS_ID_WETH_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000001;
   bytes32 public constant ADDRESS_ID_PUNK_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000002;
-  uint256 internal _configFee; // todo: move this to the storage
-  mapping(address => bool) public _isAllowedToSell; // todo: move this to the storage
 
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.

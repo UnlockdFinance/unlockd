@@ -170,6 +170,19 @@ library LiquidateLogic {
       vars.nftOracle
     );
 
+    // We need to compare the borrow amount with the markets available to liquidate.
+    // if borrowAmount + 1% < marketsPrice instead of using the borrow we use the market price
+    // for the auction minimum bid.
+
+    // Sudoswap add a mapping (address => address[]) sudoswapAssets;
+    // Fill the mapping with the 2 highest collection pool addresses.
+    // Sudoswap: Wen HF < 1 we check if the collections are ok (prices) using the mapping.
+
+    // NFTX we get the price for the vault
+
+    // 1st we compare sudoswap to NFTX and pick a winner
+    // 2nd we compare the winner vs borrowAmount
+
     // first time bid need to burn debt tokens and transfer reserve to uTokens
     if (loanData.state == DataTypes.LoanState.Active) {
       // loan's accumulated debt must exceed threshold (heath factor below 1.0)
