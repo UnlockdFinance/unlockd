@@ -1,11 +1,11 @@
 import {
-  oneEther,
-  MOCK_RESERVE_AGGREGATORS_PRICES,
-  MOCK_NFT_AGGREGATORS_PRICES,
   MOCK_NFT_AGGREGATORS_MAXSUPPLY,
+  MOCK_NFT_AGGREGATORS_PRICES,
+  MOCK_RESERVE_AGGREGATORS_PRICES,
+  oneEther,
   ZERO_ADDRESS,
 } from "../../helpers/constants";
-import { ICommonConfiguration, eEthereumNetwork } from "../../helpers/types";
+import { eEthereumNetwork, ICommonConfiguration } from "../../helpers/types";
 
 // ----------------
 // PROTOCOL GLOBAL PARAMS
@@ -96,10 +96,10 @@ export const CommonsConfig: ICommonConfiguration = {
 
   UNFTRegistry: {
     /// Add contract From U
-    [eEthereumNetwork.hardhat]: "0x8b89F971cA1A5dE1B7df7f554a3024eE84FeeB05",
+    [eEthereumNetwork.hardhat]: "0xb38Ce645F2890a7820d322c1cE0774849489bB9d",
     [eEthereumNetwork.localhost]: "0x8b89F971cA1A5dE1B7df7f554a3024eE84FeeB05",
     [eEthereumNetwork.goerli]: "0x478F4396227b863D4e299BA94aB9A01Db825ab2f",
-    [eEthereumNetwork.main]: "0x79d922DD382E42A156bC0A354861cDBC4F09110d",
+    [eEthereumNetwork.main]: "0xb38Ce645F2890a7820d322c1cE0774849489bB9d",
   },
 
   ProviderRegistry: {
