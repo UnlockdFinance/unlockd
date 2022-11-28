@@ -33,6 +33,8 @@ contract LendPoolStorage {
   mapping(uint256 => address) internal _nftsList;
   mapping(address => bool) public _isAllowedToSell;
 
+  mapping(address => address[2]) internal _sudoswapPairs;
+
   // For upgradable, add one new variable above, minus 1 at here
   uint256[50] private __gap;
 }

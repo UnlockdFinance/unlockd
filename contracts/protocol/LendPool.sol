@@ -115,6 +115,12 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     _;
   }
 
+  modifier onlyCollection(address nftAsset) {
+    DataTypes.NftData memory data = _nfts[nftAsset];
+    require(data.uNftAddress != address(0), Errors.LP_CALLER_NOT_NFT_HOLDER);
+    _;
+  }
+
   function _whenNotPaused() internal view {
     require(!_paused, Errors.LP_IS_PAUSED);
   }
@@ -291,6 +297,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
       _reserves,
       _nfts,
       _nftConfig,
+      _sudoswapPairs,
       _buildLendPoolVars(),
       DataTypes.ExecuteAuctionParams({
         initiator: _msgSender(),
@@ -395,6 +402,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     payable
     override
     onlyHolder(nftAsset, nftTokenId)
+    onlyCollection(nftAsset)
     whenNotPaused
   {
     require(_configFee == msg.value);

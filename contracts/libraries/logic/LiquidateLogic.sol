@@ -8,6 +8,7 @@ import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesPro
 import {IReserveOracleGetter} from "../../interfaces/IReserveOracleGetter.sol";
 import {INFTOracleGetter} from "../../interfaces/INFTOracleGetter.sol";
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
+import {ILSSVMPair} from "../../interfaces/ILSSVMPair.sol";
 
 import {ReserveLogic} from "./ReserveLogic.sol";
 import {GenericLogic} from "./GenericLogic.sol";
@@ -26,6 +27,8 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {IERC721MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721MetadataUpgradeable.sol";
+
+import {NFTXHelper} from "../nftx/NFTXHelper.sol";
 
 /**
  * @title LiquidateLogic library
@@ -127,6 +130,7 @@ library LiquidateLogic {
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
+    mapping(address => address[2]) storage sudoswapPairs,
     DataTypes.ExecuteLendPoolStates memory poolStates,
     DataTypes.ExecuteAuctionParams memory params
   ) external {
@@ -183,6 +187,23 @@ library LiquidateLogic {
     // 1st we compare sudoswap to NFTX and pick a winner
     // 2nd we compare the winner vs borrowAmount
 
+    uint256 priceNftx = NFTXHelper.getNFTXPrice(
+      addressesProvider,
+      loanData.nftAsset,
+      loanData.nftTokenId,
+      loanData.reserveAsset
+    );
+    address[2] memory pairs = sudoswapPairs[loanData.nftAsset];
+    uint256 maxPriceMarkets = priceNftx;
+    for (uint256 i = 0; i < 2; ) {
+      (, uint256 newSpotPrice, , , ) = ILSSVMPair(pairs[i]).getBuyNFTQuote(1);
+      if (newSpotPrice > maxPriceMarkets) {
+        maxPriceMarkets = newSpotPrice;
+      }
+      unchecked {
+        ++i;
+      }
+    }
     // first time bid need to burn debt tokens and transfer reserve to uTokens
     if (loanData.state == DataTypes.LoanState.Active) {
       // loan's accumulated debt must exceed threshold (heath factor below 1.0)
@@ -190,9 +211,12 @@ library LiquidateLogic {
 
       // bid price must greater than liquidate price
       require(params.bidPrice >= vars.liquidatePrice, Errors.LPL_BID_PRICE_LESS_THAN_LIQUIDATION_PRICE);
-
-      // bid price must greater than borrow debt
-      require(params.bidPrice >= vars.borrowAmount, Errors.LPL_BID_PRICE_LESS_THAN_BORROW);
+      if (maxPriceMarkets >= vars.borrowAmount) {
+        require(params.bidPrice >= maxPriceMarkets, Errors.LPL_BID_PRICE_LESS_THAN_MAX_MARKET_PRICE);
+      } else {
+        // bid price must greater than borrow debt
+        require(params.bidPrice >= vars.borrowAmount, Errors.LPL_BID_PRICE_LESS_THAN_BORROW);
+      }
     } else {
       // bid price must greater than borrow debt
       require(params.bidPrice >= vars.borrowAmount, Errors.LPL_BID_PRICE_LESS_THAN_BORROW);

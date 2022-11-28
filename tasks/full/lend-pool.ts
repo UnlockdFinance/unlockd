@@ -100,6 +100,6 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       // Generic UNFT Implementation in UNFT step, not here
       //await deployUNFTImplementations(pool, poolConfig.NftsConfig, verify);
     } catch (error) {
-      throw error;
+      console.log(error);
     }
   });
