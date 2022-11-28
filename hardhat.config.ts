@@ -12,7 +12,7 @@ import { HardhatUserConfig } from "hardhat/types";
 import path from "path";
 import "solidity-coverage";
 import "solidity-docgen";
-import { BLOCK_TO_FORK, buildForkConfig, buildUnlockdForkConfig, NETWORKS_DEFAULT_GAS } from "./helper-hardhat-config";
+import { BLOCK_TO_FORK, buildForkConfig, NETWORKS_DEFAULT_GAS } from "./helper-hardhat-config";
 import { BUIDLEREVM_CHAINID } from "./helpers/buidler-constants";
 import { eEthereumNetwork, eNetwork } from "./helpers/types";
 // @ts-ignore
@@ -73,7 +73,7 @@ const getCommonNetworkConfig = (networkName: eNetwork, networkId: number) => ({
         count: 20,
       },
   forking: {
-    url: "https://eth-goerli.g.alchemy.com/v2/LcF7N0KNHVfZCgFXfiDXa7yhwBPFlha",
+    url: "https://eth-mainnet.g.alchemy.com/v2/LcF7N0KNHVfZCgFXfiDXa7yhwBPFlha",
   },
 });
 

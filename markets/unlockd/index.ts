@@ -97,9 +97,9 @@ export const UnlockdConfig: IUnlockdConfiguration = {
       // LAND: '0x04659598aAf487f139118996f99a186463037209',
     },
     [eEthereumNetwork.main]: {
-      WPUNKS: "0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6",
-      BAYC: "0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d",
-      LAND: "0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d",
+      //WPUNKS: "0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6",
+      BAYC: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D",
+      //DOODLE: "0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e",
     },
   },
 };

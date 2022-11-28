@@ -54,13 +54,13 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.goerli]: "0xc4738F82A7945816755E8e12c06E8eCF71526167",
-    [eEthereumNetwork.main]: "0x501c991E0D31D408c25bCf00da27BdF2759A394a",
+    [eEthereumNetwork.main]: undefined,
   },
   ProxyAdminFund: {
     [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.goerli]: "0xc0025E8b72EE8e2792be48F0a39f3F6b4d5D73B0",
-    [eEthereumNetwork.main]: "0x2A71a0F5cef1fFc519027AD12f19453110e70666",
+    [eEthereumNetwork.main]: undefined,
   },
 
   // If PoolAdmin/emergencyAdmin is set, will take priority over PoolAdminIndex/emergencyAdminIndex
@@ -68,14 +68,14 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15",
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.goerli]: "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15",
-    [eEthereumNetwork.main]: "0x868964fa49a6fd6e116FE82c8f4165904406f479",
+    [eEthereumNetwork.main]: "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15",
   },
   PoolAdminIndex: 0,
   EmergencyAdmin: {
-    [eEthereumNetwork.hardhat]: "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15",
+    [eEthereumNetwork.hardhat]: "0x51d25beeef0193c96cfda7fff9bd7411c2bdbdd3",
     [eEthereumNetwork.localhost]: undefined,
-    [eEthereumNetwork.goerli]: "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15",
-    [eEthereumNetwork.main]: "0x2CFa21b4dEc4409670899d05b8644e9C432250de",
+    [eEthereumNetwork.goerli]: "0x51d25beeef0193c96cfda7fff9bd7411c2bdbdd3",
+    [eEthereumNetwork.main]: "0x51d25beeef0193c96cfda7fff9bd7411c2bdbdd3",
   },
   EmergencyAdminIndex: 1,
   LendPoolLiquidator: {
@@ -99,20 +99,20 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: "0xb38Ce645F2890a7820d322c1cE0774849489bB9d",
     [eEthereumNetwork.localhost]: "0x8b89F971cA1A5dE1B7df7f554a3024eE84FeeB05",
     [eEthereumNetwork.goerli]: "0x478F4396227b863D4e299BA94aB9A01Db825ab2f",
-    [eEthereumNetwork.main]: "0xb38Ce645F2890a7820d322c1cE0774849489bB9d",
+    [eEthereumNetwork.main]: "0x8b89F971cA1A5dE1B7df7f554a3024eE84FeeB05",
   },
 
   ProviderRegistry: {
     [eEthereumNetwork.hardhat]: "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15",
     [eEthereumNetwork.localhost]: "",
     [eEthereumNetwork.goerli]: "0x8817F99eb2528eB42b025bE419cbe07f59cEd295",
-    [eEthereumNetwork.main]: "",
+    [eEthereumNetwork.main]: "0x025FE4760c6f14dE878C22cEb09A3235F16dAe53",
   },
   ProviderRegistryOwner: {
     [eEthereumNetwork.hardhat]: "",
     [eEthereumNetwork.localhost]: "",
     [eEthereumNetwork.goerli]: "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59",
-    [eEthereumNetwork.main]: "0x868964fa49a6fd6e116FE82c8f4165904406f479",
+    [eEthereumNetwork.main]: "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15",
   },
 
   ReserveOracle: {

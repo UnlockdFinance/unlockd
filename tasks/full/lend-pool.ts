@@ -31,7 +31,7 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
 
       //////////////////////////////////////////////////////////////////////////
       const unftRegistryAddress = getParamPerNetwork(poolConfig.UNFTRegistry, network);
-      console.log("UNFTRegistry", poolConfig.UNFTRegistry);
+      console.log("UNFTRegistry", poolConfig.UNFTRegistry, network);
       if (unftRegistryAddress == undefined || !notFalsyOrZeroAddress(unftRegistryAddress)) {
         throw Error("Invalid UNFT Registry address in pool config");
       }
