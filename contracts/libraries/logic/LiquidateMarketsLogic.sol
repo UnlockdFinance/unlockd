@@ -57,7 +57,7 @@ library LiquidateMarketsLogic {
     uint256 loanId
   );
 
-  struct LiquidateNFTXLocalVars {
+  struct LiquidateMarketsLocalVars {
     address poolLoan;
     address reserveOracle;
     address nftOracle;
@@ -67,7 +67,6 @@ library LiquidateMarketsLogic {
     uint256 extraDebtAmount;
     uint256 remainAmount;
     uint256 feeAmount;
-    uint256 auctionEndTimestamp;
   }
 
   /**
@@ -83,9 +82,9 @@ library LiquidateMarketsLogic {
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
     mapping(address => bool) storage isAllowedToSell,
-    DataTypes.ExecuteLiquidateNFTXParams memory params
+    DataTypes.ExecuteLiquidateMarketsParams memory params
   ) external returns (uint256) {
-    LiquidateNFTXLocalVars memory vars;
+    LiquidateMarketsLocalVars memory vars;
 
     vars.poolLoan = addressesProvider.getLendPoolLoan();
     vars.reserveOracle = addressesProvider.getReserveOracle();
@@ -102,7 +101,7 @@ library LiquidateMarketsLogic {
     DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
 
     require(isAllowedToSell[loanData.nftAsset], Errors.LP_NFT_NOT_ALLOWED_TO_SELL);
-    ValidationLogic.validateLiquidateNFTX(reserveData, nftData, nftConfig, loanData);
+    ValidationLogic.validateLiquidateMarkets(reserveData, nftData, nftConfig, loanData);
 
     // Check for health factor
     (, , uint256 healthFactor) = GenericLogic.calculateLoanData(
@@ -139,6 +138,138 @@ library LiquidateMarketsLogic {
     );
 
     uint256 priceNFTX = ILendPoolLoan(vars.poolLoan).liquidateLoanNFTX(
+      vars.loanId,
+      nftData.uNftAddress,
+      vars.borrowAmount,
+      reserveData.variableBorrowIndex
+    );
+
+    // Liquidation Fee
+    vars.feeAmount = priceNFTX.percentMul(params.liquidateFeePercentage);
+    priceNFTX = priceNFTX - vars.feeAmount;
+
+    // Remaining Amount
+    if (priceNFTX > vars.borrowAmount) {
+      vars.remainAmount = priceNFTX - vars.borrowAmount;
+    }
+
+    // Extra Debt Amount
+    if (priceNFTX < vars.borrowAmount) {
+      vars.extraDebtAmount = vars.borrowAmount - priceNFTX;
+    }
+
+    IDebtToken(reserveData.debtTokenAddress).burn(
+      loanData.borrower,
+      vars.borrowAmount,
+      reserveData.variableBorrowIndex
+    );
+
+    // update interest rate according latest borrow amount (utilizaton)
+    reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.borrowAmount, 0);
+
+    // NFTX selling price was lower than borrow amount. Treasury must cover the loss
+    if (vars.extraDebtAmount > 0) {
+      address treasury = IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS();
+      require(
+        IERC20Upgradeable(loanData.reserveAsset).balanceOf(treasury) > vars.extraDebtAmount,
+        Errors.VL_VALUE_EXCEED_TREASURY_BALANCE
+      );
+      IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(treasury, address(this), vars.extraDebtAmount);
+    }
+
+    // transfer borrow amount from lend pool to uToken, repay debt
+    IERC20Upgradeable(loanData.reserveAsset).safeTransfer(reserveData.uTokenAddress, vars.borrowAmount);
+
+    // transfer fee amount from lend pool to liquidator
+    IERC20Upgradeable(loanData.reserveAsset).safeTransfer(vars.liquidator, vars.feeAmount);
+
+    // transfer remain amount to borrower
+    if (vars.remainAmount > 0) {
+      IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.borrower, vars.remainAmount);
+    }
+
+    emit LiquidateNFTX(
+      loanData.reserveAsset,
+      vars.borrowAmount,
+      vars.remainAmount,
+      loanData.nftAsset,
+      loanData.nftTokenId,
+      loanData.borrower,
+      vars.loanId
+    );
+
+    return (vars.remainAmount);
+  }
+
+  /**
+   * @notice Implements the liquidate feature on SudoSwap. Through `liquidateSudoSwap()`, users liquidate assets in the protocol.
+   * @dev Emits the `LiquidateSudoSwap()` event.
+   * @param reservesData The state of all the reserves
+   * @param nftsData The state of all the nfts
+   * @param params The additional parameters needed to execute the liquidate function
+   */
+  function executeLiquidateSudoSwap(
+    ILendPoolAddressesProvider addressesProvider,
+    mapping(address => DataTypes.ReserveData) storage reservesData,
+    mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
+    mapping(address => bool) storage isAllowedToSell,
+    DataTypes.ExecuteLiquidateMarketsParams memory params
+  ) external returns (uint256) {
+    LiquidateMarketsLocalVars memory vars;
+
+    vars.poolLoan = addressesProvider.getLendPoolLoan();
+    vars.reserveOracle = addressesProvider.getReserveOracle();
+    vars.nftOracle = addressesProvider.getNFTOracle();
+    vars.liquidator = addressesProvider.getLendPoolLiquidator();
+
+    vars.loanId = ILendPoolLoan(vars.poolLoan).getCollateralLoanId(params.nftAsset, params.nftTokenId);
+    require(vars.loanId != 0, Errors.LP_NFT_IS_NOT_USED_AS_COLLATERAL);
+
+    DataTypes.LoanData memory loanData = ILendPoolLoan(vars.poolLoan).getLoan(vars.loanId);
+
+    DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
+    DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
+    DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
+
+    require(isAllowedToSell[loanData.nftAsset], Errors.LP_NFT_NOT_ALLOWED_TO_SELL);
+    ValidationLogic.validateLiquidateMarkets(reserveData, nftData, nftConfig, loanData);
+
+    // Check for health factor
+    (, , uint256 healthFactor) = GenericLogic.calculateLoanData(
+      loanData.reserveAsset,
+      reserveData,
+      loanData.nftAsset,
+      loanData.nftTokenId,
+      nftConfig,
+      vars.poolLoan,
+      vars.loanId,
+      vars.reserveOracle,
+      vars.nftOracle
+    );
+
+    //Loan must be unhealthy in order to get liquidated
+    require(
+      healthFactor <= GenericLogic.HEALTH_FACTOR_LIQUIDATION_THRESHOLD,
+      Errors.VL_HEALTH_FACTOR_LOWER_THAN_LIQUIDATION_THRESHOLD
+    );
+
+    // update state MUST BEFORE get borrow amount which is depent on latest borrow index
+    reserveData.updateState();
+
+    (vars.borrowAmount, , ) = GenericLogic.calculateLoanLiquidatePrice(
+      vars.loanId,
+      loanData.reserveAsset,
+      reserveData,
+      loanData.nftAsset,
+      loanData.nftTokenId,
+      nftConfig,
+      vars.poolLoan,
+      vars.reserveOracle,
+      vars.nftOracle
+    );
+
+    uint256 priceNFTX = ILendPoolLoan(vars.poolLoan).liquidateLoanSudoSwap(
       vars.loanId,
       nftData.uNftAddress,
       vars.borrowAmount,

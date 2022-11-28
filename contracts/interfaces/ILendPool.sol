@@ -345,6 +345,14 @@ interface ILendPool {
   function liquidateNFTX(address nftAsset, uint256 nftTokenId) external returns (uint256);
 
   /**
+   * @dev Function to liquidate a non-healthy position collateral-wise
+   * - The collateral asset is sold on NFTX & Sushiswap
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   **/
+  function liquidateSudoSwap(address nftAsset, uint256 nftTokenId) external returns (uint256);
+
+  /**
    * @dev Triggers the configuration of an NFT
    * @dev Just the NFT holder can trigger the configuration
    * @param nftAsset The address of the underlying NFT used as collateral

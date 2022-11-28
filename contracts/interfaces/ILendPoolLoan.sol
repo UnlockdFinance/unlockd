@@ -255,6 +255,22 @@ interface ILendPoolLoan {
   ) external returns (uint256 sellPrice);
 
   /**
+   * @dev Liquidate the given loan on SudoSwap
+   *
+   * Requirements:
+   *  - The caller must send in principal + interest
+   *  - The loan must be in state Auction
+   *
+   * @param loanId The loan getting burned
+   */
+  function liquidateLoanSudoSwap(
+    uint256 loanId,
+    address uNftAddress,
+    uint256 borrowAmount,
+    uint256 borrowIndex
+  ) external returns (uint256 sellPrice);
+
+  /**
    *  @dev returns the borrower of a specific loan
    * param loanId the loan to get the borrower from
    */

@@ -10,7 +10,7 @@ import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
-import {NFTXHelper} from "../libraries/nftx/NFTXHelper.sol";
+import {NFTXSeller} from "../libraries/markets/NFTXSeller.sol";
 
 contract UnlockdProtocolDataProvider {
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
@@ -330,6 +330,6 @@ contract UnlockdProtocolDataProvider {
     uint256 tokenId,
     address reserveAsset
   ) external view returns (uint256) {
-    return NFTXHelper.getNFTXPrice(ADDRESSES_PROVIDER, asset, tokenId, reserveAsset);
+    return NFTXSeller.getNFTXPrice(ADDRESSES_PROVIDER, asset, tokenId, reserveAsset);
   }
 }

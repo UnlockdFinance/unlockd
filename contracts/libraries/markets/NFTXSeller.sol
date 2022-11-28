@@ -11,14 +11,12 @@ import {Errors} from "../../libraries/helpers/Errors.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 
-import "hardhat/console.sol";
-
 /**
- * @title NFTXHelper library
+ * @title NFTXSeller library
  * @author Unlockd
  * @notice Implements NFTX selling logic
  */
-library NFTXHelper {
+library NFTXSeller {
   address internal constant WETH = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
 
   /**
