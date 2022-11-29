@@ -197,14 +197,15 @@ export async function initializeMakeSuite() {
 
   // Reserve Tokens
   const allReserveTokens = await testEnv.dataProvider.getAllReservesTokenDatas();
-  const uDaiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.uTokenAddress;
-  const uUsdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.uTokenAddress;
+  //const uDaiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.uTokenAddress;
+  //const uUsdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.uTokenAddress;
   const uWEthAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.uTokenAddress;
 
-  const daiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.tokenAddress;
-  const usdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.tokenAddress;
+  //const daiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.tokenAddress;
+  //const usdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.tokenAddress;
   const wethAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.tokenAddress;
 
+  /*
   if (!uDaiAddress || !uUsdcAddress || !uWEthAddress) {
     console.error("Invalid UTokens", uDaiAddress, uUsdcAddress, uWEthAddress);
     process.exit(1);
@@ -213,25 +214,27 @@ export async function initializeMakeSuite() {
     console.error("Invalid Reserve Tokens", daiAddress, usdcAddress, wethAddress);
     process.exit(1);
   }
-
-  testEnv.uDai = await getUToken(uDaiAddress);
-  testEnv.uUsdc = await getUToken(uUsdcAddress);
+  */
+  console.log("HERE MFER!!!");
+  //testEnv.uDai = await getUToken(uDaiAddress);
+  //testEnv.uUsdc = await getUToken(uUsdcAddress);
   testEnv.uWETH = await getUToken(uWEthAddress);
 
-  testEnv.dai = await getMintableERC20(daiAddress);
-  testEnv.usdc = await getMintableERC20(usdcAddress);
+  //testEnv.dai = await getMintableERC20(daiAddress);
+  //testEnv.usdc = await getMintableERC20(usdcAddress);
   testEnv.weth = await getWETHMocked(wethAddress);
   testEnv.wethGateway = await getWETHGateway();
 
   // NFT Tokens
   const allUNftTokens = await testEnv.dataProvider.getAllNftsTokenDatas();
   //console.log("allUNftTokens", allUNftTokens);
-  const uPunkAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.uNftAddress;
+  //const uPunkAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.uNftAddress;
   const uByacAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "BAYC")?.uNftAddress;
 
-  const wpunksAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.nftAddress;
+  //const wpunksAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.nftAddress;
   const baycAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "BAYC")?.nftAddress;
-
+  console.log(baycAddress);
+  /*
   if (!uByacAddress || !uPunkAddress) {
     console.error("Invalid UNFT Tokens", uByacAddress, uPunkAddress);
     process.exit(1);
@@ -240,25 +243,26 @@ export async function initializeMakeSuite() {
     console.error("Invalid NFT Tokens", baycAddress, wpunksAddress);
     process.exit(1);
   }
+  */
 
   testEnv.uBAYC = await getUNFT(uByacAddress);
-  testEnv.uPUNK = await getUNFT(uPunkAddress);
+  //testEnv.uPUNK = await getUNFT(uPunkAddress);
 
-  testEnv.bayc = await getMintableERC721(baycAddress);
+  testEnv.bayc = await getMintableERC721(baycAddress!);
   testEnv.tokenId = 1;
-  testEnv.cryptoPunksMarket = await getCryptoPunksMarket();
-  testEnv.wrappedPunk = await getWrappedPunk();
-  testEnv.punkGateway = await getPunkGateway();
+  //testEnv.cryptoPunksMarket = await getCryptoPunksMarket();
+  //testEnv.wrappedPunk = await getWrappedPunk();
+  //testEnv.punkGateway = await getPunkGateway();
 
   testEnv.tokenIdTracker = 100;
-  testEnv.punkIndexTracker = 100;
-
+  //testEnv.punkIndexTracker = 100;
+  console.log("v2 MFER!!!!!!");
   testEnv.roundIdTracker = 1;
   testEnv.nowTimeTracker = Number(await getNowTimeInSeconds());
-
+  console.log("v3 MFER!!!!!!");
   // NFTXVaultFactory, Sushiswap Router
-  testEnv.nftxVaultFactory = await getNFTXVaultFactory();
-  testEnv.sushiSwapRouter = await getSushiSwapRouter();
+  //testEnv.nftxVaultFactory = await getNFTXVaultFactory();
+  //testEnv.sushiSwapRouter = await getSushiSwapRouter();
 }
 
 const setSnapshot = async () => {

@@ -1,4 +1,3 @@
-import { oneRay, ZERO_ADDRESS } from "../../helpers/constants";
 import { IUnlockdConfiguration, eEthereumNetwork } from "../../helpers/types";
 
 import { CommonsConfig } from "./commons";
@@ -31,9 +30,10 @@ export const UnlockdConfig: IUnlockdConfiguration = {
     USDC: strategyUSDC,
   },
   NftsConfig: {
-    WPUNKS: strategyNft_WPUNKS,
+    //WPUNKS: strategyNft_WPUNKS,
     BAYC: strategyNft_BAYC,
     DOODLE: strategyNft_DOODLE,
+    AZUKI: strategyNft_AZUKI,
     /*  MAYC: strategyNft_MAYC,
     CLONEX: strategyNft_CLONEX,
     AZUKI: strategyNft_AZUKI,
@@ -67,15 +67,15 @@ export const UnlockdConfig: IUnlockdConfiguration = {
   NftsAssets: {
     [eEthereumNetwork.hardhat]: {
       //dev:deploy-mock-nfts
-      WPUNKS: "0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847",
-      BAYC: "0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457",
-      DOODLE: "0x2F7f69a3cd22FcfFB5E0C0fB7Ae5Eb278b3919Ff",
+      //WPUNKS: "0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847",
+      BAYC: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D",
+      DOODLE: "0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e",
+      AZUKI: "0xED5AF388653567Af2F388E6224dC7C4b3241C544",
       // COOL: '0xC7F247a33C79BB0fABc3605479372D3Ba188fcbc',
       // MEEBITS: '0x69D1108D37825212736aC101B445b6B57a390d13',
       // MAYC: '0x8b89F971cA1A5dE1B7df7f554a3024eE84FeeB05',
       // WOW: '0x1864c9342339c36588F7f31d1079690a7003c7a2',
       // CLONEX: '0xd062F368df81E0A7f4fB6e8F5ce5AC7deD388796',
-      // AZUKI: '0x10F6794a3Df86bD8B97c7d6D625BAB54677D443b',
       // KONGZ: '0xF9107B537482fE7cE75a6646BEad2A97BFA4eB0E',
     },
     [eEthereumNetwork.localhost]: {
@@ -99,7 +99,8 @@ export const UnlockdConfig: IUnlockdConfiguration = {
     [eEthereumNetwork.main]: {
       //WPUNKS: "0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6",
       BAYC: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D",
-      //DOODLE: "0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e",
+      DOODLE: "0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e",
+      AZUKI: "0xED5AF388653567Af2F388E6224dC7C4b3241C544",
     },
   },
 };

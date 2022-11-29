@@ -2,7 +2,6 @@ import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
-import { fork } from "child_process";
 import fs from "fs";
 import { bootstrap } from "global-agent";
 import "hardhat-contract-sizer";
@@ -12,7 +11,7 @@ import { HardhatUserConfig } from "hardhat/types";
 import path from "path";
 import "solidity-coverage";
 import "solidity-docgen";
-import { BLOCK_TO_FORK, buildForkConfig, NETWORKS_DEFAULT_GAS } from "./helper-hardhat-config";
+import { buildForkConfig, NETWORKS_DEFAULT_GAS } from "./helper-hardhat-config";
 import { BUIDLEREVM_CHAINID } from "./helpers/buidler-constants";
 import { eEthereumNetwork, eNetwork } from "./helpers/types";
 // @ts-ignore
@@ -36,6 +35,8 @@ const MNEMONIC = process.env.MNEMONIC || "";
 const UNLIMITED_BYTECODE_SIZE = process.env.UNLIMITED_BYTECODE_SIZE === "true";
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
 const RPC_ENDPOINT = process.env.RPC_ENDPOINT || "";
+const FORK_RPC_ENDPOINT = process.env.FORK_RPC_ENDPOINT || "";
+const FORK = process.env.FORK || "";
 
 // Prevent to load scripts before compilation and typechain
 if (!SKIP_LOAD) {
@@ -58,7 +59,7 @@ if (!SKIP_LOAD) {
 require(`${path.join(__dirname, "tasks/misc")}/set-bre.ts`);
 
 const getCommonNetworkConfig = (networkName: eNetwork, networkId: number) => ({
-  url: RPC_ENDPOINT,
+  url: FORK? FORK_RPC_ENDPOINT : RPC_ENDPOINT,
   hardfork: HARDFORK,
   blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,
   gasMultiplier: DEFAULT_GAS_MUL,
@@ -73,7 +74,7 @@ const getCommonNetworkConfig = (networkName: eNetwork, networkId: number) => ({
         count: 20,
       },
   forking: {
-    url: "https://eth-mainnet.g.alchemy.com/v2/LcF7N0KNHVfZCgFXfiDXa7yhwBPFlha",
+    url: FORK_RPC_ENDPOINT,
   },
 });
 

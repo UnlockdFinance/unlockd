@@ -131,7 +131,9 @@ export const CommonsConfig: ICommonConfiguration = {
   ReserveAggregators: {
     // https://data.chain.link/ethereum/mainnet/crypto-eth
     // https://docs.chain.link/docs/ethereum-addresses/
-    [eEthereumNetwork.hardhat]: {},
+    [eEthereumNetwork.hardhat]: {
+      USD: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+    },
     [eEthereumNetwork.localhost]: {
       DAI: "0x53933349dA8E97b77c1f43Ba01192adb8C510fA7",
       USDC: "0x51998F16F707a0cdd5ECE2a56c034552dF3fb855",

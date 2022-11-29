@@ -3,12 +3,13 @@ import { ConfigNames } from "../../helpers/configuration";
 import { deployUNFTRegistry, deployUnlockdUpgradeableProxy } from "../../helpers/contracts-deployments";
 import {
   getLendPoolAddressesProvider,
+  getMintableERC721,
   getProxyAdminSigner,
   getUNFTRegistryProxy,
 } from "../../helpers/contracts-getters";
+import { getContractAddressInDb } from "../../helpers/contracts-helpers";
 import { waitForTx } from "../../helpers/misc-utils";
-import { eContractid } from "../../helpers/types";
-import { LendPoolAddressesProvider } from "../../types";
+import { eContractid, NftContractId } from "../../helpers/types";
 
 task("full:deploy-unft-registry", "Deploy unft registry ")
   .addFlag("verify", "Verify contracts at Etherscan")
@@ -23,8 +24,8 @@ task("full:deploy-unft-registry", "Deploy unft registry ")
 
     const initEncodedData = unftRegistryImpl.interface.encodeFunctionData("initialize", [
       unftRegistryImpl.address,
-      "Bored Apes Yatch Club",
-      "BAYC",
+      "Unlockd Bound NFT",
+      "uBound",
     ]);
 
     const proxyAdminAddress = await (await getProxyAdminSigner()).getAddress();
@@ -40,9 +41,13 @@ task("full:deploy-unft-registry", "Deploy unft registry ")
     const unftRegistryProxy = await getUNFTRegistryProxy(unftRegistryImpl.addresses);
     const addressProvider = await getLendPoolAddressesProvider();
     await waitForTx(await addressProvider.setUNFTRegistry(unftRegistryProxy.address));
-    console.log("Printed registry:::", unftRegistryProxy.address);
-    await waitForTx(await unftRegistryProxy.createUNFT("0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D"));
-    console.log("UNFT created successfully");
-    const { uNftProxy } = await unftRegistryProxy.getUNFTAddresses("0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D");
-    console.log("UNFT Token:", "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D", uNftProxy);
+
+    for (const tokenSymbol of Object.keys(NftContractId)) {
+      let tokenAddress = await getContractAddressInDb(tokenSymbol);
+      console.log(tokenAddress);
+      await waitForTx(await unftRegistryProxy.createUNFT(tokenAddress));
+      console.log("UNFT created successfully");
+      const { uNftProxy } = await unftRegistryProxy.getUNFTAddresses(tokenAddress);
+      console.log("UNFT Token:", tokenAddress, uNftProxy);
+    }
   });
