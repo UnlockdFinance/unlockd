@@ -47,8 +47,8 @@ export const UnlockdConfig: IUnlockdConfiguration = {
   ReserveAssets: {
     [eEthereumNetwork.hardhat]: {
       WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      // DAI: '0xa05ffF82bcC0C599984b0839218DC6ee9328d1Fb',
-      // USDC: '0x025FE4760c6f14dE878C22cEb09A3235F16dAe53',
+      DAI: '0x6b175474e89094c44da98b954eedeac495271d0f',
+      USDC: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
     },
     [eEthereumNetwork.localhost]: {
       WETH: "0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104",
@@ -62,6 +62,8 @@ export const UnlockdConfig: IUnlockdConfiguration = {
     },
     [eEthereumNetwork.main]: {
       WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      DAI: '0x6b175474e89094c44da98b954eedeac495271d0f',
+      USDC: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
     },
   },
   NftsAssets: {

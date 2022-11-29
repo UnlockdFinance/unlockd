@@ -132,6 +132,8 @@ export const CommonsConfig: ICommonConfiguration = {
     // https://data.chain.link/ethereum/mainnet/crypto-eth
     // https://docs.chain.link/docs/ethereum-addresses/
     [eEthereumNetwork.hardhat]: {
+      DAI: "0x773616e4d11a78f511299002da57a0a94577f1f4",
+      USDC: "0x986b5e1e1755e3c2440e960477f25201b0a8bbd4",
       USD: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
     },
     [eEthereumNetwork.localhost]: {
@@ -145,6 +147,8 @@ export const CommonsConfig: ICommonConfiguration = {
       USD: "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e", //ETH - USD
     },
     [eEthereumNetwork.main]: {
+      DAI: "0x773616e4d11a78f511299002da57a0a94577f1f4",
+      USDC: "0x986b5e1e1755e3c2440e960477f25201b0a8bbd4",
       USD: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", //ETH - USD
     },
   },

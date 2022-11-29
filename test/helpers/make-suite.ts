@@ -197,15 +197,21 @@ export async function initializeMakeSuite() {
 
   // Reserve Tokens
   const allReserveTokens = await testEnv.dataProvider.getAllReservesTokenDatas();
-  //const uDaiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.uTokenAddress;
-  //const uUsdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.uTokenAddress;
+  const uDaiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.uTokenAddress;
+  const uUsdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.uTokenAddress;
   const uWEthAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.uTokenAddress;
 
-  //const daiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.tokenAddress;
-  //const usdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.tokenAddress;
+  const daiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.tokenAddress;
+  const usdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.tokenAddress;
   const wethAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.tokenAddress;
 
-  /*
+  console.log("uDai", uDaiAddress);
+  console.log("uUSDC", uUsdcAddress);
+  console.log("uWETH", uWEthAddress);
+  console.log("daiAdd", daiAddress);
+  console.log("usdcAdd", usdcAddress);
+  console.log("wethAdd", wethAddress);
+
   if (!uDaiAddress || !uUsdcAddress || !uWEthAddress) {
     console.error("Invalid UTokens", uDaiAddress, uUsdcAddress, uWEthAddress);
     process.exit(1);
@@ -214,10 +220,9 @@ export async function initializeMakeSuite() {
     console.error("Invalid Reserve Tokens", daiAddress, usdcAddress, wethAddress);
     process.exit(1);
   }
-  */
 
-  //testEnv.uDai = await getUToken(uDaiAddress);
-  //testEnv.uUsdc = await getUToken(uUsdcAddress);
+  testEnv.uDai = await getUToken(uDaiAddress);
+  testEnv.uUsdc = await getUToken(uUsdcAddress);
   testEnv.uWETH = await getUToken(uWEthAddress);
 
   //testEnv.dai = await getMintableERC20(daiAddress);
