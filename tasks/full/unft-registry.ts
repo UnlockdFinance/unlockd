@@ -1,6 +1,10 @@
 import { task } from "hardhat/config";
 import { ConfigNames } from "../../helpers/configuration";
-import { deployUNFTRegistry, deployUnlockdUpgradeableProxy } from "../../helpers/contracts-deployments";
+import {
+  deployGenericUNFTImpl,
+  deployUNFTRegistry,
+  deployUnlockdUpgradeableProxy,
+} from "../../helpers/contracts-deployments";
 import {
   getLendPoolAddressesProvider,
   getMintableERC721,
@@ -19,13 +23,13 @@ task("full:deploy-unft-registry", "Deploy unft registry ")
     //////////////////////////////////////////////////////////////////////////
     // Reuse/deploy UnftRegistry Vault
     console.log("Deploying new UnftRegistry Vault implementation...");
-    const unftRegistryImpl = await deployUNFTRegistry(verify);
-    console.log("New UnftRegistry implementation with address:", unftRegistryImpl.address);
+    const uNFTGenericImpl = await deployGenericUNFTImpl(verify);
 
+    const unftRegistryImpl = await deployUNFTRegistry(verify);
     const initEncodedData = unftRegistryImpl.interface.encodeFunctionData("initialize", [
-      unftRegistryImpl.address,
+      uNFTGenericImpl.address,
       "Unlockd Bound NFT",
-      "uBound",
+      "UBound",
     ]);
 
     const proxyAdminAddress = await (await getProxyAdminSigner()).getAddress();

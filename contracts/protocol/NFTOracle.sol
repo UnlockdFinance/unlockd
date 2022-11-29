@@ -290,7 +290,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
         swapPath[1] = IUniswapV2Router02(sushiswapRouter).WETH();
 
         // Get the price from sushiswap
-        uint256 amountIn = 1**IERC20MetadataUpgradeable(address(nftxVault)).decimals();
+        uint256 amountIn = 10**IERC20MetadataUpgradeable(address(nftxVault)).decimals();
         uint256[] memory amounts = IUniswapV2Router02(sushiswapRouter).getAmountsOut(amountIn, swapPath);
         return amounts[1];
       }

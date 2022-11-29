@@ -46,7 +46,7 @@ export const UnlockdConfig: IUnlockdConfiguration = {
 
   ReserveAssets: {
     [eEthereumNetwork.hardhat]: {
-      // WETH: '0x44e12d4D37f6DDAA00c086442998B1A61365BCa9',
+      WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       // DAI: '0xa05ffF82bcC0C599984b0839218DC6ee9328d1Fb',
       // USDC: '0x025FE4760c6f14dE878C22cEb09A3235F16dAe53',
     },

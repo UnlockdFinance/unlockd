@@ -96,10 +96,10 @@ export const CommonsConfig: ICommonConfiguration = {
 
   UNFTRegistry: {
     /// Add contract From U
-    [eEthereumNetwork.hardhat]: "0xb38Ce645F2890a7820d322c1cE0774849489bB9d",
+    [eEthereumNetwork.hardhat]: "0xd062F368df81E0A7f4fB6e8F5ce5AC7deD388796",
     [eEthereumNetwork.localhost]: "0x8b89F971cA1A5dE1B7df7f554a3024eE84FeeB05",
     [eEthereumNetwork.goerli]: "0x478F4396227b863D4e299BA94aB9A01Db825ab2f",
-    [eEthereumNetwork.main]: "0x1864c9342339c36588F7f31d1079690a7003c7a2",
+    [eEthereumNetwork.main]: "0xd062F368df81E0A7f4fB6e8F5ce5AC7deD388796",
   },
 
   ProviderRegistry: {

@@ -215,7 +215,7 @@ export async function initializeMakeSuite() {
     process.exit(1);
   }
   */
-  console.log("HERE MFER!!!");
+
   //testEnv.uDai = await getUToken(uDaiAddress);
   //testEnv.uUsdc = await getUToken(uUsdcAddress);
   testEnv.uWETH = await getUToken(uWEthAddress);
@@ -256,10 +256,10 @@ export async function initializeMakeSuite() {
 
   testEnv.tokenIdTracker = 100;
   //testEnv.punkIndexTracker = 100;
-  console.log("v2 MFER!!!!!!");
+
   testEnv.roundIdTracker = 1;
   testEnv.nowTimeTracker = Number(await getNowTimeInSeconds());
-  console.log("v3 MFER!!!!!!");
+
   // NFTXVaultFactory, Sushiswap Router
   //testEnv.nftxVaultFactory = await getNFTXVaultFactory();
   //testEnv.sushiSwapRouter = await getSushiSwapRouter();
