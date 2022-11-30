@@ -263,42 +263,4 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     require(newPriceManager != address(0), Errors.NFTO_INVALID_PRICEM_ADDRESS);
     isPriceManager[newPriceManager] = val;
   }
-
-  /**
-   * @inheritdoc INFTOracle
-   */
-  function getNFTPriceNFTX(address _collection, uint256 _tokenId)
-    external
-    view
-    override
-    onlyExistingCollection(_collection)
-    returns (uint256)
-  {
-    // Get NFTX Vaults for asset
-    address[] memory vaultAddresses = INFTXVaultFactoryV2(nftxVaultFactory).vaultsForAsset(_collection);
-
-    uint256[] memory tokenIds = new uint256[](1);
-    tokenIds[0] = _tokenId;
-    uint256 vaultAddressesLength = vaultAddresses.length;
-
-    for (uint256 i = 0; i != vaultAddressesLength; ) {
-      INFTXVault nftxVault = INFTXVault(vaultAddresses[i]);
-      if (nftxVault.allValidNFTs(tokenIds)) {
-        // Swap path is NFTX Vault -> WETH
-        address[] memory swapPath = new address[](2);
-        swapPath[0] = address(nftxVault);
-        swapPath[1] = IUniswapV2Router02(sushiswapRouter).WETH();
-
-        // Get the price from sushiswap
-        uint256 amountIn = 1**IERC20MetadataUpgradeable(address(nftxVault)).decimals();
-        uint256[] memory amounts = IUniswapV2Router02(sushiswapRouter).getAmountsOut(amountIn, swapPath);
-        return amounts[1];
-      }
-      unchecked {
-        ++i;
-      }
-    }
-
-    revert PriceIsZero();
-  }
 }

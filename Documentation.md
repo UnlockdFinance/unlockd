@@ -2113,8 +2113,6 @@ uint256 _maxNumberOfNfts
 uint256 _liquidateFeePercentage
 ```
 
-## LendPoolStorageExt
-
 ### \_NOT_ENTERED
 
 ```solidity
@@ -4966,8 +4964,6 @@ uint256 _maxNumberOfNfts
 ```solidity
 uint256 _liquidateFeePercentage
 ```
-
-## LendPoolStorageExt
 
 ### \_NOT_ENTERED
 

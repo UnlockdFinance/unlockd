@@ -621,10 +621,17 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   /**
    * @dev Allows and address to be sold on NFTX
    * @param nftAsset the address of the NFT
+   * @param marketId the id of the market
+   * @param val `true` if it is supported, `false`otherwise
    **/
-  function setAllowToSellNFTX(address nftAsset, bool val) external onlyPoolAdmin {
+  function setIsMarketSupported(
+    address nftAsset,
+    uint8 marketId,
+    bool val
+  ) external onlyLtvManager {
+    require(nftAsset != address(0), Errors.INVALID_ZERO_ADDRESS);
     ILendPool cachedPool = _getLendPool();
-    cachedPool.setAllowToSellNFTX(nftAsset, val);
+    cachedPool.setIsMarketSupported(nftAsset, marketId, val);
   }
 
   /**

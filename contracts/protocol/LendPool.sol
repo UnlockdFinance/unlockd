@@ -22,7 +22,6 @@ import {ReserveConfiguration} from "../libraries/configuration/ReserveConfigurat
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {LendPoolStorage} from "./LendPoolStorage.sol";
-import {LendPoolStorageExt} from "./LendPoolStorageExt.sol";
 
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
@@ -50,14 +49,7 @@ import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Cont
  * @author Unlockd
  **/
 // !!! For Upgradable: DO NOT ADJUST Inheritance Order !!!
-contract LendPool is
-  Initializable,
-  ILendPool,
-  LendPoolStorage,
-  ContextUpgradeable,
-  IERC721ReceiverUpgradeable,
-  LendPoolStorageExt
-{
+contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721ReceiverUpgradeable, LendPoolStorage {
   using WadRayMath for uint256;
   using PercentageMath for uint256;
   using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -69,8 +61,6 @@ contract LendPool is
 
   bytes32 public constant ADDRESS_ID_WETH_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000001;
   bytes32 public constant ADDRESS_ID_PUNK_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000002;
-  uint256 internal _configFee; // todo: move this to the storage
-  mapping(address => bool) public _isAllowedToSell; // todo: move this to the storage
 
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
@@ -122,6 +112,12 @@ contract LendPool is
         _msgSender() == IERC721Upgradeable(_nfts[nftAsset].uNftAddress).ownerOf(nftTokenId),
       Errors.LP_CALLER_NOT_NFT_HOLDER
     );
+    _;
+  }
+
+  modifier onlyCollection(address nftAsset) {
+    DataTypes.NftData memory data = _nfts[nftAsset];
+    require(data.uNftAddress != address(0), Errors.LP_CALLER_NOT_NFT_HOLDER);
     _;
   }
 
@@ -301,6 +297,8 @@ contract LendPool is
       _reserves,
       _nfts,
       _nftConfig,
+      _isMarketSupported,
+      _sudoswapPairs,
       _buildLendPoolVars(),
       DataTypes.ExecuteAuctionParams({
         initiator: _msgSender(),
@@ -391,7 +389,7 @@ contract LendPool is
         _reserves,
         _nfts,
         _nftConfig,
-        _isAllowedToSell,
+        _isMarketSupported,
         DataTypes.ExecuteLiquidateNFTXParams({
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
@@ -405,6 +403,7 @@ contract LendPool is
     payable
     override
     onlyHolder(nftAsset, nftTokenId)
+    onlyCollection(nftAsset)
     whenNotPaused
   {
     require(_configFee == msg.value);
@@ -880,15 +879,20 @@ contract LendPool is
    * @dev Allows and address to be sold on NFTX
    * @param nftAsset the address of the NFT
    **/
-  function setAllowToSellNFTX(address nftAsset, bool val) external override onlyLendPoolConfigurator {
-    _isAllowedToSell[nftAsset] = val;
+  function setIsMarketSupported(
+    address nftAsset,
+    uint8 market,
+    bool val
+  ) external override onlyLendPoolConfigurator {
+    require(nftAsset != address(0), Errors.INVALID_ZERO_ADDRESS);
+    _isMarketSupported[nftAsset][market] = val;
   }
 
   /**
    * @dev Returns the max timeframe between NFT config triggers and borrows
    **/
-  function getAllowToSellNFTX(address nftAsset) external view override returns (bool) {
-    return _isAllowedToSell[nftAsset];
+  function getIsMarketSupported(address nftAsset, uint8 market) external view override returns (bool) {
+    return _isMarketSupported[nftAsset][market];
   }
 
   /**

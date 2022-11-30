@@ -3,7 +3,12 @@ import { parseEther } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import { MOCK_NFT_BASE_URIS } from "../../helpers/constants";
 import { deployAllMockNfts, deployMintableERC721 } from "../../helpers/contracts-deployments";
-import { getCryptoPunksMarket, getDeploySigner, getMintableERC721 } from "../../helpers/contracts-getters";
+import {
+  getCryptoPunksMarket,
+  getCustomERC721,
+  getDeploySigner,
+  getMintableERC721,
+} from "../../helpers/contracts-getters";
 import {
   getContractAddressInDb,
   getEthersSigners,
@@ -18,7 +23,7 @@ task("dev:deploy-mock-nfts", "Deploy mock nfts for dev enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")
   .setAction(async ({ verify }, localBRE) => {
     await localBRE.run("set-DRE");
-    await deployAllMockNfts(verify, false);
+    await deployAllMockNfts(verify, true);
   });
 
 task("dev:add-mock-nfts", "Add mock nfts for dev enviroment")
@@ -62,7 +67,7 @@ task("dev:set-mock-nfts", "Set mock nfts for dev enviroment")
         continue;
       }
 
-      const tokenContract = await getMintableERC721(tokenAddress);
+      const tokenContract = await getCustomERC721(tokenAddress);
 
       console.log(`${tokenSymbol}, ${tokenAddress}, ${baseURI}`);
       await waitForTx(await tokenContract.setBaseURI(baseURI));

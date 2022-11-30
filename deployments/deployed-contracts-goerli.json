@@ -32,12 +32,12 @@
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "BAYC": {
-    "address": "0x39F14ED58de5955b85EF0832aD9bBa009202f0EB",
-    "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
+    "address": "0x9278420Bf7548970799c56ef9A0B081862515330",
+    "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "DOODLE": {
-    "address": "0x324A7e207E292F395A09956FCEac6e638a4E9581",
-    "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
+    "address": "0x11FC8C3fd1826f16aD154c18355bcA89a742B1C8",
+    "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "COOL": {
     "address": "0xC0c31e50c6412f76C84B31b825b8DeF7072B042d",
@@ -60,8 +60,8 @@
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "AZUKI": {
-    "address": "0xC637a2BED4a06D0aF324802927CC08b70C780c9a",
-    "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
+    "address": "0xaD46D0235b2698aaD03803443b7a50383bdefc1c",
+    "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "KONGZ": {
     "address": "0x616aC013B9230CF272D6bD875889450636833CA4",
@@ -232,8 +232,8 @@
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "CustomERC721": {
-    "address": "0x39F14ED58de5955b85EF0832aD9bBa009202f0EB",
-    "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
+    "address": "0xaD46D0235b2698aaD03803443b7a50383bdefc1c",
+    "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "LiquidateMarketsLogic": {
     "address": "0x492abe4eD20A0B5e599Ff0Af666e19Ad87Ce79ed",
