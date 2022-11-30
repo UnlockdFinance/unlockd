@@ -1,10 +1,10 @@
 {
   "WETHMocked": {
-    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "address": "0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "WETH": {
-    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "address": "0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "MintableERC20": {
@@ -12,11 +12,11 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "DAI": {
-    "address": "0x6b175474e89094c44da98b954eedeac495271d0f",
+    "address": "0xa05ffF82bcC0C599984b0839218DC6ee9328d1Fb",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "USDC": {
-    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "address": "0x025FE4760c6f14dE878C22cEb09A3235F16dAe53",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "CryptoPunksMarket": {
@@ -32,17 +32,20 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "MintableERC721": {
-    "address": "0x2F7f69a3cd22FcfFB5E0C0fB7Ae5Eb278b3919Ff",
+    "address": "0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "BAYC": {
-    "address": "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D"
+    "address": "0xb2f97A3c2E48cd368901657e31Faaa93035CE390",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "DOODLE": {
-    "address": "0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e"
+    "address": "0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "AZUKI": {
-    "address": "0xED5AF388653567Af2F388E6224dC7C4b3241C544"
+    "address": "0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "MockIncentivesController": {
     "address": "0x69D1108D37825212736aC101B445b6B57a390d13",
@@ -112,10 +115,10 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LendPoolImpl": {
-    "address": "0x6e41fB61F92789d78ed6b7B70B5452c13706c2fE"
+    "address": "0xa438453157E27d48e6E7cB74BF8B808D4e2F56eD"
   },
   "LendPool": {
-    "address": "0x6e41fB61F92789d78ed6b7B70B5452c13706c2fE",
+    "address": "0xa438453157E27d48e6E7cB74BF8B808D4e2F56eD",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LendPoolLoanImpl": {

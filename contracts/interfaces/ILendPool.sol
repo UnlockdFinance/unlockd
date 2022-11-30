@@ -673,7 +673,11 @@ interface ILendPool {
    * @param nftAsset the nft address of the NFT to sell
    * @param val if true is allowed to sell if false is not
    **/
-  function setAllowToSellNFTX(address nftAsset, bool val) external;
+  function setIsMarketSupported(
+    address nftAsset,
+    uint8 market,
+    bool val
+  ) external;
 
   /**
    * @dev sets the fee for configuringNFTAsCollateral
@@ -715,5 +719,5 @@ interface ILendPool {
   /**
    * @dev Returns if the address is allowed to sell or not on NFTX
    */
-  function getAllowToSellNFTX(address nftAsset) external view returns (bool);
+  function getIsMarketSupported(address nftAsset, uint8 market) external view returns (bool);
 }

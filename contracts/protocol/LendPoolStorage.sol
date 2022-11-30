@@ -31,7 +31,13 @@ contract LendPoolStorage {
   mapping(address => DataTypes.NftData) internal _nfts;
   mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) internal _nftConfig;
   mapping(uint256 => address) internal _nftsList;
-  mapping(address => bool) public _isAllowedToSell;
+  /*
+   * @dev Markets supported for each NFT
+   * @param address -> the collection address
+   * @param uint8 -> market id (0 for NFTX, 1 for SudoSwap)
+   * @param bool -> whether it is supported in the corresponding market or not
+   */
+  mapping(address => mapping(uint8 => bool)) public _isMarketSupported;
 
   mapping(address => address[2]) internal _sudoswapPairs;
 

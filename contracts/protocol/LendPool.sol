@@ -297,6 +297,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
       _reserves,
       _nfts,
       _nftConfig,
+      _isMarketSupported,
       _sudoswapPairs,
       _buildLendPoolVars(),
       DataTypes.ExecuteAuctionParams({
@@ -388,7 +389,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
         _reserves,
         _nfts,
         _nftConfig,
-        _isAllowedToSell,
+        _isMarketSupported,
         DataTypes.ExecuteLiquidateNFTXParams({
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
@@ -878,15 +879,20 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    * @dev Allows and address to be sold on NFTX
    * @param nftAsset the address of the NFT
    **/
-  function setAllowToSellNFTX(address nftAsset, bool val) external override onlyLendPoolConfigurator {
-    _isAllowedToSell[nftAsset] = val;
+  function setIsMarketSupported(
+    address nftAsset,
+    uint8 market,
+    bool val
+  ) external override onlyLendPoolConfigurator {
+    require(nftAsset != address(0), Errors.INVALID_ZERO_ADDRESS);
+    _isMarketSupported[nftAsset][market] = val;
   }
 
   /**
    * @dev Returns the max timeframe between NFT config triggers and borrows
    **/
-  function getAllowToSellNFTX(address nftAsset) external view override returns (bool) {
-    return _isAllowedToSell[nftAsset];
+  function getIsMarketSupported(address nftAsset, uint8 market) external view override returns (bool) {
+    return _isMarketSupported[nftAsset][market];
   }
 
   /**
