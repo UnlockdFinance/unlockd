@@ -26,8 +26,8 @@ export const UnlockdConfig: IUnlockdConfiguration = {
   ProviderId: 1,
   ReservesConfig: {
     WETH: strategyWETH,
-    DAI: strategyDAI,
-    USDC: strategyUSDC,
+    //DAI: strategyDAI,
+    //USDC: strategyUSDC,
   },
   NftsConfig: {
     //WPUNKS: strategyNft_WPUNKS,
@@ -57,8 +57,8 @@ export const UnlockdConfig: IUnlockdConfiguration = {
     },
     [eEthereumNetwork.goerli]: {
       WETH: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
-      DAI: "0xba8E26A7ea78c628331baFD32eB0C77047F2cBCa",
-      USDC: "0x103a065B2c676123dF6EdDbf41e06d361Dd15905",
+      //DAI: "0xba8E26A7ea78c628331baFD32eB0C77047F2cBCa",
+      //USDC: "0x103a065B2c676123dF6EdDbf41e06d361Dd15905",
     },
     [eEthereumNetwork.main]: {
       WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -86,15 +86,15 @@ export const UnlockdConfig: IUnlockdConfiguration = {
       DOODLE: "0x2F7f69a3cd22FcfFB5E0C0fB7Ae5Eb278b3919Ff",
     },
     [eEthereumNetwork.goerli]: {
-      WPUNKS: "0xa9ED41c141d04647276F24EE06258e57a041a158",
-      BAYC: "0x39F14ED58de5955b85EF0832aD9bBa009202f0EB",
-      // DOODLE: '0x324A7e207E292F395A09956FCEac6e638a4E9581',
+      //WPUNKS: "0xa9ED41c141d04647276F24EE06258e57a041a158",
+      BAYC: "0x9278420Bf7548970799c56ef9A0B081862515330",
+      DOODLE: '0x11FC8C3fd1826f16aD154c18355bcA89a742B1C8',
+      AZUKI: '0xaD46D0235b2698aaD03803443b7a50383bdefc1c',
       // COOL: '0xC0c31e50c6412f76C84B31b825b8DeF7072B042d',
       // MEEBITS: '0x05a95e8509498cc461e5c2f157eaebb7b8ad1b78',
       // MAYC: '0x8c15f1c3868f7439549d85fe1b09e34e9646a983',
       // WOW: '0x19a0c8e54abe75032f1a30a16524254d2067169b',
       // CLONEX: '0xebcf822cea4807a75638de8de73f154c6e4d8a86',
-      // AZUKI: '0xC637a2BED4a06D0aF324802927CC08b70C780c9a',
       // KONGZ: '0x616aC013B9230CF272D6bD875889450636833CA4',
       // LAND: '0x04659598aAf487f139118996f99a186463037209',
     },

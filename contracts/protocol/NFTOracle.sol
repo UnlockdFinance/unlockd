@@ -5,8 +5,6 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 import {INFTOracle} from "../interfaces/INFTOracle.sol";
-import {INFTXVaultFactoryV2} from "../interfaces/INFTXVaultFactoryV2.sol";
-import {INFTXVault} from "../interfaces/INFTXVault.sol";
 import {IUniswapV2Router02} from "../interfaces/IUniswapV2Router02.sol";
 import {BlockContext} from "../utils/BlockContext.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
@@ -57,9 +55,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
 
   mapping(address => bool) public collectionPaused;
 
-  address public nftxVaultFactory;
-  address public sushiswapRouter;
-
   mapping(address => bool) public isPriceManager;
 
   modifier onlyPriceManager() {
@@ -89,23 +84,9 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
    * LendPoolAddressesProvider of the market.
    * @param _admin The admin address
    **/
-  function initialize(
-    address _admin,
-    address _nftxVaultFactory,
-    address _sushiswapRouter,
-    address _lendPoolConfigurator
-  ) public initializer {
-    require(
-      _admin != address(0) && _nftxVaultFactory != address(0) && _sushiswapRouter != address(0),
-      Errors.INVALID_ZERO_ADDRESS
-    );
+  function initialize(address _admin, address _lendPoolConfigurator) public initializer {
+    require(_admin != address(0), Errors.INVALID_ZERO_ADDRESS);
     __Ownable_init();
-    require(
-      _admin != address(0) && _nftxVaultFactory != address(0) && _sushiswapRouter != address(0),
-      Errors.INVALID_ZERO_ADDRESS
-    );
-    nftxVaultFactory = _nftxVaultFactory;
-    sushiswapRouter = _sushiswapRouter;
     isPriceManager[_msgSender()] = true;
     isPriceManager[_lendPoolConfigurator] = true;
   }

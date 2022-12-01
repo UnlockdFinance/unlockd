@@ -45,12 +45,7 @@ task("dev:deploy-oracle-nft", "Deploy nft oracle for dev environment")
 
     const nftOracleImpl = await deployNFTOracle(verify);
     await waitForTx(
-      await nftOracleImpl.initialize(
-        await addressesProvider.getPoolAdmin(),
-        await addressesProvider.getNFTXVaultFactory(),
-        await addressesProvider.getSushiSwapRouter(),
-        lendpoolConfigurator
-      ) // Fix bug! 2e17 1e17
+      await nftOracleImpl.initialize(await addressesProvider.getPoolAdmin(), lendpoolConfigurator) // Fix bug! 2e17 1e17
     );
 
     await nftOracleImpl.setPriceManagerStatus(lendpoolConfigurator, true);

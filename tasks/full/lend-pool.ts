@@ -5,6 +5,7 @@ import {
   deployLendPool,
   deployLendPoolConfigurator,
   deployLendPoolLoan,
+  deployUNFTImplementations,
   deployUnlockdLibraries,
   deployUTokenImplementations,
 } from "../../helpers/contracts-deployments";
@@ -31,7 +32,7 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
 
       //////////////////////////////////////////////////////////////////////////
       const unftRegistryAddress = getParamPerNetwork(poolConfig.UNFTRegistry, network);
-      console.log("UNFTRegistry", poolConfig.UNFTRegistry, network);
+
       if (unftRegistryAddress == undefined || !notFalsyOrZeroAddress(unftRegistryAddress)) {
         throw Error("Invalid UNFT Registry address in pool config");
       }
@@ -41,7 +42,7 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
 
       //Reserves Init & NFTs Init need IncentivesController
       const incentivesControllerAddress = getParamPerNetwork(poolConfig.IncentivesController, network);
-      console.log("IncentivesController", poolConfig.IncentivesController);
+
       if (incentivesControllerAddress == undefined || !notFalsyOrZeroAddress(incentivesControllerAddress)) {
         throw Error("Invalid IncentivesController address in pool config");
       }

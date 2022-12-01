@@ -75,39 +75,39 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "GenericLogic": {
-    "address": "0x1eaA4a267eDcde0eB5e08D08810Aa1696b123a2D",
+    "address": "0x025FE4760c6f14dE878C22cEb09A3235F16dAe53",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "ReserveLogic": {
-    "address": "0xb38Ce645F2890a7820d322c1cE0774849489bB9d",
+    "address": "0xb2f97A3c2E48cd368901657e31Faaa93035CE390",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "NftLogic": {
-    "address": "0xF987BB0A726905576623BA8f92B3456cd1d317F6",
+    "address": "0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "ValidationLogic": {
-    "address": "0xCE1e5D792d24F62b29D35DeB85eC04b1F66447b1",
+    "address": "0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "SupplyLogic": {
-    "address": "0x76ce294242099d005B3683106DeE60dACeD1E6f9",
+    "address": "0x2F7f69a3cd22FcfFB5E0C0fB7Ae5Eb278b3919Ff",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "BorrowLogic": {
-    "address": "0x82EEc0C56D8E48ae007bEb6A896B98Ade36BC51c",
+    "address": "0xC7F247a33C79BB0fABc3605479372D3Ba188fcbc",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LiquidateLogic": {
-    "address": "0x4C8871d8f224eE3Cd12a14fF3B691a1A0dB392ec",
+    "address": "0x69D1108D37825212736aC101B445b6B57a390d13",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LiquidateMarketsLogic": {
-    "address": "0x44e12d4D37f6DDAA00c086442998B1A61365BCa9",
+    "address": "0x8b89F971cA1A5dE1B7df7f554a3024eE84FeeB05",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "ConfiguratorLogic": {
-    "address": "0xF340913980c21cb9D96bE990451c5471FABBD2B9",
+    "address": "0x1864c9342339c36588F7f31d1079690a7003c7a2",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "NFTXHelper": {
@@ -115,10 +115,10 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LendPoolImpl": {
-    "address": "0xa438453157E27d48e6E7cB74BF8B808D4e2F56eD"
+    "address": "0xd062F368df81E0A7f4fB6e8F5ce5AC7deD388796"
   },
   "LendPool": {
-    "address": "0xa438453157E27d48e6E7cB74BF8B808D4e2F56eD",
+    "address": "0xd062F368df81E0A7f4fB6e8F5ce5AC7deD388796",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LendPoolLoanImpl": {

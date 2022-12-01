@@ -88,10 +88,6 @@ task(`full:deploy-punk-gateway`, `Deploys the PunkGateway contract`)
     }
 
     await waitForTx(await addressesProvider.setAddress(ADDRESS_ID_PUNK_GATEWAY, punkGateWay.address));
-
-    console.log("PunkGateway: proxy %s, implementation %s", punkGateWay.address, punkGateWayImpl.address);
-
-    console.log("Finished PunkGateway deployment");
   });
 
 task("full:punkgateway-authorize-caller-whitelist", "Initialize gateway configuration.")
