@@ -345,72 +345,74 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     }
   }
 
+  function configureNftsAsCollateral(ConfigNftAsCollateralInput[] calldata collateralData) external onlyLtvManager {
+    uint256 cachedLength = collateralData.length;
+    for (uint8 i; i < cachedLength; ) {
+      _configureNftAsCollateral(collateralData[i]);
+      unchecked {
+        ++i;
+      }
+    }
+  }
+
   /**
    * @dev Configures the NFT collateralization parameters
    * all the values are expressed in percentages with two decimals of precision. A valid value is 10000, which means 100.00%
-   * @param asset The address of the underlying asset of the reserve
-   * @param nftTokenId The token Id of the asset
-   * @param ltv The loan to value of the asset when used as NFT
-   * @param liquidationThreshold The threshold at which loans using this asset as collateral will be considered undercollateralized
-   * @param redeemThreshold The threshold at which the user can redeem this NFT
-   * @param liquidationBonus The bonus liquidators receive to liquidate this asset. The values is always below 100%. A value of 5%
-   * means the liquidator will receive a 5% bonus
-   * @param redeemDuration the amount of time the user has to redeem (when in auction state user redeem, when in loan state user repays)
-   * @param auctionDuration the amount of time the auction will run
-   * @param redeemFine the fine the user will pay if someone bidded on his nft while in auction state
-   * @param minBidFine the minimum bid fine the 1st bidder will receive if someone bids more than him
+   * @param collateralData The NFT collateral configuration data
    **/
-  function configureNftAsCollateral(
-    address asset,
-    uint256 nftTokenId,
-    uint256 newPrice,
-    uint256 ltv,
-    uint256 liquidationThreshold,
-    uint256 redeemThreshold,
-    uint256 liquidationBonus,
-    uint256 redeemDuration,
-    uint256 auctionDuration,
-    uint256 redeemFine,
-    uint256 minBidFine
-  ) external onlyLtvManager {
-    ILendPool cachedPool = _getLendPool();
+  function _configureNftAsCollateral(ConfigNftAsCollateralInput calldata collateralData) internal {
+    {
+      ILendPool cachedPool = _getLendPool();
 
-    DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(asset, nftTokenId);
+      DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(
+        collateralData.asset,
+        collateralData.nftTokenId
+      );
 
-    //validation of the parameters: the LTV can
-    //only be lower or equal than the liquidation threshold
-    //(otherwise a loan against the asset would cause instantaneous liquidation)
-    require(ltv <= liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
+      //validation of the parameters: the LTV can
+      //only be lower or equal than the liquidation threshold
+      //(otherwise a loan against the asset would cause instantaneous liquidation)
+      require(collateralData.ltv <= collateralData.liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
 
-    if (liquidationThreshold != 0) {
-      //liquidation bonus must be smaller than 100.00%
-      require(liquidationBonus < PercentageMath.PERCENTAGE_FACTOR, Errors.LPC_INVALID_CONFIGURATION);
-    } else {
-      require(liquidationBonus == 0, Errors.LPC_INVALID_CONFIGURATION);
+      if (collateralData.liquidationThreshold != 0) {
+        //liquidation bonus must be smaller than 100.00%
+        require(collateralData.liquidationBonus < PercentageMath.PERCENTAGE_FACTOR, Errors.LPC_INVALID_CONFIGURATION);
+      } else {
+        require(collateralData.liquidationBonus == 0, Errors.LPC_INVALID_CONFIGURATION);
+      }
+
+      currentConfig.setLtv(collateralData.ltv);
+      currentConfig.setLiquidationThreshold(collateralData.liquidationThreshold);
+      currentConfig.setRedeemThreshold(collateralData.redeemThreshold);
+      currentConfig.setLiquidationBonus(collateralData.liquidationBonus);
+      currentConfig.setActive(true);
+      currentConfig.setFrozen(false);
+
+      //validation of the parameters: the redeem duration can
+      //only be lower or equal than the auction duration
+      require(collateralData.redeemDuration <= collateralData.auctionDuration, Errors.LPC_INVALID_CONFIGURATION);
+
+      currentConfig.setRedeemDuration(collateralData.redeemDuration);
+      currentConfig.setAuctionDuration(collateralData.auctionDuration);
+      currentConfig.setRedeemFine(collateralData.redeemFine);
+      currentConfig.setMinBidFine(collateralData.minBidFine);
+      currentConfig.setConfigTimestamp(block.timestamp);
+
+      cachedPool.setNftConfigByTokenId(collateralData.asset, collateralData.nftTokenId, currentConfig.data);
+
+      INFTOracle(_addressesProvider.getNFTOracle()).setNFTPrice(
+        collateralData.asset,
+        collateralData.nftTokenId,
+        collateralData.newPrice
+      );
     }
-
-    currentConfig.setLtv(ltv);
-    currentConfig.setLiquidationThreshold(liquidationThreshold);
-    currentConfig.setRedeemThreshold(redeemThreshold);
-    currentConfig.setLiquidationBonus(liquidationBonus);
-    currentConfig.setActive(true);
-    currentConfig.setFrozen(false);
-
-    //validation of the parameters: the redeem duration can
-    //only be lower or equal than the auction duration
-    require(redeemDuration <= auctionDuration, Errors.LPC_INVALID_CONFIGURATION);
-
-    currentConfig.setRedeemDuration(redeemDuration);
-    currentConfig.setAuctionDuration(auctionDuration);
-    currentConfig.setRedeemFine(redeemFine);
-    currentConfig.setMinBidFine(minBidFine);
-    currentConfig.setConfigTimestamp(block.timestamp);
-
-    cachedPool.setNftConfigByTokenId(asset, nftTokenId, currentConfig.data);
-
-    INFTOracle(_addressesProvider.getNFTOracle()).setNFTPrice(asset, nftTokenId, newPrice);
-
-    emit NftConfigurationChanged(asset, nftTokenId, ltv, liquidationThreshold, liquidationBonus);
+    emit NftConfigurationChanged(
+      collateralData.asset,
+      collateralData.nftTokenId,
+      collateralData.ltv,
+      collateralData.liquidationThreshold,
+      collateralData.liquidationBonus
+    );
   }
 
   /**
