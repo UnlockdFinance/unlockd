@@ -471,12 +471,12 @@ const configureNftAsCollateral = async (
   newPrice: BigNumber,
   ltv: string,
   liquidationThreshold: string,
+  redeemThreshold: string,
   liquidationBonus: string,
   redeemDuration: string,
   auctionDuration: string,
   redeemFine: string,
-  active: boolean,
-  freeze: boolean
+  minBidFine: string
 ) => {
   return Contracts.lendPoolConfigurator
     .connect(wallet)
@@ -486,12 +486,12 @@ const configureNftAsCollateral = async (
       newPrice,
       ltv,
       liquidationThreshold,
+      redeemThreshold,
       liquidationBonus,
       redeemDuration,
       auctionDuration,
       redeemFine,
-      active,
-      freeze
+      minBidFine
     );
 };
 

@@ -352,10 +352,13 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    * @param nftTokenId The token Id of the asset
    * @param ltv The loan to value of the asset when used as NFT
    * @param liquidationThreshold The threshold at which loans using this asset as collateral will be considered undercollateralized
+   * @param redeemThreshold The threshold at which the user can redeem this NFT
    * @param liquidationBonus The bonus liquidators receive to liquidate this asset. The values is always below 100%. A value of 5%
    * means the liquidator will receive a 5% bonus
-   * @param activeFlag It will set NFT as Active for the given asset and tokenId
-   * @param freezeFlag It will set NFT as un-Freezed for the given asset and tokenId
+   * @param redeemDuration the amount of time the user has to redeem (when in auction state user redeem, when in loan state user repays)
+   * @param auctionDuration the amount of time the auction will run
+   * @param redeemFine the fine the user will pay if someone bidded on his nft while in auction state
+   * @param minBidFine the minimum bid fine the 1st bidder will receive if someone bids more than him
    **/
   function configureNftAsCollateral(
     address asset,
@@ -363,12 +366,12 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     uint256 newPrice,
     uint256 ltv,
     uint256 liquidationThreshold,
+    uint256 redeemThreshold,
     uint256 liquidationBonus,
     uint256 redeemDuration,
     uint256 auctionDuration,
     uint256 redeemFine,
-    bool activeFlag,
-    bool freezeFlag
+    uint256 minBidFine
   ) external onlyLtvManager {
     ILendPool cachedPool = _getLendPool();
 
@@ -388,9 +391,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
 
     currentConfig.setLtv(ltv);
     currentConfig.setLiquidationThreshold(liquidationThreshold);
+    currentConfig.setRedeemThreshold(redeemThreshold);
     currentConfig.setLiquidationBonus(liquidationBonus);
-    currentConfig.setActive(activeFlag);
-    currentConfig.setFrozen(freezeFlag);
+    currentConfig.setActive(true);
+    currentConfig.setFrozen(false);
 
     //validation of the parameters: the redeem duration can
     //only be lower or equal than the auction duration
@@ -399,6 +403,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     currentConfig.setRedeemDuration(redeemDuration);
     currentConfig.setAuctionDuration(auctionDuration);
     currentConfig.setRedeemFine(redeemFine);
+    currentConfig.setMinBidFine(minBidFine);
     currentConfig.setConfigTimestamp(block.timestamp);
 
     cachedPool.setNftConfigByTokenId(asset, nftTokenId, currentConfig.data);

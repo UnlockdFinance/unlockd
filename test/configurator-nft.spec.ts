@@ -154,7 +154,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     console.log("ltv set");
     await configurator
       .connect(users[0].signer)
-      .configureNftAsCollateral(bayc.address, tokenId, "8000", 0, 0, 0, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 5000, 100, 47, 48, 200, 250);
     console.log("ocllateral set");
     const { ltv, liquidationBonus, liquidationThreshold } = await dataProvider.getNftConfigurationDataByTokenId(
       bayc.address,
@@ -172,7 +172,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     await nftOracle.setPriceManagerStatus(configurator.address, true);
     await configurator
       .connect(users[0].signer)
-      .configureNftAsCollateral(bayc.address, tokenId, "8000", "8000", "8250", "500", 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 5000, 100, 47, 48, 200, 250);
 
     const { ltv, liquidationBonus, liquidationThreshold } = await dataProvider.getNftConfigurationDataByTokenId(
       bayc.address,
@@ -191,7 +191,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     await expect(
       configurator
         .connect(users[2].signer)
-        .configureNftAsCollateral(bayc.address, tokenId, "8000", "7500", "8000", "500", 1, 2, 25, true, false),
+        .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 5000, 100, 47, 48, 200, 250),
       CALLER_NOT_LTV_MANAGER
     ).to.be.revertedWith(CALLER_NOT_LTV_MANAGER);
   });
@@ -349,7 +349,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     await waitForTx(
       await configurator
         .connect(deployer.signer)
-        .configureNftAsCollateral(bayc.address, tokenId, "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false)
+        .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 5000, 100, 47, 48, 200, 250)
     );
 
     const amountToBorrow = await convertToCurrencyDecimals(weth.address, "1");
@@ -394,7 +394,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const timestampAux = BigNumber.from(timestamp);
     await configurator
       .connect(users[0].signer)
-      .configureNftAsCollateral(bayc.address, tokenId, "8000", "8000", "8250", "500", 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 5000, 100, 47, 48, 200, 250);
     const { configTimestamp } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, tokenId);
     await expect(configTimestamp).to.be.within(timestamp, timestampAux.add(10));
   });
