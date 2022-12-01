@@ -241,7 +241,7 @@ export const deployLiquidateMarketsLogicLibrary = async (verify?: boolean) => {
 export const deployUnlockdLibraries = async (verify?: boolean) => {
   await deployLendPoolLibraries(verify);
   await deployConfiguratorLibraries(verify);
-  await deployLendPoolLoanLibraries(verify);
+  //await deployLendPoolLoanLibraries(verify);
 };
 
 export const deployLendPoolLibraries = async (verify?: boolean) => {

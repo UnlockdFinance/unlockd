@@ -79,6 +79,7 @@ export const getGenesisPoolAdmin = async (config: ICommonConfiguration): Promise
 export const getEmergencyAdmin = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
   const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
   const targetAddress = getParamPerNetwork(config.EmergencyAdmin, <eNetwork>currentNetwork);
+  console.log("targetAddress::::::::::: " + targetAddress);
   if (targetAddress) {
     return targetAddress;
   }

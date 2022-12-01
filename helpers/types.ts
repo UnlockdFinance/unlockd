@@ -249,10 +249,10 @@ export type iAssetsWithoutUSD<T> = Omit<iAssetBase<T>, "USD">;
 
 export type iUnlockdPoolAssets<T> = Pick<
   iAssetsWithoutUSD<T>,
-  | "WETH"
-  | "DAI"
+  "WETH"
+  //| "DAI"
   //| 'BUSD'
-  | "USDC"
+  //| "USDC"
   //| 'USDT'
 >;
 

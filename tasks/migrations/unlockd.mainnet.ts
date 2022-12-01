@@ -61,9 +61,16 @@ task("unlockd:mainnet", "Deploy full enviroment")
     await DRE.run("full:deploy-address-provider", { pool: POOL_NAME, skipRegistry: skipRegistry, verify: verify });
 
     //////////////////////////////////////////////////////////////////////////
+    console.log("\n\nDeploy Incentives Controller");
+    await DRE.run("full:deploy-incentives-controller", { verify: verify });
+
+    //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy UNFT Registry");
     await DRE.run("full:deploy-unft-registry", { pool: POOL_NAME, verify });
 
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy lend pool");
     await DRE.run("full:deploy-lend-pool", { pool: POOL_NAME, verify: verify });
 
