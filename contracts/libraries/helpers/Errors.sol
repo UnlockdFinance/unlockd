@@ -79,6 +79,7 @@ library Errors {
   string public constant LP_CALLER_NOT_NFT_HOLDER = "422";
   string public constant LP_NFT_NOT_ALLOWED_TO_SELL = "423";
   string public constant LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY = "424";
+  string public constant LP_COLLECTION_NOT_SUPPORTED = "425";
 
   //lend pool loan errors
   string public constant LPL_INVALID_LOAN_STATE = "480";

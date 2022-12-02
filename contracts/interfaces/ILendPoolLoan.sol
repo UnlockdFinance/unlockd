@@ -113,6 +113,20 @@ interface ILendPoolLoan {
     uint256 sellPrice
   );
 
+  /**
+   * @dev Emitted when a loan is liquidate on SudoSwap
+   */
+  event LoanLiquidatedSudoSwap(
+    uint256 indexed loanId,
+    address nftAsset,
+    uint256 nftTokenId,
+    address reserveAsset,
+    uint256 amount,
+    uint256 borrowIndex,
+    uint256 sellPrice,
+    address LSSVMPair
+  );
+
   function initNft(address nftAsset, address uNftAddress) external;
 
   /**
@@ -267,7 +281,8 @@ interface ILendPoolLoan {
     uint256 loanId,
     address uNftAddress,
     uint256 borrowAmount,
-    uint256 borrowIndex
+    uint256 borrowIndex,
+    address LSSVMPair
   ) external returns (uint256 sellPrice);
 
   /**

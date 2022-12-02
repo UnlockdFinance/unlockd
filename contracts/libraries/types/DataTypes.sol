@@ -170,6 +170,7 @@ library DataTypes {
     address nftAsset;
     uint256 nftTokenId;
     uint256 liquidateFeePercentage;
+    address LSSVMPair;
   }
 
   struct ExecuteLendPoolStates {

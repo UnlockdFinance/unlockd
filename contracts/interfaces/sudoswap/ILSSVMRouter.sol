@@ -1,20 +1,17 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
+import {SudoSwapSeller} from "../../libraries/markets/SudoSwapSeller.sol";
+
 /**
  * @title ILSSVMRouter
  * @author Unlockd
  * @notice Defines the basic interface for the NFTX Marketplace Zap.
  **/
 
-struct PairSwapSpecific {
-  LSSVMPair pair;
-  uint256[] nftIds;
-}
-
 interface ILSSVMRouter {
   function swapNFTsForToken(
-    PairSwapSpecific[] calldata swapList,
+    SudoSwapSeller.PairSwapSpecific[] calldata swapList,
     uint256 minOutput,
     address tokenRecipient,
     uint256 deadline

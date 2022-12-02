@@ -10,6 +10,7 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {NFTXSeller} from "../libraries/markets/NFTXSeller.sol";
+import {SudoSwapSeller} from "../libraries/markets/SudoSwapSeller.sol";
 
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {IERC721ReceiverUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
@@ -365,7 +366,8 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     uint256 loanId,
     address uNftAddress,
     uint256 borrowAmount,
-    uint256 borrowIndex
+    uint256 borrowIndex,
+    address LSSVMPair
   ) external override onlyLendPool returns (uint256 sellPrice) {
     // Must use storage to change state
     DataTypes.LoanData storage loan = _loans[loanId];
@@ -385,23 +387,30 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALIED_NFT_AMOUNT);
     _nftTotalCollateral[loan.nftAsset] -= 1;
 
-    // burn uNFT and sell underlying NFT on NFTX
+    // burn uNFT and sell underlying NFT on SudoSwap
     IUNFT(uNftAddress).burn(loan.nftTokenId);
 
     // ensure lendpool owns the collateral NFT
     require(IERC721Upgradeable(loan.nftAsset).ownerOf(loan.nftTokenId) == address(this), "Invalid Call");
 
-    // Sell NFT on NFTX
-    sellPrice = NFTXSeller.sellNFTX(_addressesProvider, loan.nftAsset, loan.nftTokenId, loan.reserveAsset);
+    // Sell NFT on SudoSwap
+    sellPrice = SudoSwapSeller.sellSudoSwap(
+      _addressesProvider,
+      loan.nftAsset,
+      loan.nftTokenId,
+      loan.reserveAsset,
+      LSSVMPair
+    );
 
-    emit LoanLiquidatedNFTX(
+    emit LoanLiquidatedSudoSwap(
       loanId,
       loan.nftAsset,
       loan.nftTokenId,
       loan.reserveAsset,
       borrowAmount,
       borrowIndex,
-      sellPrice
+      sellPrice,
+      LSSVMPair
     );
   }
 

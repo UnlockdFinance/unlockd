@@ -350,7 +350,11 @@ interface ILendPool {
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
-  function liquidateSudoSwap(address nftAsset, uint256 nftTokenId) external returns (uint256);
+  function liquidateSudoSwap(
+    address nftAsset,
+    uint256 nftTokenId,
+    address LSSVMPair
+  ) external returns (uint256);
 
   /**
    * @dev Triggers the configuration of an NFT

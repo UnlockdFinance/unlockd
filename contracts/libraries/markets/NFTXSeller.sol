@@ -2,8 +2,8 @@
 pragma solidity 0.8.4;
 
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
-import {INFTXVaultFactoryV2} from "../../interfaces/INFTXVaultFactoryV2.sol";
-import {INFTXVault} from "../../interfaces/INFTXVault.sol";
+import {INFTXVaultFactoryV2} from "../../interfaces/nftx/INFTXVaultFactoryV2.sol";
+import {INFTXVault} from "../../interfaces/nftx/INFTXVault.sol";
 import {IUniswapV2Router02} from "../../interfaces/IUniswapV2Router02.sol";
 
 import {Errors} from "../../libraries/helpers/Errors.sol";

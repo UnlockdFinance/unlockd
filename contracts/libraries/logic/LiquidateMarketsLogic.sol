@@ -57,6 +57,23 @@ library LiquidateMarketsLogic {
     uint256 loanId
   );
 
+  /**
+   * @dev Emitted when a borrower's loan is liquidated on Sudoswap.
+   * @param reserve The address of the underlying asset of the reserve
+   * @param repayAmount The amount of reserve repaid by the liquidator
+   * @param remainAmount The amount of reserve received by the borrower
+   * @param loanId The loan ID of the NFT loans
+   **/
+  event LiquidateSudoSwap(
+    address indexed reserve,
+    uint256 repayAmount,
+    uint256 remainAmount,
+    address indexed nftAsset,
+    uint256 nftTokenId,
+    address indexed borrower,
+    uint256 loanId
+  );
+
   struct LiquidateMarketsLocalVars {
     address poolLoan;
     address reserveOracle;
@@ -272,25 +289,26 @@ library LiquidateMarketsLogic {
       vars.nftOracle
     );
 
-    uint256 priceNFTX = ILendPoolLoan(vars.poolLoan).liquidateLoanSudoSwap(
+    uint256 priceSudoSwap = ILendPoolLoan(vars.poolLoan).liquidateLoanSudoSwap(
       vars.loanId,
       nftData.uNftAddress,
       vars.borrowAmount,
-      reserveData.variableBorrowIndex
+      reserveData.variableBorrowIndex,
+      params.LSSVMPair
     );
 
     // Liquidation Fee
-    vars.feeAmount = priceNFTX.percentMul(params.liquidateFeePercentage);
-    priceNFTX = priceNFTX - vars.feeAmount;
+    vars.feeAmount = priceSudoSwap.percentMul(params.liquidateFeePercentage);
+    priceSudoSwap = priceSudoSwap - vars.feeAmount;
 
     // Remaining Amount
-    if (priceNFTX > vars.borrowAmount) {
-      vars.remainAmount = priceNFTX - vars.borrowAmount;
+    if (priceSudoSwap > vars.borrowAmount) {
+      vars.remainAmount = priceSudoSwap - vars.borrowAmount;
     }
 
     // Extra Debt Amount
-    if (priceNFTX < vars.borrowAmount) {
-      vars.extraDebtAmount = vars.borrowAmount - priceNFTX;
+    if (priceSudoSwap < vars.borrowAmount) {
+      vars.extraDebtAmount = vars.borrowAmount - priceSudoSwap;
     }
 
     IDebtToken(reserveData.debtTokenAddress).burn(
@@ -302,7 +320,7 @@ library LiquidateMarketsLogic {
     // update interest rate according latest borrow amount (utilizaton)
     reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.borrowAmount, 0);
 
-    // NFTX selling price was lower than borrow amount. Treasury must cover the loss
+    // SudoSwap selling price was lower than borrow amount. Treasury must cover the loss
     if (vars.extraDebtAmount > 0) {
       address treasury = IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS();
       require(
@@ -323,7 +341,7 @@ library LiquidateMarketsLogic {
       IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.borrower, vars.remainAmount);
     }
 
-    emit LiquidateNFTX(
+    emit LiquidateSudoSwap(
       loanData.reserveAsset,
       vars.borrowAmount,
       vars.remainAmount,

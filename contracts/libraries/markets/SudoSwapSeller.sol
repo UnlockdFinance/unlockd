@@ -2,19 +2,21 @@
 pragma solidity 0.8.4;
 
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
+import {ILSSVMRouter} from "../../interfaces/sudoswap/ILSSVMRouter.sol";
+import {ILSSVMPair} from "../../interfaces/sudoswap/ILSSVMPair.sol";
 
 import {Errors} from "../../libraries/helpers/Errors.sol";
 
-import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
-
-/**
+/*
  * @title SudoSwap library
  * @author Unlockd
  * @notice Implements SudoSwap selling logic
  */
 library SudoSwapSeller {
-  address internal constant WETH = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
+  struct PairSwapSpecific {
+    ILSSVMPair pair;
+    uint256[] nftIds;
+  }
 
   /**
    * @dev Sells an asset in a SudoSwap liquid market
@@ -27,6 +29,20 @@ library SudoSwapSeller {
     ILendPoolAddressesProvider addressesProvider,
     address nftAsset,
     uint256 nftTokenId,
-    address reserveAsset
-  ) internal returns (uint256) {}
+    address reserveAsset,
+    address LSSVMPair
+  ) internal returns (uint256 amount) {
+    address LSSVMRouterAddress = addressesProvider.getLSSVMRouter();
+    address lendPoolAddress = addressesProvider.getLendPool();
+
+    ILSSVMRouter LSSVMRouter = ILSSVMRouter(LSSVMRouterAddress);
+
+    uint256[] memory nftTokenIds = new uint256[](1);
+    nftTokenIds[0] = nftTokenId;
+
+    PairSwapSpecific[] memory pairSwaps = new PairSwapSpecific[](1);
+    pairSwaps[0] = PairSwapSpecific({pair: ILSSVMPair(LSSVMPair), nftIds: nftTokenIds});
+
+    amount = LSSVMRouter.swapNFTsForToken(pairSwaps, 0, lendPoolAddress, block.timestamp);
+  }
 }
