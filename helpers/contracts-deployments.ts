@@ -241,7 +241,7 @@ export const deployLiquidateMarketsLogicLibrary = async (verify?: boolean) => {
 export const deployUnlockdLibraries = async (verify?: boolean) => {
   await deployLendPoolLibraries(verify);
   await deployConfiguratorLibraries(verify);
-  await deployLendPoolLoanLibraries(verify);
+  //await deployLendPoolLoanLibraries(verify);
 };
 
 export const deployLendPoolLibraries = async (verify?: boolean) => {
@@ -473,6 +473,8 @@ export const deployAllMockNfts = async (verify?: boolean, custom?: boolean) => {
     if (custom) {
       //if (tokenSymbol === "BAYC") {
       //  console.log("Deploying BAYC...");
+      console.log(tokenName);
+      console.log(tokenSymbol);
       tokens[tokenSymbol] = await deployCustomERC721([tokenName, tokenSymbol], verify);
       //}
     } else {

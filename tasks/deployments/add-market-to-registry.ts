@@ -36,7 +36,7 @@ task("add-market-to-registry", "Adds address provider to registry")
       !isAddress(providerRegistryAddress) ||
       isZeroAddress(providerRegistryAddress)
     ) {
-      console.log("- Deploying a new Address Providers Registry:");
+      console.log("- Deploying a new Address Provider Registry:");
 
       await DRE.run("full:deploy-address-provider-registry", { verify, pool });
 

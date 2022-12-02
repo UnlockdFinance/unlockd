@@ -8,7 +8,7 @@ import {
 } from "../../helpers/contracts-getters";
 import { convertToCurrencyDecimals, getContractAddressInDb } from "../../helpers/contracts-helpers";
 import { waitForTx } from "../../helpers/misc-utils";
-import { eNetwork } from "../../helpers/types";
+import { eNetwork, NftContractId } from "../../helpers/types";
 
 task("dev:mint-mock-bayc", "Mint mock nfts for dev enviroment")
   .addParam("amount", "NFT Amount (<=10)")
@@ -26,6 +26,25 @@ task("dev:mint-mock-bayc", "Mint mock nfts for dev enviroment")
     console.log("Total amount to mint BAYC:", amount);
     await waitForTx(await bayc.mint(user, amount));
     console.log("BAYC Balances:", (await bayc.balanceOf(user)).toString());
+  });
+
+task("dev:mint-mock-all", "Mint mock nfts for dev enviroment")
+  .addParam("amount", "NFT Amount (<=10)")
+  .addParam("user", "Target user address")
+  .setAction(async ({ amount, user }, DRE) => {
+    await DRE.run("set-DRE");
+    const network = <eNetwork>DRE.network.name;
+    if (network.includes("main")) {
+      throw new Error("Mint mock not used at mainnet configuration.");
+    }
+
+    for (const tokenSymbol of Object.keys(NftContractId)) {
+      let tokenAddress = await getContractAddressInDb(tokenSymbol);
+      let contract = await getCustomERC721(tokenAddress);
+      console.log(`Total amount to mint of ${tokenSymbol}: `, amount);
+      await waitForTx(await contract.mint(user, amount));
+      console.log(`${tokenSymbol} Balance: `, (await contract.balanceOf(user)).toString());
+    }
   });
 
 task("dev:mint-mock-nfts", "Mint mock nfts for dev enviroment")

@@ -33,7 +33,6 @@ task("full:initialize-lend-pool", "Initialize lend pool configuration.")
       if (!reserveAssets) {
         throw "Reserve assets is undefined. Check ReserveAssets configuration at config directory";
       }
-
       await initReservesByHelper(
         poolConfig.ReservesConfig,
         reserveAssets,

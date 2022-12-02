@@ -249,10 +249,10 @@ export type iAssetsWithoutUSD<T> = Omit<iAssetBase<T>, "USD">;
 
 export type iUnlockdPoolAssets<T> = Pick<
   iAssetsWithoutUSD<T>,
-  | "WETH"
-  | "DAI"
+  "WETH"
+  //| "DAI"
   //| 'BUSD'
-  | "USDC"
+  //| "USDC"
   //| 'USDT'
 >;
 
@@ -274,15 +274,15 @@ export interface iNftCommon<T> {
   [key: string]: T;
 }
 export interface iNftBase<T> {
-  WPUNKS: T;
+  //WPUNKS: T;
   BAYC: T;
   DOODLE: T;
+  AZUKI: T;
   /* COOL: T;
   MEEBITS: T;
   MAYC: T;
   WOW: T;
   CLONEX: T;
-  AZUKI: T;
   KONGZ: T;
   LAND: T; */
 }
@@ -294,15 +294,15 @@ export type iUnlockdPoolNfts<T> = iNftBase<T>;
 export type iNftAggregatorBase<T> = iNftBase<T>;
 
 export enum NftContractId {
-  WPUNKS = "WPUNKS",
+  //WPUNKS = "WPUNKS",
   BAYC = "BAYC",
   DOODLE = "DOODLE",
+  AZUKI = "AZUKI",
   /* COOL = "COOL",
   MEEBITS = "MEEBITS",
   MAYC = "MAYC",
   WOW = "WOW",
   CLONEX = "CLONEX",
-  AZUKI = "AZUKI",
   KONGZ = "KONGZ",
   LAND = "LAND", */
 }

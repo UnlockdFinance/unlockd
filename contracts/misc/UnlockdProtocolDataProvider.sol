@@ -325,6 +325,12 @@ contract UnlockdProtocolDataProvider {
     loanData.bidBorrowAmount = loan.bidBorrowAmount;
   }
 
+  /* CAUTION: Price uint is ETH based (WEI, 18 decimals) */
+  /**
+  @dev returns the NFT price for a given NFT valued by NFTX
+  @param asset the NFT collection
+  @param tokenId the NFT token Id
+   */
   function getNFTXPrice(
     address asset,
     uint256 tokenId,

@@ -101,6 +101,7 @@ task("full:deploy-oracle-reserve", "Deploy reserve oracle for full enviroment")
 
       console.log("Reserve Oracle: proxy %s, implementation %s", reserveOracle.address, reserveOracleImpl.address);
     } catch (error) {
-      throw error;
+      //throw error;
+      console.log(error);
     }
   });

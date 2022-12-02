@@ -81,7 +81,7 @@ library LiquidateMarketsLogic {
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    mapping(address => bool) storage isAllowedToSell,
+    mapping(address => mapping(uint8 => bool)) storage isMarketSupported,
     DataTypes.ExecuteLiquidateMarketsParams memory params
   ) external returns (uint256) {
     LiquidateMarketsLocalVars memory vars;
@@ -100,8 +100,9 @@ library LiquidateMarketsLogic {
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
     DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
 
-    require(isAllowedToSell[loanData.nftAsset], Errors.LP_NFT_NOT_ALLOWED_TO_SELL);
+    // Check NFT is allowed to be sold on NFTX market
     ValidationLogic.validateLiquidateMarkets(reserveData, nftData, nftConfig, loanData);
+    require(isMarketSupported[loanData.nftAsset][0], Errors.LP_NFT_NOT_ALLOWED_TO_SELL);
 
     // Check for health factor
     (, , uint256 healthFactor) = GenericLogic.calculateLoanData(
@@ -213,7 +214,7 @@ library LiquidateMarketsLogic {
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    mapping(address => bool) storage isAllowedToSell,
+    mapping(address => mapping(uint8 => bool)) storage isMarketSupported,
     DataTypes.ExecuteLiquidateMarketsParams memory params
   ) external returns (uint256) {
     LiquidateMarketsLocalVars memory vars;
@@ -232,8 +233,10 @@ library LiquidateMarketsLogic {
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
     DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
 
-    require(isAllowedToSell[loanData.nftAsset], Errors.LP_NFT_NOT_ALLOWED_TO_SELL);
     ValidationLogic.validateLiquidateMarkets(reserveData, nftData, nftConfig, loanData);
+
+    // Check NFT is allowed to be sold on SudoSwap market
+    require(isMarketSupported[loanData.nftAsset][1], Errors.LP_NFT_NOT_ALLOWED_TO_SELL);
 
     // Check for health factor
     (, , uint256 healthFactor) = GenericLogic.calculateLoanData(
