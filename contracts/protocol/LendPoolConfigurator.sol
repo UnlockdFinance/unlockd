@@ -2,7 +2,6 @@
 pragma solidity 0.8.4;
 
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
-import {IUNFT} from "../interfaces/IUNFT.sol";
 import {IUNFTRegistry} from "../interfaces/IUNFTRegistry.sol";
 import {ILendPoolConfigurator} from "../interfaces/ILendPoolConfigurator.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
@@ -446,11 +445,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    * @param nftTokenId the tokenId of the asset
    * @param redeemThreshold The threshold for the redeem
    **/
-  function setNftRedeemThreshold(
-    address asset,
-    uint256 nftTokenId,
-    uint256 redeemThreshold
-  ) external onlyPoolAdmin {
+  function setNftRedeemThreshold(address asset, uint256 nftTokenId, uint256 redeemThreshold) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(asset, nftTokenId);
 
@@ -467,11 +462,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    * @param nftTokenId the tokenId of the asset
    * @param minBidFine The minimum bid fine value
    **/
-  function setNftMinBidFine(
-    address asset,
-    uint256 nftTokenId,
-    uint256 minBidFine
-  ) external onlyPoolAdmin {
+  function setNftMinBidFine(address asset, uint256 nftTokenId, uint256 minBidFine) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(asset, nftTokenId);
 
@@ -626,11 +617,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    * @param marketId the id of the market
    * @param val `true` if it is supported, `false`otherwise
    **/
-  function setIsMarketSupported(
-    address nftAsset,
-    uint8 marketId,
-    bool val
-  ) external onlyLtvManager {
+  function setIsMarketSupported(address nftAsset, uint8 marketId, bool val) external onlyLtvManager {
     require(nftAsset != address(0), Errors.INVALID_ZERO_ADDRESS);
     ILendPool cachedPool = _getLendPool();
     cachedPool.setIsMarketSupported(nftAsset, marketId, val);
