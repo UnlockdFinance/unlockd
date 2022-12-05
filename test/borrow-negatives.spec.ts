@@ -62,7 +62,7 @@ makeSuite("LendPool: Borrow negative test cases", (testEnv: TestEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 5000, 100, 47, 48, 200, 250);
 
     await borrow(
       testEnv,
@@ -92,7 +92,7 @@ makeSuite("LendPool: Borrow negative test cases", (testEnv: TestEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 5000, 100, 47, 48, 200, 250);
 
     await borrow(testEnv, user2, "WETH", "100", "BAYC", tokenId, user2.address, "", "revert", "NFT needs exist");
   });
@@ -109,7 +109,7 @@ makeSuite("LendPool: Borrow negative test cases", (testEnv: TestEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 5000, 100, 47, 48, 200, 250);
 
     await borrow(testEnv, user2, "WETH", "10", "BAYC", tokenId, user2.address, "", "revert", "NFT needs exist");
   });
@@ -126,7 +126,7 @@ makeSuite("LendPool: Borrow negative test cases", (testEnv: TestEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 5000, 100, 47, 48, 200, 250);
 
     await borrow(testEnv, user2, "WETH", "10", "BAYC", tokenId, user2.address, "", "revert", "NFT needs exist");
   });
@@ -142,7 +142,7 @@ makeSuite("LendPool: Borrow negative test cases", (testEnv: TestEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 5000, 100, 47, 48, 200, 250);
 
     await borrow(
       testEnv,
@@ -180,7 +180,7 @@ makeSuite("LendPool: Borrow negative test cases", (testEnv: TestEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 5000, 100, 47, 48, 200, 250);
 
     await configurator.setTimeframe(0);
 

@@ -141,12 +141,12 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
           "5000000000000000000",
           4000,
           7000,
-          1000,
-          1,
-          2,
-          250,
-          true,
-          false
+          5000,
+          100,
+          47,
+          48,
+          200,
+          250
         )
     );
 
@@ -163,14 +163,14 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
         wrappedPunk.address,
         punkIndex,
         "5000000000000000000",
+        4000,
+        7000,
         5000,
-        9500,
-        1000,
-        1,
-        2,
-        250,
-        true,
-        false
+        100,
+        47,
+        48,
+        200,
+        250
       );
 
     await configurator.connect(deployer.signer).setTimeframe(720000);
@@ -259,12 +259,12 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
         "10000000000000000000",
         4000,
         7000,
+        5000,
         100,
-        1,
-        2,
-        25,
-        true,
-        false
+        47,
+        48,
+        200,
+        250
       );
 
     await configurator.connect(deployer.signer).setTimeframe(720000);
@@ -361,12 +361,12 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
         borrowSizeAll.mul(3),
         4000,
         7000,
-        1000,
-        1,
-        2,
-        250,
-        true,
-        false
+        5000,
+        100,
+        47,
+        48,
+        200,
+        250
       );
 
     await configurator.connect(deployer.signer).setTimeframe(720000);
@@ -384,12 +384,12 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
         borrowSizeAll.mul(3),
         4000,
         7000,
-        1000,
-        1,
-        2,
-        250,
-        true,
-        false
+        5000,
+        100,
+        47,
+        48,
+        200,
+        250
       );
 
     await configurator.connect(deployer.signer).setTimeframe(720000);
@@ -492,12 +492,12 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
         depositSize.mul(3),
         4000,
         7000,
-        1000,
-        1,
-        2,
-        250,
-        true,
-        false
+        5000,
+        100,
+        47,
+        48,
+        200,
+        250
       );
 
     await configurator.connect(deployer.signer).setTimeframe(720000);

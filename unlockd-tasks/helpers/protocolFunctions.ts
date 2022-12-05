@@ -424,6 +424,10 @@ const mintNFTX = async (wallet: Wallet, token: Contract, tokenIds: string[], amo
 
 //#region LendPoolConfigurator for any doubts in the parameters
 // check the LendPoolConfigurator.sol or ILendPoolconfigurator.sol
+const setIsMarketSupported = async (wallet: Wallet, nftAddresses: string, marketId: string, val: boolean) => {
+  return Contracts.lendPoolConfigurator.connect(wallet).setIsMarketSupported(nftAddresses, marketId, val);
+};
+
 const setTimeframe = async (wallet: Wallet, newTimeframe: string) => {
   return Contracts.lendPoolConfigurator.connect(wallet).setTimeframe(newTimeframe);
 };
@@ -471,12 +475,12 @@ const configureNftAsCollateral = async (
   newPrice: BigNumber,
   ltv: string,
   liquidationThreshold: string,
+  redeemThreshold: string,
   liquidationBonus: string,
   redeemDuration: string,
   auctionDuration: string,
   redeemFine: string,
-  active: boolean,
-  freeze: boolean
+  minBidFine: string
 ) => {
   return Contracts.lendPoolConfigurator
     .connect(wallet)
@@ -486,12 +490,12 @@ const configureNftAsCollateral = async (
       newPrice,
       ltv,
       liquidationThreshold,
+      redeemThreshold,
       liquidationBonus,
       redeemDuration,
       auctionDuration,
       redeemFine,
-      active,
-      freeze
+      minBidFine
     );
 };
 
@@ -681,6 +685,7 @@ export const Functions = {
     getUNFTAddresses: getUNFTAddresses,
   },
   LENDPOOLCONFIGURATOR: {
+    setIsMarketSupported: setIsMarketSupported,
     setConfigFee: setConfigFee,
     setTimeframe: setTimeframe,
     setActiveFlagOnNft: setActiveFlagOnNft,

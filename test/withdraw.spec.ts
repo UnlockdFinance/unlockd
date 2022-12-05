@@ -146,7 +146,7 @@ makeSuite("LendPool: Withdraw", (testEnv: TestEnv) => {
     await waitForTx(
       await configurator
         .connect(deployer.signer)
-        .configureNftAsCollateral(bayc.address, "101", "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false)
+        .configureNftAsCollateral(bayc.address, "101", "50000000000000000000", 4000, 7000, 5000, 100, 47, 48, 200, 250)
     );
 
     await borrow(testEnv, user1, "WETH", "0.01", "BAYC", "101", user1.address, "", "success", "");

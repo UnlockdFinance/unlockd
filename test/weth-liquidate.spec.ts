@@ -104,7 +104,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(nftAsset, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(nftAsset, tokenId, price, 4000, 7000, 5000, 100, 47, 48, 200, 250);
 
     await configurator.setTimeframe(3600);
 
@@ -309,7 +309,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     await waitForTx(
       await configurator
         .connect(deployer.signer)
-        .configureNftAsCollateral(nftAsset, tokenId, "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false)
+        .configureNftAsCollateral(nftAsset, tokenId, "50000000000000000000", 4000, 7000, 5000, 100, 47, 48, 200, 250)
     );
 
     // Borrow with NFT

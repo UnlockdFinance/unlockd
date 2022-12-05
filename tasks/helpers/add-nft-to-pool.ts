@@ -81,12 +81,12 @@ task("add-nft-to-pool", "Add and config new nft asset to lend pool")
           "10",
           nftParam.baseLTVAsCollateral,
           nftParam.liquidationThreshold,
+          nftParam.redeemThreshold,
           nftParam.liquidationBonus,
           nftParam.redeemDuration,
           nftParam.auctionDuration,
           nftParam.redeemFine,
-          true,
-          false
+          nftParam.minBidFine
         )
     );
 

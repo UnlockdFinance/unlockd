@@ -54,7 +54,7 @@ makeSuite("LendPool: Liquidation SudoSwap", (testEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, "101", price, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, "101", price, 4000, 7000, 5000, 100, 47, 48, 200, 250);
 
     await configurator.setTimeframe(3600);
 
@@ -131,7 +131,7 @@ makeSuite("LendPool: Liquidation SudoSwap", (testEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, "102", "5000000000000000000", 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, "102", "5000000000000000000", 4000, 7000, 5000, 100, 47, 48, 200, 250);
 
     await configurator.connect(deployer.signer).setTimeframe(720000);
 

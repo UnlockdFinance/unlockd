@@ -22,6 +22,20 @@ interface ILendPoolConfigurator {
     uint256 maxTokenId;
   }
 
+  struct ConfigNftAsCollateralInput {
+    address asset;
+    uint256 nftTokenId;
+    uint256 newPrice;
+    uint256 ltv;
+    uint256 liquidationThreshold;
+    uint256 redeemThreshold;
+    uint256 liquidationBonus;
+    uint256 redeemDuration;
+    uint256 auctionDuration;
+    uint256 redeemFine;
+    uint256 minBidFine;
+  }
+
   /**
    * @dev Emitted when a reserve is initialized.
    * @param asset The address of the underlying asset of the reserve

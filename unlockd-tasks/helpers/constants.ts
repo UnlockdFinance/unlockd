@@ -48,7 +48,7 @@ const lendPoolLoanContract = new Contract(deployments.LendPoolLoan.address, lend
 const nftOracleContract = new Contract(deployments.NFTOracle.address, nftOracleArtifact.abi);
 const punkGatewayContract = new Contract(deployments.PunkGateway.address, punkGatewayArtifact.abi);
 const reserveOracleContract = new Contract(deployments.ReserveOracle.address, reserveOracleArtifact.abi);
-const uTokenContract = new Contract("0x38f7178f10628687a9072c0c684e40ae2503df9b", uTokenArtifact.abi); // The UToken needs to be the reserve address
+const uTokenContract = new Contract("0x1c1Ce3d7C84e1Ba9DA213FF32B644fc3479AdA0C", uTokenArtifact.abi); // The UToken needs to be the reserve address
 const wethGatewayContract = new Contract(deployments.WETHGateway.address, wethGatewayArtifact.abi);
 const unftRegistryContract = new Contract(deployments.UNFTRegistry.address, unftRegistryArtifact.abi);
 const dataProviderContract = new Contract(
@@ -81,7 +81,7 @@ export const Contracts = {
 export const daiContract = new Contract(deployments.DAI.address, erc20Artifact.abi);
 export const usdcContract = new Contract(deployments.USDC.address, erc20Artifact.abi);
 export const wethContract = new Contract(deployments.WETH.address, erc20Artifact.abi);
-export const uwethContract = new Contract("0x38f7178F10628687A9072C0C684E40AE2503Df9b", erc20Artifact.abi);
+export const uwethContract = new Contract("0x1c1Ce3d7C84e1Ba9DA213FF32B644fc3479AdA0C", erc20Artifact.abi);
 export const baycContract = new Contract(deployments.BAYC.address, erc721Artifact.abi);
 
 export const MockContracts = {
