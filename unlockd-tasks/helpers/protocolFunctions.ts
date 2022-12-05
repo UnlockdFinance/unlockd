@@ -395,27 +395,6 @@ const getUNFTAddresses = async (wallet: Wallet, nftAddress: string) => {
 };
 //#endregion
 
-//#region NFTXVaultFactory
-const getTotalVaults = async (wallet: Wallet) => {
-  return Contracts.nftxVaultFactory.connect(wallet).numVaults();
-};
-
-const vaultsForAsset = async (wallet: Wallet, assetAddress: string) => {
-  return Contracts.nftxVaultFactory.connect(wallet).vaultsForAsset(assetAddress);
-};
-
-const createNFTXVault = async (
-  wallet: Wallet,
-  name: string,
-  symbol: string,
-  assetAddress: string,
-  is1155 = false,
-  allowAllItems = true
-) => {
-  return Contracts.nftxVaultFactory.connect(wallet).createVault(name, symbol, assetAddress, is1155, allowAllItems);
-};
-//#endregion
-
 //#region NFTXVault
 const mintNFTX = async (wallet: Wallet, token: Contract, tokenIds: string[], amounts: string[]) => {
   return token.connect(wallet).mint(tokenIds, amounts);
@@ -702,11 +681,6 @@ export const Functions = {
     setLtvManagerStatus: setLtvManagerStatus,
     getTokenImplementation: getTokenImplementation,
     setAllowToSellNFTX: setAllowToSellNFTX,
-  },
-  NFTXFACTORY: {
-    vaultsForAsset: vaultsForAsset,
-    createNFTXVault: createNFTXVault,
-    getTotalVaults: getTotalVaults,
   },
   NFTXVAULT: {
     mintNFTX: mintNFTX,

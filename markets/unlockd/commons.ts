@@ -65,14 +65,14 @@ export const CommonsConfig: ICommonConfiguration = {
 
   // If PoolAdmin/emergencyAdmin is set, will take priority over PoolAdminIndex/emergencyAdminIndex
   PoolAdmin: {
-    [eEthereumNetwork.hardhat]: "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15",
+    [eEthereumNetwork.hardhat]: "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59",
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.goerli]: "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59",
     [eEthereumNetwork.main]: "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15",
   },
   PoolAdminIndex: 0,
   EmergencyAdmin: {
-    [eEthereumNetwork.hardhat]: "0x51d25beeef0193c96cfda7fff9bd7411c2bdbdd3",
+    [eEthereumNetwork.hardhat]: "0xA6807ad4AD8e8c435DD9B9Ed2c56058aD1336c24",
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.goerli]: "0xA6807ad4AD8e8c435DD9B9Ed2c56058aD1336c24",
     [eEthereumNetwork.main]: "0x51d25beeef0193c96cfda7fff9bd7411c2bdbdd3",

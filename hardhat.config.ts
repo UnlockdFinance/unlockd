@@ -36,7 +36,7 @@ const UNLIMITED_BYTECODE_SIZE = process.env.UNLIMITED_BYTECODE_SIZE === "true";
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
 const RPC_ENDPOINT = process.env.RPC_ENDPOINT || "";
 const FORK_RPC_ENDPOINT = process.env.FORK_RPC_ENDPOINT || "";
-const FORK = process.env.FORK || "";
+export const FORK = process.env.FORK || "";
 
 // Prevent to load scripts before compilation and typechain
 if (!SKIP_LOAD) {

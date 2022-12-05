@@ -1,6 +1,7 @@
+import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
 import { isZeroAddress } from "ethereumjs-util";
-import { ContractTransaction, Wallet } from "ethers";
+import { ContractTransaction, Signer, Wallet } from "ethers";
 import { isAddress } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import low from "lowdb";
@@ -137,6 +138,34 @@ export const impersonateAccountsHardhat = async (accounts: string[]) => {
     await (DRE as HardhatRuntimeEnvironment).network.provider.request({
       method: "hardhat_impersonateAccount",
       params: [account],
+    });
+  }
+};
+
+export const stopImpersonateAccountsHardhat = async (accounts: string[]) => {
+  if (process.env.TENDERLY === "true") {
+    return;
+  }
+  // eslint-disable-next-line no-restricted-syntax
+  for (const account of accounts) {
+    // eslint-disable-next-line no-await-in-loop
+    await (DRE as HardhatRuntimeEnvironment).network.provider.request({
+      method: "hardhat_stopImpersonatingAccount",
+      params: [account],
+    });
+  }
+};
+
+export const fundSigners = async (impersonatedSigner: Signer, signers: Signer[]) => {
+  if (process.env.TENDERLY === "true") {
+    return;
+  }
+  // eslint-disable-next-line no-restricted-syntax
+  for (const signer of signers) {
+    // eslint-disable-next-line no-await-in-loop
+    await impersonatedSigner.sendTransaction({
+      to: await signer.getAddress(),
+      value: parseEther("1000"), // 1000 ether
     });
   }
 };

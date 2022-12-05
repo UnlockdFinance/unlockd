@@ -31,7 +31,16 @@ export const loadPoolConfig = (configName: ConfigNames): PoolConfiguration => {
       throw new Error(`Unsupported pool configuration: ${Object.values(ConfigNames)}`);
   }
 };
-
+export const loadImpersonateAccount = (configName: ConfigNames): PoolConfiguration => {
+  switch (configName) {
+    case ConfigNames.Unlockd:
+      return UnlockdConfig;
+    case ConfigNames.Commons:
+      return CommonsConfig;
+    default:
+      throw new Error(`Unsupported pool configuration: ${Object.values(ConfigNames)}`);
+  }
+};
 // ----------------
 // PROTOCOL PARAMS PER POOL
 // ----------------
@@ -79,7 +88,6 @@ export const getGenesisPoolAdmin = async (config: ICommonConfiguration): Promise
 export const getEmergencyAdmin = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
   const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
   const targetAddress = getParamPerNetwork(config.EmergencyAdmin, <eNetwork>currentNetwork);
-  console.log("targetAddress::::::::::: " + targetAddress);
   if (targetAddress) {
     return targetAddress;
   }

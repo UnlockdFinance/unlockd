@@ -53,11 +53,16 @@ task("full:deploy-unft-registry", "Deploy unft registry ")
     const addressProvider = await getLendPoolAddressesProvider();
     await waitForTx(await addressProvider.setUNFTRegistry(unftRegistryProxy.address));
 
-    for (const tokenSymbol of Object.keys(NftContractId)) {
-      let tokenAddress = await getContractAddressInDb(tokenSymbol);
-      await waitForTx(await unftRegistryProxy.createUNFT(tokenAddress));
-      console.log("UNFT created successfully for token " + tokenSymbol + " with address " + tokenAddress);
-      const { uNftProxy } = await unftRegistryProxy.getUNFTAddresses(tokenAddress);
-      console.log("UNFT Token:", tokenAddress, uNftProxy);
-    }
+    let tokenAddress = await getParamPerNetwork(poolConfig.NftsAssets, network);
+    console.log("TOKENS! ", tokenAddress);
+    // for (const tokenSymbol of Object.keys(NftContractId)) {
+    //   console.log("TOKEN SYMBOL:::::::", tokenSymbol);
+    //   //let tokenAddress = await getContractAddressInDb(tokenSymbol);
+
+    //   console.log("TOKEN ADDRESS:::::::", tokenAddress);
+    //   await waitForTx(await unftRegistryProxy.createUNFT(tokenAddress));
+    //   console.log("UNFT created successfully for token " + tokenSymbol + " with address " + tokenAddress);
+    //   const { uNftProxy } = await unftRegistryProxy.getUNFTAddresses(tokenAddress);
+    //   console.log("UNFT Token:", tokenAddress, uNftProxy);
+    // }
   });

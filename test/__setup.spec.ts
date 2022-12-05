@@ -296,14 +296,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
 
   console.log("-> Prepare nft oracle...");
   const nftOracleImpl = await deployNFTOracle();
-  await waitForTx(
-    await nftOracleImpl.initialize(
-      await addressesProvider.getPoolAdmin(),
-      nftxVaultFactory.address,
-      sushiSwapRouter.address,
-      lendpoolConfigurator
-    )
-  );
+  await waitForTx(await nftOracleImpl.initialize(await addressesProvider.getPoolAdmin(), lendpoolConfigurator));
   await waitForTx(await addressesProvider.setNFTOracle(nftOracleImpl.address));
   await addAssetsInNFTOracle(allNftAddresses, nftOracleImpl);
   await setPricesInNFTOracle(allNftPrices, allNftAddresses, allNftMaxSupply, nftOracleImpl);
@@ -312,14 +305,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
 
   console.log("-> Prepare mock nft oracle...");
   const mockNftOracleImpl = await deployMockNFTOracle();
-  await waitForTx(
-    await mockNftOracleImpl.initialize(
-      await addressesProvider.getPoolAdmin(),
-      nftxVaultFactory.address,
-      sushiSwapRouter.address,
-      lendpoolConfigurator
-    )
-  );
+  await waitForTx(await mockNftOracleImpl.initialize(await addressesProvider.getPoolAdmin(), lendpoolConfigurator));
 
   //////////////////////////////////////////////////////////////////////////////
 
@@ -443,7 +429,7 @@ before(async () => {
   const FORK = process.env.FORK;
 
   if (FORK) {
-    await rawBRE.run("unlockd:mainnet", { skipRegistry: true });
+    await rawBRE.run("unlockd:fork", { skipRegistry: true });
   } else {
     console.log("-> Deploying test environment...");
     await buildTestEnv(deployer, secondaryWallet);

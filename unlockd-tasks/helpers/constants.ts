@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 import { Contract } from "ethers";
 //NFTX
-import nftxVaultFactoryArtifact from "../../artifacts/contracts/interfaces/INFTXVaultFactoryV2.sol/INFTXVaultFactoryV2.json";
 import unftRegistryArtifact from "../../artifacts/contracts/interfaces/IUNFTRegistry.sol/IUNFTRegistry.json";
 import protocolDataProviderArtifact from "../../artifacts/contracts/misc/UnlockdProtocolDataProvider.sol/UnlockdProtocolDataProvider.json";
 //Mock imports
@@ -56,9 +55,6 @@ const dataProviderContract = new Contract(
   protocolDataProviderArtifact.abi
 );
 
-// NFTX
-const nftxVaultFactoryContract = new Contract(deployments.NFTXVaultFactory.address, nftxVaultFactoryArtifact.abi);
-
 export const Contracts = {
   debtToken: debtTokenContract,
   interestRate: interestRateContract,
@@ -73,7 +69,6 @@ export const Contracts = {
   uToken: uTokenContract,
   wethGateway: wethGatewayContract,
   unftRegistry: unftRegistryContract,
-  nftxVaultFactory: nftxVaultFactoryContract,
   dataProvider: dataProviderContract,
 };
 
