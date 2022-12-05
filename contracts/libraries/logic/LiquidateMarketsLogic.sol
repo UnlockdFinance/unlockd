@@ -84,6 +84,8 @@ library LiquidateMarketsLogic {
     uint256 extraDebtAmount;
     uint256 remainAmount;
     uint256 feeAmount;
+    uint256 auctionEndTimestamp;
+    uint256 extraAuctionDuration;
   }
 
   /**
@@ -232,6 +234,7 @@ library LiquidateMarketsLogic {
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
     mapping(address => mapping(uint8 => bool)) storage isMarketSupported,
+    DataTypes.ExecuteLendPoolStates memory poolStates,
     DataTypes.ExecuteLiquidateMarketsParams memory params
   ) external returns (uint256) {
     LiquidateMarketsLocalVars memory vars;
@@ -251,6 +254,15 @@ library LiquidateMarketsLogic {
     DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
 
     ValidationLogic.validateLiquidateMarkets(reserveData, nftData, nftConfig, loanData);
+
+    if ((poolStates.pauseDurationTime > 0) && (loanData.bidStartTimestamp <= poolStates.pauseStartTime)) {
+      vars.extraAuctionDuration = poolStates.pauseDurationTime;
+    }
+    vars.auctionEndTimestamp =
+      loanData.bidStartTimestamp +
+      vars.extraAuctionDuration +
+      (nftConfig.getAuctionDuration() * 1 hours); // Per  Collection or NFT ??
+    require(block.timestamp > vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_NOT_END);
 
     // Check NFT is allowed to be sold on SudoSwap market
     require(isMarketSupported[loanData.nftAsset][1], Errors.LP_NFT_NOT_ALLOWED_TO_SELL);

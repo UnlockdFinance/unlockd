@@ -394,13 +394,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     require(IERC721Upgradeable(loan.nftAsset).ownerOf(loan.nftTokenId) == address(this), "Invalid Call");
 
     // Sell NFT on SudoSwap
-    sellPrice = SudoSwapSeller.sellSudoSwap(
-      _addressesProvider,
-      loan.nftAsset,
-      loan.nftTokenId,
-      loan.reserveAsset,
-      LSSVMPair
-    );
+    sellPrice = SudoSwapSeller.sellSudoSwap(_addressesProvider, loan.nftTokenId, LSSVMPair);
 
     emit LoanLiquidatedSudoSwap(
       loanId,

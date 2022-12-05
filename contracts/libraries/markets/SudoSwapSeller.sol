@@ -21,15 +21,11 @@ library SudoSwapSeller {
   /**
    * @dev Sells an asset in a SudoSwap liquid market
    * @param addressesProvider The addresses provider
-   * @param nftAsset The underlying NFT address
    * @param nftTokenId The underlying NFT token Id
-   * @param reserveAsset The reserve asset to exchange for the NFT
    */
   function sellSudoSwap(
     ILendPoolAddressesProvider addressesProvider,
-    address nftAsset,
     uint256 nftTokenId,
-    address reserveAsset,
     address LSSVMPair
   ) internal returns (uint256 amount) {
     address LSSVMRouterAddress = addressesProvider.getLSSVMRouter();

@@ -417,6 +417,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
         _nfts,
         _nftConfig,
         _isMarketSupported,
+        _buildLendPoolVars(),
         DataTypes.ExecuteLiquidateMarketsParams({
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
