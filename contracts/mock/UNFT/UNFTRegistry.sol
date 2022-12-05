@@ -19,6 +19,8 @@ contract UNFTRegistry is IUNFTRegistry, Initializable, OwnableUpgradeable {
   address public uNftGenericImpl;
   mapping(address => string) public customSymbols;
 
+  constructor() initializer {}
+
   /**
    * @inheritdoc IUNFTRegistry
    */

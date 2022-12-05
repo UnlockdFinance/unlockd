@@ -57,6 +57,8 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
 
   mapping(address => bool) public isPriceManager;
 
+  constructor() initializer {}
+
   modifier onlyPriceManager() {
     require(isPriceManager[msg.sender], Errors.CALLER_NOT_PRICE_MANAGER);
     _;

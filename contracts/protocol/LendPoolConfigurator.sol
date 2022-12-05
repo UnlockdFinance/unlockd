@@ -32,6 +32,8 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
 
   mapping(address => bool) public isLtvManager;
 
+  constructor() initializer {}
+
   modifier onlyLtvManager() {
     require(isLtvManager[msg.sender], Errors.CALLER_NOT_LTV_MANAGER);
     _;

@@ -33,6 +33,8 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   mapping(address => uint256) private _nftTotalCollateral;
   mapping(address => mapping(address => uint256)) private _userNftCollateral;
 
+  constructor() initializer {}
+
   /**
    * @dev Only lending pool can call functions marked by this modifier
    **/

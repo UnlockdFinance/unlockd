@@ -4,6 +4,7 @@ pragma solidity 0.8.4;
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 import {IPunks} from "../interfaces/IPunks.sol";
 
@@ -12,8 +13,10 @@ import {IPunks} from "../interfaces/IPunks.sol";
  * @notice Add Emergency Recovery Logic to contract implementation
  * @author Unlockd
  **/
-abstract contract EmergencyTokenRecoveryUpgradeable is OwnableUpgradeable {
+abstract contract EmergencyTokenRecoveryUpgradeable is Initializable, OwnableUpgradeable {
   event EmergencyEtherTransfer(address indexed to, uint256 amount);
+
+  constructor() initializer {}
 
   function __EmergencyTokenRecovery_init() internal onlyInitializing {
     __Ownable_init();

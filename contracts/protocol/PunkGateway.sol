@@ -16,6 +16,7 @@ import {IWrappedPunks} from "../interfaces/IWrappedPunks.sol";
 import {IPunkGateway} from "../interfaces/IPunkGateway.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {IWETHGateway} from "../interfaces/IWETHGateway.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 import {EmergencyTokenRecoveryUpgradeable} from "./EmergencyTokenRecoveryUpgradeable.sol";
 
@@ -34,6 +35,8 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
   uint256 private constant _NOT_ENTERED = 0;
   uint256 private constant _ENTERED = 1;
   uint256 private _status;
+
+  constructor() initializer {}
 
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.

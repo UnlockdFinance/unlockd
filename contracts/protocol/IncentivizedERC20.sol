@@ -17,6 +17,8 @@ import {IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/tok
 abstract contract IncentivizedERC20 is Initializable, IERC20MetadataUpgradeable, ERC20Upgradeable {
   uint8 private _customDecimals;
 
+  constructor() initializer {}
+
   function __IncentivizedERC20_init(
     string memory name_,
     string memory symbol_,

@@ -26,6 +26,8 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
   uint256 private constant _ENTERED = 1;
   uint256 private _status;
 
+  constructor() initializer {}
+
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
    * Calling a `nonReentrant` function from another `nonReentrant`

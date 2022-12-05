@@ -15,6 +15,8 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 contract UnlockdCollector is Initializable, OwnableUpgradeable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
 
+  constructor() initializer {}
+
   /**
    * @dev initializes the contract upon assignment to the UnlockdUpgradeableProxy
    */

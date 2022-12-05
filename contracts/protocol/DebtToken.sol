@@ -23,6 +23,8 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
   ILendPoolAddressesProvider internal _addressProvider;
   address internal _underlyingAsset;
 
+  constructor() initializer {}
+
   mapping(address => mapping(address => uint256)) internal _borrowAllowances;
 
   modifier onlyLendPool() {
