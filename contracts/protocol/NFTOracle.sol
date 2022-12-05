@@ -29,11 +29,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
    * @param _tokenId The NFT token Id
    **/
   event NFTPriceAdded(address indexed _collection, uint256 _tokenId, uint256 _price);
-  /**
-   * @dev Emitted when the admin has been updated
-   * @param admin The new admin
-   **/
-  event FeedAdminUpdated(address indexed admin);
 
   /**
    * @dev Emitted when the pause status is set to a collection

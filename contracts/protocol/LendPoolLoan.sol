@@ -366,10 +366,6 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     uint256 tokenId,
     bytes calldata data
   ) external pure override returns (bytes4) {
-    operator;
-    from;
-    tokenId;
-    data;
     return IERC721ReceiverUpgradeable.onERC721Received.selector;
   }
 

@@ -418,10 +418,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     uint256 tokenId,
     bytes calldata data
   ) external pure override returns (bytes4) {
-    operator;
-    from;
-    tokenId;
-    data;
     return IERC721ReceiverUpgradeable.onERC721Received.selector;
   }
 
@@ -735,13 +731,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     uint256 balanceFromBefore,
     uint256 balanceToBefore
   ) external view override whenNotPaused {
-    asset;
-    from;
-    to;
-    amount;
-    balanceFromBefore;
-    balanceToBefore;
-
     DataTypes.ReserveData storage reserve = _reserves[asset];
     require(_msgSender() == reserve.uTokenAddress, Errors.LP_CALLER_MUST_BE_AN_UTOKEN);
 
@@ -1042,6 +1031,20 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     } else {
       tokenContract.safeTransfer(to, amount);
     }
+  }
+
+  /**
+   * @notice Rescue NFTs locked up in this contract.
+   * @param nftAsset ERC721 asset contract address
+   * @param tokenId ERC721 token id
+   * @param to Recipient address
+   */
+  function rescueNFT(
+    IERC721Upgradeable nftAsset,
+    uint256 tokenId,
+    address to
+  ) external override onlyRescuer {
+    nftAsset.safeTransferFrom(address(this), to, tokenId);
   }
 
   /**
