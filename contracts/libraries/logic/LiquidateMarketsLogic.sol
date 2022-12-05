@@ -68,6 +68,7 @@ library LiquidateMarketsLogic {
     uint256 remainAmount;
     uint256 feeAmount;
     uint256 auctionEndTimestamp;
+    uint256 extraAuctionDuration;
   }
 
   /**
@@ -83,6 +84,7 @@ library LiquidateMarketsLogic {
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
     mapping(address => mapping(uint8 => bool)) storage isMarketSupported,
+    DataTypes.ExecuteLendPoolStates memory poolStates,
     DataTypes.ExecuteLiquidateNFTXParams memory params
   ) external returns (uint256) {
     LiquidateNFTXLocalVars memory vars;
