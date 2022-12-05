@@ -6,9 +6,7 @@ import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
 
 import {Errors} from "../libraries/helpers/Errors.sol";
-import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
-import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {ReserveLogic} from "../libraries/logic/ReserveLogic.sol";
 import {NftLogic} from "../libraries/logic/NftLogic.sol";
 import {ValidationLogic} from "../libraries/logic/ValidationLogic.sol";
@@ -49,8 +47,6 @@ import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Cont
  **/
 // !!! For Upgradable: DO NOT ADJUST Inheritance Order !!!
 contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721ReceiverUpgradeable, LendPoolStorage {
-  using WadRayMath for uint256;
-  using PercentageMath for uint256;
   using SafeERC20Upgradeable for IERC20Upgradeable;
   using SafeERC20 for IERC20;
   using ReserveLogic for DataTypes.ReserveData;
