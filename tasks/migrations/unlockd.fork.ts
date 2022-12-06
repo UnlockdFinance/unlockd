@@ -10,9 +10,10 @@ import {
 } from "../../helpers/configuration";
 import { FUNDED_ACCOUNT_GOERLI, FUNDED_ACCOUNT_MAINNET } from "../../helpers/constants";
 import { getDeploySigner } from "../../helpers/contracts-getters";
-import { getEthersSignerByAddress } from "../../helpers/contracts-helpers";
+import { getEthersSignerByAddress, getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { checkVerification } from "../../helpers/etherscan-verification";
-import { fundSigners, impersonateAccountsHardhat, printContracts } from "../../helpers/misc-utils";
+import { fundSignersETH, fundSignersToken, impersonateAccountsHardhat, printContracts } from "../../helpers/misc-utils";
+import { eNetwork, TokenContractId } from "../../helpers/types";
 
 task("unlockd:fork", "Deploy a mock enviroment for testnets")
   .addFlag("verify", "Verify contracts at Etherscan")
@@ -21,6 +22,7 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
   .setAction(async ({ verify, skipRegistry, skipOracle }, DRE) => {
     const POOL_NAME = ConfigNames.Unlockd;
     await DRE.run("set-DRE");
+    const network = <eNetwork>DRE.network.name;
     const poolConfig = loadPoolConfig(POOL_NAME);
 
     const deployerSigner = await getDeploySigner();
@@ -34,12 +36,17 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
       FORK === "goerli" ? FUNDED_ACCOUNT_GOERLI : FUNDED_ACCOUNT_MAINNET
     );
 
-    await fundSigners(impersonatedAccount, [
+    await fundSignersETH(impersonatedAccount, [
       deployerSigner,
       impersonatedAccount,
       impersonatedAccount,
       impersonatedAccount,
     ]);
+    const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
+
+    for (const tokenSymbol of Object.keys(reserveAssets)) {
+      //todo: fund addresses with tokens
+    }
 
     console.log(
       "Deployer:",

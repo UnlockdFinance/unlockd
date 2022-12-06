@@ -156,7 +156,23 @@ export const stopImpersonateAccountsHardhat = async (accounts: string[]) => {
   }
 };
 
-export const fundSigners = async (impersonatedSigner: Signer, signers: Signer[]) => {
+export const fundSignersETH = async (impersonatedSigner: Signer, signers: Signer[]) => {
+  if (process.env.TENDERLY === "true") {
+    return;
+  }
+  // eslint-disable-next-line no-restricted-syntax
+  for (const signer of signers) {
+    const addr = await signer.getAddress();
+    console.log("Funding address ", addr, "with 100 ETH");
+    // eslint-disable-next-line no-await-in-loop
+    await impersonatedSigner.sendTransaction({
+      to: addr,
+      value: parseEther("100"), // 100 ether
+    });
+  }
+};
+
+export const fundSignersToken = async (impersonatedSigner: Signer, signers: Signer[]) => {
   if (process.env.TENDERLY === "true") {
     return;
   }
