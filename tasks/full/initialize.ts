@@ -30,9 +30,11 @@ task("full:initialize-lend-pool", "Initialize lend pool configuration.")
       //////////////////////////////////////////////////////////////////////////
       console.log("Init & Config Reserve assets");
       const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
+
       if (!reserveAssets) {
         throw "Reserve assets is undefined. Check ReserveAssets configuration at config directory";
       }
+
       await initReservesByHelper(
         poolConfig.ReservesConfig,
         reserveAssets,

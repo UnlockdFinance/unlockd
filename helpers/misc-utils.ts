@@ -6,6 +6,7 @@ import { isAddress } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import low from "lowdb";
 import FileSync from "lowdb/adapters/FileSync";
+import weth from "../abis/WETH.json";
 import erc20Artifact from "../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
 import { WAD } from "./constants";
 import { tEthereumAddress } from "./types";
@@ -177,14 +178,13 @@ export const fundSignersWithToken = async (
   if (process.env.TENDERLY === "true") {
     return;
   }
-  const token = new Contract(tokenAddress, erc20Artifact.abi);
-
+  const token = new Contract(tokenAddress, tokenSymbol == "WETH" ? weth : erc20Artifact.abi);
   // eslint-disable-next-line no-restricted-syntax
   for (const signer of signers) {
     const addr = await signer.getAddress();
-    console.log("Funding address ", addr, "with ", amount, " ", tokenSymbol);
+    console.log("Funding address ", addr, "with ", amount, tokenSymbol);
     const tx = await token.connect(impersonatedSigner).transfer(addr, amount);
-    console.log(await tx.wait());
-    console.log("Account ", addr, "balance of ", tokenSymbol, ": ", await token.balanceOf(addr));
+    await tx.wait();
+    console.log("Balance of ", addr, ": ", amount, tokenSymbol);
   }
 };

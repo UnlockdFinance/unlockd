@@ -1,4 +1,5 @@
 import { formatEther, parseEther } from "@ethersproject/units";
+import { isZeroAddress } from "ethereumjs-util";
 import { task } from "hardhat/config";
 import { FORK } from "../../hardhat.config";
 import {
@@ -14,6 +15,7 @@ import {
   FUNDED_ACCOUNT_GOERLI,
   FUNDED_ACCOUNT_MAINNET,
 } from "../../helpers/constants";
+import { deploySelfdestructTransferMock } from "../../helpers/contracts-deployments";
 import { getDeploySigner } from "../../helpers/contracts-getters";
 import { getEthersSignerByAddress, getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { checkVerification } from "../../helpers/etherscan-verification";
@@ -23,6 +25,7 @@ import {
   impersonateAccountsHardhat,
   printContracts,
   stopImpersonateAccountsHardhat,
+  waitForTx,
 } from "../../helpers/misc-utils";
 import { eNetwork, TokenContractId } from "../../helpers/types";
 
@@ -45,37 +48,26 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
 
     const ACCOUNTS = FORK === "goerli" ? FUNDED_ACCOUNTS_GOERLI : FUNDED_ACCOUNTS_MAINNET;
 
-    // Fund ETH
-    await impersonateAccountsHardhat([ACCOUNTS["ETH"]]);
-    const impersonatedAccountETH = await getEthersSignerByAddress(ACCOUNTS["ETH"]);
-    await fundSignersWithETH(
-      impersonatedAccountETH,
-      [deployerSigner, poolAdminSigner, emergencyAdminSigner, lendPoolLiquidatorSigner],
-      "1"
-    );
-    stopImpersonateAccountsHardhat([ACCOUNTS["ETH"]]);
-
-    // Fund token holder with ETH
-    await impersonateAccountsHardhat([ACCOUNTS["ETH"]]);
-
-    const impersonatedAccountToken = await getEthersSignerByAddress(ACCOUNTS["WETH"]);
-    const addr = await impersonatedAccountToken.getAddress();
-    console.log("ADDRESS", addr);
-    await fundSignersWithETH(impersonatedAccountETH, [impersonatedAccountToken], "1");
-    stopImpersonateAccountsHardhat([ACCOUNTS["ETH"]]);
-
-    // Fund ERC20
+    // Fund ERC20s
     const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
     for (const tokenSymbol of Object.keys(reserveAssets)) {
+      // Fund token holder contracts with ETH
+      await impersonateAccountsHardhat([ACCOUNTS["ETH"]]);
+
+      const selfdestructContract = await deploySelfdestructTransferMock();
+
+      // Selfdestruct the mock, pointing to token owner address
+      await waitForTx(await selfdestructContract.destroyAndTransfer(ACCOUNTS[tokenSymbol], { value: parseEther("1") }));
       // Fund actual Unlockd addresses with token
       await impersonateAccountsHardhat([ACCOUNTS[tokenSymbol]]);
+      const impersonatedAccountToken = await getEthersSignerByAddress(ACCOUNTS[tokenSymbol]);
 
       await fundSignersWithToken(
         reserveAssets[tokenSymbol],
         impersonatedAccountToken,
         tokenSymbol,
         [deployerSigner, poolAdminSigner, emergencyAdminSigner, lendPoolLiquidatorSigner],
-        "1"
+        "1000"
       );
       await stopImpersonateAccountsHardhat([ACCOUNTS[tokenSymbol]]);
     }
@@ -84,25 +76,29 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
       "Deployer:",
       await deployerSigner.getAddress(),
       "Balance:",
-      formatEther(await deployerSigner.getBalance())
+      formatEther(await deployerSigner.getBalance()),
+      "ETH"
     );
     console.log(
       "PoolAdmin:",
       await poolAdminSigner.getAddress(),
       "Balance:",
-      formatEther(await poolAdminSigner.getBalance())
+      formatEther(await poolAdminSigner.getBalance()),
+      "ETH"
     );
     console.log(
       "EmergencyAdmin:",
       await emergencyAdminSigner.getAddress(),
       "Balance:",
-      formatEther(await emergencyAdminSigner.getBalance())
+      formatEther(await emergencyAdminSigner.getBalance()),
+      "ETH"
     );
     console.log(
       "LendPool Liquidator:",
       await lendPoolLiquidatorSigner.getAddress(),
       "Balance:",
-      formatEther(await emergencyAdminSigner.getBalance())
+      formatEther(await emergencyAdminSigner.getBalance()),
+      "ETH"
     );
 
     // Prevent loss of gas verifying all the needed ENVs for Etherscan verification
@@ -111,7 +107,6 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
     }
 
     console.log("\n\nMigration started");
-    await impersonateAccountsHardhat();
 
     ////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy proxy admin");
@@ -127,7 +122,7 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
 
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy UNFT Registry");
-    await DRE.run("full:deploy-unft-registry", { pool: POOL_NAME, verify });
+    await DRE.run("full:deploy-unft-registry", { pool: POOL_NAME, verify, createunfts: true });
 
     //////////////////////////////////////////////////////////////////////////
 

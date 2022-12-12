@@ -30,8 +30,8 @@ export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number> = {
 };
 
 export const BLOCK_TO_FORK: iParamsPerNetwork<number | undefined> = {
-  [eEthereumNetwork.main]: 8093020,
-  [eEthereumNetwork.goerli]: 8093044,
+  [eEthereumNetwork.main]: 0,
+  [eEthereumNetwork.goerli]: 0,
   [eEthereumNetwork.hardhat]: 0,
   [eEthereumNetwork.localhost]: 0,
 };

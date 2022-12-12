@@ -66,7 +66,7 @@ export const getNftsConfigByPool = (pool: UnlockdPools): iMultiPoolsNfts<INftPar
   );
 
 export const getProviderRegistryAddress = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
-  const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
+  const currentNetwork = DRE.network.name;
   const registryAddress = getParamPerNetwork(config.ProviderRegistry, <eNetwork>currentNetwork);
   if (registryAddress) {
     return registryAddress;
@@ -75,7 +75,7 @@ export const getProviderRegistryAddress = async (config: ICommonConfiguration): 
 };
 
 export const getGenesisPoolAdmin = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
-  const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
+  const currentNetwork = DRE.network.name;
   const targetAddress = getParamPerNetwork(config.PoolAdmin, <eNetwork>currentNetwork);
   if (targetAddress) {
     return targetAddress;
@@ -86,7 +86,7 @@ export const getGenesisPoolAdmin = async (config: ICommonConfiguration): Promise
 };
 
 export const getEmergencyAdmin = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
-  const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
+  const currentNetwork = DRE.network.name;
   const targetAddress = getParamPerNetwork(config.EmergencyAdmin, <eNetwork>currentNetwork);
   if (targetAddress) {
     return targetAddress;
@@ -97,7 +97,7 @@ export const getEmergencyAdmin = async (config: ICommonConfiguration): Promise<t
 };
 
 export const getLendPoolLiquidator = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
-  const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
+  const currentNetwork = DRE.network.name;
   const targetAddress = getParamPerNetwork(config.LendPoolLiquidator, <eNetwork>currentNetwork);
   if (targetAddress) {
     return targetAddress;
@@ -108,7 +108,7 @@ export const getLendPoolLiquidator = async (config: ICommonConfiguration): Promi
 };
 
 export const getLtvManager = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
-  const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
+  const currentNetwork = DRE.network.name;
   const targetAddress = getParamPerNetwork(config.LtvManager, <eNetwork>currentNetwork);
   if (targetAddress) {
     return targetAddress;
@@ -119,7 +119,7 @@ export const getLtvManager = async (config: ICommonConfiguration): Promise<tEthe
 };
 
 export const getTreasuryAddress = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
-  const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
+  const currentNetwork = DRE.network.name;
   return getParamPerNetwork(config.ReserveFactorTreasuryAddress, <eNetwork>currentNetwork);
 };
 

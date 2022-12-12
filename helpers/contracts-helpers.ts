@@ -170,9 +170,6 @@ export const linkBytecode = (artifact: Artifact, libraries: any) => {
 
 export const getParamPerNetwork = <T>(param: iParamsPerNetwork<T>, network: eNetwork) => {
   const { main, goerli, hardhat, localhost } = param as iEthereumParamsPerNetwork<T>;
-  if (process.env.FORK) {
-    return param[process.env.FORK as eNetwork] as T;
-  }
 
   switch (network) {
     case eEthereumNetwork.hardhat:
