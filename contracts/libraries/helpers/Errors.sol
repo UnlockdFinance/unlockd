@@ -61,7 +61,7 @@ library Errors {
   string public constant LP_BORROW_NOT_EXCEED_LIQUIDATION_THRESHOLD = "404";
   string public constant LP_BORROW_IS_EXCEED_LIQUIDATION_PRICE = "405";
   string public constant LP_NO_MORE_NFTS_ALLOWED = "406";
-  string public constant LP_INVALIED_USER_NFT_AMOUNT = "407";
+  string public constant LP_INVALID_USER_NFT_AMOUNT = "407";
   string public constant LP_INCONSISTENT_PARAMS = "408";
   string public constant LP_NFT_IS_NOT_USED_AS_COLLATERAL = "409";
   string public constant LP_CALLER_MUST_BE_AN_UTOKEN = "410";
@@ -79,7 +79,7 @@ library Errors {
   string public constant LP_CALLER_NOT_NFT_HOLDER = "422";
   string public constant LP_NFT_NOT_ALLOWED_TO_SELL = "423";
   string public constant LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY = "424";
-
+  string public constant LP_COLLECTION_NOT_SUPPORTED = "425";
   //lend pool loan errors
   string public constant LPL_INVALID_LOAN_STATE = "480";
   string public constant LPL_INVALID_LOAN_AMOUNT = "481";
