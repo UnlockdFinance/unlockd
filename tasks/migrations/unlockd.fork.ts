@@ -8,11 +8,22 @@ import {
   getLendPoolLiquidator,
   loadPoolConfig,
 } from "../../helpers/configuration";
-import { FUNDED_ACCOUNT_GOERLI, FUNDED_ACCOUNT_MAINNET } from "../../helpers/constants";
+import {
+  FUNDED_ACCOUNTS_GOERLI,
+  FUNDED_ACCOUNTS_MAINNET,
+  FUNDED_ACCOUNT_GOERLI,
+  FUNDED_ACCOUNT_MAINNET,
+} from "../../helpers/constants";
 import { getDeploySigner } from "../../helpers/contracts-getters";
 import { getEthersSignerByAddress, getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { checkVerification } from "../../helpers/etherscan-verification";
-import { fundSignersETH, fundSignersToken, impersonateAccountsHardhat, printContracts } from "../../helpers/misc-utils";
+import {
+  fundSignersWithETH,
+  fundSignersWithToken,
+  impersonateAccountsHardhat,
+  printContracts,
+  stopImpersonateAccountsHardhat,
+} from "../../helpers/misc-utils";
 import { eNetwork, TokenContractId } from "../../helpers/types";
 
 task("unlockd:fork", "Deploy a mock enviroment for testnets")
@@ -31,21 +42,42 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
     const lendPoolLiquidatorSigner = await getEthersSignerByAddress(await getLendPoolLiquidator(poolConfig));
 
     // Fund addresses
-    await impersonateAccountsHardhat(FORK === "goerli" ? [FUNDED_ACCOUNT_GOERLI] : [FUNDED_ACCOUNT_MAINNET]);
-    const impersonatedAccount = await getEthersSignerByAddress(
-      FORK === "goerli" ? FUNDED_ACCOUNT_GOERLI : FUNDED_ACCOUNT_MAINNET
+
+    const ACCOUNTS = FORK === "goerli" ? FUNDED_ACCOUNTS_GOERLI : FUNDED_ACCOUNTS_MAINNET;
+
+    // Fund ETH
+    await impersonateAccountsHardhat([ACCOUNTS["ETH"]]);
+    const impersonatedAccountETH = await getEthersSignerByAddress(ACCOUNTS["ETH"]);
+    await fundSignersWithETH(
+      impersonatedAccountETH,
+      [deployerSigner, poolAdminSigner, emergencyAdminSigner, lendPoolLiquidatorSigner],
+      "1"
     );
+    stopImpersonateAccountsHardhat([ACCOUNTS["ETH"]]);
 
-    await fundSignersETH(impersonatedAccount, [
-      deployerSigner,
-      impersonatedAccount,
-      impersonatedAccount,
-      impersonatedAccount,
-    ]);
+    // Fund token holder with ETH
+    await impersonateAccountsHardhat([ACCOUNTS["ETH"]]);
+
+    const impersonatedAccountToken = await getEthersSignerByAddress(ACCOUNTS["WETH"]);
+    const addr = await impersonatedAccountToken.getAddress();
+    console.log("ADDRESS", addr);
+    await fundSignersWithETH(impersonatedAccountETH, [impersonatedAccountToken], "1");
+    stopImpersonateAccountsHardhat([ACCOUNTS["ETH"]]);
+
+    // Fund ERC20
     const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
-
     for (const tokenSymbol of Object.keys(reserveAssets)) {
-      //todo: fund addresses with tokens
+      // Fund actual Unlockd addresses with token
+      await impersonateAccountsHardhat([ACCOUNTS[tokenSymbol]]);
+
+      await fundSignersWithToken(
+        reserveAssets[tokenSymbol],
+        impersonatedAccountToken,
+        tokenSymbol,
+        [deployerSigner, poolAdminSigner, emergencyAdminSigner, lendPoolLiquidatorSigner],
+        "1"
+      );
+      await stopImpersonateAccountsHardhat([ACCOUNTS[tokenSymbol]]);
     }
 
     console.log(
@@ -79,6 +111,7 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
     }
 
     console.log("\n\nMigration started");
+    await impersonateAccountsHardhat();
 
     ////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy proxy admin");

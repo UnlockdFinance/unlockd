@@ -1,11 +1,12 @@
 import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
 import { isZeroAddress } from "ethereumjs-util";
-import { ContractTransaction, Signer, Wallet } from "ethers";
+import { Contract, ContractTransaction, Signer, Wallet } from "ethers";
 import { isAddress } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import low from "lowdb";
 import FileSync from "lowdb/adapters/FileSync";
+import erc20Artifact from "../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
 import { WAD } from "./constants";
 import { tEthereumAddress } from "./types";
 import BN = require("bn.js");
@@ -129,9 +130,6 @@ export const omit = <T, U extends keyof T>(obj: T, keys: U[]): Omit<T, U> =>
   );
 
 export const impersonateAccountsHardhat = async (accounts: string[]) => {
-  if (process.env.TENDERLY === "true") {
-    return;
-  }
   // eslint-disable-next-line no-restricted-syntax
   for (const account of accounts) {
     // eslint-disable-next-line no-await-in-loop
@@ -143,9 +141,6 @@ export const impersonateAccountsHardhat = async (accounts: string[]) => {
 };
 
 export const stopImpersonateAccountsHardhat = async (accounts: string[]) => {
-  if (process.env.TENDERLY === "true") {
-    return;
-  }
   // eslint-disable-next-line no-restricted-syntax
   for (const account of accounts) {
     // eslint-disable-next-line no-await-in-loop
@@ -156,32 +151,40 @@ export const stopImpersonateAccountsHardhat = async (accounts: string[]) => {
   }
 };
 
-export const fundSignersETH = async (impersonatedSigner: Signer, signers: Signer[]) => {
+export const fundSignersWithETH = async (impersonatedSigner: Signer, signers: Signer[], amount: string) => {
   if (process.env.TENDERLY === "true") {
     return;
   }
   // eslint-disable-next-line no-restricted-syntax
   for (const signer of signers) {
     const addr = await signer.getAddress();
-    console.log("Funding address ", addr, "with 100 ETH");
+    console.log("Funding address ", addr, "with ", amount, "ETH");
     // eslint-disable-next-line no-await-in-loop
     await impersonatedSigner.sendTransaction({
       to: addr,
-      value: parseEther("100"), // 100 ether
+      value: parseEther(amount),
     });
   }
 };
 
-export const fundSignersToken = async (impersonatedSigner: Signer, signers: Signer[]) => {
+export const fundSignersWithToken = async (
+  tokenAddress: string,
+  impersonatedSigner: Signer,
+  tokenSymbol: string,
+  signers: Signer[],
+  amount: string
+) => {
   if (process.env.TENDERLY === "true") {
     return;
   }
+  const token = new Contract(tokenAddress, erc20Artifact.abi);
+
   // eslint-disable-next-line no-restricted-syntax
   for (const signer of signers) {
-    // eslint-disable-next-line no-await-in-loop
-    await impersonatedSigner.sendTransaction({
-      to: await signer.getAddress(),
-      value: parseEther("1000"), // 1000 ether
-    });
+    const addr = await signer.getAddress();
+    console.log("Funding address ", addr, "with ", amount, " ", tokenSymbol);
+    const tx = await token.connect(impersonatedSigner).transfer(addr, amount);
+    console.log(await tx.wait());
+    console.log("Account ", addr, "balance of ", tokenSymbol, ": ", await token.balanceOf(addr));
   }
 };
