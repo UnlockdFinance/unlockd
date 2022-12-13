@@ -14,8 +14,14 @@ import {
   FUNDED_ACCOUNTS_MAINNET,
   FUNDED_ACCOUNT_GOERLI,
   FUNDED_ACCOUNT_MAINNET,
+  WETH_GOERLI,
+  WETH_MAINNET,
 } from "../../helpers/constants";
-import { deploySelfdestructTransferMock } from "../../helpers/contracts-deployments";
+import {
+  deployMockChainlinkOracle,
+  deployMockReserveOracle,
+  deploySelfdestructTransferMock,
+} from "../../helpers/contracts-deployments";
 import { getDeploySigner } from "../../helpers/contracts-getters";
 import { getEthersSignerByAddress, getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { checkVerification } from "../../helpers/etherscan-verification";
@@ -45,7 +51,6 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
     const lendPoolLiquidatorSigner = await getEthersSignerByAddress(await getLendPoolLiquidator(poolConfig));
 
     // Fund addresses
-
     const ACCOUNTS = FORK === "goerli" ? FUNDED_ACCOUNTS_GOERLI : FUNDED_ACCOUNTS_MAINNET;
 
     // Fund ERC20s
@@ -132,6 +137,10 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
 
     console.log("\n\nDeploy reserve oracle");
     await DRE.run("full:deploy-oracle-reserve", { pool: POOL_NAME, skipOracle, verify: verify });
+
+    console.log("-> Deploy mock reserve oracle...");
+    const mockReserveOracleImpl = await deployMockReserveOracle([]);
+    await waitForTx(await mockReserveOracleImpl.initialize(FORK === "goerli" ? WETH_GOERLI : WETH_MAINNET));
 
     console.log("\n\nDeploy nft oracle");
     await DRE.run("full:deploy-oracle-nft", { pool: POOL_NAME, skipOracle, verify: verify });

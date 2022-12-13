@@ -51,13 +51,13 @@ export const CommonsConfig: ICommonConfiguration = {
   // ----------------
 
   ProxyAdminPool: {
-    [eEthereumNetwork.hardhat]: '0x8CBfc7F0f4Fd5D4221335f471aEC44B822f56660',
+    [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.goerli]: '0x8CBfc7F0f4Fd5D4221335f471aEC44B822f56660',
     [eEthereumNetwork.main]: undefined,
   },
   ProxyAdminFund: {
-    [eEthereumNetwork.hardhat]: '0xA9d67F1b0f46cc0588ED20AA071aB50b9A2D38f8',
+    [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.goerli]: '0xA9d67F1b0f46cc0588ED20AA071aB50b9A2D38f8',
     [eEthereumNetwork.main]: undefined,
@@ -96,14 +96,14 @@ export const CommonsConfig: ICommonConfiguration = {
 
   UNFTRegistry: {
     /// Add contract From U
-    [eEthereumNetwork.hardhat]: "0x66Bd8515F157A203EEFedc4A739E3e0BcE7FA76c",
+    [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: "0x8b89F971cA1A5dE1B7df7f554a3024eE84FeeB05",
     [eEthereumNetwork.goerli]: "0x66Bd8515F157A203EEFedc4A739E3e0BcE7FA76c",
     [eEthereumNetwork.main]: "0xd062F368df81E0A7f4fB6e8F5ce5AC7deD388796",
   },
 
   ProviderRegistry: {
-    [eEthereumNetwork.hardhat]: "0x7C5AB2070cC4820e50145606d9f24409175959Ad",
+    [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: "",
     [eEthereumNetwork.goerli]: "0x7C5AB2070cC4820e50145606d9f24409175959Ad",
     [eEthereumNetwork.main]: "0x025FE4760c6f14dE878C22cEb09A3235F16dAe53",

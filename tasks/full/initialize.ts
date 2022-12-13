@@ -51,7 +51,9 @@ task("full:initialize-lend-pool", "Initialize lend pool configuration.")
 
       //////////////////////////////////////////////////////////////////////////
       console.log("Init & Config NFT assets");
+
       const nftsAssets = getParamPerNetwork(poolConfig.NftsAssets, network);
+
       if (!nftsAssets) {
         throw "NFT assets is undefined. Check NftsAssets configuration at config directory";
       }

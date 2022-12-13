@@ -20,7 +20,7 @@ task("full:deploy-proxy-admin", "Deploy proxy admin contract")
     if (!skipPool) {
       let proxyAdmin: UnlockdProxyAdmin;
       const proxyAdminAddress = getParamPerNetwork(poolConfig.ProxyAdminPool, network);
-      console.log("ADDRESS:::::::::", proxyAdminAddress);
+
       if (proxyAdminAddress == undefined || !notFalsyOrZeroAddress(proxyAdminAddress)) {
         proxyAdmin = await deployUnlockdProxyAdmin(eContractid.UnlockdProxyAdminPool, verify);
       } else {

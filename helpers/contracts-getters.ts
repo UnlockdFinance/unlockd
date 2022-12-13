@@ -83,7 +83,12 @@ export const getLendPoolAddressesProvider = async (address?: tEthereumAddress) =
     await getDeploySigner()
   );
 };
-
+export const getUnlockdProxyAdminPool = async (address?: tEthereumAddress) => {
+  return await LendPoolAddressesProviderFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.UnlockdProxyAdminPool}`).value()).address,
+    await getDeploySigner()
+  );
+};
 export const getLendPoolConfiguratorProxy = async (address?: tEthereumAddress) => {
   return await LendPoolConfiguratorFactory.connect(
     address || (await getDb(DRE.network.name).get(`${eContractid.LendPoolConfigurator}`).value()).address,

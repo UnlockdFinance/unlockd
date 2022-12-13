@@ -30,7 +30,7 @@ export const UnlockdConfig: IUnlockdConfiguration = {
     USDC: strategyUSDC,
   },
   NftsConfig: {
-    //WPUNKS: strategyNft_WPUNKS,
+    WPUNKS: strategyNft_WPUNKS,
     BAYC: strategyNft_BAYC,
     DOODLE: strategyNft_DOODLE,
     AZUKI: strategyNft_AZUKI,
@@ -69,7 +69,7 @@ export const UnlockdConfig: IUnlockdConfiguration = {
   NftsAssets: {
     [eEthereumNetwork.hardhat]: {
       //dev:deploy-mock-nfts
-      //WPUNKS: "0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847",
+      WPUNKS: "0xa9ED41c141d04647276F24EE06258e57a041a158",
       BAYC: "0x9278420Bf7548970799c56ef9A0B081862515330",
       DOODLE: "0x11FC8C3fd1826f16aD154c18355bcA89a742B1C8",
       AZUKI: "0xaD46D0235b2698aaD03803443b7a50383bdefc1c",

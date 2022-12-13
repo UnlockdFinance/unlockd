@@ -274,7 +274,7 @@ export interface iNftCommon<T> {
   [key: string]: T;
 }
 export interface iNftBase<T> {
-  //WPUNKS: T;
+  WPUNKS: T;
   BAYC: T;
   DOODLE: T;
   AZUKI: T;
@@ -294,7 +294,7 @@ export type iUnlockdPoolNfts<T> = iNftBase<T>;
 export type iNftAggregatorBase<T> = iNftBase<T>;
 
 export enum NftContractId {
-  //WPUNKS = "WPUNKS",
+  WPUNKS = "WPUNKS",
   BAYC = "BAYC",
   DOODLE = "DOODLE",
   AZUKI = "AZUKI",

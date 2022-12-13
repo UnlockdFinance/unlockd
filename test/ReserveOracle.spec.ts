@@ -1,24 +1,25 @@
 import { ZERO_ADDRESS } from "../helpers/constants";
 import { getDeploySigner } from "../helpers/contracts-getters";
-import { MockChainlinkOracle, MockChainlinkOracleFactory, MockReserveOracle } from "../types";
+import { MockChainlinkOracle, MockChainlinkOracleFactory, MockReserveOracle, ReserveOracle } from "../types";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 const { expect } = require("chai");
 
 makeSuite("ReserveOracle", (testEnv: TestEnv) => {
-  let mockChainlinkOracle: MockChainlinkOracle;
-  let mockReserveOracle: MockReserveOracle;
+  //let mockChainlinkOracle: MockChainlinkOracle;
+  //let mockReserveOracle: MockReserveOracle;
+  let reserveOracle: ReserveOracle;
   let addresses;
 
   before(async () => {
-    mockReserveOracle = testEnv.mockReserveOracle;
-    mockChainlinkOracle = await new MockChainlinkOracleFactory(await getDeploySigner()).deploy("18");
+    reserveOracle = testEnv.reserveOracle;
+    //mockChainlinkOracle = await new MockChainlinkOracleFactory(await getDeploySigner()).deploy("18");
     addresses = testEnv.users;
   });
 
   it("ReserveOracle: Add Aggregator", async () => {
-    expect(await mockReserveOracle.getPriceFeedLength()).eq("0");
-    await mockReserveOracle.addAggregator(addresses[0].address, mockChainlinkOracle.address);
+    expect(await reserveOracle.getPriceFeedLength()).eq("0");
+    await reserveOracle.addAggregator(addresses[0].address, mockChainlinkOracle.address);
     await expect(mockReserveOracle.addAggregator(ZERO_ADDRESS, mockChainlinkOracle.address)).to.be.revertedWith(
       "ReserveOracle: empty address"
     );

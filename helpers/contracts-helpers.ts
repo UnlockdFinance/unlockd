@@ -185,6 +185,23 @@ export const getParamPerNetwork = <T>(param: iParamsPerNetwork<T>, network: eNet
   return hardhat;
 };
 
+export const insertParamPerNetwork = <T>(param: iParamsPerNetwork<T>, network: eNetwork) => {
+  const { main, goerli, hardhat, localhost } = param as iEthereumParamsPerNetwork<T>;
+
+  switch (network) {
+    case eEthereumNetwork.hardhat:
+      return hardhat;
+    case eEthereumNetwork.localhost:
+      return localhost;
+    case eEthereumNetwork.goerli:
+      return goerli;
+    case eEthereumNetwork.main:
+      return main;
+  }
+
+  return hardhat;
+};
+
 export const getOptionalParamAddressPerNetwork = (
   param: iParamsPerNetwork<tEthereumAddress> | undefined | null,
   network: eNetwork
