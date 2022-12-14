@@ -1,8 +1,10 @@
+import { parseEther } from "@ethersproject/units";
 import { BigNumber, BigNumberish } from "ethers";
 import { APPROVAL_AMOUNT_LENDING_POOL, MOCK_NFT_AGGREGATORS_MAXSUPPLY } from "../helpers/constants";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
-import { timeLatest, waitForTx } from "../helpers/misc-utils";
+import { fundWithERC20, fundWithERC721, timeLatest, waitForTx } from "../helpers/misc-utils";
 import { ProtocolErrors } from "../helpers/types";
+import { approveERC20, setApprovalForAll } from "./helpers/actions";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 const { expect } = require("chai");
@@ -334,25 +336,26 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const { weth, bayc, pool, configurator, deployer } = testEnv;
     const userAddress = await pool.signer.getAddress();
 
-    await weth.mint(await convertToCurrencyDecimals(weth.address, "10"));
-    await weth.approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+    await fundWithERC20("WETH", deployer.address, "10");
+    await approveERC20(testEnv, deployer, "WETH");
 
-    const amountToDeposit = await convertToCurrencyDecimals(weth.address, "10");
+    const amountToDeposit = await convertToCurrencyDecimals(deployer, weth, "10");
     await pool.deposit(weth.address, amountToDeposit, userAddress, "0");
 
     const tokenId = testEnv.tokenIdTracker++;
-    await bayc.mint(tokenId);
-    await bayc.setApprovalForAll(pool.address, true);
+
+    await fundWithERC721("BAYC", deployer.address, tokenId);
+    await setApprovalForAll(testEnv, deployer, "BAYC");
 
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
     await waitForTx(
       await configurator
         .connect(deployer.signer)
-        .configureNftAsCollateral(bayc.address, tokenId, "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false)
+        .configureNftAsCollateral(bayc.address, tokenId, parseEther("50"), 4000, 7000, 500, 1, 2, 25, true, false)
     );
 
-    const amountToBorrow = await convertToCurrencyDecimals(weth.address, "1");
+    const amountToBorrow = await convertToCurrencyDecimals(deployer, weth, "1");
     await pool.borrow(weth.address, amountToBorrow, bayc.address, tokenId, userAddress, "0");
 
     await expect(configurator.setActiveFlagOnNft(bayc.address, false), LPC_NFT_LIQUIDITY_NOT_0).to.be.revertedWith(
