@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import { getReservesConfigByPool } from "../helpers/configuration";
-import { waitForTx } from "../helpers/misc-utils";
+import { fundWithERC20, fundWithERC721, waitForTx } from "../helpers/misc-utils";
 import { IReserveParams, iUnlockdPoolAssets, UnlockdPools } from "../helpers/types";
 import {
   approveERC20,
@@ -48,7 +48,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     const delegatee = users[3];
 
     // WETH
-    await mintERC20(testEnv, depositor, "WETH", "10");
+    await fundWithERC20("WETH", depositor.address, "10");
 
     await approveERC20(testEnv, depositor, "WETH");
 
@@ -56,7 +56,9 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
-    await mintERC721(testEnv, borrower, "BAYC", tokenId);
+
+    await fundWithERC721("BAYC", borrower.address, tokenIdNum);
+
     await bayc.connect(borrower.signer).transferFrom(borrower.address, delegatee.address, tokenId);
 
     await setApprovalForAll(testEnv, delegatee, "BAYC");

@@ -3,6 +3,8 @@ import { signTypedData_v4 } from "eth-sig-util";
 import { ECDSASignature, fromRpcSig } from "ethereumjs-util";
 import { Contract, ethers, Signer, utils } from "ethers";
 import { Artifact } from "hardhat/types";
+import { SignerWithAddress } from "../test/helpers/make-suite";
+import { ERC20 } from "../types";
 import { MintableERC20 } from "../types/MintableERC20";
 import { MintableERC721 } from "../types/MintableERC721";
 import { ConfigNames, loadPoolConfig } from "./configuration";
@@ -221,14 +223,9 @@ export const getParamPerPool = <T>({ proto }: iParamsPerPool<T>, pool: UnlockdPo
   }
 };
 
-export const convertToCurrencyDecimals = async (tokenAddress: tEthereumAddress, amount: string) => {
-  const token = await getIErc20Detailed(tokenAddress);
-  const decimals = (await token.decimals()).toString();
+export const convertToCurrencyDecimals = async (user: SignerWithAddress, token: Contract, amount: string) => {
+  const decimals = (await token.connect(user.signer).decimals()).toString();
   const tokenAmount = ethers.utils.parseUnits(amount, decimals);
-  const symbol = await token.symbol();
-  if (symbol == "USDC") {
-    //console.log("convertToCurrencyDecimals", symbol, decimals, amount, tokenAmount.toString());
-  }
 
   return tokenAmount;
 };

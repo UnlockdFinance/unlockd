@@ -1,4 +1,4 @@
-import { parseEther } from "@ethersproject/units";
+import { formatEther, parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
 import { isZeroAddress } from "ethereumjs-util";
 import { Contract, ContractTransaction, Signer, Wallet } from "ethers";
@@ -8,8 +8,13 @@ import low from "lowdb";
 import FileSync from "lowdb/adapters/FileSync";
 import weth from "../abis/WETH.json";
 import erc20Artifact from "../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
-import { WAD } from "./constants";
-import { tEthereumAddress } from "./types";
+import erc721Artifact from "../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
+import { FORK } from "../hardhat.config";
+import { ConfigNames, loadPoolConfig } from "./configuration";
+import { FUNDED_ACCOUNTS_GOERLI, FUNDED_ACCOUNTS_MAINNET, WAD } from "./constants";
+import { deploySelfdestructTransferMock } from "./contracts-deployments";
+import { getEthersSignerByAddress, getEthersSigners, getParamPerNetwork } from "./contracts-helpers";
+import { eNetwork, tEthereumAddress } from "./types";
 import BN = require("bn.js");
 
 export const toWad = (value: string | number) => new BigNumber(value).times(WAD).toFixed();
@@ -168,23 +173,66 @@ export const fundSignersWithETH = async (impersonatedSigner: Signer, signers: Si
   }
 };
 
-export const fundSignersWithToken = async (
-  tokenAddress: string,
-  impersonatedSigner: Signer,
-  tokenSymbol: string,
-  signers: Signer[],
-  amount: string
-) => {
-  if (process.env.TENDERLY === "true") {
-    return;
-  }
-  const token = new Contract(tokenAddress, tokenSymbol == "WETH" ? weth : erc20Artifact.abi);
+export const fundWithERC20 = async (tokenSymbol: string, receiver: string, amount: string) => {
+  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+  const network = <eNetwork>DRE.network.name;
+  const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
+
+  const token = new Contract(reserveAssets[tokenSymbol], tokenSymbol == "WETH" ? weth : erc20Artifact.abi);
+
   // eslint-disable-next-line no-restricted-syntax
-  for (const signer of signers) {
-    const addr = await signer.getAddress();
-    console.log("Funding address ", addr, "with ", amount, tokenSymbol);
-    const tx = await token.connect(impersonatedSigner).transfer(addr, amount);
-    await tx.wait();
-    console.log("Balance of ", addr, ": ", amount, tokenSymbol);
-  }
+  const ACCOUNTS = FORK === "goerli" ? FUNDED_ACCOUNTS_GOERLI : FUNDED_ACCOUNTS_MAINNET;
+
+  const selfdestructContract = await deploySelfdestructTransferMock();
+  // Selfdestruct the mock, pointing to token owner address
+  await waitForTx(await selfdestructContract.destroyAndTransfer(ACCOUNTS[tokenSymbol], { value: parseEther("10") }));
+
+  const doner = await getEthersSignerByAddress(ACCOUNTS[tokenSymbol]);
+
+  await (DRE as HardhatRuntimeEnvironment).network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [await doner.getAddress()],
+  });
+
+  console.log("Funding address ", receiver, "with ", amount, tokenSymbol);
+  const tx = await token.connect(doner).transfer(receiver, parseEther(amount));
+  await tx.wait();
+  const balance = await token.connect(doner).balanceOf(receiver);
+  console.log("Balance of ", receiver, ": ", await formatEther(balance), tokenSymbol);
+
+  await (DRE as HardhatRuntimeEnvironment).network.provider.request({
+    method: "hardhat_stopImpersonatingAccount",
+    params: [await doner.getAddress()],
+  });
+};
+export const fundWithERC721 = async (tokenSymbol: string, receiver: string, tokenId: number) => {
+  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+  const network = <eNetwork>DRE.network.name;
+  const nftsAssets = getParamPerNetwork(poolConfig.NftsAssets, network);
+
+  const token = new Contract(nftsAssets[tokenSymbol], erc721Artifact.abi);
+
+  const receiverSigner = await getEthersSignerByAddress(receiver);
+
+  const tokenOwner = await token.connect(receiverSigner).ownerOf(tokenId);
+
+  const selfdestructContract = await deploySelfdestructTransferMock();
+  // Selfdestruct the mock, pointing to token owner address
+  await waitForTx(await selfdestructContract.destroyAndTransfer(tokenOwner, { value: parseEther("10") }));
+
+  await (DRE as HardhatRuntimeEnvironment).network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [tokenOwner],
+  });
+  const tokenOwnerSigner = await getEthersSignerByAddress(tokenOwner);
+
+  console.log("Transferring", tokenSymbol, "whith token Id", tokenId, "to ", receiver);
+
+  const tx = await token.connect(tokenOwnerSigner).transferFrom(tokenOwner, receiver, tokenId);
+  await tx.wait();
+
+  await (DRE as HardhatRuntimeEnvironment).network.provider.request({
+    method: "hardhat_stopImpersonatingAccount",
+    params: [tokenOwner],
+  });
 };

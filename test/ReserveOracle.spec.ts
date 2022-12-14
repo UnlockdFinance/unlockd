@@ -6,20 +6,19 @@ import { makeSuite, TestEnv } from "./helpers/make-suite";
 const { expect } = require("chai");
 
 makeSuite("ReserveOracle", (testEnv: TestEnv) => {
-  //let mockChainlinkOracle: MockChainlinkOracle;
-  //let mockReserveOracle: MockReserveOracle;
-  let reserveOracle: ReserveOracle;
+  let mockChainlinkOracle: MockChainlinkOracle;
+  let mockReserveOracle: MockReserveOracle;
   let addresses;
 
   before(async () => {
-    reserveOracle = testEnv.reserveOracle;
-    //mockChainlinkOracle = await new MockChainlinkOracleFactory(await getDeploySigner()).deploy("18");
+    mockReserveOracle = testEnv.mockReserveOracle;
+    mockChainlinkOracle = await new MockChainlinkOracleFactory(await getDeploySigner()).deploy("18");
     addresses = testEnv.users;
   });
 
   it("ReserveOracle: Add Aggregator", async () => {
-    expect(await reserveOracle.getPriceFeedLength()).eq("0");
-    await reserveOracle.addAggregator(addresses[0].address, mockChainlinkOracle.address);
+    expect(await mockReserveOracle.getPriceFeedLength()).eq("0");
+    await mockReserveOracle.addAggregator(addresses[0].address, mockChainlinkOracle.address);
     await expect(mockReserveOracle.addAggregator(ZERO_ADDRESS, mockChainlinkOracle.address)).to.be.revertedWith(
       "ReserveOracle: empty address"
     );

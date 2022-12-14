@@ -19,15 +19,19 @@ import {
 } from "../../helpers/constants";
 import {
   deployMockChainlinkOracle,
+  deployMockNFTOracle,
   deployMockReserveOracle,
   deploySelfdestructTransferMock,
 } from "../../helpers/contracts-deployments";
-import { getDeploySigner } from "../../helpers/contracts-getters";
+import {
+  getDeploySigner,
+  getLendPoolAddressesProvider,
+  getLendPoolConfiguratorProxy,
+} from "../../helpers/contracts-getters";
 import { getEthersSignerByAddress, getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { checkVerification } from "../../helpers/etherscan-verification";
 import {
   fundSignersWithETH,
-  fundSignersWithToken,
   impersonateAccountsHardhat,
   printContracts,
   stopImpersonateAccountsHardhat,
@@ -49,33 +53,6 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
     const poolAdminSigner = await getEthersSignerByAddress(await getGenesisPoolAdmin(poolConfig));
     const emergencyAdminSigner = await getEthersSignerByAddress(await getEmergencyAdmin(poolConfig));
     const lendPoolLiquidatorSigner = await getEthersSignerByAddress(await getLendPoolLiquidator(poolConfig));
-
-    // Fund addresses
-    const ACCOUNTS = FORK === "goerli" ? FUNDED_ACCOUNTS_GOERLI : FUNDED_ACCOUNTS_MAINNET;
-
-    // Fund ERC20s
-    const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
-    for (const tokenSymbol of Object.keys(reserveAssets)) {
-      // Fund token holder contracts with ETH
-      await impersonateAccountsHardhat([ACCOUNTS["ETH"]]);
-
-      const selfdestructContract = await deploySelfdestructTransferMock();
-
-      // Selfdestruct the mock, pointing to token owner address
-      await waitForTx(await selfdestructContract.destroyAndTransfer(ACCOUNTS[tokenSymbol], { value: parseEther("1") }));
-      // Fund actual Unlockd addresses with token
-      await impersonateAccountsHardhat([ACCOUNTS[tokenSymbol]]);
-      const impersonatedAccountToken = await getEthersSignerByAddress(ACCOUNTS[tokenSymbol]);
-
-      await fundSignersWithToken(
-        reserveAssets[tokenSymbol],
-        impersonatedAccountToken,
-        tokenSymbol,
-        [deployerSigner, poolAdminSigner, emergencyAdminSigner, lendPoolLiquidatorSigner],
-        "1000"
-      );
-      await stopImpersonateAccountsHardhat([ACCOUNTS[tokenSymbol]]);
-    }
 
     console.log(
       "Deployer:",
@@ -120,6 +97,7 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy address provider");
     await DRE.run("full:deploy-address-provider", { pool: POOL_NAME, skipRegistry: skipRegistry, verify: verify });
+    const addressesProvider = await getLendPoolAddressesProvider();
 
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy Incentives Controller");
@@ -135,6 +113,15 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
     console.log("\n\nDeploy lend pool");
     await DRE.run("full:deploy-lend-pool", { pool: POOL_NAME, verify: verify });
 
+    // Unpause lendpool after safe pause on deployment
+    const lendPoolConfiguratorProxy = await getLendPoolConfiguratorProxy(
+      await addressesProvider.getLendPoolConfigurator()
+    );
+
+    await waitForTx(await lendPoolConfiguratorProxy.connect(emergencyAdminSigner).setPoolPause(false));
+
+    await waitForTx(await lendPoolConfiguratorProxy.connect(poolAdminSigner).setTimeframe(3600000));
+
     console.log("\n\nDeploy reserve oracle");
     await DRE.run("full:deploy-oracle-reserve", { pool: POOL_NAME, skipOracle, verify: verify });
 
@@ -142,8 +129,19 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
     const mockReserveOracleImpl = await deployMockReserveOracle([]);
     await waitForTx(await mockReserveOracleImpl.initialize(FORK === "goerli" ? WETH_GOERLI : WETH_MAINNET));
 
+    console.log("-> Deploy mock ChainLink oracle...");
+    await deployMockChainlinkOracle("18", false); // Dummy aggregator for test
+
     console.log("\n\nDeploy nft oracle");
     await DRE.run("full:deploy-oracle-nft", { pool: POOL_NAME, skipOracle, verify: verify });
+
+    console.log("-> Prepare mock nft oracle...");
+
+    const lendPoolConfigurator = await getLendPoolConfiguratorProxy(await addressesProvider.getLendPoolConfigurator());
+    const mockNftOracleImpl = await deployMockNFTOracle();
+    await waitForTx(
+      await mockNftOracleImpl.initialize(await addressesProvider.getPoolAdmin(), lendPoolConfigurator.address)
+    );
 
     ////////////////////////////////////////////////////////////////////////
     console.log("\n\nInitialize lend pool");

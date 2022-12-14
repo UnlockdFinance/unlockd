@@ -256,7 +256,7 @@ export async function initializeMakeSuite() {
   testEnv.bayc = await getMintableERC721(baycAddress!);
   testEnv.tokenId = 1;
   testEnv.cryptoPunksMarket = await getCryptoPunksMarket();
-  testEnv.wrappedPunk = await getWrappedPunk();
+  //testEnv.wrappedPunk = await getWrappedPunk();
   testEnv.punkGateway = await getPunkGateway();
 
   testEnv.tokenIdTracker = 100;
