@@ -613,7 +613,7 @@ export const borrow = async (
     await expect(
       pool.connect(user.signer).borrow(reserve.address, amountToBorrow, nftAsset.address, nftTokenId, onBehalfOf, "0"),
       revertMessage
-    ).to.be.reverted;
+    ).to.be.revertedWith(revertMessage!);
   }
 };
 
