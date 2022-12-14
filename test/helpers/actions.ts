@@ -422,10 +422,15 @@ export const withdraw = async (
   revertMessage?: string
 ) => {
   const { pool } = testEnv;
+  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+  const network = <eNetwork>DRE.network.name;
+  const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
+
+  const reserve = new Contract(reserveAssets[reserveSymbol], reserveSymbol == "WETH" ? weth : erc20Artifact.abi);
 
   const {
     uTokenInstance,
-    reserve,
+    reserveData,
     userData: userDataBefore,
     reserveData: reserveDataBefore,
   } = await getDataBeforeAction(reserveSymbol, user.address, testEnv);
@@ -439,13 +444,15 @@ export const withdraw = async (
   }
 
   if (expectedResult === "success") {
-    const txResult = await waitForTx(await pool.connect(user.signer).withdraw(reserve, amountToWithdraw, user.address));
+    const txResult = await waitForTx(
+      await pool.connect(user.signer).withdraw(reserve.address, amountToWithdraw, user.address)
+    );
 
     const {
       reserveData: reserveDataAfter,
       userData: userDataAfter,
       timestamp,
-    } = await getContractsData(reserve, user.address, testEnv);
+    } = await getContractsData(reserve.address, user.address, testEnv);
 
     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
 
@@ -469,8 +476,8 @@ export const withdraw = async (
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);
   } else if (expectedResult === "revert") {
-    await expect(pool.connect(user.signer).withdraw(reserve, amountToWithdraw, user.address), revertMessage).to.be
-      .reverted;
+    await expect(pool.connect(user.signer).withdraw(reserve.address, amountToWithdraw, user.address), revertMessage).to
+      .be.reverted;
   }
 };
 
@@ -620,6 +627,7 @@ export const borrow = async (
 export const repay = async (
   testEnv: TestEnv,
   user: SignerWithAddress,
+  reserveSymbol: string,
   sendValue: string,
   nftSymbol: string,
   nftTokenId: string,
@@ -630,20 +638,25 @@ export const repay = async (
 ) => {
   const { pool, dataProvider } = testEnv;
 
-  const nftAsset = await getNftAddressFromSymbol(nftSymbol);
+  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+  const network = <eNetwork>DRE.network.name;
 
-  const { reserveAsset } = await getLoanData(pool, dataProvider, nftAsset, nftTokenId, "0");
+  const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
+  const reserve = new Contract(reserveAssets[reserveSymbol], reserveSymbol == "WETH" ? weth : erc20Artifact.abi);
+
+  const nftsAssets = getParamPerNetwork(poolConfig.NftsAssets, network);
+  const nftAsset = new Contract(nftsAssets[nftSymbol], erc721Artifact.abi);
 
   const {
     reserveData: reserveDataBefore,
     userData: userDataBefore,
     loanData: loanDataBefore,
-  } = await getContractsDataWithLoan(reserveAsset, onBehalfOf.address, nftAsset, nftTokenId, "0", testEnv);
+  } = await getContractsDataWithLoan(reserve.address, onBehalfOf.address, nftAsset.address, nftTokenId, "0", testEnv);
 
   let amountToRepay = "0";
 
   if (amount !== "-1") {
-    amountToRepay = (await convertToCurrencyDecimals(reserveAsset, amount)).toString();
+    amountToRepay = (await convertToCurrencyDecimals(user, reserve, amount)).toString();
   } else {
     amountToRepay = MAX_UINT_AMOUNT;
   }
@@ -652,13 +665,13 @@ export const repay = async (
   const txOptions: any = {};
 
   if (sendValue) {
-    const valueToSend = await convertToCurrencyDecimals(reserveAsset, sendValue);
+    const valueToSend = await convertToCurrencyDecimals(user, reserve, sendValue);
     txOptions.value = "0x" + new BigNumber(valueToSend.toString()).toString(16);
   }
 
   if (expectedResult === "success") {
     const txResult = await waitForTx(
-      await pool.connect(user.signer).repay(nftAsset, nftTokenId, amountToRepay, txOptions)
+      await pool.connect(user.signer).repay(nftAsset.address, nftTokenId, amountToRepay, txOptions)
     );
 
     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
@@ -669,9 +682,9 @@ export const repay = async (
       loanData: loanDataAfter,
       timestamp,
     } = await getContractsDataWithLoan(
-      reserveAsset,
+      reserve.address,
       onBehalfOf.address,
-      nftAsset,
+      nftAsset.address,
       nftTokenId,
       loanDataBefore.loanId.toString(),
       testEnv
@@ -1097,12 +1110,15 @@ const getDataBeforeAction = async (
   user: tEthereumAddress,
   testEnv: TestEnv
 ): Promise<ActionData> => {
-  const reserve = await getReserveAddressFromSymbol(reserveSymbol);
+  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+  const network = <eNetwork>DRE.network.name;
+  const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
+  const reserve = new Contract(reserveAssets[reserveSymbol], reserveSymbol == "WETH" ? weth : erc20Artifact.abi);
 
-  const { reserveData, userData } = await getContractsData(reserve, user, testEnv);
+  const { reserveData, userData } = await getContractsData(reserve.address, user, testEnv);
   const uTokenInstance = await getUToken(reserveData.uTokenAddress);
   return {
-    reserve,
+    reserve: reserve.address,
     reserveData,
     userData,
     uTokenInstance,

@@ -10,10 +10,18 @@ import weth from "../abis/WETH.json";
 import erc20Artifact from "../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
 import erc721Artifact from "../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
 import { FORK } from "../hardhat.config";
+import { SignerWithAddress } from "../test/helpers/make-suite";
+import { SelfdestructTransferFactory } from "../types";
 import { ConfigNames, loadPoolConfig } from "./configuration";
 import { FUNDED_ACCOUNTS_GOERLI, FUNDED_ACCOUNTS_MAINNET, WAD } from "./constants";
 import { deploySelfdestructTransferMock } from "./contracts-deployments";
-import { getEthersSignerByAddress, getEthersSigners, getParamPerNetwork } from "./contracts-helpers";
+import { getDeploySigner } from "./contracts-getters";
+import {
+  convertToCurrencyDecimals,
+  getEthersSignerByAddress,
+  getEthersSigners,
+  getParamPerNetwork,
+} from "./contracts-helpers";
 import { eNetwork, tEthereumAddress } from "./types";
 import BN = require("bn.js");
 
@@ -183,7 +191,7 @@ export const fundWithERC20 = async (tokenSymbol: string, receiver: string, amoun
   // eslint-disable-next-line no-restricted-syntax
   const ACCOUNTS = FORK === "goerli" ? FUNDED_ACCOUNTS_GOERLI : FUNDED_ACCOUNTS_MAINNET;
 
-  const selfdestructContract = await deploySelfdestructTransferMock();
+  const selfdestructContract = await new SelfdestructTransferFactory(await getDeploySigner()).deploy();
   // Selfdestruct the mock, pointing to token owner address
   await waitForTx(await selfdestructContract.destroyAndTransfer(ACCOUNTS[tokenSymbol], { value: parseEther("10") }));
 
@@ -195,11 +203,17 @@ export const fundWithERC20 = async (tokenSymbol: string, receiver: string, amoun
   });
 
   console.log("Funding address ", receiver, "with ", amount, tokenSymbol);
-  const tx = await token.connect(doner).transfer(receiver, parseEther(amount));
+  const donerSignerWithAddress: SignerWithAddress = {
+    address: await doner.getAddress(),
+    signer: doner,
+  };
+
+  const amountToTransfer = await convertToCurrencyDecimals(donerSignerWithAddress, token, amount);
+  const tx = await token.connect(doner).transfer(receiver, amountToTransfer);
   await tx.wait();
   const balance = await token.connect(doner).balanceOf(receiver);
-  console.log("Balance of ", receiver, ": ", await formatEther(balance), tokenSymbol);
-
+  const amountTransferred = await convertToCurrencyDecimals(donerSignerWithAddress, token, balance.toString());
+  console.log("Balance of ", receiver, ": ", amountTransferred, tokenSymbol);
   await (DRE as HardhatRuntimeEnvironment).network.provider.request({
     method: "hardhat_stopImpersonatingAccount",
     params: [await doner.getAddress()],

@@ -74,12 +74,7 @@ import {
   initNFTXByHelper,
   initReservesByHelper,
 } from "../helpers/init-helpers";
-import {
-  fundSignersWithToken,
-  impersonateAccountsHardhat,
-  stopImpersonateAccountsHardhat,
-  waitForTx,
-} from "../helpers/misc-utils";
+import { impersonateAccountsHardhat, stopImpersonateAccountsHardhat, waitForTx } from "../helpers/misc-utils";
 import {
   addAssetsInNFTOracle,
   deployAllChainlinkMockAggregators,
