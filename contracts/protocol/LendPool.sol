@@ -61,7 +61,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
 
   bytes32 public constant ADDRESS_ID_WETH_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000001;
   bytes32 public constant ADDRESS_ID_PUNK_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000002;
-
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
    * Calling a `nonReentrant` function from another `nonReentrant`
@@ -1122,4 +1121,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   function _buildLendPoolVars() internal view returns (DataTypes.ExecuteLendPoolStates memory) {
     return DataTypes.ExecuteLendPoolStates({pauseStartTime: _pauseStartTime, pauseDurationTime: _pauseDurationTime});
   }
+
+  receive() external payable {}
 }

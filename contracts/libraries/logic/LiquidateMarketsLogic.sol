@@ -7,6 +7,9 @@ import {IInterestRate} from "../../interfaces/IInterestRate.sol";
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
 import {IReserveOracleGetter} from "../../interfaces/IReserveOracleGetter.sol";
 import {INFTOracleGetter} from "../../interfaces/INFTOracleGetter.sol";
+import {IWETH} from "../../interfaces/IWETH.sol";
+import {IUniswapV2Router02} from "../../interfaces/IUniswapV2Router02.sol";
+
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
 
 import {ReserveLogic} from "./ReserveLogic.sol";
@@ -39,6 +42,8 @@ library LiquidateMarketsLogic {
   using ReserveLogic for DataTypes.ReserveData;
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
   using NftConfiguration for DataTypes.NftConfigurationMap;
+
+  address internal constant WETH = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
 
   /**
    * @dev Emitted when a borrower's loan is liquidated on NFTX.
@@ -243,6 +248,7 @@ library LiquidateMarketsLogic {
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
     vars.liquidator = addressesProvider.getLendPoolLiquidator();
+    address sushiSwapRouterAddress = addressesProvider.getSushiSwapRouter();
 
     vars.loanId = ILendPoolLoan(vars.poolLoan).getCollateralLoanId(params.nftAsset, params.nftTokenId);
     require(vars.loanId != 0, Errors.LP_NFT_IS_NOT_USED_AS_COLLATERAL);
@@ -261,7 +267,7 @@ library LiquidateMarketsLogic {
     vars.auctionEndTimestamp =
       loanData.bidStartTimestamp +
       vars.extraAuctionDuration +
-      (nftConfig.getAuctionDuration() * 1 hours); // Per  Collection or NFT ??
+      (nftConfig.getAuctionDuration() * 1 hours);
     require(block.timestamp > vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_NOT_END);
 
     // Check NFT is allowed to be sold on SudoSwap market
@@ -309,6 +315,22 @@ library LiquidateMarketsLogic {
       params.LSSVMPair
     );
 
+    if (loanData.reserveAsset == WETH) {
+      IWETH(WETH).deposit{value: priceSudoSwap}();
+    } else {
+      address[] memory swapPath = new address[](2);
+      swapPath[0] = WETH;
+      swapPath[1] = loanData.reserveAsset;
+
+      uint256[] memory amounts = IUniswapV2Router02(sushiSwapRouterAddress).swapExactETHForTokens{value: priceSudoSwap}(
+        0,
+        swapPath,
+        address(this),
+        block.timestamp
+      );
+      priceSudoSwap = amounts[1];
+    }
+
     // Liquidation Fee
     vars.feeAmount = priceSudoSwap.percentMul(params.liquidateFeePercentage);
     priceSudoSwap = priceSudoSwap - vars.feeAmount;
@@ -328,7 +350,6 @@ library LiquidateMarketsLogic {
       vars.borrowAmount,
       reserveData.variableBorrowIndex
     );
-
     // update interest rate according latest borrow amount (utilizaton)
     reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.borrowAmount, 0);
 

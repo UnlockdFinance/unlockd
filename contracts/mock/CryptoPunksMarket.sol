@@ -113,12 +113,15 @@ contract CryptoPunksMarket is Ownable {
   // Transfer ownership of a punk to another user without requiring payment
   function transferPunk(address to, uint256 punkIndex) public {
     require(allPunksAssigned, "CryptoPunksMarket: not allPunksAssigned");
+
     require(punkIndexToAddress[punkIndex] == msg.sender, "CryptoPunksMarket: not owner");
+
     require(punkIndex < 10000, "CryptoPunksMarket: punkIndex overflow");
 
     if (punksOfferedForSale[punkIndex].isForSale) {
       punkNoLongerForSale(punkIndex);
     }
+
     punkIndexToAddress[punkIndex] = to;
     balanceOf[msg.sender]--;
     balanceOf[to]++;

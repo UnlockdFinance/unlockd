@@ -9,13 +9,14 @@ import FileSync from "lowdb/adapters/FileSync";
 import weth from "../abis/WETH.json";
 import erc20Artifact from "../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
 import erc721Artifact from "../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
+import wrappedPunkArtifact from "../artifacts/contracts/mock/WrappedPunk/WrappedPunk.sol/WrappedPunk.json";
 import { FORK } from "../hardhat.config";
 import { SignerWithAddress } from "../test/helpers/make-suite";
 import { SelfdestructTransferFactory } from "../types";
 import { ConfigNames, loadPoolConfig } from "./configuration";
 import { FUNDED_ACCOUNTS_GOERLI, FUNDED_ACCOUNTS_MAINNET, WAD } from "./constants";
 import { deploySelfdestructTransferMock } from "./contracts-deployments";
-import { getDeploySigner } from "./contracts-getters";
+import { getCryptoPunksMarket, getDeploySigner, getWrappedPunk } from "./contracts-getters";
 import {
   convertToCurrencyDecimals,
   getEthersSignerByAddress,
@@ -202,7 +203,6 @@ export const fundWithERC20 = async (tokenSymbol: string, receiver: string, amoun
     params: [await doner.getAddress()],
   });
 
-  console.log("Funding address ", receiver, "with ", amount, tokenSymbol);
   const donerSignerWithAddress: SignerWithAddress = {
     address: await doner.getAddress(),
     signer: doner,
@@ -213,7 +213,7 @@ export const fundWithERC20 = async (tokenSymbol: string, receiver: string, amoun
   await tx.wait();
   const balance = await token.connect(doner).balanceOf(receiver);
   const amountTransferred = await convertToCurrencyDecimals(donerSignerWithAddress, token, balance.toString());
-  console.log("Balance of ", receiver, ": ", amountTransferred, tokenSymbol);
+
   await (DRE as HardhatRuntimeEnvironment).network.provider.request({
     method: "hardhat_stopImpersonatingAccount",
     params: [await doner.getAddress()],
@@ -230,7 +230,7 @@ export const fundWithERC721 = async (tokenSymbol: string, receiver: string, toke
 
   const tokenOwner = await token.connect(receiverSigner).ownerOf(tokenId);
 
-  const selfdestructContract = await deploySelfdestructTransferMock();
+  const selfdestructContract = await new SelfdestructTransferFactory(await getDeploySigner()).deploy();
   // Selfdestruct the mock, pointing to token owner address
   await waitForTx(await selfdestructContract.destroyAndTransfer(tokenOwner, { value: parseEther("10") }));
 
@@ -240,8 +240,6 @@ export const fundWithERC721 = async (tokenSymbol: string, receiver: string, toke
   });
   const tokenOwnerSigner = await getEthersSignerByAddress(tokenOwner);
 
-  console.log("Transferring", tokenSymbol, "whith token Id", tokenId, "to ", receiver);
-
   const tx = await token.connect(tokenOwnerSigner).transferFrom(tokenOwner, receiver, tokenId);
   await tx.wait();
 
@@ -249,4 +247,16 @@ export const fundWithERC721 = async (tokenSymbol: string, receiver: string, toke
     method: "hardhat_stopImpersonatingAccount",
     params: [tokenOwner],
   });
+};
+
+export const fundWithWrappedPunk = async (receiver: string, punkIndex: number) => {
+  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+  const network = <eNetwork>DRE.network.name;
+  const nftsAssets = getParamPerNetwork(poolConfig.NftsAssets, network);
+
+  nftsAssets["WPUNKS"] = await (await getWrappedPunk()).address;
+
+  const cryptoPunksMarket = await getCryptoPunksMarket();
+
+  await cryptoPunksMarket.setInitialOwner(receiver, punkIndex);
 };

@@ -109,33 +109,6 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   const emergencyAdminSigner = await getEthersSignerByAddress(await getEmergencyAdmin(poolConfig));
   const lendPoolLiquidatorSigner = await getEthersSignerByAddress(await getLendPoolLiquidator(poolConfig));
 
-  // Fund addresses
-  const ACCOUNTS = FORK === "goerli" ? FUNDED_ACCOUNTS_GOERLI : FUNDED_ACCOUNTS_MAINNET;
-
-  // Fund ERC20s
-  const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
-  for (const tokenSymbol of Object.keys(reserveAssets)) {
-    // Fund token holder contracts with ETH
-    await impersonateAccountsHardhat([ACCOUNTS["ETH"]]);
-
-    const selfdestructContract = await deploySelfdestructTransferMock();
-
-    // Selfdestruct the mock, pointing to token owner address
-    await waitForTx(await selfdestructContract.destroyAndTransfer(ACCOUNTS[tokenSymbol], { value: parseEther("1") }));
-    // Fund actual Unlockd addresses with token
-    await impersonateAccountsHardhat([ACCOUNTS[tokenSymbol]]);
-    const impersonatedAccountToken = await getEthersSignerByAddress(ACCOUNTS[tokenSymbol]);
-
-    await fundSignersWithToken(
-      reserveAssets[tokenSymbol],
-      impersonatedAccountToken,
-      tokenSymbol,
-      [deployerSigner, poolAdminSigner, emergencyAdminSigner, lendPoolLiquidatorSigner],
-      "1000"
-    );
-    await stopImpersonateAccountsHardhat([ACCOUNTS[tokenSymbol]]);
-  }
-
   console.log(
     "Deployer:",
     await deployerSigner.getAddress(),

@@ -1,5 +1,7 @@
+import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
 import { getReservesConfigByPool } from "../helpers/configuration";
+import { fundWithERC20, fundWithERC721 } from "../helpers/misc-utils";
 import { IReserveParams, iUnlockdPoolAssets, UnlockdPools } from "../helpers/types";
 import {
   approveERC20,
@@ -42,8 +44,7 @@ makeSuite("LendPool: Withdraw negative test cases", (testEnv: TestEnv) => {
     const { users } = testEnv;
     const user0 = users[0];
 
-    await mintERC20(testEnv, user0, "DAI", "1000");
-
+    await fundWithERC20("DAI", user0.address, "1000");
     await approveERC20(testEnv, user0, "DAI");
 
     await deposit(testEnv, user0, "", "DAI", "1000", user0.address, "success", "");
@@ -65,8 +66,8 @@ makeSuite("LendPool: Withdraw negative test cases", (testEnv: TestEnv) => {
 
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
-    await mintERC721(testEnv, user1, "BAYC", tokenId);
 
+    await fundWithERC721("BAYC", user1.address, tokenIdNum);
     await setApprovalForAll(testEnv, user1, "BAYC");
 
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
@@ -74,7 +75,7 @@ makeSuite("LendPool: Withdraw negative test cases", (testEnv: TestEnv) => {
     await pool.connect(user1.signer).triggerUserCollateral(bayc.address, tokenId);
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, parseEther("500"), 4000, 7000, 500, 1, 2, 25, true, false);
 
     await borrow(testEnv, user1, "DAI", "100", "BAYC", tokenId, user1.address, "", "success", "");
 
@@ -86,8 +87,7 @@ makeSuite("LendPool: Withdraw negative test cases", (testEnv: TestEnv) => {
     const user0 = users[0];
     const user1 = users[1];
 
-    await mintERC20(testEnv, user1, "WETH", "1");
-
+    await fundWithERC20("WETH", user1.address, "1");
     await approveERC20(testEnv, user1, "WETH");
 
     await deposit(testEnv, user1, "", "WETH", "1", user1.address, "success", "");
@@ -95,8 +95,7 @@ makeSuite("LendPool: Withdraw negative test cases", (testEnv: TestEnv) => {
     // user 1 borrows 0.01 WETH
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
-    await mintERC721(testEnv, user0, "BAYC", tokenId);
-
+    await fundWithERC721("BAYC", user0.address, tokenIdNum);
     await setApprovalForAll(testEnv, user0, "BAYC");
 
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);

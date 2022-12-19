@@ -99,7 +99,6 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
         const oracleOwnerSigner = DRE.ethers.provider.getSigner(oracleOwnerAddress);
         // await waitForTx(await nftOracle.connect(oracleOwnerSigner).setCollections(tokens));
         for (const [assetSymbol, assetAddress] of Object.entries(nftsAssets) as [string, tEthereumAddress][]) {
-          console.log("YOOOO::::::: ", assetAddress);
           await waitForTx(await nftOracle.connect(oracleOwnerSigner).addCollection(assetAddress));
         }
       }

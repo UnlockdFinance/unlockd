@@ -4,8 +4,9 @@ pragma solidity 0.8.4;
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
 import {ILSSVMRouter} from "../../interfaces/sudoswap/ILSSVMRouter.sol";
 import {ILSSVMPair} from "../../interfaces/sudoswap/ILSSVMPair.sol";
-
+import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {Errors} from "../../libraries/helpers/Errors.sol";
+import {IUniswapV2Router02} from "../../interfaces/IUniswapV2Router02.sol";
 
 /*
  * @title SudoSwap library
@@ -25,6 +26,7 @@ library SudoSwapSeller {
    */
   function sellSudoSwap(
     ILendPoolAddressesProvider addressesProvider,
+    address nftAsset,
     uint256 nftTokenId,
     address LSSVMPair
   ) internal returns (uint256 amount) {
@@ -39,6 +41,7 @@ library SudoSwapSeller {
     PairSwapSpecific[] memory pairSwaps = new PairSwapSpecific[](1);
     pairSwaps[0] = PairSwapSpecific({pair: ILSSVMPair(LSSVMPair), nftIds: nftTokenIds});
 
+    IERC721Upgradeable(nftAsset).approve(LSSVMRouterAddress, nftTokenId);
     amount = LSSVMRouter.swapNFTsForToken(pairSwaps, 0, lendPoolAddress, block.timestamp);
   }
 }

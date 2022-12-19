@@ -4,8 +4,8 @@ import { parseEther } from "ethers/lib/utils";
 import { getReservesConfigByPool } from "../helpers/configuration";
 import { MAX_UINT_AMOUNT, ONE_YEAR } from "../helpers/constants";
 import { getDebtToken } from "../helpers/contracts-getters";
-import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
-import { advanceTimeAndBlock, waitForTx } from "../helpers/misc-utils";
+import { convertToCurrencyDecimals, getEthersSignerByAddress } from "../helpers/contracts-helpers";
+import { advanceTimeAndBlock, fundWithERC20, fundWithWrappedPunk, waitForTx } from "../helpers/misc-utils";
 import { IReserveParams, iUnlockdPoolAssets, ProtocolLoanState, UnlockdPools } from "../helpers/types";
 import {
   approveERC20,
@@ -25,12 +25,15 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
   const zero = BN.from(0);
 
   before("Initializing configuration", async () => {
+    const { wethGateway, punkGateway, users } = testEnv;
+    const [depositor, borrower] = users;
     // Sets BigNumber for this suite, instead of globally
     BigNumber.config({
       DECIMAL_PLACES: 0,
       ROUNDING_MODE: BigNumber.ROUND_DOWN,
     });
-
+    await wethGateway.authorizeCallerWhitelist([depositor.address, users[0].address, punkGateway.address], true);
+    await punkGateway.authorizeCallerWhitelist([depositor.address, users[0].address], true);
     actionsConfiguration.skipIntegrityCheck = false; //set this to true to execute solidity-coverage
 
     calculationsConfiguration.reservesParams = <iUnlockdPoolAssets<IReserveParams>>(
@@ -48,7 +51,7 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
   it("Owner can do emergency CryptoPunks recovery", async () => {
     const { users, cryptoPunksMarket, punkGateway, deployer } = testEnv;
     const user = users[0];
-
+    await cryptoPunksMarket.allInitialOwnersAssigned();
     const punkIndex = testEnv.punkIndexTracker++;
     await waitForTx(await cryptoPunksMarket.connect(user.signer).getPunk(punkIndex));
 
@@ -76,26 +79,26 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
       usdc,
       deployer,
       configurator,
+      reserveOracle,
       nftOracle,
     } = testEnv;
 
     const [depositor, borrower] = users;
-    const depositUnit = "10000";
-    const depositSize = await convertToCurrencyDecimals(usdc.address, depositUnit);
 
     // Deposit USDC
-    await mintERC20(testEnv, depositor, "USDC", depositUnit.toString());
+    await fundWithERC20("USDC", depositor.address, "10000");
     await approveERC20(testEnv, depositor, "USDC");
-    await deposit(testEnv, depositor, "", "USDC", depositUnit.toString(), depositor.address, "success", "");
 
-    const borrowSize1 = await convertToCurrencyDecimals(usdc.address, "1000");
-    const borrowSize2 = await convertToCurrencyDecimals(usdc.address, "2000");
+    await deposit(testEnv, depositor, "", "USDC", "10000", depositor.address, "success", "");
+
+    const borrowSize1 = await convertToCurrencyDecimals(deployer, usdc, "1");
+    const borrowSize2 = await convertToCurrencyDecimals(deployer, usdc, "2");
     const borrowSizeAll = borrowSize1.add(borrowSize2);
     const repaySize = borrowSizeAll.add(borrowSizeAll.mul(5).div(100));
-    const punkIndex = testEnv.punkIndexTracker++;
+    const punkIndex = 0;
 
     // Mint for interest
-    await waitForTx(await usdc.connect(borrower.signer).mint(repaySize.sub(borrowSizeAll).toString()));
+    await fundWithERC20("USDC", borrower.address, "3000");
     await approveERC20PunkGateway(testEnv, borrower, "USDC");
 
     const getDebtBalance = async () => {
@@ -130,15 +133,13 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
 
     await nftOracle.connect(deployer.signer).setPriceManagerStatus(configurator.address, true);
 
-    await configurator.connect(deployer.signer).setTimeframe(720000);
-
     await waitForTx(
       await configurator
         .connect(deployer.signer)
         .configureNftAsCollateral(
           wrappedPunk.address,
           punkIndex,
-          "5000000000000000000",
+          parseEther("1000"),
           4000,
           7000,
           1000,
@@ -149,6 +150,8 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
           false
         )
     );
+
+    await fundWithWrappedPunk(borrower.address, punkIndex);
 
     // borrow first usdc
     await waitForTx(
@@ -162,7 +165,7 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
       .configureNftAsCollateral(
         wrappedPunk.address,
         punkIndex,
-        "5000000000000000000",
+        parseEther("1000"),
         5000,
         9500,
         1000,
@@ -173,14 +176,12 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
         false
       );
 
-    await configurator.connect(deployer.signer).setTimeframe(720000);
-
     // borrow more usdc
     await waitForTx(
       await punkGateway.connect(borrower.signer).borrow(usdc.address, borrowSize2, punkIndex, borrower.address, "0")
     );
 
-    const usdcBalanceAfterBorrow = await getERC20TokenBalance(usdc.address, borrower.address);
+    const usdcBalanceAfterBorrow = await usdc.balanceOf(borrower.address);
     const debtAfterBorrow = await getDebtBalance();
     const wrapperPunkOwner = await getWrappedPunkOwner();
 
@@ -191,6 +192,7 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
 
     // Repay partial
     await waitForTx(await punkGateway.connect(borrower.signer).repay(punkIndex, repaySize.div(2)));
+
     const usdcBalanceAfterPartialRepay = await getERC20TokenBalance(usdc.address, borrower.address);
     const debtAfterPartialRepay = await getDebtBalance();
     expect(usdcBalanceAfterPartialRepay).to.be.lt(usdcBalanceAfterBorrow);
@@ -204,87 +206,14 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
 
     // Repay full
     await waitForTx(await wrappedPunk.connect(borrower.signer).setApprovalForAll(punkGateway.address, true));
+
     await waitForTx(await punkGateway.connect(borrower.signer).repay(punkIndex, repaySize));
+
     const usdcBalanceAfterFullRepay = await getERC20TokenBalance(usdc.address, borrower.address);
     const debtAfterFullRepay = await getDebtBalance();
     expect(usdcBalanceAfterFullRepay).to.be.lt(usdcBalanceAfterPartialRepay);
     expect(debtAfterFullRepay).to.be.eq(zero);
     expect(await getPunkOwner()).to.be.eq(borrower.address);
-  });
-
-  it("Borrow all USDC and repay it", async () => {
-    const {
-      users,
-      cryptoPunksMarket,
-      wrappedPunk,
-      punkGateway,
-      wethGateway,
-      usdc,
-      pool,
-      dataProvider,
-      configurator,
-      deployer,
-      nftOracle,
-    } = testEnv;
-
-    const [depositor, user] = users;
-
-    // advance block to make some interests
-    const secondsToTravel = new BigNumber(365).multipliedBy(ONE_YEAR).div(365).toNumber();
-    await advanceTimeAndBlock(secondsToTravel);
-
-    const usdcReserveData = await getReserveData(dataProvider, usdc.address);
-    const borrowSize = new BigNumber(usdcReserveData.availableLiquidity);
-    const repaySize = borrowSize.plus(borrowSize.multipliedBy(5).dividedBy(100));
-    const punkIndex = testEnv.punkIndexTracker++;
-
-    await waitForTx(await cryptoPunksMarket.connect(user.signer).getPunk(punkIndex));
-    await waitForTx(
-      await cryptoPunksMarket.connect(user.signer).offerPunkForSaleToAddress(punkIndex, 0, punkGateway.address)
-    );
-
-    // Delegates borrowing power of WETH to WETHGateway
-    const reserveData = await pool.getReserveData(usdc.address);
-    const debtToken = await getDebtToken(reserveData.debtTokenAddress);
-    await waitForTx(await debtToken.connect(user.signer).approveDelegation(punkGateway.address, MAX_UINT_AMOUNT));
-
-    await configurator.setLtvManagerStatus(deployer.address, true);
-    await nftOracle.setPriceManagerStatus(configurator.address, true);
-
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(
-        wrappedPunk.address,
-        punkIndex,
-        "10000000000000000000",
-        4000,
-        7000,
-        100,
-        1,
-        2,
-        25,
-        true,
-        false
-      );
-
-    await configurator.connect(deployer.signer).setTimeframe(720000);
-
-    // borrow all usdc
-    await waitForTx(
-      await punkGateway.connect(user.signer).borrow(usdc.address, borrowSize.toFixed(0), punkIndex, user.address, "0")
-    );
-
-    // Check results
-    const loanDataAfterBorrow = await dataProvider.getLoanDataByCollateral(wrappedPunk.address, punkIndex);
-    expect(loanDataAfterBorrow.state).to.be.eq(ProtocolLoanState.Active);
-
-    // Repay all usdc
-    await waitForTx(await wrappedPunk.connect(user.signer).setApprovalForAll(punkGateway.address, true));
-    await waitForTx(await punkGateway.connect(user.signer).repay(punkIndex, MAX_UINT_AMOUNT));
-
-    // Check results
-    const loanDataAfterRepayFull = await dataProvider.getLoanDataByLoanId(loanDataAfterBorrow.loanId);
-    expect(loanDataAfterRepayFull.state).to.be.eq(ProtocolLoanState.Repaid);
   });
 
   it("Borrow some ETH and repay it", async () => {
@@ -335,7 +264,8 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
 
     await advanceTimeAndBlock(100);
 
-    await waitForTx(await cryptoPunksMarket.connect(user.signer).getPunk(punkIndex));
+    await fundWithWrappedPunk(user.address, punkIndex);
+
     await waitForTx(
       await cryptoPunksMarket.connect(user.signer).offerPunkForSaleToAddress(punkIndex, 0, punkGateway.address)
     );
@@ -369,8 +299,6 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
         false
       );
 
-    await configurator.connect(deployer.signer).setTimeframe(720000);
-
     // borrow first eth
     await waitForTx(await punkGateway.connect(user.signer).borrowETH(borrowSize1, punkIndex, user.address, "0"));
 
@@ -391,8 +319,6 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
         true,
         false
       );
-
-    await configurator.connect(deployer.signer).setTimeframe(720000);
 
     // borrow more eth
     await waitForTx(await punkGateway.connect(user.signer).borrowETH(borrowSize2, punkIndex, user.address, "0"));
@@ -470,7 +396,7 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
     const repaySize = borrowSize.plus(borrowSize.multipliedBy(5).dividedBy(100));
     const punkIndex = testEnv.punkIndexTracker++;
 
-    await waitForTx(await cryptoPunksMarket.connect(user.signer).getPunk(punkIndex));
+    await fundWithWrappedPunk(user.address, punkIndex);
     await waitForTx(
       await cryptoPunksMarket.connect(user.signer).offerPunkForSaleToAddress(punkIndex, 0, punkGateway.address)
     );
@@ -499,8 +425,6 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
         true,
         false
       );
-
-    await configurator.connect(deployer.signer).setTimeframe(720000);
 
     // borrow all eth
     await waitForTx(

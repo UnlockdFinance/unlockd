@@ -2,7 +2,9 @@ import { BigNumber } from "bignumber.js";
 import { APPROVAL_AMOUNT_LENDING_POOL } from "../helpers/constants";
 import { getEmergencyAdminSigner } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
+import { fundWithERC20, fundWithERC721, waitForTx } from "../helpers/misc-utils";
 import { ProtocolErrors } from "../helpers/types";
+import { approveERC20, setApprovalForAll } from "./helpers/actions";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 const { expect } = require("chai");
@@ -11,15 +13,14 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
   before(async () => {});
 
   it("Transfer", async () => {
-    const { users, pool, dai, uDai, configurator } = testEnv;
+    const { users, pool, dai, uDai, configurator, deployer } = testEnv;
     const emergencyAdminSigner = await getEmergencyAdminSigner();
 
-    const amountDeposit = await convertToCurrencyDecimals(dai.address, "1000");
+    await fundWithERC20("DAI", users[0].address, "1000");
+    await approveERC20(testEnv, users[0], "DAI");
 
-    await dai.connect(users[0].signer).mint(amountDeposit);
+    const amountDeposit = await convertToCurrencyDecimals(deployer, dai, "1000");
 
-    // user 0 deposits 1000 DAI
-    await dai.connect(users[0].signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
     await pool.connect(users[0].signer).deposit(dai.address, amountDeposit, users[0].address, "0");
 
     const user0Balance = await uDai.balanceOf(users[0].address);
@@ -62,15 +63,13 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
   });
 
   it("Deposit", async () => {
-    const { users, pool, dai, uDai, configurator } = testEnv;
+    const { users, pool, dai, uDai, configurator, deployer } = testEnv;
     const emergencyAdminSigner = await getEmergencyAdminSigner();
 
-    const amountDeposit = await convertToCurrencyDecimals(dai.address, "1000");
+    const amountDeposit = await convertToCurrencyDecimals(deployer, dai, "1000");
 
-    await dai.connect(users[0].signer).mint(amountDeposit);
-
-    // user 0 deposits 1000 DAI
-    await dai.connect(users[0].signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+    await fundWithERC20("DAI", users[0].address, "1000");
+    await approveERC20(testEnv, users[0], "DAI");
 
     // Configurator pauses the pool
     await configurator.connect(emergencyAdminSigner).setPoolPause(true);
@@ -83,15 +82,14 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
   });
 
   it("Withdraw", async () => {
-    const { users, pool, dai, uDai, configurator } = testEnv;
+    const { users, pool, dai, uDai, configurator, deployer } = testEnv;
     const emergencyAdminSigner = await getEmergencyAdminSigner();
 
-    const amountDeposit = await convertToCurrencyDecimals(dai.address, "1000");
+    const amountDeposit = await convertToCurrencyDecimals(deployer, dai, "1000");
 
-    await dai.connect(users[0].signer).mint(amountDeposit);
+    await fundWithERC20("DAI", users[0].address, "1000");
+    await approveERC20(testEnv, users[0], "DAI");
 
-    // user 0 deposits 1000 DAI
-    await dai.connect(users[0].signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
     await pool.connect(users[0].signer).deposit(dai.address, amountDeposit, users[0].address, "0");
 
     // Configurator pauses the pool
@@ -145,25 +143,22 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     const liquidator = users[5];
     const emergencyAdminSigner = await getEmergencyAdminSigner();
 
-    //user 3 mints WETH to depositor
-    await weth.connect(depositor.signer).mint(await convertToCurrencyDecimals(weth.address, "1000"));
-
-    //user 3 approve protocol to access depositor wallet
-    await weth.connect(depositor.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+    await fundWithERC20("WETH", depositor.address, "1000");
+    await approveERC20(testEnv, depositor, "WETH");
 
     //user 3 deposits 1000 WETH
-    const amountDeposit = await convertToCurrencyDecimals(weth.address, "1000");
+    const amountDeposit = await convertToCurrencyDecimals(deployer, weth, "1000");
 
     await pool.connect(depositor.signer).deposit(weth.address, amountDeposit, depositor.address, "0");
 
     //user 4 mints BAYC to borrower
-    await bayc.connect(borrower.signer).mint("101");
-
-    //user 4 approve protocol to access borrower wallet
-    await bayc.connect(borrower.signer).setApprovalForAll(pool.address, true);
+    //mints BAYC to borrower
+    await fundWithERC721("BAYC", borrower.address, 101);
+    //approve protocol to access borrower wallet
+    await setApprovalForAll(testEnv, borrower, "BAYC");
 
     //user 4 borrows
-    const price = await convertToCurrencyDecimals(weth.address, "1000");
+    const price = await convertToCurrencyDecimals(deployer, weth, "1000");
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(bayc.address, true);
 
@@ -176,7 +171,8 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     const wethPrice = await reserveOracle.getAssetPrice(weth.address);
 
     const amountBorrow = await convertToCurrencyDecimals(
-      weth.address,
+      deployer,
+      weth,
       new BigNumber(loanData.availableBorrowsInETH.toString()).div(wethPrice.toString()).multipliedBy(0.2).toFixed(0)
     );
 
@@ -188,9 +184,9 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     const baycPrice = await nftOracle.getNFTPrice(bayc.address, "101");
     await nftOracle.setNFTPrice(bayc.address, 101, new BigNumber(baycPrice.toString()).multipliedBy(0.5).toFixed(0));
 
-    //mints usdc to the liquidator
-    await weth.connect(liquidator.signer).mint(await convertToCurrencyDecimals(weth.address, "1000"));
-    await weth.connect(liquidator.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+    //mints WETH to the liquidator
+    await fundWithERC20("WETH", liquidator.address, "1000");
+    await approveERC20(testEnv, liquidator, "WETH");
 
     // Pause pool
     await configurator.connect(emergencyAdminSigner).setPoolPause(true);
@@ -220,25 +216,21 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     const borrower = users[4];
     const emergencyAdminSigner = await getEmergencyAdminSigner();
 
-    //user 3 mints WETH to depositor
-    await weth.connect(depositor.signer).mint(await convertToCurrencyDecimals(weth.address, "1000"));
-
-    //user 3 approve protocol to access depositor wallet
-    await weth.connect(depositor.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+    await fundWithERC20("WETH", depositor.address, "1000");
+    await approveERC20(testEnv, depositor, "WETH");
 
     //user 3 deposits 1000 WETH
-    const amountDeposit = await convertToCurrencyDecimals(weth.address, "1000");
+    const amountDeposit = await convertToCurrencyDecimals(deployer, weth, "1000");
 
     await pool.connect(depositor.signer).deposit(weth.address, amountDeposit, depositor.address, "0");
 
-    //user 4 mints BAYC to borrower
-    await bayc.connect(borrower.signer).mint("102");
-
-    //user 4 approve protocol to access borrower wallet
-    await bayc.connect(borrower.signer).setApprovalForAll(pool.address, true);
+    //mints BAYC to borrower
+    await fundWithERC721("BAYC", borrower.address, 102);
+    //approve protocol to access borrower wallet
+    await setApprovalForAll(testEnv, borrower, "BAYC");
 
     //user 4 borrows
-    const price = await convertToCurrencyDecimals(weth.address, "1000");
+    const price = await convertToCurrencyDecimals(deployer, weth, "1000");
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(bayc.address, true);
 
@@ -251,7 +243,8 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     const wethPrice = await reserveOracle.getAssetPrice(weth.address);
 
     const amountBorrow = await convertToCurrencyDecimals(
-      weth.address,
+      deployer,
+      weth,
       new BigNumber(loanData.availableBorrowsInETH.toString()).div(wethPrice.toString()).multipliedBy(0.2).toFixed(0)
     );
 
@@ -264,11 +257,16 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     await nftOracle.setNFTPrice(bayc.address, 102, new BigNumber(baycPrice.toString()).multipliedBy(0.5).toFixed(0));
 
     //mints usdc to the liquidator
-    await weth.connect(liquidator.signer).mint(await convertToCurrencyDecimals(weth.address, "1000"));
-    await weth.connect(liquidator.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+    await fundWithERC20("WETH", liquidator.address, "1000");
+    await approveERC20(testEnv, liquidator, "WETH");
 
     // Pause pool
     await configurator.connect(emergencyAdminSigner).setPoolPause(true);
+
+    // add  supporting liquidations on  NFTX for auction price purposes
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+
+    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
 
     // Do liquidation
     await expect(pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "102")).revertedWith(

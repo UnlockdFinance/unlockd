@@ -5,7 +5,7 @@ import DRE from "hardhat";
 import { NETWORKS_DEFAULT_GAS } from "../helper-hardhat-config";
 import { getReservesConfigByPool } from "../helpers/configuration";
 import { getDebtToken } from "../helpers/contracts-getters";
-import { advanceTimeAndBlock, waitForTx } from "../helpers/misc-utils";
+import { advanceTimeAndBlock, fundWithERC721, waitForTx } from "../helpers/misc-utils";
 import { IReserveParams, iUnlockdPoolAssets, ProtocolErrors, UnlockdPools } from "../helpers/types";
 import {
   configuration as actionsConfiguration,
@@ -15,14 +15,12 @@ import {
 } from "./helpers/actions";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";
-import { getLoanData, getNftAddressFromSymbol } from "./helpers/utils/helpers";
+import { getLoanData } from "./helpers/utils/helpers";
 
 const chai = require("chai");
 const { expect } = chai;
 
 makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
-  let baycInitPrice: BN;
-
   const zero = BN.from(0);
   const depositSize = parseEther("5");
   const depositSize500 = parseEther("500");
@@ -40,8 +38,6 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
     calculationsConfiguration.reservesParams = <iUnlockdPoolAssets<IReserveParams>>(
       getReservesConfigByPool(UnlockdPools.proto)
     );
-
-    baycInitPrice = await testEnv.nftOracle.getNFTPrice(testEnv.bayc.address, testEnv.tokenIdTracker);
   });
   after("Reset", () => {
     // Reset BigNumber
@@ -67,7 +63,6 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
       wethGateway.connect(hacker.signer).depositETH(depositor.address, "0", { value: depositSize })
     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
 
-    const nftAsset = await getNftAddressFromSymbol("BAYC");
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
 
@@ -82,7 +77,7 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     console.log("borrowETH");
     await expect(
-      wethGateway.connect(hacker.signer).borrowETH(borrowSize2, nftAsset, tokenId, borrower.address, "0")
+      wethGateway.connect(hacker.signer).borrowETH(borrowSize2, bayc.address, tokenId, borrower.address, "0")
     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
   });
 
@@ -112,15 +107,16 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
     await waitForTx(await debtToken.connect(borrower.signer).approveDelegation(wethGateway.address, borrowSize1));
 
     // Start loan
-    const nftAsset = await getNftAddressFromSymbol("BAYC");
+
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
-    await mintERC721(testEnv, borrower, "BAYC", tokenId);
+
+    await fundWithERC721("BAYC", borrower.address, tokenIdNum);
     await setApprovalForAll(testEnv, borrower, "BAYC");
     await setApprovalForAllWETHGateway(testEnv, borrower, "BAYC");
 
     const getLoanDebtBalance = async () => {
-      const loan = await getLoanData(pool, dataProvider, nftAsset, tokenId, "0");
+      const loan = await getLoanData(pool, dataProvider, bayc.address, tokenId, "0");
       return BN.from(loan.currentAmount.toFixed(0));
     };
 
@@ -137,7 +133,7 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     console.log("Borrow first ETH with NFT");
     await waitForTx(
-      await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, nftAsset, tokenId, borrower.address, "0")
+      await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, bayc.address, tokenId, borrower.address, "0")
     );
 
     expect(await borrower.signer.getBalance(), "current eth balance shoud increase").to.be.gt(ethBalanceBefore);
@@ -156,7 +152,7 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     console.log("Borrower try Borrow more ETH with NFT on different onBehalfOf");
     await expect(
-      wethGateway.connect(borrower.signer).borrowETH(borrowSize2, nftAsset, tokenId, hacker.address, "0")
+      wethGateway.connect(borrower.signer).borrowETH(borrowSize2, bayc.address, tokenId, hacker.address, "0")
     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
   });
 
@@ -186,15 +182,15 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
     await waitForTx(await debtToken.connect(borrower.signer).approveDelegation(wethGateway.address, borrowSize1));
 
     // Start loan
-    const nftAsset = await getNftAddressFromSymbol("BAYC");
+
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
-    await mintERC721(testEnv, borrower, "BAYC", tokenId);
+    await fundWithERC721("BAYC", borrower.address, tokenIdNum);
     await setApprovalForAll(testEnv, borrower, "BAYC");
     await setApprovalForAllWETHGateway(testEnv, borrower, "BAYC");
 
     const getLoanDebtBalance = async () => {
-      const loan = await getLoanData(pool, dataProvider, nftAsset, tokenId, "0");
+      const loan = await getLoanData(pool, dataProvider, bayc.address, tokenId, "0");
       return BN.from(loan.currentAmount.toFixed(0));
     };
 
@@ -211,7 +207,7 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     console.log("Borrow first ETH with NFT");
     await waitForTx(
-      await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, nftAsset, tokenId, borrower.address, "0")
+      await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, bayc.address, tokenId, borrower.address, "0")
     );
 
     expect(await borrower.signer.getBalance(), "current eth balance shoud increase").to.be.gt(ethBalanceBefore);
@@ -230,7 +226,7 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     console.log("Hacker try Borrow more ETH with others NFT");
     await expect(
-      wethGateway.connect(hacker.signer).borrowETH(borrowSize2, nftAsset, tokenId, borrower.address, "0")
+      wethGateway.connect(hacker.signer).borrowETH(borrowSize2, bayc.address, tokenId, borrower.address, "0")
     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
   });
 });

@@ -40,6 +40,7 @@ import {
 } from "../types";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { IERC721DetailedFactory } from "../types/IERC721DetailedFactory";
+import { ILSSVMPairFactory } from "../types/ILSSVMPairFactory";
 import { INFTXVaultFactory } from "../types/INFTXVaultFactory";
 import { INFTXVaultFactoryV2Factory } from "../types/INFTXVaultFactoryV2Factory";
 import { IUniswapV2Router02Factory } from "../types/IUniswapV2Router02Factory";
@@ -485,5 +486,11 @@ export const getNFTXVault = async (address: tEthereumAddress) =>
 export const getSushiSwapRouter = async (address?: tEthereumAddress) =>
   await IUniswapV2Router02Factory.connect(
     address || (await getDb(DRE.network.name).get(`${eContractid.SushiSwapRouter}`).value()).address,
+    await getDeploySigner()
+  );
+
+export const getLSSVMPair = async (address?: tEthereumAddress) =>
+  await ILSSVMPairFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.LSSVMPPair}`).value()).address,
     await getDeploySigner()
   );

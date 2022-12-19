@@ -7,9 +7,10 @@ import { MAX_UINT_AMOUNT } from "../helpers/constants";
 import { deploySelfdestructTransferMock } from "../helpers/contracts-deployments";
 import { getDebtToken } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
-import { advanceTimeAndBlock, waitForTx } from "../helpers/misc-utils";
+import { advanceTimeAndBlock, fundWithERC20, fundWithERC721, waitForTx } from "../helpers/misc-utils";
 import { IReserveParams, iUnlockdPoolAssets, UnlockdPools } from "../helpers/types";
 import {
+  approveERC20,
   borrow,
   configuration as actionsConfiguration,
   mintERC721,
@@ -42,8 +43,6 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
     calculationsConfiguration.reservesParams = <iUnlockdPoolAssets<IReserveParams>>(
       getReservesConfigByPool(UnlockdPools.proto)
     );
-
-    baycInitPrice = await testEnv.nftOracle.getNFTPrice(testEnv.bayc.address, testEnv.tokenIdTracker);
   });
   after("Reset", () => {
     // Reset BigNumber
@@ -72,7 +71,7 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
   });
 
   it("Withdraw WETH - Partial", async () => {
-    const { users, wethGateway, uWETH, pool } = testEnv;
+    const { users, wethGateway, uWETH, pool, deployer } = testEnv;
 
     const user = users[1];
     const priorEthersBalance = await user.signer.getBalance();
@@ -81,7 +80,7 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
     expect(uTokensBalance).to.be.gt(zero, "User should have uTokens.");
 
     // Partially withdraw native ETH
-    const partialWithdraw = await convertToCurrencyDecimals(uWETH.address, "2");
+    const partialWithdraw = await convertToCurrencyDecimals(deployer, uWETH, "2");
 
     // Approve the uTokens to Gateway so Gateway can withdraw and convert to Ether
     await waitForTx(await uWETH.connect(user.signer).approve(wethGateway.address, MAX_UINT_AMOUNT));
@@ -150,24 +149,25 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
     await advanceTimeAndBlock(100);
 
     // Start loan
-    const nftAsset = await getNftAddressFromSymbol("BAYC");
+
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
-    await mintERC721(testEnv, user, "BAYC", tokenId);
+    await fundWithERC721("BAYC", user.address, tokenIdNum);
     await setApprovalForAll(testEnv, user, "BAYC");
+
     const getDebtBalance = async () => {
-      const loan = await getLoanData(pool, dataProvider, nftAsset, tokenId, "0");
+      const loan = await getLoanData(pool, dataProvider, bayc.address, tokenId, "0");
 
       return BN.from(loan.currentAmount.toFixed(0));
     };
 
-    const price = await convertToCurrencyDecimals(weth.address, "5");
+    const price = await convertToCurrencyDecimals(deployer, weth, "5");
     await configurator.setLtvManagerStatus(deployer.address, true);
-    await nftOracle.setPriceManagerStatus(nftAsset, true);
+    await nftOracle.setPriceManagerStatus(bayc.address, true);
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(nftAsset, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
 
     await configurator.setTimeframe(3600);
 
@@ -183,7 +183,7 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
     // Partial Repay WETH loan with native ETH
     const partialPayment = repaySize.div(2);
     await waitForTx(
-      await wethGateway.connect(user.signer).repayETH(nftAsset, tokenId, partialPayment, {
+      await wethGateway.connect(user.signer).repayETH(bayc.address, tokenId, partialPayment, {
         value: partialPayment,
       })
     );
@@ -193,7 +193,7 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
 
     // Full Repay WETH loan with native ETH
     await waitForTx(
-      await wethGateway.connect(user.signer).repayETH(nftAsset, tokenId, MAX_UINT_AMOUNT, {
+      await wethGateway.connect(user.signer).repayETH(bayc.address, tokenId, MAX_UINT_AMOUNT, {
         value: repaySize,
       })
     );
@@ -226,28 +226,28 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
     await waitForTx(await debtToken.connect(borrower.signer).approveDelegation(wethGateway.address, borrowSizeAll));
 
     // Start loan
-    const nftAsset = await getNftAddressFromSymbol("BAYC");
+
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
-    await mintERC721(testEnv, borrower, "BAYC", tokenId);
+    await fundWithERC721("BAYC", borrower.address, tokenIdNum);
     await setApprovalForAll(testEnv, borrower, "BAYC");
     await setApprovalForAllWETHGateway(testEnv, borrower, "BAYC");
 
     await advanceTimeAndBlock(100);
 
     const getDebtBalance = async () => {
-      const loan = await getLoanData(pool, dataProvider, nftAsset, tokenId, "0");
+      const loan = await getLoanData(pool, dataProvider, bayc.address, tokenId, "0");
 
       return BN.from(loan.currentAmount.toFixed(0));
     };
 
     const price = repaySize.mul(5);
     await configurator.setLtvManagerStatus(deployer.address, true);
-    await nftOracle.setPriceManagerStatus(nftAsset, true);
+    await nftOracle.setPriceManagerStatus(bayc.address, true);
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(nftAsset, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
 
     await configurator.setTimeframe(3600);
 
@@ -255,14 +255,14 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
 
     console.log("Borrow first ETH with NFT");
     await waitForTx(
-      await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, nftAsset, tokenId, borrower.address, "0")
+      await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, bayc.address, tokenId, borrower.address, "0")
     );
 
     await advanceTimeAndBlock(100);
 
     console.log("Borrow more ETH with NFT");
     await waitForTx(
-      await wethGateway.connect(borrower.signer).borrowETH(borrowSize2, nftAsset, tokenId, borrower.address, "0")
+      await wethGateway.connect(borrower.signer).borrowETH(borrowSize2, bayc.address, tokenId, borrower.address, "0")
     );
 
     expect(await borrower.signer.getBalance(), "current eth balance shoud increase").to.be.gt(ethBalanceBefore);
@@ -276,7 +276,7 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
     console.log("Partial Repay ETH loan with native ETH");
     const partialPayment = repaySize.div(2);
     await waitForTx(
-      await wethGateway.connect(borrower.signer).repayETH(nftAsset, tokenId, partialPayment, {
+      await wethGateway.connect(borrower.signer).repayETH(bayc.address, tokenId, partialPayment, {
         value: partialPayment,
       })
     );
@@ -286,7 +286,7 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
 
     console.log("Full Repay ETH loan with native ETH");
     await waitForTx(
-      await wethGateway.connect(borrower.signer).repayETH(nftAsset, tokenId, MAX_UINT_AMOUNT, {
+      await wethGateway.connect(borrower.signer).repayETH(bayc.address, tokenId, MAX_UINT_AMOUNT, {
         value: repaySize,
       })
     );
@@ -351,9 +351,10 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
   it("Owner can do emergency ERC20 recovery", async () => {
     const { users, dai, wethGateway, deployer } = testEnv;
     const user = users[0];
-    const amount = parseEther("1");
+    const amount = parseEther("100");
 
-    await dai.connect(user.signer).mint(amount);
+    await fundWithERC20("DAI", user.address, "100");
+    await approveERC20(testEnv, user, "DAI");
     const daiBalanceAfterMint = await dai.balanceOf(user.address);
 
     await dai.connect(user.signer).transfer(wethGateway.address, amount);
@@ -377,7 +378,9 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
     const user = users[0];
 
     const tokenId = testEnv.tokenIdTracker++;
-    await bayc.connect(user.signer).mint(tokenId);
+
+    await fundWithERC721("BAYC", user.address, tokenId);
+    await setApprovalForAll(testEnv, user, "BAYC");
 
     await bayc
       .connect(user.signer)

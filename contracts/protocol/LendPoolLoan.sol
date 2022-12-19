@@ -18,8 +18,6 @@ import {CountersUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Cou
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 
-import "hardhat/console.sol";
-
 contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC721ReceiverUpgradeable {
   using WadRayMath for uint256;
   using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -342,7 +340,6 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     // burn uNFT and sell underlying NFT on NFTX
     IUNFT(uNftAddress).burn(loan.nftTokenId);
 
-    // transfer underlying NFT asset to pool and sell on NFTX
     require(IERC721Upgradeable(loan.nftAsset).ownerOf(loan.nftTokenId) == address(this), "Invalid Call");
 
     // Sell NFT on NFTX
@@ -390,11 +387,10 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     // burn uNFT and sell underlying NFT on SudoSwap
     IUNFT(uNftAddress).burn(loan.nftTokenId);
 
-    // ensure lendpool owns the collateral NFT
     require(IERC721Upgradeable(loan.nftAsset).ownerOf(loan.nftTokenId) == address(this), "Invalid Call");
 
     // Sell NFT on SudoSwap
-    sellPrice = SudoSwapSeller.sellSudoSwap(_addressesProvider, loan.nftTokenId, LSSVMPair);
+    sellPrice = SudoSwapSeller.sellSudoSwap(_addressesProvider, loan.nftAsset, loan.nftTokenId, LSSVMPair);
 
     emit LoanLiquidatedSudoSwap(
       loanId,

@@ -18,17 +18,23 @@ import {
   WETH_MAINNET,
 } from "../../helpers/constants";
 import {
+  deployCryptoPunksMarket,
   deployMockChainlinkOracle,
   deployMockNFTOracle,
   deployMockReserveOracle,
   deploySelfdestructTransferMock,
+  deployWrappedPunk,
 } from "../../helpers/contracts-deployments";
 import {
   getDeploySigner,
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
 } from "../../helpers/contracts-getters";
-import { getEthersSignerByAddress, getParamPerNetwork } from "../../helpers/contracts-helpers";
+import {
+  getEthersSignerByAddress,
+  getParamPerNetwork,
+  registerContractInJsonDb,
+} from "../../helpers/contracts-helpers";
 import { checkVerification } from "../../helpers/etherscan-verification";
 import {
   fundSignersWithETH,
@@ -91,6 +97,13 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
     console.log("\n\nMigration started");
 
     ////////////////////////////////////////////////////////////////////////
+    console.log("\n\nDeploy Punks Market and Wrapped Punk");
+
+    const cryptoPunksMarket = await deployCryptoPunksMarket([], verify);
+    const wpunk = await deployWrappedPunk([cryptoPunksMarket.address]);
+    await waitForTx(await cryptoPunksMarket.allInitialOwnersAssigned());
+
+    ////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy proxy admin");
     await DRE.run("full:deploy-proxy-admin", { pool: POOL_NAME, verify: verify });
 
@@ -105,7 +118,7 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
 
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy UNFT Registry");
-    await DRE.run("full:deploy-unft-registry", { pool: POOL_NAME, verify, createunfts: true });
+    await DRE.run("fork:deploy-unft-registry", { pool: POOL_NAME, verify, createunfts: true });
 
     //////////////////////////////////////////////////////////////////////////
 
@@ -145,18 +158,18 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
 
     ////////////////////////////////////////////////////////////////////////
     console.log("\n\nInitialize lend pool");
-    await DRE.run("full:initialize-lend-pool", { pool: POOL_NAME, verify: verify });
+    await DRE.run("fork:initialize-lend-pool", { pool: POOL_NAME, verify: verify });
 
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy WETH Gateway");
     await DRE.run("full:deploy-weth-gateway", { pool: POOL_NAME, verify: verify });
 
     console.log("\n\nDeploy PUNK Gateway"); // MUST AFTER WETH GATEWAY
-    await DRE.run("full:deploy-punk-gateway", { pool: POOL_NAME, verify: verify });
+    await DRE.run("fork:deploy-punk-gateway", { pool: POOL_NAME, verify: verify });
 
     // //////////////////////////////////////////////////////////////////////////
     console.log("\n\nInitialize gateway");
-    await DRE.run("full:initialize-gateway", { pool: POOL_NAME, verify: verify });
+    await DRE.run("fork:initialize-gateway", { pool: POOL_NAME, verify: verify });
 
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy data provider");

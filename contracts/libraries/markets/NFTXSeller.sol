@@ -50,7 +50,7 @@ library NFTXSeller {
 
     if (nftxVault.allValidNFTs(tokenIds)) {
       // Deposit NFT to NFTX Vault
-      IERC721Upgradeable(nftAsset).setApprovalForAll(vaultAddress, true);
+      IERC721Upgradeable(nftAsset).approve(vaultAddress, nftTokenId);
       nftxVault.mint(tokenIds, new uint256[](1));
       uint256 depositAmount = IERC20Upgradeable(vaultAddress).balanceOf(address(this));
 

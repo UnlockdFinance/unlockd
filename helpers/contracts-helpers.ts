@@ -230,9 +230,8 @@ export const convertToCurrencyDecimals = async (user: SignerWithAddress, token: 
   return tokenAmount;
 };
 
-export const convertToCurrencyUnits = async (tokenAddress: string, amount: string) => {
-  const token = await getIErc20Detailed(tokenAddress);
-  const decimals = new BigNumber(await token.decimals());
+export const convertToCurrencyUnits = async (user: SignerWithAddress, token: Contract, amount: string) => {
+  const decimals = (await token.connect(user.signer).decimals()).toString();
   const currencyUnit = new BigNumber(10).pow(decimals);
   const amountInCurrencyUnits = new BigNumber(amount).div(currencyUnit);
   return amountInCurrencyUnits.toFixed();

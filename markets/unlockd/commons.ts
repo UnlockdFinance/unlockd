@@ -79,7 +79,7 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   EmergencyAdminIndex: 1,
   LendPoolLiquidator: {
-    [eEthereumNetwork.hardhat]: "0xbec583e93262ad87b08cffbd4d8d97fc80e191ac",
+    [eEthereumNetwork.hardhat]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",
     [eEthereumNetwork.localhost]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",
     [eEthereumNetwork.goerli]: "0xbec583e93262ad87b08cffbd4d8d97fc80e191ac",
     [eEthereumNetwork.main]: "0x868964fa49a6fd6e116FE82c8f4165904406f479",
@@ -181,14 +181,14 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.main]: "0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb",
   },
   WrappedPunkToken: {
-    [eEthereumNetwork.hardhat]: "0xa9ED41c141d04647276F24EE06258e57a041a158", // deployed in local evm
+    [eEthereumNetwork.hardhat]: "0xa9ED41c141d04647276F24EE06258e57a041a158", 
     [eEthereumNetwork.localhost]: "0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847",
     [eEthereumNetwork.goerli]: "0xa9ED41c141d04647276F24EE06258e57a041a158",
     [eEthereumNetwork.main]: "0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6",
   },
 
   ReserveFactorTreasuryAddress: {
-    [eEthereumNetwork.hardhat]: "0xf260132F9189Af2F3fb058995fa6C294AcE00D92",
+    [eEthereumNetwork.hardhat]: "0xb37c26638305f8b3d9c4c316f46caf9bdea8a47b", // from hardhat node
     [eEthereumNetwork.localhost]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",
     [eEthereumNetwork.goerli]: "0xf260132F9189Af2F3fb058995fa6C294AcE00D92",
     [eEthereumNetwork.main]: "0x43078AbfB76bd24885Fd64eFFB22049f92a8c495",
@@ -212,5 +212,12 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.localhost]: "0x6B8dcBD1bb131ED184221902df1Fe21019ccD7dc",
     [eEthereumNetwork.goerli]: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
     [eEthereumNetwork.main]: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
+  },
+  // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
+  LSSVMRouter: {
+    [eEthereumNetwork.hardhat]: "0x25b4EfC43c9dCAe134233CD577fFca7CfAd6748F", //goerli address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "0x25b4EfC43c9dCAe134233CD577fFca7CfAd6748F",
+    [eEthereumNetwork.main]: "0x2b2e8cda09bba9660dca5cb6233787738ad68329",
   },
 };

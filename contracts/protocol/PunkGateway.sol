@@ -160,9 +160,11 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     }
 
     address owner = punks.punkIndexToAddress(punkIndex);
+
     require(owner == _msgSender(), "PunkGateway: not owner of punkIndex");
 
     punks.buyPunk(punkIndex);
+
     punks.transferPunk(proxy, punkIndex);
 
     wrappedPunks.mint(punkIndex);
@@ -185,6 +187,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     _depositPunk(punkIndex);
 
     cachedPool.borrow(reserveAsset, amount, address(wrappedPunks), punkIndex, onBehalfOf, referralCode);
+
     IERC20Upgradeable(reserveAsset).transfer(onBehalfOf, amount);
   }
 

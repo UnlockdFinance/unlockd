@@ -180,8 +180,10 @@ export const approveERC20 = async (testEnv: TestEnv, user: SignerWithAddress, re
 
 export const getERC20Balance = async (testEnv: TestEnv, user: SignerWithAddress, reserveSymbol: string) => {
   const { pool } = testEnv;
-  const reserve = await getReserveAddressFromSymbol(reserveSymbol);
-  const token = await getMintableERC20(reserve);
+  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+  const network = <eNetwork>DRE.network.name;
+  const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
+  const token = new Contract(reserveAssets[reserveSymbol], reserveSymbol == "WETH" ? weth : erc20Artifact.abi);
 
   const balance = await token.connect(user.signer).balanceOf(user.address);
   return balance;
@@ -189,10 +191,11 @@ export const getERC20Balance = async (testEnv: TestEnv, user: SignerWithAddress,
 
 export const approveERC20PunkGateway = async (testEnv: TestEnv, user: SignerWithAddress, reserveSymbol: string) => {
   const { punkGateway } = testEnv;
-  const reserve = await getReserveAddressFromSymbol(reserveSymbol);
+  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+  const network = <eNetwork>DRE.network.name;
+  const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
 
-  const token = await getMintableERC20(reserve);
-
+  const token = new Contract(reserveAssets[reserveSymbol], reserveSymbol == "WETH" ? weth : erc20Artifact.abi);
   await waitForTx(await token.connect(user.signer).approve(punkGateway.address, MAX_UINT_AMOUNT));
 };
 
@@ -216,23 +219,23 @@ export const setApprovalForAll = async (testEnv: TestEnv, user: SignerWithAddres
 
 export const setApprovalForAllWETHGateway = async (testEnv: TestEnv, user: SignerWithAddress, nftSymbol: string) => {
   const { wethGateway } = testEnv;
-  const nftAsset = await getNftAddressFromSymbol(nftSymbol);
-
-  const token = await getMintableERC721(nftAsset);
-
+  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+  const network = <eNetwork>DRE.network.name;
+  const nftsAssets = getParamPerNetwork(poolConfig.NftsAssets, network);
+  const token = new Contract(nftsAssets[nftSymbol], erc721Artifact.abi);
   await waitForTx(await token.connect(user.signer).setApprovalForAll(wethGateway.address, true));
 };
-
 export const setApprovalForAllExt = async (
   testEnv: TestEnv,
   user: SignerWithAddress,
   nftSymbol: string,
   operator: string
 ) => {
-  const nftAsset = await getNftAddressFromSymbol(nftSymbol);
-
-  const token = await getMintableERC721(nftAsset);
-
+  const { pool } = testEnv;
+  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+  const network = <eNetwork>DRE.network.name;
+  const nftsAssets = getParamPerNetwork(poolConfig.NftsAssets, network);
+  const token = new Contract(nftsAssets[nftSymbol], erc721Artifact.abi);
   await waitForTx(await token.connect(user.signer).setApprovalForAll(operator, true));
 };
 
@@ -248,28 +251,34 @@ export const setNftAssetPriceForDebt = async (
   debtAmount: string,
   healthPercent: string
 ): Promise<{ oldNftPrice: string; newNftPrice: string }> => {
-  const { nftOracle, reserveOracle, dataProvider, users } = testEnv;
+  const { nftOracle, reserveOracle, dataProvider, users, deployer } = testEnv;
+  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+  const network = <eNetwork>DRE.network.name;
 
   await nftOracle.setPriceManagerStatus(users[0].address, true);
   const priceAdmin = users[0].signer;
 
-  const reserve = await getReserveAddressFromSymbol(reserveSymbol);
-  const nftAsset = await getNftAddressFromSymbol(nftSymbol);
+  const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
 
-  const reserveToken = await getIErc20Detailed(reserve);
-  const reservePrice = await reserveOracle.getAssetPrice(reserve);
+  const reserve = new Contract(reserveAssets[reserveSymbol], reserveSymbol == "WETH" ? weth : erc20Artifact.abi);
 
-  const oldNftPrice = await nftOracle.getNFTPrice(nftAsset, tokenId); // 0
+  const nftAssets = getParamPerNetwork(poolConfig.NftsAssets, network);
 
-  const debtAmountDecimals = await convertToCurrencyDecimals(reserve, debtAmount);
+  const nftAsset = new Contract(nftAssets[nftSymbol], erc721Artifact.abi);
 
-  const oneReserve = new BigNumber(Math.pow(10, await reserveToken.decimals()));
+  const reservePrice = await reserveOracle.getAssetPrice(reserve.address);
+
+  const oldNftPrice = await nftOracle.getNFTPrice(nftAsset.address, tokenId); // 0
+
+  const debtAmountDecimals = await convertToCurrencyDecimals(deployer, reserve, debtAmount);
+
+  const oneReserve = new BigNumber(Math.pow(10, await reserve.connect(deployer.signer).decimals()));
   const ethAmountDecimals = new BigNumber(debtAmountDecimals.toString())
     .multipliedBy(new BigNumber(reservePrice.toString()))
     .dividedBy(new BigNumber(oneReserve))
     .toFixed(0);
 
-  const { liquidationThreshold } = await dataProvider.getNftConfigurationDataByTokenId(nftAsset, tokenId);
+  const { liquidationThreshold } = await dataProvider.getNftConfigurationDataByTokenId(nftAsset.address, tokenId);
 
   // (Price * LH / Debt = HF) => (Price * LH = Debt * HF) => (Price = Debt * HF / LH)
   // LH is 2 decimals
@@ -281,9 +290,10 @@ export const setNftAssetPriceForDebt = async (
   }
 
   await advanceTimeAndBlock(100);
-  await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, nftPrice.toFixed(0)));
+  await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset.address, tokenId, nftPrice.toFixed(0)));
+
   await advanceTimeAndBlock(200);
-  await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, nftPrice.toFixed(0)));
+  await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset.address, tokenId, nftPrice.toFixed(0)));
 
   return { oldNftPrice: oldNftPrice.toString(), newNftPrice: nftPrice.toFixed(0) };
 };
@@ -293,22 +303,23 @@ export const setNftAssetPrice = async (
   nftSymbol: string,
   tokenId: number,
   price: string
-): Promise<string> => {
-  const { nftOracle, dataProvider, users } = testEnv;
+): Promise<void> => {
+  const { nftOracle, dataProvider, users, pool } = testEnv;
 
-  await nftOracle.setPriceManagerStatus(users[0].address, true);
+  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+  const network = <eNetwork>DRE.network.name;
   const priceAdmin = users[0].signer;
 
-  const nftAsset = await getNftAddressFromSymbol(nftSymbol);
+  await nftOracle.setPriceManagerStatus(users[0].address, true);
 
-  const oldNftPrice = await nftOracle.getNFTPrice(nftAsset, 0);
+  const nftsAssets = getParamPerNetwork(poolConfig.NftsAssets, network);
+  const nftAsset = new Contract(nftsAssets[nftSymbol], erc721Artifact.abi);
 
   const priceBN = new BigNumber(price).plus(1);
   await advanceTimeAndBlock(100);
-  await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, priceBN.toFixed(0)));
+  await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset.address, tokenId, priceBN.toFixed(0)));
   await advanceTimeAndBlock(100);
-  await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset, tokenId, priceBN.toFixed(0)));
-  return oldNftPrice.toString();
+  await waitForTx(await nftOracle.connect(priceAdmin).setNFTPrice(nftAsset.address, tokenId, priceBN.toFixed(0)));
 };
 
 export const increaseRedeemDuration = async (

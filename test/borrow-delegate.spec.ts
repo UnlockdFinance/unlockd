@@ -1,7 +1,8 @@
+import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
 import { getReservesConfigByPool } from "../helpers/configuration";
 import { fundWithERC20, fundWithERC721, waitForTx } from "../helpers/misc-utils";
-import { IReserveParams, iUnlockdPoolAssets, UnlockdPools } from "../helpers/types";
+import { IReserveParams, iUnlockdPoolAssets, ProtocolErrors, UnlockdPools } from "../helpers/types";
 import {
   approveERC20,
   borrow,
@@ -68,7 +69,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await configurator
       .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
+      .configureNftAsCollateral(bayc.address, tokenId, parseEther("100"), 4000, 7000, 100, 1, 2, 25, true, false);
 
     await borrow(
       testEnv,
@@ -80,7 +81,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
       borrower.address,
       "365",
       "revert",
-      "no borrow allowance"
+      ProtocolErrors.CT_BORROW_ALLOWANCE_NOT_ENOUGH
     );
 
     await delegateBorrowAllowance(testEnv, borrower, "WETH", "1", delegatee.address, "success", "");
@@ -88,7 +89,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     await waitForTx(
       await configurator
         .connect(deployer.signer)
-        .configureNftAsCollateral(bayc.address, tokenId, "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false)
+        .configureNftAsCollateral(bayc.address, tokenId, parseEther("100"), 4000, 7000, 500, 1, 2, 25, true, false)
     );
 
     await borrow(testEnv, delegatee, "WETH", "1", "BAYC", tokenId, borrower.address, "365", "success", "");

@@ -50,7 +50,13 @@ task("full:deploy-address-provider", "Deploy address provider for full enviromen
     const nftxVaultFactoryAddress = getParamPerNetwork(poolConfig.NFTXVaultFactory, <eNetwork>DRE.network.name);
 
     if (nftxVaultFactoryAddress == undefined || !notFalsyOrZeroAddress(nftxVaultFactoryAddress)) {
-      throw Error("Invalid NFTX Vault Facotry address in pool config");
+      throw Error("Invalid NFTX Vault Factory address in pool config");
+    }
+
+    const LSSVMRouterAddress = getParamPerNetwork(poolConfig.LSSVMRouter, <eNetwork>DRE.network.name);
+    console.log("LSSVM ROUTER ADDRESS: " + LSSVMRouterAddress);
+    if (LSSVMRouterAddress == undefined || !notFalsyOrZeroAddress(LSSVMRouterAddress)) {
+      throw Error("Invalid LSVVM Router address in pool config");
     }
 
     // Set pool admins
@@ -60,6 +66,7 @@ task("full:deploy-address-provider", "Deploy address provider for full enviromen
 
     await waitForTx(await addressesProvider.setSushiSwapRouter(sushiSwapRouterAddress));
     await waitForTx(await addressesProvider.setNFTXVaultFactory(nftxVaultFactoryAddress));
+    await waitForTx(await addressesProvider.setLSSVMRouter(LSSVMRouterAddress));
 
     console.log("Pool Admin", await addressesProvider.getPoolAdmin());
     console.log("Emergency Admin", await addressesProvider.getEmergencyAdmin());

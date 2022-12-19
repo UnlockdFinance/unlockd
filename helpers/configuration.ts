@@ -2,6 +2,7 @@ import UnlockdConfig from "../markets/unlockd";
 import { CommonsConfig } from "../markets/unlockd/commons";
 import { ZERO_ADDRESS } from "./constants";
 import { deployCryptoPunksMarket, deployWETH9, deployWrappedPunk } from "./contracts-deployments";
+import { getPunkGateway } from "./contracts-getters";
 import { getEthersSignersAddresses, getParamPerNetwork, getParamPerPool } from "./contracts-helpers";
 import { DRE, notFalsyOrZeroAddress } from "./misc-utils";
 import {
@@ -155,6 +156,11 @@ export const getWrappedPunkTokenAddress = async (config: ICommonConfiguration, p
 export const getCryptoPunksMarketAddress = async (config: ICommonConfiguration) => {
   const currentNetwork = process.env.MAINNET_FORK === "true" ? "main" : DRE.network.name;
   const punkAddress = getParamPerNetwork(config.CryptoPunksMarket, <eNetwork>currentNetwork);
+
+  return await (
+    await getPunkGateway()
+  ).address;
+
   if (punkAddress) {
     return punkAddress;
   }

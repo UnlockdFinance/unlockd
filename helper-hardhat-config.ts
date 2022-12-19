@@ -17,7 +17,7 @@ export const buildForkConfig = (): HardhatNetworkForkingUserConfig | undefined =
     };
     if (FORK_BLOCK_NUMBER || BLOCK_TO_FORK[FORK]) {
       forkMode.blockNumber = FORK_BLOCK_NUMBER || BLOCK_TO_FORK[FORK];
-    }
+    } 
   }
   return forkMode;
 };

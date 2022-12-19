@@ -86,6 +86,7 @@ export enum eContractid {
   UniswapV2Factory = "UniswapV2Factory",
   SushiSwapRouter = "SushiSwapRouter",
   NFTXHelper = "NFTXHelper",
+  LSSVMPPair = "LSSVMPair",
 }
 
 export enum ProtocolLoanState {
@@ -186,7 +187,7 @@ export enum ProtocolErrors {
   LPL_INVALID_BIDDER_ADDRESS = "492",
   LPL_AMOUNT_LESS_THAN_BID_FINE = "493",
   LPL_BID_INVALID_BID_FINE = "494",
-
+  LPL_BID_PRICE_LESS_THAN_MIN_BID_REQUIRED = "495",
   //common token errors
   CT_CALLER_MUST_BE_LEND_POOL = "500", // 'The caller of this function must be a lending pool'
   CT_INVALID_MINT_AMOUNT = "501", //invalid amount to mint
@@ -447,6 +448,7 @@ export interface ICommonConfiguration {
 
   NFTXVaultFactory: iParamsPerNetwork<tEthereumAddress>;
   SushiSwapRouter: iParamsPerNetwork<tEthereumAddress>;
+  LSSVMRouter: iParamsPerNetwork<tEthereumAddress>;
 }
 
 export interface IUnlockdConfiguration extends ICommonConfiguration {
