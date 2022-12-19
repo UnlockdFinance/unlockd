@@ -107,6 +107,7 @@ library LiquidateMarketsLogic {
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
     mapping(address => mapping(uint8 => bool)) storage isMarketSupported,
     DataTypes.ExecuteLiquidateMarketsParams memory params
+
   ) external returns (uint256) {
     LiquidateMarketsLocalVars memory vars;
 
@@ -146,6 +147,15 @@ library LiquidateMarketsLogic {
       healthFactor <= GenericLogic.HEALTH_FACTOR_LIQUIDATION_THRESHOLD,
       Errors.VL_HEALTH_FACTOR_LOWER_THAN_LIQUIDATION_THRESHOLD
     );
+    // If pool paused after bidding start, add pool pausing time as extra auction duration
+    if ((poolStates.pauseDurationTime > 0) && (loanData.bidStartTimestamp <= poolStates.pauseStartTime)) {
+      vars.extraAuctionDuration = poolStates.pauseDurationTime;
+    }
+    vars.auctionEndTimestamp =
+      loanData.bidStartTimestamp +
+      vars.extraAuctionDuration +
+      (nftConfig.getAuctionDuration() * 1 hours);
+    require(block.timestamp > vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_NOT_END);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();

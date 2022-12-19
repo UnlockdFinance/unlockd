@@ -71,6 +71,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
       .connect(deployer.signer)
       .configureNftAsCollateral(bayc.address, tokenId, parseEther("100"), 4000, 7000, 100, 1, 2, 25, true, false);
 
+
     await borrow(
       testEnv,
       delegatee,

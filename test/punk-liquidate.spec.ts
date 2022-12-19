@@ -121,12 +121,12 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
           "500000000000000000000",
           4000,
           7000,
-          1000,
-          1,
-          2,
-          250,
-          true,
-          false
+          5000,
+          100,
+          47,
+          48,
+          200,
+          250
         )
     );
 
@@ -339,12 +339,12 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
           "500000000000000000000",
           4000,
           7000,
-          1000,
-          1,
-          2,
-          250,
-          true,
-          false
+          5000,
+          100,
+          47,
+          48,
+          200,
+          250
         )
     );
 
@@ -483,12 +483,12 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
         depositSize.mul(5),
         4000,
         7000,
-        1000,
-        1,
-        2,
-        250,
-        true,
-        false
+        5000,
+        100,
+        47,
+        48,
+        200,
+        250
       );
 
     await configurator.connect(deployer.signer).setTimeframe(720000);
@@ -694,12 +694,12 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
         depositSize.mul(5),
         4000,
         7000,
-        1000,
-        1,
-        2,
-        250,
-        true,
-        false
+        5000,
+        100,
+        47,
+        48,
+        200,
+        250
       );
 
     await configurator.connect(deployer.signer).setTimeframe(720000);
