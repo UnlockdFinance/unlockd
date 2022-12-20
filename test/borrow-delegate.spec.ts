@@ -72,6 +72,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
+
     const collData: IConfigNftAsCollateralInput = {
       asset: bayc.address,
       nftTokenId: tokenId,
