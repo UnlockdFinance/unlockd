@@ -9,6 +9,7 @@ import {
 import { convertToCurrencyDecimals, getContractAddressInDb } from "../../helpers/contracts-helpers";
 import { waitForTx } from "../../helpers/misc-utils";
 import { eNetwork, NftContractId } from "../../helpers/types";
+import { SignerWithAddress } from "../../test/helpers/make-suite";
 
 task("dev:mint-mock-bayc", "Mint mock nfts for dev enviroment")
   .addParam("amount", "NFT Amount (<=10)")
@@ -103,12 +104,15 @@ task("dev:mint-mock-reserves", "Mint mock reserves for dev enviroment")
     }
 
     const deployerSigner = await getDeploySigner();
-    const deployerAddress = await deployerSigner.getAddress();
+    const signerWithAddress: SignerWithAddress = {
+      address: await deployerSigner.getAddress(),
+      signer: deployerSigner,
+    };
 
     // DAI
     const daiAddress = await getContractAddressInDb("DAI");
     const dai = await getMintableERC20(daiAddress);
-    const daiAmountToMint = await convertToCurrencyDecimals(dai.address, amount);
+    const daiAmountToMint = await convertToCurrencyDecimals(signerWithAddress, dai, amount);
     await waitForTx(await dai.mint(daiAmountToMint));
     await waitForTx(await dai.transfer(user, daiAmountToMint));
     console.log("DAI Balances:", (await dai.balanceOf(user)).toString());
@@ -116,7 +120,7 @@ task("dev:mint-mock-reserves", "Mint mock reserves for dev enviroment")
     // USDC
     const usdcAddress = await getContractAddressInDb("USDC");
     const usdc = await getMintableERC20(usdcAddress);
-    const usdcAmountToMint = await convertToCurrencyDecimals(usdc.address, amount);
+    const usdcAmountToMint = await convertToCurrencyDecimals(signerWithAddress, usdc, amount);
     await waitForTx(await usdc.mint(usdcAmountToMint));
     await waitForTx(await usdc.transfer(user, usdcAmountToMint));
     console.log("USDC Balances:", (await dai.balanceOf(user)).toString());

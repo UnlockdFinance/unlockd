@@ -48,6 +48,13 @@ if (!SKIP_LOAD) {
         require(`${tasksPath}/${task}`);
       });
   });
+  console.log("IM HERE MFER:::::")
+  const tasksPathH = path.join("helpers");
+  fs.readdirSync(tasksPathH)
+    .filter((pth) => pth.includes(".ts"))
+    .forEach((task) => {
+      require(`${tasksPath}/${task}`);
+    });
   const tasksPath = path.join(__dirname, "unlockd-tasks", "tasks");
   fs.readdirSync(tasksPath)
     .filter((pth) => pth.includes(".ts"))
