@@ -2,6 +2,17 @@ import { task } from "hardhat/config";
 import { getMnemonicEmergencyWallet, getOwnerWallet } from "../helpers/config";
 import { Functions } from "../helpers/protocolFunctions";
 
+task("configurator:setIsMarketSupported", "Set the allowed collections to liquidate on the markets")
+  .addParam("nftaddress", "The nft address to add to the market")
+  .addParam("marketid", "The market id: 0 is NFTX and 1 is sudoswap")
+  .addFlag("val", "true or false if the collection is market supported")
+  .setAction(async ({ nftaddress, marketid, val }) => {
+    const wallet = await getOwnerWallet();
+
+    const tx = await Functions.LENDPOOLCONFIGURATOR.setIsMarketSupported(wallet, nftaddress, marketid, val);
+    console.log(tx);
+  });
+
 task("configurator:setTimeframe", "Set the timeframe in the protocol")
   .addParam("newtimeframe", "The timeframe value")
   .setAction(async ({ newtimeframe }) => {
@@ -112,6 +123,7 @@ task(
     "threshold",
     "The threshold at which loans using this asset as collateral will be considered undercollateralized"
   )
+  .addParam("redeemthreshold", "The redeemthreshold at which the user will be considered undercollateralized")
   .addParam(
     "bonus",
     "The bonus liquidators receive to liquidate this asset. The values is always below 100%. A value of 5% means the liquidator will receive a 5% bonus"
@@ -119,8 +131,7 @@ task(
   .addParam("redeemduration", "The redeem duration in hours")
   .addParam("auctionduration", "The auction duration in hours")
   .addParam("redeemfine", "The redeem fine to be paid by the redeemer")
-  .addFlag("active", "if the nft asset is active or not (set this flag in the command to be set to true)")
-  .addFlag("freeze", "if the nft asset is frozen or not (set this flag in the command to be set to true)")
+  .addParam("minbidfine", "The minimum bidfine to be paid by the user")
   .setAction(
     async ({
       nftaddress,
@@ -128,12 +139,12 @@ task(
       newprice,
       ltv,
       threshold,
+      redeemthreshold,
       bonus,
       redeemduration,
       auctionduration,
       redeemfine,
-      active,
-      freeze,
+      minbidfine,
     }) => {
       const wallet = await getOwnerWallet();
       const tx = await Functions.LENDPOOLCONFIGURATOR.configureNftAsCollateral(
@@ -143,12 +154,12 @@ task(
         newprice,
         ltv,
         threshold,
+        redeemthreshold,
         bonus,
         redeemduration,
         auctionduration,
         redeemfine,
-        active,
-        freeze
+        minbidfine
       );
       await tx.wait();
       console.log(tx);

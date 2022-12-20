@@ -6,7 +6,13 @@ import { MAX_UINT_AMOUNT, oneEther, ONE_DAY } from "../helpers/constants";
 import { getDebtToken } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
 import { fundWithERC721, getNowTimeInSeconds, increaseTime, waitForTx } from "../helpers/misc-utils";
-import { IReserveParams, iUnlockdPoolAssets, ProtocolLoanState, UnlockdPools } from "../helpers/types";
+import {
+  IConfigNftAsCollateralInput,
+  IReserveParams,
+  iUnlockdPoolAssets,
+  ProtocolLoanState,
+  UnlockdPools,
+} from "../helpers/types";
 import {
   configuration as actionsConfiguration,
   setApprovalForAll,
@@ -96,9 +102,20 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
 
     const price = await convertToCurrencyDecimals(deployer, weth, "50");
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, price, 4000, 7000, 100, 1, 2, 25, true, false);
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     await configurator.setTimeframe(3600);
 
@@ -293,11 +310,20 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
     await pool.connect(user.signer).triggerUserCollateral(bayc.address, tokenId);
-    await waitForTx(
-      await configurator
-        .connect(deployer.signer)
-        .configureNftAsCollateral(bayc.address, tokenId, "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false)
-    );
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 5000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     const nftColDataBefore = await pool.getNftCollateralData(bayc.address, tokenId, weth.address);
 

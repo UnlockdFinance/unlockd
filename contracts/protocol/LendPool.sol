@@ -434,7 +434,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     onlyCollection(nftAsset)
     whenNotPaused
   {
-    require(_configFee == msg.value);
+    require(_configFee == msg.value); //Todo add an error mfers
     emit UserCollateralTriggered(_msgSender(), nftAsset, nftTokenId);
   }
 

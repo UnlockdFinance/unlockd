@@ -3,7 +3,7 @@ import { BigNumber, BigNumberish } from "ethers";
 import { APPROVAL_AMOUNT_LENDING_POOL, MOCK_NFT_AGGREGATORS_MAXSUPPLY } from "../helpers/constants";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { fundWithERC20, fundWithERC721, timeLatest, waitForTx } from "../helpers/misc-utils";
-import { ProtocolErrors } from "../helpers/types";
+import { IConfigNftAsCollateralInput, ProtocolErrors } from "../helpers/types";
 import { approveERC20, setApprovalForAll } from "./helpers/actions";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 
@@ -154,9 +154,20 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     await configurator.setLtvManagerStatus(users[0].address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
     console.log("ltv set");
-    await configurator
-      .connect(users[0].signer)
-      .configureNftAsCollateral(bayc.address, tokenId, "8000", 0, 0, 0, 1, 2, 25, true, false);
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: "101",
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(users[0].signer).configureNftsAsCollateral([collData]);
     console.log("ocllateral set");
     const { ltv, liquidationBonus, liquidationThreshold } = await dataProvider.getNftConfigurationDataByTokenId(
       bayc.address,
@@ -172,9 +183,20 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const { users, configurator, dataProvider, bayc, tokenId, nftOracle } = testEnv;
     await configurator.setLtvManagerStatus(users[0].address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
-    await configurator
-      .connect(users[0].signer)
-      .configureNftAsCollateral(bayc.address, tokenId, "8000", "8000", "8250", "500", 1, 2, 25, true, false);
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId.toString(),
+      newPrice: parseEther("100"),
+      ltv: 8000,
+      liquidationThreshold: 8250,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(users[0].signer).configureNftsAsCollateral([collData]);
 
     const { ltv, liquidationBonus, liquidationThreshold } = await dataProvider.getNftConfigurationDataByTokenId(
       bayc.address,
@@ -190,10 +212,21 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const { configurator, users, bayc, tokenId, nftOracle } = testEnv;
     await configurator.setLtvManagerStatus(users[0].address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 1,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
     await expect(
-      configurator
-        .connect(users[2].signer)
-        .configureNftAsCollateral(bayc.address, tokenId, "8000", "7500", "8000", "500", 1, 2, 25, true, false),
+      configurator.connect(users[2].signer).configureNftsAsCollateral([collData]),
       CALLER_NOT_LTV_MANAGER
     ).to.be.revertedWith(CALLER_NOT_LTV_MANAGER);
   });
@@ -349,11 +382,21 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
 
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
-    await waitForTx(
-      await configurator
-        .connect(deployer.signer)
-        .configureNftAsCollateral(bayc.address, tokenId, parseEther("50"), 4000, 7000, 500, 1, 2, 25, true, false)
-    );
+
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     const amountToBorrow = await convertToCurrencyDecimals(deployer, weth, "1");
     await pool.borrow(weth.address, amountToBorrow, bayc.address, tokenId, userAddress, "0");
@@ -395,9 +438,20 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const { users, configurator, pool, tokenId, bayc, dataProvider } = testEnv;
     const timestamp = await (await timeLatest()).toString();
     const timestampAux = BigNumber.from(timestamp);
-    await configurator
-      .connect(users[0].signer)
-      .configureNftAsCollateral(bayc.address, tokenId, "8000", "8000", "8250", "500", 1, 2, 25, true, false);
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(users[0].signer).configureNftsAsCollateral([collData]);
     const { configTimestamp } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, tokenId);
     await expect(configTimestamp).to.be.within(timestamp, timestampAux.add(10));
   });

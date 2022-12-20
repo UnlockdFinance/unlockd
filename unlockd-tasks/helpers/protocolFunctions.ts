@@ -1,4 +1,5 @@
 import { BigNumber, Contract, Wallet } from "ethers";
+import { IConfigNftAsCollateralInput } from "../../helpers/types";
 import { Contracts } from "./constants";
 
 //#region UnlockdProtocolDataProvider
@@ -403,6 +404,10 @@ const mintNFTX = async (wallet: Wallet, token: Contract, tokenIds: string[], amo
 
 //#region LendPoolConfigurator for any doubts in the parameters
 // check the LendPoolConfigurator.sol or ILendPoolconfigurator.sol
+const setIsMarketSupported = async (wallet: Wallet, nftAddresses: string, marketId: string, val: boolean) => {
+  return Contracts.lendPoolConfigurator.connect(wallet).setIsMarketSupported(nftAddresses, marketId, val);
+};
+
 const setTimeframe = async (wallet: Wallet, newTimeframe: string) => {
   return Contracts.lendPoolConfigurator.connect(wallet).setTimeframe(newTimeframe);
 };
@@ -450,28 +455,27 @@ const configureNftAsCollateral = async (
   newPrice: BigNumber,
   ltv: string,
   liquidationThreshold: string,
+  redeemThreshold: string,
   liquidationBonus: string,
   redeemDuration: string,
   auctionDuration: string,
   redeemFine: string,
-  active: boolean,
-  freeze: boolean
+  minBidFine: string
 ) => {
-  return Contracts.lendPoolConfigurator
-    .connect(wallet)
-    .configureNftAsCollateral(
-      asset,
-      tokenId,
-      newPrice,
-      ltv,
-      liquidationThreshold,
-      liquidationBonus,
-      redeemDuration,
-      auctionDuration,
-      redeemFine,
-      active,
-      freeze
-    );
+  const collData: IConfigNftAsCollateralInput = {
+    asset: asset,
+    nftTokenId: tokenId.toString(),
+    newPrice: newPrice,
+    ltv: parseInt(ltv),
+    liquidationThreshold: parseInt(liquidationThreshold),
+    redeemThreshold: parseInt(redeemThreshold),
+    liquidationBonus: parseInt(liquidationBonus),
+    redeemDuration: parseInt(redeemDuration),
+    auctionDuration: parseInt(auctionDuration),
+    redeemFine: parseInt(redeemFine),
+    minBidFine: parseInt(minBidFine),
+  };
+  return await Contracts.lendPoolConfigurator.connect(wallet).configureNftsAsCollateral([collData]);
 };
 
 const configureNftAsAuction = async (
@@ -660,6 +664,7 @@ export const Functions = {
     getUNFTAddresses: getUNFTAddresses,
   },
   LENDPOOLCONFIGURATOR: {
+    setIsMarketSupported: setIsMarketSupported,
     setConfigFee: setConfigFee,
     setTimeframe: setTimeframe,
     setActiveFlagOnNft: setActiveFlagOnNft,

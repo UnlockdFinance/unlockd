@@ -3,6 +3,7 @@ import BigNumber from "bignumber.js";
 import { APPROVAL_AMOUNT_LENDING_POOL, ZERO_ADDRESS } from "../helpers/constants";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { fundWithERC20, fundWithERC721, waitForTx } from "../helpers/misc-utils";
+import { IConfigNftAsCollateralInput } from "../helpers/types";
 import { approveERC20, setApprovalForAll } from "./helpers/actions";
 import { makeSuite } from "./helpers/make-suite";
 
@@ -43,11 +44,20 @@ makeSuite("DataProvider", (testEnv) => {
 
     //Borrower borrows
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
-    await waitForTx(
-      await configurator
-        .connect(deployer.signer)
-        .configureNftAsCollateral(bayc.address, "101", parseEther("50"), 4000, 7000, 500, 1, 2, 25, true, false)
-    );
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: "101",
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
     const loanColDataBefore = await pool.getNftCollateralData(bayc.address, "101", weth.address);
 
     const wethPrice = await reserveOracle.getAssetPrice(weth.address);

@@ -455,13 +455,14 @@ library LiquidateLogic {
 
     ValidationLogic.validateLiquidate(reserveData, nftData, nftConfig, loanData);
 
+    // If pool paused after bidding start, add pool pausing time as extra auction duration
     if ((poolStates.pauseDurationTime > 0) && (loanData.bidStartTimestamp <= poolStates.pauseStartTime)) {
       vars.extraAuctionDuration = poolStates.pauseDurationTime;
     }
     vars.auctionEndTimestamp =
       loanData.bidStartTimestamp +
       vars.extraAuctionDuration +
-      (nftConfig.getAuctionDuration() * 1 hours); // Per  Collection or NFT ??
+      (nftConfig.getAuctionDuration() * 1 hours);
     require(block.timestamp > vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_NOT_END);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index

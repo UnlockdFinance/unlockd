@@ -6,7 +6,13 @@ import { MAX_UINT_AMOUNT, ONE_YEAR } from "../helpers/constants";
 import { getDebtToken } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals, getEthersSignerByAddress } from "../helpers/contracts-helpers";
 import { advanceTimeAndBlock, fundWithERC20, fundWithWrappedPunk, waitForTx } from "../helpers/misc-utils";
-import { IReserveParams, iUnlockdPoolAssets, ProtocolLoanState, UnlockdPools } from "../helpers/types";
+import {
+  IConfigNftAsCollateralInput,
+  IReserveParams,
+  iUnlockdPoolAssets,
+  ProtocolLoanState,
+  UnlockdPools,
+} from "../helpers/types";
 import {
   approveERC20,
   approveERC20PunkGateway,
@@ -133,23 +139,20 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
 
     await nftOracle.connect(deployer.signer).setPriceManagerStatus(configurator.address, true);
 
-    await waitForTx(
-      await configurator
-        .connect(deployer.signer)
-        .configureNftAsCollateral(
-          wrappedPunk.address,
-          punkIndex,
-          parseEther("1000"),
-          4000,
-          7000,
-          1000,
-          1,
-          2,
-          250,
-          true,
-          false
-        )
-    );
+    const collData: IConfigNftAsCollateralInput = {
+      asset: wrappedPunk.address,
+      nftTokenId: punkIndex.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     await fundWithWrappedPunk(borrower.address, punkIndex);
 
@@ -160,21 +163,20 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
 
     await advanceTimeAndBlock(100);
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(
-        wrappedPunk.address,
-        punkIndex,
-        parseEther("1000"),
-        5000,
-        9500,
-        1000,
-        1,
-        2,
-        250,
-        true,
-        false
-      );
+    const collData2: IConfigNftAsCollateralInput = {
+      asset: wrappedPunk.address,
+      nftTokenId: punkIndex.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData2]);
 
     // borrow more usdc
     await waitForTx(
@@ -283,42 +285,40 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
 
     await nftOracle.connect(deployer.signer).setPriceManagerStatus(configurator.address, true);
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(
-        wrappedPunk.address,
-        punkIndex,
-        borrowSizeAll.mul(3),
-        4000,
-        7000,
-        1000,
-        1,
-        2,
-        250,
-        true,
-        false
-      );
+    const collData: IConfigNftAsCollateralInput = {
+      asset: wrappedPunk.address,
+      nftTokenId: punkIndex.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     // borrow first eth
     await waitForTx(await punkGateway.connect(user.signer).borrowETH(borrowSize1, punkIndex, user.address, "0"));
 
     await advanceTimeAndBlock(100);
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(
-        wrappedPunk.address,
-        punkIndex,
-        borrowSizeAll.mul(3),
-        4000,
-        7000,
-        1000,
-        1,
-        2,
-        250,
-        true,
-        false
-      );
+    const collData2: IConfigNftAsCollateralInput = {
+      asset: wrappedPunk.address,
+      nftTokenId: punkIndex.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData2]);
 
     // borrow more eth
     await waitForTx(await punkGateway.connect(user.signer).borrowETH(borrowSize2, punkIndex, user.address, "0"));
@@ -410,21 +410,20 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
 
     await nftOracle.connect(deployer.signer).setPriceManagerStatus(configurator.address, true);
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(
-        wrappedPunk.address,
-        punkIndex,
-        depositSize.mul(3),
-        4000,
-        7000,
-        1000,
-        1,
-        2,
-        250,
-        true,
-        false
-      );
+    const collData: IConfigNftAsCollateralInput = {
+      asset: wrappedPunk.address,
+      nftTokenId: punkIndex.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     // borrow all eth
     await waitForTx(

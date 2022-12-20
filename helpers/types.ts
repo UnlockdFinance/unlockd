@@ -1,4 +1,4 @@
-import BigNumber from "bignumber.js";
+import { BigNumber } from "@ethersproject/bignumber";
 
 export interface SymbolMap<T> {
   [symbol: string]: T;
@@ -210,7 +210,7 @@ export enum ProtocolErrors {
   LPC_NFT_LIQUIDITY_NOT_0 = "705",
   LPC_PARAMS_MISMATCH = "706",
   LPC_FEE_PERCENTAGE_TOO_HIGH = "707",
-
+  LPC_INCONSISTENT_PARAMS = "708",
   //reserve config errors
   RC_INVALID_LTV = "730",
   RC_INVALID_LIQ_THRESHOLD = "731",
@@ -348,6 +348,20 @@ export interface INftCollateralParams {
   baseLTVAsCollateral: string;
   liquidationThreshold: string;
   liquidationBonus: string;
+}
+
+export interface IConfigNftAsCollateralInput {
+  asset: string;
+  nftTokenId: string;
+  newPrice: BigNumber;
+  ltv: number;
+  liquidationThreshold: number;
+  redeemThreshold: number;
+  liquidationBonus: number;
+  redeemDuration: number;
+  auctionDuration: number;
+  redeemFine: number;
+  minBidFine: number;
 }
 
 export interface INftAuctionParams {

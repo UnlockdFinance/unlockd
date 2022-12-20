@@ -1,4 +1,5 @@
 import { BigNumberish } from "@ethersproject/bignumber";
+import { parseEther } from "@ethersproject/units";
 import { task } from "hardhat/config";
 import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import { ADDRESS_ID_WETH_GATEWAY } from "../../helpers/constants";
@@ -12,7 +13,7 @@ import {
 } from "../../helpers/contracts-getters";
 import { getEthersSignerByAddress } from "../../helpers/contracts-helpers";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
-import { eNetwork, INftParams } from "../../helpers/types";
+import { eNetwork, IConfigNftAsCollateralInput, INftParams } from "../../helpers/types";
 import { strategyNftParams } from "../../markets/unlockd/nftsConfigs";
 
 task("add-nft-to-pool", "Add and config new nft asset to lend pool")
@@ -72,23 +73,21 @@ task("add-nft-to-pool", "Add and config new nft asset to lend pool")
     const nftOracle = await getNFTOracle(unftRegistryProxyAddress);
     nftOracle.setPriceManagerStatus(lendPoolConfiguratorProxy.address, true);
     console.log("Configure nft parameters to lend pool");
-    await waitForTx(
-      await lendPoolConfiguratorProxy
-        .connect(poolAdminSigner)
-        .configureNftAsCollateral(
-          asset,
-          tokenId,
-          "10",
-          nftParam.baseLTVAsCollateral,
-          nftParam.liquidationThreshold,
-          nftParam.liquidationBonus,
-          nftParam.redeemDuration,
-          nftParam.auctionDuration,
-          nftParam.redeemFine,
-          true,
-          false
-        )
-    );
+    const collData: IConfigNftAsCollateralInput = {
+      asset: asset,
+      nftTokenId: tokenId,
+      newPrice: parseEther("10"),
+      ltv: parseInt(nftParam.baseLTVAsCollateral),
+      liquidationThreshold: parseInt(nftParam.liquidationThreshold),
+      redeemThreshold: parseInt(nftParam.redeemThreshold),
+      liquidationBonus: parseInt(nftParam.liquidationBonus),
+      redeemDuration: parseInt(nftParam.redeemDuration),
+      auctionDuration: parseInt(nftParam.auctionDuration),
+      redeemFine: parseInt(nftParam.redeemFine),
+      minBidFine: parseInt(nftParam.minBidFine),
+    };
+    await lendPoolConfiguratorProxy.connect(poolAdminSigner).configureNftsAsCollateral([collData]);
+    await waitForTx(await lendPoolConfiguratorProxy.connect(poolAdminSigner).configureNftsAsCollateral([collData]));
 
     const cfgInputParams: {
       asset: string;
