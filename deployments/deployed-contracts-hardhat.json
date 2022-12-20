@@ -1,6 +1,10 @@
 {
-  "SelfdestructTransferMock": {
-    "address": "0x3C2AeD703EF55ABE3C9D1080418406Fae704bae0",
+  "CryptoPunksMarket": {
+    "address": "0x1864c9342339c36588F7f31d1079690a7003c7a2",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
+  "WrappedPunk": {
+    "address": "0xd062F368df81E0A7f4fB6e8F5ce5AC7deD388796",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "UnlockdProxyAdminPool": {
@@ -13,6 +17,10 @@
   },
   "LendPoolAddressesProvider": {
     "address": "0x294E11ac81ED4018d5dC0cc9618Ff2890acC8977",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
+  "LendPoolAddressesProviderRegistry": {
+    "address": "0x6B8dcBD1bb131ED184221902df1Fe21019ccD7dc",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "MockIncentivesController": {
@@ -104,11 +112,19 @@
     "address": "0x9718F7A661C0137d13EB4f0659dA5E8697075492",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
+  "MockChainlinkOracle": {
+    "address": "0xc5b75fA87Bc8F55bD989642DFE0Bbdd44748cD3b",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
   "NFTOracleImpl": {
     "address": "0x5F25714195e6Ba02cD01dB804f6222F924B9CC27"
   },
   "NFTOracle": {
     "address": "0x3d6471F2d560B3eC02F2Ed93b28BEAA7D6fCD482",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
+  "MockNFTOracle": {
+    "address": "0x2bf48F91bCDEf86aF5628EA3F4560873DD4249bD",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "InterestRate": {
@@ -124,19 +140,11 @@
   "rateStrategyStableThree": {
     "address": "0x3c61970C2feB8087b23f54b57Cbab8786e71399d"
   },
-  "LendPoolAddressesProviderRegistry": {
-    "address": "0x6B8dcBD1bb131ED184221902df1Fe21019ccD7dc",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
   "WETHGatewayImpl": {
     "address": "0x7326573C3689831ADBf8050F1e5a2fB31C8441d8"
   },
   "WETHGateway": {
     "address": "0x51bda59320165617F7209a38D08b11ccefF58F1a",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "CryptoPunksMarket": {
-    "address": "0x1864c9342339c36588F7f31d1079690a7003c7a2",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "PunkGatewayImpl": {
@@ -158,20 +166,8 @@
     "address": "0xF07191639A5ca3d5D28206429Df3E3adCc020b3f",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
-  "MockNFTOracle": {
-    "address": "0x2bf48F91bCDEf86aF5628EA3F4560873DD4249bD",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "MockChainlinkOracle": {
-    "address": "0xc5b75fA87Bc8F55bD989642DFE0Bbdd44748cD3b",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "WrappedPunk": {
-    "address": "0xd062F368df81E0A7f4fB6e8F5ce5AC7deD388796",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "WPUNKS": {
-    "address": "0xd062F368df81E0A7f4fB6e8F5ce5AC7deD388796",
+  "SelfdestructTransferMock": {
+    "address": "0x3C2AeD703EF55ABE3C9D1080418406Fae704bae0",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   }
 }

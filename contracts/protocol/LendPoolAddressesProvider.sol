@@ -27,7 +27,6 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   bytes32 private constant EMERGENCY_ADMIN = "EMERGENCY_ADMIN";
   bytes32 private constant RESERVE_ORACLE = "RESERVE_ORACLE";
   bytes32 private constant NFT_ORACLE = "NFT_ORACLE";
-  bytes32 private constant UNLOCKD_ORACLE = "UNLOCKD_ORACLE";
   bytes32 private constant LEND_POOL_LOAN = "LEND_POOL_LOAN";
   bytes32 private constant UNFT_REGISTRY = "UNFT_REGISTRY";
   bytes32 private constant LEND_POOL_LIQUIDATOR = "LEND_POOL_LIQUIDATOR";

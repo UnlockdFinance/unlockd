@@ -2,7 +2,6 @@
 pragma solidity 0.8.4;
 
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
-import {IUNFT} from "../interfaces/IUNFT.sol";
 import {IUNFTRegistry} from "../interfaces/IUNFTRegistry.sol";
 import {ILendPoolConfigurator} from "../interfaces/ILendPoolConfigurator.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";

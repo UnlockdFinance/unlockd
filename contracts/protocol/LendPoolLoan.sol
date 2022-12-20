@@ -173,10 +173,10 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
 
     _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
 
-    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALIED_USER_NFT_AMOUNT);
+    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
     _userNftCollateral[loan.borrower][loan.nftAsset] -= 1;
 
-    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALIED_NFT_AMOUNT);
+    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALID_NFT_AMOUNT);
     _nftTotalCollateral[loan.nftAsset] -= 1;
 
     // burn uNFT and transfer underlying NFT asset to user
@@ -288,10 +288,10 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
 
     _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
 
-    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALIED_USER_NFT_AMOUNT);
+    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
     _userNftCollateral[loan.borrower][loan.nftAsset] -= 1;
 
-    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALIED_NFT_AMOUNT);
+    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALID_NFT_AMOUNT);
     _nftTotalCollateral[loan.nftAsset] -= 1;
 
     // burn uNFT and transfer underlying NFT asset to user
@@ -331,10 +331,10 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
 
     _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
 
-    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALIED_USER_NFT_AMOUNT);
+    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
     _userNftCollateral[loan.borrower][loan.nftAsset] -= 1;
 
-    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALIED_NFT_AMOUNT);
+    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALID_NFT_AMOUNT);
     _nftTotalCollateral[loan.nftAsset] -= 1;
 
     // burn uNFT and sell underlying NFT on NFTX
@@ -378,10 +378,10 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
 
     _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
 
-    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALIED_USER_NFT_AMOUNT);
+    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
     _userNftCollateral[loan.borrower][loan.nftAsset] -= 1;
 
-    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALIED_NFT_AMOUNT);
+    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALID_NFT_AMOUNT);
     _nftTotalCollateral[loan.nftAsset] -= 1;
 
     // burn uNFT and sell underlying NFT on SudoSwap
@@ -405,15 +405,11 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   }
 
   function onERC721Received(
-    address operator,
-    address from,
-    uint256 tokenId,
-    bytes calldata data
+    address,
+    address,
+    uint256,
+    bytes memory
   ) external pure override returns (bytes4) {
-    operator;
-    from;
-    tokenId;
-    data;
     return IERC721ReceiverUpgradeable.onERC721Received.selector;
   }
 

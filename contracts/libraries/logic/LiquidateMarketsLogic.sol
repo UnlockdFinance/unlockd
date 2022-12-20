@@ -18,17 +18,12 @@ import {ValidationLogic} from "./ValidationLogic.sol";
 
 import {ReserveConfiguration} from "../configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../configuration/NftConfiguration.sol";
-import {MathUtils} from "../math/MathUtils.sol";
-import {WadRayMath} from "../math/WadRayMath.sol";
 import {PercentageMath} from "../math/PercentageMath.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
-import {SushiSwapHelper} from "../sushiswap/SushiSwapHelper.sol";
 
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
-import {IERC721MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721MetadataUpgradeable.sol";
 
 /**
  * @title LiquidateLogic library
@@ -36,7 +31,6 @@ import {IERC721MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/to
  * @notice Implements the logic to liquidate feature
  */
 library LiquidateMarketsLogic {
-  using WadRayMath for uint256;
   using PercentageMath for uint256;
   using SafeERC20Upgradeable for IERC20Upgradeable;
   using ReserveLogic for DataTypes.ReserveData;

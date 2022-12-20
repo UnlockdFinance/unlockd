@@ -82,10 +82,11 @@ library NFTXSeller {
   }
 
   /**
-   * @dev Get the NFTX price in ETH
+   * @dev Get the NFTX price in reserve asset
    * @param addressesProvider The addresses provider
    * @param nftAsset The underlying NFT address
    * @param nftTokenId The underlying NFT token Id
+   * @param reserveAsset The ERC20 reserve asset
    */
   function getNFTXPrice(
     ILendPoolAddressesProvider addressesProvider,

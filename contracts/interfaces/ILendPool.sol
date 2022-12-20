@@ -2,8 +2,10 @@
 pragma solidity 0.8.4;
 
 import {ILendPoolAddressesProvider} from "./ILendPoolAddressesProvider.sol";
-import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
+
+import {DataTypes} from "../libraries/types/DataTypes.sol";
 
 interface ILendPool {
   /**
@@ -666,6 +668,18 @@ interface ILendPool {
     address to,
     uint256 amount,
     bool rescueETH
+  ) external;
+
+  /**
+   * @notice Rescue NFTs locked up in this contract.
+   * @param nftAsset ERC721 asset contract address
+   * @param tokenId ERC721 token id
+   * @param to Recipient address
+   */
+  function rescueNFT(
+    IERC721Upgradeable nftAsset,
+    uint256 tokenId,
+    address to
   ) external;
 
   /**

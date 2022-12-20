@@ -16,8 +16,6 @@ contract UnlockdProtocolDataProvider {
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
   using NftConfiguration for DataTypes.NftConfigurationMap;
 
-  address constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-
   struct ReserveTokenData {
     string tokenSymbol;
     address tokenAddress;
