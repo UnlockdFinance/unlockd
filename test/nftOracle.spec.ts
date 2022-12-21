@@ -121,7 +121,9 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
     const { mockNftOracle, users } = testEnv;
     const collection2 = users[2].address;
     await expect(mockNftOracle.getNFTPrice(collection2, 1)).to.be.revertedWith(
-      `NonExistingCollection("${collection2}")`
+      "NonExistingCollection(",
+      collection2,
+      ")"
     );
   });
 
@@ -139,7 +141,9 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
 
     await mockNftOracle.removeCollection(collectionMock);
     await expect(mockNftOracle.getNFTPrice(collectionMock, 1)).to.be.revertedWith(
-      `NonExistingCollection("${collectionMock}")`
+      "NonExistingCollection(",
+      collectionMock,
+      ")"
     );
   });
 
