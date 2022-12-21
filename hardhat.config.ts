@@ -1,29 +1,29 @@
-import "@nomiclabs/hardhat-ethers";
-import "@nomiclabs/hardhat-etherscan";
-import "@nomiclabs/hardhat-waffle";
-import "@typechain/hardhat";
+import path from "path";
 import fs from "fs";
+import { HardhatUserConfig } from "hardhat/types";
+import { accounts } from "./test-wallets.js";
+import { eEthereumNetwork, eNetwork } from "./helpers/types";
+import { BUIDLEREVM_CHAINID } from "./helpers/buidler-constants";
+import { buildForkConfig, NETWORKS_DEFAULT_GAS } from "./helper-hardhat-config";
 import { bootstrap } from "global-agent";
+import "@typechain/hardhat";
+import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-waffle";
+import "@nomiclabs/hardhat-etherscan";
+import "hardhat-gas-reporter";
 import "hardhat-contract-sizer";
 import "hardhat-dependency-compiler";
-import "hardhat-gas-reporter";
-import { HardhatUserConfig } from "hardhat/types";
-import path from "path";
 import "solidity-coverage";
-import "solidity-docgen";
-import { buildForkConfig, NETWORKS_DEFAULT_GAS } from "./helper-hardhat-config";
-import { BUIDLEREVM_CHAINID } from "./helpers/buidler-constants";
-import { eEthereumNetwork, eNetwork } from "./helpers/types";
-// @ts-ignore
-import { accounts } from "./test-wallets.js";
+
+require("hardhat-storage-layout-diff");
 require("dotenv").config();
+
 
 if (process.env.GLOBAL_AGENT_HTTP_PROXY) {
   console.log("Enable Global Agent:", process.env.GLOBAL_AGENT_HTTP_PROXY);
   bootstrap();
 }
 
-require("hardhat-storage-layout-diff");
 
 const SKIP_LOAD = process.env.SKIP_LOAD === "true";
 const DEFAULT_BLOCK_GAS_LIMIT = 12450000;
@@ -143,11 +143,7 @@ const buidlerConfig: HardhatUserConfig = {
         count: 20,
       },
     },
-  },
-  docgen: {
-    outputDir: "docs",
-    pages: "files",
-  },
+  }
 };
 
 export default buidlerConfig;
