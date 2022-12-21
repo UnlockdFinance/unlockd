@@ -1,6 +1,6 @@
 import { ZERO_ADDRESS } from "../helpers/constants";
 import { getDeploySigner } from "../helpers/contracts-getters";
-import { MockChainlinkOracle, MockChainlinkOracleFactory, MockReserveOracle } from "../types";
+import { MockChainlinkOracle, MockChainlinkOracleFactory, MockReserveOracle, ReserveOracle } from "../types";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 const { expect } = require("chai");

@@ -82,7 +82,6 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
         nftOracle = await getNFTOracle(nftOracleProxy.address);
       } else {
         console.log("Deploying new nft oracle proxy & implementation...");
-        console.log("oracle data", initEncodedData);
         nftOracleProxy = await deployUnlockdUpgradeableProxy(
           eContractid.NFTOracle,
           proxyAdmin.address,
@@ -95,36 +94,13 @@ task("full:deploy-oracle-nft", "Deploy nft oracle for full enviroment")
 
         await nftOracle.setPriceManagerStatus(lendpoolConfigurator, true);
 
-        const mockNfts = await getAllMockedNfts();
-
-        const allNftAddresses = Object.entries(mockNfts).reduce(
-          (accum: { [tokenSymbol: string]: tEthereumAddress }, [tokenSymbol, tokenContract]) => ({
-            ...accum,
-            [tokenSymbol]: tokenContract.address,
-          }),
-          {}
-        );
-
-        const allNftMaxSupply = Object.entries(poolConfig.Mocks.AllNftsMaxSupply).reduce(
-          (accum: { [tokenSymbol: string]: string }, [tokenSymbol, tokenMaxSupply]) => ({
-            ...accum,
-            [tokenSymbol]: tokenMaxSupply,
-          }),
-          {}
-        );
-
-        const allNftPrices = Object.entries(poolConfig.Mocks.AllNftsInitialPrices).reduce(
-          (accum: { [tokenSymbol: string]: string }, [tokenSymbol, tokenPrice]) => ({
-            ...accum,
-            [tokenSymbol]: tokenPrice,
-          }),
-          {}
-        );
         // only oracle owner can add assets
         const oracleOwnerAddress = await nftOracle.owner();
         const oracleOwnerSigner = DRE.ethers.provider.getSigner(oracleOwnerAddress);
         // await waitForTx(await nftOracle.connect(oracleOwnerSigner).setCollections(tokens));
-        await addAssetsInNFTOraclewithSigner(allNftAddresses, nftOracle, oracleOwnerSigner);
+        for (const [assetSymbol, assetAddress] of Object.entries(nftsAssets) as [string, tEthereumAddress][]) {
+          await waitForTx(await nftOracle.connect(oracleOwnerSigner).addCollection(assetAddress));
+        }
       }
 
       // Register the proxy oracle on the addressesProvider

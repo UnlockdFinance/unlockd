@@ -3,6 +3,8 @@ import { signTypedData_v4 } from "eth-sig-util";
 import { ECDSASignature, fromRpcSig } from "ethereumjs-util";
 import { Contract, ethers, Signer, utils } from "ethers";
 import { Artifact } from "hardhat/types";
+import { SignerWithAddress } from "../test/helpers/make-suite";
+import { ERC20 } from "../types";
 import { MintableERC20 } from "../types/MintableERC20";
 import { MintableERC721 } from "../types/MintableERC721";
 import { ConfigNames, loadPoolConfig } from "./configuration";
@@ -170,9 +172,23 @@ export const linkBytecode = (artifact: Artifact, libraries: any) => {
 
 export const getParamPerNetwork = <T>(param: iParamsPerNetwork<T>, network: eNetwork) => {
   const { main, goerli, hardhat, localhost } = param as iEthereumParamsPerNetwork<T>;
-  if (process.env.FORK) {
-    return param[process.env.FORK as eNetwork] as T;
+
+  switch (network) {
+    case eEthereumNetwork.hardhat:
+      return hardhat;
+    case eEthereumNetwork.localhost:
+      return localhost;
+    case eEthereumNetwork.goerli:
+      return goerli;
+    case eEthereumNetwork.main:
+      return main;
   }
+
+  return hardhat;
+};
+
+export const insertParamPerNetwork = <T>(param: iParamsPerNetwork<T>, network: eNetwork) => {
+  const { main, goerli, hardhat, localhost } = param as iEthereumParamsPerNetwork<T>;
 
   switch (network) {
     case eEthereumNetwork.hardhat:
@@ -207,21 +223,15 @@ export const getParamPerPool = <T>({ proto }: iParamsPerPool<T>, pool: UnlockdPo
   }
 };
 
-export const convertToCurrencyDecimals = async (tokenAddress: tEthereumAddress, amount: string) => {
-  const token = await getIErc20Detailed(tokenAddress);
-  const decimals = (await token.decimals()).toString();
+export const convertToCurrencyDecimals = async (user: SignerWithAddress, token: Contract, amount: string) => {
+  const decimals = (await token.connect(user.signer).decimals()).toString();
   const tokenAmount = ethers.utils.parseUnits(amount, decimals);
-  const symbol = await token.symbol();
-  if (symbol == "USDC") {
-    //console.log("convertToCurrencyDecimals", symbol, decimals, amount, tokenAmount.toString());
-  }
 
   return tokenAmount;
 };
 
-export const convertToCurrencyUnits = async (tokenAddress: string, amount: string) => {
-  const token = await getIErc20Detailed(tokenAddress);
-  const decimals = new BigNumber(await token.decimals());
+export const convertToCurrencyUnits = async (user: SignerWithAddress, token: Contract, amount: string) => {
+  const decimals = (await token.connect(user.signer).decimals()).toString();
   const currencyUnit = new BigNumber(10).pow(decimals);
   const amountInCurrencyUnits = new BigNumber(amount).div(currencyUnit);
   return amountInCurrencyUnits.toFixed();

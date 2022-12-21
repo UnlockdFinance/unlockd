@@ -17,6 +17,7 @@ import {IERC721ReceiverUpgradeable} from "@openzeppelin/contracts-upgradeable/to
  **/
 contract UNFT is ERC721EnumerableUpgradeable, IUNFT {
   address private _underlyingAsset;
+
   // Mapping from token ID to minter address
   mapping(uint256 => address) private _minters;
 

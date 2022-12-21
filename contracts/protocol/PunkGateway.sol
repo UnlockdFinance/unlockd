@@ -148,7 +148,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
 
   /**
    * @notice Deposits a punk given its index
-   * - E.g. User repays 100 USDC, burning loan and receives collateral asset
+   * - E.g. User deposit NFT Punk and receives the wrapped asset
    * @param punkIndex The index of the CryptoPunk to deposit
    **/
   function _depositPunk(uint256 punkIndex) internal {
@@ -160,9 +160,11 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     }
 
     address owner = punks.punkIndexToAddress(punkIndex);
+
     require(owner == _msgSender(), "PunkGateway: not owner of punkIndex");
 
     punks.buyPunk(punkIndex);
+
     punks.transferPunk(proxy, punkIndex);
 
     wrappedPunks.mint(punkIndex);
@@ -185,6 +187,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     _depositPunk(punkIndex);
 
     cachedPool.borrow(reserveAsset, amount, address(wrappedPunks), punkIndex, onBehalfOf, referralCode);
+
     IERC20Upgradeable(reserveAsset).transfer(onBehalfOf, amount);
   }
 

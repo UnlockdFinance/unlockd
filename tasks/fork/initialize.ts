@@ -1,7 +1,12 @@
 import { task } from "hardhat/config";
 import { exit } from "process";
 import { ConfigNames, getTreasuryAddress, loadPoolConfig } from "../../helpers/configuration";
-import { getLendPoolAddressesProvider, getPunkGateway, getWETHGateway } from "../../helpers/contracts-getters";
+import {
+  getLendPoolAddressesProvider,
+  getPunkGateway,
+  getWETHGateway,
+  getWrappedPunk,
+} from "../../helpers/contracts-getters";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import {
   configureNftsByHelper,
@@ -12,7 +17,7 @@ import {
 import { waitForTx } from "../../helpers/misc-utils";
 import { eNetwork } from "../../helpers/types";
 
-task("full:initialize-lend-pool", "Initialize lend pool configuration.")
+task("fork:initialize-lend-pool", "Initialize lend pool configuration.")
   .addFlag("verify", "Verify contracts at Etherscan")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .setAction(async ({ verify, pool }, localBRE) => {
@@ -57,7 +62,7 @@ task("full:initialize-lend-pool", "Initialize lend pool configuration.")
       if (!nftsAssets) {
         throw "NFT assets is undefined. Check NftsAssets configuration at config directory";
       }
-
+      nftsAssets["WPUNKS"] = await (await getWrappedPunk()).address;
       await initNftsByHelper(poolConfig.NftsConfig, nftsAssets, admin, pool, verify);
       await configureNftsByHelper(poolConfig.NftsConfig, nftsAssets, admin);
     } catch (err) {
@@ -66,7 +71,7 @@ task("full:initialize-lend-pool", "Initialize lend pool configuration.")
     }
   });
 
-task("full:initialize-gateway", "Initialize gateway configuration.")
+task("fork:initialize-gateway", "Initialize gateway configuration.")
   .addFlag("verify", "Verify contracts at Etherscan")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .setAction(async ({ verify, pool }, localBRE) => {
@@ -84,7 +89,7 @@ task("full:initialize-gateway", "Initialize gateway configuration.")
       if (!nftsAssets) {
         throw "NFT assets is undefined. Check NftsAssets configuration at config directory";
       }
-
+      nftsAssets["WPUNKS"] = await (await getWrappedPunk()).address;
       const wethGateway = await getWETHGateway();
       const nftAddresses: string[] = [];
       for (const [assetSymbol, assetAddress] of Object.entries(nftsAssets) as [string, string][]) {

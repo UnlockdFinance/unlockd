@@ -166,10 +166,11 @@ library DataTypes {
     uint256 amount;
   }
 
-  struct ExecuteLiquidateNFTXParams {
+  struct ExecuteLiquidateMarketsParams {
     address nftAsset;
     uint256 nftTokenId;
     uint256 liquidateFeePercentage;
+    address LSSVMPair;
   }
 
   struct ExecuteLendPoolStates {

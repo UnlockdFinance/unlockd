@@ -109,10 +109,10 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
   });
 
   it("Should be reverted as NFTOracle is already initialized", async () => {
-    const { mockNftOracle, users } = testEnv;
+    const { mockNftOracle, users, configurator } = testEnv;
     await mockNftOracle.setPriceManagerStatus(users[0].address, true);
     const admin = users[0].address;
-    await expect(mockNftOracle.initialize(admin, admin, admin, admin)).to.be.revertedWith(
+    await expect(mockNftOracle.initialize(admin, configurator.address)).to.be.revertedWith(
       "Initializable: contract is already initialized"
     );
   });
@@ -121,7 +121,9 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
     const { mockNftOracle, users } = testEnv;
     const collection2 = users[2].address;
     await expect(mockNftOracle.getNFTPrice(collection2, 1)).to.be.revertedWith(
-      `NonExistingCollection("${collection2}")`
+      "NonExistingCollection(",
+      collection2,
+      ")"
     );
   });
 
@@ -139,7 +141,9 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
 
     await mockNftOracle.removeCollection(collectionMock);
     await expect(mockNftOracle.getNFTPrice(collectionMock, 1)).to.be.revertedWith(
-      `NonExistingCollection("${collectionMock}")`
+      "NonExistingCollection(",
+      collectionMock,
+      ")"
     );
   });
 

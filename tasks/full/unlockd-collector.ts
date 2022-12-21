@@ -3,6 +3,7 @@ import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import { MAX_UINT_AMOUNT } from "../../helpers/constants";
 import { deployUnlockdCollector, deployUnlockdUpgradeableProxy } from "../../helpers/contracts-deployments";
 import {
+  getMintableERC20,
   getUnlockdCollectorProxy,
   getUnlockdProxyAdminById,
   getUnlockdUpgradeableProxy,
@@ -14,6 +15,7 @@ import {
 } from "../../helpers/contracts-helpers";
 import { waitForTx } from "../../helpers/misc-utils";
 import { eContractid, eNetwork } from "../../helpers/types";
+import { SignerWithAddress } from "../../test/helpers/make-suite";
 
 task("full:deploy-unlockd-collector", "Deploy unlockd collect contract")
   .addFlag("verify", "Verify contracts at Etherscan")
@@ -105,10 +107,15 @@ task("unlockd-collector:approve-erc20", "Approve ERC20 token")
 
     const unlockdCollector = await getUnlockdCollectorProxy(unlockdCollectorProxy.address);
     const ownerSigner = await getEthersSignerByAddress(await unlockdCollector.owner());
+    const signerWithAddress: SignerWithAddress = {
+      address: await ownerSigner.getAddress(),
+      signer: ownerSigner,
+    };
+    const tokenContract = await getMintableERC20(token);
 
     let amountDecimals = MAX_UINT_AMOUNT;
     if (amount != "-1") {
-      amountDecimals = (await convertToCurrencyDecimals(token, amount)).toString();
+      amountDecimals = (await convertToCurrencyDecimals(signerWithAddress, tokenContract, amount)).toString();
     }
 
     await waitForTx(await unlockdCollector.connect(ownerSigner).approve(token, to, amountDecimals));

@@ -2,8 +2,8 @@
 pragma solidity 0.8.4;
 
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
-import {INFTXVaultFactoryV2} from "../../interfaces/INFTXVaultFactoryV2.sol";
-import {INFTXVault} from "../../interfaces/INFTXVault.sol";
+import {INFTXVaultFactoryV2} from "../../interfaces/nftx/INFTXVaultFactoryV2.sol";
+import {INFTXVault} from "../../interfaces/nftx/INFTXVault.sol";
 import {IUniswapV2Router02} from "../../interfaces/IUniswapV2Router02.sol";
 
 import {Errors} from "../../libraries/helpers/Errors.sol";
@@ -11,14 +11,12 @@ import {Errors} from "../../libraries/helpers/Errors.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 
-import "hardhat/console.sol";
-
 /**
- * @title NFTXHelper library
+ * @title NFTXSeller library
  * @author Unlockd
  * @notice Implements NFTX selling logic
  */
-library NFTXHelper {
+library NFTXSeller {
   address internal constant WETH = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
 
   /**
@@ -52,7 +50,7 @@ library NFTXHelper {
 
     if (nftxVault.allValidNFTs(tokenIds)) {
       // Deposit NFT to NFTX Vault
-      IERC721Upgradeable(nftAsset).setApprovalForAll(vaultAddress, true);
+      IERC721Upgradeable(nftAsset).approve(vaultAddress, nftTokenId);
       nftxVault.mint(tokenIds, new uint256[](1));
       uint256 depositAmount = IERC20Upgradeable(vaultAddress).balanceOf(address(this));
 
@@ -84,10 +82,11 @@ library NFTXHelper {
   }
 
   /**
-   * @dev Get the NFTX price in ETH
+   * @dev Get the NFTX price in reserve asset
    * @param addressesProvider The addresses provider
    * @param nftAsset The underlying NFT address
    * @param nftTokenId The underlying NFT token Id
+   * @param reserveAsset The ERC20 reserve asset
    */
   function getNFTXPrice(
     ILendPoolAddressesProvider addressesProvider,

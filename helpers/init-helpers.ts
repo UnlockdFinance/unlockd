@@ -1,4 +1,5 @@
 import { BigNumberish } from "ethers";
+import { SignerWithAddress } from "../test/helpers/make-suite";
 import { ConfigNames } from "./configuration";
 import { deployRateStrategy } from "./contracts-deployments";
 import {
@@ -76,7 +77,7 @@ export const initReservesByHelper = async (
   const strategyAddresses: Record<string, tEthereumAddress> = {};
 
   const reserves = Object.entries(reservesParams);
-
+  console.log("RESERVES: " + reserves);
   for (const [symbol, params] of reserves) {
     if (!tokenAddresses[symbol]) {
       console.log(`- Skipping init of ${symbol} due token address is not set at markets config`);
@@ -395,6 +396,10 @@ export const configureNftsByHelper = async (
 
 export const initNFTXByHelper = async () => {
   const deployer = await getDeploySigner();
+  const signerWithAddress: SignerWithAddress = {
+    address: await deployer.getAddress(),
+    signer: deployer,
+  };
 
   const dataProvider = await getUnlockdProtocolDataProvider();
   const allReserveTokens = await dataProvider.getAllReservesTokenDatas();
@@ -445,11 +450,11 @@ export const initNFTXByHelper = async () => {
   await bayc.setApprovalForAll(nftxVault.address, true);
   await nftxVault.connect(deployer).mint(baycTokenIds, []);
 
-  const nftxTokenAmount = await convertToCurrencyDecimals(nftxVault.address, "4");
+  const nftxTokenAmount = await convertToCurrencyDecimals(signerWithAddress, bayc, "4");
 
   console.log("- Configuring BAYC/USDC Pool on SushiSwap");
   // Deposit 600000 USDC to owner
-  let lpUSDCAmount = await convertToCurrencyDecimals(usdc.address, "600000");
+  let lpUSDCAmount = await convertToCurrencyDecimals(signerWithAddress, usdc, "600000");
   await usdc.connect(deployer).mint(lpUSDCAmount);
 
   // Provide liquidity to SushiSwap - Price is 15000 USDC
@@ -471,7 +476,7 @@ export const initNFTXByHelper = async () => {
 
   console.log("- Configuring BAYC/WETH Pool on SushiSwap");
   // Deposit 400 WETH to owner
-  const lpWETHAmount = await convertToCurrencyDecimals(weth.address, "400");
+  const lpWETHAmount = await convertToCurrencyDecimals(signerWithAddress, weth, "400");
   await weth.connect(deployer).mint(lpWETHAmount);
 
   // Provide liquidity to SushiSwap - Price is 100 WETH
@@ -511,7 +516,7 @@ export const initNFTXByHelper = async () => {
 
   console.log("- Configuring WPUNKS/USDC Pool on SushiSwap");
   // Deposit 600000 USDC to owner
-  lpUSDCAmount = await convertToCurrencyDecimals(usdc.address, "600000");
+  lpUSDCAmount = await convertToCurrencyDecimals(signerWithAddress, usdc, "600000");
   await usdc.connect(deployer).mint(lpUSDCAmount);
 
   // Provide liquidity to SushiSwap - Price is 15000 USDC

@@ -1,8 +1,10 @@
 import { BigNumberish } from "ethers";
 import { APPROVAL_AMOUNT_LENDING_POOL, RAY } from "../helpers/constants";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
+import { fundWithERC20 } from "../helpers/misc-utils";
 import { ProtocolErrors } from "../helpers/types";
 import { strategyWETH } from "../markets/unlockd/reservesConfigs";
+import { approveERC20 } from "./helpers/actions";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 const { expect } = require("chai");
@@ -212,13 +214,15 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
   });
 
   it("Reverts when trying to disable the DAI reserve with liquidity on it", async () => {
-    const { dai, pool, configurator } = testEnv;
+    const { dai, pool, configurator, deployer } = testEnv;
     const userAddress = await pool.signer.getAddress();
-    await dai.mint(await convertToCurrencyDecimals(dai.address, "1000"));
+
+    await fundWithERC20("DAI", deployer.address, "1000");
 
     //approve protocol to access depositor wallet
-    await dai.approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
-    const amountDAItoDeposit = await convertToCurrencyDecimals(dai.address, "1000");
+    await approveERC20(testEnv, deployer, "DAI");
+
+    const amountDAItoDeposit = await convertToCurrencyDecimals(deployer, dai, "1000");
 
     //user 1 deposits 1000 DAI
     await pool.deposit(dai.address, amountDAItoDeposit, userAddress, "0");

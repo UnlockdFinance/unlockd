@@ -29,11 +29,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
    * @param _tokenId The NFT token Id
    **/
   event NFTPriceAdded(address indexed _collection, uint256 _tokenId, uint256 _price);
-  /**
-   * @dev Emitted when the admin has been updated
-   * @param admin The new admin
-   **/
-  event FeedAdminUpdated(address indexed admin);
 
   /**
    * @dev Emitted when the pause status is set to a collection
@@ -152,11 +147,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   /**
    * @inheritdoc INFTOracle
    */
-  function setNFTPrice(
-    address _collection,
-    uint256 _tokenId,
-    uint256 _price
-  ) external override onlyPriceManager {
+  function setNFTPrice(address _collection, uint256 _tokenId, uint256 _price) external override onlyPriceManager {
     _setNFTPrice(_collection, _tokenId, _price);
   }
 
@@ -197,13 +188,10 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   /**
    * @inheritdoc INFTOracle
    */
-  function getNFTPrice(address _collection, uint256 _tokenId)
-    external
-    view
-    override
-    onlyExistingCollection(_collection)
-    returns (uint256)
-  {
+  function getNFTPrice(
+    address _collection,
+    uint256 _tokenId
+  ) external view override onlyExistingCollection(_collection) returns (uint256) {
     if (nftPrices[_collection][_tokenId] == 0) revert PriceIsZero();
     return nftPrices[_collection][_tokenId];
   }
@@ -211,12 +199,10 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   /**
    * @inheritdoc INFTOracle
    */
-  function getMultipleNFTPrices(address[] calldata _collections, uint256[] calldata _tokenIds)
-    external
-    view
-    override
-    returns (uint256[] memory)
-  {
+  function getMultipleNFTPrices(
+    address[] calldata _collections,
+    uint256[] calldata _tokenIds
+  ) external view override returns (uint256[] memory) {
     uint256 collectionsLength = _collections.length;
     if (collectionsLength != _tokenIds.length) revert ArraysLengthInconsistent();
 

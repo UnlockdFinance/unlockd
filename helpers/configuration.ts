@@ -2,6 +2,7 @@ import UnlockdConfig from "../markets/unlockd";
 import { CommonsConfig } from "../markets/unlockd/commons";
 import { ZERO_ADDRESS } from "./constants";
 import { deployCryptoPunksMarket, deployWETH9, deployWrappedPunk } from "./contracts-deployments";
+import { getPunkGateway } from "./contracts-getters";
 import { getEthersSignersAddresses, getParamPerNetwork, getParamPerPool } from "./contracts-helpers";
 import { DRE, notFalsyOrZeroAddress } from "./misc-utils";
 import {
@@ -31,7 +32,16 @@ export const loadPoolConfig = (configName: ConfigNames): PoolConfiguration => {
       throw new Error(`Unsupported pool configuration: ${Object.values(ConfigNames)}`);
   }
 };
-
+export const loadImpersonateAccount = (configName: ConfigNames): PoolConfiguration => {
+  switch (configName) {
+    case ConfigNames.Unlockd:
+      return UnlockdConfig;
+    case ConfigNames.Commons:
+      return CommonsConfig;
+    default:
+      throw new Error(`Unsupported pool configuration: ${Object.values(ConfigNames)}`);
+  }
+};
 // ----------------
 // PROTOCOL PARAMS PER POOL
 // ----------------
@@ -57,7 +67,7 @@ export const getNftsConfigByPool = (pool: UnlockdPools): iMultiPoolsNfts<INftPar
   );
 
 export const getProviderRegistryAddress = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
-  const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
+  const currentNetwork = DRE.network.name;
   const registryAddress = getParamPerNetwork(config.ProviderRegistry, <eNetwork>currentNetwork);
   if (registryAddress) {
     return registryAddress;
@@ -66,7 +76,7 @@ export const getProviderRegistryAddress = async (config: ICommonConfiguration): 
 };
 
 export const getGenesisPoolAdmin = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
-  const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
+  const currentNetwork = DRE.network.name;
   const targetAddress = getParamPerNetwork(config.PoolAdmin, <eNetwork>currentNetwork);
   if (targetAddress) {
     return targetAddress;
@@ -77,9 +87,8 @@ export const getGenesisPoolAdmin = async (config: ICommonConfiguration): Promise
 };
 
 export const getEmergencyAdmin = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
-  const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
+  const currentNetwork = DRE.network.name;
   const targetAddress = getParamPerNetwork(config.EmergencyAdmin, <eNetwork>currentNetwork);
-  console.log("targetAddress::::::::::: " + targetAddress);
   if (targetAddress) {
     return targetAddress;
   }
@@ -89,7 +98,7 @@ export const getEmergencyAdmin = async (config: ICommonConfiguration): Promise<t
 };
 
 export const getLendPoolLiquidator = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
-  const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
+  const currentNetwork = DRE.network.name;
   const targetAddress = getParamPerNetwork(config.LendPoolLiquidator, <eNetwork>currentNetwork);
   if (targetAddress) {
     return targetAddress;
@@ -100,7 +109,7 @@ export const getLendPoolLiquidator = async (config: ICommonConfiguration): Promi
 };
 
 export const getLtvManager = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
-  const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
+  const currentNetwork = DRE.network.name;
   const targetAddress = getParamPerNetwork(config.LtvManager, <eNetwork>currentNetwork);
   if (targetAddress) {
     return targetAddress;
@@ -111,7 +120,7 @@ export const getLtvManager = async (config: ICommonConfiguration): Promise<tEthe
 };
 
 export const getTreasuryAddress = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
-  const currentNetwork = process.env.FORK ? process.env.FORK : DRE.network.name;
+  const currentNetwork = DRE.network.name;
   return getParamPerNetwork(config.ReserveFactorTreasuryAddress, <eNetwork>currentNetwork);
 };
 
@@ -147,6 +156,11 @@ export const getWrappedPunkTokenAddress = async (config: ICommonConfiguration, p
 export const getCryptoPunksMarketAddress = async (config: ICommonConfiguration) => {
   const currentNetwork = process.env.MAINNET_FORK === "true" ? "main" : DRE.network.name;
   const punkAddress = getParamPerNetwork(config.CryptoPunksMarket, <eNetwork>currentNetwork);
+
+  return await (
+    await getPunkGateway()
+  ).address;
+
   if (punkAddress) {
     return punkAddress;
   }

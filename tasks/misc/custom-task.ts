@@ -22,6 +22,7 @@ import {
 import { convertToCurrencyDecimals, getContractAddressInDb, getEthersSigners } from "../../helpers/contracts-helpers";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import { eNetwork } from "../../helpers/types";
+import { SignerWithAddress } from "../../test/helpers/make-suite";
 
 task("dev:cryptopunks-init", "Doing CryptoPunks init task").setAction(async ({}, DRE) => {
   await DRE.run("set-DRE");
@@ -95,16 +96,19 @@ task("dev:deposit-eth", "Doing custom task")
     const lendPool = await getLendPool(await addressesProvider.getLendPool());
 
     const signer = await getDeploySigner();
-    const signerAddress = await signer.getAddress();
+    const signerWithAddress: SignerWithAddress = {
+      address: await signer.getAddress(),
+      signer: signer,
+    };
 
     const wethGateway = await getWETHGateway();
 
     const wethAddress = await getContractAddressInDb("WETH");
     const weth = await getMintableERC20(wethAddress);
 
-    const amountDecimals = await convertToCurrencyDecimals(weth.address, amount);
+    const amountDecimals = await convertToCurrencyDecimals(signerWithAddress, weth, amount);
 
-    const allowance = await weth.allowance(signerAddress, wethGateway.address);
+    const allowance = await weth.allowance(signerWithAddress.address, wethGateway.address);
     if (allowance.lt(amountDecimals)) {
       await waitForTx(await weth.approve(wethGateway.address, MAX_UINT_AMOUNT));
     }
@@ -114,7 +118,7 @@ task("dev:deposit-eth", "Doing custom task")
 
     await waitForTx(await wethGateway.depositETH(await signer.getAddress(), "0", { value: amountDecimals }));
 
-    console.log("uWETH Balance:", (await uWETH.balanceOf(signerAddress)).toString());
+    console.log("uWETH Balance:", (await uWETH.balanceOf(signerWithAddress.address)).toString());
   });
 
 task("dev:withdraw-eth", "Doing custom task")
@@ -128,7 +132,10 @@ task("dev:withdraw-eth", "Doing custom task")
     const addressesProvider = await getLendPoolAddressesProvider();
 
     const signer = await getDeploySigner();
-    const signerAddress = await signer.getAddress();
+    const signerWithAddress: SignerWithAddress = {
+      address: await signer.getAddress(),
+      signer: signer,
+    };
 
     const lendPool = await getLendPool(await addressesProvider.getLendPool());
 
@@ -141,19 +148,19 @@ task("dev:withdraw-eth", "Doing custom task")
     if (amount == "-1") {
       amountDecimals = MAX_UINT_AMOUNT;
     } else {
-      amountDecimals = await convertToCurrencyDecimals(weth.address, amount);
+      amountDecimals = await convertToCurrencyDecimals(signerWithAddress, weth, amount);
     }
 
     const wethResData = await lendPool.getReserveData(weth.address);
     const uWETH = await getUToken(wethResData.uTokenAddress);
-    const allowance = await uWETH.allowance(signerAddress, wethGateway.address);
+    const allowance = await uWETH.allowance(signerWithAddress.address, wethGateway.address);
     if (allowance.lt(amountDecimals)) {
       await waitForTx(await uWETH.approve(wethGateway.address, MAX_UINT_AMOUNT));
     }
 
-    console.log("uWETH Balance:", (await uWETH.balanceOf(signerAddress)).toString());
+    console.log("uWETH Balance:", (await uWETH.balanceOf(signerWithAddress.address)).toString());
 
-    await waitForTx(await wethGateway.withdrawETH(amountDecimals, signerAddress));
+    await waitForTx(await wethGateway.withdrawETH(amountDecimals, signerWithAddress.address));
   });
 
 task("dev:borrow-eth-using-bayc", "Doing custom task")
@@ -168,6 +175,10 @@ task("dev:borrow-eth-using-bayc", "Doing custom task")
     const addressesProvider = await getLendPoolAddressesProvider();
 
     const signer = await getDeploySigner();
+    const signerWithAddress: SignerWithAddress = {
+      address: await signer.getAddress(),
+      signer: signer,
+    };
 
     const wethAddress = await getContractAddressInDb("WETH");
     const weth = await getMintableERC20(wethAddress);
@@ -175,7 +186,7 @@ task("dev:borrow-eth-using-bayc", "Doing custom task")
     if (amount == "-1") {
       amountDecimals = MAX_UINT_AMOUNT;
     } else {
-      amountDecimals = await convertToCurrencyDecimals(weth.address, amount);
+      amountDecimals = await convertToCurrencyDecimals(signerWithAddress, weth, amount);
     }
 
     const wethGateway = await getWETHGateway();
@@ -200,6 +211,10 @@ task("dev:borrow-usdc-using-bayc", "Doing custom task")
     const addressesProvider = await getLendPoolAddressesProvider();
 
     const signer = await getDeploySigner();
+    const signerWithAddress: SignerWithAddress = {
+      address: await signer.getAddress(),
+      signer: signer,
+    };
 
     const wethAddress = await getContractAddressInDb("USDC");
     const weth = await getMintableERC20(wethAddress);
@@ -207,7 +222,7 @@ task("dev:borrow-usdc-using-bayc", "Doing custom task")
     if (amount == "-1") {
       amountDecimals = MAX_UINT_AMOUNT;
     } else {
-      amountDecimals = await convertToCurrencyDecimals(weth.address, amount);
+      amountDecimals = await convertToCurrencyDecimals(signerWithAddress, weth, amount);
     }
 
     const lendPool = await getLendPool(await addressesProvider.getLendPool());
@@ -237,7 +252,10 @@ task("dev:borrow-eth-using-punk", "Doing custom task")
     const addressesProvider = await getLendPoolAddressesProvider();
 
     const signer = await getDeploySigner();
-    const signerAddress = await signer.getAddress();
+    const signerWithAddress: SignerWithAddress = {
+      address: await signer.getAddress(),
+      signer: signer,
+    };
 
     const punk = await getCryptoPunksMarket();
     const wpunk = await getWrappedPunk();
@@ -248,7 +266,7 @@ task("dev:borrow-eth-using-punk", "Doing custom task")
 
     console.log("PunkGateway:", punkGateway.address);
 
-    const isApproveOk = await wpunk.isApprovedForAll(signerAddress, punkGateway.address);
+    const isApproveOk = await wpunk.isApprovedForAll(signerWithAddress.address, punkGateway.address);
     if (!isApproveOk) {
       console.log("setApprovalForAll");
       await waitForTx(await wpunk.setApprovalForAll(punkGateway.address, true));
@@ -263,15 +281,15 @@ task("dev:borrow-eth-using-punk", "Doing custom task")
       console.log("WETH Available Liquidity:", wethResData.availableLiquidity.toString());
       amountDecimals = wethResData.availableLiquidity;
     } else {
-      amountDecimals = await convertToCurrencyDecimals(weth.address, amount);
+      amountDecimals = await convertToCurrencyDecimals(signerWithAddress, weth, amount);
     }
 
     let borrowMore = false;
     const punkAddress = await punk.punkIndexToAddress(id);
     if (notFalsyOrZeroAddress(punkAddress)) {
-      if (punkAddress == signerAddress) {
+      if (punkAddress == signerWithAddress.address) {
       } else {
-        console.log(`Punk address ${punkAddress} is not owner ${signerAddress}`);
+        console.log(`Punk address ${punkAddress} is not owner ${signerWithAddress.address}`);
         borrowMore = true;
       }
     } else {
@@ -329,6 +347,10 @@ task("dev:repay-eth-using-punk", "Doing repay task")
     const addressesProvider = await getLendPoolAddressesProvider();
 
     const signer = await getDeploySigner();
+    const signerWithAddress: SignerWithAddress = {
+      address: await signer.getAddress(),
+      signer: signer,
+    };
 
     const punk = await getCryptoPunksMarket();
     const wpunkAddress = await getWrappedPunkTokenAddress(poolConfig, punk.address);
@@ -347,7 +369,7 @@ task("dev:repay-eth-using-punk", "Doing repay task")
       console.log("Loan Borrow Amount:", loanData.currentAmount.toString());
       amountDecimals = new BigNumber(loanData.currentAmount.toString()).multipliedBy(1.1).toFixed(0);
     } else {
-      amountDecimals = await convertToCurrencyDecimals(weth.address, amount);
+      amountDecimals = await convertToCurrencyDecimals(signerWithAddress, weth, amount);
     }
 
     await waitForTx(await punkGateway.repayETH(id, amountDecimals, { value: amountDecimals }));
@@ -368,6 +390,10 @@ task("dev:repay-eth-using-erc721", "Doing repay task")
     const addressesProvider = await getLendPoolAddressesProvider();
 
     const signer = await getDeploySigner();
+    const signerWithAddress: SignerWithAddress = {
+      address: await signer.getAddress(),
+      signer: signer,
+    };
 
     const wethGateway = await getWETHGateway();
 
@@ -383,7 +409,7 @@ task("dev:repay-eth-using-erc721", "Doing repay task")
       console.log("Loan Borrow Amount:", loanData.currentAmount.toString());
       amountDecimals = loanData.currentAmount;
     } else {
-      amountDecimals = await convertToCurrencyDecimals(weth.address, amount);
+      amountDecimals = await convertToCurrencyDecimals(signerWithAddress, weth, amount);
     }
 
     await waitForTx(await wethGateway.repayETH(token, id, amountDecimals, { value: amountDecimals }));

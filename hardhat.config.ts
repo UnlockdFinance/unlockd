@@ -36,11 +36,11 @@ const UNLIMITED_BYTECODE_SIZE = process.env.UNLIMITED_BYTECODE_SIZE === "true";
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
 const RPC_ENDPOINT = process.env.RPC_ENDPOINT || "";
 const FORK_RPC_ENDPOINT = process.env.FORK_RPC_ENDPOINT || "";
-const FORK = process.env.FORK || "";
+export const FORK = process.env.FORK || "";
 
 // Prevent to load scripts before compilation and typechain
 if (!SKIP_LOAD) {
-  ["misc", "migrations", "dev", "full", "verifications", "deployments", "helpers"].forEach((folder) => {
+  ["misc", "migrations", "dev", "full", "fork", "verifications", "deployments", "helpers"].forEach((folder) => {
     const tasksPath = path.join(__dirname, "tasks", folder);
     fs.readdirSync(tasksPath)
       .filter((pth) => pth.includes(".ts"))
@@ -49,14 +49,17 @@ if (!SKIP_LOAD) {
       });
   });
   const tasksPath = path.join(__dirname, "unlockd-tasks", "tasks");
+  console.log(tasksPath);
   fs.readdirSync(tasksPath)
     .filter((pth) => pth.includes(".ts"))
     .forEach((task) => {
       require(`${tasksPath}/${task}`);
     });
+  
+  require(`${path.join(__dirname, "tasks/misc")}/set-bre.ts`);
 }
 
-require(`${path.join(__dirname, "tasks/misc")}/set-bre.ts`);
+
 
 const getCommonNetworkConfig = (networkName: eNetwork, networkId: number) => ({
   url: FORK? FORK_RPC_ENDPOINT : RPC_ENDPOINT,

@@ -5,8 +5,14 @@ import { getReservesConfigByPool } from "../helpers/configuration";
 import { MAX_UINT_AMOUNT, oneEther, ONE_DAY } from "../helpers/constants";
 import { getDebtToken } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
-import { advanceTimeAndBlock, increaseTime, sleep, waitForTx } from "../helpers/misc-utils";
-import { IReserveParams, iUnlockdPoolAssets, ProtocolLoanState, UnlockdPools } from "../helpers/types";
+import { advanceTimeAndBlock, fundWithERC20, increaseTime, sleep, waitForTx } from "../helpers/misc-utils";
+import {
+  IConfigNftAsCollateralInput,
+  IReserveParams,
+  iUnlockdPoolAssets,
+  ProtocolLoanState,
+  UnlockdPools,
+} from "../helpers/types";
 import {
   approveERC20,
   approveERC20PunkGateway,
@@ -27,19 +33,23 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
   let punkInitPrice: BN;
 
   before("Initializing configuration", async () => {
+    const { wethGateway, punkGateway, users } = testEnv;
+    const [depositor, borrower] = users;
     // Sets BigNumber for this suite, instead of globally
     BigNumber.config({
       DECIMAL_PLACES: 0,
       ROUNDING_MODE: BigNumber.ROUND_DOWN,
     });
-
+    await wethGateway.authorizeCallerWhitelist(
+      [depositor.address, users[0].address, borrower.address, punkGateway.address],
+      true
+    );
+    await punkGateway.authorizeCallerWhitelist([depositor.address, users[0].address, borrower.address], true);
     actionsConfiguration.skipIntegrityCheck = false; //set this to true to execute solidity-coverage
 
     calculationsConfiguration.reservesParams = <iUnlockdPoolAssets<IReserveParams>>(
       getReservesConfigByPool(UnlockdPools.proto)
     );
-
-    punkInitPrice = await testEnv.nftOracle.getNFTPrice(testEnv.wrappedPunk.address, testEnv.punkIndexTracker);
   });
   after("Reset", async () => {
     // Reset BigNumber
@@ -47,9 +57,6 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
       DECIMAL_PLACES: 20,
       ROUNDING_MODE: BigNumber.ROUND_HALF_UP,
     });
-
-    await setNftAssetPrice(testEnv, "WPUNKS", 101, punkInitPrice.toString());
-    await setNftAssetPrice(testEnv, "WPUNKS", 102, punkInitPrice.toString());
   });
 
   it("Borrow USDC and liquidate it", async () => {
@@ -71,10 +78,10 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     const [depositor, borrower] = users;
     const liquidator = users[4];
     const depositUnit = "200000";
-    const depositSize = await convertToCurrencyDecimals(usdc.address, "200000");
+    const depositSize = await convertToCurrencyDecimals(deployer, usdc, "200000");
 
     await sleep(1000 * 1);
-    await setNftAssetPrice(testEnv, "WPUNKS", 101, punkInitPrice.toString());
+    await setNftAssetPrice(testEnv, "WPUNKS", 101, parseEther("50").toString());
 
     // Delegates borrowing power of WETH to WETHGateway
     const reserveData = await pool.getReserveData(usdc.address);
@@ -90,7 +97,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     };
 
     // Deposit USDC
-    await mintERC20(testEnv, depositor, "USDC", depositUnit.toString());
+    await fundWithERC20("USDC", depositor.address, "200000");
     await approveERC20(testEnv, depositor, "USDC");
     await deposit(testEnv, depositor, "", "USDC", depositUnit.toString(), depositor.address, "success", "");
 
@@ -111,27 +118,25 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
 
     await configurator.connect(deployer.signer).setTimeframe(720000);
 
-    await waitForTx(
-      await configurator
-        .connect(deployer.signer)
-        .configureNftAsCollateral(
-          wrappedPunk.address,
-          punkIndex,
-          "500000000000000000000",
-          4000,
-          7000,
-          5000,
-          100,
-          47,
-          48,
-          200,
-          250
-        )
-    );
+    const collData: IConfigNftAsCollateralInput = {
+      asset: wrappedPunk.address,
+      nftTokenId: punkIndex.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     const usdcPrice = await reserveOracle.getAssetPrice(usdc.address);
     const amountBorrow = await convertToCurrencyDecimals(
-      usdc.address,
+      deployer,
+      usdc,
       new BigNumber(nftColDataBefore.availableBorrowsInETH.toString())
         .div(usdcPrice.toString())
         .multipliedBy(0.95)
@@ -148,13 +153,13 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     expect(nftDebtDataAfterBorrow.healthFactor.toString()).to.be.bignumber.gt(oneEther.toFixed(0));
 
     // Drop the health factor below 1
-    const debAmountUnits = await convertToCurrencyUnits(usdc.address, nftDebtDataAfterBorrow.totalDebt.toString());
+    const debAmountUnits = await convertToCurrencyUnits(deployer, usdc, nftDebtDataAfterBorrow.totalDebt.toString());
     await setNftAssetPriceForDebt(testEnv, "WPUNKS", punkIndex, "USDC", debAmountUnits, "80");
     const nftDebtDataAfterOracle = await pool.getNftDebtData(wrappedPunk.address, punkIndex);
     expect(nftDebtDataAfterOracle.healthFactor.toString()).to.be.bignumber.lt(oneEther.toFixed(0));
 
     // Liquidate USDC loan
-    await mintERC20(testEnv, liquidator, "USDC", depositUnit.toString());
+    await fundWithERC20("USDC", liquidator.address, "200000");
     await approveERC20PunkGateway(testEnv, liquidator, "USDC");
 
     const { liquidatePrice } = await pool.getNftLiquidatePrice(wrappedPunk.address, punkIndex);
@@ -165,7 +170,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
 
     await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
 
-    const extraAmount = await convertToCurrencyDecimals(usdc.address, "100");
+    const extraAmount = await convertToCurrencyDecimals(deployer, usdc, "100");
     await waitForTx(await punkGateway.connect(liquidator.signer).liquidate(punkIndex, extraAmount));
 
     const loanDataAfter = await dataProvider.getLoanDataByLoanId(nftDebtDataAfterBorrow.loanId);
@@ -197,7 +202,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     const depositSize = await convertToCurrencyDecimals(usdc.address, "200000");
 
     await sleep(1000 * 1);
-    await setNftAssetPrice(testEnv, "WPUNKS", 102, punkInitPrice.toString());
+    await setNftAssetPrice(testEnv, "WPUNKS", 102, parseEther("50").toString());
 
     // Delegates borrowing power of WETH to WETHGateway
     const reserveData = await pool.getReserveData(usdc.address);
@@ -294,10 +299,10 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     const [depositor, borrower] = users;
     const liquidator = users[4];
     const depositUnit = "200000";
-    const depositSize = await convertToCurrencyDecimals(usdc.address, "200000");
+    const depositSize = await convertToCurrencyDecimals(deployer, usdc, "200000");
 
     await sleep(1000 * 1);
-    await setNftAssetPrice(testEnv, "WPUNKS", 101, punkInitPrice.toString());
+    await setNftAssetPrice(testEnv, "WPUNKS", 101, parseEther("50").toString());
 
     const punkIndex = testEnv.punkIndexTracker++;
 
@@ -328,27 +333,25 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
 
     await configurator.connect(deployer.signer).setTimeframe(720000);
 
-    await waitForTx(
-      await configurator
-        .connect(deployer.signer)
-        .configureNftAsCollateral(
-          wrappedPunk.address,
-          punkIndex,
-          "500000000000000000000",
-          4000,
-          7000,
-          5000,
-          100,
-          47,
-          48,
-          200,
-          250
-        )
-    );
+    const collData: IConfigNftAsCollateralInput = {
+      asset: wrappedPunk.address,
+      nftTokenId: punkIndex.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 5000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     const usdcPrice = await reserveOracle.getAssetPrice(usdc.address);
     const amountBorrow = await convertToCurrencyDecimals(
-      usdc.address,
+      deployer,
+      usdc,
       new BigNumber(nftColDataBefore.availableBorrowsInETH.toString())
         .div(usdcPrice.toString())
         .multipliedBy(0.95)
@@ -365,14 +368,14 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     expect(nftDebtDataAfterBorrow.healthFactor.toString()).to.be.bignumber.gt(oneEther.toFixed(0));
 
     // Drop the health factor below 1
-    const debAmountUnits = await convertToCurrencyUnits(usdc.address, nftDebtDataAfterBorrow.totalDebt.toString());
+    const debAmountUnits = await convertToCurrencyUnits(deployer, usdc, nftDebtDataAfterBorrow.totalDebt.toString());
     await setNftAssetPriceForDebt(testEnv, "WPUNKS", punkIndex, "USDC", debAmountUnits, "80");
     const nftDebtDataAfterOracle = await pool.getNftDebtData(wrappedPunk.address, punkIndex);
     expect(nftDebtDataAfterOracle.healthFactor.toString()).to.be.bignumber.lt(oneEther.toFixed(0));
 
     // Auction loan
     await advanceTimeAndBlock(100);
-    await mintERC20(testEnv, liquidator, "USDC", depositUnit.toString());
+    await fundWithERC20("USDC", liquidator.address, "200000");
     await approveERC20PunkGateway(testEnv, liquidator, "USDC");
 
     const { liquidatePrice } = await pool.getNftLiquidatePrice(wrappedPunk.address, punkIndex);
@@ -383,7 +386,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
 
     // Redeem loan
     await advanceTimeAndBlock(100);
-    await mintERC20(testEnv, borrower, "USDC", depositUnit.toString());
+    await fundWithERC20("USDC", borrower.address, "200000");
     await approveERC20PunkGateway(testEnv, borrower, "USDC");
 
     await increaseTime(nftCfgData.redeemDuration.mul(24).sub(1).toNumber());
@@ -437,7 +440,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
 
     const punkIndex = testEnv.punkIndexTracker++;
 
-    await setNftAssetPrice(testEnv, "WPUNKS", punkIndex, punkInitPrice.toString());
+    await setNftAssetPrice(testEnv, "WPUNKS", punkIndex, parseEther("50").toString());
 
     // Deposit with native ETH
     await waitForTx(
@@ -472,26 +475,26 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
 
     await nftOracle.connect(deployer.signer).setPriceManagerStatus(configurator.address, true);
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(
-        wrappedPunk.address,
-        punkIndex,
-        depositSize.mul(5),
-        4000,
-        7000,
-        5000,
-        100,
-        47,
-        48,
-        200,
-        250
-      );
+    const collData: IConfigNftAsCollateralInput = {
+      asset: wrappedPunk.address,
+      nftTokenId: punkIndex.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     await configurator.connect(deployer.signer).setTimeframe(720000);
 
     const amountBorrow = await convertToCurrencyDecimals(
-      weth.address,
+      deployer,
+      weth,
       new BigNumber(nftColDataBefore.availableBorrowsInETH.toString())
         .div(wethPrice.toString())
         .multipliedBy(0.95)
@@ -506,7 +509,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     expect(nftDebtDataAfterBorrow.healthFactor.toString()).to.be.bignumber.gt(oneEther.toFixed(0));
 
     // Drop the health factor below 1
-    const debAmountUnits = await convertToCurrencyUnits(weth.address, nftDebtDataAfterBorrow.totalDebt.toString());
+    const debAmountUnits = await convertToCurrencyUnits(deployer, weth, nftDebtDataAfterBorrow.totalDebt.toString());
     await setNftAssetPriceForDebt(testEnv, "WPUNKS", punkIndex, "WETH", debAmountUnits, "80");
     const nftDebtDataAfterOracle = await pool.getNftDebtData(wrappedPunk.address, punkIndex);
     expect(nftDebtDataAfterOracle.healthFactor.toString()).to.be.bignumber.lt(oneEther.toFixed(0));
@@ -522,7 +525,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
 
     await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
 
-    const extraAmount = await convertToCurrencyDecimals(weth.address, "1");
+    const extraAmount = await convertToCurrencyDecimals(deployer, weth, "1");
     await waitForTx(await punkGateway.connect(liquidator.signer).liquidateETH(punkIndex, { value: extraAmount }));
 
     const loanDataAfter = await dataProvider.getLoanDataByLoanId(nftDebtDataAfterBorrow.loanId);
@@ -556,7 +559,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
 
     const punkIndex = testEnv.punkIndexTracker++;
 
-    await setNftAssetPrice(testEnv, "WPUNKS", punkIndex, punkInitPrice.toString());
+    await setNftAssetPrice(testEnv, "WPUNKS", punkIndex, parseEther("50").toString());
 
     // Deposit with native ETH
     await waitForTx(
@@ -649,7 +652,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
 
     const punkIndex = testEnv.punkIndexTracker++;
 
-    await setNftAssetPrice(testEnv, "WPUNKS", punkIndex, punkInitPrice.toString());
+    await setNftAssetPrice(testEnv, "WPUNKS", punkIndex, parseEther("50").toString());
 
     // Deposit with native ETH
     await waitForTx(
@@ -682,27 +685,27 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
 
     await nftOracle.connect(deployer.signer).setPriceManagerStatus(configurator.address, true);
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(
-        wrappedPunk.address,
-        punkIndex,
-        depositSize.mul(5),
-        4000,
-        7000,
-        5000,
-        100,
-        47,
-        48,
-        200,
-        250
-      );
+    const collData: IConfigNftAsCollateralInput = {
+      asset: wrappedPunk.address,
+      nftTokenId: punkIndex.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 5000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     await configurator.connect(deployer.signer).setTimeframe(720000);
 
     const wethPrice = await reserveOracle.getAssetPrice(weth.address);
     const amountBorrow = await convertToCurrencyDecimals(
-      weth.address,
+      deployer,
+      weth,
       new BigNumber(nftColDataBefore.availableBorrowsInETH.toString())
         .div(wethPrice.toString())
         .multipliedBy(0.95)
@@ -719,7 +722,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     expect(nftDebtDataAfterBorrow.healthFactor.toString()).to.be.bignumber.gt(oneEther.toFixed(0));
 
     // Drop the health factor below 1
-    const debAmountUnits = await convertToCurrencyUnits(weth.address, nftDebtDataAfterBorrow.totalDebt.toString());
+    const debAmountUnits = await convertToCurrencyUnits(deployer, weth, nftDebtDataAfterBorrow.totalDebt.toString());
     await setNftAssetPriceForDebt(testEnv, "WPUNKS", punkIndex, "WETH", debAmountUnits, "80");
     const nftDebtDataAfterOracle = await pool.getNftDebtData(wrappedPunk.address, punkIndex);
     expect(nftDebtDataAfterOracle.healthFactor.toString()).to.be.bignumber.lt(oneEther.toFixed(0));

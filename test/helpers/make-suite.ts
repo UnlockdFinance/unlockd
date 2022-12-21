@@ -4,12 +4,14 @@ import bignumberChai from "chai-bignumber";
 import { solidity } from "ethereum-waffle";
 import { Signer } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { SUDOSWAP_PAIRS_GOERLI, SUDOSWAP_PAIRS_MAINNET } from "../../helpers/constants";
 import {
   getCryptoPunksMarket,
   getLendPool,
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
   getLendPoolLoanProxy,
+  getLSSVMPair,
   getMintableERC20,
   getMintableERC721,
   getMockChainlinkOracle,
@@ -44,6 +46,7 @@ import {
   WalletBalanceProvider,
   WrappedPunk,
 } from "../../types";
+import { ILSSVMPair } from "../../types/ILSSVMPair";
 import { INFTXVaultFactoryV2 } from "../../types/INFTXVaultFactoryV2";
 import { IUniswapV2Router02 } from "../../types/IUniswapV2Router02";
 import { LendPool } from "../../types/LendPool";
@@ -70,6 +73,10 @@ chai.use(solidity);
 export interface SignerWithAddress {
   signer: Signer;
   address: tEthereumAddress;
+}
+export interface LSSVMPairWithID {
+  LSSVMPair: ILSSVMPair;
+  collectionName: string;
 }
 export interface TestEnv {
   deployer: SignerWithAddress;
@@ -113,6 +120,7 @@ export interface TestEnv {
 
   nftxVaultFactory: INFTXVaultFactoryV2;
   sushiSwapRouter: IUniswapV2Router02;
+  LSSVMPairs: LSSVMPairWithID[];
 }
 
 let buidlerevmSnapshotId = "0x1";
@@ -137,6 +145,7 @@ const testEnv: TestEnv = {
   mockNftOracle: {} as MockNFTOracle,
   nftOracle: {} as NFTOracle,
   mockChainlinkOracle: {} as MockChainlinkOracle,
+  LSSVMPairs: [] as LSSVMPairWithID[],
   weth: {} as WETH9Mocked,
   uWETH: {} as UToken,
   dai: {} as MintableERC20,
@@ -186,7 +195,7 @@ export async function initializeMakeSuite() {
   testEnv.mockChainlinkOracle = await getMockChainlinkOracle();
   testEnv.mockReserveOracle = await getMockReserveOracle();
   testEnv.nftOracle = await getNFTOracle();
-  //testEnv.mockNFT = await getMockNFT();
+
   testEnv.mockNftOracle = await getMockNFTOracle();
 
   testEnv.dataProvider = await getUnlockdProtocolDataProvider();
@@ -197,6 +206,7 @@ export async function initializeMakeSuite() {
 
   // Reserve Tokens
   const allReserveTokens = await testEnv.dataProvider.getAllReservesTokenDatas();
+
   const uDaiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.uTokenAddress;
   const uUsdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.uTokenAddress;
   const uWEthAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.uTokenAddress;
@@ -225,42 +235,42 @@ export async function initializeMakeSuite() {
   testEnv.uUsdc = await getUToken(uUsdcAddress);
   testEnv.uWETH = await getUToken(uWEthAddress);
 
-  //testEnv.dai = await getMintableERC20(daiAddress);
-  //testEnv.usdc = await getMintableERC20(usdcAddress);
+  testEnv.dai = await getMintableERC20(daiAddress);
+  testEnv.usdc = await getMintableERC20(usdcAddress);
   testEnv.weth = await getWETHMocked(wethAddress);
   testEnv.wethGateway = await getWETHGateway();
 
   // NFT Tokens
   const allUNftTokens = await testEnv.dataProvider.getAllNftsTokenDatas();
-  //console.log("allUNftTokens", allUNftTokens);
-  //const uPunkAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.uNftAddress;
-  const uByacAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "BAYC")?.uNftAddress;
+  console.log("allUNftTokens", allUNftTokens);
+  const uPunkAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.uNftAddress;
+  const uBaycAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "BAYC")?.uNftAddress;
 
-  //const wpunksAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.nftAddress;
+  const wpunksAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.nftAddress;
   const baycAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "BAYC")?.nftAddress;
   console.log(baycAddress);
-  /*
-  if (!uByacAddress || !uPunkAddress) {
-    console.error("Invalid UNFT Tokens", uByacAddress, uPunkAddress);
+
+  if (!uBaycAddress || !uPunkAddress) {
+    console.error("Invalid UNFT Tokens", uBaycAddress, uPunkAddress);
     process.exit(1);
   }
   if (!baycAddress || !wpunksAddress) {
     console.error("Invalid NFT Tokens", baycAddress, wpunksAddress);
     process.exit(1);
   }
-  */
 
-  testEnv.uBAYC = await getUNFT(uByacAddress);
-  //testEnv.uPUNK = await getUNFT(uPunkAddress);
+  testEnv.uBAYC = await getUNFT(uBaycAddress);
+  testEnv.uPUNK = await getUNFT(uPunkAddress);
 
   testEnv.bayc = await getMintableERC721(baycAddress!);
   testEnv.tokenId = 1;
-  //testEnv.cryptoPunksMarket = await getCryptoPunksMarket();
-  //testEnv.wrappedPunk = await getWrappedPunk();
-  //testEnv.punkGateway = await getPunkGateway();
+  testEnv.cryptoPunksMarket = await getCryptoPunksMarket();
+
+  testEnv.wrappedPunk = await getWrappedPunk();
+  testEnv.punkGateway = await getPunkGateway();
 
   testEnv.tokenIdTracker = 100;
-  //testEnv.punkIndexTracker = 100;
+  testEnv.punkIndexTracker = 100;
 
   testEnv.roundIdTracker = 1;
   testEnv.nowTimeTracker = Number(await getNowTimeInSeconds());
@@ -268,6 +278,20 @@ export async function initializeMakeSuite() {
   // NFTXVaultFactory, Sushiswap Router
   //testEnv.nftxVaultFactory = await getNFTXVaultFactory();
   //testEnv.sushiSwapRouter = await getSushiSwapRouter();
+
+  const sudoSwapPairsForAsset = process.env.FORK == "goerli" ? SUDOSWAP_PAIRS_GOERLI : SUDOSWAP_PAIRS_MAINNET;
+
+  for (const [key] of Object.entries(sudoSwapPairsForAsset)) {
+    const pairsForAsset = sudoSwapPairsForAsset[key];
+
+    pairsForAsset.map(async (pair) => {
+      let pairWithID: LSSVMPairWithID = {} as LSSVMPairWithID;
+      pairWithID.collectionName = key;
+      pairWithID.LSSVMPair = await getLSSVMPair(pair);
+
+      testEnv.LSSVMPairs.push(pairWithID);
+    });
+  }
 }
 
 const setSnapshot = async () => {

@@ -1,4 +1,4 @@
-import BigNumber from "bignumber.js";
+import { BigNumber } from "@ethersproject/bignumber";
 
 export interface SymbolMap<T> {
   [symbol: string]: T;
@@ -86,6 +86,7 @@ export enum eContractid {
   UniswapV2Factory = "UniswapV2Factory",
   SushiSwapRouter = "SushiSwapRouter",
   NFTXHelper = "NFTXHelper",
+  LSSVMPPair = "LSSVMPair",
 }
 
 export enum ProtocolLoanState {
@@ -154,7 +155,7 @@ export enum ProtocolErrors {
   LP_INCONSISTENT_PARAMS = "408",
   LP_NFT_IS_NOT_USED_AS_COLLATERAL = "409",
   LP_CALLER_MUST_BE_AN_UTOKEN = "410",
-  LP_INVALIED_NFT_AMOUNT = "411",
+  LP_INVALID_NFT_AMOUNT = "411",
   LP_NFT_HAS_USED_AS_COLLATERAL = "412",
   LP_DELEGATE_CALL_FAILED = "413",
   LP_AMOUNT_LESS_THAN_EXTRA_DEBT = "414",
@@ -165,6 +166,10 @@ export enum ProtocolErrors {
   LP_CALLER_NOT_LEND_POOL_LIQUIDATOR_NOR_GATEWAY = "419",
   LP_CONSECUTIVE_BIDS_NOT_ALLOWED = "420",
   LP_INVALID_OVERFLOW_VALUE = "421",
+  LP_CALLER_NOT_NFT_HOLDER = "422",
+  LP_NFT_NOT_ALLOWED_TO_SELL = "423",
+  LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY = "424",
+  LP_COLLECTION_NOT_SUPPORTED = "425",
 
   //lend pool loan errors
   LPL_INVALID_LOAN_STATE = "480",
@@ -182,7 +187,7 @@ export enum ProtocolErrors {
   LPL_INVALID_BIDDER_ADDRESS = "492",
   LPL_AMOUNT_LESS_THAN_BID_FINE = "493",
   LPL_BID_INVALID_BID_FINE = "494",
-
+  LPL_BID_PRICE_LESS_THAN_MIN_BID_REQUIRED = "495",
   //common token errors
   CT_CALLER_MUST_BE_LEND_POOL = "500", // 'The caller of this function must be a lending pool'
   CT_INVALID_MINT_AMOUNT = "501", //invalid amount to mint
@@ -249,10 +254,10 @@ export type iAssetsWithoutUSD<T> = Omit<iAssetBase<T>, "USD">;
 
 export type iUnlockdPoolAssets<T> = Pick<
   iAssetsWithoutUSD<T>,
-  "WETH"
-  //| "DAI"
+  | "WETH"
+  | "DAI"
   //| 'BUSD'
-  //| "USDC"
+  | "USDC"
   //| 'USDT'
 >;
 
@@ -274,7 +279,7 @@ export interface iNftCommon<T> {
   [key: string]: T;
 }
 export interface iNftBase<T> {
-  //WPUNKS: T;
+  WPUNKS: T;
   BAYC: T;
   DOODLE: T;
   AZUKI: T;
@@ -294,7 +299,7 @@ export type iUnlockdPoolNfts<T> = iNftBase<T>;
 export type iNftAggregatorBase<T> = iNftBase<T>;
 
 export enum NftContractId {
-  //WPUNKS = "WPUNKS",
+  WPUNKS = "WPUNKS",
   BAYC = "BAYC",
   DOODLE = "DOODLE",
   AZUKI = "AZUKI",
@@ -343,6 +348,20 @@ export interface INftCollateralParams {
   baseLTVAsCollateral: string;
   liquidationThreshold: string;
   liquidationBonus: string;
+}
+
+export interface IConfigNftAsCollateralInput {
+  asset: string;
+  nftTokenId: string;
+  newPrice: BigNumber;
+  ltv: number;
+  liquidationThreshold: number;
+  redeemThreshold: number;
+  liquidationBonus: number;
+  redeemDuration: number;
+  auctionDuration: number;
+  redeemFine: number;
+  minBidFine: number;
 }
 
 export interface INftAuctionParams {
@@ -443,6 +462,7 @@ export interface ICommonConfiguration {
 
   NFTXVaultFactory: iParamsPerNetwork<tEthereumAddress>;
   SushiSwapRouter: iParamsPerNetwork<tEthereumAddress>;
+  LSSVMRouter: iParamsPerNetwork<tEthereumAddress>;
 }
 
 export interface IUnlockdConfiguration extends ICommonConfiguration {

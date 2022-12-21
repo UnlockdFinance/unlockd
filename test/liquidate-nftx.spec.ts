@@ -1,9 +1,11 @@
+import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
 import { BigNumber as BN } from "ethers";
 import { APPROVAL_AMOUNT_LENDING_POOL, oneEther } from "../helpers/constants";
 import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
-import { ProtocolErrors } from "../helpers/types";
-import { setNftAssetPrice, setNftAssetPriceForDebt } from "./helpers/actions";
+import { fundWithERC20, fundWithERC721 } from "../helpers/misc-utils";
+import { IConfigNftAsCollateralInput, ProtocolErrors } from "../helpers/types";
+import { approveERC20, setApprovalForAll, setNftAssetPrice, setNftAssetPriceForDebt } from "./helpers/actions";
 import { makeSuite } from "./helpers/make-suite";
 
 const chai = require("chai");
@@ -13,49 +15,44 @@ const { expect } = chai;
 makeSuite("LendPool: Liquidation", (testEnv) => {
   let baycInitPrice: BN;
 
-  before("Before liquidation: set config", async () => {
-    BigNumber.config({ DECIMAL_PLACES: 0, ROUNDING_MODE: BigNumber.ROUND_DOWN });
-
-    baycInitPrice = await testEnv.nftOracle.getNFTPrice(testEnv.bayc.address, 101);
-  });
-
-  after("After liquidation: reset config", async () => {
-    BigNumber.config({ DECIMAL_PLACES: 20, ROUNDING_MODE: BigNumber.ROUND_HALF_UP });
-
-    await setNftAssetPrice(testEnv, "BAYC", 101, baycInitPrice.toString());
-  });
-
   it("WETH - Borrows WETH", async () => {
     const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, deployer } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
 
-    //mints WETH to depositor
-    await weth.connect(depositor.signer).mint(await convertToCurrencyDecimals(weth.address, "1000"));
-
-    //approve protocol to access depositor wallet
-    await weth.connect(depositor.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+    //mints USDC to the liquidator
+    await fundWithERC20("WETH", depositor.address, "1000");
+    await approveERC20(testEnv, depositor, "WETH");
 
     //deposits WETH
-    const amountDeposit = await convertToCurrencyDecimals(weth.address, "1000");
+    const amountDeposit = await convertToCurrencyDecimals(deployer, weth, "1000");
 
     await pool.connect(depositor.signer).deposit(weth.address, amountDeposit, depositor.address, "0");
 
     //mints BAYC to borrower
-    await bayc.connect(borrower.signer).mint("101");
-
+    await fundWithERC721("BAYC", borrower.address, 101);
     //approve protocol to access borrower wallet
-    await bayc.connect(borrower.signer).setApprovalForAll(pool.address, true);
+    await setApprovalForAll(testEnv, borrower, "BAYC");
 
     //borrows
-    const price = await convertToCurrencyDecimals(weth.address, "1000");
+    const price = await convertToCurrencyDecimals(deployer, weth, "1000");
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(bayc.address, true);
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, "101", price, 4000, 7000, 5000, 100, 47, 48, 200, 250);
-
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: "101",
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
     await configurator.setTimeframe(3600);
 
     const nftColDataBefore = await pool.getNftCollateralData(bayc.address, 101, weth.address);
@@ -63,7 +60,8 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     const wethPrice = await reserveOracle.getAssetPrice(weth.address);
 
     const amountBorrow = await convertToCurrencyDecimals(
-      weth.address,
+      deployer,
+      weth,
       new BigNumber(nftColDataBefore.availableBorrowsInETH.toString())
         .div(wethPrice.toString())
         .multipliedBy(0.95)
@@ -83,14 +81,14 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
   });
 
   it("WETH - Drop the health factor below 1", async () => {
-    const { weth, bayc, users, pool, nftOracle } = testEnv;
+    const { weth, bayc, users, pool, nftOracle, deployer } = testEnv;
     const borrower = users[1];
 
     await nftOracle.setPriceManagerStatus(bayc.address, true);
 
     const nftDebtDataBefore = await pool.getNftDebtData(bayc.address, "101");
 
-    const debAmountUnits = await convertToCurrencyUnits(weth.address, nftDebtDataBefore.totalDebt.toString());
+    const debAmountUnits = await convertToCurrencyUnits(deployer, weth, nftDebtDataBefore.totalDebt.toString());
     await setNftAssetPriceForDebt(testEnv, "BAYC", 101, "WETH", debAmountUnits, "80");
 
     const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "101");
@@ -170,47 +168,52 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     const depositor = users[0];
     const borrower = users[1];
 
-    await setNftAssetPrice(testEnv, "BAYC", 101, baycInitPrice.toString());
-
-    //mints USDC to depositor
-    await usdc.connect(depositor.signer).mint(await convertToCurrencyDecimals(usdc.address, "100000"));
-
-    //approve protocol to access depositor wallet
-    await usdc.connect(depositor.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+    await setNftAssetPrice(testEnv, "BAYC", 101, parseEther("50").toString());
+    //mints USDC to the liquidator
+    await fundWithERC20("USDC", depositor.address, "100000");
+    await approveERC20(testEnv, depositor, "USDC");
 
     //deposits USDC
-    const amountDeposit = await convertToCurrencyDecimals(usdc.address, "100000");
+    const amountDeposit = await convertToCurrencyDecimals(deployer, usdc, "100000");
 
     await pool.connect(depositor.signer).deposit(usdc.address, amountDeposit, depositor.address, "0");
 
     //mints BAYC to borrower
-    await bayc.connect(borrower.signer).mint("102");
-
+    await fundWithERC721("BAYC", borrower.address, 102);
     //approve protocol to access borrower wallet
-    await bayc.connect(borrower.signer).setApprovalForAll(pool.address, true);
+    await setApprovalForAll(testEnv, borrower, "BAYC");
 
     //borrows
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(bayc.address, true);
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, "102", "5000000000000000000", 4000, 7000, 5000, 100, 47, 48, 200, 250);
-
-    await configurator.connect(deployer.signer).setTimeframe(720000);
-
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: "102",
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
     const nftColDataBefore = await pool.getNftCollateralData(bayc.address, 102, usdc.address);
 
     const usdcPrice = await reserveOracle.getAssetPrice(usdc.address);
 
     const amountBorrow = await convertToCurrencyDecimals(
-      usdc.address,
+      deployer,
+      usdc,
       new BigNumber(nftColDataBefore.availableBorrowsInETH.toString())
         .div(usdcPrice.toString())
         .multipliedBy(0.95)
         .toFixed(0)
     );
-    console.log(amountBorrow.toString());
+
     await pool
       .connect(borrower.signer)
       .borrow(usdc.address, amountBorrow.toString(), bayc.address, "102", borrower.address, "0");
@@ -227,12 +230,12 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
   });
 
   it("USDC - Drop the health factor below 1", async () => {
-    const { usdc, bayc, users, pool, nftOracle } = testEnv;
+    const { usdc, bayc, users, pool, nftOracle, deployer } = testEnv;
     const borrower = users[1];
 
     const nftDebtDataBefore = await pool.getNftDebtData(bayc.address, "102");
 
-    const debAmountUnits = await convertToCurrencyUnits(usdc.address, nftDebtDataBefore.totalDebt.toString());
+    const debAmountUnits = await convertToCurrencyUnits(deployer, usdc, nftDebtDataBefore.totalDebt.toString());
     await setNftAssetPriceForDebt(testEnv, "BAYC", 102, "USDC", debAmountUnits, "80");
 
     const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "102");

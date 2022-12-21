@@ -1,6 +1,11 @@
+import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
 import { getReservesConfigByPool } from "../helpers/configuration";
+import { getDeploySigner } from "../helpers/contracts-getters";
+import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
+import { fundWithERC20, waitForTx } from "../helpers/misc-utils";
 import { IReserveParams, iUnlockdPoolAssets, UnlockdPools } from "../helpers/types";
+import { SelfdestructTransferFactory } from "../types";
 import {
   configuration as actionsConfiguration,
   getERC20Balance,
@@ -37,39 +42,44 @@ makeSuite("LendPool: Rescue locked funds", (testEnv: TestEnv) => {
   });
 
   it("User 1 transfers 100 DAI directly to pool, and rescuer returns funds", async () => {
-    const { users, pool } = testEnv;
+    const { users, pool, dai } = testEnv;
     const rescuer = users[0];
     const user1 = users[1];
 
-    await mintERC20(testEnv, user1, "DAI", "1000");
-
+    await fundWithERC20("DAI", user1.address, "1000");
     const initialBalance = await getERC20Balance(testEnv, user1, "DAI");
     console.log(initialBalance);
-    await transferERC20(testEnv, user1, pool, "DAI", "100");
 
+    await dai.connect(user1.signer).transfer(pool.address, await convertToCurrencyDecimals(user1, dai, "100"));
     //Set new rescuer
     await setPoolRescuer(testEnv, rescuer);
 
-    await rescue(testEnv, rescuer, user1, "DAI", "100", false);
+    await testEnv.pool
+      .connect(rescuer.signer)
+      .rescue(dai.address, user1.address, await convertToCurrencyDecimals(rescuer, dai, "100"), false);
+
+    //await rescue(testEnv, rescuer, user1, "DAI", "100", false);
 
     const finalBalance = await getERC20Balance(testEnv, user1, "DAI");
 
     expect(initialBalance).to.be.equal(finalBalance, "Tokens not rescued properly");
   });
   it("Prevents a random user from rescuing tokens ", async () => {
-    const { users, pool } = testEnv;
+    const { users, pool, dai } = testEnv;
     const fakeRescuer = users[0];
     const realRescuer = users[1];
     const recipient = users[2];
-    await mintERC20(testEnv, fakeRescuer, "DAI", "1000");
 
+    await fundWithERC20("DAI", fakeRescuer.address, "1000");
     const initialBalance = await getERC20Balance(testEnv, fakeRescuer, "DAI");
     console.log(initialBalance);
 
     //Set new rescuer
     await setPoolRescuer(testEnv, realRescuer);
-    await expect(rescue(testEnv, fakeRescuer, recipient, "DAI", "100", false)).to.be.revertedWith(
-      "Rescuable: caller is not the rescuer"
-    );
+    await expect(
+      testEnv.pool
+        .connect(fakeRescuer.signer)
+        .rescue(dai.address, fakeRescuer.address, await convertToCurrencyDecimals(realRescuer, dai, "100"), false)
+    ).to.be.revertedWith("Rescuable: caller is not the rescuer");
   });
 });

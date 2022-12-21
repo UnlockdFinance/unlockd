@@ -17,7 +17,7 @@ export const buildForkConfig = (): HardhatNetworkForkingUserConfig | undefined =
     };
     if (FORK_BLOCK_NUMBER || BLOCK_TO_FORK[FORK]) {
       forkMode.blockNumber = FORK_BLOCK_NUMBER || BLOCK_TO_FORK[FORK];
-    }
+    } 
   }
   return forkMode;
 };
@@ -30,7 +30,7 @@ export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number> = {
 };
 
 export const BLOCK_TO_FORK: iParamsPerNetwork<number | undefined> = {
-  [eEthereumNetwork.main]: 16069745,
+  [eEthereumNetwork.main]: 0,
   [eEthereumNetwork.goerli]: 0,
   [eEthereumNetwork.hardhat]: 0,
   [eEthereumNetwork.localhost]: 0,

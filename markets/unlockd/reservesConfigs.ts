@@ -55,7 +55,7 @@ export const strategyWETH: IReserveParams = {
   strategy: rateStrategyWETH,
   baseLTVAsCollateral: '8000',
   liquidationThreshold: '8250',
-  liquidationBonus: '500',
+  liquidationBonus: '500', 
   borrowingEnabled: true,
   reserveDecimals: '18',
   uTokenImpl: eContractid.UToken,

@@ -11,12 +11,13 @@ import {
   getProxyAdminSigner,
   getUNFTRegistryProxy,
   getUnlockdProxyAdminPool,
+  getWrappedPunk,
 } from "../../helpers/contracts-getters";
 import { getContractAddressInDb, getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import { eContractid, eNetwork, NftContractId } from "../../helpers/types";
 
-task("full:deploy-unft-registry", "Deploy unft registry ")
+task("fork:deploy-unft-registry", "Deploy unft registry ")
   .addFlag("verify", "Verify contracts at Etherscan")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .addFlag("createunfts", `Create UNFTS via the UNFT registry`)
@@ -62,7 +63,7 @@ task("full:deploy-unft-registry", "Deploy unft registry ")
 
     if (createunfts) {
       let tokens = await getParamPerNetwork(poolConfig.NftsAssets, network);
-
+      tokens["WPUNKS"] = await (await getWrappedPunk()).address;
       for (const [tokenSymbol, tokenAddress] of Object.entries(tokens)) {
         await waitForTx(await unftRegistryProxy.createUNFT(tokenAddress));
         console.log("UNFT created successfully for token " + tokenSymbol + " with address " + tokenAddress);

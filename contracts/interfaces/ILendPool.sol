@@ -2,8 +2,10 @@
 pragma solidity 0.8.4;
 
 import {ILendPoolAddressesProvider} from "./ILendPoolAddressesProvider.sol";
-import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
+
+import {DataTypes} from "../libraries/types/DataTypes.sol";
 
 interface ILendPool {
   /**
@@ -345,6 +347,18 @@ interface ILendPool {
   function liquidateNFTX(address nftAsset, uint256 nftTokenId) external returns (uint256);
 
   /**
+   * @dev Function to liquidate a non-healthy position collateral-wise
+   * - The collateral asset is sold on NFTX & Sushiswap
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   **/
+  function liquidateSudoSwap(
+    address nftAsset,
+    uint256 nftTokenId,
+    address LSSVMPair
+  ) external returns (uint256);
+
+  /**
    * @dev Triggers the configuration of an NFT
    * @dev Just the NFT holder can trigger the configuration
    * @param nftAsset The address of the underlying NFT used as collateral
@@ -654,6 +668,18 @@ interface ILendPool {
     address to,
     uint256 amount,
     bool rescueETH
+  ) external;
+
+  /**
+   * @notice Rescue NFTs locked up in this contract.
+   * @param nftAsset ERC721 asset contract address
+   * @param tokenId ERC721 token id
+   * @param to Recipient address
+   */
+  function rescueNFT(
+    IERC721Upgradeable nftAsset,
+    uint256 tokenId,
+    address to
   ) external;
 
   /**

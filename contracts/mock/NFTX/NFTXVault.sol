@@ -4,8 +4,8 @@ pragma solidity 0.8.4;
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
-import {INFTXVault} from "../../interfaces/INFTXVault.sol";
-import {INFTXVaultFactoryV2} from "../../interfaces/INFTXVaultFactoryV2.sol";
+import {INFTXVault} from "../../interfaces/nftx/INFTXVault.sol";
+import {INFTXVaultFactoryV2} from "../../interfaces/nftx/INFTXVaultFactoryV2.sol";
 
 /**
  * @dev https://github.com/NFTX-project/nftx-protocol-v2/blob/master/contracts/solidity/NFTXVaultUpgradeable.sol

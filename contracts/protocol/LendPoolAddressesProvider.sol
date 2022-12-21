@@ -27,7 +27,6 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   bytes32 private constant EMERGENCY_ADMIN = "EMERGENCY_ADMIN";
   bytes32 private constant RESERVE_ORACLE = "RESERVE_ORACLE";
   bytes32 private constant NFT_ORACLE = "NFT_ORACLE";
-  bytes32 private constant UNLOCKD_ORACLE = "UNLOCKD_ORACLE";
   bytes32 private constant LEND_POOL_LOAN = "LEND_POOL_LOAN";
   bytes32 private constant UNFT_REGISTRY = "UNFT_REGISTRY";
   bytes32 private constant LEND_POOL_LIQUIDATOR = "LEND_POOL_LIQUIDATOR";
@@ -37,6 +36,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   bytes32 private constant WALLET_BALANCE_PROVIDER = "WALLET_BALANCE_PROVIDER";
   bytes32 private constant NFTX_VAULT_FACTORY = "NFTX_VAULT_FACTORY";
   bytes32 private constant SUSHI_SWAP_ROUTER = "SUSHI_SWAP_ROUTER";
+  bytes32 private constant LSSVM_ROUTER = "LSSVM_ROUTER";
 
   constructor(string memory marketId) {
     _setMarketId(marketId);
@@ -353,8 +353,33 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   /**
    * @inheritdoc ILendPoolAddressesProvider
    */
+  function getLSSVMRouter() external view override returns (address) {
+    return getAddress(LSSVM_ROUTER);
+  }
+
+  /**
+   * @inheritdoc ILendPoolAddressesProvider
+   */
+  function setLSSVMRouter(address router) external override onlyOwner {
+    require(router != address(0), Errors.INVALID_ZERO_ADDRESS);
+    _addresses[LSSVM_ROUTER] = router;
+    emit LSSVMRouterUpdated(router);
+  }
+
+  /**
+   * @inheritdoc ILendPoolAddressesProvider
+   */
   function getSushiSwapRouter() external view override returns (address) {
     return getAddress(SUSHI_SWAP_ROUTER);
+  }
+
+  /**
+   * @inheritdoc ILendPoolAddressesProvider
+   */
+  function setSushiSwapRouter(address router) external override onlyOwner {
+    require(router != address(0), Errors.INVALID_ZERO_ADDRESS);
+    _addresses[SUSHI_SWAP_ROUTER] = router;
+    emit SushiSwapRouterUpdated(router);
   }
 
   /**
@@ -371,15 +396,6 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
     require(liquidator != address(0), Errors.INVALID_ZERO_ADDRESS);
     _addresses[LEND_POOL_LIQUIDATOR] = liquidator;
     emit LendPoolLiquidatorUpdated(liquidator);
-  }
-
-  /**
-   * @inheritdoc ILendPoolAddressesProvider
-   */
-  function setSushiSwapRouter(address router) external override onlyOwner {
-    require(router != address(0), Errors.INVALID_ZERO_ADDRESS);
-    _addresses[SUSHI_SWAP_ROUTER] = router;
-    emit SushiSwapRouterUpdated(router);
   }
 
   /**

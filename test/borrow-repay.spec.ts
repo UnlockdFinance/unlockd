@@ -1,8 +1,15 @@
+import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
 import { getReservesConfigByPool } from "../helpers/configuration";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
-import { waitForTx } from "../helpers/misc-utils";
-import { IReserveParams, iUnlockdPoolAssets, UnlockdPools } from "../helpers/types";
+import { fundWithERC20, fundWithERC721, waitForTx } from "../helpers/misc-utils";
+import {
+  IConfigNftAsCollateralInput,
+  IReserveParams,
+  iUnlockdPoolAssets,
+  ProtocolErrors,
+  UnlockdPools,
+} from "../helpers/types";
 import {
   approveERC20,
   borrow,
@@ -49,14 +56,14 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     const user2 = users[2];
 
     // WETH
-    await mintERC20(testEnv, user2, "WETH", "1");
+    await fundWithERC20("WETH", user2.address, "1");
 
     await approveERC20(testEnv, user2, "WETH");
 
     await deposit(testEnv, user2, "", "WETH", "1", user2.address, "success", "");
 
     // DAI
-    await mintERC20(testEnv, user2, "DAI", "1000");
+    await fundWithERC20("DAI", user2.address, "1000");
 
     await approveERC20(testEnv, user2, "DAI");
 
@@ -68,42 +75,53 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     const user0 = users[0];
     const user1 = users[1];
 
-    await mintERC20(testEnv, user0, "WETH", "100");
+    await fundWithERC20("WETH", user0.address, "100");
 
     await approveERC20(testEnv, user0, "WETH");
 
-    await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
+    //await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
 
     await deposit(testEnv, user0, "", "WETH", "100", user0.address, "success", "");
 
-    const checkResult1 = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
-    await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
-    await expect(checkResult1).to.be.equal(true, "IncentivesController not called");
+    // const checkResult1 = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
+    // await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
+    // await expect(checkResult1).to.be.equal(true, "IncentivesController not called");
 
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
-    await mintERC721(testEnv, user1, "BAYC", tokenId);
+    await fundWithERC721("BAYC", user1.address, tokenIdNum);
 
     await setApprovalForAll(testEnv, user1, "BAYC");
 
-    await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
+    //await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
 
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
 
-    const price = await convertToCurrencyDecimals(weth.address, "100");
+    const price = await convertToCurrencyDecimals(user0, weth, "100");
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(bayc.address, true);
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 5000, 100, 47, 48, 200, 250);
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId,
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     await borrow(testEnv, user1, "WETH", "1", "BAYC", tokenId, user1.address, "365", "success", "");
 
-    const checkResult2 = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
-    await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
-    await expect(checkResult2).to.be.equal(true, "IncentivesController not called");
+    // const checkResult2 = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
+    // await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
+    // await expect(checkResult2).to.be.equal(true, "IncentivesController not called");
 
     cachedTokenId = tokenId;
   });
@@ -118,23 +136,20 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(
-        bayc.address,
-        tokenId,
-        "2000000000000000000000",
-        4000,
-        7000,
-        5000,
-        100,
-        47,
-        48,
-        200,
-        250
-      );
-
-    await configurator.connect(deployer.signer).setTimeframe(720000);
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId,
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     await borrow(
       testEnv,
@@ -146,7 +161,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
       user1.address,
       "365",
       "revert",
-      "The reserve must be same"
+      ProtocolErrors.VL_SPECIFIED_RESERVE_NOT_BORROWED_BY_USER
     );
   });
 
@@ -154,36 +169,35 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     const { users, configurator, deployer, nftOracle, bayc } = testEnv;
     const user1 = users[1];
 
-    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+    await expect(cachedTokenId, "previous test case is failed").to.not.be.undefined;
     const tokenId = cachedTokenId;
 
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(
-        bayc.address,
-        tokenId,
-        "2000000000000000000000",
-        4000,
-        7000,
-        5000,
-        100,
-        47,
-        48,
-        200,
-        250
-      );
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId,
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     await borrow(testEnv, user1, "WETH", "2", "BAYC", tokenId, user1.address, "365", "success", "");
 
-    const checkResult = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
-    await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
-    await expect(checkResult).to.be.equal(true, "IncentivesController not called");
+    // const checkResult = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
+    // await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
+    // await expect(checkResult).to.be.equal(true, "IncentivesController not called");
   });
 
-  it("User 1 tries to borrow the rest of the WETH liquidity (revert expected)", async () => {
+  it("User 1 tries to borrow more than the rest of the WETH liquidity (revert expected)", async () => {
     const { users, configurator, deployer, nftOracle, bayc } = testEnv;
     const user1 = users[1];
 
@@ -193,23 +207,32 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 200, 4000, 7000, 5000, 100, 47, 48, 200, 250);
-
-    await configurator.connect(deployer.signer).setTimeframe(720000);
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId,
+      newPrice: parseEther("1000"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     await borrow(
       testEnv,
       user1,
       "WETH",
-      "97",
+      "100",
       "BAYC",
       tokenId,
       user1.address,
       "",
       "revert",
-      "There is not enough collateral to cover a new borrow"
+      ProtocolErrors.LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY
     );
   });
 
@@ -220,7 +243,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
 
-    await repay(testEnv, user1, "", "BAYC", tokenId, "0", user1, "revert", "Amount must be greater than 0");
+    await repay(testEnv, user1, "WETH", "", "BAYC", tokenId, "0", user1, "revert", ProtocolErrors.VL_INVALID_AMOUNT);
   });
 
   it("User 1 repays 0.5 WETH, enough to cover a small part of the interest", async () => {
@@ -232,20 +255,20 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await approveERC20(testEnv, user1, "WETH");
 
-    await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
+    //await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
 
-    await repay(testEnv, user1, "", "BAYC", tokenId, "0.5", user1, "success", "");
+    await repay(testEnv, user1, "WETH", "", "BAYC", tokenId, "0.5", user1, "success", "");
 
-    const checkResult = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
-    await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
-    await expect(checkResult).to.be.equal(true, "IncentivesController not called");
+    // const checkResult = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
+    // await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
+    // await expect(checkResult).to.be.equal(true, "IncentivesController not called");
   });
 
   it("User 1 repays all WETH borrow after one year", async () => {
     const { users } = testEnv;
     const user1 = users[1];
 
-    await mintERC20(testEnv, user1, "WETH", "10");
+    await fundWithERC20("WETH", user1.address, "10");
 
     await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
@@ -254,11 +277,11 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
 
-    await repay(testEnv, user1, "", "BAYC", tokenId, "-1", user1, "success", "");
+    await repay(testEnv, user1, "WETH", "", "BAYC", tokenId, "-1", user1, "success", "");
 
-    const checkResult = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
-    await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
-    await expect(checkResult).to.be.equal(true, "IncentivesController not called");
+    // const checkResult = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
+    // await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
+    // await expect(checkResult).to.be.equal(true, "IncentivesController not called");
   });
 
   it("User 0 withdraws the deposited WETH plus interest", async () => {
@@ -272,7 +295,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     const { users } = testEnv;
     const user2 = users[2];
 
-    await mintERC20(testEnv, user2, "USDC", "1");
+    await fundWithERC20("USDC", user2.address, "1");
 
     await approveERC20(testEnv, user2, "USDC");
 
@@ -285,7 +308,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     const user2 = users[2];
     const user3 = users[3];
 
-    await mintERC20(testEnv, user1, "USDC", "1000");
+    await fundWithERC20("USDC", user1.address, "1000");
 
     await approveERC20(testEnv, user1, "USDC");
 
@@ -293,20 +316,40 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
-    await mintERC721(testEnv, user2, "BAYC", tokenId);
 
+    await fundWithERC721("BAYC", user2.address, tokenIdNum);
     await setApprovalForAll(testEnv, user2, "BAYC");
 
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, "10000000000000000000", 4000, 7000, 5000, 100, 47, 48, 200, 250);
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId,
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
-    await configurator.connect(deployer.signer).setTimeframe(720000);
-
-    await borrow(testEnv, user3, "USDC", "10", "BAYC", tokenId, user3.address, "", "revert", "NFT is not owned");
+    await borrow(
+      testEnv,
+      user3,
+      "USDC",
+      "10",
+      "BAYC",
+      tokenId,
+      user3.address,
+      "",
+      "revert",
+      "ERC721: transfer of token that is not own"
+    );
 
     cachedTokenId = tokenId;
   });
@@ -324,11 +367,20 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, "10000000000000000000", 4000, 7000, 5000, 100, 47, 48, 200, 250);
-
-    await configurator.connect(deployer.signer).setTimeframe(720000);
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId,
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     await borrow(testEnv, user2, "USDC", "10", "BAYC", tokenId, user3.address, "365", "success", "");
   });
@@ -345,11 +397,20 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, "20000000000000000", 4000, 7000, 5000, 100, 47, 48, 200, 250);
-
-    await configurator.connect(deployer.signer).setTimeframe(720000);
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId,
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 1,
+      auctionDuration: 2,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     await borrow(testEnv, user2, "USDC", "20", "BAYC", tokenId, user3.address, "365", "success", "");
   });
@@ -359,14 +420,13 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     const user2 = users[2];
     const user3 = users[3];
 
-    await mintERC20(testEnv, user3, "USDC", "1000");
-
+    await fundWithERC20("USDC", user3.address, "1000");
     await approveERC20(testEnv, user3, "USDC");
 
     await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
 
-    await repay(testEnv, user3, "", "BAYC", tokenId, "10", user3, "success", "");
+    await repay(testEnv, user3, "USDC", "", "BAYC", tokenId, "10", user3, "success", "");
   });
 
   it("user 3 repay all USDC, full of borrow amount", async () => {
@@ -374,13 +434,13 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     const user2 = users[2];
     const user3 = users[3];
 
-    await mintERC20(testEnv, user3, "USDC", "1000");
+    await fundWithERC20("USDC", user3.address, "1000");
 
     await approveERC20(testEnv, user3, "USDC");
 
     await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
     const tokenId = cachedTokenId;
 
-    await repay(testEnv, user3, "", "BAYC", tokenId, "-1", user3, "success", "");
+    await repay(testEnv, user3, "USDC", "", "BAYC", tokenId, "-1", user3, "success", "");
   });
 });
