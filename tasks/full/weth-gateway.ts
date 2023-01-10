@@ -73,6 +73,7 @@ task(`full:deploy-weth-gateway`, `Deploys the WETHGateway contract`)
       wethGateWay = await getWETHGateway(wethGatewayProxy.address);
     }
     await waitForTx(await addressesProvider.setAddress(ADDRESS_ID_WETH_GATEWAY, wethGateWay.address));
+    await waitForTx(await addressesProvider.setWETHAddress(weth));
   });
 
 task("full:wethgateway-authorize-caller-whitelist", "Initialize gateway configuration.")
