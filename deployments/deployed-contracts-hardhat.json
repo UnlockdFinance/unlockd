@@ -43,7 +43,7 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "GenericLogic": {
-    "address": "0x1864c9342339c36588F7f31d1079690a7003c7a2",
+    "address": "0x58B6e24b2a462Ef81e154515Ab7adc804512325c",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "ReserveLogic": {
@@ -79,13 +79,11 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LendPoolImpl": {
-
     "address": "0xc32B56a82144E29725978E8e90c96aA015B87b93"
   },
   "LendPool": {
     "address": "0xc32B56a82144E29725978E8e90c96aA015B87b93",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-
   },
   "LendPoolLoanImpl": {
     "address": "0xE2Ab82DeCBA9918885010Dd1A11a687339783116"
@@ -165,15 +163,15 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "UnlockdProtocolDataProvider": {
-    "address": "0xF79a1ab14b401d7032bdDD20D8Eb061557fa8D87",
+    "address": "0xf002B72CdE6F0401840C7323c91c1fAfB495E5F5",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "UIPoolDataProvider": {
-    "address": "0xF07191639A5ca3d5D28206429Df3E3adCc020b3f",
+    "address": "0xA9f3bc8329C2Bba825D49937b25054c0FFFb7256",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "SelfdestructTransferMock": {
-    "address": "0x3C2AeD703EF55ABE3C9D1080418406Fae704bae0",
+    "address": "0x9B510262D7a6AEeFdee83cDe34410Ec741c6cbd3",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   }
 }

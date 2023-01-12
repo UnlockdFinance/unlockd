@@ -165,7 +165,7 @@ interface ILendPool {
    * @param nftAsset The NFT collection address
    * @param nftTokenId The NFT token Id
    **/
-  event UserCollateralTriggered(address indexed user, address indexed nftAsset, uint256 indexed nftTokenId);
+  event ValuationApproved(address indexed user, address indexed nftAsset, uint256 indexed nftTokenId);
   /**
    * @dev Emitted when the pause is triggered.
    */

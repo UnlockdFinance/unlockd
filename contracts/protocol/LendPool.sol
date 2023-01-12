@@ -425,7 +425,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   ) external payable override onlyHolder(nftAsset, nftTokenId) onlyCollection(nftAsset) whenNotPaused {
     require(_configFee == msg.value, Errors.MSG_VALUE_DIFFERENT_FROM_CONFIG_FEE);
 
-    emit UserCollateralTriggered(_msgSender(), nftAsset, nftTokenId);
+    emit ValuationApproved(_msgSender(), nftAsset, nftTokenId);
   }
 
   function onERC721Received(address, address, uint256, bytes memory) external pure override returns (bytes4) {

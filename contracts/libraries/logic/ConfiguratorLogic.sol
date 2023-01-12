@@ -125,11 +125,7 @@ library ConfiguratorLogic {
    * @param registry_ The UNFT Registry
    * @param input The data to initialize the NFT
    */
-  function executeInitNft(
-    ILendPool pool_,
-    IUNFTRegistry registry_,
-    ConfigTypes.InitNftInput calldata input
-  ) external {
+  function executeInitNft(ILendPool pool_, IUNFTRegistry registry_, ConfigTypes.InitNftInput calldata input) external {
     // UNFT proxy and implementation are created in UNFTRegistry
     (address uNftProxy, ) = registry_.getUNFTAddresses(input.underlyingAsset);
     require(uNftProxy != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
