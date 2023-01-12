@@ -79,10 +79,13 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LendPoolImpl": {
-    "address": "0x8286b7d42cB141E1871a3475bB8E0C3F84db0352"
+
+    "address": "0xc32B56a82144E29725978E8e90c96aA015B87b93"
   },
   "LendPool": {
-    "address": "0x69F6E45A08dA63146C35DBde9AaFc7B649e84Cea"
+    "address": "0xc32B56a82144E29725978E8e90c96aA015B87b93",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+
   },
   "LendPoolLoanImpl": {
     "address": "0xE2Ab82DeCBA9918885010Dd1A11a687339783116"
@@ -131,7 +134,7 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "InterestRate": {
-    "address": "0x3c61970C2feB8087b23f54b57Cbab8786e71399d",
+    "address": "0x63A425c53CDA1415F8efE54e57cC507c756b96f2",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "rateStrategyWETH": {
@@ -151,14 +154,14 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "PunkGatewayImpl": {
-    "address": "0xa438453157E27d48e6E7cB74BF8B808D4e2F56eD"
+    "address": "0xD024caf0B8667D0D50e87C35Da1AF295ccd96CeC"
   },
   "PunkGateway": {
-    "address": "0xD024caf0B8667D0D50e87C35Da1AF295ccd96CeC",
+    "address": "0xb16101f4b859580B810b683264102c49e12d0732",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "WalletBalanceProvider": {
-    "address": "0x8Fe994bA879dF436bDA80d1fc559d192608939f6",
+    "address": "0x0b1c63041dd4a8049c61FAD207598c7Fd52D2D20",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "UnlockdProtocolDataProvider": {

@@ -20,7 +20,7 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   string private _marketId;
   mapping(bytes32 => address) private _addresses;
-
+  address private wethAddress;
   bytes32 private constant LEND_POOL = "LEND_POOL";
   bytes32 private constant LEND_POOL_CONFIGURATOR = "LEND_POOL_CONFIGURATOR";
   bytes32 private constant POOL_ADMIN = "POOL_ADMIN";
@@ -56,6 +56,23 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
    */
   function setMarketId(string memory marketId) external override onlyOwner {
     _setMarketId(marketId);
+  }
+
+  /**
+   * @dev Returns the WETH address
+   * @return The WETH address
+   **/
+  function getWETHAddress() external view override returns (address) {
+    return wethAddress;
+  }
+
+  /**
+   * @dev Allows to set the WETH address for the market
+   * @param _wethAddress The WETH address to set
+   */
+  function setWETHAddress(address _wethAddress) external override onlyOwner {
+    require(_wethAddress != address(0), Errors.INVALID_ZERO_ADDRESS);
+    wethAddress = _wethAddress;
   }
 
   /**
