@@ -37,8 +37,6 @@ library LiquidateMarketsLogic {
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
   using NftConfiguration for DataTypes.NftConfigurationMap;
 
-  address internal constant WETH = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
-
   /**
    * @dev Emitted when a borrower's loan is liquidated on NFTX.
    * @param reserve The address of the underlying asset of the reserve
@@ -85,6 +83,7 @@ library LiquidateMarketsLogic {
     uint256 feeAmount;
     uint256 auctionEndTimestamp;
     uint256 extraAuctionDuration;
+    address WETH;
   }
 
   /**
@@ -242,6 +241,8 @@ library LiquidateMarketsLogic {
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
     vars.liquidator = addressesProvider.getLendPoolLiquidator();
+    vars.WETH = addressesProvider.getWETHAddress();
+
     address sushiSwapRouterAddress = addressesProvider.getSushiSwapRouter();
 
     vars.loanId = ILendPoolLoan(vars.poolLoan).getCollateralLoanId(params.nftAsset, params.nftTokenId);
@@ -309,11 +310,11 @@ library LiquidateMarketsLogic {
       params.LSSVMPair
     );
 
-    if (loanData.reserveAsset == WETH) {
-      IWETH(WETH).deposit{value: priceSudoSwap}();
+    if (loanData.reserveAsset == vars.WETH) {
+      IWETH(vars.WETH).deposit{value: priceSudoSwap}();
     } else {
       address[] memory swapPath = new address[](2);
-      swapPath[0] = WETH;
+      swapPath[0] = vars.WETH;
       swapPath[1] = loanData.reserveAsset;
 
       uint256[] memory amounts = IUniswapV2Router02(sushiSwapRouterAddress).swapExactETHForTokens{value: priceSudoSwap}(

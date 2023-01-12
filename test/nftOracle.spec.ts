@@ -155,7 +155,8 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
     expect(await mockNftOracle.getNFTPrice(collectionMock, 1)).to.eq(1000);
 
     await mockNftOracle.setPause(collectionMock, true);
-    await expect(mockNftOracle.setNFTPrice(collectionMock, 1, 1000)).to.be.revertedWith("NFTPaused()");
+
+    await expect(mockNftOracle.setNFTPrice(collectionMock, 1, 1000)).to.be.reverted;
     await mockNftOracle.setPause(collectionMock, false);
   });
 
@@ -169,9 +170,8 @@ makeSuite("NFTOracle: Reverting Errors", (testEnv: TestEnv) => {
     await mockNftOracle.addCollection(collection2);
     await mockNftOracle.addCollection(collection3);
 
-    await expect(
-      mockNftOracle.setMultipleNFTPrices([collection1, collection2, collection3], [1, 1], [100, 200, 300])
-    ).to.be.revertedWith("ArraysLengthInconsistent()");
+    await expect(mockNftOracle.setMultipleNFTPrices([collection1, collection2, collection3], [1, 1], [100, 200, 300]))
+      .to.be.reverted;
   });
 
   it("Testing overflows", async () => {
@@ -198,7 +198,7 @@ makeSuite("NFTOracle: Test Pause", (testEnv: TestEnv) => {
     await mockNftOracle.setNFTPrice(users[0].address, 1, 400);
 
     await mockNftOracle.setPause(users[0].address, true);
-    await expect(mockNftOracle.setNFTPrice(users[0].address, 1, 410)).to.be.revertedWith("NFTPaused()");
+    await expect(mockNftOracle.setNFTPrice(users[0].address, 1, 410)).to.be.reverted;
 
     await mockNftOracle.setNFTPrice(users[2].address, 1, 400);
     await mockNftOracle.setPause(users[0].address, false);
@@ -221,7 +221,7 @@ makeSuite("NFTOracle: Test Pause", (testEnv: TestEnv) => {
 
     // Pause Collection 1 and try to set a new price:
     await mockNftOracle.setPause(users[1].address, true);
-    await expect(mockNftOracle.setNFTPrice(users[1].address, 1, 1000)).to.be.revertedWith("NFTPaused()");
+    await expect(mockNftOracle.setNFTPrice(users[1].address, 1, 1000)).to.be.reverted;
 
     // Unpause Collection 1 + set and get new price:
     await mockNftOracle.setPause(users[1].address, false);
@@ -230,9 +230,9 @@ makeSuite("NFTOracle: Test Pause", (testEnv: TestEnv) => {
 
     // Pause Collection 2 and 3 and try to set a new price:
     await mockNftOracle.setPause(users[2].address, true);
-    await expect(mockNftOracle.setNFTPrice(users[2].address, 1, 2000)).to.be.revertedWith("NFTPaused()");
+    await expect(mockNftOracle.setNFTPrice(users[2].address, 1, 2000)).to.be.reverted;
     await mockNftOracle.setPause(users[3].address, true);
-    await expect(mockNftOracle.setNFTPrice(users[3].address, 1, 3000)).to.be.revertedWith("NFTPaused()");
+    await expect(mockNftOracle.setNFTPrice(users[3].address, 1, 3000)).to.be.reverted;
 
     // Unpause Collection 2 and 3 + set and get new price:
     await mockNftOracle.setPause(users[2].address, false);

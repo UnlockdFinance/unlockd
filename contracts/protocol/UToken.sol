@@ -97,11 +97,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
    * @param index The new liquidity index of the reserve
    * @return `true` if the the previous balance of the user was 0
    */
-  function mint(
-    address user,
-    uint256 amount,
-    uint256 index
-  ) external override onlyLendPool returns (bool) {
+  function mint(address user, uint256 amount, uint256 index) external override onlyLendPool returns (bool) {
     uint256 previousBalance = super.balanceOf(user);
 
     // index is expressed in Ray, so:
@@ -234,7 +230,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
 
   /**
    * @dev Transfers the underlying asset to `target`. Used by the LendPool to transfer
-   * assets in borrow(), withdraw() and flashLoan()
+   * assets in borrow() and withdraw()
    * @param target The recipient of the uTokens
    * @param amount The amount getting transferred
    * @return The amount transferred
@@ -260,12 +256,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
    * @param amount The amount getting transferred
    * @param validate `true` if the transfer needs to be validated
    **/
-  function _transfer(
-    address from,
-    address to,
-    uint256 amount,
-    bool validate
-  ) internal {
+  function _transfer(address from, address to, uint256 amount, bool validate) internal {
     address underlyingAsset = _underlyingAsset;
     ILendPool pool = _getLendPool();
 
@@ -289,11 +280,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
    * @param to The destination address
    * @param amount The amount getting transferred
    **/
-  function _transfer(
-    address from,
-    address to,
-    uint256 amount
-  ) internal override {
+  function _transfer(address from, address to, uint256 amount) internal override {
     _transfer(from, to, amount, true);
   }
 }
