@@ -145,8 +145,8 @@ makeSuite("LendPool: Deposit", (testEnv: TestEnv) => {
       liquidationThreshold: 7000,
       redeemThreshold: 9000,
       liquidationBonus: 500,
-      redeemDuration: 1,
-      auctionDuration: 2,
+      redeemDuration: 100,
+      auctionDuration: 200,
       redeemFine: 500,
       minBidFine: 2000,
     };

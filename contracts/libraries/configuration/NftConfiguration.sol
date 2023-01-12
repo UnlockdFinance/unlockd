@@ -15,12 +15,12 @@ library NftConfiguration {
   uint256 constant LIQUIDATION_BONUS_MASK =     0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFFFF; // prettier-ignore
   uint256 constant ACTIVE_MASK =                0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFF; // prettier-ignore
   uint256 constant FROZEN_MASK =                0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFFFFFFFFFFFFFF; // prettier-ignore
-  uint256 constant REDEEM_DURATION_MASK =       0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00FFFFFFFFFFFFFFFF; // prettier-ignore
-  uint256 constant AUCTION_DURATION_MASK =      0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00FFFFFFFFFFFFFFFFFF; // prettier-ignore
-  uint256 constant REDEEM_FINE_MASK =           0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFFFF; // prettier-ignore
-  uint256 constant REDEEM_THRESHOLD_MASK =      0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFFFFFFFF; // prettier-ignore
-  uint256 constant MIN_BIDFINE_MASK      =      0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFF; // prettier-ignore
-  uint256 constant CONFIG_TIMESTAMP_MASK =      0xFFFFFFFFFFFFFFFFFFFFFFFF00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF; // prettier-ignore
+  uint256 constant REDEEM_DURATION_MASK =       0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFF; // prettier-ignore
+  uint256 constant AUCTION_DURATION_MASK =      0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFFFF; // prettier-ignore
+  uint256 constant REDEEM_FINE_MASK =           0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFFFFFFFF; // prettier-ignore
+  uint256 constant REDEEM_THRESHOLD_MASK =      0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFF; // prettier-ignore
+  uint256 constant MIN_BIDFINE_MASK      =      0xFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF; // prettier-ignore
+  uint256 constant CONFIG_TIMESTAMP_MASK =      0xFFFFFFFFFFFFFFFFFFFF00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF; // prettier-ignore
 
   /// @dev For the LTV, the start bit is 0 (up to 15), hence no bitshifting is needed
   uint256 constant LIQUIDATION_THRESHOLD_START_BIT_POSITION = 16;
@@ -28,17 +28,17 @@ library NftConfiguration {
   uint256 constant IS_ACTIVE_START_BIT_POSITION = 56;
   uint256 constant IS_FROZEN_START_BIT_POSITION = 57;
   uint256 constant REDEEM_DURATION_START_BIT_POSITION = 64;
-  uint256 constant AUCTION_DURATION_START_BIT_POSITION = 72;
-  uint256 constant REDEEM_FINE_START_BIT_POSITION = 80;
-  uint256 constant REDEEM_THRESHOLD_START_BIT_POSITION = 96;
-  uint256 constant MIN_BIDFINE_START_BIT_POSITION = 112;
-  uint256 constant CONFIG_TIMESTAMP_START_BIT_POSITION = 128;
+  uint256 constant AUCTION_DURATION_START_BIT_POSITION = 80;
+  uint256 constant REDEEM_FINE_START_BIT_POSITION = 96;
+  uint256 constant REDEEM_THRESHOLD_START_BIT_POSITION = 112;
+  uint256 constant MIN_BIDFINE_START_BIT_POSITION = 128;
+  uint256 constant CONFIG_TIMESTAMP_START_BIT_POSITION = 144;
 
   uint256 constant MAX_VALID_LTV = 65535;
   uint256 constant MAX_VALID_LIQUIDATION_THRESHOLD = 65535;
   uint256 constant MAX_VALID_LIQUIDATION_BONUS = 65535;
-  uint256 constant MAX_VALID_REDEEM_DURATION = 255;
-  uint256 constant MAX_VALID_AUCTION_DURATION = 255;
+  uint256 constant MAX_VALID_REDEEM_DURATION = 65535;
+  uint256 constant MAX_VALID_AUCTION_DURATION = 65535;
   uint256 constant MAX_VALID_REDEEM_FINE = 65535;
   uint256 constant MAX_VALID_REDEEM_THRESHOLD = 65535;
   uint256 constant MAX_VALID_MIN_BIDFINE = 65535;
@@ -285,15 +285,9 @@ library NftConfiguration {
    * @param self The NFT configuration
    * @return The state params representing ltv, liquidation threshold, liquidation bonus
    **/
-  function getCollateralParams(DataTypes.NftConfigurationMap storage self)
-    internal
-    view
-    returns (
-      uint256,
-      uint256,
-      uint256
-    )
-  {
+  function getCollateralParams(
+    DataTypes.NftConfigurationMap storage self
+  ) internal view returns (uint256, uint256, uint256) {
     uint256 dataLocal = self.data;
 
     return (
@@ -308,16 +302,9 @@ library NftConfiguration {
    * @param self The NFT configuration
    * @return The state params representing redeem duration, auction duration, redeem fine
    **/
-  function getAuctionParams(DataTypes.NftConfigurationMap storage self)
-    internal
-    view
-    returns (
-      uint256,
-      uint256,
-      uint256,
-      uint256
-    )
-  {
+  function getAuctionParams(
+    DataTypes.NftConfigurationMap storage self
+  ) internal view returns (uint256, uint256, uint256, uint256) {
     uint256 dataLocal = self.data;
 
     return (
@@ -333,15 +320,9 @@ library NftConfiguration {
    * @param self The NFT configuration
    * @return The state params representing ltv, liquidation threshold, liquidation bonus
    **/
-  function getCollateralParamsMemory(DataTypes.NftConfigurationMap memory self)
-    internal
-    pure
-    returns (
-      uint256,
-      uint256,
-      uint256
-    )
-  {
+  function getCollateralParamsMemory(
+    DataTypes.NftConfigurationMap memory self
+  ) internal pure returns (uint256, uint256, uint256) {
     return (
       self.data & ~LTV_MASK,
       (self.data & ~LIQUIDATION_THRESHOLD_MASK) >> LIQUIDATION_THRESHOLD_START_BIT_POSITION,
@@ -354,16 +335,9 @@ library NftConfiguration {
    * @param self The NFT configuration
    * @return The state params representing redeem duration, auction duration, redeem fine
    **/
-  function getAuctionParamsMemory(DataTypes.NftConfigurationMap memory self)
-    internal
-    pure
-    returns (
-      uint256,
-      uint256,
-      uint256,
-      uint256
-    )
-  {
+  function getAuctionParamsMemory(
+    DataTypes.NftConfigurationMap memory self
+  ) internal pure returns (uint256, uint256, uint256, uint256) {
     return (
       (self.data & ~REDEEM_DURATION_MASK) >> REDEEM_DURATION_START_BIT_POSITION,
       (self.data & ~AUCTION_DURATION_MASK) >> AUCTION_DURATION_START_BIT_POSITION,

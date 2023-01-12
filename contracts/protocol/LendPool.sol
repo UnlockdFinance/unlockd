@@ -300,7 +300,8 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
         nftAsset: nftAsset,
         nftTokenId: nftTokenId,
         bidPrice: bidPrice,
-        onBehalfOf: onBehalfOf
+        onBehalfOf: onBehalfOf,
+        auctionDurationConfigFee: _auctionDurationConfigFee
       })
     );
   }
@@ -424,7 +425,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   ) external payable override onlyHolder(nftAsset, nftTokenId) onlyCollection(nftAsset) whenNotPaused {
     require(_configFee == msg.value, Errors.MSG_VALUE_DIFFERENT_FROM_CONFIG_FEE);
 
-    emit UserCollateralTriggered(_msgSender(), nftAsset, nftTokenId);
+    emit ValuationApproved(_msgSender(), nftAsset, nftTokenId);
   }
 
   function onERC721Received(address, address, uint256, bytes memory) external pure override returns (bytes4) {
@@ -892,6 +893,21 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    **/
   function getConfigFee() external view override returns (uint256) {
     return _configFee;
+  }
+
+  /**
+   * @dev sets the fee to be charged on first bid on nft
+   * @param auctionDurationConfigFee the amount to charge to the user
+   **/
+  function setAuctionDurationConfigFee(uint256 auctionDurationConfigFee) external override onlyLendPoolConfigurator {
+    _auctionDurationConfigFee = auctionDurationConfigFee;
+  }
+
+  /**
+   * @dev Returns the auctionDurationConfigFee amount
+   **/
+  function getAuctionDurationConfigFee() public view override returns (uint256) {
+    return _auctionDurationConfigFee;
   }
 
   /**

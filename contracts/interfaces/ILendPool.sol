@@ -165,7 +165,7 @@ interface ILendPool {
    * @param nftAsset The NFT collection address
    * @param nftTokenId The NFT token Id
    **/
-  event UserCollateralTriggered(address indexed user, address indexed nftAsset, uint256 indexed nftTokenId);
+  event ValuationApproved(address indexed user, address indexed nftAsset, uint256 indexed nftTokenId);
   /**
    * @dev Emitted when the pause is triggered.
    */
@@ -660,6 +660,12 @@ interface ILendPool {
   function setConfigFee(uint256 configFee) external;
 
   /**
+   * @dev sets the fee to be charged on first bid on nft
+   * @param auctionDurationConfigFee the amount to charge to the user
+   **/
+  function setAuctionDurationConfigFee(uint256 auctionDurationConfigFee) external;
+
+  /**
    * @dev Returns the maximum number of reserves supported to be listed in this LendPool
    */
   function getMaxNumberOfReserves() external view returns (uint256);
@@ -689,6 +695,11 @@ interface ILendPool {
    * @dev Returns the configFee amount
    **/
   function getConfigFee() external view returns (uint256);
+
+  /**
+   * @dev Returns the auctionDurationConfigFee amount
+   **/
+  function getAuctionDurationConfigFee() external view returns (uint256);
 
   /**
    * @dev Returns if the address is allowed to sell or not on NFTX

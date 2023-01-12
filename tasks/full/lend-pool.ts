@@ -106,9 +106,6 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       await waitForTx(await lendPoolConfiguratorProxy.connect(admin).setPoolPause(true));
       // Generic UToken & DebtToken Implementation in Pool
       await deployUTokenImplementations(pool, poolConfig.ReservesConfig, verify);
-
-      // Generic UNFT Implementation in UNFT step, not here
-      //await deployUNFTImplementations(pool, poolConfig.NftsConfig, verify);
     } catch (error) {
       console.log(error);
     }

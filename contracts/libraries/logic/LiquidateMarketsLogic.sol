@@ -262,7 +262,7 @@ library LiquidateMarketsLogic {
     vars.auctionEndTimestamp =
       loanData.bidStartTimestamp +
       vars.extraAuctionDuration +
-      (nftConfig.getAuctionDuration() * 1 hours);
+      (nftConfig.getAuctionDuration() * 1 minutes);
     require(block.timestamp > vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_NOT_END);
 
     // Check NFT is allowed to be sold on SudoSwap market

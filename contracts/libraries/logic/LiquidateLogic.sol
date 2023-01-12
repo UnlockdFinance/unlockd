@@ -208,8 +208,11 @@ library LiquidateLogic {
       // bid price must greater than liquidate price
       require(params.bidPrice >= vars.liquidatePrice, Errors.LPL_BID_PRICE_LESS_THAN_LIQUIDATION_PRICE);
 
-      // bid price must greater than biggest between borrow and markets price
-      require(params.bidPrice >= maxPrice, Errors.LPL_BID_PRICE_LESS_THAN_MIN_BID_REQUIRED);
+      // bid price must greater than biggest between borrow and markets price, as well as a timestamp configuration fee
+      require(
+        params.bidPrice >= (maxPrice + params.auctionDurationConfigFee),
+        Errors.LPL_BID_PRICE_LESS_THAN_MIN_BID_REQUIRED
+      );
     } else {
       // bid price must greater than borrow debt
       require(params.bidPrice >= vars.borrowAmount, Errors.LPL_BID_PRICE_LESS_THAN_BORROW);
@@ -220,7 +223,7 @@ library LiquidateLogic {
       vars.auctionEndTimestamp =
         loanData.bidStartTimestamp +
         vars.extraAuctionDuration +
-        (nftConfig.getAuctionDuration() * 1 hours);
+        (nftConfig.getAuctionDuration() * 1 minutes);
       require(block.timestamp <= vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_HAS_END);
 
       // bid price must greater than highest bid + delta
@@ -317,7 +320,7 @@ library LiquidateLogic {
     vars.redeemEndTimestamp = (loanData.bidStartTimestamp +
       vars.extraRedeemDuration +
       nftConfig.getRedeemDuration() *
-      1 hours);
+      1 minutes);
     require(block.timestamp <= vars.redeemEndTimestamp, Errors.LPL_BID_REDEEM_DURATION_HAS_END);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
@@ -458,7 +461,7 @@ library LiquidateLogic {
     vars.auctionEndTimestamp =
       loanData.bidStartTimestamp +
       vars.extraAuctionDuration +
-      (nftConfig.getAuctionDuration() * 1 hours);
+      (nftConfig.getAuctionDuration() * 1 minutes);
     require(block.timestamp > vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_NOT_END);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index

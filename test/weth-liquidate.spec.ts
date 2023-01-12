@@ -66,6 +66,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
       configurator,
       deployer,
     } = testEnv;
+
     const depositor = users[0];
     const user = users[1];
     const user3 = users[3];
@@ -110,8 +111,8 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
       liquidationThreshold: 7000,
       redeemThreshold: 9000,
       liquidationBonus: 500,
-      redeemDuration: 1,
-      auctionDuration: 2,
+      redeemDuration: 100,
+      auctionDuration: 200,
       redeemFine: 500,
       minBidFine: 2000,
     };
@@ -318,11 +319,12 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
       liquidationThreshold: 7000,
       redeemThreshold: 5000,
       liquidationBonus: 500,
-      redeemDuration: 1,
-      auctionDuration: 2,
+      redeemDuration: 100,
+      auctionDuration: 200,
       redeemFine: 500,
       minBidFine: 2000,
     };
+
     await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     const nftColDataBefore = await pool.getNftCollateralData(bayc.address, tokenId, weth.address);
@@ -376,7 +378,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
         .connect(user.signer)
         .redeemETH(bayc.address, tokenId, repayAmount, bidFineAmount, { value: redeemAmountSend })
     );
-
+    console.log("lifeshard");
     const loanDataAfterRedeem = await dataProvider.getLoanDataByLoanId(nftDebtDataAfterBorrow.loanId);
     expect(loanDataAfterRedeem.state).to.be.equal(ProtocolLoanState.Active, "Invalid loan state after redeem");
 
@@ -389,7 +391,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
         .connect(user.signer)
         .repayETH(bayc.address, tokenId, redeemAmountSend, { value: redeemAmountSend })
     );
-
+    console.log("como");
     const loanDataAfterRepay = await dataProvider.getLoanDataByLoanId(nftDebtDataAfterBorrow.loanId);
     expect(loanDataAfterRepay.state).to.be.equal(ProtocolLoanState.Repaid, "Invalid loan state after repay");
 
