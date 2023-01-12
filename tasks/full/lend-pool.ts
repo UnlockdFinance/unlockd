@@ -38,25 +38,25 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
 
       //   throw Error("Invalid UNFT Registry address in pool config");
       // }
-      const unftRegistryProxy = await getUNFTRegistryProxy();
-      if (unftRegistryProxy == undefined || !notFalsyOrZeroAddress(unftRegistryProxy.address)) {
-        throw Error("Invalid UNFT Registry proxy in deployed contracts");
-      }
-      console.log("Setting UNFTRegistry to address provider...");
-      await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
+      // const unftRegistryProxy = await getUNFTRegistryProxy();
+      // if (unftRegistryProxy == undefined || !notFalsyOrZeroAddress(unftRegistryProxy.address)) {
+      //   throw Error("Invalid UNFT Registry proxy in deployed contracts");
+      // }
+      // console.log("Setting UNFTRegistry to address provider...");
+      // await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
 
-      //Reserves Init & NFTs Init need IncentivesController
-      let incentivesControllerAddress = getParamPerNetwork(poolConfig.IncentivesController, network);
+      // //Reserves Init & NFTs Init need IncentivesController
+      // let incentivesControllerAddress = getParamPerNetwork(poolConfig.IncentivesController, network);
 
-      if (incentivesControllerAddress == undefined || !notFalsyOrZeroAddress(incentivesControllerAddress)) {
-        console.log("Invalid Incentives Controller address in pool config. Trying to fetch from deployed contracts...");
-        incentivesControllerAddress = await (await getMockIncentivesController()).address;
-        if (incentivesControllerAddress == undefined || !notFalsyOrZeroAddress(incentivesControllerAddress)) {
-          throw Error("Invalid IncentivesController address in both pool config and deployed contracts");
-        }
-      }
-      console.log("Setting IncentivesController to address provider...");
-      await waitForTx(await addressesProvider.setIncentivesController(incentivesControllerAddress));
+      // if (incentivesControllerAddress == undefined || !notFalsyOrZeroAddress(incentivesControllerAddress)) {
+      //   console.log("Invalid Incentives Controller address in pool config. Trying to fetch from deployed contracts...");
+      //   incentivesControllerAddress = await (await getMockIncentivesController()).address;
+      //   if (incentivesControllerAddress == undefined || !notFalsyOrZeroAddress(incentivesControllerAddress)) {
+      //     throw Error("Invalid IncentivesController address in both pool config and deployed contracts");
+      //   }
+      // }
+      // console.log("Setting IncentivesController to address provider...");
+      // await waitForTx(await addressesProvider.setIncentivesController(incentivesControllerAddress));
 
       //////////////////////////////////////////////////////////////////////////
       console.log("Deploying new libraries implementation...");
@@ -76,15 +76,15 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
 
       ////////////////////////////////////////////////////////////////////////
       //Reuse/deploy lend pool loan
-      console.log("Deploying new loan implementation...");
-      const lendPoolLoanImpl = await deployLendPoolLoan(verify);
-      console.log("Setting lend pool loan implementation with address:", lendPoolLoanImpl.address);
-      //Set lend pool conf impl to Address Provider
-      await waitForTx(await addressesProvider.setLendPoolLoanImpl(lendPoolLoanImpl.address, []));
+      // console.log("Deploying new loan implementation...");
+      // const lendPoolLoanImpl = await deployLendPoolLoan(verify);
+      // console.log("Setting lend pool loan implementation with address:", lendPoolLoanImpl.address);
+      // //Set lend pool conf impl to Address Provider
+      // await waitForTx(await addressesProvider.setLendPoolLoanImpl(lendPoolLoanImpl.address, []));
 
-      const lendPoolLoanProxy = await getLendPoolLoanProxy(await addressesProvider.getLendPoolLoan());
+      // const lendPoolLoanProxy = await getLendPoolLoanProxy(await addressesProvider.getLendPoolLoan());
 
-      await insertContractAddressInDb(eContractid.LendPoolLoan, lendPoolLoanProxy.address);
+      // await insertContractAddressInDb(eContractid.LendPoolLoan, lendPoolLoanProxy.address);
 
       //////////////////////////////////////////////////////////////////////////
       //Reuse/deploy lend pool configurator

@@ -149,6 +149,7 @@ library DataTypes {
     uint256 nftTokenId;
     uint256 bidPrice;
     address onBehalfOf;
+    uint256 auctionDurationConfigFee;
   }
 
   struct ExecuteRedeemParams {
