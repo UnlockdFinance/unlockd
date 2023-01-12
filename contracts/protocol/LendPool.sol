@@ -418,7 +418,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
       );
   }
 
-  function triggerUserCollateral(
+  function approveValuation(
     address nftAsset,
     uint256 nftTokenId
   ) external payable override onlyHolder(nftAsset, nftTokenId) onlyCollection(nftAsset) whenNotPaused {

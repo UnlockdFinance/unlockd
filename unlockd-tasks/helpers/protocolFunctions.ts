@@ -50,8 +50,8 @@ const liquidate = async (wallet: Wallet, nftAddress: string, tokenId: string, am
   return Contracts.lendPool.connect(wallet).liquidate(nftAddress, tokenId, amount);
 };
 
-const triggerUserCollateral = async (wallet: Wallet, nftAddress: string, tokenId: string) => {
-  return Contracts.lendPool.connect(wallet).triggerUserCollateral(nftAddress, tokenId, { value: 1000000000000000 });
+const approveValuation = async (wallet: Wallet, nftAddress: string, tokenId: string) => {
+  return Contracts.lendPool.connect(wallet).approveValuation(nftAddress, tokenId, { value: 1000000000000000 });
 };
 
 const getTimeframe = async (wallet: Wallet) => {
@@ -570,7 +570,7 @@ export const Functions = {
     isApprovedNft: isApprovedNft,
   },
   LENDPOOL: {
-    triggerUserCollateral: triggerUserCollateral,
+    approveValuation: approveValuation,
     getConfigFee: getConfigFee,
     getTimeframe: getTimeframe,
     getNftConfigByTokenId: getNftConfigByTokenId,

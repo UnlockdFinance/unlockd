@@ -163,15 +163,15 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "UnlockdProtocolDataProvider": {
-    "address": "0xf002B72CdE6F0401840C7323c91c1fAfB495E5F5",
+    "address": "0xF79a1ab14b401d7032bdDD20D8Eb061557fa8D87",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "UIPoolDataProvider": {
-    "address": "0xA9f3bc8329C2Bba825D49937b25054c0FFFb7256",
+    "address": "0xF07191639A5ca3d5D28206429Df3E3adCc020b3f",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "SelfdestructTransferMock": {
-    "address": "0x054bD77E1501117Aad9127fF51B4F130Eb839552",
+    "address": "0x3C2AeD703EF55ABE3C9D1080418406Fae704bae0",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   }
 }
