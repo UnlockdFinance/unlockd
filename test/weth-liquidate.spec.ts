@@ -310,7 +310,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
 
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
-    await pool.connect(user.signer).triggerUserCollateral(bayc.address, tokenId);
+    await pool.connect(user.signer).approveValuation(bayc.address, tokenId);
     const collData: IConfigNftAsCollateralInput = {
       asset: bayc.address,
       nftTokenId: tokenId.toString(),

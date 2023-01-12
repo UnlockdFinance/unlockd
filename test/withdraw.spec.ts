@@ -137,7 +137,7 @@ makeSuite("LendPool: Withdraw", (testEnv: TestEnv) => {
 
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
-    await pool.connect(user1.signer).triggerUserCollateral(bayc.address, "101");
+    await pool.connect(user1.signer).approveValuation(bayc.address, "101");
     const collData: IConfigNftAsCollateralInput = {
       asset: bayc.address,
       nftTokenId: "101",

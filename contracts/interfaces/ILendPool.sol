@@ -328,12 +328,12 @@ interface ILendPool {
   function liquidateSudoSwap(address nftAsset, uint256 nftTokenId, address LSSVMPair) external returns (uint256);
 
   /**
-   * @dev Triggers the configuration of an NFT
+   * @dev Approves valuation of an NFT for a user
    * @dev Just the NFT holder can trigger the configuration
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
-  function triggerUserCollateral(address nftAsset, uint256 nftTokenId) external payable;
+  function approveValuation(address nftAsset, uint256 nftTokenId) external payable;
 
   /**
    * @dev Validates and finalizes an uToken transfer

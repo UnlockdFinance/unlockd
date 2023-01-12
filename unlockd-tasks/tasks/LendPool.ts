@@ -3,12 +3,12 @@ import { getOwnerWallet, getUserWallet } from "../helpers/config";
 import { Contracts, MockContracts } from "../helpers/constants";
 import { Functions } from "../helpers/protocolFunctions";
 
-task("lendpool:triggerUserCollateral", "Triggers the NFT Configuration ConfigureNFTAsCollateral")
+task("lendpool:approveValuation", "Triggers the NFT Configuration ConfigureNFTAsCollateral")
   .addParam("nftaddress", "The asset address")
   .addParam("tokenid", "The tokenId of the asset")
   .setAction(async ({ nftaddress, tokenid }) => {
     const wallet = await getUserWallet();
-    const tx = await Functions.LENDPOOL.triggerUserCollateral(wallet, nftaddress, tokenid);
+    const tx = await Functions.LENDPOOL.approveValuation(wallet, nftaddress, tokenid);
     await tx.wait();
     console.log(tx);
   });

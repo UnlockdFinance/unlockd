@@ -72,7 +72,7 @@ makeSuite("LendPool: Withdraw negative test cases", (testEnv: TestEnv) => {
 
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
-    await pool.connect(user1.signer).triggerUserCollateral(bayc.address, tokenId);
+    await pool.connect(user1.signer).approveValuation(bayc.address, tokenId);
     const collData: IConfigNftAsCollateralInput = {
       asset: bayc.address,
       nftTokenId: tokenId.toString(),
@@ -111,7 +111,7 @@ makeSuite("LendPool: Withdraw negative test cases", (testEnv: TestEnv) => {
 
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
-    await pool.connect(user0.signer).triggerUserCollateral(bayc.address, tokenId);
+    await pool.connect(user0.signer).approveValuation(bayc.address, tokenId);
     const collData: IConfigNftAsCollateralInput = {
       asset: bayc.address,
       nftTokenId: tokenId.toString(),

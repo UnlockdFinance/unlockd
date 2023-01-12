@@ -73,7 +73,7 @@ makeSuite("DataProvider", (testEnv) => {
 
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
 
-    await pool.connect(borrower.signer).triggerUserCollateral(bayc.address, "101");
+    await pool.connect(borrower.signer).approveValuation(bayc.address, "101");
 
     await pool
       .connect(borrower.signer)
