@@ -153,7 +153,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const { users, configurator, dataProvider, bayc, tokenId, nftOracle } = testEnv;
     await configurator.setLtvManagerStatus(users[0].address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
-    console.log("ltv set");
+
     const collData: IConfigNftAsCollateralInput = {
       asset: bayc.address,
       nftTokenId: "101",
@@ -168,7 +168,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
       minBidFine: 2000,
     };
     await configurator.connect(users[0].signer).configureNftsAsCollateral([collData]);
-    console.log("ocllateral set");
+
     const { ltv, liquidationBonus, liquidationThreshold } = await dataProvider.getNftConfigurationDataByTokenId(
       bayc.address,
       tokenId
@@ -454,5 +454,36 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     await configurator.connect(users[0].signer).configureNftsAsCollateral([collData]);
     const { configTimestamp } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, tokenId);
     await expect(configTimestamp).to.be.within(timestamp, timestampAux.add(10));
+  });
+  it("Check if general configurations are correct", async () => {
+    const { users, configurator, pool, tokenId, bayc, dataProvider } = testEnv;
+    const timestamp = await (await timeLatest()).toString();
+    const timestampAux = BigNumber.from(timestamp);
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 100,
+      auctionDuration: 20000,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(users[0].signer).configureNftsAsCollateral([collData]);
+    const configuration = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, tokenId);
+
+    await expect(configuration.ltv).to.be.equal(4000);
+    await expect(configuration.liquidationThreshold).to.be.equal(7000);
+    await expect(configuration.liquidationBonus).to.be.equal(500);
+    await expect(configuration.redeemDuration).to.be.equal(100);
+    await expect(configuration.auctionDuration).to.be.equal(20000);
+    await expect(configuration.redeemFine).to.be.equal(500);
+    await expect(configuration.redeemThreshold).to.be.equal(9000);
+    await expect(configuration.minBidFine).to.be.equal(2000);
+    await expect(configuration.isActive).to.be.equal(true);
+    await expect(configuration.isFrozen).to.be.equal(false);
   });
 });
