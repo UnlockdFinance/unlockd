@@ -1027,7 +1027,12 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    * @param to        Recipient address
    * @param amount    Amount to withdraw
    */
-  function rescue(IERC20 tokenContract, address to, uint256 amount, bool rescueETH) external override onlyRescuer {
+  function rescue(
+    IERC20 tokenContract,
+    address to,
+    uint256 amount,
+    bool rescueETH
+  ) external override nonReentrant onlyRescuer {
     if (rescueETH) {
       (bool sent, ) = to.call{value: amount}("");
       require(sent, "Failed to send Ether");
@@ -1042,7 +1047,11 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    * @param tokenId ERC721 token id
    * @param to Recipient address
    */
-  function rescueNFT(IERC721Upgradeable nftAsset, uint256 tokenId, address to) external override onlyRescuer {
+  function rescueNFT(
+    IERC721Upgradeable nftAsset,
+    uint256 tokenId,
+    address to
+  ) external override nonReentrant onlyRescuer {
     nftAsset.safeTransferFrom(address(this), to, tokenId);
   }
 
