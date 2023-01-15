@@ -17,6 +17,9 @@ import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC7
  * @notice Implements NFTX selling logic
  */
 library NFTXSeller {
+  // ADDRESS_ID to fetch Wrapped Ether address from Addresses Provider
+  bytes32 public constant ADDRESS_ID_WETH = 0xADDE000000000000000000000000000000000000000000000000000000000004;
+
   /**
    * @dev Sells an asset in an NFTX liquid market
    * @param addressesProvider The addresses provider
@@ -33,7 +36,7 @@ library NFTXSeller {
     address vaultFactoryAddress = addressesProvider.getNFTXVaultFactory();
     address sushiSwapRouterAddress = addressesProvider.getSushiSwapRouter();
     address lendPoolAddress = addressesProvider.getLendPool();
-    address WETH = addressesProvider.getWETHAddress();
+    address WETH = addressesProvider.getAddress(ADDRESS_ID_WETH);
 
     // Get NFTX Vaults for the asset
     address[] memory vaultAddresses = INFTXVaultFactoryV2(vaultFactoryAddress).vaultsForAsset(nftAsset);
@@ -95,7 +98,7 @@ library NFTXSeller {
   ) internal view returns (uint256) {
     address vaultFactoryAddress = addressesProvider.getNFTXVaultFactory();
     address sushiSwapRouterAddress = addressesProvider.getSushiSwapRouter();
-    address WETH = addressesProvider.getWETHAddress();
+    address WETH = addressesProvider.getAddress(ADDRESS_ID_WETH);
 
     // Get NFTX Vaults for the asset
     address[] memory vaultAddresses = INFTXVaultFactoryV2(vaultFactoryAddress).vaultsForAsset(nftAsset);

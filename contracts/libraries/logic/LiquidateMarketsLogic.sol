@@ -85,6 +85,8 @@ library LiquidateMarketsLogic {
     uint256 extraAuctionDuration;
     address WETH;
   }
+  // ADDRESS_ID to fetch Wrapped Ether address from Addresses Provider
+  bytes32 public constant ADDRESS_ID_WETH = 0xADDE000000000000000000000000000000000000000000000000000000000004;
 
   /**
    * @notice Implements the liquidate feature on NFTX. Through `liquidateNFTX()`, users liquidate assets in the protocol.
@@ -241,7 +243,7 @@ library LiquidateMarketsLogic {
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
     vars.liquidator = addressesProvider.getLendPoolLiquidator();
-    vars.WETH = addressesProvider.getWETHAddress();
+    vars.WETH = addressesProvider.getAddress(ADDRESS_ID_WETH);
 
     address sushiSwapRouterAddress = addressesProvider.getSushiSwapRouter();
 

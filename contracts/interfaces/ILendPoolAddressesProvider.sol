@@ -43,18 +43,6 @@ interface ILendPoolAddressesProvider {
   function setMarketId(string calldata marketId) external;
 
   /**
-   * @dev Returns the WETH address
-   * @return The WETH address
-   **/
-  function getWETHAddress() external view returns (address);
-
-  /**
-   * @dev Allows to set the WETH address for the market
-   * @param _wethAddress The WETH address to set
-   */
-  function setWETHAddress(address _wethAddress) external;
-
-  /**
    * @dev Sets an address for an id replacing the address saved in the addresses map
    * IMPORTANT Use this function carefully, as it will do a hard replacement
    * @param id The id

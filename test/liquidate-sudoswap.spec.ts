@@ -1,8 +1,17 @@
 import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
 import { BigNumber as BN } from "ethers";
-import { ConfigNames, getTreasuryAddress, loadPoolConfig } from "../helpers/configuration";
+import { FORK } from "../hardhat.config";
 import {
+  ConfigNames,
+  getLSSVMRouter,
+  getTreasuryAddress,
+  getWrappedNativeTokenAddress,
+  loadPoolConfig,
+} from "../helpers/configuration";
+import {
+  ADDRESS_ID_LSSVM_ROUTER,
+  ADDRESS_ID_WETH,
   APPROVAL_AMOUNT_LENDING_POOL,
   MAX_UINT_AMOUNT,
   oneEther,
@@ -161,6 +170,19 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
     // Allow pool to transfer treasury tokens in case SudoSwap sold price is less than borrowed amount
     const tx = await weth.connect(treasurySigner).approve(pool.address, MAX_UINT_AMOUNT);
     await fundWithERC20("WETH", treasuryAddress, "10");
+
+    await waitForTx(
+      await addressesProvider
+        .connect(deployer.signer)
+        .setAddress(ADDRESS_ID_LSSVM_ROUTER, await getLSSVMRouter(poolConfig))
+    );
+
+    await waitForTx(
+      await addressesProvider
+        .connect(deployer.signer)
+        .setAddress(ADDRESS_ID_WETH, await getWrappedNativeTokenAddress(poolConfig))
+    );
+
     await pool.connect(liquidator.signer).liquidateSudoSwap(bayc.address, "101", topPair.address);
 
     const loanDataAfter = await dataProvider.getLoanDataByLoanId(loanDataBefore.loanId);

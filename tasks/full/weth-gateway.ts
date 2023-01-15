@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
 import { ConfigNames, getWrappedNativeTokenAddress, loadPoolConfig } from "../../helpers/configuration";
-import { ADDRESS_ID_WETH_GATEWAY } from "../../helpers/constants";
+import { ADDRESS_ID_WETH, ADDRESS_ID_WETH_GATEWAY } from "../../helpers/constants";
 import { deployUnlockdUpgradeableProxy, deployWETHGateway } from "../../helpers/contracts-deployments";
 import {
   getLendPoolAddressesProvider,
@@ -73,7 +73,7 @@ task(`full:deploy-weth-gateway`, `Deploys the WETHGateway contract`)
       wethGateWay = await getWETHGateway(wethGatewayProxy.address);
     }
     await waitForTx(await addressesProvider.setAddress(ADDRESS_ID_WETH_GATEWAY, wethGateWay.address));
-    await waitForTx(await addressesProvider.setWETHAddress(weth));
+    await waitForTx(await addressesProvider.setAddress(ADDRESS_ID_WETH, weth));
   });
 
 task("full:wethgateway-authorize-caller-whitelist", "Initialize gateway configuration.")

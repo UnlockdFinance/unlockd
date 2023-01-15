@@ -84,7 +84,6 @@
   "LendPool": {
     "address": "0xc32B56a82144E29725978E8e90c96aA015B87b93",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-
   },
   "LendPoolLoanImpl": {
     "address": "0xE2Ab82DeCBA9918885010Dd1A11a687339783116"
@@ -172,7 +171,7 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "SelfdestructTransferMock": {
-    "address": "0x9B510262D7a6AEeFdee83cDe34410Ec741c6cbd3",
+    "address": "0x054bD77E1501117Aad9127fF51B4F130Eb839552",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   }
 }

@@ -1,6 +1,7 @@
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { ConfigNames, getEmergencyAdmin, loadPoolConfig } from "../../helpers/configuration";
+import { ADDRESS_ID_LSSVM_ROUTER } from "../../helpers/constants";
 import {
   deployLendPool,
   deployLendPoolConfigurator,

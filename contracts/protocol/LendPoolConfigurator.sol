@@ -427,7 +427,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     uint256 redeemDuration,
     uint256 auctionDuration,
     uint256 redeemFine
-  ) external onlyPoolAdmin {
+  ) external onlyLtvManager {
     ILendPool cachedPool = _getLendPool();
     DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(asset, nftTokenId);
 

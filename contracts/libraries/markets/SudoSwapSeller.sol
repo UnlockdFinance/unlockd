@@ -18,6 +18,8 @@ library SudoSwapSeller {
     ILSSVMPair pair;
     uint256[] nftIds;
   }
+  // Address ID for Sudoswap LSSVM router in addresses provider
+  bytes32 public constant ADDRESS_ID_LSSVM_ROUTER = 0xADDE000000000000000000000000000000000000000000000000000000000003;
 
   /**
    * @dev Sells an asset in a SudoSwap liquid market
@@ -30,7 +32,7 @@ library SudoSwapSeller {
     uint256 nftTokenId,
     address LSSVMPair
   ) internal returns (uint256 amount) {
-    address LSSVMRouterAddress = addressesProvider.getLSSVMRouter();
+    address LSSVMRouterAddress = addressesProvider.getAddress(ADDRESS_ID_LSSVM_ROUTER);
     address lendPoolAddress = addressesProvider.getLendPool();
 
     ILSSVMRouter LSSVMRouter = ILSSVMRouter(LSSVMRouterAddress);

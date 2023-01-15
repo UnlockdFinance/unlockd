@@ -140,7 +140,7 @@
     "address": "0x507E71Fb0C4B5213750FDA94a9cebeDdA7478D4c"
   },
   "LendPoolConfigurator": {
-    "address": "0x507E71Fb0C4B5213750FDA94a9cebeDdA7478D4c",
+    "address": "0xF2573887f6B6165B82fDE8f316581fb30058A08a",
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "LendPoolLoanImpl": {

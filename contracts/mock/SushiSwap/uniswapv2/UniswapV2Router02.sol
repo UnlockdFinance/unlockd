@@ -68,17 +68,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
     uint256 amountBMin,
     address to,
     uint256 deadline
-  )
-    external
-    virtual
-    override
-    ensure(deadline)
-    returns (
-      uint256 amountA,
-      uint256 amountB,
-      uint256 liquidity
-    )
-  {
+  ) external virtual override ensure(deadline) returns (uint256 amountA, uint256 amountB, uint256 liquidity) {
     (amountA, amountB) = _addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin);
     address pair = UniswapV2Library.pairFor(factory, tokenA, tokenB);
     TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA);
@@ -99,11 +89,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
     virtual
     override
     ensure(deadline)
-    returns (
-      uint256 amountToken,
-      uint256 amountETH,
-      uint256 liquidity
-    )
+    returns (uint256 amountToken, uint256 amountETH, uint256 liquidity)
   {
     (amountToken, amountETH) = _addLiquidity(token, WETH, amountTokenDesired, msg.value, amountTokenMin, amountETHMin);
     address pair = UniswapV2Library.pairFor(factory, token, WETH);
@@ -235,11 +221,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
 
   // **** SWAP ****
   // requires the initial amount to have already been sent to the first pair
-  function _swap(
-    uint256[] memory amounts,
-    address[] memory path,
-    address _to
-  ) internal virtual {
+  function _swap(uint256[] memory amounts, address[] memory path, address _to) internal virtual {
     for (uint256 i; i < path.length - 1; ) {
       (address input, address output) = (path[i], path[i + 1]);
       (address token0, ) = UniswapV2Library.sortTokens(input, output);
@@ -465,23 +447,17 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
     return UniswapV2Library.getAmountIn(amountOut, reserveIn, reserveOut);
   }
 
-  function getAmountsOut(uint256 amountIn, address[] memory path)
-    public
-    view
-    virtual
-    override
-    returns (uint256[] memory amounts)
-  {
+  function getAmountsOut(
+    uint256 amountIn,
+    address[] memory path
+  ) public view virtual override returns (uint256[] memory amounts) {
     return UniswapV2Library.getAmountsOut(factory, amountIn, path);
   }
 
-  function getAmountsIn(uint256 amountOut, address[] memory path)
-    public
-    view
-    virtual
-    override
-    returns (uint256[] memory amounts)
-  {
+  function getAmountsIn(
+    uint256 amountOut,
+    address[] memory path
+  ) public view virtual override returns (uint256[] memory amounts) {
     return UniswapV2Library.getAmountsIn(factory, amountOut, path);
   }
 }
