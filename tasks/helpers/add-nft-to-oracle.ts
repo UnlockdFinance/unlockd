@@ -1,11 +1,9 @@
-import { BigNumberish } from "@ethersproject/bignumber";
 import { task } from "hardhat/config";
 import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import { getIErc721Detailed, getLendPoolAddressesProvider, getNFTOracle } from "../../helpers/contracts-getters";
 import { getEthersSignerByAddress } from "../../helpers/contracts-helpers";
-import { getNowTimeInSeconds, notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
-import { eContractid, eNetwork } from "../../helpers/types";
-import { strategyNftParams } from "../../markets/unlockd/nftsConfigs";
+import { getNowTimeInSeconds, waitForTx } from "../../helpers/misc-utils";
+import { eNetwork } from "../../helpers/types";
 
 task("add-nft-to-oracle", "Add new nft asset to oracle")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)

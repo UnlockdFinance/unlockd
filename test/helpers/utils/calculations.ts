@@ -1,9 +1,8 @@
 import BigNumber from "bignumber.js";
-import { ONE_YEAR, RAY, MAX_UINT_AMOUNT, PERCENTAGE_FACTOR, ZERO_ADDRESS, oneEther } from "../../../helpers/constants";
-import { IReserveParams, iUnlockdPoolAssets, tEthereumAddress, ProtocolLoanState } from "../../../helpers/types";
+import { MAX_UINT_AMOUNT, oneEther, ONE_YEAR, PERCENTAGE_FACTOR, RAY, ZERO_ADDRESS } from "../../../helpers/constants";
+import { IReserveParams, iUnlockdPoolAssets, ProtocolLoanState } from "../../../helpers/types";
+import { LoanData, ReserveData, UserReserveData } from "./interfaces";
 import "./math";
-import { ReserveData, UserReserveData, LoanData } from "./interfaces";
-import { expect } from "chai";
 
 export const strToBN = (amount: string): BigNumber => new BigNumber(amount);
 

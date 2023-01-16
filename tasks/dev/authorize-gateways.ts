@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
+import { getAllMockedNfts, getAllMockedTokens, getPunkGateway, getWETHGateway } from "../../helpers/contracts-getters";
 import { waitForTx } from "../../helpers/misc-utils";
-import { getAllTokenAddresses, getAllNftAddresses } from "../../helpers/mock-helpers";
-import { getAllMockedTokens, getAllMockedNfts, getWETHGateway, getPunkGateway } from "../../helpers/contracts-getters";
+import { getAllNftAddresses, getAllTokenAddresses } from "../../helpers/mock-helpers";
 
 task("dev:authorize-gateways", "Authorize Gateways to do transactions.").setAction(
   async ({ verify, pool }, localBRE) => {
@@ -17,7 +17,7 @@ task("dev:authorize-gateways", "Authorize Gateways to do transactions.").setActi
     ////////////////////////////////////////////////////////////////////////////
     // Init & Config Reserve assets
     const wethGateway = await getWETHGateway();
-    let nftAddresses: string[] = [];
+    const nftAddresses: string[] = [];
     for (const [assetSymbol, assetAddress] of Object.entries(allNftAddresses) as [string, string][]) {
       nftAddresses.push(assetAddress);
       console.log("Symbol: ", assetSymbol, " Address: ", assetAddress);
@@ -27,7 +27,7 @@ task("dev:authorize-gateways", "Authorize Gateways to do transactions.").setActi
     ////////////////////////////////////////////////////////////////////////////
     // Init & Config NFT assets
     const punkGateway = await getPunkGateway();
-    let reserveAddresses: string[] = [];
+    const reserveAddresses: string[] = [];
     for (const [assetSymbol, assetAddress] of Object.entries(allTokenAddresses) as [string, string][]) {
       reserveAddresses.push(assetAddress);
       console.log("Symbol: ", assetSymbol, " Address: ", assetAddress);

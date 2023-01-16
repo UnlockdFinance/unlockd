@@ -1,4 +1,4 @@
-import BigNumber from "bignumber.js";
+import { BigNumber } from "@ethersproject/bignumber";
 
 export interface SymbolMap<T> {
   [symbol: string]: T;
@@ -32,6 +32,7 @@ export enum eContractid {
   SupplyLogic = "SupplyLogic",
   BorrowLogic = "BorrowLogic",
   LiquidateLogic = "LiquidateLogic",
+  LiquidateMarketsLogic = "LiquidateMarketsLogic",
   ConfiguratorLogic = "ConfiguratorLogic",
   LendPool = "LendPool",
   LendPoolLoan = "LendPoolLoan",
@@ -85,6 +86,7 @@ export enum eContractid {
   UniswapV2Factory = "UniswapV2Factory",
   SushiSwapRouter = "SushiSwapRouter",
   NFTXHelper = "NFTXHelper",
+  LSSVMPPair = "LSSVMPair",
 }
 
 export enum ProtocolLoanState {
@@ -153,7 +155,7 @@ export enum ProtocolErrors {
   LP_INCONSISTENT_PARAMS = "408",
   LP_NFT_IS_NOT_USED_AS_COLLATERAL = "409",
   LP_CALLER_MUST_BE_AN_UTOKEN = "410",
-  LP_INVALIED_NFT_AMOUNT = "411",
+  LP_INVALID_NFT_AMOUNT = "411",
   LP_NFT_HAS_USED_AS_COLLATERAL = "412",
   LP_DELEGATE_CALL_FAILED = "413",
   LP_AMOUNT_LESS_THAN_EXTRA_DEBT = "414",
@@ -164,7 +166,12 @@ export enum ProtocolErrors {
   LP_CALLER_NOT_LEND_POOL_LIQUIDATOR_NOR_GATEWAY = "419",
   LP_CONSECUTIVE_BIDS_NOT_ALLOWED = "420",
   LP_INVALID_OVERFLOW_VALUE = "421",
-
+  LP_CALLER_NOT_NFT_HOLDER = "422",
+  LP_NFT_NOT_ALLOWED_TO_SELL = "423",
+  LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY = "424",
+  LP_COLLECTION_NOT_SUPPORTED = "425",
+  LP_MSG_VALUE_DIFFERENT_FROM_CONFIG_FEE = "426",
+  LP_INVALID_SAFE_HEALTH_FACTOR = "427",
   //lend pool loan errors
   LPL_INVALID_LOAN_STATE = "480",
   LPL_INVALID_LOAN_AMOUNT = "481",
@@ -181,7 +188,7 @@ export enum ProtocolErrors {
   LPL_INVALID_BIDDER_ADDRESS = "492",
   LPL_AMOUNT_LESS_THAN_BID_FINE = "493",
   LPL_BID_INVALID_BID_FINE = "494",
-
+  LPL_BID_PRICE_LESS_THAN_MIN_BID_REQUIRED = "495",
   //common token errors
   CT_CALLER_MUST_BE_LEND_POOL = "500", // 'The caller of this function must be a lending pool'
   CT_INVALID_MINT_AMOUNT = "501", //invalid amount to mint
@@ -204,7 +211,7 @@ export enum ProtocolErrors {
   LPC_NFT_LIQUIDITY_NOT_0 = "705",
   LPC_PARAMS_MISMATCH = "706",
   LPC_FEE_PERCENTAGE_TOO_HIGH = "707",
-
+  LPC_INCONSISTENT_PARAMS = "708",
   //reserve config errors
   RC_INVALID_LTV = "730",
   RC_INVALID_LIQ_THRESHOLD = "731",
@@ -276,12 +283,12 @@ export interface iNftBase<T> {
   WPUNKS: T;
   BAYC: T;
   DOODLE: T;
+  AZUKI: T;
   /* COOL: T;
   MEEBITS: T;
   MAYC: T;
   WOW: T;
   CLONEX: T;
-  AZUKI: T;
   KONGZ: T;
   LAND: T; */
 }
@@ -296,12 +303,12 @@ export enum NftContractId {
   WPUNKS = "WPUNKS",
   BAYC = "BAYC",
   DOODLE = "DOODLE",
+  AZUKI = "AZUKI",
   /* COOL = "COOL",
   MEEBITS = "MEEBITS",
   MAYC = "MAYC",
   WOW = "WOW",
   CLONEX = "CLONEX",
-  AZUKI = "AZUKI",
   KONGZ = "KONGZ",
   LAND = "LAND", */
 }
@@ -344,6 +351,20 @@ export interface INftCollateralParams {
   liquidationBonus: string;
 }
 
+export interface IConfigNftAsCollateralInput {
+  asset: string;
+  nftTokenId: string;
+  newPrice: BigNumber;
+  ltv: number;
+  liquidationThreshold: number;
+  redeemThreshold: number;
+  liquidationBonus: number;
+  redeemDuration: number;
+  auctionDuration: number;
+  redeemFine: number;
+  minBidFine: number;
+}
+
 export interface INftAuctionParams {
   redeemDuration: string;
   auctionDuration: string;
@@ -354,7 +375,7 @@ export interface INftAuctionParams {
 
 export type iParamsPerNetwork<T> = iEthereumParamsPerNetwork<T>;
 
-export interface iParamsPerNetworkAll<T> extends iEthereumParamsPerNetwork<T> {}
+export type iParamsPerNetworkAll<T> = iEthereumParamsPerNetwork<T>;
 
 export interface iEthereumParamsPerNetwork<T> {
   [eEthereumNetwork.hardhat]: T;
@@ -442,6 +463,7 @@ export interface ICommonConfiguration {
 
   NFTXVaultFactory: iParamsPerNetwork<tEthereumAddress>;
   SushiSwapRouter: iParamsPerNetwork<tEthereumAddress>;
+  LSSVMRouter: iParamsPerNetwork<tEthereumAddress>;
 }
 
 export interface IUnlockdConfiguration extends ICommonConfiguration {

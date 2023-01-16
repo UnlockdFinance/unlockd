@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
-import {INFTXVaultFactoryV2} from "../../interfaces/INFTXVaultFactoryV2.sol";
+import {INFTXVaultFactoryV2} from "../../interfaces/nftx/INFTXVaultFactoryV2.sol";
 import {NFTXVault} from "./NFTXVault.sol";
 
 /**

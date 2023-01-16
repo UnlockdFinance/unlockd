@@ -10,13 +10,11 @@ import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
-import {NFTXHelper} from "../libraries/nftx/NFTXHelper.sol";
+import {NFTXSeller} from "../libraries/markets/NFTXSeller.sol";
 
 contract UnlockdProtocolDataProvider {
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
   using NftConfiguration for DataTypes.NftConfigurationMap;
-
-  address constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
   struct ReserveTokenData {
     string tokenSymbol;
@@ -325,11 +323,17 @@ contract UnlockdProtocolDataProvider {
     loanData.bidBorrowAmount = loan.bidBorrowAmount;
   }
 
+  /* CAUTION: Price uint is ETH based (WEI, 18 decimals) */
+  /**
+  @dev returns the NFT price for a given NFT valued by NFTX
+  @param asset the NFT collection
+  @param tokenId the NFT token Id
+   */
   function getNFTXPrice(
     address asset,
     uint256 tokenId,
     address reserveAsset
   ) external view returns (uint256) {
-    return NFTXHelper.getNFTXPrice(ADDRESSES_PROVIDER, asset, tokenId, reserveAsset);
+    return NFTXSeller.getNFTXPrice(ADDRESSES_PROVIDER, asset, tokenId, reserveAsset);
   }
 }

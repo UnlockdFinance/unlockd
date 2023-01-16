@@ -1,16 +1,16 @@
+import { formatEther } from "@ethersproject/units";
 import { task } from "hardhat/config";
-import { checkVerification } from "../../helpers/etherscan-verification";
 import {
   ConfigNames,
   getEmergencyAdmin,
   getGenesisPoolAdmin,
   getLendPoolLiquidator,
+  loadPoolConfig,
 } from "../../helpers/configuration";
-import { printContracts } from "../../helpers/misc-utils";
 import { getDeploySigner } from "../../helpers/contracts-getters";
-import { formatEther } from "@ethersproject/units";
-import { loadPoolConfig } from "../../helpers/configuration";
 import { getEthersSignerByAddress } from "../../helpers/contracts-helpers";
+import { checkVerification } from "../../helpers/etherscan-verification";
+import { printContracts } from "../../helpers/misc-utils";
 
 task("unlockd:mainnet", "Deploy full enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")
@@ -59,6 +59,16 @@ task("unlockd:mainnet", "Deploy full enviroment")
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy address provider");
     await DRE.run("full:deploy-address-provider", { pool: POOL_NAME, skipRegistry: skipRegistry, verify: verify });
+
+    //////////////////////////////////////////////////////////////////////////
+    console.log("\n\nDeploy Incentives Controller");
+    await DRE.run("full:deploy-incentives-controller", { verify: verify });
+
+    //////////////////////////////////////////////////////////////////////////
+    console.log("\n\nDeploy UNFT Registry");
+    await DRE.run("full:deploy-unft-registry", { pool: POOL_NAME, verify, createunfts: false });
+
+    //////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy lend pool");

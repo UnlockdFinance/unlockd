@@ -2,7 +2,6 @@
 pragma solidity 0.8.4;
 
 import {IUNFT} from "../../interfaces/IUNFT.sol";
-import {IFlashLoanReceiver} from "../../interfaces/IFlashLoanReceiver.sol";
 
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
@@ -17,6 +16,7 @@ import {IERC721ReceiverUpgradeable} from "@openzeppelin/contracts-upgradeable/to
  **/
 contract UNFT is ERC721EnumerableUpgradeable, IUNFT {
   address private _underlyingAsset;
+
   // Mapping from token ID to minter address
   mapping(uint256 => address) private _minters;
 
@@ -86,63 +86,11 @@ contract UNFT is ERC721EnumerableUpgradeable, IUNFT {
   }
 
   /**
-   * @dev See {IUNFT-flashLoan}.
-   */
-  function flashLoan(
-    address receiverAddress,
-    uint256[] calldata nftTokenIds,
-    bytes calldata params
-  ) external override {
-    uint256 i;
-    IFlashLoanReceiver receiver = IFlashLoanReceiver(receiverAddress);
-
-    // !!!CAUTION: receiver contract may reentry mint, burn, flashloan again
-    uint256 idsLength = nftTokenIds.length;
-    // only token owner can do flashloan
-    for (i = 0; i < idsLength; ) {
-      require(ownerOf(nftTokenIds[i]) == _msgSender(), "UNFT: caller is not owner");
-
-      unchecked {
-        ++i;
-      }
-    }
-
-    // step 1: moving underlying asset forward to receiver contract
-    for (i = 0; i < idsLength; ) {
-      IERC721Upgradeable(_underlyingAsset).safeTransferFrom(address(this), receiverAddress, nftTokenIds[i]);
-
-      unchecked {
-        ++i;
-      }
-    }
-
-    // setup 2: execute receiver contract, doing something like aidrop
-    require(
-      receiver.executeOperation(_underlyingAsset, nftTokenIds, _msgSender(), address(this), params),
-      "UNFT: invalid flashloan executor return"
-    );
-
-    // setup 3: moving underlying asset backword from receiver contract
-    for (i = 0; i < idsLength; ) {
-      IERC721Upgradeable(_underlyingAsset).safeTransferFrom(receiverAddress, address(this), nftTokenIds[i]);
-
-      emit FlashLoan(receiverAddress, _msgSender(), _underlyingAsset, nftTokenIds[i]);
-      unchecked {
-        ++i;
-      }
-    }
-  }
-
-  /**
    * @dev See {IERC721Metadata-tokenURI}.
    */
-  function tokenURI(uint256 tokenId)
-    public
-    view
-    virtual
-    override(ERC721Upgradeable, IERC721MetadataUpgradeable)
-    returns (string memory)
-  {
+  function tokenURI(
+    uint256 tokenId
+  ) public view virtual override(ERC721Upgradeable, IERC721MetadataUpgradeable) returns (string memory) {
     return IERC721MetadataUpgradeable(_underlyingAsset).tokenURI(tokenId);
   }
 
@@ -184,11 +132,10 @@ contract UNFT is ERC721EnumerableUpgradeable, IUNFT {
   /**
    * @dev See {ERC721EnumerableUpgradeable}.
    */
-  function setApprovalForAll(address operator, bool approved)
-    public
-    virtual
-    override(ERC721Upgradeable, IERC721Upgradeable)
-  {
+  function setApprovalForAll(
+    address operator,
+    bool approved
+  ) public virtual override(ERC721Upgradeable, IERC721Upgradeable) {
     operator;
     approved;
     revert("APPROVAL_NOT_SUPPORTED");
@@ -241,11 +188,7 @@ contract UNFT is ERC721EnumerableUpgradeable, IUNFT {
   /**
    * @dev See {ERC721EnumerableUpgradeable}.
    */
-  function _transfer(
-    address from,
-    address to,
-    uint256 tokenId
-  ) internal virtual override(ERC721Upgradeable) {
+  function _transfer(address from, address to, uint256 tokenId) internal virtual override(ERC721Upgradeable) {
     from;
     to;
     tokenId;

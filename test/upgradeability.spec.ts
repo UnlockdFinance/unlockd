@@ -1,17 +1,9 @@
-import { expect } from "chai";
-import { makeSuite, TestEnv } from "./helpers/make-suite";
-import { ProtocolErrors, eContractid } from "../helpers/types";
-import { deployContract, getContract } from "../helpers/contracts-helpers";
-import { MAX_UINT_AMOUNT, ZERO_ADDRESS } from "../helpers/constants";
-import {
-  getDeploySigner,
-  getUToken,
-  getLendPoolLoanProxy,
-  getDebtToken,
-  getUnlockdUpgradeableProxy,
-} from "../helpers/contracts-getters";
-import { UTokenFactory, LendPoolLoanFactory, LendPoolLoan, UToken, DebtToken, DebtTokenFactory } from "../types";
 import { BytesLike } from "@ethersproject/bytes";
+import { expect } from "chai";
+import { getDebtToken, getDeploySigner, getLendPoolLoanProxy } from "../helpers/contracts-getters";
+import { ProtocolErrors } from "../helpers/types";
+import { DebtToken, DebtTokenFactory, LendPoolLoan, LendPoolLoanFactory, UToken, UTokenFactory } from "../types";
+import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 makeSuite("Upgradeability", (testEnv: TestEnv) => {
   const { CALLER_NOT_POOL_ADMIN } = ProtocolErrors;

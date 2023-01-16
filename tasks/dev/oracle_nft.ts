@@ -1,10 +1,10 @@
 import { task } from "hardhat/config";
+import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import { deployNFTOracle } from "../../helpers/contracts-deployments";
+import { getAllMockedNfts, getLendPoolAddressesProvider } from "../../helpers/contracts-getters";
+import { waitForTx } from "../../helpers/misc-utils";
 import { addAssetsInNFTOracle, setPricesInNFTOracle } from "../../helpers/oracles-helpers";
 import { tEthereumAddress } from "../../helpers/types";
-import { waitForTx } from "../../helpers/misc-utils";
-import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
-import { getAllMockedNfts, getLendPoolAddressesProvider } from "../../helpers/contracts-getters";
 
 task("dev:deploy-oracle-nft", "Deploy nft oracle for dev environment")
   .addFlag("verify", "Verify contracts at Etherscan")
@@ -45,12 +45,7 @@ task("dev:deploy-oracle-nft", "Deploy nft oracle for dev environment")
 
     const nftOracleImpl = await deployNFTOracle(verify);
     await waitForTx(
-      await nftOracleImpl.initialize(
-        await addressesProvider.getPoolAdmin(),
-        await addressesProvider.getNFTXVaultFactory(),
-        await addressesProvider.getSushiSwapRouter(),
-        lendpoolConfigurator
-      ) // Fix bug! 2e17 1e17
+      await nftOracleImpl.initialize(await addressesProvider.getPoolAdmin(), lendpoolConfigurator) // Fix bug! 2e17 1e17
     );
 
     await nftOracleImpl.setPriceManagerStatus(lendpoolConfigurator, true);

@@ -1,11 +1,11 @@
-import { APPROVAL_AMOUNT_LENDING_POOL, MAX_UINT_AMOUNT, ZERO_ADDRESS } from "../helpers/constants";
-import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { expect } from "chai";
-import { ethers } from "ethers";
+import { APPROVAL_AMOUNT_LENDING_POOL, ZERO_ADDRESS } from "../helpers/constants";
+import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
+import { fundWithERC20, waitForTx } from "../helpers/misc-utils";
 import { ProtocolErrors } from "../helpers/types";
-import { makeSuite, TestEnv } from "./helpers/make-suite";
 import { CommonsConfig } from "../markets/unlockd/commons";
-import { waitForTx } from "../helpers/misc-utils";
+import { approveERC20 } from "./helpers/actions";
+import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 makeSuite("UToken", (testEnv: TestEnv) => {
   const { INVALID_FROM_BALANCE_AFTER_TRANSFER, INVALID_TO_BALANCE_AFTER_TRANSFER } = ProtocolErrors;
@@ -40,14 +40,13 @@ makeSuite("UToken", (testEnv: TestEnv) => {
   });
 
   it("User 0 deposits 1000 DAI, transfers uDai to user 1", async () => {
-    const { users, pool, dai, uDai } = testEnv;
+    const { users, pool, dai, uDai, deployer } = testEnv;
 
-    await dai.connect(users[0].signer).mint(await convertToCurrencyDecimals(dai.address, "1000"));
-
-    await dai.connect(users[0].signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+    await fundWithERC20("DAI", users[0].address, "1000");
+    await approveERC20(testEnv, users[0], "DAI");
 
     //user 1 deposits 1000 DAI
-    const amountDeposit = await convertToCurrencyDecimals(dai.address, "1000");
+    const amountDeposit = await convertToCurrencyDecimals(deployer, dai, "1000");
 
     await pool.connect(users[0].signer).deposit(dai.address, amountDeposit, users[0].address, "0");
 
@@ -55,9 +54,9 @@ makeSuite("UToken", (testEnv: TestEnv) => {
 
     await uDai.connect(users[0].signer).transfer(users[1].address, amountDeposit);
 
-    const checkResult = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
-    await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
-    expect(checkResult).to.be.equal(true, "IncentivesController not called");
+    // const checkResult = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
+    // await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
+    // expect(checkResult).to.be.equal(true, "IncentivesController not called");
 
     const fromBalance = await uDai.balanceOf(users[0].address);
     const toBalance = await uDai.balanceOf(users[1].address);

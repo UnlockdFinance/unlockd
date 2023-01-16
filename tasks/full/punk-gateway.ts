@@ -1,23 +1,23 @@
 import { task } from "hardhat/config";
 import {
-  loadPoolConfig,
   ConfigNames,
-  getWrappedPunkTokenAddress,
   getCryptoPunksMarketAddress,
+  getWrappedPunkTokenAddress,
+  loadPoolConfig,
 } from "../../helpers/configuration";
 import { ADDRESS_ID_PUNK_GATEWAY } from "../../helpers/constants";
-import { deployUnlockdUpgradeableProxy, deployPunkGateway } from "../../helpers/contracts-deployments";
+import { deployPunkGateway, deployUnlockdUpgradeableProxy } from "../../helpers/contracts-deployments";
 import {
-  getUnlockdProxyAdminById,
-  getUnlockdUpgradeableProxy,
   getLendPoolAddressesProvider,
   getPunkGateway,
+  getUnlockdProxyAdminById,
+  getUnlockdUpgradeableProxy,
   getWETHGateway,
 } from "../../helpers/contracts-getters";
 import { insertContractAddressInDb } from "../../helpers/contracts-helpers";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import { eContractid, eNetwork } from "../../helpers/types";
-import { UnlockdUpgradeableProxy, PunkGateway } from "../../types";
+import { PunkGateway, UnlockdUpgradeableProxy } from "../../types";
 
 task(`full:deploy-punk-gateway`, `Deploys the PunkGateway contract`)
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
@@ -88,10 +88,6 @@ task(`full:deploy-punk-gateway`, `Deploys the PunkGateway contract`)
     }
 
     await waitForTx(await addressesProvider.setAddress(ADDRESS_ID_PUNK_GATEWAY, punkGateWay.address));
-
-    console.log("PunkGateway: proxy %s, implementation %s", punkGateWay.address, punkGateWayImpl.address);
-
-    console.log("Finished PunkGateway deployment");
   });
 
 task("full:punkgateway-authorize-caller-whitelist", "Initialize gateway configuration.")

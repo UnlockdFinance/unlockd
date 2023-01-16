@@ -1,79 +1,96 @@
-import rawBRE from "hardhat";
+import { formatEther, parseEther } from "@ethersproject/units";
 import { MockContract } from "ethereum-waffle";
-import "./helpers/utils/math";
-import { getEthersSigners, insertContractAddressInDb, registerContractInJsonDb } from "../helpers/contracts-helpers";
+import { Signer } from "ethers";
+import rawBRE from "hardhat";
+import { FORK } from "../hardhat.config";
 import {
-  deployLendPoolAddressesProvider,
-  deployUTokenImplementations,
-  deployLendPoolConfigurator,
+  ConfigNames,
+  getEmergencyAdmin,
+  getGenesisPoolAdmin,
+  getLendPoolLiquidator,
+  loadPoolConfig,
+} from "../helpers/configuration";
+import {
+  ADDRESS_ID_PUNK_GATEWAY,
+  ADDRESS_ID_WETH_GATEWAY,
+  FUNDED_ACCOUNTS_GOERLI,
+  FUNDED_ACCOUNTS_MAINNET,
+} from "../helpers/constants";
+import {
+  deployAllMockNfts,
+  deployAllMockTokens,
+  deployGenericUNFTImpl,
   deployLendPool,
+  deployLendPoolAddressesProvider,
+  deployLendPoolAddressesProviderRegistry,
+  deployLendPoolConfigurator,
   deployLendPoolLoan,
-  deployReserveOracle,
-  deployNFTOracle,
+  deployMockChainlinkOracle,
+  deployMockIncentivesController,
   deployMockNFTOracle,
   deployMockReserveOracle,
-  deployWalletBalancerProvider,
-  deployUnlockdProtocolDataProvider,
-  deployWETHGateway,
-  deployUNFTRegistry,
-  deployPunkGateway,
-  deployUnlockdUpgradeableProxy,
-  deployUnlockdProxyAdmin,
-  deployGenericUNFTImpl,
-  deployLendPoolAddressesProviderRegistry,
-  deployMockIncentivesController,
-  deployAllMockTokens,
-  deployAllMockNfts,
-  deployUiPoolDataProvider,
-  deployMockChainlinkOracle,
-  deployUnlockdLibraries,
+  deployNFTOracle,
   deployNFTXVaultFactory,
+  deployPunkGateway,
+  deployReserveOracle,
+  deploySelfdestructTransferMock,
   deploySushiSwapRouter,
+  deployUiPoolDataProvider,
+  deployUNFTRegistry,
+  deployUnlockdLibraries,
+  deployUnlockdProtocolDataProvider,
+  deployUnlockdProxyAdmin,
+  deployUnlockdUpgradeableProxy,
+  deployUTokenImplementations,
+  deployWalletBalancerProvider,
+  deployWETHGateway,
 } from "../helpers/contracts-deployments";
-import { Signer } from "ethers";
-import { eContractid, tEthereumAddress, UnlockdPools } from "../helpers/types";
-import { MintableERC20 } from "../types/MintableERC20";
-import { MintableERC721 } from "../types/MintableERC721";
-import { ConfigNames, getTreasuryAddress, loadPoolConfig } from "../helpers/configuration";
-import { initializeMakeSuite } from "./helpers/make-suite";
-
 import {
-  setAggregatorsInReserveOracle,
-  addAssetsInNFTOracle,
-  setPricesInNFTOracle,
-  deployAllChainlinkMockAggregators,
-  deployChainlinkMockAggregator,
-} from "../helpers/oracles-helpers";
-import { DRE, waitForTx } from "../helpers/misc-utils";
-import {
-  initReservesByHelper,
-  configureReservesByHelper,
-  initNftsByHelper,
-  configureNftsByHelper,
-  initNFTXByHelper,
-} from "../helpers/init-helpers";
-import UnlockdConfig from "../markets/unlockd";
-import {
-  getSecondSigner,
+  getCryptoPunksMarket,
   getDeploySigner,
-  getPoolAdminSigner,
   getEmergencyAdminSigner,
   getLendPool,
   getLendPoolConfiguratorProxy,
-  getLendPoolLoanProxy,
-  getUNFTRegistryProxy,
-  getCryptoPunksMarket,
-  getWrappedPunk,
-  getWETHGateway,
-  getPunkGateway,
   getLendPoolLiquidatorSigner,
+  getLendPoolLoanProxy,
   getLtvManagerSigner,
+  getPoolAdminSigner,
+  getPunkGateway,
+  getSecondSigner,
+  getUNFTRegistryProxy,
+  getWETHGateway,
+  getWrappedPunk,
 } from "../helpers/contracts-getters";
-import { WETH9Mocked } from "../types/WETH9Mocked";
-import { getNftAddressFromSymbol } from "./helpers/utils/helpers";
-import { WrappedPunk } from "../types/WrappedPunk";
-import { ADDRESS_ID_PUNK_GATEWAY, ADDRESS_ID_WETH_GATEWAY } from "../helpers/constants";
+import {
+  getEthersSignerByAddress,
+  getEthersSigners,
+  getParamPerNetwork,
+  insertContractAddressInDb,
+} from "../helpers/contracts-helpers";
+import {
+  configureNftsByHelper,
+  configureReservesByHelper,
+  initNftsByHelper,
+  initNFTXByHelper,
+  initReservesByHelper,
+} from "../helpers/init-helpers";
+import { impersonateAccountsHardhat, stopImpersonateAccountsHardhat, waitForTx } from "../helpers/misc-utils";
+import {
+  addAssetsInNFTOracle,
+  deployAllChainlinkMockAggregators,
+  deployChainlinkMockAggregator,
+  setAggregatorsInReserveOracle,
+  setPricesInNFTOracle,
+} from "../helpers/oracles-helpers";
+import { eContractid, eEthereumNetwork, eNetwork, tEthereumAddress } from "../helpers/types";
+import UnlockdConfig from "../markets/unlockd";
 import { CustomERC721, WETH9 } from "../types";
+import { MintableERC20 } from "../types/MintableERC20";
+import { MintableERC721 } from "../types/MintableERC721";
+import { WETH9Mocked } from "../types/WETH9Mocked";
+import { WrappedPunk } from "../types/WrappedPunk";
+import { initializeMakeSuite } from "./helpers/make-suite";
+import "./helpers/utils/math";
 
 const MOCK_USD_PRICE = UnlockdConfig.ProtocolGlobalParams.MockUsdPrice;
 const ALL_ASSETS_INITIAL_PRICES = UnlockdConfig.Mocks.AllAssetsInitialPrices;
@@ -84,22 +101,41 @@ const ALL_NFTS_MAX_SUPPLY = UnlockdConfig.Mocks.AllNftsMaxSupply;
 
 const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   console.time("setup");
+  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+  const network = FORK == "goerli" ? eEthereumNetwork.goerli : eEthereumNetwork.main; //goerli or main
 
-  const poolAdmin = await (await getPoolAdminSigner()).getAddress();
-  const emergencyAdmin = await (await getEmergencyAdminSigner()).getAddress();
-  const poolLiquidator = await (await getLendPoolLiquidatorSigner()).getAddress();
-  const ltvManager = await (await getLtvManagerSigner()).getAddress();
+  const deployerSigner = await getDeploySigner();
+  const poolAdminSigner = await getEthersSignerByAddress(await getGenesisPoolAdmin(poolConfig));
+  const emergencyAdminSigner = await getEthersSignerByAddress(await getEmergencyAdmin(poolConfig));
+  const lendPoolLiquidatorSigner = await getEthersSignerByAddress(await getLendPoolLiquidator(poolConfig));
 
   console.log(
-    "Admin accounts:",
-    "poolAdmin:",
-    poolAdmin,
-    "emergencyAdmin:",
-    emergencyAdmin,
-    "lendPoolLiquidator:",
-    poolLiquidator,
-    "ltvManager:",
-    ltvManager
+    "Deployer:",
+    await deployerSigner.getAddress(),
+    "Balance:",
+    formatEther(await deployerSigner.getBalance()),
+    "ETH"
+  );
+  console.log(
+    "PoolAdmin:",
+    await poolAdminSigner.getAddress(),
+    "Balance:",
+    formatEther(await poolAdminSigner.getBalance()),
+    "ETH"
+  );
+  console.log(
+    "EmergencyAdmin:",
+    await emergencyAdminSigner.getAddress(),
+    "Balance:",
+    formatEther(await emergencyAdminSigner.getBalance()),
+    "ETH"
+  );
+  console.log(
+    "LendPool Liquidator:",
+    await lendPoolLiquidatorSigner.getAddress(),
+    "Balance:",
+    formatEther(await emergencyAdminSigner.getBalance()),
+    "ETH"
   );
 
   const config = loadPoolConfig(ConfigNames.Unlockd);
@@ -152,7 +188,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
 
   const unftRegistry = await getUNFTRegistryProxy(unftRegistryProxy.address);
 
-  await waitForTx(await unftRegistry.transferOwnership(poolAdmin));
+  await waitForTx(await unftRegistry.transferOwnership(await poolAdminSigner.getAddress()));
 
   //////////////////////////////////////////////////////////////////////////////
   console.log("-> Prepare mock unft tokens...");
@@ -167,9 +203,9 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   const addressesProviderRegistry = await deployLendPoolAddressesProviderRegistry();
 
   const addressesProvider = await deployLendPoolAddressesProvider(UnlockdConfig.MarketId);
-  await waitForTx(await addressesProvider.setPoolAdmin(poolAdmin));
-  await waitForTx(await addressesProvider.setEmergencyAdmin(emergencyAdmin));
-  await waitForTx(await addressesProvider.setLendPoolLiquidator(poolLiquidator));
+  await waitForTx(await addressesProvider.setPoolAdmin(await poolAdminSigner.getAddress()));
+  await waitForTx(await addressesProvider.setEmergencyAdmin(await emergencyAdminSigner.getAddress()));
+  await waitForTx(await addressesProvider.setLendPoolLiquidator(await lendPoolLiquidatorSigner.getAddress()));
 
   await waitForTx(
     await addressesProviderRegistry.registerAddressesProvider(addressesProvider.address, UnlockdConfig.ProviderId)
@@ -290,22 +326,12 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   const sushiSwapRouter = await deploySushiSwapRouter();
   await waitForTx(await addressesProvider.setSushiSwapRouter(sushiSwapRouter.address));
 
-  // --------------------//
-  // ASK WHY 6 ARGUMENTS //
-  // ------------------- //
   const lendpoolConfigurator = await addressesProvider.getLendPoolConfigurator();
   await waitForTx(await lendPoolConfiguratorProxy.setTimeframe(3600000));
 
   console.log("-> Prepare nft oracle...");
   const nftOracleImpl = await deployNFTOracle();
-  await waitForTx(
-    await nftOracleImpl.initialize(
-      await addressesProvider.getPoolAdmin(),
-      nftxVaultFactory.address,
-      sushiSwapRouter.address,
-      lendpoolConfigurator
-    )
-  );
+  await waitForTx(await nftOracleImpl.initialize(await addressesProvider.getPoolAdmin(), lendpoolConfigurator));
   await waitForTx(await addressesProvider.setNFTOracle(nftOracleImpl.address));
   await addAssetsInNFTOracle(allNftAddresses, nftOracleImpl);
   await setPricesInNFTOracle(allNftPrices, allNftAddresses, allNftMaxSupply, nftOracleImpl);
@@ -314,14 +340,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
 
   console.log("-> Prepare mock nft oracle...");
   const mockNftOracleImpl = await deployMockNFTOracle();
-  await waitForTx(
-    await mockNftOracleImpl.initialize(
-      await addressesProvider.getPoolAdmin(),
-      nftxVaultFactory.address,
-      sushiSwapRouter.address,
-      lendpoolConfigurator
-    )
-  );
+  await waitForTx(await mockNftOracleImpl.initialize(await addressesProvider.getPoolAdmin(), lendpoolConfigurator));
 
   //////////////////////////////////////////////////////////////////////////////
 
@@ -353,13 +372,13 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
     UTokenSymbolPrefix,
     DebtTokenNamePrefix,
     DebtTokenSymbolPrefix,
-    poolAdmin,
+    await poolAdminSigner.getAddress(),
     treasuryAddress,
     ConfigNames.Unlockd,
     false
   );
 
-  await configureReservesByHelper(reservesParams, allReservesAddresses, poolAdmin);
+  await configureReservesByHelper(reservesParams, allReservesAddresses, await poolAdminSigner.getAddress());
 
   //////////////////////////////////////////////////////////////////////////////
   console.log("-> Prepare NFT pools...");
@@ -373,9 +392,9 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   };
 
   console.log("-> Prepare NFT init and configure...");
-  await initNftsByHelper(nftsParams, allNftsAddresses, poolAdmin, ConfigNames.Unlockd, false);
+  await initNftsByHelper(nftsParams, allNftsAddresses, await poolAdminSigner.getAddress(), ConfigNames.Unlockd, false);
 
-  await configureNftsByHelper(nftsParams, allNftsAddresses, poolAdmin);
+  await configureNftsByHelper(nftsParams, allNftsAddresses, await poolAdminSigner.getAddress());
 
   //////////////////////////////////////////////////////////////////////////////
   console.log("-> Prepare wallet & data & ui provider...");
@@ -445,7 +464,7 @@ before(async () => {
   const FORK = process.env.FORK;
 
   if (FORK) {
-    await rawBRE.run("unlockd:mainnet", { skipRegistry: true });
+    await rawBRE.run("unlockd:fork", { skipRegistry: false });
   } else {
     console.log("-> Deploying test environment...");
     await buildTestEnv(deployer, secondaryWallet);

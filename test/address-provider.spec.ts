@@ -1,11 +1,15 @@
 import { expect } from "chai";
-import { createRandomAddress } from "../helpers/misc-utils";
-import { makeSuite, TestEnv } from "./helpers/make-suite";
-import { ProtocolErrors } from "../helpers/types";
 import { ethers } from "ethers";
-import { ZERO_ADDRESS } from "../helpers/constants";
-import { waitForTx } from "../helpers/misc-utils";
+import {
+  ADDRESS_ID_LSSVM_ROUTER,
+  ADDRESS_ID_PUNK_GATEWAY,
+  ADDRESS_ID_WETH,
+  ADDRESS_ID_WETH_GATEWAY,
+} from "../helpers/constants";
 import { deployLendPool } from "../helpers/contracts-deployments";
+import { createRandomAddress, waitForTx } from "../helpers/misc-utils";
+import { ProtocolErrors } from "../helpers/types";
+import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 const { utils } = ethers;
 
@@ -101,5 +105,58 @@ makeSuite("LendPoolAddressesProvider", (testEnv: TestEnv) => {
     await expect(nonProxiedAddressSetReceipt.events[0].args?.id).to.be.equal(nonProxiedAddressId);
     await expect(nonProxiedAddressSetReceipt.events[0].args?.newAddress).to.be.equal(mockNonProxiedAddress);
     await expect(nonProxiedAddressSetReceipt.events[0].args?.hasProxy).to.be.equal(false);
+  });
+  it("Tests specific non-proxied addresses set via `setAddress()`", async () => {
+    const { addressesProvider, users } = testEnv;
+    const { INVALID_OWNER_REVERT_MSG } = ProtocolErrors;
+
+    const currentAddressesProviderOwner = users[1];
+    const mockNonProxiedAddress1 = createRandomAddress();
+    const mockNonProxiedAddress2 = createRandomAddress();
+    const mockNonProxiedAddress3 = createRandomAddress();
+    const mockNonProxiedAddress4 = createRandomAddress();
+
+    // ADDRESS_ID_WETH_GATEWAY
+    await waitForTx(
+      await addressesProvider
+        .connect(currentAddressesProviderOwner.signer)
+        .setAddress(ADDRESS_ID_WETH_GATEWAY, mockNonProxiedAddress1)
+    );
+
+    await expect(mockNonProxiedAddress1.toLowerCase()).to.be.equal(
+      (await addressesProvider.getAddress(ADDRESS_ID_WETH_GATEWAY)).toLowerCase()
+    );
+
+    // ADDRESS_ID_PUNK_GATEWAY
+    await waitForTx(
+      await addressesProvider
+        .connect(currentAddressesProviderOwner.signer)
+        .setAddress(ADDRESS_ID_PUNK_GATEWAY, mockNonProxiedAddress2)
+    );
+
+    await expect(mockNonProxiedAddress2.toLowerCase()).to.be.equal(
+      (await addressesProvider.getAddress(ADDRESS_ID_PUNK_GATEWAY)).toLowerCase()
+    );
+
+    // ADDRESS_ID_LSSVM_ROUTER
+    await waitForTx(
+      await addressesProvider
+        .connect(currentAddressesProviderOwner.signer)
+        .setAddress(ADDRESS_ID_LSSVM_ROUTER, mockNonProxiedAddress3)
+    );
+
+    await expect(mockNonProxiedAddress3.toLowerCase()).to.be.equal(
+      (await addressesProvider.getAddress(ADDRESS_ID_LSSVM_ROUTER)).toLowerCase()
+    );
+    // ADDRESS_ID_WETH
+    await waitForTx(
+      await addressesProvider
+        .connect(currentAddressesProviderOwner.signer)
+        .setAddress(ADDRESS_ID_WETH, mockNonProxiedAddress4)
+    );
+
+    await expect(mockNonProxiedAddress4.toLowerCase()).to.be.equal(
+      (await addressesProvider.getAddress(ADDRESS_ID_WETH)).toLowerCase()
+    );
   });
 });

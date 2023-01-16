@@ -1,10 +1,10 @@
 import { task } from "hardhat/config";
-import { ConfigNames, getEmergencyAdmin, getGenesisPoolAdmin, loadPoolConfig } from "../../helpers/configuration";
+import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import {
-  getUnlockdProtocolDataProvider,
   getLendPool,
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
+  getUnlockdProtocolDataProvider,
 } from "../../helpers/contracts-getters";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { configureNftsByHelper, configureReservesByHelper } from "../../helpers/init-helpers";

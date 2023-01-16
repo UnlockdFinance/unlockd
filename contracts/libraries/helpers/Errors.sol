@@ -25,7 +25,7 @@ library Errors {
   string public constant CALLER_NOT_LTV_MANAGER = "107";
   string public constant CALLER_NOT_PRICE_MANAGER = "108";
 
-  //math library erros
+  //math library errors
   string public constant MATH_MULTIPLICATION_OVERFLOW = "200";
   string public constant MATH_ADDITION_OVERFLOW = "201";
   string public constant MATH_DIVISION_BY_ZERO = "202";
@@ -61,11 +61,11 @@ library Errors {
   string public constant LP_BORROW_NOT_EXCEED_LIQUIDATION_THRESHOLD = "404";
   string public constant LP_BORROW_IS_EXCEED_LIQUIDATION_PRICE = "405";
   string public constant LP_NO_MORE_NFTS_ALLOWED = "406";
-  string public constant LP_INVALIED_USER_NFT_AMOUNT = "407";
+  string public constant LP_INVALID_USER_NFT_AMOUNT = "407";
   string public constant LP_INCONSISTENT_PARAMS = "408";
   string public constant LP_NFT_IS_NOT_USED_AS_COLLATERAL = "409";
   string public constant LP_CALLER_MUST_BE_AN_UTOKEN = "410";
-  string public constant LP_INVALIED_NFT_AMOUNT = "411";
+  string public constant LP_INVALID_NFT_AMOUNT = "411";
   string public constant LP_NFT_HAS_USED_AS_COLLATERAL = "412";
   string public constant LP_DELEGATE_CALL_FAILED = "413";
   string public constant LP_AMOUNT_LESS_THAN_EXTRA_DEBT = "414";
@@ -79,6 +79,9 @@ library Errors {
   string public constant LP_CALLER_NOT_NFT_HOLDER = "422";
   string public constant LP_NFT_NOT_ALLOWED_TO_SELL = "423";
   string public constant LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY = "424";
+  string public constant LP_COLLECTION_NOT_SUPPORTED = "425";
+  string public constant LP_MSG_VALUE_DIFFERENT_FROM_CONFIG_FEE = "426";
+  string public constant LP_INVALID_SAFE_HEALTH_FACTOR = "427";
 
   //lend pool loan errors
   string public constant LPL_INVALID_LOAN_STATE = "480";
@@ -96,6 +99,7 @@ library Errors {
   string public constant LPL_INVALID_BIDDER_ADDRESS = "492";
   string public constant LPL_AMOUNT_LESS_THAN_BID_FINE = "493";
   string public constant LPL_INVALID_BID_FINE = "494";
+  string public constant LPL_BID_PRICE_LESS_THAN_MIN_BID_REQUIRED = "495";
 
   //common token errors
   string public constant CT_CALLER_MUST_BE_LEND_POOL = "500"; // 'The caller of this function must be a lending pool'
@@ -120,7 +124,8 @@ library Errors {
   string public constant LPC_PARAMS_MISMATCH = "706"; // NFT assets & token ids mismatch
   string public constant LPC_FEE_PERCENTAGE_TOO_HIGH = "707";
   string public constant LPC_INVALID_LTVMANAGER_ADDRESS = "708";
-
+  string public constant LPC_INCONSISTENT_PARAMS = "709";
+  string public constant LPC_INVALID_SAFE_HEALTH_FACTOR = "710";
   //reserve config errors
   string public constant RC_INVALID_LTV = "730";
   string public constant RC_INVALID_LIQ_THRESHOLD = "731";

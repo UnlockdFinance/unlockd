@@ -1,12 +1,12 @@
 import { task } from "hardhat/config";
-import { loadPoolConfig, ConfigNames } from "../../helpers/configuration";
+import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import {
-  getUNFT,
-  getLendPoolAddressesProvider,
-  getUnlockdUpgradeableProxy,
-  getUNFTRegistryProxy,
-  getUNFTRegistryImpl,
   getLendPool,
+  getLendPoolAddressesProvider,
+  getUNFT,
+  getUNFTRegistryImpl,
+  getUNFTRegistryProxy,
+  getUnlockdUpgradeableProxy,
 } from "../../helpers/contracts-getters";
 import { getParamPerNetwork, verifyContract } from "../../helpers/contracts-helpers";
 import { eContractid, eNetwork, ICommonConfiguration, IReserveParams } from "../../helpers/types";

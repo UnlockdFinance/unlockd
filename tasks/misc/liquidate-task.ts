@@ -1,5 +1,4 @@
 import BigNumber from "bignumber.js";
-import { BigNumberish } from "ethers";
 import { task } from "hardhat/config";
 import {
   ConfigNames,
@@ -7,20 +6,19 @@ import {
   getWrappedPunkTokenAddress,
   loadPoolConfig,
 } from "../../helpers/configuration";
-import { MAX_UINT_AMOUNT } from "../../helpers/constants";
 import {
-  getUnlockdProtocolDataProvider,
-  getUToken,
   getDeploySigner,
   getLendPool,
   getLendPoolAddressesProvider,
   getMintableERC20,
   getPunkGateway,
+  getUnlockdProtocolDataProvider,
   getWETHGateway,
 } from "../../helpers/contracts-getters";
 import { convertToCurrencyDecimals, getContractAddressInDb } from "../../helpers/contracts-helpers";
 import { waitForTx } from "../../helpers/misc-utils";
 import { eNetwork } from "../../helpers/types";
+import { SignerWithAddress } from "../../test/helpers/make-suite";
 
 // LendPool liquidate tasks
 task("dev:pool-auction", "Doing WETH auction task")
@@ -39,13 +37,17 @@ task("dev:pool-auction", "Doing WETH auction task")
     const dataProvider = await getUnlockdProtocolDataProvider(await addressesProvider.getUnlockdDataProvider());
 
     const signer = await getDeploySigner();
-    const signerAddress = await signer.getAddress();
+    const signerWithAddress: SignerWithAddress = {
+      address: await signer.getAddress(),
+      signer: signer,
+    };
 
     const loanData = await dataProvider.getLoanDataByCollateral(token, id);
+    const reserveContract = await getMintableERC20(loanData.reserveAsset);
 
-    const amountDecimals = await convertToCurrencyDecimals(loanData.reserveAsset, amount);
+    const amountDecimals = await convertToCurrencyDecimals(signerWithAddress, reserveContract, amount);
 
-    await waitForTx(await lendPool.auction(token, id, amountDecimals, signerAddress));
+    await waitForTx(await lendPool.auction(token, id, amountDecimals, signerWithAddress.address));
 
     console.log("OK");
   });
@@ -66,10 +68,15 @@ task("dev:pool-redeem", "Doing WETH redeem task")
     const dataProvider = await getUnlockdProtocolDataProvider(await addressesProvider.getUnlockdDataProvider());
 
     const signer = await getDeploySigner();
-    const signerAddress = await signer.getAddress();
+    const signerWithAddress: SignerWithAddress = {
+      address: await signer.getAddress(),
+      signer: signer,
+    };
 
     const loanData = await dataProvider.getLoanDataByCollateral(token, id);
-    const amountDecimals = await convertToCurrencyDecimals(loanData.reserveAsset, amount);
+    const reserveContract = await getMintableERC20(loanData.reserveAsset);
+
+    const amountDecimals = await convertToCurrencyDecimals(signerWithAddress, reserveContract, amount);
 
     const auctionData = await lendPool.getNftAuctionData(token, id);
 
@@ -91,11 +98,6 @@ task("dev:pool-liquidate", "Doing WETH liquidate task")
 
     const lendPool = await getLendPool(await addressesProvider.getLendPool());
 
-    const signer = await getDeploySigner();
-    const signerAddress = await signer.getAddress();
-
-    const wethGateway = await getWETHGateway();
-
     await waitForTx(await lendPool.liquidate(token, id, 0));
 
     console.log("OK");
@@ -114,12 +116,7 @@ task("dev:pool-liquidate-nftx", "Doing WETH liquidate NFTX task")
 
     const lendPool = await getLendPool(await addressesProvider.getLendPool());
 
-    const signer = await getDeploySigner();
-    const signerAddress = await signer.getAddress();
-
-    const wethGateway = await getWETHGateway();
-
-    await waitForTx(await lendPool.liquidateNFTX(token, id));
+    await waitForTx(await lendPool.liquidateNFTX(token, id, 0));
 
     console.log("OK");
   });
@@ -134,16 +131,19 @@ task("dev:weth-auction", "Doing WETH auction task")
     await DRE.run("set-DRE");
 
     const signer = await getDeploySigner();
-    const signerAddress = await signer.getAddress();
+    const signerWithAddress: SignerWithAddress = {
+      address: await signer.getAddress(),
+      signer: signer,
+    };
 
     const wethGateway = await getWETHGateway();
 
     const wethAddress = await getContractAddressInDb("WETH");
     const weth = await getMintableERC20(wethAddress);
 
-    const amountDecimals = await convertToCurrencyDecimals(weth.address, amount);
+    const amountDecimals = await convertToCurrencyDecimals(signerWithAddress, weth, amount);
 
-    await waitForTx(await wethGateway.auctionETH(token, id, signerAddress, { value: amountDecimals }));
+    await waitForTx(await wethGateway.auctionETH(token, id, signerWithAddress.address, { value: amountDecimals }));
 
     console.log("OK");
   });
@@ -165,7 +165,13 @@ task("dev:weth-redeem", "Doing WETH redeem task")
     const wethAddress = await getContractAddressInDb("WETH");
     const weth = await getMintableERC20(wethAddress);
 
-    const amountDecimals = await convertToCurrencyDecimals(weth.address, amount);
+    const signer = await getDeploySigner();
+    const signerWithAddress: SignerWithAddress = {
+      address: await signer.getAddress(),
+      signer: signer,
+    };
+
+    const amountDecimals = await convertToCurrencyDecimals(signerWithAddress, weth, amount);
 
     const auctionData = await lendPool.getNftAuctionData(token, id);
 
@@ -206,25 +212,6 @@ task("dev:weth-liquidate", "Doing WETH liquidate task")
     console.log("OK");
   });
 
-task("dev:weth-liquidate-nftx", "Doing WETH liquidate NFTX task")
-  .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
-  .addParam("token", "Address of ERC721")
-  .addParam("id", "Token ID of ERC721")
-  .setAction(async ({ pool, token, id }, DRE) => {
-    await DRE.run("set-DRE");
-
-    const addressesProvider = await getLendPoolAddressesProvider();
-    const dataProvider = await getUnlockdProtocolDataProvider(await addressesProvider.getUnlockdDataProvider());
-    const loanData = await dataProvider.getLoanDataByCollateral(token, id);
-    console.log("currentAmount:", loanData.currentAmount.toString());
-
-    const wethGateway = await getWETHGateway();
-
-    await waitForTx(await wethGateway.liquidateNFTX(token, id));
-
-    console.log("OK");
-  });
-
 // PunkGateway liquidate with ETH tasks
 task("dev:punk-auction-eth", "Doing CryptoPunks auction ETH task")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
@@ -234,16 +221,19 @@ task("dev:punk-auction-eth", "Doing CryptoPunks auction ETH task")
     await DRE.run("set-DRE");
 
     const signer = await getDeploySigner();
-    const signerAddress = await signer.getAddress();
+    const signerWithAddress: SignerWithAddress = {
+      address: await signer.getAddress(),
+      signer: signer,
+    };
 
     const punkGateway = await getPunkGateway();
 
     const wethAddress = await getContractAddressInDb("WETH");
     const weth = await getMintableERC20(wethAddress);
 
-    const amountDecimals = await convertToCurrencyDecimals(weth.address, amount);
+    const amountDecimals = await convertToCurrencyDecimals(signerWithAddress, weth, amount);
 
-    await waitForTx(await punkGateway.auctionETH(id, signerAddress, { value: amountDecimals }));
+    await waitForTx(await punkGateway.auctionETH(id, signerWithAddress.address, { value: amountDecimals }));
 
     console.log("OK");
   });
@@ -269,7 +259,13 @@ task("dev:punk-redeem-eth", "Doing CryptoPunks redeem ETH task")
     const wethAddress = await getContractAddressInDb("WETH");
     const weth = await getMintableERC20(wethAddress);
 
-    const amountDecimals = await convertToCurrencyDecimals(weth.address, amount);
+    const signer = await getDeploySigner();
+    const signerWithAddress: SignerWithAddress = {
+      address: await signer.getAddress(),
+      signer: signer,
+    };
+
+    const amountDecimals = await convertToCurrencyDecimals(signerWithAddress, weth, amount);
 
     const auctionData = await lendPool.getNftAuctionData(wpunksAddress, id);
 
@@ -301,7 +297,7 @@ task("dev:punk-liquidate-nftx", "Doing CryptoPunks liquidate NFTX task")
 
     const punkGateway = await getPunkGateway();
 
-    await waitForTx(await punkGateway.liquidateNFTX(id));
+    await waitForTx(await punkGateway.liquidateNFTX(id, 0));
 
     console.log("OK");
   });

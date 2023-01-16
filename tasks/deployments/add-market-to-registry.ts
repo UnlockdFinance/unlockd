@@ -1,17 +1,17 @@
+import { isZeroAddress } from "ethereumjs-util";
+import { Signer } from "ethers";
+import { isAddress, parseEther } from "ethers/lib/utils";
 import { task } from "hardhat/config";
-import { getParamPerNetwork } from "../../helpers/contracts-helpers";
-import { waitForTx } from "../../helpers/misc-utils";
+import { exit } from "process";
 import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
-import { eNetwork } from "../../helpers/types";
 import {
   getDeploySigner,
   getLendPoolAddressesProvider,
   getLendPoolAddressesProviderRegistry,
 } from "../../helpers/contracts-getters";
-import { isAddress, parseEther } from "ethers/lib/utils";
-import { isZeroAddress } from "ethereumjs-util";
-import { Signer } from "ethers";
-import { exit } from "process";
+import { getParamPerNetwork } from "../../helpers/contracts-helpers";
+import { waitForTx } from "../../helpers/misc-utils";
+import { eNetwork } from "../../helpers/types";
 
 task("add-market-to-registry", "Adds address provider to registry")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
@@ -36,7 +36,7 @@ task("add-market-to-registry", "Adds address provider to registry")
       !isAddress(providerRegistryAddress) ||
       isZeroAddress(providerRegistryAddress)
     ) {
-      console.log("- Deploying a new Address Providers Registry:");
+      console.log("- Deploying a new Address Provider Registry:");
 
       await DRE.run("full:deploy-address-provider-registry", { verify, pool });
 

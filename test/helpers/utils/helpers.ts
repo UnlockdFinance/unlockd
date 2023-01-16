@@ -1,21 +1,19 @@
-import { LendPool } from "../../../types/LendPool";
-import { ReserveData, UserReserveData, LoanData, NftData } from "./interfaces";
+import BigNumber from "bignumber.js";
 import {
+  getDebtToken,
+  getDeploySigner,
   getIErc20Detailed,
+  getIErc721Detailed,
   getMintableERC20,
   getMintableERC721,
   getUToken,
-  getLendPoolLoanProxy,
-  getDeploySigner,
-  getDebtToken,
-  getIErc721Detailed,
 } from "../../../helpers/contracts-getters";
+import { DRE, getDb } from "../../../helpers/misc-utils";
 import { tEthereumAddress } from "../../../helpers/types";
-import BigNumber from "bignumber.js";
-import { getDb, DRE } from "../../../helpers/misc-utils";
-import { UnlockdProtocolDataProvider } from "../../../types/UnlockdProtocolDataProvider";
 import { ERC20Factory } from "../../../types";
-import { SignerWithAddress } from "../make-suite";
+import { LendPool } from "../../../types/LendPool";
+import { UnlockdProtocolDataProvider } from "../../../types/UnlockdProtocolDataProvider";
+import { LoanData, NftData, ReserveData, UserReserveData } from "./interfaces";
 
 export const getReserveData = async (
   helper: UnlockdProtocolDataProvider,

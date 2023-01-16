@@ -56,11 +56,7 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
    * @param index The new liquidity index of the reserve
    * @return `true` if the the previous balance of the user was 0
    */
-  function mint(
-    address user,
-    uint256 amount,
-    uint256 index
-  ) external returns (bool);
+  function mint(address user, uint256 amount, uint256 index) external returns (bool);
 
   /**
    * @dev Emitted after uTokens are burned
@@ -81,18 +77,19 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   event BalanceTransfer(address indexed from, address indexed to, uint256 value, uint256 index);
 
   /**
+   * @dev Emitted when treasury address is updated in utoken
+   * @param _newTreasuryAddress The new treasury address
+   **/
+  event TreasuryAddressUpdated(address indexed _newTreasuryAddress);
+
+  /**
    * @dev Burns uTokens from `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
    * @param user The owner of the uTokens, getting them burned
    * @param receiverOfUnderlying The address that will receive the underlying
    * @param amount The amount being burned
    * @param index The new liquidity index of the reserve
    **/
-  function burn(
-    address user,
-    address receiverOfUnderlying,
-    uint256 amount,
-    uint256 index
-  ) external;
+  function burn(address user, address receiverOfUnderlying, uint256 amount, uint256 index) external;
 
   /**
    * @dev Mints uTokens to the reserve treasury
@@ -103,7 +100,7 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
 
   /**
    * @dev Transfers the underlying asset to `target`. Used by the LendPool to transfer
-   * assets in borrow(), withdraw() and flashLoan()
+   * assets in borrow() and withdraw()
    * @param user The recipient of the underlying
    * @param amount The amount getting transferred
    * @return The amount transferred
@@ -124,4 +121,9 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
    * @dev Returns the address of the treasury set to this uToken
    **/
   function RESERVE_TREASURY_ADDRESS() external view returns (address);
+
+  /**
+   * @dev Sets the address of the treasury to this uToken
+   **/
+  function setTreasuryAddress(address treasury) external;
 }

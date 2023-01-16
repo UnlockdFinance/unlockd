@@ -1,0 +1,21 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint",
+    "prettier",
+    "unused-imports"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
+  "rules": {
+    "prettier/prettier": "warn",
+    "@typescript-eslint/ban-ts-comment":"off",
+    "@typescript-eslint/no-var-requires":"off",
+    "unused-imports/no-unused-imports": "warn"
+  }
+}

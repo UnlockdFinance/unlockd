@@ -1,34 +1,30 @@
 import { task } from "hardhat/config";
-import { loadPoolConfig, ConfigNames, getWrappedNativeTokenAddress } from "../../helpers/configuration";
+import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import {
-  getUnlockdProtocolDataProvider,
-  getLendPoolImpl,
+  getBorrowLogic,
+  getGenericLogic,
   getLendPoolAddressesProvider,
-  getLendPoolLoanImpl,
+  getLendPoolAddressesProviderRegistry,
   getLendPoolConfiguratorImpl,
+  getLendPoolImpl,
+  getLendPoolLoanImpl,
+  getLiquidateLogic,
+  getNFTOracleImpl,
+  getPunkGateway,
+  getPunkGatewayImpl,
+  getReserveLogic,
+  getReserveOracleImpl,
+  getSupplyLogic,
+  getUIPoolDataProvider,
+  getUnlockdProtocolDataProvider,
+  getUnlockdProxyAdminById,
   getUnlockdUpgradeableProxy,
   getWalletProvider,
   getWETHGateway,
-  getPunkGateway,
-  getUIPoolDataProvider,
-  getLendPoolAddressesProviderRegistry,
-  getUnlockdCollectorProxy,
-  getUnlockdCollectorImpl,
-  getUnlockdProxyAdminById,
-  getReserveOracleImpl,
-  getNFTOracle,
-  getNFTOracleImpl,
   getWETHGatewayImpl,
-  getPunkGatewayImpl,
-  getGenericLogic,
-  getReserveLogic,
-  getSupplyLogic,
-  getBorrowLogic,
-  getLiquidateLogic,
 } from "../../helpers/contracts-getters";
-import { verifyContract, getParamPerNetwork, getContractAddressInDb } from "../../helpers/contracts-helpers";
+import { getContractAddressInDb, getParamPerNetwork, verifyContract } from "../../helpers/contracts-helpers";
 import { verifyEtherscanContract } from "../../helpers/etherscan-verification";
-import { notFalsyOrZeroAddress } from "../../helpers/misc-utils";
 import { eContractid, eNetwork, ICommonConfiguration } from "../../helpers/types";
 
 task("verify:general", "Verify general contracts at Etherscan")

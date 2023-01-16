@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
-import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
-import { getLendPoolAddressesProvider } from "../../helpers/contracts-getters";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { getLendPoolAddressesProvider } from "../../helpers/contracts-getters";
+import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import { CommonsConfig } from "../../markets/unlockd/commons";
 
 task(

@@ -1,82 +1,82 @@
-import { Contract } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
-import { DRE, getDb, notFalsyOrZeroAddress } from "./misc-utils";
-import {
-  tEthereumAddress,
-  eContractid,
-  UnlockdPools,
-  TokenContractId,
-  NftContractId,
-  IReserveParams,
-  INftParams,
-} from "./types";
 import { MockContract } from "ethereum-waffle";
-import { ConfigNames, getReservesConfigByPool, getNftsConfigByPool, loadPoolConfig } from "./configuration";
-import { getDeploySigner } from "./contracts-getters";
+import { Contract } from "ethers";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 import {
+  BorrowLogicFactory,
+  ConfiguratorLogicFactory,
+  CryptoPunksMarketFactory,
+  CustomERC721,
+  CustomERC721Factory,
+  DebtTokenFactory,
+  GenericLogicFactory,
+  InterestRateFactory,
+  LendPoolAddressesProviderFactory,
   LendPoolAddressesProviderRegistryFactory,
-  UnlockdProtocolDataProviderFactory,
+  LendPoolConfiguratorFactory,
+  LendPoolFactory,
+  LendPoolLoanFactory,
+  LiquidateLogicFactory,
   MintableERC20,
   MintableERC20Factory,
   MintableERC721,
   MintableERC721Factory,
-  UTokenFactory,
-  DebtTokenFactory,
-  UNFTFactory,
-  UNFTRegistryFactory,
-  InterestRateFactory,
-  LendPoolConfiguratorFactory,
-  LendPoolFactory,
-  LendPoolAddressesProviderFactory,
-  LendPoolLoanFactory,
-  ReserveOracleFactory,
-  NFTOracleFactory,
+  MockChainlinkOracleFactory,
+  MockIncentivesControllerFactory,
   MockNFTOracleFactory,
   MockReserveOracleFactory,
+  NFTOracleFactory,
+  NFTXVaultFactoryV2Factory,
+  PunkGatewayFactory,
+  RepayAndTransferHelperFactory,
   ReserveLogicFactory,
+  ReserveOracleFactory,
   //NftLogicFactory,
   SelfdestructTransferFactory,
-  WalletBalanceProviderFactory,
-  WETH9MockedFactory,
-  WETHGatewayFactory,
-  CryptoPunksMarketFactory,
-  WrappedPunkFactory,
-  PunkGatewayFactory,
-  MockChainlinkOracleFactory,
-  UnlockdUpgradeableProxyFactory,
-  UnlockdProxyAdminFactory,
-  MockIncentivesControllerFactory,
-  WrappedPunk,
-  WETH9Mocked,
-  UiPoolDataProviderFactory,
-  UnlockdCollectorFactory,
-  TimelockControllerFactory,
-  WETH9,
-  WETH9Factory,
   SupplyLogicFactory,
-  BorrowLogicFactory,
-  LiquidateLogicFactory,
-  GenericLogicFactory,
-  ConfiguratorLogicFactory,
-  RepayAndTransferHelperFactory,
-  NFTXVaultFactoryV2Factory,
+  TimelockControllerFactory,
+  UiPoolDataProviderFactory,
+  UNFTFactory,
+  UNFTRegistryFactory,
   UniswapV2FactoryFactory,
   UniswapV2Router02Factory,
-  CustomERC721,
-  CustomERC721Factory,
+  UnlockdCollectorFactory,
+  UnlockdProtocolDataProviderFactory,
+  UnlockdProxyAdminFactory,
+  UnlockdUpgradeableProxyFactory,
+  UTokenFactory,
+  WalletBalanceProviderFactory,
+  WETH9,
+  WETH9Factory,
+  WETH9Mocked,
+  WETH9MockedFactory,
+  WETHGatewayFactory,
+  WrappedPunk,
+  WrappedPunkFactory,
 } from "../types";
-import {
-  withSaveAndVerify,
-  registerContractInJsonDb,
-  linkBytecode,
-  insertContractAddressInDb,
-  getOptionalParamAddressPerNetwork,
-  getContractAddressInDb,
-} from "./contracts-helpers";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { LendPoolLibraryAddresses } from "../types/LendPoolFactory";
-import { eNetwork } from "./types";
+import { ConfigNames, getReservesConfigByPool, loadPoolConfig } from "./configuration";
 import { ZERO_ADDRESS } from "./constants";
+import { getDeploySigner } from "./contracts-getters";
+import {
+  getContractAddressInDb,
+  getOptionalParamAddressPerNetwork,
+  insertContractAddressInDb,
+  linkBytecode,
+  registerContractInJsonDb,
+  withSaveAndVerify,
+} from "./contracts-helpers";
+import { DRE, notFalsyOrZeroAddress } from "./misc-utils";
+import {
+  eContractid,
+  eNetwork,
+  INftParams,
+  IReserveParams,
+  NftContractId,
+  tEthereumAddress,
+  TokenContractId,
+  UnlockdPools,
+} from "./types";
 
 const readArtifact = async (id: string) => {
   return (DRE as HardhatRuntimeEnvironment).artifacts.readArtifact(id);
@@ -214,13 +214,28 @@ export const deployLiquidateLogicLibrary = async (verify?: boolean) => {
   const libraries = {
     [PLACEHOLDER_VALIDATION_LOGIC]: validateLogicAddress,
   };
-
   return withSaveAndVerify(
     await new LiquidateLogicFactory(libraries, await getDeploySigner()).deploy(),
     eContractid.LiquidateLogic,
     [],
     verify
   );
+};
+
+export const deployLiquidateMarketsLogicLibrary = async (verify?: boolean) => {
+  const liquidateMarketsLogicArtifact = await readArtifact(eContractid.LiquidateMarketsLogic);
+  const linkedLiquidateMarketsLogicByteCode = linkBytecode(liquidateMarketsLogicArtifact, {});
+
+  const liquidateMarketsLogicFactory = await DRE.ethers.getContractFactory(
+    liquidateMarketsLogicArtifact.abi,
+    linkedLiquidateMarketsLogicByteCode
+  );
+
+  const liquidateMarketsLogic = await (
+    await liquidateMarketsLogicFactory.connect(await getDeploySigner()).deploy()
+  ).deployed();
+
+  return withSaveAndVerify(liquidateMarketsLogic, eContractid.LiquidateMarketsLogic, [], verify);
 };
 
 export const deployUnlockdLibraries = async (verify?: boolean) => {
@@ -237,6 +252,7 @@ export const deployLendPoolLibraries = async (verify?: boolean) => {
   const supplyLogic = await deploySupplyLogicLibrary(verify);
   const borrowLogic = await deployBorrowLogicLibrary(verify);
   const liquidateLogic = await deployLiquidateLogicLibrary(verify);
+  const liquidateMarketsLogic = await deployLiquidateMarketsLogicLibrary(verify);
 };
 
 export const deployLendPoolLoanLibraries = async (verify?: boolean) => {
@@ -251,6 +267,7 @@ export const getLendPoolLibraries = async (verify?: boolean): Promise<LendPoolLi
   const supplyLogicAddress = await getContractAddressInDb(eContractid.SupplyLogic);
   const borrowLogicAddress = await getContractAddressInDb(eContractid.BorrowLogic);
   const liquidateLogicAddress = await getContractAddressInDb(eContractid.LiquidateLogic);
+  const liquidateMarketsLogicAddress = await getContractAddressInDb(eContractid.LiquidateMarketsLogic);
 
   // Hardcoded solidity placeholders, if any library changes path this will fail.
   // The '__$PLACEHOLDER$__ can be calculated via solidity keccak, but the LendPoolLibraryAddresses Type seems to
@@ -271,17 +288,19 @@ export const getLendPoolLibraries = async (verify?: boolean): Promise<LendPoolLi
     [PLACEHOLDER_SUPPLY_LOGIC]: supplyLogicAddress,
     [PLACEHOLDER_BORROW_LOGIC]: borrowLogicAddress,
     [PLACEHOLDER_LIQUIDATE_LOGIC]: liquidateLogicAddress,
+    [PLACEHOLDER_LIQUIDATE_MARKETS_LOGIC]: liquidateMarketsLogicAddress,
   };
 };
 
 const PLACEHOLDER_GENERIC_LOGIC = "__$4c26be947d349222af871a3168b3fe584b$__";
 const PLACEHOLDER_VALIDATION_LOGIC = "__$5201a97c05ba6aa659e2f36a933dd51801$__";
+const PLACEHOLDER_CONFIGURATOR_LOGIC = "__$3b2ad8f1ea56cc7a60e9a93596bbfe9178$__";
 const PLACEHOLDER_RESERVE_LOGIC = "__$d3b4366daeb9cadc7528af6145b50b2183$__";
 const PLACEHOLDER_NFT_LOGIC = "__$eceb79063fab52ea3826f3ee75ecd7f36d$__";
 const PLACEHOLDER_SUPPLY_LOGIC = "__$2f7c76ee15bdc1d8f3b34a04b86951fc56$__";
 const PLACEHOLDER_BORROW_LOGIC = "__$77c5a84c43428e206d5bf08427df63fefa$__";
 const PLACEHOLDER_LIQUIDATE_LOGIC = "__$ce70b23849b5cbed90e6e2f622d8887206$__";
-const PLACEHOLDER_CONFIGURATOR_LOGIC = "__$3b2ad8f1ea56cc7a60e9a93596bbfe9178$__";
+const PLACEHOLDER_LIQUIDATE_MARKETS_LOGIC = "__$c15a8e9c5d7316be199525d6743e45041d$__";
 
 export const deployConfiguratorLibraries = async (verify?: boolean) => {
   const cfgLogic = await deployConfiguratorLogicLibrary(verify);
@@ -426,9 +445,9 @@ export const deployAllMockTokens = async (forTestCases: boolean, verify?: boolea
       continue;
     }
 
-    let decimals = "18";
+    const decimals = "18";
 
-    let configData = (<any>protoConfigData)[tokenSymbol];
+    const configData = (<any>protoConfigData)[tokenSymbol];
 
     tokens[tokenSymbol] = await deployMintableERC20(
       [tokenName, tokenSymbol, configData ? configData.reserveDecimals : decimals],
@@ -454,6 +473,8 @@ export const deployAllMockNfts = async (verify?: boolean, custom?: boolean) => {
     if (custom) {
       //if (tokenSymbol === "BAYC") {
       //  console.log("Deploying BAYC...");
+      console.log(tokenName);
+      console.log(tokenSymbol);
       tokens[tokenSymbol] = await deployCustomERC721([tokenName, tokenSymbol], verify);
       //}
     } else {

@@ -238,11 +238,7 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (paybackAmount, burn);
   }
 
-  function auctionETH(
-    address nftAsset,
-    uint256 nftTokenId,
-    address onBehalfOf
-  ) external payable override nonReentrant {
+  function auctionETH(address nftAsset, uint256 nftTokenId, address onBehalfOf) external payable override nonReentrant {
     _checkValidCallerAndOnBehalfOf(onBehalfOf);
 
     ILendPool cachedPool = _getLendPool();
@@ -308,23 +304,6 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
       WETH.withdraw(msg.value - extraAmount);
       _safeTransferETH(msg.sender, msg.value - extraAmount);
     }
-
-    return (extraAmount);
-  }
-
-  function liquidateNFTX(address nftAsset, uint256 nftTokenId) external override nonReentrant returns (uint256) {
-    require(_addressProvider.getLendPoolLiquidator() == _msgSender(), Errors.CALLER_NOT_POOL_LIQUIDATOR);
-
-    ILendPool cachedPool = _getLendPool();
-    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
-
-    uint256 loanId = cachedPoolLoan.getCollateralLoanId(nftAsset, nftTokenId);
-    require(loanId > 0, "collateral loan id not exist");
-
-    DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
-    require(loan.reserveAsset == address(WETH), "loan reserve not WETH");
-
-    uint256 extraAmount = cachedPool.liquidateNFTX(nftAsset, nftTokenId);
 
     return (extraAmount);
   }

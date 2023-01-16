@@ -2,7 +2,6 @@
 pragma solidity 0.8.4;
 
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
-import {IUNFT} from "../interfaces/IUNFT.sol";
 import {IUNFTRegistry} from "../interfaces/IUNFTRegistry.sol";
 import {ILendPoolConfigurator} from "../interfaces/ILendPoolConfigurator.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
@@ -345,67 +344,74 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     }
   }
 
+  function configureNftsAsCollateral(ConfigNftAsCollateralInput[] calldata collateralData) external onlyLtvManager {
+    uint256 cachedLength = collateralData.length;
+    for (uint8 i; i < cachedLength; ) {
+      _configureNftAsCollateral(collateralData[i]);
+      unchecked {
+        ++i;
+      }
+    }
+  }
+
   /**
    * @dev Configures the NFT collateralization parameters
    * all the values are expressed in percentages with two decimals of precision. A valid value is 10000, which means 100.00%
-   * @param asset The address of the underlying asset of the reserve
-   * @param nftTokenId The token Id of the asset
-   * @param ltv The loan to value of the asset when used as NFT
-   * @param liquidationThreshold The threshold at which loans using this asset as collateral will be considered undercollateralized
-   * @param liquidationBonus The bonus liquidators receive to liquidate this asset. The values is always below 100%. A value of 5%
-   * means the liquidator will receive a 5% bonus
-   * @param activeFlag It will set NFT as Active for the given asset and tokenId
-   * @param freezeFlag It will set NFT as un-Freezed for the given asset and tokenId
+   * @param collateralData The NFT collateral configuration data
    **/
-  function configureNftAsCollateral(
-    address asset,
-    uint256 nftTokenId,
-    uint256 newPrice,
-    uint256 ltv,
-    uint256 liquidationThreshold,
-    uint256 liquidationBonus,
-    uint256 redeemDuration,
-    uint256 auctionDuration,
-    uint256 redeemFine,
-    bool activeFlag,
-    bool freezeFlag
-  ) external onlyLtvManager {
-    ILendPool cachedPool = _getLendPool();
+  function _configureNftAsCollateral(ConfigNftAsCollateralInput calldata collateralData) internal {
+    {
+      ILendPool cachedPool = _getLendPool();
 
-    DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(asset, nftTokenId);
+      DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(
+        collateralData.asset,
+        collateralData.nftTokenId
+      );
 
-    //validation of the parameters: the LTV can
-    //only be lower or equal than the liquidation threshold
-    //(otherwise a loan against the asset would cause instantaneous liquidation)
-    require(ltv <= liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
+      //validation of the parameters: the LTV can
+      //only be lower or equal than the liquidation threshold
+      //(otherwise a loan against the asset would cause instantaneous liquidation)
+      require(collateralData.ltv <= collateralData.liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
 
-    if (liquidationThreshold != 0) {
-      //liquidation bonus must be smaller than 100.00%
-      require(liquidationBonus < PercentageMath.PERCENTAGE_FACTOR, Errors.LPC_INVALID_CONFIGURATION);
-    } else {
-      require(liquidationBonus == 0, Errors.LPC_INVALID_CONFIGURATION);
+      if (collateralData.liquidationThreshold != 0) {
+        //liquidation bonus must be smaller than 100.00%
+        require(collateralData.liquidationBonus < PercentageMath.PERCENTAGE_FACTOR, Errors.LPC_INVALID_CONFIGURATION);
+      } else {
+        require(collateralData.liquidationBonus == 0, Errors.LPC_INVALID_CONFIGURATION);
+      }
+
+      currentConfig.setLtv(collateralData.ltv);
+      currentConfig.setLiquidationThreshold(collateralData.liquidationThreshold);
+      currentConfig.setRedeemThreshold(collateralData.redeemThreshold);
+      currentConfig.setLiquidationBonus(collateralData.liquidationBonus);
+      currentConfig.setActive(true);
+      currentConfig.setFrozen(false);
+
+      //validation of the parameters: the redeem duration can
+      //only be lower or equal than the auction duration
+      require(collateralData.redeemDuration <= collateralData.auctionDuration, Errors.LPC_INVALID_CONFIGURATION);
+
+      currentConfig.setRedeemDuration(collateralData.redeemDuration);
+      currentConfig.setAuctionDuration(collateralData.auctionDuration);
+      currentConfig.setRedeemFine(collateralData.redeemFine);
+      currentConfig.setMinBidFine(collateralData.minBidFine);
+      currentConfig.setConfigTimestamp(block.timestamp);
+
+      cachedPool.setNftConfigByTokenId(collateralData.asset, collateralData.nftTokenId, currentConfig.data);
+
+      INFTOracle(_addressesProvider.getNFTOracle()).setNFTPrice(
+        collateralData.asset,
+        collateralData.nftTokenId,
+        collateralData.newPrice
+      );
     }
-
-    currentConfig.setLtv(ltv);
-    currentConfig.setLiquidationThreshold(liquidationThreshold);
-    currentConfig.setLiquidationBonus(liquidationBonus);
-    currentConfig.setActive(activeFlag);
-    currentConfig.setFrozen(freezeFlag);
-
-    //validation of the parameters: the redeem duration can
-    //only be lower or equal than the auction duration
-    require(redeemDuration <= auctionDuration, Errors.LPC_INVALID_CONFIGURATION);
-
-    currentConfig.setRedeemDuration(redeemDuration);
-    currentConfig.setAuctionDuration(auctionDuration);
-    currentConfig.setRedeemFine(redeemFine);
-    currentConfig.setConfigTimestamp(block.timestamp);
-
-    cachedPool.setNftConfigByTokenId(asset, nftTokenId, currentConfig.data);
-
-    INFTOracle(_addressesProvider.getNFTOracle()).setNFTPrice(asset, nftTokenId, newPrice);
-
-    emit NftConfigurationChanged(asset, nftTokenId, ltv, liquidationThreshold, liquidationBonus);
+    emit NftConfigurationChanged(
+      collateralData.asset,
+      collateralData.nftTokenId,
+      collateralData.ltv,
+      collateralData.liquidationThreshold,
+      collateralData.liquidationBonus
+    );
   }
 
   /**
@@ -421,7 +427,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     uint256 redeemDuration,
     uint256 auctionDuration,
     uint256 redeemFine
-  ) external onlyPoolAdmin {
+  ) external onlyLtvManager {
     ILendPool cachedPool = _getLendPool();
     DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(asset, nftTokenId);
 
@@ -444,11 +450,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    * @param nftTokenId the tokenId of the asset
    * @param redeemThreshold The threshold for the redeem
    **/
-  function setNftRedeemThreshold(
-    address asset,
-    uint256 nftTokenId,
-    uint256 redeemThreshold
-  ) external onlyPoolAdmin {
+  function setNftRedeemThreshold(address asset, uint256 nftTokenId, uint256 redeemThreshold) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(asset, nftTokenId);
 
@@ -465,11 +467,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    * @param nftTokenId the tokenId of the asset
    * @param minBidFine The minimum bid fine value
    **/
-  function setNftMinBidFine(
-    address asset,
-    uint256 nftTokenId,
-    uint256 minBidFine
-  ) external onlyPoolAdmin {
+  function setNftMinBidFine(address asset, uint256 nftTokenId, uint256 minBidFine) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(asset, nftTokenId);
 
@@ -508,7 +506,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    * @dev Configures NFTs in batch
    * @param inputs the input array with data to configure each NFT asset
    **/
-  //TODO: solve this to accept multi Ids
+
   function batchConfigNft(ConfigNftInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     uint256 inputsLength = inputs.length;
@@ -621,19 +619,31 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   /**
    * @dev Allows and address to be sold on NFTX
    * @param nftAsset the address of the NFT
+   * @param marketId the id of the market
+   * @param val `true` if it is supported, `false`otherwise
    **/
-  function setAllowToSellNFTX(address nftAsset, bool val) external onlyPoolAdmin {
+  function setIsMarketSupported(address nftAsset, uint8 marketId, bool val) external onlyLtvManager {
+    require(nftAsset != address(0), Errors.INVALID_ZERO_ADDRESS);
     ILendPool cachedPool = _getLendPool();
-    cachedPool.setAllowToSellNFTX(nftAsset, val);
+    cachedPool.setIsMarketSupported(nftAsset, marketId, val);
   }
 
   /**
    * @dev Sets configFee amount to be charged for ConfigureNFTAsColleteral
-   * @param configFee the number of seconds for the timeframe
+   * @param configFee the fee amount
    **/
   function setConfigFee(uint256 configFee) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     cachedPool.setConfigFee(configFee);
+  }
+
+  /**
+   * @dev Sets auctionDurationConfigFee amount to be charged for first bids
+   * @param auctionDurationConfigFee the fee amount
+   **/
+  function setAuctionDurationConfigFee(uint256 auctionDurationConfigFee) external onlyLtvManager {
+    ILendPool cachedPool = _getLendPool();
+    cachedPool.setAuctionDurationConfigFee(auctionDurationConfigFee);
   }
 
   /**
@@ -655,8 +665,22 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    * @param rescuer the new rescuer address
    **/
   function setPoolRescuer(address rescuer) external onlyPoolAdmin {
+    require(rescuer != address(0), Errors.INVALID_ZERO_ADDRESS);
     ILendPool cachedPool = _getLendPool();
     cachedPool.updateRescuer(rescuer);
+    emit RescuerUpdated(rescuer);
+  }
+
+  /**
+   * @dev Sets new treasury to the specified UToken
+   * @param uToken the utoken to update the treasury address to
+   * @param treasury the new treasury address
+   **/
+  function setTreasuryAddress(address uToken, address treasury) external onlyPoolAdmin {
+    require(treasury != address(0), Errors.INVALID_ZERO_ADDRESS);
+    ILendPool cachedPool = _getLendPool();
+    cachedPool.setTreasuryAddress(uToken, treasury);
+    emit UTokenTreasuryUpdated(uToken, treasury);
   }
 
   /**

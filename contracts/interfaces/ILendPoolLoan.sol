@@ -113,6 +113,20 @@ interface ILendPoolLoan {
     uint256 sellPrice
   );
 
+  /**
+   * @dev Emitted when a loan is liquidate on SudoSwap
+   */
+  event LoanLiquidatedSudoSwap(
+    uint256 indexed loanId,
+    address nftAsset,
+    uint256 nftTokenId,
+    address reserveAsset,
+    uint256 amount,
+    uint256 borrowIndex,
+    uint256 sellPrice,
+    address LSSVMPair
+  );
+
   function initNft(address nftAsset, address uNftAddress) external;
 
   /**
@@ -210,12 +224,7 @@ interface ILendPoolLoan {
    * @param amountTaken The taken amount
    * @param borrowIndex The index to get the scaled loan amount
    */
-  function redeemLoan(
-    address initiator,
-    uint256 loanId,
-    uint256 amountTaken,
-    uint256 borrowIndex
-  ) external;
+  function redeemLoan(address initiator, uint256 loanId, uint256 amountTaken, uint256 borrowIndex) external;
 
   /**
    * @dev Liquidate the given loan
@@ -251,7 +260,25 @@ interface ILendPoolLoan {
     uint256 loanId,
     address uNftAddress,
     uint256 borrowAmount,
-    uint256 borrowIndex
+    uint256 borrowIndex,
+    uint256 amountOutMin
+  ) external returns (uint256 sellPrice);
+
+  /**
+   * @dev Liquidate the given loan on SudoSwap
+   *
+   * Requirements:
+   *  - The caller must send in principal + interest
+   *  - The loan must be in state Auction
+   *
+   * @param loanId The loan getting burned
+   */
+  function liquidateLoanSudoSwap(
+    uint256 loanId,
+    address uNftAddress,
+    uint256 borrowAmount,
+    uint256 borrowIndex,
+    DataTypes.SudoSwapParams memory sudoswapParams
   ) external returns (uint256 sellPrice);
 
   /**
@@ -277,15 +304,9 @@ interface ILendPoolLoan {
    *  @dev returns the collateral and reserve corresponding to a specific loan
    * param loanId the loan Id
    */
-  function getLoanCollateralAndReserve(uint256 loanId)
-    external
-    view
-    returns (
-      address nftAsset,
-      uint256 nftTokenId,
-      address reserveAsset,
-      uint256 scaledAmount
-    );
+  function getLoanCollateralAndReserve(
+    uint256 loanId
+  ) external view returns (address nftAsset, uint256 nftTokenId, address reserveAsset, uint256 scaledAmount);
 
   /**
    *  @dev returns the reserve and borrow __scaled__ amount corresponding to a specific loan

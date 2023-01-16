@@ -1,16 +1,18 @@
-import { TestEnv, makeSuite } from "./helpers/make-suite";
-import { APPROVAL_AMOUNT_LENDING_POOL, MOCK_NFT_AGGREGATORS_MAXSUPPLY, RAY } from "../helpers/constants";
+import { parseEther } from "@ethersproject/units";
+import { zeroAddress } from "ethereumjs-util";
+import { BigNumber, BigNumberish } from "ethers";
+import { APPROVAL_AMOUNT_LENDING_POOL, MOCK_NFT_AGGREGATORS_MAXSUPPLY } from "../helpers/constants";
+import { getUToken } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
-import { ProtocolErrors } from "../helpers/types";
-import { strategyNftClassB } from "../markets/unlockd/nftsConfigs";
-import { BigNumberish, BigNumber } from "ethers";
-import { timeLatest, waitForTx } from "../helpers/misc-utils";
-import { timeStamp } from "console";
+import { createRandomAddress, fundWithERC20, fundWithERC721, timeLatest, waitForTx } from "../helpers/misc-utils";
+import { IConfigNftAsCollateralInput, ProtocolErrors } from "../helpers/types";
+import { approveERC20, setApprovalForAll } from "./helpers/actions";
+import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 const { expect } = require("chai");
 
 makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
-  let cfgInputParams: {
+  const cfgInputParams: {
     asset: string;
     tokenId: BigNumberish;
     baseLTV: BigNumberish;
@@ -46,10 +48,12 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     LPC_NFT_LIQUIDITY_NOT_0,
     CALLER_NOT_LTV_MANAGER,
     LP_INVALID_OVERFLOW_VALUE,
+    INVALID_ZERO_ADDRESS,
+    LP_INVALID_SAFE_HEALTH_FACTOR,
   } = ProtocolErrors;
 
   const tokenSupply = MOCK_NFT_AGGREGATORS_MAXSUPPLY.BAYC;
-  var maxSupply: number = +tokenSupply;
+  const maxSupply: number = +tokenSupply;
 
   it("Deactivates the BAYC NFT", async () => {
     const { configurator, bayc, dataProvider } = testEnv;
@@ -153,11 +157,22 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const { users, configurator, dataProvider, bayc, tokenId, nftOracle } = testEnv;
     await configurator.setLtvManagerStatus(users[0].address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
-    console.log("ltv set");
-    await configurator
-      .connect(users[0].signer)
-      .configureNftAsCollateral(bayc.address, tokenId, "8000", 0, 0, 0, 1, 2, 25, true, false);
-    console.log("ocllateral set");
+
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: "101",
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 100,
+      auctionDuration: 200,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(users[0].signer).configureNftsAsCollateral([collData]);
+
     const { ltv, liquidationBonus, liquidationThreshold } = await dataProvider.getNftConfigurationDataByTokenId(
       bayc.address,
       tokenId
@@ -172,9 +187,20 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const { users, configurator, dataProvider, bayc, tokenId, nftOracle } = testEnv;
     await configurator.setLtvManagerStatus(users[0].address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
-    await configurator
-      .connect(users[0].signer)
-      .configureNftAsCollateral(bayc.address, tokenId, "8000", "8000", "8250", "500", 1, 2, 25, true, false);
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId.toString(),
+      newPrice: parseEther("100"),
+      ltv: 8000,
+      liquidationThreshold: 8250,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 100,
+      auctionDuration: 200,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(users[0].signer).configureNftsAsCollateral([collData]);
 
     const { ltv, liquidationBonus, liquidationThreshold } = await dataProvider.getNftConfigurationDataByTokenId(
       bayc.address,
@@ -190,19 +216,31 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const { configurator, users, bayc, tokenId, nftOracle } = testEnv;
     await configurator.setLtvManagerStatus(users[0].address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 100,
+      auctionDuration: 100,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
     await expect(
-      configurator
-        .connect(users[2].signer)
-        .configureNftAsCollateral(bayc.address, tokenId, "8000", "7500", "8000", "500", 1, 2, 25, true, false),
+      configurator.connect(users[2].signer).configureNftsAsCollateral([collData]),
       CALLER_NOT_LTV_MANAGER
     ).to.be.revertedWith(CALLER_NOT_LTV_MANAGER);
   });
 
   it("Deactivates the BAYC NFT as auction", async () => {
-    const { configurator, dataProvider, bayc, tokenId } = testEnv;
-    await configurator.configureNftAsAuction(bayc.address, tokenId, 0, 0, 0);
-    await configurator.setNftRedeemThreshold(bayc.address, tokenId, 0);
-    await configurator.setNftMinBidFine(bayc.address, tokenId, 0);
+    const { configurator, dataProvider, bayc, tokenId, deployer } = testEnv;
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+    await configurator.connect(deployer.signer).configureNftAsAuction(bayc.address, tokenId, 0, 0, 0);
+    await configurator.connect(deployer.signer).setNftRedeemThreshold(bayc.address, tokenId, 0);
+    await configurator.connect(deployer.signer).setNftMinBidFine(bayc.address, tokenId, 0);
 
     const { redeemDuration, auctionDuration, redeemFine, redeemThreshold, minBidFine } =
       await dataProvider.getNftConfigurationDataByTokenId(bayc.address, tokenId);
@@ -215,10 +253,11 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   });
 
   it("Activates the BAYC NFT as auction", async () => {
-    const { configurator, dataProvider, bayc, tokenId } = testEnv;
-    await configurator.configureNftAsAuction(bayc.address, tokenId, "1", "1", "100");
-    await configurator.setNftRedeemThreshold(bayc.address, tokenId, "5000");
-    await configurator.setNftMinBidFine(bayc.address, tokenId, 5000);
+    const { configurator, dataProvider, bayc, tokenId, deployer } = testEnv;
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+    await configurator.connect(deployer.signer).configureNftAsAuction(bayc.address, tokenId, "1", "1", "100");
+    await configurator.connect(deployer.signer).setNftRedeemThreshold(bayc.address, tokenId, "5000");
+    await configurator.connect(deployer.signer).setNftMinBidFine(bayc.address, tokenId, 5000);
 
     const { redeemDuration, auctionDuration, redeemFine, redeemThreshold, minBidFine } =
       await dataProvider.getNftConfigurationDataByTokenId(bayc.address, tokenId);
@@ -230,12 +269,12 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     await expect(minBidFine).to.be.equal(5000);
   });
 
-  it("Check the onlyAdmin on configureNftAsAuction ", async () => {
+  it("Check the onlyLtvManager on configureNftAsAuction ", async () => {
     const { configurator, users, bayc, tokenId } = testEnv;
     await expect(
       configurator.connect(users[2].signer).configureNftAsAuction(bayc.address, tokenId, "1", "1", "100"),
-      CALLER_NOT_POOL_ADMIN
-    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+      CALLER_NOT_LTV_MANAGER
+    ).to.be.revertedWith(CALLER_NOT_LTV_MANAGER);
     await expect(
       configurator.connect(users[2].signer).setNftRedeemThreshold(bayc.address, tokenId, "5000"),
       CALLER_NOT_POOL_ADMIN
@@ -336,25 +375,36 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     const { weth, bayc, pool, configurator, deployer } = testEnv;
     const userAddress = await pool.signer.getAddress();
 
-    await weth.mint(await convertToCurrencyDecimals(weth.address, "10"));
-    await weth.approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+    await fundWithERC20("WETH", deployer.address, "10");
+    await approveERC20(testEnv, deployer, "WETH");
 
-    const amountToDeposit = await convertToCurrencyDecimals(weth.address, "10");
+    const amountToDeposit = await convertToCurrencyDecimals(deployer, weth, "10");
     await pool.deposit(weth.address, amountToDeposit, userAddress, "0");
 
     const tokenId = testEnv.tokenIdTracker++;
-    await bayc.mint(tokenId);
-    await bayc.setApprovalForAll(pool.address, true);
+
+    await fundWithERC721("BAYC", deployer.address, tokenId);
+    await setApprovalForAll(testEnv, deployer, "BAYC");
 
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
-    await waitForTx(
-      await configurator
-        .connect(deployer.signer)
-        .configureNftAsCollateral(bayc.address, tokenId, "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false)
-    );
 
-    const amountToBorrow = await convertToCurrencyDecimals(weth.address, "1");
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 100,
+      auctionDuration: 200,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
+
+    const amountToBorrow = await convertToCurrencyDecimals(deployer, weth, "1");
     await pool.borrow(weth.address, amountToBorrow, bayc.address, tokenId, userAddress, "0");
 
     await expect(configurator.setActiveFlagOnNft(bayc.address, false), LPC_NFT_LIQUIDITY_NOT_0).to.be.revertedWith(
@@ -393,11 +443,110 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   it("Check if the config timestamp is correct", async () => {
     const { users, configurator, pool, tokenId, bayc, dataProvider } = testEnv;
     const timestamp = await (await timeLatest()).toString();
-    let timestampAux = BigNumber.from(timestamp);
-    await configurator
-      .connect(users[0].signer)
-      .configureNftAsCollateral(bayc.address, tokenId, "8000", "8000", "8250", "500", 1, 2, 25, true, false);
+    const timestampAux = BigNumber.from(timestamp);
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 100,
+      auctionDuration: 200,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(users[0].signer).configureNftsAsCollateral([collData]);
     const { configTimestamp } = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, tokenId);
     await expect(configTimestamp).to.be.within(timestamp, timestampAux.add(10));
+  });
+  it("Check if general configurations are correct", async () => {
+    const { users, configurator, pool, tokenId, bayc, dataProvider } = testEnv;
+    const timestamp = await (await timeLatest()).toString();
+    const timestampAux = BigNumber.from(timestamp);
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 100,
+      auctionDuration: 20000,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(users[0].signer).configureNftsAsCollateral([collData]);
+    const configuration = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, tokenId);
+
+    await expect(configuration.ltv).to.be.equal(4000);
+    await expect(configuration.liquidationThreshold).to.be.equal(7000);
+    await expect(configuration.liquidationBonus).to.be.equal(500);
+    await expect(configuration.redeemDuration).to.be.equal(100);
+    await expect(configuration.auctionDuration).to.be.equal(20000);
+    await expect(configuration.redeemFine).to.be.equal(500);
+    await expect(configuration.redeemThreshold).to.be.equal(9000);
+    await expect(configuration.minBidFine).to.be.equal(2000);
+    await expect(configuration.isActive).to.be.equal(true);
+    await expect(configuration.isFrozen).to.be.equal(false);
+  });
+
+  it("Check the onlyAdmin on set treasury to new utoken", async () => {
+    const { configurator, users, bayc } = testEnv;
+    await expect(
+      configurator.connect(users[2].signer).setTreasuryAddress(bayc.address, users[0].address),
+      CALLER_NOT_POOL_ADMIN
+    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+  });
+
+  it("Check the zero check on set treasury to new utoken", async () => {
+    const { configurator, deployer, bayc } = testEnv;
+    await expect(
+      configurator.connect(deployer.signer).setTreasuryAddress(bayc.address, zeroAddress()),
+      INVALID_ZERO_ADDRESS
+    ).to.be.revertedWith(INVALID_ZERO_ADDRESS);
+  });
+
+  it("Check the address is properly updated in WETH uToken", async () => {
+    const { configurator, deployer, weth, dataProvider } = testEnv;
+    const expectedAddress = await createRandomAddress();
+    const { uTokenAddress } = await dataProvider.getReserveTokenData(weth.address);
+
+    await configurator.connect(deployer.signer).setTreasuryAddress(uTokenAddress, expectedAddress);
+
+    await expect(await (await getUToken(uTokenAddress)).RESERVE_TREASURY_ADDRESS()).to.be.equal(expectedAddress);
+  });
+
+  it("Check the zero check on set rescuer", async () => {
+    const { configurator, deployer } = testEnv;
+    await expect(
+      configurator.connect(deployer.signer).setPoolRescuer(zeroAddress()),
+      INVALID_ZERO_ADDRESS
+    ).to.be.revertedWith(INVALID_ZERO_ADDRESS);
+  });
+
+  it("(LendPool): Check the only pool admin in safe health factor ", async () => {
+    const { pool, users } = testEnv;
+    await expect(pool.connect(users[2].signer).updateSafeHealthFactor(1), CALLER_NOT_POOL_ADMIN).to.be.revertedWith(
+      CALLER_NOT_POOL_ADMIN
+    );
+  });
+
+  it("(LendPool): Check invalid 0 value in safe health factor ", async () => {
+    const { pool, deployer } = testEnv;
+    await expect(
+      pool.connect(deployer.signer).updateSafeHealthFactor(0),
+      LP_INVALID_SAFE_HEALTH_FACTOR
+    ).to.be.revertedWith(LP_INVALID_SAFE_HEALTH_FACTOR);
+  });
+
+  it("(LendPool): Check correct value in safe health factor ", async () => {
+    const { pool, deployer } = testEnv;
+
+    await pool.connect(deployer.signer).updateSafeHealthFactor(7000);
+
+    await expect(await pool.connect(deployer.signer).getSafeHealthFactor()).to.be.equal(7000);
   });
 });

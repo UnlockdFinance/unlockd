@@ -1,53 +1,52 @@
-import { Signer, ethers } from "ethers";
 import {
-  UnlockdProtocolDataProviderFactory,
-  UTokenFactory,
+  BorrowLogicFactory,
+  ConfiguratorLogicFactory,
+  CryptoPunksMarketFactory,
+  CustomERC721Factory,
   DebtTokenFactory,
-  UNFTFactory,
-  UNFTRegistryFactory,
-  InterestRateFactory,
   GenericLogicFactory,
+  InterestRateFactory,
   LendPoolAddressesProviderFactory,
   LendPoolAddressesProviderRegistryFactory,
   LendPoolConfiguratorFactory,
   LendPoolFactory,
   LendPoolLoanFactory,
+  LiquidateLogicFactory,
   MintableERC20Factory,
   MintableERC721Factory,
-  ReserveOracleFactory,
   MockChainlinkOracleFactory,
+  MockIncentivesControllerFactory,
+  MockNFTOracleFactory,
   MockReserveOracleFactory,
   NFTOracleFactory,
-  MockNFTOracleFactory,
+  PunkGatewayFactory,
   ReserveLogicFactory,
+  ReserveOracleFactory,
   //NftLogicFactory,
   SelfdestructTransferFactory,
+  SupplyLogicFactory,
+  UiPoolDataProviderFactory,
+  UNFTFactory,
+  UNFTRegistryFactory,
+  UnlockdCollectorFactory,
+  UnlockdProtocolDataProviderFactory,
+  UnlockdProxyAdminFactory,
+  UnlockdUpgradeableProxyFactory,
+  UTokenFactory,
   WalletBalanceProviderFactory,
   WETH9MockedFactory,
   WETHGatewayFactory,
-  CryptoPunksMarketFactory,
   WrappedPunkFactory,
-  PunkGatewayFactory,
-  UnlockdUpgradeableProxyFactory,
-  UnlockdProxyAdminFactory,
-  MockIncentivesControllerFactory,
-  UiPoolDataProviderFactory,
-  UnlockdCollectorFactory,
-  ConfiguratorLogicFactory,
-  BorrowLogicFactory,
-  SupplyLogicFactory,
-  LiquidateLogic,
-  LiquidateLogicFactory,
-  CustomERC721Factory,
 } from "../types";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { IERC721DetailedFactory } from "../types/IERC721DetailedFactory";
+import { ILSSVMPairFactory } from "../types/ILSSVMPairFactory";
 import { INFTXVaultFactory } from "../types/INFTXVaultFactory";
 import { INFTXVaultFactoryV2Factory } from "../types/INFTXVaultFactoryV2Factory";
 import { IUniswapV2Router02Factory } from "../types/IUniswapV2Router02Factory";
-import { getEthersSigners, MockTokenMap, MockNftMap } from "./contracts-helpers";
-import { DRE, getDb, notFalsyOrZeroAddress, omit } from "./misc-utils";
-import { eContractid, PoolConfiguration, tEthereumAddress, TokenContractId, NftContractId } from "./types";
+import { getEthersSigners, MockNftMap, MockTokenMap } from "./contracts-helpers";
+import { DRE, getDb, omit } from "./misc-utils";
+import { eContractid, NftContractId, PoolConfiguration, tEthereumAddress, TokenContractId } from "./types";
 
 export const getFirstSigner = async () => (await getEthersSigners())[0];
 
@@ -85,7 +84,12 @@ export const getLendPoolAddressesProvider = async (address?: tEthereumAddress) =
     await getDeploySigner()
   );
 };
-
+export const getUnlockdProxyAdminPool = async (address?: tEthereumAddress) => {
+  return await LendPoolAddressesProviderFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.UnlockdProxyAdminPool}`).value()).address,
+    await getDeploySigner()
+  );
+};
 export const getLendPoolConfiguratorProxy = async (address?: tEthereumAddress) => {
   return await LendPoolConfiguratorFactory.connect(
     address || (await getDb(DRE.network.name).get(`${eContractid.LendPoolConfigurator}`).value()).address,
@@ -293,7 +297,6 @@ export const getPairsTokenAggregator = (
   oracleQuoteCurrency: string
 ): [string[], string[]] => {
   const assetsWithoutQuoteCurrency = omit(allAssetsAddresses, getQuoteCurrencies(oracleQuoteCurrency));
-
   const pairs = Object.entries(assetsWithoutQuoteCurrency).map(([tokenSymbol, tokenAddress]) => {
     //if (true/*tokenSymbol !== 'WETH' && tokenSymbol !== 'ETH' && tokenSymbol !== 'LpWETH'*/) {
     const aggregatorAddressIndex = Object.keys(aggregatorsAddresses).findIndex((value) => value === tokenSymbol);
@@ -483,5 +486,11 @@ export const getNFTXVault = async (address: tEthereumAddress) =>
 export const getSushiSwapRouter = async (address?: tEthereumAddress) =>
   await IUniswapV2Router02Factory.connect(
     address || (await getDb(DRE.network.name).get(`${eContractid.SushiSwapRouter}`).value()).address,
+    await getDeploySigner()
+  );
+
+export const getLSSVMPair = async (address?: tEthereumAddress) =>
+  await ILSSVMPairFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.LSSVMPPair}`).value()).address,
     await getDeploySigner()
   );

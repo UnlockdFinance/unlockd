@@ -1,13 +1,7 @@
-import {
-  eContractid,
-  eNetwork,
-  iMultiPoolsAssets,
-  IReserveParams,
-  iMultiPoolsNfts,
-  INftParams,
-  tEthereumAddress,
-} from "./types";
-import { chunk, increaseTime, waitForTx } from "./misc-utils";
+import { BigNumberish } from "ethers";
+import { SignerWithAddress } from "../test/helpers/make-suite";
+import { ConfigNames } from "./configuration";
+import { deployRateStrategy } from "./contracts-deployments";
 import {
   getCryptoPunksMarket,
   getDeploySigner,
@@ -27,9 +21,8 @@ import {
   getContractAddressWithJsonFallback,
   rawInsertContractAddressInDb,
 } from "./contracts-helpers";
-import { BigNumberish } from "ethers";
-import { ConfigNames } from "./configuration";
-import { deployRateStrategy } from "./contracts-deployments";
+import { chunk, waitForTx } from "./misc-utils";
+import { eContractid, iMultiPoolsAssets, iMultiPoolsNfts, INftParams, IReserveParams, tEthereumAddress } from "./types";
 
 export const getUTokenExtraParams = async (uTokenName: string, tokenAddress: tEthereumAddress) => {
   //console.log(uTokenName);
@@ -57,9 +50,9 @@ export const initReservesByHelper = async (
   const initChunks = 1;
 
   // Initialize variables for future reserves initialization
-  let reserveSymbols: string[] = [];
+  const reserveSymbols: string[] = [];
 
-  let initInputParams: {
+  const initInputParams: {
     uTokenImpl: string;
     debtTokenImpl: string;
     underlyingAssetDecimals: BigNumberish;
@@ -80,12 +73,12 @@ export const initReservesByHelper = async (
     string,
     string
   ];
-  let rateStrategies: Record<string, typeof strategyRates> = {};
-  let strategyAddresses: Record<string, tEthereumAddress> = {};
+  const rateStrategies: Record<string, typeof strategyRates> = {};
+  const strategyAddresses: Record<string, tEthereumAddress> = {};
 
   const reserves = Object.entries(reservesParams);
-
-  for (let [symbol, params] of reserves) {
+  console.log("RESERVES: " + reserves);
+  for (const [symbol, params] of reserves) {
     if (!tokenAddresses[symbol]) {
       console.log(`- Skipping init of ${symbol} due token address is not set at markets config`);
       continue;
@@ -168,15 +161,15 @@ export const initNftsByHelper = async (
   const initChunks = 1;
 
   // Initialize variables for future nfts initialization
-  let nftSymbols: string[] = [];
+  const nftSymbols: string[] = [];
 
-  let initInputParams: {
+  const initInputParams: {
     underlyingAsset: string;
   }[] = [];
 
   const nfts = Object.entries(nftsParams);
 
-  for (let [symbol, params] of nfts) {
+  for (const [symbol, params] of nfts) {
     if (!nftAddresses[symbol]) {
       console.log(`- Skipping init of ${symbol} due nft address is not set at markets config`);
       continue;
@@ -194,12 +187,10 @@ export const initNftsByHelper = async (
   // Deploy init nfts per chunks
   const chunkedSymbols = chunk(nftSymbols, initChunks);
   const chunkedInitInputParams = chunk(initInputParams, initChunks);
-  console.log(chunkedInitInputParams);
   const configurator = await getLendPoolConfiguratorProxy();
 
   console.log(`- NFTs initialization in ${chunkedInitInputParams.length} txs`);
   for (let chunkIndex = 0; chunkIndex < chunkedInitInputParams.length; chunkIndex++) {
-    console.log(chunkedInitInputParams[chunkIndex]);
     const tx3 = await waitForTx(await configurator.batchInitNft(chunkedInitInputParams[chunkIndex]));
 
     console.log(
@@ -405,6 +396,10 @@ export const configureNftsByHelper = async (
 
 export const initNFTXByHelper = async () => {
   const deployer = await getDeploySigner();
+  const signerWithAddress: SignerWithAddress = {
+    address: await deployer.getAddress(),
+    signer: deployer,
+  };
 
   const dataProvider = await getUnlockdProtocolDataProvider();
   const allReserveTokens = await dataProvider.getAllReservesTokenDatas();
@@ -455,11 +450,11 @@ export const initNFTXByHelper = async () => {
   await bayc.setApprovalForAll(nftxVault.address, true);
   await nftxVault.connect(deployer).mint(baycTokenIds, []);
 
-  const nftxTokenAmount = await convertToCurrencyDecimals(nftxVault.address, "4");
+  const nftxTokenAmount = await convertToCurrencyDecimals(signerWithAddress, bayc, "4");
 
   console.log("- Configuring BAYC/USDC Pool on SushiSwap");
   // Deposit 600000 USDC to owner
-  let lpUSDCAmount = await convertToCurrencyDecimals(usdc.address, "600000");
+  let lpUSDCAmount = await convertToCurrencyDecimals(signerWithAddress, usdc, "600000");
   await usdc.connect(deployer).mint(lpUSDCAmount);
 
   // Provide liquidity to SushiSwap - Price is 15000 USDC
@@ -481,7 +476,7 @@ export const initNFTXByHelper = async () => {
 
   console.log("- Configuring BAYC/WETH Pool on SushiSwap");
   // Deposit 400 WETH to owner
-  const lpWETHAmount = await convertToCurrencyDecimals(weth.address, "400");
+  const lpWETHAmount = await convertToCurrencyDecimals(signerWithAddress, weth, "400");
   await weth.connect(deployer).mint(lpWETHAmount);
 
   // Provide liquidity to SushiSwap - Price is 100 WETH
@@ -521,7 +516,7 @@ export const initNFTXByHelper = async () => {
 
   console.log("- Configuring WPUNKS/USDC Pool on SushiSwap");
   // Deposit 600000 USDC to owner
-  lpUSDCAmount = await convertToCurrencyDecimals(usdc.address, "600000");
+  lpUSDCAmount = await convertToCurrencyDecimals(signerWithAddress, usdc, "600000");
   await usdc.connect(deployer).mint(lpUSDCAmount);
 
   // Provide liquidity to SushiSwap - Price is 15000 USDC

@@ -1,6 +1,6 @@
-import { tEthereumAddress } from "./types";
 import { MockChainlinkOracle } from "../types/MockChainlinkOracle";
-import { MockTokenMap, MockNftMap } from "./contracts-helpers";
+import { MockNftMap, MockTokenMap } from "./contracts-helpers";
+import { tEthereumAddress } from "./types";
 
 export const getAllTokenAddresses = (mockTokens: MockTokenMap) =>
   Object.entries(mockTokens).reduce(

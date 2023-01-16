@@ -1,10 +1,12 @@
+import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
-
-import { advanceTimeAndBlock, DRE, increaseTime, waitForTx } from "../helpers/misc-utils";
-import { APPROVAL_AMOUNT_LENDING_POOL, oneEther, ONE_DAY } from "../helpers/constants";
+import { BigNumber as BN } from "ethers";
+import { APPROVAL_AMOUNT_LENDING_POOL, ONE_DAY } from "../helpers/constants";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
+import { advanceTimeAndBlock, fundWithERC20, fundWithERC721, increaseTime, waitForTx } from "../helpers/misc-utils";
+import { IConfigNftAsCollateralInput, ProtocolErrors } from "../helpers/types";
+import { approveERC20, setApprovalForAll } from "./helpers/actions";
 import { makeSuite } from "./helpers/make-suite";
-import { ProtocolErrors } from "../helpers/types";
 
 const chai = require("chai");
 
@@ -27,36 +29,47 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     const user3 = users[3];
 
     // user 0 mint and deposit 100 WETH
-    await weth.connect(user0.signer).mint(await convertToCurrencyDecimals(weth.address, "100"));
-    await weth.connect(user0.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
-    const amountDeposit = await convertToCurrencyDecimals(weth.address, "100");
+    await fundWithERC20("WETH", user0.address, "100");
+    await approveERC20(testEnv, user0, "WETH");
+    const amountDeposit = await convertToCurrencyDecimals(deployer, weth, "100");
     await pool.connect(user0.signer).deposit(weth.address, amountDeposit, user0.address, "0");
 
     // user 1 mint NFT and borrow 10 WETH
-    await weth.connect(user1.signer).mint(await convertToCurrencyDecimals(weth.address, "5"));
-    await weth.connect(user1.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
-    await bayc.connect(user1.signer).mint("101");
-    await bayc.connect(user1.signer).setApprovalForAll(pool.address, true);
-    const amountBorrow = await convertToCurrencyDecimals(weth.address, "10");
+    await fundWithERC20("WETH", user1.address, "10");
+    await approveERC20(testEnv, user1, "WETH");
 
-    const price = await convertToCurrencyDecimals(weth.address, "100");
+    await fundWithERC721("BAYC", user1.address, 101);
+    await setApprovalForAll(testEnv, user1, "BAYC");
+
+    const amountBorrow = await convertToCurrencyDecimals(deployer, weth, "10");
+
+    const price = await convertToCurrencyDecimals(deployer, weth, "100");
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(bayc.address, true);
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, "101", price, 4000, 7000, 100, 1, 2, 25, true, false);
-
-    await configurator.setTimeframe(3600);
-
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: "101",
+      newPrice: BN.from("700000000000000000"), //0.7 eth valuation
+      ltv: 6000,
+      liquidationThreshold: 7500,
+      redeemThreshold: 5000,
+      liquidationBonus: 500,
+      redeemDuration: 100,
+      auctionDuration: 200,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
     await pool
       .connect(user1.signer)
-      .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", user1.address, "0");
+      .borrow(weth.address, BN.from("420000000000000000"), bayc.address, "101", user1.address, "0");
+
     // user 2, 3 mint 100 WETH
-    await weth.connect(user2.signer).mint(await convertToCurrencyDecimals(weth.address, "100"));
-    await weth.connect(user2.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
-    await weth.connect(user3.signer).mint(await convertToCurrencyDecimals(weth.address, "100"));
-    await weth.connect(user3.signer).approve(pool.address, APPROVAL_AMOUNT_LENDING_POOL);
+    await fundWithERC20("WETH", user2.address, "100");
+    await approveERC20(testEnv, user2, "WETH");
+    await fundWithERC20("WETH", user3.address, "100");
+    await approveERC20(testEnv, user3, "WETH");
   });
 
   it("User 1 liquidate on a non-existent NFT", async () => {
@@ -118,14 +131,18 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     ).to.be.revertedWith(ProtocolErrors.VL_NO_ACTIVE_RESERVE);
 
     await configurator.activateReserve(weth.address);
-  });
-*/
+  });*/
+
   it("User 2 auction on a loan health factor above 1", async () => {
-    const { bayc, pool, users } = testEnv;
+    const { bayc, pool, users, configurator, deployer } = testEnv;
     const user2 = users[2];
 
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
-
+    // NFT not supporting liquidations on sudoswap / NFTX
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+    await configurator.connect(deployer.signer).setTimeframe(360000);
+    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
+    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
     await expect(
       pool.connect(user2.signer).auction(bayc.address, "101", liquidatePrice, user2.address)
     ).to.be.revertedWith(ProtocolErrors.LP_BORROW_NOT_EXCEED_LIQUIDATION_THRESHOLD);
@@ -146,14 +163,19 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
   });
 
   it("User 2 auction price is unable to cover borrow", async () => {
-    const { bayc, pool, users } = testEnv;
+    const { bayc, pool, users, configurator, deployer } = testEnv;
     const user2 = users[2];
 
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
+    // NFT not supporting liquidations on sudoswap / NFTX
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+    await configurator.connect(deployer.signer).setTimeframe(360000);
+    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
+    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
 
     await expect(
       pool.connect(user2.signer).auction(bayc.address, "101", liquidatePrice, user2.address)
-    ).to.be.revertedWith(ProtocolErrors.LPL_BID_PRICE_LESS_THAN_BORROW);
+    ).to.be.revertedWith(ProtocolErrors.LPL_BID_PRICE_LESS_THAN_MIN_BID_REQUIRED);
   });
 
   it("User 2 auction price is less than liquidate price", async () => {
@@ -184,22 +206,30 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
   });
 
   it("User 2 auction price is enough to cover borrow and liqudiate price", async () => {
-    const { bayc, pool, users } = testEnv;
+    const { bayc, pool, users, configurator, deployer } = testEnv;
     const user2 = users[2];
 
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
-
+    // NFT not supporting liquidations on sudoswap / NFTX
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+    await configurator.connect(deployer.signer).setTimeframe(360000);
+    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
+    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
     const auctionPriceOk = new BigNumber(liquidatePrice.toString()).multipliedBy(1.5).toFixed(0);
     await waitForTx(await pool.connect(user2.signer).auction(bayc.address, "101", auctionPriceOk, user2.address));
   });
 
   it("User 3 auction price is lesser than user 2", async () => {
-    const { bayc, pool, users } = testEnv;
+    const { bayc, pool, users, configurator, deployer } = testEnv;
     const user3 = users[3];
 
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.2).toFixed(0);
-
+    // NFT not supporting liquidations on sudoswap / NFTX
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+    await configurator.connect(deployer.signer).setTimeframe(360000);
+    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
+    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
     await expect(
       pool.connect(user3.signer).auction(bayc.address, "101", auctionPrice, user3.address)
     ).to.be.revertedWith(ProtocolErrors.LPL_BID_PRICE_LESS_THAN_HIGHEST_PRICE);
@@ -215,7 +245,7 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
   });
 
   it("User 1 redeem but bidFine is not fullfil to borrow amount of user 2 auction", async () => {
-    const { bayc, pool, users } = testEnv;
+    const { bayc, pool, users, deployer } = testEnv;
     const user1 = users[1];
     const user3 = users[3];
 
@@ -223,26 +253,27 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     const nftAuctionData = await pool.getNftAuctionData(bayc.address, "101");
     const redeemAmount = nftAuctionData.bidBorrowAmount;
     const badBidFine = new BigNumber(nftAuctionData.bidFine.toString()).multipliedBy(0.9).toFixed(0);
-
+    await pool.connect(deployer.signer).updateSafeHealthFactor(BN.from("1100000000000000000"));
     await expect(pool.connect(user1.signer).redeem(bayc.address, "101", redeemAmount, badBidFine)).to.be.revertedWith(
       ProtocolErrors.LPL_BID_INVALID_BID_FINE
     );
   });
 
   it("User 1 redeem but amount is not fullfil to mininum repay amount", async () => {
-    const { bayc, pool, users } = testEnv;
+    const { bayc, pool, users, deployer } = testEnv;
     const user1 = users[1];
     const user3 = users[3];
 
+    await pool.connect(deployer.signer).updateSafeHealthFactor(BN.from("1100000000000000000"));
     // user 1 want redeem and query the bid fine (user 2 bid price)
     const nftAuctionData = await pool.getNftAuctionData(bayc.address, "101");
     const redeemAmount = nftAuctionData.bidBorrowAmount.div(2);
 
-    const badBidFine = new BigNumber(nftAuctionData.bidFine.toString()).multipliedBy(1.1).toFixed(0);
+    const badBidFine = new BigNumber(nftAuctionData.bidFine.toString()).multipliedBy(2).toFixed(0);
 
-    await expect(pool.connect(user1.signer).redeem(bayc.address, "101", redeemAmount, badBidFine)).to.be.revertedWith(
-      ProtocolErrors.LP_AMOUNT_LESS_THAN_REDEEM_THRESHOLD
-    );
+    await expect(
+      pool.connect(user1.signer).redeem(bayc.address, "101", BN.from("1"), BN.from("1000000000000000000"))
+    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_LESS_THAN_REDEEM_THRESHOLD);
   });
 
   it("User 1 redeem but amount is not fullfil to maximum repay amount", async () => {
@@ -256,9 +287,9 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
 
     const badBidFine = new BigNumber(nftAuctionData.bidFine.toString()).multipliedBy(1.1).toFixed(0);
 
-    await expect(pool.connect(user1.signer).redeem(bayc.address, "101", redeemAmount, badBidFine)).to.be.revertedWith(
-      ProtocolErrors.LP_AMOUNT_GREATER_THAN_MAX_REPAY
-    );
+    await expect(
+      pool.connect(user1.signer).redeem(bayc.address, "101", BN.from("10000000000000000000"), badBidFine)
+    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_GREATER_THAN_MAX_REPAY);
   });
 
   it("Ends redeem duration", async () => {
@@ -293,23 +324,31 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
   });
 
   it("User 3 auction after duration is end", async () => {
-    const { bayc, pool, users } = testEnv;
+    const { bayc, pool, users, configurator, deployer } = testEnv;
     const user3 = users[3];
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(2.0).toFixed(0);
-
+    // NFT not supporting liquidations on sudoswap / NFTX
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+    await configurator.connect(deployer.signer).setTimeframe(360000);
+    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
+    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
     await expect(
       pool.connect(user3.signer).auction(bayc.address, "101", auctionPrice, user3.address)
     ).to.be.revertedWith(ProtocolErrors.LPL_BID_AUCTION_DURATION_HAS_END);
   });
 
   it("User 2 auction consecutively", async () => {
-    const { bayc, pool, users } = testEnv;
+    const { bayc, pool, users, configurator, deployer } = testEnv;
     const user2 = users[2];
 
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(2.0).toFixed(0);
-
+    // NFT not supporting liquidations on sudoswap / NFTX
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+    await configurator.connect(deployer.signer).setTimeframe(360000);
+    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
+    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
     //Current bid is from user 2, thus, it should revert
     await expect(
       pool.connect(user2.signer).auction(bayc.address, "101", auctionPrice, user2.address)

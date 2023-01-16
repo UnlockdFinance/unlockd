@@ -149,6 +149,7 @@ library DataTypes {
     uint256 nftTokenId;
     uint256 bidPrice;
     address onBehalfOf;
+    uint256 auctionDurationConfigFee;
   }
 
   struct ExecuteRedeemParams {
@@ -157,6 +158,7 @@ library DataTypes {
     uint256 nftTokenId;
     uint256 amount;
     uint256 bidFine;
+    uint256 safeHealthFactor;
   }
 
   struct ExecuteLiquidateParams {
@@ -166,12 +168,17 @@ library DataTypes {
     uint256 amount;
   }
 
-  struct ExecuteLiquidateNFTXParams {
+  struct ExecuteLiquidateMarketsParams {
     address nftAsset;
     uint256 nftTokenId;
     uint256 liquidateFeePercentage;
+    uint256 amountOutMin;
   }
 
+  struct SudoSwapParams {
+    address LSSVMPair;
+    uint256 amountOutMinSudoswap;
+  }
   struct ExecuteLendPoolStates {
     uint256 pauseStartTime;
     uint256 pauseDurationTime;

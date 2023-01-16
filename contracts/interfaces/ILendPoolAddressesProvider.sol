@@ -26,6 +26,7 @@ interface ILendPoolAddressesProvider {
   event WalletBalanceProviderUpdated(address indexed newAddress);
   event NFTXVaultFactoryUpdated(address indexed newAddress);
   event SushiSwapRouterUpdated(address indexed newAddress);
+  event LSSVMRouterUpdated(address indexed newAddress);
   event LendPoolLiquidatorUpdated(address indexed newAddress);
   event LtvManagerUpdated(address indexed newAddress);
 
@@ -58,11 +59,7 @@ interface ILendPoolAddressesProvider {
    * @param id The id
    * @param impl The address of the new implementation
    */
-  function setAddressAsProxy(
-    bytes32 id,
-    address impl,
-    bytes memory encodedCallData
-  ) external;
+  function setAddressAsProxy(bytes32 id, address impl, bytes memory encodedCallData) external;
 
   /**
    * @dev Returns an address by id
@@ -233,10 +230,21 @@ interface ILendPoolAddressesProvider {
   function getSushiSwapRouter() external view returns (address);
 
   /**
-   * @dev sets the address of the SushiSwap router contract
-   * @param router the SushiSwap router address
+   * @dev sets the address of the LSSVM router contract
+   * @param router the LSSVM router address
    **/
   function setSushiSwapRouter(address router) external;
+
+  /**
+   * @dev returns the address of the LSSVM router contract
+   **/
+  function getLSSVMRouter() external view returns (address);
+
+  /**
+   * @dev sets the address of the LSSVM router contract
+   * @param router the SushiSwap router address
+   **/
+  function setLSSVMRouter(address router) external;
 
   /**
    * @dev returns the address of the LendPool liquidator contract

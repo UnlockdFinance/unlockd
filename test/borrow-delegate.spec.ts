@@ -1,23 +1,26 @@
-import { TestEnv, makeSuite } from "./helpers/make-suite";
-import {
-  mintERC20,
-  mintERC721,
-  approveERC20,
-  approveERC721,
-  setApprovalForAll,
-  deposit,
-  borrow,
-  withdraw,
-  repay,
-  delegateBorrowAllowance,
-} from "./helpers/actions";
-import { configuration as actionsConfiguration } from "./helpers/actions";
-import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";
+import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
 import { getReservesConfigByPool } from "../helpers/configuration";
-import { UnlockdPools, iUnlockdPoolAssets, IReserveParams } from "../helpers/types";
-import { string } from "hardhat/internal/core/params/argumentTypes";
-import { waitForTx } from "../helpers/misc-utils";
+import { fundWithERC20, fundWithERC721, waitForTx } from "../helpers/misc-utils";
+import {
+  IConfigNftAsCollateralInput,
+  IReserveParams,
+  iUnlockdPoolAssets,
+  ProtocolErrors,
+  UnlockdPools,
+} from "../helpers/types";
+import {
+  approveERC20,
+  borrow,
+  configuration as actionsConfiguration,
+  delegateBorrowAllowance,
+  deposit,
+  mintERC20,
+  mintERC721,
+  setApprovalForAll,
+} from "./helpers/actions";
+import { makeSuite, TestEnv } from "./helpers/make-suite";
+import { configuration as calculationsConfiguration } from "./helpers/utils/calculations";
 
 const { expect } = require("chai");
 
@@ -52,7 +55,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     const delegatee = users[3];
 
     // WETH
-    await mintERC20(testEnv, depositor, "WETH", "10");
+    await fundWithERC20("WETH", depositor.address, "10");
 
     await approveERC20(testEnv, depositor, "WETH");
 
@@ -60,7 +63,9 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
-    await mintERC721(testEnv, borrower, "BAYC", tokenId);
+
+    await fundWithERC721("BAYC", borrower.address, tokenIdNum);
+
     await bayc.connect(borrower.signer).transferFrom(borrower.address, delegatee.address, tokenId);
 
     await setApprovalForAll(testEnv, delegatee, "BAYC");
@@ -68,10 +73,20 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     await configurator.setLtvManagerStatus(deployer.address, true);
     await nftOracle.setPriceManagerStatus(configurator.address, true);
 
-    await configurator
-      .connect(deployer.signer)
-      .configureNftAsCollateral(bayc.address, tokenId, 8000, 4000, 7000, 100, 1, 2, 25, true, false);
-
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId,
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 100,
+      auctionDuration: 200,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
     await borrow(
       testEnv,
       delegatee,
@@ -82,16 +97,12 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
       borrower.address,
       "365",
       "revert",
-      "no borrow allowance"
+      ProtocolErrors.CT_BORROW_ALLOWANCE_NOT_ENOUGH
     );
 
     await delegateBorrowAllowance(testEnv, borrower, "WETH", "1", delegatee.address, "success", "");
 
-    await waitForTx(
-      await configurator
-        .connect(deployer.signer)
-        .configureNftAsCollateral(bayc.address, tokenId, "50000000000000000000", 4000, 7000, 500, 1, 2, 25, true, false)
-    );
+    await waitForTx(await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]));
 
     await borrow(testEnv, delegatee, "WETH", "1", "BAYC", tokenId, borrower.address, "365", "success", "");
   });

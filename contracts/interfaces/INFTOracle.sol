@@ -53,12 +53,4 @@ interface INFTOracle {
   @param val the value to set the pausing status (true for paused, false for unpaused)
    */
   function setPause(address _nftContract, bool val) external;
-
-  /* CAUTION: Price uint is ETH based (WEI, 18 decimals) */
-  /**
-  @dev returns the NFT price for a given NFT valued by NFTX
-  @param _collection the NFT collection
-  @param _tokenId the NFT token Id
-   */
-  function getNFTPriceNFTX(address _collection, uint256 _tokenId) external view returns (uint256);
 }
