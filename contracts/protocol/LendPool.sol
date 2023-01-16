@@ -94,6 +94,11 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     _;
   }
 
+  modifier onlyPoolAdmin() {
+    require(_addressesProvider.getPoolAdmin() == msg.sender, Errors.CALLER_NOT_POOL_ADMIN);
+    _;
+  }
+
   /**
    * @notice Revert if called by any account other than the rescuer.
    */
@@ -133,11 +138,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
       Errors.LP_CALLER_NOT_LEND_POOL_LIQUIDATOR_NOR_GATEWAY
     );
   }
-
-  /**
-   * @dev Address allowed to recover accidentally sent ERC20 tokens to the LendPool
-   **/
-  address private _rescuer;
 
   /**
    * @dev Function is invoked by the proxy contract when the LendPool contract is added to the
@@ -333,7 +333,8 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
           amount: amount,
-          bidFine: bidFine
+          bidFine: bidFine,
+          safeHealthFactor: _safeHealthFactor
         })
       );
   }
@@ -425,7 +426,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     address nftAsset,
     uint256 nftTokenId
   ) external payable override onlyHolder(nftAsset, nftTokenId) onlyCollection(nftAsset) whenNotPaused {
-    require(_configFee == msg.value, Errors.MSG_VALUE_DIFFERENT_FROM_CONFIG_FEE);
+    require(_configFee == msg.value, Errors.LP_MSG_VALUE_DIFFERENT_FROM_CONFIG_FEE);
 
     emit ValuationApproved(_msgSender(), nftAsset, nftTokenId);
   }
@@ -1073,6 +1074,24 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    */
   function rescuer() external view override returns (address) {
     return _rescuer;
+  }
+
+  /**
+   * @notice Update the safe health factor value for redeems
+   * @param newSafeHealthFactor New safe health factor value
+   */
+  function updateSafeHealthFactor(uint256 newSafeHealthFactor) external override onlyPoolAdmin {
+    require(newSafeHealthFactor != 0, Errors.LP_INVALID_SAFE_HEALTH_FACTOR);
+    _safeHealthFactor = newSafeHealthFactor;
+    emit SafeHealthFactorUpdated(newSafeHealthFactor);
+  }
+
+  /**
+   * @notice Returns current safe health factor
+   * @return The safe health factor value
+   */
+  function getSafeHealthFactor() external view override returns (uint256) {
+    return _safeHealthFactor;
   }
 
   /**

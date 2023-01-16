@@ -25,7 +25,7 @@ library Errors {
   string public constant CALLER_NOT_LTV_MANAGER = "107";
   string public constant CALLER_NOT_PRICE_MANAGER = "108";
 
-  //math library erros
+  //math library errors
   string public constant MATH_MULTIPLICATION_OVERFLOW = "200";
   string public constant MATH_ADDITION_OVERFLOW = "201";
   string public constant MATH_DIVISION_BY_ZERO = "202";
@@ -80,7 +80,8 @@ library Errors {
   string public constant LP_NFT_NOT_ALLOWED_TO_SELL = "423";
   string public constant LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY = "424";
   string public constant LP_COLLECTION_NOT_SUPPORTED = "425";
-  string public constant MSG_VALUE_DIFFERENT_FROM_CONFIG_FEE = "426";
+  string public constant LP_MSG_VALUE_DIFFERENT_FROM_CONFIG_FEE = "426";
+  string public constant LP_INVALID_SAFE_HEALTH_FACTOR = "427";
 
   //lend pool loan errors
   string public constant LPL_INVALID_LOAN_STATE = "480";
@@ -124,6 +125,7 @@ library Errors {
   string public constant LPC_FEE_PERCENTAGE_TOO_HIGH = "707";
   string public constant LPC_INVALID_LTVMANAGER_ADDRESS = "708";
   string public constant LPC_INCONSISTENT_PARAMS = "709";
+  string public constant LPC_INVALID_SAFE_HEALTH_FACTOR = "710";
   //reserve config errors
   string public constant RC_INVALID_LTV = "730";
   string public constant RC_INVALID_LIQ_THRESHOLD = "731";

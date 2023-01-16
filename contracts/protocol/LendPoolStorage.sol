@@ -42,7 +42,9 @@ contract LendPoolStorage {
   mapping(address => address[2]) internal _sudoswapPairs;
 
   uint256 internal _auctionDurationConfigFee;
+  address internal _rescuer;
+  uint256 internal _safeHealthFactor;
 
   // For upgradable, add one new variable above, minus 1 at here
-  uint256[49] private __gap;
+  uint256[50] private __gap;
 }

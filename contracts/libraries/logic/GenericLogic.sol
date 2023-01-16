@@ -40,6 +40,7 @@ library GenericLogic {
     address nftAsset;
     uint256 nftTokenId;
     uint256 nftUnitPrice;
+    uint256 minRedeemValue;
   }
 
   /**
@@ -172,6 +173,41 @@ library GenericLogic {
     }
 
     return (vars.totalCollateralInETH, vars.totalCollateralInReserve);
+  }
+
+  /**
+   * @dev Calculates the optimal min redeem value
+   * @param borrowAmount The debt
+   * @param nftAddress The nft address
+   * @param nftTokenId The token id
+   * @param nftOracle The nft oracle address
+   * @param liquidationThreshold The liquidation threshold
+   * @param safeHealthFactor The safe health factor value
+   * @return The health factor calculated from the balances provided
+   **/
+  function calculateOptimalMinRedeemValue(
+    uint256 borrowAmount,
+    address nftAddress,
+    uint256 nftTokenId,
+    address nftOracle,
+    uint256 liquidationThreshold,
+    uint256 safeHealthFactor
+  ) internal view returns (uint256) {
+    CalculateLoanDataVars memory vars;
+
+    vars.nftUnitPrice = INFTOracleGetter(nftOracle).getNFTPrice(nftAddress, nftTokenId);
+    vars.minRedeemValue =
+      borrowAmount -
+      ((vars.nftUnitPrice.percentMul(liquidationThreshold)).wadDiv(safeHealthFactor));
+    if (vars.nftUnitPrice < vars.minRedeemValue) {
+      return vars.nftUnitPrice;
+    }
+
+    return vars.minRedeemValue;
+  }
+
+  function calculateOptimalMaxRedeemValue(uint256 debt, uint256 minRedeem) internal pure returns (uint256) {
+    return debt - ((debt - minRedeem).wadDiv(2 ether));
   }
 
   /**

@@ -241,4 +241,10 @@ interface ILendPoolConfigurator {
    * @param newTreasuryAddress The new treasury address to be set as uToken treasury
    **/
   event UTokenTreasuryUpdated(address indexed uTokenAddress, address indexed newTreasuryAddress);
+
+  /**
+   * @dev Emitted when the lend pool rescuer is updated
+   * @param rescuer the new rescuer address
+   **/
+  event RescuerUpdated(address indexed rescuer);
 }

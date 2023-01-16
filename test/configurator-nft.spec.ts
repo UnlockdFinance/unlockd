@@ -49,6 +49,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     CALLER_NOT_LTV_MANAGER,
     LP_INVALID_OVERFLOW_VALUE,
     INVALID_ZERO_ADDRESS,
+    LP_INVALID_SAFE_HEALTH_FACTOR,
   } = ProtocolErrors;
 
   const tokenSupply = MOCK_NFT_AGGREGATORS_MAXSUPPLY.BAYC;
@@ -516,5 +517,36 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     await configurator.connect(deployer.signer).setTreasuryAddress(uTokenAddress, expectedAddress);
 
     await expect(await (await getUToken(uTokenAddress)).RESERVE_TREASURY_ADDRESS()).to.be.equal(expectedAddress);
+  });
+
+  it("Check the zero check on set rescuer", async () => {
+    const { configurator, deployer } = testEnv;
+    await expect(
+      configurator.connect(deployer.signer).setPoolRescuer(zeroAddress()),
+      INVALID_ZERO_ADDRESS
+    ).to.be.revertedWith(INVALID_ZERO_ADDRESS);
+  });
+
+  it("(LendPool): Check the only pool admin in safe health factor ", async () => {
+    const { pool, users } = testEnv;
+    await expect(pool.connect(users[2].signer).updateSafeHealthFactor(1), CALLER_NOT_POOL_ADMIN).to.be.revertedWith(
+      CALLER_NOT_POOL_ADMIN
+    );
+  });
+
+  it("(LendPool): Check invalid 0 value in safe health factor ", async () => {
+    const { pool, deployer } = testEnv;
+    await expect(
+      pool.connect(deployer.signer).updateSafeHealthFactor(0),
+      LP_INVALID_SAFE_HEALTH_FACTOR
+    ).to.be.revertedWith(LP_INVALID_SAFE_HEALTH_FACTOR);
+  });
+
+  it("(LendPool): Check correct value in safe health factor ", async () => {
+    const { pool, deployer } = testEnv;
+
+    await pool.connect(deployer.signer).updateSafeHealthFactor(7000);
+
+    await expect(await pool.connect(deployer.signer).getSafeHealthFactor()).to.be.equal(7000);
   });
 });

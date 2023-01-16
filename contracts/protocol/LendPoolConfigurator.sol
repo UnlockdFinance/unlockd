@@ -665,8 +665,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    * @param rescuer the new rescuer address
    **/
   function setPoolRescuer(address rescuer) external onlyPoolAdmin {
+    require(rescuer != address(0), Errors.INVALID_ZERO_ADDRESS);
     ILendPool cachedPool = _getLendPool();
     cachedPool.updateRescuer(rescuer);
+    emit RescuerUpdated(rescuer);
   }
 
   /**

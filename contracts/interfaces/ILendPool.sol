@@ -221,6 +221,11 @@ interface ILendPool {
   event NftConfigurationByIdChanged(address indexed asset, uint256 indexed nftTokenId, uint256 configuration);
 
   /**
+  @dev Emitted after setting the new safe health factor value for redeems
+  */
+  event SafeHealthFactorUpdated(uint256 indexed newSafeHealthFactor);
+
+  /**
   @dev Emitted after setting the new treasury address on the specified uToken
   */
   event TreasuryAddressUpdated(address indexed uToken, address indexed treasury);
@@ -629,6 +634,12 @@ interface ILendPool {
   function updateRescuer(address newRescuer) external;
 
   /**
+   * @notice Update the safe health factor value for redeems
+   * @param newSafeHealthFactor New safe health factor value
+   */
+  function updateSafeHealthFactor(uint256 newSafeHealthFactor) external;
+
+  /**
    * @dev Sets new treasury to the specified UToken
    * @param uToken the utoken to update the treasury address to
    * @param treasury the new treasury address
@@ -703,6 +714,12 @@ interface ILendPool {
    * @return Rescuer's address
    */
   function rescuer() external view returns (address);
+
+  /**
+   * @notice Returns current safe health factor
+   * @return The safe health factor value
+   */
+  function getSafeHealthFactor() external view returns (uint256);
 
   /**
    * @dev Returns the max timeframe between NFT config triggers and borrows

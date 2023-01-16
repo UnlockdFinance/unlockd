@@ -158,6 +158,7 @@ library DataTypes {
     uint256 nftTokenId;
     uint256 amount;
     uint256 bidFine;
+    uint256 safeHealthFactor;
   }
 
   struct ExecuteLiquidateParams {

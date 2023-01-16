@@ -289,6 +289,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     const depositor = users[0];
     const user = users[1];
     const user3 = users[3];
+    await pool.connect(deployer.signer).updateSafeHealthFactor(BN.from("1100000000000000000"));
 
     // Deposit with native ETH
     await wethGateway.connect(depositor.signer).depositETH(depositor.address, "0", { value: parseEther("20") });
