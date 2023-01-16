@@ -241,11 +241,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (paybackAmount, burn);
   }
 
-  function auction(
-    uint256 punkIndex,
-    uint256 bidPrice,
-    address onBehalfOf
-  ) external override nonReentrant {
+  function auction(uint256 punkIndex, uint256 bidPrice, address onBehalfOf) external override nonReentrant {
     _checkValidCallerAndOnBehalfOf(onBehalfOf);
 
     ILendPool cachedPool = _getLendPool();
@@ -261,11 +257,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     cachedPool.auction(address(wrappedPunks), punkIndex, bidPrice, onBehalfOf);
   }
 
-  function redeem(
-    uint256 punkIndex,
-    uint256 amount,
-    uint256 bidFine
-  ) external override nonReentrant returns (uint256) {
+  function redeem(uint256 punkIndex, uint256 amount, uint256 bidFine) external override nonReentrant returns (uint256) {
     ILendPool cachedPool = _getLendPool();
     ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
 
@@ -314,7 +306,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
    * @notice Liquidate punk in NFTX
    * @param punkIndex The index of the CryptoPunk to liquidate
    **/
-  function liquidateNFTX(uint256 punkIndex) external override nonReentrant returns (uint256) {
+  function liquidateNFTX(uint256 punkIndex, uint256 amountOutMin) external override nonReentrant returns (uint256) {
     require(_addressProvider.getLendPoolLiquidator() == _msgSender(), Errors.CALLER_NOT_POOL_LIQUIDATOR);
 
     ILendPool cachedPool = _getLendPool();
@@ -323,7 +315,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
     require(loanId != 0, "PunkGateway: no loan with such punkIndex");
 
-    uint256 remainAmount = cachedPool.liquidateNFTX(address(wrappedPunks), punkIndex);
+    uint256 remainAmount = cachedPool.liquidateNFTX(address(wrappedPunks), punkIndex, amountOutMin);
 
     return (remainAmount);
   }
@@ -365,11 +357,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
    * @param accAmount The accumulated amount
    * @return The final amount repaid, loan is burned or not
    **/
-  function _repayETH(
-    uint256 punkIndex,
-    uint256 amount,
-    uint256 accAmount
-  ) internal returns (uint256, bool) {
+  function _repayETH(uint256 punkIndex, uint256 amount, uint256 accAmount) internal returns (uint256, bool) {
     ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
 
     uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);

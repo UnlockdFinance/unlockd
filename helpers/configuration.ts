@@ -124,6 +124,11 @@ export const getTreasuryAddress = async (config: ICommonConfiguration): Promise<
   return getParamPerNetwork(config.ReserveFactorTreasuryAddress, <eNetwork>currentNetwork);
 };
 
+export const getSushiswapRouter = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
+  const currentNetwork = DRE.network.name;
+  return getParamPerNetwork(config.SushiSwapRouter, <eNetwork>currentNetwork);
+};
+
 export const getLSSVMRouter = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
   const currentNetwork = DRE.network.name;
   return getParamPerNetwork(config.LSSVMRouter, <eNetwork>currentNetwork);

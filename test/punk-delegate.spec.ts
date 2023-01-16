@@ -46,12 +46,10 @@ makeSuite("PunkGateway: Delegate", (testEnv: TestEnv) => {
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
 
-    console.log("borrow");
     await expect(
       punkGateway.connect(hacker.signer).borrow(weth.address, borrowSize2, tokenId, borrower.address, "0")
     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
 
-    console.log("borrowETH");
     await expect(
       punkGateway.connect(hacker.signer).borrowETH(borrowSize2, tokenId, borrower.address, "0")
     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
@@ -70,12 +68,10 @@ makeSuite("PunkGateway: Delegate", (testEnv: TestEnv) => {
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
 
-    console.log("auction");
     await expect(punkGateway.connect(hacker.signer).auction(tokenId, "1000000", liquidator.address)).to.be.revertedWith(
       ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST
     );
 
-    console.log("auctionETH");
     await expect(
       punkGateway.connect(hacker.signer).auctionETH(tokenId, liquidator.address, { value: depositSize })
     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);

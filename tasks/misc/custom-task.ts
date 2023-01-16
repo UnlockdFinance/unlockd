@@ -54,7 +54,7 @@ task("dev:generate-subgraph-events", "Doing custom task")
     const borrowerPool = lendPool.connect(borrower);
 
     // deposit
-    console.log("deposit");
+
     const dai = await getMintableERC20(await getContractAddressInDb("DAI"));
     const depositerDai = dai.connect(depositer);
     const borrowerDai = dai.connect(borrower);
@@ -63,7 +63,7 @@ task("dev:generate-subgraph-events", "Doing custom task")
     await waitForTx(await depositerPool.deposit(dai.address, "1000000000000000000000", depositerAddress, "0"));
 
     // borrow
-    console.log("borrow");
+
     const bayc = await getMintableERC721(await getContractAddressInDb("BAYC"));
     const borrowerBayc = bayc.connect(borrower);
     await waitForTx(await borrowerBayc.setApprovalForAll(lendPool.address, true));
@@ -73,7 +73,7 @@ task("dev:generate-subgraph-events", "Doing custom task")
     ); // 500 DAI
 
     // repay partly
-    console.log("repay partly");
+
     await waitForTx(await borrowerDai.approve(lendPool.address, "100000000000000000000000000000"));
     await waitForTx(await borrowerDai.mint("1000000000000000000000")); // 1000 DAI, 18 decimals
     await waitForTx(await borrowerPool.repay(bayc.address, nftTokenId, "100000000000000000000")); // 100 DAI
@@ -300,11 +300,9 @@ task("dev:borrow-eth-using-punk", "Doing custom task")
     if (!borrowMore) {
       await waitForTx(await punk.offerPunkForSaleToAddress(id, "0", punkGateway.address));
 
-      console.log("borrow ETH at first time");
       const txBorrow = await waitForTx(await punkGateway.borrowETH(amountDecimals, id, await signer.getAddress(), "0")); // 0.05 ETH
       console.log("txBorrow:", txBorrow.transactionHash);
     } else {
-      console.log("borrow more ETH");
       const txBorrow = await waitForTx(await punkGateway.borrowETH(amountDecimals, id, await signer.getAddress(), "0")); // 0.05 ETH
       console.log("txBorrow:", txBorrow.transactionHash);
     }

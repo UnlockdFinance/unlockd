@@ -30,7 +30,8 @@ library SudoSwapSeller {
     ILendPoolAddressesProvider addressesProvider,
     address nftAsset,
     uint256 nftTokenId,
-    address LSSVMPair
+    address LSSVMPair,
+    uint256 amountOutMinSudoswap
   ) internal returns (uint256 amount) {
     address LSSVMRouterAddress = addressesProvider.getAddress(ADDRESS_ID_LSSVM_ROUTER);
     address lendPoolAddress = addressesProvider.getLendPool();
@@ -44,6 +45,6 @@ library SudoSwapSeller {
     pairSwaps[0] = PairSwapSpecific({pair: ILSSVMPair(LSSVMPair), nftIds: nftTokenIds});
 
     IERC721Upgradeable(nftAsset).approve(LSSVMRouterAddress, nftTokenId);
-    amount = LSSVMRouter.swapNFTsForToken(pairSwaps, 0, lendPoolAddress, block.timestamp);
+    amount = LSSVMRouter.swapNFTsForToken(pairSwaps, amountOutMinSudoswap, lendPoolAddress, block.timestamp);
   }
 }

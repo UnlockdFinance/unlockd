@@ -146,12 +146,12 @@ const getReservesList = async (wallet: Wallet) => {
   return Contracts.lendPool.connect(wallet).getReservesList();
 };
 const liquidateNFTX = async (wallet: Wallet, nftAddress: string, tokenId: number) => {
-  const gas = await Contracts.lendPool.connect(wallet).estimateGas.liquidateNFTX(nftAddress, tokenId);
+  const gas = await Contracts.lendPool.connect(wallet).estimateGas.liquidateNFTX(nftAddress, tokenId, 0);
 
   const strGas = gas.toString();
   const gasPrice = Math.round(parseInt(strGas) * 1.1);
   console.log(gasPrice);
-  return Contracts.lendPool.connect(wallet).liquidateNFTX(nftAddress, tokenId, { gasLimit: gasPrice.toFixed(0) });
+  return Contracts.lendPool.connect(wallet).liquidateNFTX(nftAddress, tokenId, 0, { gasLimit: gasPrice.toFixed(0) });
 };
 //#endregion
 

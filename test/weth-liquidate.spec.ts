@@ -289,6 +289,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     const depositor = users[0];
     const user = users[1];
     const user3 = users[3];
+    await pool.connect(deployer.signer).updateSafeHealthFactor(BN.from("1100000000000000000"));
 
     // Deposit with native ETH
     await wethGateway.connect(depositor.signer).depositETH(depositor.address, "0", { value: parseEther("20") });
@@ -378,7 +379,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
         .connect(user.signer)
         .redeemETH(bayc.address, tokenId, repayAmount, bidFineAmount, { value: redeemAmountSend })
     );
-    console.log("lifeshard");
+
     const loanDataAfterRedeem = await dataProvider.getLoanDataByLoanId(nftDebtDataAfterBorrow.loanId);
     expect(loanDataAfterRedeem.state).to.be.equal(ProtocolLoanState.Active, "Invalid loan state after redeem");
 
@@ -391,7 +392,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
         .connect(user.signer)
         .repayETH(bayc.address, tokenId, redeemAmountSend, { value: redeemAmountSend })
     );
-    console.log("como");
+
     const loanDataAfterRepay = await dataProvider.getLoanDataByLoanId(nftDebtDataAfterBorrow.loanId);
     expect(loanDataAfterRepay.state).to.be.equal(ProtocolLoanState.Repaid, "Invalid loan state after repay");
 

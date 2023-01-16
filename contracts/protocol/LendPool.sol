@@ -4,6 +4,7 @@ pragma solidity 0.8.4;
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
+import {IUToken} from "../interfaces/IUToken.sol";
 
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
@@ -93,6 +94,11 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     _;
   }
 
+  modifier onlyPoolAdmin() {
+    require(_addressesProvider.getPoolAdmin() == msg.sender, Errors.CALLER_NOT_POOL_ADMIN);
+    _;
+  }
+
   /**
    * @notice Revert if called by any account other than the rescuer.
    */
@@ -132,11 +138,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
       Errors.LP_CALLER_NOT_LEND_POOL_LIQUIDATOR_NOR_GATEWAY
     );
   }
-
-  /**
-   * @dev Address allowed to recover accidentally sent ERC20 tokens to the LendPool
-   **/
-  address private _rescuer;
 
   /**
    * @dev Function is invoked by the proxy contract when the LendPool contract is added to the
@@ -332,7 +333,8 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
           amount: amount,
-          bidFine: bidFine
+          bidFine: bidFine,
+          safeHealthFactor: _safeHealthFactor
         })
       );
   }
@@ -373,7 +375,8 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    **/
   function liquidateNFTX(
     address nftAsset,
-    uint256 nftTokenId
+    uint256 nftTokenId,
+    uint256 amountOutMin
   ) external override nonReentrant onlyLendPoolLiquidatorOrGateway whenNotPaused returns (uint256) {
     return
       LiquidateMarketsLogic.executeLiquidateNFTX(
@@ -381,12 +384,11 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
         _reserves,
         _nfts,
         _nftConfig,
-        _isMarketSupported,
         DataTypes.ExecuteLiquidateMarketsParams({
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
           liquidateFeePercentage: _liquidateFeePercentage,
-          LSSVMPair: address(0)
+          amountOutMin: amountOutMin
         })
       );
   }
@@ -400,7 +402,9 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   function liquidateSudoSwap(
     address nftAsset,
     uint256 nftTokenId,
-    address LSSVMPair
+    uint256 amountOutMin,
+    address LSSVMPair,
+    uint256 amountOutMinSudoswap
   ) external override nonReentrant onlyLendPoolLiquidatorOrGateway whenNotPaused returns (uint256) {
     return
       LiquidateMarketsLogic.executeLiquidateSudoSwap(
@@ -408,14 +412,13 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
         _reserves,
         _nfts,
         _nftConfig,
-        _isMarketSupported,
-        _buildLendPoolVars(),
         DataTypes.ExecuteLiquidateMarketsParams({
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
           liquidateFeePercentage: _liquidateFeePercentage,
-          LSSVMPair: LSSVMPair
-        })
+          amountOutMin: amountOutMin
+        }),
+        DataTypes.SudoSwapParams({LSSVMPair: LSSVMPair, amountOutMinSudoswap: amountOutMinSudoswap})
       );
   }
 
@@ -423,7 +426,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     address nftAsset,
     uint256 nftTokenId
   ) external payable override onlyHolder(nftAsset, nftTokenId) onlyCollection(nftAsset) whenNotPaused {
-    require(_configFee == msg.value, Errors.MSG_VALUE_DIFFERENT_FROM_CONFIG_FEE);
+    require(_configFee == msg.value, Errors.LP_MSG_VALUE_DIFFERENT_FROM_CONFIG_FEE);
 
     emit ValuationApproved(_msgSender(), nftAsset, nftTokenId);
   }
@@ -1071,6 +1074,35 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    */
   function rescuer() external view override returns (address) {
     return _rescuer;
+  }
+
+  /**
+   * @notice Update the safe health factor value for redeems
+   * @param newSafeHealthFactor New safe health factor value
+   */
+  function updateSafeHealthFactor(uint256 newSafeHealthFactor) external override onlyPoolAdmin {
+    require(newSafeHealthFactor != 0, Errors.LP_INVALID_SAFE_HEALTH_FACTOR);
+    _safeHealthFactor = newSafeHealthFactor;
+    emit SafeHealthFactorUpdated(newSafeHealthFactor);
+  }
+
+  /**
+   * @notice Returns current safe health factor
+   * @return The safe health factor value
+   */
+  function getSafeHealthFactor() external view override returns (uint256) {
+    return _safeHealthFactor;
+  }
+
+  /**
+   * @dev Sets new treasury to the specified UToken
+   * @param uToken the utoken to update the treasury address to
+   * @param treasury the new treasury address
+   **/
+  function setTreasuryAddress(address uToken, address treasury) external override onlyLendPoolConfigurator {
+    require(treasury != address(0), Errors.INVALID_ZERO_ADDRESS);
+    IUToken(uToken).setTreasuryAddress(treasury);
+    emit TreasuryAddressUpdated(uToken, treasury);
   }
 
   function _addReserveToList(address asset) internal {

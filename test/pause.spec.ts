@@ -292,7 +292,7 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
 
     // Do liquidation
-    await expect(pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "102")).revertedWith(
+    await expect(pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "102", 0)).revertedWith(
       ProtocolErrors.LP_IS_PAUSED
     );
 

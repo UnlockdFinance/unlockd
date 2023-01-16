@@ -221,6 +221,16 @@ interface ILendPool {
   event NftConfigurationByIdChanged(address indexed asset, uint256 indexed nftTokenId, uint256 configuration);
 
   /**
+  @dev Emitted after setting the new safe health factor value for redeems
+  */
+  event SafeHealthFactorUpdated(uint256 indexed newSafeHealthFactor);
+
+  /**
+  @dev Emitted after setting the new treasury address on the specified uToken
+  */
+  event TreasuryAddressUpdated(address indexed uToken, address indexed treasury);
+
+  /**
    * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying uTokens.
    * - E.g. User deposits 100 USDC and gets in return 100 uusdc
    * @param reserve The address of the underlying asset to deposit
@@ -317,7 +327,7 @@ interface ILendPool {
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
-  function liquidateNFTX(address nftAsset, uint256 nftTokenId) external returns (uint256);
+  function liquidateNFTX(address nftAsset, uint256 nftTokenId, uint256 amountOutMin) external returns (uint256);
 
   /**
    * @dev Function to liquidate a non-healthy position collateral-wise
@@ -325,7 +335,13 @@ interface ILendPool {
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
-  function liquidateSudoSwap(address nftAsset, uint256 nftTokenId, address LSSVMPair) external returns (uint256);
+  function liquidateSudoSwap(
+    address nftAsset,
+    uint256 nftTokenId,
+    uint256 amountOutMin,
+    address LSSVMPair,
+    uint256 amountOutMinSudoswap
+  ) external returns (uint256);
 
   /**
    * @dev Approves valuation of an NFT for a user
@@ -618,6 +634,19 @@ interface ILendPool {
   function updateRescuer(address newRescuer) external;
 
   /**
+   * @notice Update the safe health factor value for redeems
+   * @param newSafeHealthFactor New safe health factor value
+   */
+  function updateSafeHealthFactor(uint256 newSafeHealthFactor) external;
+
+  /**
+   * @dev Sets new treasury to the specified UToken
+   * @param uToken the utoken to update the treasury address to
+   * @param treasury the new treasury address
+   **/
+  function setTreasuryAddress(address uToken, address treasury) external;
+
+  /**
    * @notice Rescue tokens or ETH locked up in this contract.
    * @param tokenContract ERC20 token contract address
    * @param to        Recipient address
@@ -685,6 +714,12 @@ interface ILendPool {
    * @return Rescuer's address
    */
   function rescuer() external view returns (address);
+
+  /**
+   * @notice Returns current safe health factor
+   * @return The safe health factor value
+   */
+  function getSafeHealthFactor() external view returns (uint256);
 
   /**
    * @dev Returns the max timeframe between NFT config triggers and borrows

@@ -8,6 +8,7 @@ import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesPro
 import {IReserveOracleGetter} from "../../interfaces/IReserveOracleGetter.sol";
 import {INFTOracleGetter} from "../../interfaces/INFTOracleGetter.sol";
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
+import {ILendPool} from "../../interfaces/ILendPool.sol";
 import {ILSSVMPair} from "../../interfaces/sudoswap/ILSSVMPair.sol";
 
 import {ReserveLogic} from "./ReserveLogic.sol";
@@ -278,6 +279,7 @@ library LiquidateLogic {
     uint256 minBidFinePct;
     uint256 minBidFine;
     uint256 extraRedeemDuration;
+    uint256 liquidationThreshold;
   }
 
   /**
@@ -352,13 +354,25 @@ library LiquidateLogic {
     // check bid fine is enough
     require(vars.bidFine <= params.bidFine, Errors.LPL_INVALID_BID_FINE);
 
-    // check the minimum debt repay amount, use redeem threshold in config
     vars.repayAmount = params.amount;
-    vars.minRepayAmount = vars.borrowAmount.percentMul(nftConfig.getRedeemThreshold());
+
+    // check the minimum debt repay amount, use liquidation threshold in config
+    (, vars.liquidationThreshold, ) = nftConfig.getCollateralParams();
+
+    vars.minRepayAmount = GenericLogic.calculateOptimalMinRedeemValue(
+      vars.borrowAmount,
+      params.nftAsset,
+      params.nftTokenId,
+      vars.nftOracle,
+      vars.liquidationThreshold,
+      params.safeHealthFactor
+    );
+
     require(vars.repayAmount >= vars.minRepayAmount, Errors.LP_AMOUNT_LESS_THAN_REDEEM_THRESHOLD);
 
-    // check the maxinmum debt repay amount, 90%?
-    vars.maxRepayAmount = vars.borrowAmount.percentMul(PercentageMath.PERCENTAGE_FACTOR - PercentageMath.TEN_PERCENT);
+    // check the maxinmum debt repay amount
+    vars.maxRepayAmount = GenericLogic.calculateOptimalMaxRedeemValue(vars.borrowAmount, vars.minRepayAmount);
+
     require(vars.repayAmount <= vars.maxRepayAmount, Errors.LP_AMOUNT_GREATER_THAN_MAX_REPAY);
 
     ILendPoolLoan(vars.poolLoan).redeemLoan(

@@ -1,5 +1,6 @@
 import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
+import { BigNumber as BN } from "ethers";
 import { APPROVAL_AMOUNT_LENDING_POOL, ONE_DAY } from "../helpers/constants";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { advanceTimeAndBlock, fundWithERC20, fundWithERC721, increaseTime, waitForTx } from "../helpers/misc-utils";
@@ -49,10 +50,10 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     const collData: IConfigNftAsCollateralInput = {
       asset: bayc.address,
       nftTokenId: "101",
-      newPrice: parseEther("100"),
-      ltv: 4000,
-      liquidationThreshold: 7000,
-      redeemThreshold: 9000,
+      newPrice: BN.from("700000000000000000"), //0.7 eth valuation
+      ltv: 6000,
+      liquidationThreshold: 7500,
+      redeemThreshold: 5000,
       liquidationBonus: 500,
       redeemDuration: 100,
       auctionDuration: 200,
@@ -62,7 +63,8 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
     await pool
       .connect(user1.signer)
-      .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", user1.address, "0");
+      .borrow(weth.address, BN.from("420000000000000000"), bayc.address, "101", user1.address, "0");
+
     // user 2, 3 mint 100 WETH
     await fundWithERC20("WETH", user2.address, "100");
     await approveERC20(testEnv, user2, "WETH");
@@ -243,7 +245,7 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
   });
 
   it("User 1 redeem but bidFine is not fullfil to borrow amount of user 2 auction", async () => {
-    const { bayc, pool, users } = testEnv;
+    const { bayc, pool, users, deployer } = testEnv;
     const user1 = users[1];
     const user3 = users[3];
 
@@ -251,26 +253,27 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     const nftAuctionData = await pool.getNftAuctionData(bayc.address, "101");
     const redeemAmount = nftAuctionData.bidBorrowAmount;
     const badBidFine = new BigNumber(nftAuctionData.bidFine.toString()).multipliedBy(0.9).toFixed(0);
-
+    await pool.connect(deployer.signer).updateSafeHealthFactor(BN.from("1100000000000000000"));
     await expect(pool.connect(user1.signer).redeem(bayc.address, "101", redeemAmount, badBidFine)).to.be.revertedWith(
       ProtocolErrors.LPL_BID_INVALID_BID_FINE
     );
   });
 
   it("User 1 redeem but amount is not fullfil to mininum repay amount", async () => {
-    const { bayc, pool, users } = testEnv;
+    const { bayc, pool, users, deployer } = testEnv;
     const user1 = users[1];
     const user3 = users[3];
 
+    await pool.connect(deployer.signer).updateSafeHealthFactor(BN.from("1100000000000000000"));
     // user 1 want redeem and query the bid fine (user 2 bid price)
     const nftAuctionData = await pool.getNftAuctionData(bayc.address, "101");
     const redeemAmount = nftAuctionData.bidBorrowAmount.div(2);
 
-    const badBidFine = new BigNumber(nftAuctionData.bidFine.toString()).multipliedBy(1.1).toFixed(0);
+    const badBidFine = new BigNumber(nftAuctionData.bidFine.toString()).multipliedBy(2).toFixed(0);
 
-    await expect(pool.connect(user1.signer).redeem(bayc.address, "101", redeemAmount, badBidFine)).to.be.revertedWith(
-      ProtocolErrors.LP_AMOUNT_LESS_THAN_REDEEM_THRESHOLD
-    );
+    await expect(
+      pool.connect(user1.signer).redeem(bayc.address, "101", BN.from("1"), BN.from("1000000000000000000"))
+    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_LESS_THAN_REDEEM_THRESHOLD);
   });
 
   it("User 1 redeem but amount is not fullfil to maximum repay amount", async () => {
@@ -284,9 +287,9 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
 
     const badBidFine = new BigNumber(nftAuctionData.bidFine.toString()).multipliedBy(1.1).toFixed(0);
 
-    await expect(pool.connect(user1.signer).redeem(bayc.address, "101", redeemAmount, badBidFine)).to.be.revertedWith(
-      ProtocolErrors.LP_AMOUNT_GREATER_THAN_MAX_REPAY
-    );
+    await expect(
+      pool.connect(user1.signer).redeem(bayc.address, "101", BN.from("10000000000000000000"), badBidFine)
+    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_GREATER_THAN_MAX_REPAY);
   });
 
   it("Ends redeem duration", async () => {

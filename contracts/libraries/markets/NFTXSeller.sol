@@ -31,7 +31,8 @@ library NFTXSeller {
     ILendPoolAddressesProvider addressesProvider,
     address nftAsset,
     uint256 nftTokenId,
-    address reserveAsset
+    address reserveAsset,
+    uint256 amountOutMin
   ) internal returns (uint256) {
     address vaultFactoryAddress = addressesProvider.getNFTXVaultFactory();
     address sushiSwapRouterAddress = addressesProvider.getSushiSwapRouter();
@@ -71,12 +72,14 @@ library NFTXSeller {
 
       uint256[] memory amounts = IUniswapV2Router02(sushiSwapRouterAddress).swapExactTokensForTokens(
         depositAmount,
-        0,
+        amountOutMin,
         swapPath,
         lendPoolAddress,
         block.timestamp
       );
-
+      if (swapPath.length == 3) {
+        return amounts[2];
+      }
       return amounts[1];
     }
 

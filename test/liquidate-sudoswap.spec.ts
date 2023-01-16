@@ -5,6 +5,7 @@ import { FORK } from "../hardhat.config";
 import {
   ConfigNames,
   getLSSVMRouter,
+  getSushiswapRouter,
   getTreasuryAddress,
   getWrappedNativeTokenAddress,
   loadPoolConfig,
@@ -19,7 +20,7 @@ import {
   SUDOSWAP_PAIRS_GOERLI,
   SUDOSWAP_PAIRS_MAINNET,
 } from "../helpers/constants";
-import { getLSSVMPair } from "../helpers/contracts-getters";
+import { getLSSVMPair, getSushiSwapRouter } from "../helpers/contracts-getters";
 import {
   convertToCurrencyDecimals,
   convertToCurrencyUnits,
@@ -183,7 +184,12 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
         .setAddress(ADDRESS_ID_WETH, await getWrappedNativeTokenAddress(poolConfig))
     );
 
-    await pool.connect(liquidator.signer).liquidateSudoSwap(bayc.address, "101", topPair.address);
+    // Fetch sudoswap sellnft quote, 0% slippage
+    const sellQuote = await (await getLSSVMPair(topPair.address)).getSellNFTQuote(1);
+
+    await pool
+      .connect(liquidator.signer)
+      .liquidateSudoSwap(bayc.address, "101", 0, topPair.address, sellQuote.outputAmount);
 
     const loanDataAfter = await dataProvider.getLoanDataByLoanId(loanDataBefore.loanId);
 
@@ -302,8 +308,20 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
   });
 
   it("DAI - Liquidates the borrow on SudoSwap", async () => {
-    const { dai, bayc, users, pool, dataProvider, deployer, LSSVMPairs, configurator, addressesProvider, uWETH } =
-      testEnv;
+    const {
+      dai,
+      weth,
+      bayc,
+      users,
+      pool,
+      dataProvider,
+      deployer,
+      LSSVMPairs,
+      configurator,
+      addressesProvider,
+      uWETH,
+      sushiSwapRouter,
+    } = testEnv;
     const liquidator = users[3];
     const borrower = users[1];
 
@@ -350,7 +368,16 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
     // Allow pool to transfer treasury tokens in case SudoSwap sold price is less than borrowed amount
     const tx = await dai.connect(treasurySigner).approve(pool.address, MAX_UINT_AMOUNT);
     await fundWithERC20("DAI", treasuryAddress, "10");
-    await pool.connect(liquidator.signer).liquidateSudoSwap(bayc.address, "101", topPair.address);
+
+    // Fetch sudoswap sellnft quote, 0% slippage
+    const sellQuote = await (await getLSSVMPair(topPair.address)).getSellNFTQuote(1);
+
+    const sushiswapRouter = await getSushiSwapRouter(await getSushiswapRouter(poolConfig));
+    const minOutputAmount = await sushiswapRouter.getAmountsOut(sellQuote.outputAmount, [weth.address, dai.address]);
+
+    await pool
+      .connect(liquidator.signer)
+      .liquidateSudoSwap(bayc.address, "101", minOutputAmount[1], topPair.address, sellQuote.outputAmount);
 
     const loanDataAfter = await dataProvider.getLoanDataByLoanId(loanDataBefore.loanId);
 
