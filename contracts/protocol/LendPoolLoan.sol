@@ -317,7 +317,8 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     uint256 loanId,
     address uNftAddress,
     uint256 borrowAmount,
-    uint256 borrowIndex
+    uint256 borrowIndex,
+    uint256 amountOutMin
   ) external override onlyLendPool returns (uint256 sellPrice) {
     // Must use storage to change state
     DataTypes.LoanData storage loan = _loans[loanId];
@@ -343,7 +344,13 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     require(IERC721Upgradeable(loan.nftAsset).ownerOf(loan.nftTokenId) == address(this), "Invalid Call");
 
     // Sell NFT on NFTX
-    sellPrice = NFTXSeller.sellNFTX(_addressesProvider, loan.nftAsset, loan.nftTokenId, loan.reserveAsset);
+    sellPrice = NFTXSeller.sellNFTX(
+      _addressesProvider,
+      loan.nftAsset,
+      loan.nftTokenId,
+      loan.reserveAsset,
+      amountOutMin
+    );
 
     emit LoanLiquidatedNFTX(
       loanId,
@@ -364,7 +371,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     address uNftAddress,
     uint256 borrowAmount,
     uint256 borrowIndex,
-    address LSSVMPair
+    DataTypes.SudoSwapParams memory sudoswapParams
   ) external override onlyLendPool returns (uint256 sellPrice) {
     // Must use storage to change state
     DataTypes.LoanData storage loan = _loans[loanId];
@@ -390,7 +397,13 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     require(IERC721Upgradeable(loan.nftAsset).ownerOf(loan.nftTokenId) == address(this), "Invalid Call");
 
     // Sell NFT on SudoSwap
-    sellPrice = SudoSwapSeller.sellSudoSwap(_addressesProvider, loan.nftAsset, loan.nftTokenId, LSSVMPair);
+    sellPrice = SudoSwapSeller.sellSudoSwap(
+      _addressesProvider,
+      loan.nftAsset,
+      loan.nftTokenId,
+      sudoswapParams.LSSVMPair,
+      sudoswapParams.amountOutMinSudoswap
+    );
 
     emit LoanLiquidatedSudoSwap(
       loanId,
@@ -400,16 +413,11 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
       borrowAmount,
       borrowIndex,
       sellPrice,
-      LSSVMPair
+      sudoswapParams.LSSVMPair
     );
   }
 
-  function onERC721Received(
-    address,
-    address,
-    uint256,
-    bytes memory
-  ) external pure override returns (bytes4) {
+  function onERC721Received(address, address, uint256, bytes memory) external pure override returns (bytes4) {
     return IERC721ReceiverUpgradeable.onERC721Received.selector;
   }
 
@@ -437,17 +445,9 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   /**
    * @inheritdoc ILendPoolLoan
    */
-  function getLoanCollateralAndReserve(uint256 loanId)
-    external
-    view
-    override
-    returns (
-      address nftAsset,
-      uint256 nftTokenId,
-      address reserveAsset,
-      uint256 scaledAmount
-    )
-  {
+  function getLoanCollateralAndReserve(
+    uint256 loanId
+  ) external view override returns (address nftAsset, uint256 nftTokenId, address reserveAsset, uint256 scaledAmount) {
     return (
       _loans[loanId].nftAsset,
       _loans[loanId].nftTokenId,

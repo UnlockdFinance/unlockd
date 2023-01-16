@@ -8,14 +8,17 @@ interface ILSSVMPair {
     SPOT_PRICE_OVERFLOW // The updated spot price doesn't fit into 128 bits
   }
 
-  function getBuyNFTQuote(uint256 numNFTs)
+  function getBuyNFTQuote(
+    uint256 numNFTs
+  )
     external
     view
-    returns (
-      CurveErrorCodes error,
-      uint256 newSpotPrice,
-      uint256 newDelta,
-      uint256 inputAmount,
-      uint256 protocolFee
-    );
+    returns (CurveErrorCodes error, uint256 newSpotPrice, uint256 newDelta, uint256 inputAmount, uint256 protocolFee);
+
+  function getSellNFTQuote(
+    uint256 numNFTs
+  )
+    external
+    view
+    returns (CurveErrorCodes error, uint256 newSpotPrice, uint256 newDelta, uint256 outputAmount, uint256 protocolFee);
 }

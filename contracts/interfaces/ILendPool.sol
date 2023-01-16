@@ -317,7 +317,7 @@ interface ILendPool {
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
-  function liquidateNFTX(address nftAsset, uint256 nftTokenId) external returns (uint256);
+  function liquidateNFTX(address nftAsset, uint256 nftTokenId, uint256 amountOutMin) external returns (uint256);
 
   /**
    * @dev Function to liquidate a non-healthy position collateral-wise
@@ -325,7 +325,13 @@ interface ILendPool {
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
-  function liquidateSudoSwap(address nftAsset, uint256 nftTokenId, address LSSVMPair) external returns (uint256);
+  function liquidateSudoSwap(
+    address nftAsset,
+    uint256 nftTokenId,
+    uint256 amountOutMin,
+    address LSSVMPair,
+    uint256 amountOutMinSudoswap
+  ) external returns (uint256);
 
   /**
    * @dev Approves valuation of an NFT for a user

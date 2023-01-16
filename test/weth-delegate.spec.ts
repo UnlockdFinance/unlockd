@@ -64,7 +64,6 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
     const borrowSize2 = parseEther("2");
     const borrowSizeAll = borrowSize1.add(borrowSize2);
 
-    console.log("depositETH");
     await expect(
       wethGateway.connect(hacker.signer).depositETH(depositor.address, "0", { value: depositSize })
     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
@@ -92,7 +91,6 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     await configurator.connect(deployer.signer).setTimeframe(720000);
 
-    console.log("borrowETH");
     await expect(
       wethGateway.connect(hacker.signer).borrowETH(borrowSize2, bayc.address, tokenId, borrower.address, "0")
     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
@@ -159,7 +157,6 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     await configurator.connect(deployer.signer).setTimeframe(720000);
 
-    console.log("Borrow first ETH with NFT");
     await waitForTx(
       await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, bayc.address, tokenId, borrower.address, "0")
     );
@@ -189,7 +186,6 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     await configurator.connect(deployer.signer).setTimeframe(720000);
 
-    console.log("Borrower try Borrow more ETH with NFT on different onBehalfOf");
     await expect(
       wethGateway.connect(borrower.signer).borrowETH(borrowSize2, bayc.address, tokenId, hacker.address, "0")
     ).to.be.revertedWith(ProtocolErrors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST);
@@ -255,7 +251,6 @@ makeSuite("WETHGateway - Delegate", (testEnv: TestEnv) => {
 
     await configurator.connect(deployer.signer).setTimeframe(720000);
 
-    console.log("Borrow first ETH with NFT");
     await waitForTx(
       await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, bayc.address, tokenId, borrower.address, "0")
     );

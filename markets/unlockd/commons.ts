@@ -85,7 +85,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.main]: "0x868964fa49a6fd6e116FE82c8f4165904406f479",
   },
   LendPoolLiquidatorIndex: 0,
-  LtvManager: {
+  LtvManager: { 
     // The wallet address that will be set as loan to value Manager
     [eEthereumNetwork.hardhat]: "0x392b30d9c3ac1ef8dac7dfc394311fb9e5554c53",
     [eEthereumNetwork.localhost]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",

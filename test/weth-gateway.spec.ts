@@ -275,14 +275,12 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
 
     const ethBalanceBefore = await borrower.signer.getBalance();
 
-    console.log("Borrow first ETH with NFT");
     await waitForTx(
       await wethGateway.connect(borrower.signer).borrowETH(borrowSize1, bayc.address, tokenId, borrower.address, "0")
     );
 
     await advanceTimeAndBlock(100);
 
-    console.log("Borrow more ETH with NFT");
     await waitForTx(
       await wethGateway.connect(borrower.signer).borrowETH(borrowSize2, bayc.address, tokenId, borrower.address, "0")
     );

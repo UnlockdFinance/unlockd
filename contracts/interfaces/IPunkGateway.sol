@@ -38,11 +38,7 @@ interface IPunkGateway {
    * @param punkIndex The index of the CryptoPunk used as collteral
    * @param bidPrice The bid price
    **/
-  function auction(
-    uint256 punkIndex,
-    uint256 bidPrice,
-    address onBehalfOf
-  ) external;
+  function auction(uint256 punkIndex, uint256 bidPrice, address onBehalfOf) external;
 
   /**
    * @notice redeem a unhealth punk loan with ERC20 reserve
@@ -50,11 +46,7 @@ interface IPunkGateway {
    * @param amount The amount to repay the debt
    * @param bidFine The amount of bid fine
    **/
-  function redeem(
-    uint256 punkIndex,
-    uint256 amount,
-    uint256 bidFine
-  ) external returns (uint256);
+  function redeem(uint256 punkIndex, uint256 amount, uint256 bidFine) external returns (uint256);
 
   /**
    * @notice liquidate a unhealth punk loan with ERC20 reserve
@@ -66,7 +58,7 @@ interface IPunkGateway {
    * @notice liquidate a unhealth punk loan on NFTX
    * @param punkIndex The index of the CryptoPunk used as collateral
    **/
-  function liquidateNFTX(uint256 punkIndex) external returns (uint256);
+  function liquidateNFTX(uint256 punkIndex, uint256 amountOutMin) external returns (uint256);
 
   /**
    * @dev Allows users to borrow a specific `amount` of the reserve underlying asset, provided that the borrower
@@ -81,12 +73,7 @@ interface IPunkGateway {
    * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
    *   0 if the action is executed directly by the user, without any middle-man
    **/
-  function borrowETH(
-    uint256 amount,
-    uint256 punkIndex,
-    address onBehalfOf,
-    uint16 referralCode
-  ) external;
+  function borrowETH(uint256 amount, uint256 punkIndex, address onBehalfOf, uint16 referralCode) external;
 
   /**
    * @notice Repays a borrowed `amount` on a specific punk with native ETH
@@ -111,11 +98,7 @@ interface IPunkGateway {
    * @param amount The amount to repay the debt
    * @param bidFine The amount of bid fine
    **/
-  function redeemETH(
-    uint256 punkIndex,
-    uint256 amount,
-    uint256 bidFine
-  ) external payable returns (uint256);
+  function redeemETH(uint256 punkIndex, uint256 amount, uint256 bidFine) external payable returns (uint256);
 
   /**
    * @notice liquidate a unhealth punk loan with native ETH

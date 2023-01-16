@@ -156,7 +156,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     // end auction duration
     await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
 
-    await expect(pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "101")).to.be.revertedWith(
+    await expect(pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "101", 0)).to.be.revertedWith(
       ProtocolErrors.LPL_INVALID_LOAN_STATE
     );
   });
@@ -350,7 +350,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
 
     const extraAmount = await convertToCurrencyDecimals(deployer, usdc, "10");
-    await expect(pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "102")).to.be.revertedWith(
+    await expect(pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "102", 0)).to.be.revertedWith(
       ProtocolErrors.LPL_INVALID_LOAN_STATE
     );
   });

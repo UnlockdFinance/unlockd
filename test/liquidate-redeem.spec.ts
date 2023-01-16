@@ -316,13 +316,13 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     await approveERC20(testEnv, liquidator, "USDC");
 
     const lendPoolBalanceBefore = await usdc.balanceOf(pool.address);
-    console.log("lendPoolBalanceBefore: ", lendPoolBalanceBefore.toString());
+
     // accurate borrow index, increment interest to loanDataBefore.scaledAmount
     await increaseTime(100);
 
     const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "102");
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.1).toFixed(0);
-    console.log("auction price: ", auctionPrice.toString());
+
     await pool.connect(liquidator.signer).auction(bayc.address, "102", auctionPrice, liquidator.address);
 
     // check result

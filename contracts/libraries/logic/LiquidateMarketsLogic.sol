@@ -5,6 +5,7 @@ import {IUToken} from "../../interfaces/IUToken.sol";
 import {IDebtToken} from "../../interfaces/IDebtToken.sol";
 import {IInterestRate} from "../../interfaces/IInterestRate.sol";
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
+import {ILendPool} from "../../interfaces/ILendPool.sol";
 import {IReserveOracleGetter} from "../../interfaces/IReserveOracleGetter.sol";
 import {INFTOracleGetter} from "../../interfaces/INFTOracleGetter.sol";
 import {IWETH} from "../../interfaces/IWETH.sol";
@@ -100,7 +101,6 @@ library LiquidateMarketsLogic {
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    mapping(address => mapping(uint8 => bool)) storage isMarketSupported,
     DataTypes.ExecuteLiquidateMarketsParams memory params
   ) external returns (uint256) {
     LiquidateMarketsLocalVars memory vars;
@@ -121,7 +121,10 @@ library LiquidateMarketsLogic {
 
     // Check NFT is allowed to be sold on NFTX market
     ValidationLogic.validateLiquidateMarkets(reserveData, nftData, nftConfig, loanData);
-    require(isMarketSupported[loanData.nftAsset][0], Errors.LP_NFT_NOT_ALLOWED_TO_SELL);
+    require(
+      ILendPool(addressesProvider.getLendPool()).getIsMarketSupported(loanData.nftAsset, 0),
+      Errors.LP_NFT_NOT_ALLOWED_TO_SELL
+    );
 
     // Check for health factor
     (, , uint256 healthFactor) = GenericLogic.calculateLoanData(
@@ -161,7 +164,8 @@ library LiquidateMarketsLogic {
       vars.loanId,
       nftData.uNftAddress,
       vars.borrowAmount,
-      reserveData.variableBorrowIndex
+      reserveData.variableBorrowIndex,
+      params.amountOutMin
     );
 
     // Liquidation Fee
@@ -233,9 +237,8 @@ library LiquidateMarketsLogic {
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    mapping(address => mapping(uint8 => bool)) storage isMarketSupported,
-    DataTypes.ExecuteLendPoolStates memory poolStates,
-    DataTypes.ExecuteLiquidateMarketsParams memory params
+    DataTypes.ExecuteLiquidateMarketsParams memory params,
+    DataTypes.SudoSwapParams memory sudoswapParams
   ) external returns (uint256) {
     LiquidateMarketsLocalVars memory vars;
 
@@ -258,9 +261,6 @@ library LiquidateMarketsLogic {
 
     ValidationLogic.validateLiquidateMarkets(reserveData, nftData, nftConfig, loanData);
 
-    if ((poolStates.pauseDurationTime > 0) && (loanData.bidStartTimestamp <= poolStates.pauseStartTime)) {
-      vars.extraAuctionDuration = poolStates.pauseDurationTime;
-    }
     vars.auctionEndTimestamp =
       loanData.bidStartTimestamp +
       vars.extraAuctionDuration +
@@ -268,7 +268,10 @@ library LiquidateMarketsLogic {
     require(block.timestamp > vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_NOT_END);
 
     // Check NFT is allowed to be sold on SudoSwap market
-    require(isMarketSupported[loanData.nftAsset][1], Errors.LP_NFT_NOT_ALLOWED_TO_SELL);
+    require(
+      ILendPool(addressesProvider.getLendPool()).getIsMarketSupported(loanData.nftAsset, 1),
+      Errors.LP_NFT_NOT_ALLOWED_TO_SELL
+    );
 
     // Check for health factor
     (, , uint256 healthFactor) = GenericLogic.calculateLoanData(
@@ -309,7 +312,7 @@ library LiquidateMarketsLogic {
       nftData.uNftAddress,
       vars.borrowAmount,
       reserveData.variableBorrowIndex,
-      params.LSSVMPair
+      sudoswapParams
     );
 
     if (loanData.reserveAsset == vars.WETH) {
@@ -320,7 +323,7 @@ library LiquidateMarketsLogic {
       swapPath[1] = loanData.reserveAsset;
 
       uint256[] memory amounts = IUniswapV2Router02(sushiSwapRouterAddress).swapExactETHForTokens{value: priceSudoSwap}(
-        0,
+        params.amountOutMin,
         swapPath,
         address(this),
         block.timestamp

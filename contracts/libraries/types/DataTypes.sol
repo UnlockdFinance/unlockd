@@ -171,9 +171,13 @@ library DataTypes {
     address nftAsset;
     uint256 nftTokenId;
     uint256 liquidateFeePercentage;
-    address LSSVMPair;
+    uint256 amountOutMin;
   }
 
+  struct SudoSwapParams {
+    address LSSVMPair;
+    uint256 amountOutMinSudoswap;
+  }
   struct ExecuteLendPoolStates {
     uint256 pauseStartTime;
     uint256 pauseDurationTime;

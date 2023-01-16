@@ -67,15 +67,7 @@ library GenericLogic {
     uint256 loanId,
     address reserveOracle,
     address nftOracle
-  )
-    internal
-    view
-    returns (
-      uint256,
-      uint256,
-      uint256
-    )
-  {
+  ) internal view returns (uint256, uint256, uint256) {
     CalculateLoanDataVars memory vars;
     (vars.nftLtv, vars.nftLiquidationThreshold, ) = nftConfig.getCollateralParams();
 
@@ -132,7 +124,7 @@ library GenericLogic {
     // all asset price has converted to ETH based, unit is in WEI (18 decimals)
 
     vars.reserveDecimals = reserveData.configuration.getDecimals();
-    vars.reserveUnit = 10**vars.reserveDecimals;
+    vars.reserveUnit = 10 ** vars.reserveDecimals;
 
     vars.reserveUnitPrice = IReserveOracleGetter(reserveOracle).getAssetPrice(reserveAddress);
 
@@ -173,7 +165,7 @@ library GenericLogic {
 
     if (reserveAddress != address(0)) {
       vars.reserveDecimals = reserveData.configuration.getDecimals();
-      vars.reserveUnit = 10**vars.reserveDecimals;
+      vars.reserveUnit = 10 ** vars.reserveDecimals;
 
       vars.reserveUnitPrice = IReserveOracleGetter(reserveOracle).getAssetPrice(reserveAddress);
       vars.totalCollateralInReserve = (vars.totalCollateralInETH * vars.reserveUnit) / vars.reserveUnitPrice;
@@ -259,15 +251,7 @@ library GenericLogic {
     address poolLoan,
     address reserveOracle,
     address nftOracle
-  )
-    internal
-    view
-    returns (
-      uint256,
-      uint256,
-      uint256
-    )
-  {
+  ) internal view returns (uint256, uint256, uint256) {
     CalcLiquidatePriceLocalVars memory vars;
 
     /*
@@ -289,7 +273,7 @@ library GenericLogic {
     vars.nftPriceInETH = INFTOracleGetter(nftOracle).getNFTPrice(nftAsset, nftTokenId);
     vars.reservePriceInETH = IReserveOracleGetter(reserveOracle).getAssetPrice(reserveAsset);
 
-    vars.nftPriceInReserve = ((10**vars.reserveDecimals) * vars.nftPriceInETH) / vars.reservePriceInETH;
+    vars.nftPriceInReserve = ((10 ** vars.reserveDecimals) * vars.nftPriceInETH) / vars.reservePriceInETH;
 
     vars.thresholdPrice = vars.nftPriceInReserve.percentMul(vars.liquidationThreshold);
 
@@ -327,7 +311,7 @@ library GenericLogic {
 
     vars.reserveDecimals = reserveData.configuration.getDecimals();
     vars.reservePriceInETH = IReserveOracleGetter(reserveOracle).getAssetPrice(reserveAsset);
-    vars.baseBidFineInReserve = (1 ether * 10**vars.reserveDecimals) / vars.reservePriceInETH;
+    vars.baseBidFineInReserve = (1 ether * 10 ** vars.reserveDecimals) / vars.reservePriceInETH;
 
     vars.minBidFinePct = nftConfig.getMinBidFine();
     vars.minBidFineInReserve = vars.baseBidFineInReserve.percentMul(vars.minBidFinePct);

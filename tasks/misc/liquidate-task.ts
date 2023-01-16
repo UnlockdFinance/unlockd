@@ -116,7 +116,7 @@ task("dev:pool-liquidate-nftx", "Doing WETH liquidate NFTX task")
 
     const lendPool = await getLendPool(await addressesProvider.getLendPool());
 
-    await waitForTx(await lendPool.liquidateNFTX(token, id));
+    await waitForTx(await lendPool.liquidateNFTX(token, id, 0));
 
     console.log("OK");
   });
@@ -212,25 +212,6 @@ task("dev:weth-liquidate", "Doing WETH liquidate task")
     console.log("OK");
   });
 
-task("dev:weth-liquidate-nftx", "Doing WETH liquidate NFTX task")
-  .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
-  .addParam("token", "Address of ERC721")
-  .addParam("id", "Token ID of ERC721")
-  .setAction(async ({ pool, token, id }, DRE) => {
-    await DRE.run("set-DRE");
-
-    const addressesProvider = await getLendPoolAddressesProvider();
-    const dataProvider = await getUnlockdProtocolDataProvider(await addressesProvider.getUnlockdDataProvider());
-    const loanData = await dataProvider.getLoanDataByCollateral(token, id);
-    console.log("currentAmount:", loanData.currentAmount.toString());
-
-    const wethGateway = await getWETHGateway();
-
-    await waitForTx(await wethGateway.liquidateNFTX(token, id));
-
-    console.log("OK");
-  });
-
 // PunkGateway liquidate with ETH tasks
 task("dev:punk-auction-eth", "Doing CryptoPunks auction ETH task")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
@@ -316,7 +297,7 @@ task("dev:punk-liquidate-nftx", "Doing CryptoPunks liquidate NFTX task")
 
     const punkGateway = await getPunkGateway();
 
-    await waitForTx(await punkGateway.liquidateNFTX(id));
+    await waitForTx(await punkGateway.liquidateNFTX(id, 0));
 
     console.log("OK");
   });

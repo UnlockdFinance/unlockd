@@ -373,7 +373,8 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    **/
   function liquidateNFTX(
     address nftAsset,
-    uint256 nftTokenId
+    uint256 nftTokenId,
+    uint256 amountOutMin
   ) external override nonReentrant onlyLendPoolLiquidatorOrGateway whenNotPaused returns (uint256) {
     return
       LiquidateMarketsLogic.executeLiquidateNFTX(
@@ -381,12 +382,11 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
         _reserves,
         _nfts,
         _nftConfig,
-        _isMarketSupported,
         DataTypes.ExecuteLiquidateMarketsParams({
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
           liquidateFeePercentage: _liquidateFeePercentage,
-          LSSVMPair: address(0)
+          amountOutMin: amountOutMin
         })
       );
   }
@@ -400,7 +400,9 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   function liquidateSudoSwap(
     address nftAsset,
     uint256 nftTokenId,
-    address LSSVMPair
+    uint256 amountOutMin,
+    address LSSVMPair,
+    uint256 amountOutMinSudoswap
   ) external override nonReentrant onlyLendPoolLiquidatorOrGateway whenNotPaused returns (uint256) {
     return
       LiquidateMarketsLogic.executeLiquidateSudoSwap(
@@ -408,14 +410,13 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
         _reserves,
         _nfts,
         _nftConfig,
-        _isMarketSupported,
-        _buildLendPoolVars(),
         DataTypes.ExecuteLiquidateMarketsParams({
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
           liquidateFeePercentage: _liquidateFeePercentage,
-          LSSVMPair: LSSVMPair
-        })
+          amountOutMin: amountOutMin
+        }),
+        DataTypes.SudoSwapParams({LSSVMPair: LSSVMPair, amountOutMinSudoswap: amountOutMinSudoswap})
       );
   }
 

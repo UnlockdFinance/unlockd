@@ -1043,7 +1043,7 @@ export const liquidateNFTX = async (
   } = await getContractsDataWithLoan(reserveAsset, borrower, nftAsset, nftTokenId, "0", testEnv, user.address);
 
   if (expectedResult === "success") {
-    const txResult = await waitForTx(await pool.connect(user.signer).liquidateNFTX(nftAsset, nftTokenId));
+    const txResult = await waitForTx(await pool.connect(user.signer).liquidateNFTX(nftAsset, nftTokenId, 0));
 
     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
 
