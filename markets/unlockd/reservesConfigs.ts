@@ -53,7 +53,7 @@ export const strategyUSDT: IReserveParams = {
 
 export const strategyWETH: IReserveParams = {
   strategy: rateStrategyWETH,
-  baseLTVAsCollateral: '8000',
+  baseLTVAsCollateral: '8000', 
   liquidationThreshold: '8250',
   liquidationBonus: '500', 
   borrowingEnabled: true,

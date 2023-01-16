@@ -24,10 +24,10 @@ export const UnlockdConfig: IUnlockdConfiguration = {
   ...CommonsConfig,
   MarketId: "Unlockd genesis market",
   ProviderId: 1,
-  ReservesConfig: {
+  ReservesConfig: { 
     WETH: strategyWETH,
-    DAI: strategyDAI,
-    USDC: strategyUSDC,
+    // DAI: strategyDAI,
+    // USDC: strategyUSDC,
   },
   NftsConfig: {
     WPUNKS: strategyNft_WPUNKS,
@@ -62,8 +62,8 @@ export const UnlockdConfig: IUnlockdConfiguration = {
     },
     [eEthereumNetwork.main]: {
       WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      DAI: '0x6b175474e89094c44da98b954eedeac495271d0f',
-      USDC: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      //DAI: '0x6b175474e89094c44da98b954eedeac495271d0f',
+      //USDC: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
     },
   },
   NftsAssets: {
@@ -99,7 +99,7 @@ export const UnlockdConfig: IUnlockdConfiguration = {
       // LAND: '0x04659598aAf487f139118996f99a186463037209',
     },
     [eEthereumNetwork.main]: {
-      //WPUNKS: "0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6",
+      WPUNKS: "0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6",
       BAYC: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D",
       DOODLE: "0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e",
       AZUKI: "0xED5AF388653567Af2F388E6224dC7C4b3241C544",
