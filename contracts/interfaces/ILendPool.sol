@@ -221,6 +221,11 @@ interface ILendPool {
   event NftConfigurationByIdChanged(address indexed asset, uint256 indexed nftTokenId, uint256 configuration);
 
   /**
+  @dev Emitted after setting the new treasury address on the specified uToken
+  */
+  event TreasuryAddressUpdated(address indexed uToken, address indexed treasury);
+
+  /**
    * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying uTokens.
    * - E.g. User deposits 100 USDC and gets in return 100 uusdc
    * @param reserve The address of the underlying asset to deposit
@@ -622,6 +627,13 @@ interface ILendPool {
    * @param newRescuer New rescuer's address
    */
   function updateRescuer(address newRescuer) external;
+
+  /**
+   * @dev Sets new treasury to the specified UToken
+   * @param uToken the utoken to update the treasury address to
+   * @param treasury the new treasury address
+   **/
+  function setTreasuryAddress(address uToken, address treasury) external;
 
   /**
    * @notice Rescue tokens or ETH locked up in this contract.

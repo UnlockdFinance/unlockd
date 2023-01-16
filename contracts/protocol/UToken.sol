@@ -189,6 +189,12 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     return super.totalSupply();
   }
 
+  function setTreasuryAddress(address treasury) external override onlyLendPool {
+    require(treasury != address(0), Errors.INVALID_ZERO_ADDRESS);
+    _treasury = treasury;
+    emit TreasuryAddressUpdated(_treasury);
+  }
+
   /**
    * @dev Returns the address of the Unlockd treasury, receiving the fees on this uToken
    **/

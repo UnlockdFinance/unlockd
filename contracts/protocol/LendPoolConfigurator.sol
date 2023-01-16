@@ -506,7 +506,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
    * @dev Configures NFTs in batch
    * @param inputs the input array with data to configure each NFT asset
    **/
-  //TODO: solve this to accept multi Ids
+
   function batchConfigNft(ConfigNftInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     uint256 inputsLength = inputs.length;
@@ -667,6 +667,18 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function setPoolRescuer(address rescuer) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     cachedPool.updateRescuer(rescuer);
+  }
+
+  /**
+   * @dev Sets new treasury to the specified UToken
+   * @param uToken the utoken to update the treasury address to
+   * @param treasury the new treasury address
+   **/
+  function setTreasuryAddress(address uToken, address treasury) external onlyPoolAdmin {
+    require(treasury != address(0), Errors.INVALID_ZERO_ADDRESS);
+    ILendPool cachedPool = _getLendPool();
+    cachedPool.setTreasuryAddress(uToken, treasury);
+    emit UTokenTreasuryUpdated(uToken, treasury);
   }
 
   /**

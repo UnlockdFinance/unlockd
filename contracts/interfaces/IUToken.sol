@@ -77,6 +77,12 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   event BalanceTransfer(address indexed from, address indexed to, uint256 value, uint256 index);
 
   /**
+   * @dev Emitted when treasury address is updated in utoken
+   * @param _newTreasuryAddress The new treasury address
+   **/
+  event TreasuryAddressUpdated(address indexed _newTreasuryAddress);
+
+  /**
    * @dev Burns uTokens from `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
    * @param user The owner of the uTokens, getting them burned
    * @param receiverOfUnderlying The address that will receive the underlying
@@ -115,4 +121,9 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
    * @dev Returns the address of the treasury set to this uToken
    **/
   function RESERVE_TREASURY_ADDRESS() external view returns (address);
+
+  /**
+   * @dev Sets the address of the treasury to this uToken
+   **/
+  function setTreasuryAddress(address treasury) external;
 }

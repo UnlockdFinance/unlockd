@@ -1,8 +1,10 @@
 import { parseEther } from "@ethersproject/units";
+import { zeroAddress } from "ethereumjs-util";
 import { BigNumber, BigNumberish } from "ethers";
 import { APPROVAL_AMOUNT_LENDING_POOL, MOCK_NFT_AGGREGATORS_MAXSUPPLY } from "../helpers/constants";
+import { getUToken } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
-import { fundWithERC20, fundWithERC721, timeLatest, waitForTx } from "../helpers/misc-utils";
+import { createRandomAddress, fundWithERC20, fundWithERC721, timeLatest, waitForTx } from "../helpers/misc-utils";
 import { IConfigNftAsCollateralInput, ProtocolErrors } from "../helpers/types";
 import { approveERC20, setApprovalForAll } from "./helpers/actions";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
@@ -46,6 +48,7 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     LPC_NFT_LIQUIDITY_NOT_0,
     CALLER_NOT_LTV_MANAGER,
     LP_INVALID_OVERFLOW_VALUE,
+    INVALID_ZERO_ADDRESS,
   } = ProtocolErrors;
 
   const tokenSupply = MOCK_NFT_AGGREGATORS_MAXSUPPLY.BAYC;
@@ -487,5 +490,31 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
     await expect(configuration.minBidFine).to.be.equal(2000);
     await expect(configuration.isActive).to.be.equal(true);
     await expect(configuration.isFrozen).to.be.equal(false);
+  });
+
+  it("Check the onlyAdmin on set treasury to new utoken", async () => {
+    const { configurator, users, bayc } = testEnv;
+    await expect(
+      configurator.connect(users[2].signer).setTreasuryAddress(bayc.address, users[0].address),
+      CALLER_NOT_POOL_ADMIN
+    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+  });
+
+  it("Check the zero check on set treasury to new utoken", async () => {
+    const { configurator, deployer, bayc } = testEnv;
+    await expect(
+      configurator.connect(deployer.signer).setTreasuryAddress(bayc.address, zeroAddress()),
+      INVALID_ZERO_ADDRESS
+    ).to.be.revertedWith(INVALID_ZERO_ADDRESS);
+  });
+
+  it("Check the address is properly updated in WETH uToken", async () => {
+    const { configurator, deployer, weth, dataProvider } = testEnv;
+    const expectedAddress = await createRandomAddress();
+    const { uTokenAddress } = await dataProvider.getReserveTokenData(weth.address);
+
+    await configurator.connect(deployer.signer).setTreasuryAddress(uTokenAddress, expectedAddress);
+
+    await expect(await (await getUToken(uTokenAddress)).RESERVE_TREASURY_ADDRESS()).to.be.equal(expectedAddress);
   });
 });
