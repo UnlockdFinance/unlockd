@@ -54,13 +54,13 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.goerli]: '0x8CBfc7F0f4Fd5D4221335f471aEC44B822f56660',
-    [eEthereumNetwork.main]: undefined,
+    [eEthereumNetwork.main]: '0xb7493E15Af772c14c7cE3180Ff388925e6593c6b',
   },
   ProxyAdminFund: {
     [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.goerli]: '0xA9d67F1b0f46cc0588ED20AA071aB50b9A2D38f8',
-    [eEthereumNetwork.main]: undefined,
+    [eEthereumNetwork.main]: '0x38a97DE7216b54FCc83A918CF5dB1Bb0447913a4',
   },
 
   // If PoolAdmin/emergencyAdmin is set, will take priority over PoolAdminIndex/emergencyAdminIndex
@@ -99,14 +99,14 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: "0x8b89F971cA1A5dE1B7df7f554a3024eE84FeeB05",
     [eEthereumNetwork.goerli]: "0x66Bd8515F157A203EEFedc4A739E3e0BcE7FA76c",
-    [eEthereumNetwork.main]: undefined,
+    [eEthereumNetwork.main]: "0x255f25335662c88Fcc7deC402cADf2f4f0E08300",
   },
 
   ProviderRegistry: {
     [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: "",
     [eEthereumNetwork.goerli]: "0x7C5AB2070cC4820e50145606d9f24409175959Ad",
-    [eEthereumNetwork.main]: undefined,
+    [eEthereumNetwork.main]: "0xe5BF48BC5Fd3FCD1c7Fc76795C7b08ccc139a949",
   },
   ProviderRegistryOwner: {
     [eEthereumNetwork.hardhat]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",
@@ -197,7 +197,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: "0xaa46E190C34B4f65b1f5d702Fac021b2525C93a5",
     [eEthereumNetwork.localhost]: "0xF9107B537482fE7cE75a6646BEad2A97BFA4eB0E",
     [eEthereumNetwork.goerli]: "0xaa46E190C34B4f65b1f5d702Fac021b2525C93a5",
-    [eEthereumNetwork.main]: "0x26FC1f11E612366d3367fc0cbFfF9e819da91C8d",
+    [eEthereumNetwork.main]: "0xf40a2617170af5d8079D7a476F6475b2106328D4",
   }, 
   // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
   NFTXVaultFactory: {
