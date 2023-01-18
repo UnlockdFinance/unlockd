@@ -202,7 +202,7 @@ library LiquidateLogic {
     }
 
     // first time bid need to burn debt tokens and transfer reserve to uTokens
-    if (loanData.state == DataTypes.LoanState.Active) {
+    if (loanData.state == DataTypes.LoanState.Active && params.bidType == BidTypes.Bid) {
       // loan's accumulated debt must exceed threshold (heath factor below 1.0)
       require(vars.borrowAmount > vars.thresholdPrice, Errors.LP_BORROW_NOT_EXCEED_LIQUIDATION_THRESHOLD);
 
@@ -214,6 +214,18 @@ library LiquidateLogic {
         params.bidPrice >= (maxPrice + params.auctionDurationConfigFee),
         Errors.LPL_BID_PRICE_LESS_THAN_MIN_BID_REQUIRED
       );
+    } else if (params.bidType == BidTypes.Buyout) {
+      // bid price must greater than borrow debt
+      require(params.bidPrice >= vars.borrowAmount, Errors.LPL_BID_PRICE_LESS_THAN_BORROW);
+
+      if ((poolStates.pauseDurationTime > 0) && (loanData.bidStartTimestamp <= poolStates.pauseStartTime)) {
+        vars.extraAuctionDuration = poolStates.pauseDurationTime;
+      }
+      vars.auctionEndTimestamp =
+        loanData.bidStartTimestamp +
+        vars.extraAuctionDuration +
+        (nftConfig.getAuctionDuration() * 1 minutes);
+      require(block.timestamp <= vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_HAS_END);
     } else {
       // bid price must greater than borrow debt
       require(params.bidPrice >= vars.borrowAmount, Errors.LPL_BID_PRICE_LESS_THAN_BORROW);
@@ -232,14 +244,25 @@ library LiquidateLogic {
       require(params.bidPrice >= (loanData.bidPrice + vars.minBidDelta), Errors.LPL_BID_PRICE_LESS_THAN_HIGHEST_PRICE);
     }
 
-    ILendPoolLoan(vars.loanAddress).auctionLoan(
-      vars.initiator,
-      vars.loanId,
-      params.onBehalfOf,
-      params.bidPrice,
-      vars.borrowAmount,
-      reserveData.variableBorrowIndex
-    );
+    if (params.bidType == BidTypes.Bid) {
+      ILendPoolLoan(vars.loanAddress).auctionLoan(
+        vars.initiator,
+        vars.loanId,
+        params.onBehalfOf,
+        params.bidPrice,
+        vars.borrowAmount,
+        reserveData.variableBorrowIndex
+      );
+    } else if (params.bidType == BidTypes.Buyout) {
+      ILendPoolLoan(vars.loanAddress).buyoutLoan(
+        vars.initiator,
+        vars.loanId,
+        params.onBehalfOf,
+        params.bidPrice,
+        vars.borrowAmount,
+        reserveData.variableBorrowIndex
+      );
+    }
 
     // lock highest bidder bid price amount to lend pool
     IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, address(this), params.bidPrice);

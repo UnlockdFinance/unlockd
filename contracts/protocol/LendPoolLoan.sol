@@ -237,6 +237,55 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   /**
    * @inheritdoc ILendPoolLoan
    */
+  function buyoutLoan(
+    address initiator,
+    uint256 loanId,
+    address onBehalfOf,
+    uint256 buyoutPrice,
+    uint256 borrowAmount,
+    uint256 borrowIndex
+  ) external override onlyLendPool {
+    // Must use storage to change state
+    DataTypes.LoanData storage loan = _loans[loanId];
+
+    // Ensure valid loan state
+    require(loan.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
+    //bid has to be the valuation
+    require(buyoutPrice == borrowAmount, Errors.LPL_BID_NOT_BUYOUT_PRICE);
+
+    // state changes and cleanup
+    // NOTE: these must be performed before assets are released to prevent reentrance
+    loan.state = DataTypes.LoanState.Defaulted;
+    loan.bidBorrowAmount = borrowAmount;
+    loan.bidderAddress = onBehalfOf;
+    loan.bidPrice = buyoutPrice;
+
+    _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
+
+    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
+    _userNftCollateral[loan.borrower][loan.nftAsset] -= 1;
+
+    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALID_NFT_AMOUNT);
+    _nftTotalCollateral[loan.nftAsset] -= 1;
+
+    // burn uNFT and sell underlying NFT on SudoSwap
+    IUNFT(uNftAddress).burn(loan.nftTokenId);
+    IERC721Upgradeable(loan.nftAsset).safeTransferFrom(address(this), _msgSender(), loan.nftTokenId);
+
+    emit LoanBoughtOut(
+      loanId,
+      loan.nftAsset,
+      loan.nftTokenId,
+      loan.bidBorrowAmount,
+      borrowIndex,
+      onBehalfOf,
+      buyoutPrice
+    );
+  }
+
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
   function redeemLoan(
     address initiator,
     uint256 loanId,
@@ -417,7 +466,12 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     );
   }
 
-  function onERC721Received(address, address, uint256, bytes memory) external pure override returns (bytes4) {
+  function onERC721Received(
+    address,
+    address,
+    uint256,
+    bytes memory
+  ) external pure override returns (bytes4) {
     return IERC721ReceiverUpgradeable.onERC721Received.selector;
   }
 
@@ -445,9 +499,17 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   /**
    * @inheritdoc ILendPoolLoan
    */
-  function getLoanCollateralAndReserve(
-    uint256 loanId
-  ) external view override returns (address nftAsset, uint256 nftTokenId, address reserveAsset, uint256 scaledAmount) {
+  function getLoanCollateralAndReserve(uint256 loanId)
+    external
+    view
+    override
+    returns (
+      address nftAsset,
+      uint256 nftTokenId,
+      address reserveAsset,
+      uint256 scaledAmount
+    )
+  {
     return (
       _loans[loanId].nftAsset,
       _loans[loanId].nftTokenId,
