@@ -62,7 +62,7 @@ if (!SKIP_LOAD) {
 
 
 const getCommonNetworkConfig = (networkName: eNetwork, networkId: number) => ({
-  url: FORK? FORK_RPC_ENDPOINT : RPC_ENDPOINT,
+  url: RPC_ENDPOINT,
   hardfork: HARDFORK,
   blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,
   gasMultiplier: DEFAULT_GAS_MUL,

@@ -2,14 +2,21 @@ import BigNumber from "bignumber.js";
 import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { getReservesConfigByPool } from "../helpers/configuration";
-import { MAX_UINT_AMOUNT, ONE_YEAR } from "../helpers/constants";
+import { ADDRESS_ID_PUNKS, ADDRESS_ID_WPUNKS, MAX_UINT_AMOUNT, ONE_YEAR } from "../helpers/constants";
 import { getDebtToken } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals, getEthersSignerByAddress } from "../helpers/contracts-helpers";
-import { advanceTimeAndBlock, fundWithERC20, fundWithWrappedPunk, waitForTx } from "../helpers/misc-utils";
+import {
+  advanceTimeAndBlock,
+  createRandomAddress,
+  fundWithERC20,
+  fundWithWrappedPunk,
+  waitForTx,
+} from "../helpers/misc-utils";
 import {
   IConfigNftAsCollateralInput,
   IReserveParams,
   iUnlockdPoolAssets,
+  ProtocolErrors,
   ProtocolLoanState,
   UnlockdPools,
 } from "../helpers/types";
@@ -71,6 +78,45 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
     const tokenOwnerAfterRecovery = await cryptoPunksMarket.punkIndexToAddress(punkIndex);
 
     expect(tokenOwnerAfterRecovery).to.be.eq(user.address, "User should recover the punk due emergency transfer");
+  });
+
+  it.only("Should fail: not supported collection", async () => {
+    const { users, cryptoPunksMarket, punkGateway, deployer, pool, addressesProvider, wrappedPunk } = testEnv;
+    const user = users[0];
+    await cryptoPunksMarket.allInitialOwnersAssigned();
+    const punkIndex = testEnv.punkIndexTracker++;
+    await waitForTx(await cryptoPunksMarket.connect(user.signer).getPunk(punkIndex));
+    await addressesProvider.setAddress(ADDRESS_ID_PUNKS, cryptoPunksMarket.address);
+    await addressesProvider.setAddress(ADDRESS_ID_WPUNKS, await createRandomAddress());
+    await expect(pool.connect(user.signer).approveValuation(cryptoPunksMarket.address, punkIndex)).to.be.revertedWith(
+      ProtocolErrors.LP_COLLECTION_NOT_SUPPORTED
+    );
+  });
+
+  it.only("Should fail: not holder", async () => {
+    const { users, cryptoPunksMarket, punkGateway, deployer, pool, addressesProvider, wrappedPunk } = testEnv;
+    const user = users[0];
+    const user2 = users[1];
+    await cryptoPunksMarket.allInitialOwnersAssigned();
+    const punkIndex = testEnv.punkIndexTracker++;
+    await waitForTx(await cryptoPunksMarket.connect(user.signer).getPunk(punkIndex));
+    await addressesProvider.setAddress(ADDRESS_ID_PUNKS, cryptoPunksMarket.address);
+    await addressesProvider.setAddress(ADDRESS_ID_WPUNKS, await createRandomAddress());
+    await expect(pool.connect(user2.signer).approveValuation(cryptoPunksMarket.address, punkIndex)).to.be.revertedWith(
+      ProtocolErrors.LP_CALLER_NOT_NFT_HOLDER
+    );
+  });
+
+  it.only("Check approve valuation on cryptopunks", async () => {
+    const { users, cryptoPunksMarket, punkGateway, deployer, pool, addressesProvider, wrappedPunk } = testEnv;
+    const user = users[0];
+    await cryptoPunksMarket.allInitialOwnersAssigned();
+    const punkIndex = testEnv.punkIndexTracker++;
+    await waitForTx(await cryptoPunksMarket.connect(user.signer).getPunk(punkIndex));
+    await addressesProvider.setAddress(ADDRESS_ID_PUNKS, cryptoPunksMarket.address);
+    await addressesProvider.setAddress(ADDRESS_ID_WPUNKS, wrappedPunk.address);
+
+    await pool.connect(user.signer).approveValuation(cryptoPunksMarket.address, punkIndex);
   });
 
   it("Borrow some USDC and repay it", async () => {

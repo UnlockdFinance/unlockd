@@ -57,6 +57,8 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
 
   bytes32 public constant ADDRESS_ID_WETH_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000001;
   bytes32 public constant ADDRESS_ID_PUNK_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000002;
+  bytes32 public constant ADDRESS_ID_PUNKS = 0xADDE000000000000000000000000000000000000000000000000000000000005;
+  bytes32 public constant ADDRESS_ID_WPUNKS = 0xADDE000000000000000000000000000000000000000000000000000000000006;
 
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
@@ -108,16 +110,26 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   }
 
   modifier onlyHolder(address nftAsset, uint256 nftTokenId) {
-    require(
-      _msgSender() == IERC721Upgradeable(nftAsset).ownerOf(nftTokenId) ||
-        _msgSender() == IERC721Upgradeable(_nfts[nftAsset].uNftAddress).ownerOf(nftTokenId),
-      Errors.LP_CALLER_NOT_NFT_HOLDER
-    );
+    if (nftAsset == _addressesProvider.getAddress(ADDRESS_ID_PUNKS)) {
+      require(
+        _msgSender() == ICryptoPunksMarket(nftAsset).punkIndexToAddress(nftTokenId),
+        Errors.LP_CALLER_NOT_NFT_HOLDER
+      );
+    } else {
+      require(
+        _msgSender() == IERC721Upgradeable(nftAsset).ownerOf(nftTokenId) ||
+          _msgSender() == IERC721Upgradeable(_nfts[nftAsset].uNftAddress).ownerOf(nftTokenId),
+        Errors.LP_CALLER_NOT_NFT_HOLDER
+      );
+    }
     _;
   }
 
   modifier onlyCollection(address nftAsset) {
     DataTypes.NftData memory data = _nfts[nftAsset];
+    if (nftAsset == _addressesProvider.getAddress(ADDRESS_ID_PUNKS)) {
+      data = _nfts[_addressesProvider.getAddress(ADDRESS_ID_WPUNKS)];
+    }
     require(data.uNftAddress != address(0), Errors.LP_COLLECTION_NOT_SUPPORTED);
     _;
   }
