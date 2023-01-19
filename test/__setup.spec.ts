@@ -154,6 +154,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   } = {
     ...(await deployAllMockNfts(false, false)),
   };
+  console.log("MOCK NFTS::::::", mockNfts);
   const cryptoPunksMarket = await getCryptoPunksMarket();
   await waitForTx(await cryptoPunksMarket.allInitialOwnersAssigned());
   const wrappedPunk = await getWrappedPunk();

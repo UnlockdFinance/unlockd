@@ -222,22 +222,27 @@ export async function initializeMakeSuite() {
   console.log("usdcAdd", usdcAddress);
   console.log("wethAdd", wethAddress);
 
-  if (!uDaiAddress || !uUsdcAddress || !uWEthAddress) {
-    console.error("Invalid UTokens", uDaiAddress, uUsdcAddress, uWEthAddress);
-    process.exit(1);
-  }
-  if (!daiAddress || !usdcAddress || !wethAddress) {
-    console.error("Invalid Reserve Tokens", daiAddress, usdcAddress, wethAddress);
-    process.exit(1);
-  }
+  // if (!uDaiAddress || !uUsdcAddress || !uWEthAddress) {
+  //   console.error("Invalid UTokens", uDaiAddress, uUsdcAddress, uWEthAddress);
+  //   process.exit(1);
+  // }
+  // if (!daiAddress || !usdcAddress || !wethAddress) {
+  //   console.error("Invalid Reserve Tokens", daiAddress, usdcAddress, wethAddress);
+  //   process.exit(1);
+  // }
 
-  testEnv.uDai = await getUToken(uDaiAddress);
-  testEnv.uUsdc = await getUToken(uUsdcAddress);
-  testEnv.uWETH = await getUToken(uWEthAddress);
+  // PREPARE MOCK NFTS
+  if (daiAddress) testEnv.dai = await getMintableERC20(daiAddress);
+  if (usdcAddress) testEnv.usdc = await getMintableERC20(usdcAddress);
+  if (wethAddress) testEnv.weth = await getWETHMocked(wethAddress);
 
-  testEnv.dai = await getMintableERC20(daiAddress);
-  testEnv.usdc = await getMintableERC20(usdcAddress);
-  testEnv.weth = await getWETHMocked(wethAddress);
+  // PREPARE MOCK uNFTS
+  if (uDaiAddress) testEnv.uDai = await getUToken(uDaiAddress);
+
+  if (uUsdcAddress) testEnv.uUsdc = await getUToken(uUsdcAddress);
+
+  if (uWEthAddress) testEnv.uWETH = await getUToken(uWEthAddress);
+
   testEnv.wethGateway = await getWETHGateway();
 
   // NFT Tokens
@@ -248,7 +253,6 @@ export async function initializeMakeSuite() {
 
   const wpunksAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.nftAddress;
   const baycAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "BAYC")?.nftAddress;
-  console.log(baycAddress);
 
   if (!uBaycAddress || !uPunkAddress) {
     console.error("Invalid UNFT Tokens", uBaycAddress, uPunkAddress);

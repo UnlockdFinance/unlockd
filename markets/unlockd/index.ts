@@ -6,7 +6,7 @@ import {
   strategyNft_AZUKI,
   strategyNft_BAYC,
   strategyNft_CLONEX,
-  strategyNft_COOL,
+  strategyNft_COOL, 
   strategyNft_DOODLE,
   strategyNft_KONGZ,
   strategyNft_MAYC,
@@ -26,8 +26,8 @@ export const UnlockdConfig: IUnlockdConfiguration = {
   ProviderId: 1,
   ReservesConfig: {
     WETH: strategyWETH,
-    DAI: strategyDAI,
-    USDC: strategyUSDC,
+    //DAI: strategyDAI,
+    //USDC: strategyUSDC,
   },
   NftsConfig: {
     WPUNKS: strategyNft_WPUNKS,
@@ -47,8 +47,8 @@ export const UnlockdConfig: IUnlockdConfiguration = {
   ReserveAssets: {
     [eEthereumNetwork.hardhat]: {
       WETH: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
-      DAI: '0x9D233A907E065855D2A9c7d4B552ea27fB2E5a36',
-      USDC: '0x2f3A40A3db8a7e3D09B0adfEfbCe4f6F81927557',
+      //DAI: '0x9D233A907E065855D2A9c7d4B552ea27fB2E5a36',
+      //USDC: '0x2f3A40A3db8a7e3D09B0adfEfbCe4f6F81927557',
     },
     [eEthereumNetwork.localhost]: {
       WETH: "0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104",
@@ -62,8 +62,8 @@ export const UnlockdConfig: IUnlockdConfiguration = {
     },
     [eEthereumNetwork.main]: {
       WETH: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      DAI: '0x6b175474e89094c44da98b954eedeac495271d0f',
-      USDC: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      //DAI: '0x6b175474e89094c44da98b954eedeac495271d0f',
+      //USDC: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
     },
   },
   NftsAssets: {
@@ -99,7 +99,7 @@ export const UnlockdConfig: IUnlockdConfiguration = {
       // LAND: '0x04659598aAf487f139118996f99a186463037209',
     },
     [eEthereumNetwork.main]: {
-      //WPUNKS: "0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6",
+      WPUNKS: "0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6",
       BAYC: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D",
       DOODLE: "0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e",
       AZUKI: "0xED5AF388653567Af2F388E6224dC7C4b3241C544",

@@ -7,15 +7,15 @@ import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 makeSuite("Upgradeability", (testEnv: TestEnv) => {
   const { CALLER_NOT_POOL_ADMIN } = ProtocolErrors;
-  let debtDai: DebtToken;
+  let debtWeth: DebtToken;
   let newUTokenInstance: UToken;
   let newDebtTokenInstance: DebtToken;
   let newLoanInstance: LendPoolLoan;
 
   before("deploying instances", async () => {
     const allReserveTokens = await testEnv.dataProvider.getAllReservesTokenDatas();
-    const debtDaiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.debtTokenAddress;
-    debtDai = await getDebtToken(debtDaiAddress);
+    const debtWethAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.debtTokenAddress;
+    debtWeth = await getDebtToken(debtWethAddress);
 
     newUTokenInstance = await new UTokenFactory(await getDeploySigner()).deploy();
     newDebtTokenInstance = await new DebtTokenFactory(await getDeploySigner()).deploy();
@@ -23,8 +23,8 @@ makeSuite("Upgradeability", (testEnv: TestEnv) => {
     newLoanInstance = await new LendPoolLoanFactory(await getDeploySigner()).deploy();
   });
 
-  it("Tries to update the DAI UToken implementation with a different address than the configuator", async () => {
-    const { dai, configurator, users, mockIncentivesController } = testEnv;
+  it("Tries to update the WETH UToken implementation with a different address than the configuator", async () => {
+    const { weth, configurator, users, mockIncentivesController } = testEnv;
 
     const updateUTokenInputParams: {
       asset: string;
@@ -32,7 +32,7 @@ makeSuite("Upgradeability", (testEnv: TestEnv) => {
       encodedCallData: BytesLike;
     }[] = [
       {
-        asset: dai.address,
+        asset: weth.address,
         implementation: newUTokenInstance.address,
         encodedCallData: [],
       },
@@ -42,10 +42,10 @@ makeSuite("Upgradeability", (testEnv: TestEnv) => {
     );
   });
 
-  it("Upgrades the DAI UToken implementation ", async () => {
-    const { dai, configurator, dataProvider } = testEnv;
+  it("Upgrades the WETH UToken implementation ", async () => {
+    const { weth, configurator, dataProvider } = testEnv;
 
-    const { uTokenAddress } = await dataProvider.getReserveTokenData(dai.address);
+    const { uTokenAddress } = await dataProvider.getReserveTokenData(weth.address);
 
     const updateUTokenInputParams: {
       asset: string;
@@ -53,7 +53,7 @@ makeSuite("Upgradeability", (testEnv: TestEnv) => {
       encodedCallData: BytesLike;
     }[] = [
       {
-        asset: dai.address,
+        asset: weth.address,
         implementation: newUTokenInstance.address,
         encodedCallData: [],
       },
@@ -64,8 +64,8 @@ makeSuite("Upgradeability", (testEnv: TestEnv) => {
     expect(checkImpl).to.be.eq(newUTokenInstance.address, "Invalid token implementation");
   });
 
-  it("Tries to update the DAI DebtToken implementation with a different address than the configuator", async () => {
-    const { dai, configurator, users } = testEnv;
+  it("Tries to update the weth DebtToken implementation with a different address than the configuator", async () => {
+    const { weth, configurator, users } = testEnv;
 
     const updateDebtTokenInputParams: {
       asset: string;
@@ -73,7 +73,7 @@ makeSuite("Upgradeability", (testEnv: TestEnv) => {
       encodedCallData: BytesLike;
     }[] = [
       {
-        asset: dai.address,
+        asset: weth.address,
         implementation: newUTokenInstance.address,
         encodedCallData: [],
       },
@@ -83,10 +83,10 @@ makeSuite("Upgradeability", (testEnv: TestEnv) => {
     );
   });
 
-  it("Upgrades the DAI DebtToken implementation ", async () => {
-    const { dai, configurator, dataProvider } = testEnv;
+  it("Upgrades the weth DebtToken implementation ", async () => {
+    const { weth, configurator, dataProvider } = testEnv;
 
-    const { debtTokenAddress } = await dataProvider.getReserveTokenData(dai.address);
+    const { debtTokenAddress } = await dataProvider.getReserveTokenData(weth.address);
 
     const updateDebtTokenInputParams: {
       asset: string;
@@ -94,7 +94,7 @@ makeSuite("Upgradeability", (testEnv: TestEnv) => {
       encodedCallData: BytesLike;
     }[] = [
       {
-        asset: dai.address,
+        asset: weth.address,
         implementation: newDebtTokenInstance.address,
         encodedCallData: [],
       },
