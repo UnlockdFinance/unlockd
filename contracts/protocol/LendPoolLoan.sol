@@ -249,9 +249,10 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     DataTypes.LoanData storage loan = _loans[loanId];
 
     // Ensure valid loan state
-    require(loan.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
-    //bid has to be the valuation
-    require(buyoutPrice == borrowAmount, Errors.LPL_BID_NOT_BUYOUT_PRICE);
+    require(
+      loan.state == DataTypes.LoanState.Active || loan.state == DataTypes.LoanState.Auction,
+      Errors.LPL_INVALID_LOAN_STATE
+    );
 
     // state changes and cleanup
     // NOTE: these must be performed before assets are released to prevent reentrance
@@ -268,7 +269,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALID_NFT_AMOUNT);
     _nftTotalCollateral[loan.nftAsset] -= 1;
 
-    // burn uNFT and sell underlying NFT on SudoSwap
+    // burn uNFT and transfer to liquidator
     IUNFT(uNftAddress).burn(loan.nftTokenId);
     IERC721Upgradeable(loan.nftAsset).safeTransferFrom(address(this), _msgSender(), loan.nftTokenId);
 

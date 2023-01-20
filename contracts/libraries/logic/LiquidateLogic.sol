@@ -216,7 +216,10 @@ library LiquidateLogic {
       );
     } else if (params.bidType == BidTypes.Buyout) {
       // bid price must greater than borrow debt
-      require(params.bidPrice >= vars.borrowAmount, Errors.LPL_BID_PRICE_LESS_THAN_BORROW);
+      require(
+        params.bidPrice >= INFTOracleGetter(nftOracle).getNFTPrice(loanData.nftAsset, loanData.nftTokenId),
+        Errors.LPL_BID_PRICE_LESS_THAN_BORROW
+      );
 
       if ((poolStates.pauseDurationTime > 0) && (loanData.bidStartTimestamp <= poolStates.pauseStartTime)) {
         vars.extraAuctionDuration = poolStates.pauseDurationTime;
