@@ -5,6 +5,7 @@ import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
 import {IUToken} from "../interfaces/IUToken.sol";
+import {ICryptoPunksMarket} from "../interfaces/ICryptoPunksMarket.sol";
 
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
@@ -15,7 +16,6 @@ import {SupplyLogic} from "../libraries/logic/SupplyLogic.sol";
 import {BorrowLogic} from "../libraries/logic/BorrowLogic.sol";
 import {LiquidateLogic} from "../libraries/logic/LiquidateLogic.sol";
 import {LiquidateMarketsLogic} from "../libraries/logic/LiquidateMarketsLogic.sol";
-import {ICryptoPunksMarket} from "../interfaces/ICryptoPunksMarket.sol";
 
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
