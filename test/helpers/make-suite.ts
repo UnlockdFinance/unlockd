@@ -105,6 +105,8 @@ export interface TestEnv {
   uPUNK: UNFT;
   bayc: MintableERC721;
   uBAYC: UNFT;
+  azuki: MintableERC721;
+  uAzuki: UNFT;
   tokenId: number;
   addressesProvider: LendPoolAddressesProvider;
   wethGateway: WETHGateway;
@@ -156,6 +158,8 @@ const testEnv: TestEnv = {
   uPUNK: {} as UNFT,
   bayc: {} as MintableERC721,
   uBAYC: {} as UNFT,
+  azuki: {} as MintableERC721,
+  uAzuki: {} as UNFT,
   tokenId: {} as number,
   addressesProvider: {} as LendPoolAddressesProvider,
   wethGateway: {} as WETHGateway,
@@ -250,23 +254,27 @@ export async function initializeMakeSuite() {
   console.log("allUNftTokens", allUNftTokens);
   const uPunkAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.uNftAddress;
   const uBaycAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "BAYC")?.uNftAddress;
+  const uAzukiAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "AZUKI")?.uNftAddress;
 
   const wpunksAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.nftAddress;
   const baycAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "BAYC")?.nftAddress;
+  const azukiAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "AZUKI")?.nftAddress;
 
-  if (!uBaycAddress || !uPunkAddress) {
-    console.error("Invalid UNFT Tokens", uBaycAddress, uPunkAddress);
+  if (!uBaycAddress || !uPunkAddress || !uAzukiAddress) {
+    console.error("Invalid UNFT Tokens", uBaycAddress, uPunkAddress, uAzukiAddress);
     process.exit(1);
   }
-  if (!baycAddress || !wpunksAddress) {
-    console.error("Invalid NFT Tokens", baycAddress, wpunksAddress);
+  if (!baycAddress || !wpunksAddress || !azukiAddress) {
+    console.error("Invalid NFT Tokens", baycAddress, wpunksAddress, azukiAddress);
     process.exit(1);
   }
 
   testEnv.uBAYC = await getUNFT(uBaycAddress);
   testEnv.uPUNK = await getUNFT(uPunkAddress);
+  testEnv.uAzuki = await getUNFT(uAzukiAddress);
 
   testEnv.bayc = await getMintableERC721(baycAddress!);
+  testEnv.azuki = await getMintableERC721(azukiAddress!);
   testEnv.tokenId = 1;
   testEnv.cryptoPunksMarket = await getCryptoPunksMarket();
 
@@ -278,10 +286,6 @@ export async function initializeMakeSuite() {
 
   testEnv.roundIdTracker = 1;
   testEnv.nowTimeTracker = Number(await getNowTimeInSeconds());
-
-  // NFTXVaultFactory, Sushiswap Router
-  //testEnv.nftxVaultFactory = await getNFTXVaultFactory();
-  //testEnv.sushiSwapRouter = await getSushiSwapRouter();
 
   const sudoSwapPairsForAsset = process.env.FORK == "goerli" ? SUDOSWAP_PAIRS_GOERLI : SUDOSWAP_PAIRS_MAINNET;
 

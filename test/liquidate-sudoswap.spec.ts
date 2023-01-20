@@ -47,7 +47,7 @@ const { expect } = chai;
 
 makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
   it("WETH - Borrows WETH", async () => {
-    const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, deployer } = testEnv;
+    const { users, pool, nftOracle, reserveOracle, weth, azuki, configurator, deployer } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
 
@@ -60,10 +60,10 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
 
     await pool.connect(depositor.signer).deposit(weth.address, amountDeposit, depositor.address, "0");
 
-    //mints BAYC to borrower
-    await fundWithERC721("BAYC", borrower.address, 101);
+    //mints AZUKI to borrower
+    await fundWithERC721("AZUKI", borrower.address, 101);
     //approve protocol to access borrower wallet
-    await setApprovalForAll(testEnv, borrower, "BAYC");
+    await setApprovalForAll(testEnv, borrower, "AZUKI");
 
     const price = await convertToCurrencyDecimals(deployer, weth, "50");
 
@@ -71,7 +71,7 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
     await nftOracle.setPriceManagerStatus(configurator.address, true);
 
     const collData: IConfigNftAsCollateralInput = {
-      asset: bayc.address,
+      asset: azuki.address,
       nftTokenId: "101",
       newPrice: parseEther("100"),
       ltv: 4000,
@@ -85,7 +85,7 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
     };
     await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
     //borrows
-    const nftColDataBefore = await pool.getNftCollateralData(bayc.address, 101, weth.address);
+    const nftColDataBefore = await pool.getNftCollateralData(azuki.address, 101, weth.address);
 
     const wethPrice = await reserveOracle.getAssetPrice(weth.address);
 
@@ -93,9 +93,9 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
 
     await pool
       .connect(borrower.signer)
-      .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", borrower.address, "0");
+      .borrow(weth.address, amountBorrow.toString(), azuki.address, "101", borrower.address, "0");
 
-    const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "101");
+    const nftDebtDataAfter = await pool.getNftDebtData(azuki.address, "101");
 
     expect(nftDebtDataAfter.healthFactor.toString()).to.be.bignumber.gt(
       oneEther.toFixed(0),
@@ -104,17 +104,17 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
   });
 
   it("WETH - Drop the health factor below 1", async () => {
-    const { weth, bayc, users, pool, nftOracle, configurator, deployer } = testEnv;
+    const { weth, azuki, users, pool, nftOracle, configurator, deployer } = testEnv;
     const borrower = users[1];
 
     await nftOracle.setPriceManagerStatus(configurator.address, true);
 
-    const nftDebtDataBefore = await pool.getNftDebtData(bayc.address, "101");
+    const nftDebtDataBefore = await pool.getNftDebtData(azuki.address, "101");
 
     const debAmountUnits = await convertToCurrencyUnits(deployer, weth, nftDebtDataBefore.totalDebt.toString());
-    await setNftAssetPriceForDebt(testEnv, "BAYC", 101, "WETH", debAmountUnits, "80");
+    await setNftAssetPriceForDebt(testEnv, "AZUKI", 101, "WETH", debAmountUnits, "80");
 
-    const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "101");
+    const nftDebtDataAfter = await pool.getNftDebtData(azuki.address, "101");
 
     expect(nftDebtDataAfter.healthFactor.toString()).to.be.bignumber.lt(
       oneEther.toFixed(0),
@@ -123,14 +123,14 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
   });
 
   it("WETH - Liquidates the borrow on SudoSwap", async () => {
-    const { weth, bayc, users, pool, dataProvider, deployer, LSSVMPairs, configurator, addressesProvider, uWETH } =
+    const { weth, azuki, users, pool, dataProvider, deployer, LSSVMPairs, configurator, addressesProvider, uWETH } =
       testEnv;
     const liquidator = users[3];
     const borrower = users[1];
 
-    const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
+    const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(azuki.address, "101");
 
-    const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, "101");
+    const loanDataBefore = await dataProvider.getLoanDataByCollateral(azuki.address, "101");
 
     const ethReserveDataBefore = await dataProvider.getReserveData(weth.address);
 
@@ -140,11 +140,12 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
     await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
 
     const extraAmount = await convertToCurrencyDecimals(deployer, weth, "1");
-
+    console.log("what");
     // Select SudoSwap pair to liquidate loan on
-    const LSSVMPairsWithId: LSSVMPairWithID[] = LSSVMPairs.filter((pair) => pair.collectionName == "BAYC");
+    const LSSVMPairsWithId: LSSVMPairWithID[] = LSSVMPairs.filter((pair) => pair.collectionName == "AZUKI");
     let topPrice = BN.from(0);
     let topPair;
+    console.log("ssssssss");
     for (const pair of LSSVMPairsWithId) {
       const buyNFTQuote = await pair.LSSVMPair.getBuyNFTQuote(1);
       if (buyNFTQuote.newSpotPrice.gt(topPrice)) {
@@ -155,15 +156,15 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
 
     // NFT supporting liquidations on sudoswap
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, true));
-
+    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(azuki.address, 1, true));
+    console.log("weffhat");
     await waitForTx(await addressesProvider.connect(deployer.signer).setLendPoolLiquidator(liquidator.address));
-
+    console.log("dddd");
     // Send ETH to pair to pay protocol fee
     const selfdestructContract = await new SelfdestructTransferFactory(deployer.signer).deploy();
     // Selfdestruct the mock, pointing to token owner address
     await waitForTx(await selfdestructContract.destroyAndTransfer(topPair.address, { value: parseEther("10") }));
-    const owner = await bayc.ownerOf(101);
+    const owner = await azuki.ownerOf(101);
     const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
     const treasuryAddress = await getTreasuryAddress(poolConfig);
     const treasurySigner = await getEthersSignerByAddress(treasuryAddress);
@@ -189,7 +190,7 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
 
     await pool
       .connect(liquidator.signer)
-      .liquidateSudoSwap(bayc.address, "101", 0, topPair.address, sellQuote.outputAmount);
+      .liquidateSudoSwap(azuki.address, "101", 0, topPair.address, sellQuote.outputAmount);
 
     const loanDataAfter = await dataProvider.getLoanDataByLoanId(loanDataBefore.loanId);
 
@@ -232,7 +233,7 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
   });
 
   it("DAI - Borrows DAI", async () => {
-    const { users, pool, nftOracle, reserveOracle, dai, bayc, configurator, deployer } = testEnv;
+    const { users, pool, nftOracle, reserveOracle, dai, azuki, configurator, deployer } = testEnv;
     if (JSON.stringify(dai) !== "{}") {
       const depositor = users[0];
       const borrower = users[1];
@@ -246,10 +247,10 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
 
       await pool.connect(depositor.signer).deposit(dai.address, amountDeposit, depositor.address, "0");
 
-      //mints BAYC to borrower
-      await fundWithERC721("BAYC", borrower.address, 101);
+      //mints AZUKI to borrower
+      await fundWithERC721("AZUKI", borrower.address, 101);
       //approve protocol to access borrower wallet
-      await setApprovalForAll(testEnv, borrower, "BAYC");
+      await setApprovalForAll(testEnv, borrower, "AZUKI");
 
       const price = await convertToCurrencyDecimals(deployer, dai, "50");
 
@@ -257,7 +258,7 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
       await nftOracle.setPriceManagerStatus(configurator.address, true);
 
       const collData: IConfigNftAsCollateralInput = {
-        asset: bayc.address,
+        asset: azuki.address,
         nftTokenId: "101",
         newPrice: parseEther("100"),
         ltv: 4000,
@@ -271,7 +272,7 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
       };
       await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
       //borrows
-      const nftColDataBefore = await pool.getNftCollateralData(bayc.address, 101, dai.address);
+      const nftColDataBefore = await pool.getNftCollateralData(azuki.address, 101, dai.address);
 
       const wethPrice = await reserveOracle.getAssetPrice(dai.address);
 
@@ -279,9 +280,9 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
 
       await pool
         .connect(borrower.signer)
-        .borrow(dai.address, amountBorrow.toString(), bayc.address, "101", borrower.address, "0");
+        .borrow(dai.address, amountBorrow.toString(), azuki.address, "101", borrower.address, "0");
 
-      const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "101");
+      const nftDebtDataAfter = await pool.getNftDebtData(azuki.address, "101");
 
       expect(nftDebtDataAfter.healthFactor.toString()).to.be.bignumber.gt(
         oneEther.toFixed(0),
@@ -291,18 +292,18 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
   });
 
   it("DAI - Drop the health factor below 1", async () => {
-    const { dai, bayc, users, pool, nftOracle, configurator, deployer } = testEnv;
+    const { dai, azuki, users, pool, nftOracle, configurator, deployer } = testEnv;
     if (JSON.stringify(dai) !== "{}") {
       const borrower = users[1];
 
       await nftOracle.setPriceManagerStatus(configurator.address, true);
 
-      const nftDebtDataBefore = await pool.getNftDebtData(bayc.address, "101");
+      const nftDebtDataBefore = await pool.getNftDebtData(azuki.address, "101");
 
       const debAmountUnits = await convertToCurrencyUnits(deployer, dai, nftDebtDataBefore.totalDebt.toString());
-      await setNftAssetPriceForDebt(testEnv, "BAYC", 101, "DAI", debAmountUnits, "80");
+      await setNftAssetPriceForDebt(testEnv, "AZUKI", 101, "DAI", debAmountUnits, "80");
 
-      const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "101");
+      const nftDebtDataAfter = await pool.getNftDebtData(azuki.address, "101");
 
       expect(nftDebtDataAfter.healthFactor.toString()).to.be.bignumber.lt(
         oneEther.toFixed(0),
@@ -315,7 +316,7 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
     const {
       dai,
       weth,
-      bayc,
+      azuki,
       users,
       pool,
       dataProvider,
@@ -330,9 +331,9 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
       const liquidator = users[3];
       const borrower = users[1];
 
-      const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "101");
+      const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(azuki.address, "101");
 
-      const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, "101");
+      const loanDataBefore = await dataProvider.getLoanDataByCollateral(azuki.address, "101");
 
       const ethReserveDataBefore = await dataProvider.getReserveData(dai.address);
 
@@ -344,7 +345,7 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
       const extraAmount = await convertToCurrencyDecimals(deployer, dai, "1");
 
       // Select SudoSwap pair to liquidate loan on
-      const LSSVMPairsWithId: LSSVMPairWithID[] = LSSVMPairs.filter((pair) => pair.collectionName == "BAYC");
+      const LSSVMPairsWithId: LSSVMPairWithID[] = LSSVMPairs.filter((pair) => pair.collectionName == "AZUKI");
       let topPrice = BN.from(0);
       let topPair;
       for (const pair of LSSVMPairsWithId) {
@@ -357,7 +358,7 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
 
       // NFT supporting liquidations on sudoswap
       await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
-      await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, true));
+      await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(azuki.address, 1, true));
 
       await waitForTx(await addressesProvider.connect(deployer.signer).setLendPoolLiquidator(liquidator.address));
 
@@ -365,7 +366,7 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
       const selfdestructContract = await new SelfdestructTransferFactory(deployer.signer).deploy();
       // Selfdestruct the mock, pointing to token owner address
       await waitForTx(await selfdestructContract.destroyAndTransfer(topPair.address, { value: parseEther("10") }));
-      const owner = await bayc.ownerOf(101);
+      const owner = await azuki.ownerOf(101);
       const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
       const treasuryAddress = await getTreasuryAddress(poolConfig);
       const treasurySigner = await getEthersSignerByAddress(treasuryAddress);
@@ -382,7 +383,7 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
 
       await pool
         .connect(liquidator.signer)
-        .liquidateSudoSwap(bayc.address, "101", minOutputAmount[1], topPair.address, sellQuote.outputAmount);
+        .liquidateSudoSwap(azuki.address, "101", minOutputAmount[1], topPair.address, sellQuote.outputAmount);
 
       const loanDataAfter = await dataProvider.getLoanDataByLoanId(loanDataBefore.loanId);
 
