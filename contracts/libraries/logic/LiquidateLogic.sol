@@ -202,7 +202,7 @@ library LiquidateLogic {
     }
 
     // first time bid need to burn debt tokens and transfer reserve to uTokens
-    if (loanData.state == DataTypes.LoanState.Active && params.bidType == BidTypes.Bid) {
+    if (loanData.state == DataTypes.LoanState.Active && params.bidType == DataTypes.BidTypes.Bid) {
       // loan's accumulated debt must exceed threshold (heath factor below 1.0)
       require(vars.borrowAmount > vars.thresholdPrice, Errors.LP_BORROW_NOT_EXCEED_LIQUIDATION_THRESHOLD);
 
@@ -214,10 +214,10 @@ library LiquidateLogic {
         params.bidPrice >= (maxPrice + params.auctionDurationConfigFee),
         Errors.LPL_BID_PRICE_LESS_THAN_MIN_BID_REQUIRED
       );
-    } else if (params.bidType == BidTypes.Buyout) {
+    } else if (params.bidType == DataTypes.BidTypes.Buyout) {
       // bid price must greater than borrow debt
       require(
-        params.bidPrice >= INFTOracleGetter(nftOracle).getNFTPrice(loanData.nftAsset, loanData.nftTokenId),
+        params.bidPrice >= INFTOracleGetter(vars.nftOracle).getNFTPrice(loanData.nftAsset, loanData.nftTokenId),
         Errors.LPL_BID_PRICE_LESS_THAN_BORROW
       );
 
@@ -247,7 +247,7 @@ library LiquidateLogic {
       require(params.bidPrice >= (loanData.bidPrice + vars.minBidDelta), Errors.LPL_BID_PRICE_LESS_THAN_HIGHEST_PRICE);
     }
 
-    if (params.bidType == BidTypes.Bid) {
+    if (params.bidType == DataTypes.BidTypes.Bid) {
       ILendPoolLoan(vars.loanAddress).auctionLoan(
         vars.initiator,
         vars.loanId,
@@ -256,10 +256,10 @@ library LiquidateLogic {
         vars.borrowAmount,
         reserveData.variableBorrowIndex
       );
-    } else if (params.bidType == BidTypes.Buyout) {
+    } else if (params.bidType == DataTypes.BidTypes.Buyout) {
       ILendPoolLoan(vars.loanAddress).buyoutLoan(
-        vars.initiator,
         vars.loanId,
+        nftData.uNftAddress,
         params.onBehalfOf,
         params.bidPrice,
         vars.borrowAmount,

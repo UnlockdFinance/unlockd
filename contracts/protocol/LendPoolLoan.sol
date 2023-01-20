@@ -238,8 +238,8 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
    * @inheritdoc ILendPoolLoan
    */
   function buyoutLoan(
-    address initiator,
     uint256 loanId,
+    address uNftAddress,
     address onBehalfOf,
     uint256 buyoutPrice,
     uint256 borrowAmount,
@@ -247,7 +247,6 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   ) external override onlyLendPool {
     // Must use storage to change state
     DataTypes.LoanData storage loan = _loans[loanId];
-
     // Ensure valid loan state
     require(
       loan.state == DataTypes.LoanState.Active || loan.state == DataTypes.LoanState.Auction,
@@ -467,12 +466,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     );
   }
 
-  function onERC721Received(
-    address,
-    address,
-    uint256,
-    bytes memory
-  ) external pure override returns (bytes4) {
+  function onERC721Received(address, address, uint256, bytes memory) external pure override returns (bytes4) {
     return IERC721ReceiverUpgradeable.onERC721Received.selector;
   }
 
@@ -500,17 +494,9 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   /**
    * @inheritdoc ILendPoolLoan
    */
-  function getLoanCollateralAndReserve(uint256 loanId)
-    external
-    view
-    override
-    returns (
-      address nftAsset,
-      uint256 nftTokenId,
-      address reserveAsset,
-      uint256 scaledAmount
-    )
-  {
+  function getLoanCollateralAndReserve(
+    uint256 loanId
+  ) external view override returns (address nftAsset, uint256 nftTokenId, address reserveAsset, uint256 scaledAmount) {
     return (
       _loans[loanId].nftAsset,
       _loans[loanId].nftTokenId,

@@ -74,7 +74,7 @@ interface ILendPoolLoan {
 
   /**
    * @dev Emitted when a loan is bought out
-   * @param user The address initiating the action
+   * @param loanId The loanId that was bought out
    */
   event LoanBoughtOut(
     uint256 indexed loanId,
@@ -233,14 +233,10 @@ interface ILendPoolLoan {
    * Requirements:
    *  - The price has to be the valuation price of the nft
    *  - The loan must be in state Active or Auction
-   *
-   * @param initiator The address of the user initiating the auction
-   * @param loanId The loan getting auctioned
-   * @param bidPrice The buyout price of this auction
    */
   function buyoutLoan(
-    address initiator,
     uint256 loanId,
+    address uNftAddress,
     address onBehalfOf,
     uint256 buyoutPrice,
     uint256 borrowAmount,
@@ -258,12 +254,7 @@ interface ILendPoolLoan {
    * @param amountTaken The taken amount
    * @param borrowIndex The index to get the scaled loan amount
    */
-  function redeemLoan(
-    address initiator,
-    uint256 loanId,
-    uint256 amountTaken,
-    uint256 borrowIndex
-  ) external;
+  function redeemLoan(address initiator, uint256 loanId, uint256 amountTaken, uint256 borrowIndex) external;
 
   /**
    * @dev Liquidate the given loan
@@ -343,15 +334,9 @@ interface ILendPoolLoan {
    *  @dev returns the collateral and reserve corresponding to a specific loan
    * param loanId the loan Id
    */
-  function getLoanCollateralAndReserve(uint256 loanId)
-    external
-    view
-    returns (
-      address nftAsset,
-      uint256 nftTokenId,
-      address reserveAsset,
-      uint256 scaledAmount
-    );
+  function getLoanCollateralAndReserve(
+    uint256 loanId
+  ) external view returns (address nftAsset, uint256 nftTokenId, address reserveAsset, uint256 scaledAmount);
 
   /**
    *  @dev returns the reserve and borrow __scaled__ amount corresponding to a specific loan
