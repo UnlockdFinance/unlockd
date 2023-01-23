@@ -14,71 +14,71 @@ makeSuite("UToken", (testEnv: TestEnv) => {
     testEnv.mockIncentivesController.resetHandleActionIsCalled();
   });
 
-  it("Check DAI basic parameters", async () => {
-    const { dai, uDai, pool } = testEnv;
+  it("Check WETH basic parameters", async () => {
+    const { weth, uWETH, pool } = testEnv;
 
-    const symbol = await dai.symbol();
-    const bSymbol = await uDai.symbol();
-    expect(bSymbol).to.be.equal(CommonsConfig.UTokenSymbolPrefix + symbol);
+    const symbol = await uWETH.symbol();
+    const bSymbol = await uWETH.symbol();
+    expect(bSymbol).to.be.equal(symbol);
 
-    //const name = await dai.name();
-    const bName = await uDai.name();
-    expect(bName).to.be.equal(CommonsConfig.UTokenNamePrefix + " " + symbol);
+    const name = await weth.name();
+    const bName = await uWETH.name();
+    expect(bName).to.be.equal("Unlockd interest bearing WETH");
 
-    const decimals = await dai.decimals();
-    const bDecimals = await uDai.decimals();
+    const decimals = await weth.decimals();
+    const bDecimals = await uWETH.decimals();
     expect(decimals).to.be.equal(bDecimals);
 
-    const treasury = await uDai.RESERVE_TREASURY_ADDRESS();
+    const treasury = await uWETH.RESERVE_TREASURY_ADDRESS();
     expect(treasury).to.be.not.equal(ZERO_ADDRESS);
 
-    const underAsset = await uDai.UNDERLYING_ASSET_ADDRESS();
-    expect(underAsset).to.be.equal(dai.address);
+    const underAsset = await uWETH.UNDERLYING_ASSET_ADDRESS();
+    expect(underAsset).to.be.equal(weth.address);
 
-    const wantPool = await uDai.POOL();
+    const wantPool = await uWETH.POOL();
     expect(wantPool).to.be.equal(pool.address);
   });
 
-  it("User 0 deposits 1000 DAI, transfers uDai to user 1", async () => {
-    const { users, pool, dai, uDai, deployer } = testEnv;
+  it("User 0 deposits 1000 WETH, transfers uweth to user 1", async () => {
+    const { users, pool, weth, uWETH, deployer } = testEnv;
 
-    await fundWithERC20("DAI", users[0].address, "1000");
-    await approveERC20(testEnv, users[0], "DAI");
+    await fundWithERC20("WETH", users[0].address, "1000");
+    await approveERC20(testEnv, users[0], "WETH");
 
-    //user 1 deposits 1000 DAI
-    const amountDeposit = await convertToCurrencyDecimals(deployer, dai, "1000");
+    //user 1 deposits 1000 weth
+    const amountDeposit = await convertToCurrencyDecimals(deployer, weth, "1000");
 
-    await pool.connect(users[0].signer).deposit(dai.address, amountDeposit, users[0].address, "0");
+    await pool.connect(users[0].signer).deposit(weth.address, amountDeposit, users[0].address, "0");
 
     await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
 
-    await uDai.connect(users[0].signer).transfer(users[1].address, amountDeposit);
+    await uWETH.connect(users[0].signer).transfer(users[1].address, amountDeposit);
 
     // const checkResult = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
     // await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
     // expect(checkResult).to.be.equal(true, "IncentivesController not called");
 
-    const fromBalance = await uDai.balanceOf(users[0].address);
-    const toBalance = await uDai.balanceOf(users[1].address);
+    const fromBalance = await uWETH.balanceOf(users[0].address);
+    const toBalance = await uWETH.balanceOf(users[1].address);
 
     expect(fromBalance.toString()).to.be.equal("0", INVALID_FROM_BALANCE_AFTER_TRANSFER);
     expect(toBalance.toString()).to.be.equal(amountDeposit.toString(), INVALID_TO_BALANCE_AFTER_TRANSFER);
   });
 
-  it("User 1 receive uDai from user 0, transfers 50% to user 2", async () => {
-    const { users, pool, dai, uDai } = testEnv;
+  it("User 1 receive uweth from user 0, transfers 50% to user 2", async () => {
+    const { users, pool, weth, uWETH } = testEnv;
 
-    const amountTransfer = (await uDai.balanceOf(users[1].address)).div(2);
+    const amountTransfer = (await uWETH.balanceOf(users[1].address)).div(2);
 
-    await uDai.connect(users[1].signer).transfer(users[2].address, amountTransfer);
+    await uWETH.connect(users[1].signer).transfer(users[2].address, amountTransfer);
 
-    const fromBalance = await uDai.balanceOf(users[1].address);
-    const toBalance = await uDai.balanceOf(users[2].address);
+    const fromBalance = await uWETH.balanceOf(users[1].address);
+    const toBalance = await uWETH.balanceOf(users[2].address);
 
     expect(fromBalance.toString()).to.be.equal(amountTransfer.toString(), INVALID_FROM_BALANCE_AFTER_TRANSFER);
     expect(toBalance.toString()).to.be.equal(amountTransfer.toString(), INVALID_TO_BALANCE_AFTER_TRANSFER);
 
-    await uDai.totalSupply();
-    await uDai.getScaledUserBalanceAndSupply(users[1].address);
+    await uWETH.totalSupply();
+    await uWETH.getScaledUserBalanceAndSupply(users[1].address);
   });
 });

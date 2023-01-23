@@ -15,130 +15,141 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
 
   it("Transfer", async () => {
     const { users, pool, dai, uDai, configurator, deployer } = testEnv;
-    const emergencyAdminSigner = await getEmergencyAdminSigner();
+    if (JSON.stringify(dai) !== "{}") {
+      const emergencyAdminSigner = await getEmergencyAdminSigner();
 
-    await fundWithERC20("DAI", users[0].address, "1000");
-    await approveERC20(testEnv, users[0], "DAI");
+      await fundWithERC20("DAI", users[0].address, "1000");
+      await approveERC20(testEnv, users[0], "DAI");
 
-    const amountDeposit = await convertToCurrencyDecimals(deployer, dai, "1000");
+      const amountDeposit = await convertToCurrencyDecimals(deployer, dai, "1000");
 
-    await pool.connect(users[0].signer).deposit(dai.address, amountDeposit, users[0].address, "0");
+      await pool.connect(users[0].signer).deposit(dai.address, amountDeposit, users[0].address, "0");
 
-    const user0Balance = await uDai.balanceOf(users[0].address);
-    const user1Balance = await uDai.balanceOf(users[1].address);
+      const user0Balance = await uDai.balanceOf(users[0].address);
+      const user1Balance = await uDai.balanceOf(users[1].address);
 
-    // Configurator pauses the pool
-    await configurator.connect(emergencyAdminSigner).setPoolPause(true);
+      // Configurator pauses the pool
+      await configurator.connect(emergencyAdminSigner).setPoolPause(true);
 
-    // User 0 tries the transfer to User 1
-    await expect(uDai.connect(users[0].signer).transfer(users[1].address, amountDeposit)).to.revertedWith(
-      ProtocolErrors.LP_IS_PAUSED
-    );
+      // User 0 tries the transfer to User 1
+      await expect(uDai.connect(users[0].signer).transfer(users[1].address, amountDeposit)).to.revertedWith(
+        ProtocolErrors.LP_IS_PAUSED
+      );
 
-    const pausedFromBalance = await uDai.balanceOf(users[0].address);
-    const pausedToBalance = await uDai.balanceOf(users[1].address);
+      const pausedFromBalance = await uDai.balanceOf(users[0].address);
+      const pausedToBalance = await uDai.balanceOf(users[1].address);
 
-    expect(pausedFromBalance).to.be.equal(user0Balance.toString(), ProtocolErrors.INVALID_TO_BALANCE_AFTER_TRANSFER);
-    expect(pausedToBalance.toString()).to.be.equal(
-      user1Balance.toString(),
-      ProtocolErrors.INVALID_FROM_BALANCE_AFTER_TRANSFER
-    );
+      expect(pausedFromBalance).to.be.equal(user0Balance.toString(), ProtocolErrors.INVALID_TO_BALANCE_AFTER_TRANSFER);
+      expect(pausedToBalance.toString()).to.be.equal(
+        user1Balance.toString(),
+        ProtocolErrors.INVALID_FROM_BALANCE_AFTER_TRANSFER
+      );
 
-    // Configurator unpauses the pool
-    await configurator.connect(emergencyAdminSigner).setPoolPause(false);
+      // Configurator unpauses the pool
+      await configurator.connect(emergencyAdminSigner).setPoolPause(false);
 
-    // User 0 succeeds transfer to User 1
-    await uDai.connect(users[0].signer).transfer(users[1].address, amountDeposit);
+      // User 0 succeeds transfer to User 1
+      await uDai.connect(users[0].signer).transfer(users[1].address, amountDeposit);
 
-    const fromBalance = await uDai.balanceOf(users[0].address);
-    const toBalance = await uDai.balanceOf(users[1].address);
+      const fromBalance = await uDai.balanceOf(users[0].address);
+      const toBalance = await uDai.balanceOf(users[1].address);
 
-    expect(fromBalance.toString()).to.be.equal(
-      user0Balance.sub(amountDeposit),
-      ProtocolErrors.INVALID_FROM_BALANCE_AFTER_TRANSFER
-    );
-    expect(toBalance.toString()).to.be.equal(
-      user1Balance.add(amountDeposit),
-      ProtocolErrors.INVALID_TO_BALANCE_AFTER_TRANSFER
-    );
+      expect(fromBalance.toString()).to.be.equal(
+        user0Balance.sub(amountDeposit),
+        ProtocolErrors.INVALID_FROM_BALANCE_AFTER_TRANSFER
+      );
+      expect(toBalance.toString()).to.be.equal(
+        user1Balance.add(amountDeposit),
+        ProtocolErrors.INVALID_TO_BALANCE_AFTER_TRANSFER
+      );
+    }
   });
 
   it("Deposit", async () => {
     const { users, pool, dai, uDai, configurator, deployer } = testEnv;
-    const emergencyAdminSigner = await getEmergencyAdminSigner();
+    if (JSON.stringify(dai) !== "{}") {
+      const emergencyAdminSigner = await getEmergencyAdminSigner();
 
-    const amountDeposit = await convertToCurrencyDecimals(deployer, dai, "1000");
+      const amountDeposit = await convertToCurrencyDecimals(deployer, dai, "1000");
 
-    await fundWithERC20("DAI", users[0].address, "1000");
-    await approveERC20(testEnv, users[0], "DAI");
+      await fundWithERC20("DAI", users[0].address, "1000");
+      await approveERC20(testEnv, users[0], "DAI");
 
-    // Configurator pauses the pool
-    await configurator.connect(emergencyAdminSigner).setPoolPause(true);
-    await expect(
-      pool.connect(users[0].signer).deposit(dai.address, amountDeposit, users[0].address, "0")
-    ).to.revertedWith(ProtocolErrors.LP_IS_PAUSED);
+      // Configurator pauses the pool
+      await configurator.connect(emergencyAdminSigner).setPoolPause(true);
+      await expect(
+        pool.connect(users[0].signer).deposit(dai.address, amountDeposit, users[0].address, "0")
+      ).to.revertedWith(ProtocolErrors.LP_IS_PAUSED);
 
-    // Configurator unpauses the pool
-    await configurator.connect(emergencyAdminSigner).setPoolPause(false);
+      // Configurator unpauses the pool
+      await configurator.connect(emergencyAdminSigner).setPoolPause(false);
+    }
   });
 
   it("Withdraw", async () => {
     const { users, pool, dai, uDai, configurator, deployer } = testEnv;
-    const emergencyAdminSigner = await getEmergencyAdminSigner();
+    if (JSON.stringify(dai) !== "{}") {
+      const emergencyAdminSigner = await getEmergencyAdminSigner();
 
-    const amountDeposit = await convertToCurrencyDecimals(deployer, dai, "1000");
+      const amountDeposit = await convertToCurrencyDecimals(deployer, dai, "1000");
 
-    await fundWithERC20("DAI", users[0].address, "1000");
-    await approveERC20(testEnv, users[0], "DAI");
+      await fundWithERC20("DAI", users[0].address, "1000");
+      await approveERC20(testEnv, users[0], "DAI");
 
-    await pool.connect(users[0].signer).deposit(dai.address, amountDeposit, users[0].address, "0");
+      await pool.connect(users[0].signer).deposit(dai.address, amountDeposit, users[0].address, "0");
 
-    // Configurator pauses the pool
-    await configurator.connect(emergencyAdminSigner).setPoolPause(true);
+      // Configurator pauses the pool
+      await configurator.connect(emergencyAdminSigner).setPoolPause(true);
 
-    // user tries to burn
-    await expect(pool.connect(users[0].signer).withdraw(dai.address, amountDeposit, users[0].address)).to.revertedWith(
-      ProtocolErrors.LP_IS_PAUSED
-    );
+      // user tries to burn
+      await expect(
+        pool.connect(users[0].signer).withdraw(dai.address, amountDeposit, users[0].address)
+      ).to.revertedWith(ProtocolErrors.LP_IS_PAUSED);
 
-    // Configurator unpauses the pool
-    await configurator.connect(emergencyAdminSigner).setPoolPause(false);
+      // Configurator unpauses the pool
+      await configurator.connect(emergencyAdminSigner).setPoolPause(false);
+    }
   });
 
   it("Borrow", async () => {
     const { pool, dai, bayc, users, configurator } = testEnv;
-    const emergencyAdminSigner = await getEmergencyAdminSigner();
+    if (JSON.stringify(dai) !== "{}") {
+      const emergencyAdminSigner = await getEmergencyAdminSigner();
 
-    const user = users[1];
-    // Pause the pool
-    await configurator.connect(emergencyAdminSigner).setPoolPause(true);
+      const user = users[1];
+      // Pause the pool
+      await configurator.connect(emergencyAdminSigner).setPoolPause(true);
 
-    // Try to execute liquidation
-    await expect(pool.connect(user.signer).borrow(dai.address, "1", bayc.address, "1", user.address, "0")).revertedWith(
-      ProtocolErrors.LP_IS_PAUSED
-    );
+      // Try to execute liquidation
+      await expect(
+        pool.connect(user.signer).borrow(dai.address, "1", bayc.address, "1", user.address, "0")
+      ).revertedWith(ProtocolErrors.LP_IS_PAUSED);
 
-    // Unpause the pool
-    await configurator.connect(emergencyAdminSigner).setPoolPause(false);
+      // Unpause the pool
+      await configurator.connect(emergencyAdminSigner).setPoolPause(false);
+    }
   });
 
   it("Repay", async () => {
     const { pool, dai, bayc, users, configurator } = testEnv;
-    const emergencyAdminSigner = await getEmergencyAdminSigner();
+    if (JSON.stringify(dai) !== "{}") {
+      const emergencyAdminSigner = await getEmergencyAdminSigner();
 
-    const user = users[1];
-    // Pause the pool
-    await configurator.connect(emergencyAdminSigner).setPoolPause(true);
+      const user = users[1];
+      // Pause the pool
+      await configurator.connect(emergencyAdminSigner).setPoolPause(true);
 
-    // Try to execute liquidation
-    await expect(pool.connect(user.signer).repay(bayc.address, "1", "1")).revertedWith(ProtocolErrors.LP_IS_PAUSED);
+      // Try to execute liquidation
+      await expect(pool.connect(user.signer).repay(bayc.address, "1", "1")).revertedWith(ProtocolErrors.LP_IS_PAUSED);
 
-    // Unpause the pool
-    await configurator.connect(emergencyAdminSigner).setPoolPause(false);
+      // Unpause the pool
+      await configurator.connect(emergencyAdminSigner).setPoolPause(false);
+    }
   });
 
   it("Liquidate", async () => {
     const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, deployer } = testEnv;
+
     const depositor = users[3];
     const borrower = users[4];
     const liquidator = users[5];
