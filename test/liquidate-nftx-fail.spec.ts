@@ -163,195 +163,208 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
 
   it("USDC - Borrows USDC", async () => {
     const { users, pool, reserveOracle, usdc, bayc, uBAYC, configurator, deployer, nftOracle } = testEnv;
-    const depositor = users[0];
-    const borrower = users[1];
+    if (JSON.stringify(usdc) !== "{}") {
+      const depositor = users[0];
+      const borrower = users[1];
 
-    await setNftAssetPrice(testEnv, "BAYC", 101, parseEther("50").toString());
+      await setNftAssetPrice(testEnv, "BAYC", 101, parseEther("50").toString());
 
-    //mints USDC to the liquidator
-    await fundWithERC20("USDC", depositor.address, "100000");
-    await approveERC20(testEnv, depositor, "USDC");
+      //mints USDC to the liquidator
+      await fundWithERC20("USDC", depositor.address, "100000");
+      await approveERC20(testEnv, depositor, "USDC");
 
-    //deposits USDC
-    const amountDeposit = await convertToCurrencyDecimals(deployer, usdc, "100000");
+      //deposits USDC
+      const amountDeposit = await convertToCurrencyDecimals(deployer, usdc, "100000");
 
-    await pool.connect(depositor.signer).deposit(usdc.address, amountDeposit, depositor.address, "0");
+      await pool.connect(depositor.signer).deposit(usdc.address, amountDeposit, depositor.address, "0");
 
-    //mints BAYC to borrower
-    await fundWithERC721("BAYC", borrower.address, 102);
-    //approve protocol to access borrower wallet
-    await setApprovalForAll(testEnv, borrower, "BAYC");
+      //mints BAYC to borrower
+      await fundWithERC721("BAYC", borrower.address, 102);
+      //approve protocol to access borrower wallet
+      await setApprovalForAll(testEnv, borrower, "BAYC");
 
-    //borrows
-    await configurator.setLtvManagerStatus(deployer.address, true);
-    await nftOracle.setPriceManagerStatus(bayc.address, true);
+      //borrows
+      await configurator.setLtvManagerStatus(deployer.address, true);
+      await nftOracle.setPriceManagerStatus(bayc.address, true);
 
-    const collData: IConfigNftAsCollateralInput = {
-      asset: bayc.address,
-      nftTokenId: "102",
-      newPrice: parseEther("100"),
-      ltv: 4000,
-      liquidationThreshold: 7000,
-      redeemThreshold: 9000,
-      liquidationBonus: 500,
-      redeemDuration: 100,
-      auctionDuration: 200,
-      redeemFine: 500,
-      minBidFine: 2000,
-    };
-    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
-    const nftColDataBefore = await pool.getNftCollateralData(bayc.address, 102, usdc.address);
+      const collData: IConfigNftAsCollateralInput = {
+        asset: bayc.address,
+        nftTokenId: "102",
+        newPrice: parseEther("100"),
+        ltv: 4000,
+        liquidationThreshold: 7000,
+        redeemThreshold: 9000,
+        liquidationBonus: 500,
+        redeemDuration: 100,
+        auctionDuration: 200,
+        redeemFine: 500,
+        minBidFine: 2000,
+      };
+      await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
+      const nftColDataBefore = await pool.getNftCollateralData(bayc.address, 102, usdc.address);
 
-    const usdcPrice = await reserveOracle.getAssetPrice(usdc.address);
+      const usdcPrice = await reserveOracle.getAssetPrice(usdc.address);
 
-    const amountBorrow = await convertToCurrencyDecimals(
-      deployer,
-      usdc,
-      new BigNumber(nftColDataBefore.availableBorrowsInETH.toString())
-        .div(usdcPrice.toString())
-        .multipliedBy(0.95)
-        .toFixed(0)
-    );
+      const amountBorrow = await convertToCurrencyDecimals(
+        deployer,
+        usdc,
+        new BigNumber(nftColDataBefore.availableBorrowsInETH.toString())
+          .div(usdcPrice.toString())
+          .multipliedBy(0.95)
+          .toFixed(0)
+      );
 
-    await pool
-      .connect(borrower.signer)
-      .borrow(usdc.address, amountBorrow.toString(), bayc.address, "102", borrower.address, "0");
+      await pool
+        .connect(borrower.signer)
+        .borrow(usdc.address, amountBorrow.toString(), bayc.address, "102", borrower.address, "0");
 
-    const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "102");
+      const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "102");
 
-    expect(nftDebtDataAfter.healthFactor.toString()).to.be.bignumber.gt(
-      oneEther.toFixed(0),
-      ProtocolErrors.VL_INVALID_HEALTH_FACTOR
-    );
+      expect(nftDebtDataAfter.healthFactor.toString()).to.be.bignumber.gt(
+        oneEther.toFixed(0),
+        ProtocolErrors.VL_INVALID_HEALTH_FACTOR
+      );
 
-    const tokenOwner = await bayc.ownerOf("102");
-    expect(tokenOwner).to.be.equal(uBAYC.address, "Invalid token owner after auction");
+      const tokenOwner = await bayc.ownerOf("102");
+      expect(tokenOwner).to.be.equal(uBAYC.address, "Invalid token owner after auction");
+    }
   });
 
   it("USDC - Drop the health factor below 1", async () => {
     const { usdc, bayc, users, pool, nftOracle, deployer } = testEnv;
-    const borrower = users[1];
+    if (JSON.stringify(usdc) !== "{}") {
+      const borrower = users[1];
 
-    await nftOracle.setPriceManagerStatus(bayc.address, true);
+      await nftOracle.setPriceManagerStatus(bayc.address, true);
 
-    const nftDebtDataBefore = await pool.getNftDebtData(bayc.address, "102");
+      const nftDebtDataBefore = await pool.getNftDebtData(bayc.address, "102");
 
-    const debAmountUnits = await convertToCurrencyUnits(deployer, usdc, nftDebtDataBefore.totalDebt.toString());
-    await setNftAssetPriceForDebt(testEnv, "BAYC", 102, "USDC", debAmountUnits, "80");
+      const debAmountUnits = await convertToCurrencyUnits(deployer, usdc, nftDebtDataBefore.totalDebt.toString());
+      await setNftAssetPriceForDebt(testEnv, "BAYC", 102, "USDC", debAmountUnits, "80");
 
-    const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "102");
+      const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "102");
 
-    expect(nftDebtDataAfter.healthFactor.toString()).to.be.bignumber.lt(
-      oneEther.toFixed(0),
-      ProtocolErrors.VL_INVALID_HEALTH_FACTOR
-    );
+      expect(nftDebtDataAfter.healthFactor.toString()).to.be.bignumber.lt(
+        oneEther.toFixed(0),
+        ProtocolErrors.VL_INVALID_HEALTH_FACTOR
+      );
+    }
   });
 
   it("USDC - Auctions the borrow at first time", async () => {
     const { usdc, bayc, uBAYC, users, pool, dataProvider, configurator, deployer } = testEnv;
-    const liquidator = users[3];
-    const borrower = users[1];
+    if (JSON.stringify(usdc) !== "{}") {
+      const liquidator = users[3];
+      const borrower = users[1];
 
-    //mints USDC to the liquidator
-    await fundWithERC20("USDC", liquidator.address, "100000");
-    await approveERC20(testEnv, liquidator, "USDC");
+      //mints USDC to the liquidator
+      await fundWithERC20("USDC", liquidator.address, "100000");
+      await approveERC20(testEnv, liquidator, "USDC");
 
-    const lendpoolBalanceBefore = await usdc.balanceOf(pool.address);
+      const lendpoolBalanceBefore = await usdc.balanceOf(pool.address);
 
-    // accurate borrow index, increment interest to loanDataBefore.scaledAmount
-    await increaseTime(100);
+      // accurate borrow index, increment interest to loanDataBefore.scaledAmount
+      await increaseTime(100);
 
-    const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "102");
-    const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.1).toFixed(0);
-    // remove  supporting liquidations on sudoswap / NFTX for auction price purposes
-    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+      const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "102");
+      const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.1).toFixed(0);
+      // remove  supporting liquidations on sudoswap / NFTX for auction price purposes
+      await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
 
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
-    await pool.connect(liquidator.signer).auction(bayc.address, "102", auctionPrice, liquidator.address);
+      await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
+      await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
+      await pool.connect(liquidator.signer).auction(bayc.address, "102", auctionPrice, liquidator.address);
 
-    // check result
-    const tokenOwner = await bayc.ownerOf("102");
-    expect(tokenOwner).to.be.equal(uBAYC.address, "Invalid token owner after auction");
+      // check result
+      const tokenOwner = await bayc.ownerOf("102");
+      expect(tokenOwner).to.be.equal(uBAYC.address, "Invalid token owner after auction");
 
-    const lendpoolBalanceAfter = await usdc.balanceOf(pool.address);
-    expect(lendpoolBalanceAfter).to.be.equal(
-      lendpoolBalanceBefore.add(auctionPrice),
-      "Invalid liquidator balance after auction"
-    );
+      const lendpoolBalanceAfter = await usdc.balanceOf(pool.address);
+      expect(lendpoolBalanceAfter).to.be.equal(
+        lendpoolBalanceBefore.add(auctionPrice),
+        "Invalid liquidator balance after auction"
+      );
 
-    const auctionDataAfter = await pool.getNftAuctionData(bayc.address, "102");
-    expect(auctionDataAfter.bidPrice).to.be.equal(auctionPrice, "Invalid loan bid price after auction");
-    expect(auctionDataAfter.bidderAddress).to.be.equal(liquidator.address, "Invalid loan bidder address after auction");
+      const auctionDataAfter = await pool.getNftAuctionData(bayc.address, "102");
+      expect(auctionDataAfter.bidPrice).to.be.equal(auctionPrice, "Invalid loan bid price after auction");
+      expect(auctionDataAfter.bidderAddress).to.be.equal(
+        liquidator.address,
+        "Invalid loan bidder address after auction"
+      );
 
-    const loanDataAfter = await dataProvider.getLoanDataByCollateral(bayc.address, "102");
-    expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Auction, "Invalid loan state after acution");
+      const loanDataAfter = await dataProvider.getLoanDataByCollateral(bayc.address, "102");
+      expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Auction, "Invalid loan state after acution");
+    }
   });
 
   it("USDC - Auctions the borrow at second time with higher price", async () => {
     const { usdc, bayc, uBAYC, users, pool, dataProvider, deployer, configurator } = testEnv;
-    const liquidator3 = users[3];
-    const liquidator4 = users[4];
+    if (JSON.stringify(usdc) !== "{}") {
+      const liquidator3 = users[3];
+      const liquidator4 = users[4];
 
-    //mints USDC to the liquidator
-    await fundWithERC20("USDC", liquidator4.address, "150000");
-    await approveERC20(testEnv, liquidator4, "USDC");
+      //mints USDC to the liquidator
+      await fundWithERC20("USDC", liquidator4.address, "150000");
+      await approveERC20(testEnv, liquidator4, "USDC");
 
-    const liquidator3BalanceBefore = await usdc.balanceOf(liquidator3.address);
+      const liquidator3BalanceBefore = await usdc.balanceOf(liquidator3.address);
 
-    const auctionDataBefore = await pool.getNftAuctionData(bayc.address, "102");
+      const auctionDataBefore = await pool.getNftAuctionData(bayc.address, "102");
 
-    const auctionPrice = new BigNumber(auctionDataBefore.bidPrice.toString()).multipliedBy(1.2).toFixed(0);
+      const auctionPrice = new BigNumber(auctionDataBefore.bidPrice.toString()).multipliedBy(1.2).toFixed(0);
 
-    // remove  supporting liquidations on sudoswap / NFTX for auction price purposes
-    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+      // remove  supporting liquidations on sudoswap / NFTX for auction price purposes
+      await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
 
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
+      await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
+      await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
 
-    await pool.connect(liquidator4.signer).auction(bayc.address, "102", auctionPrice, liquidator4.address);
+      await pool.connect(liquidator4.signer).auction(bayc.address, "102", auctionPrice, liquidator4.address);
 
-    // check result
-    const liquidator3BalanceAfter = await usdc.balanceOf(liquidator3.address);
-    expect(liquidator3BalanceAfter).to.be.equal(
-      liquidator3BalanceBefore.add(auctionDataBefore.bidPrice),
-      "Invalid liquidator balance after auction"
-    );
+      // check result
+      const liquidator3BalanceAfter = await usdc.balanceOf(liquidator3.address);
+      expect(liquidator3BalanceAfter).to.be.equal(
+        liquidator3BalanceBefore.add(auctionDataBefore.bidPrice),
+        "Invalid liquidator balance after auction"
+      );
 
-    const auctionDataAfter = await pool.getNftAuctionData(bayc.address, "102");
-    expect(auctionDataAfter.bidPrice).to.be.equal(auctionPrice, "Invalid loan bid price after auction");
-    expect(auctionDataAfter.bidderAddress).to.be.equal(
-      liquidator4.address,
-      "Invalid loan bidder address after auction"
-    );
+      const auctionDataAfter = await pool.getNftAuctionData(bayc.address, "102");
+      expect(auctionDataAfter.bidPrice).to.be.equal(auctionPrice, "Invalid loan bid price after auction");
+      expect(auctionDataAfter.bidderAddress).to.be.equal(
+        liquidator4.address,
+        "Invalid loan bidder address after auction"
+      );
 
-    const loanDataAfter = await dataProvider.getLoanDataByCollateral(bayc.address, "102");
-    expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Auction, "Invalid loan state after acution");
+      const loanDataAfter = await dataProvider.getLoanDataByCollateral(bayc.address, "102");
+      expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Auction, "Invalid loan state after acution");
+    }
   });
 
   it("USDC - Can't liquidate on NFTX", async () => {
     const { usdc, bayc, users, pool, dataProvider, liquidator, configurator, deployer } = testEnv;
-    const borrower = users[1];
+    if (JSON.stringify(usdc) !== "{}") {
+      const borrower = users[1];
 
-    // NFT  supporting liquidations on NFTX
-    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+      // NFT  supporting liquidations on NFTX
+      await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
 
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, true));
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, true));
-    const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
+      await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, true));
+      await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, true));
+      const nftCfgData = await dataProvider.getNftConfigurationData(bayc.address);
 
-    const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, "102");
+      const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, "102");
 
-    const usdcReserveDataBefore = await dataProvider.getReserveData(usdc.address);
+      const usdcReserveDataBefore = await dataProvider.getReserveData(usdc.address);
 
-    const userReserveDataBefore = await getUserData(pool, dataProvider, usdc.address, borrower.address);
+      const userReserveDataBefore = await getUserData(pool, dataProvider, usdc.address, borrower.address);
 
-    // end auction duration
-    await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
+      // end auction duration
+      await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
 
-    const extraAmount = await convertToCurrencyDecimals(deployer, usdc, "10");
-    await expect(pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "102", 0)).to.be.revertedWith(
-      ProtocolErrors.LPL_INVALID_LOAN_STATE
-    );
+      const extraAmount = await convertToCurrencyDecimals(deployer, usdc, "10");
+      await expect(pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "102", 0)).to.be.revertedWith(
+        ProtocolErrors.LPL_INVALID_LOAN_STATE
+      );
+    }
   });
 });

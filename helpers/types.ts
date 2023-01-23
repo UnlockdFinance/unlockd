@@ -244,8 +244,8 @@ export interface iAssetCommon<T> {
 export interface iAssetBase<T> {
   //BUSD: T;
   WETH: T;
-  DAI: T;
-  USDC: T;
+  //DAI: T;
+  //USDC: T;
   //USDT: T;
 }
 
@@ -270,9 +270,9 @@ export type iAssetAggregatorBase<T> = iAssetsWithoutETH<T>;
 
 export enum TokenContractId {
   WETH = "WETH",
-  DAI = "DAI",
+  //DAI = "DAI",
   //BUSD = 'BUSD',
-  USDC = "USDC",
+  //USDC = "USDC",
   //USDT = 'USDT',
 }
 

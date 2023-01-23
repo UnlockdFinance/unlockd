@@ -124,7 +124,7 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
 
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy lend pool");
-    await DRE.run("full:deploy-lend-pool", { pool: POOL_NAME, verify: verify });
+    await DRE.run("fork:deploy-lend-pool", { pool: POOL_NAME, verify: verify });
 
     // Unpause lendpool after safe pause on deployment
     const lendPoolConfiguratorProxy = await getLendPoolConfiguratorProxy(
@@ -158,7 +158,7 @@ task("unlockd:fork", "Deploy a mock enviroment for testnets")
 
     ////////////////////////////////////////////////////////////////////////
     console.log("\n\nInitialize lend pool");
-    await DRE.run("fork:initialize-lend-pool", { pool: POOL_NAME, verify: verify });
+    await DRE.run("full:initialize-lend-pool", { pool: POOL_NAME, verify: verify });
 
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy WETH Gateway");
