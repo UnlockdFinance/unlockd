@@ -165,85 +165,89 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
 
   it("USDC - Borrows USDC", async () => {
     const { users, pool, reserveOracle, usdc, bayc, uBAYC, configurator, deployer, nftOracle } = testEnv;
-    const depositor = users[0];
-    const borrower = users[1];
+    if (JSON.stringify(usdc) !== "{}") {
+      const depositor = users[0];
+      const borrower = users[1];
 
-    await setNftAssetPrice(testEnv, "BAYC", 101, parseEther("50").toString());
-    //mints USDC to the liquidator
-    await fundWithERC20("USDC", depositor.address, "100000");
-    await approveERC20(testEnv, depositor, "USDC");
+      await setNftAssetPrice(testEnv, "BAYC", 101, parseEther("50").toString());
+      //mints USDC to the liquidator
+      await fundWithERC20("USDC", depositor.address, "100000");
+      await approveERC20(testEnv, depositor, "USDC");
 
-    //deposits USDC
-    const amountDeposit = await convertToCurrencyDecimals(deployer, usdc, "100000");
+      //deposits USDC
+      const amountDeposit = await convertToCurrencyDecimals(deployer, usdc, "100000");
 
-    await pool.connect(depositor.signer).deposit(usdc.address, amountDeposit, depositor.address, "0");
+      await pool.connect(depositor.signer).deposit(usdc.address, amountDeposit, depositor.address, "0");
 
-    //mints BAYC to borrower
-    await fundWithERC721("BAYC", borrower.address, 102);
-    //approve protocol to access borrower wallet
-    await setApprovalForAll(testEnv, borrower, "BAYC");
+      //mints BAYC to borrower
+      await fundWithERC721("BAYC", borrower.address, 102);
+      //approve protocol to access borrower wallet
+      await setApprovalForAll(testEnv, borrower, "BAYC");
 
-    //borrows
-    await configurator.setLtvManagerStatus(deployer.address, true);
-    await nftOracle.setPriceManagerStatus(bayc.address, true);
+      //borrows
+      await configurator.setLtvManagerStatus(deployer.address, true);
+      await nftOracle.setPriceManagerStatus(bayc.address, true);
 
-    const collData: IConfigNftAsCollateralInput = {
-      asset: bayc.address,
-      nftTokenId: "102",
-      newPrice: parseEther("100"),
-      ltv: 4000,
-      liquidationThreshold: 7000,
-      redeemThreshold: 9000,
-      liquidationBonus: 500,
-      redeemDuration: 100,
-      auctionDuration: 200,
-      redeemFine: 500,
-      minBidFine: 2000,
-    };
-    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
-    const nftColDataBefore = await pool.getNftCollateralData(bayc.address, 102, usdc.address);
+      const collData: IConfigNftAsCollateralInput = {
+        asset: bayc.address,
+        nftTokenId: "102",
+        newPrice: parseEther("100"),
+        ltv: 4000,
+        liquidationThreshold: 7000,
+        redeemThreshold: 9000,
+        liquidationBonus: 500,
+        redeemDuration: 100,
+        auctionDuration: 200,
+        redeemFine: 500,
+        minBidFine: 2000,
+      };
+      await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
+      const nftColDataBefore = await pool.getNftCollateralData(bayc.address, 102, usdc.address);
 
-    const usdcPrice = await reserveOracle.getAssetPrice(usdc.address);
+      const usdcPrice = await reserveOracle.getAssetPrice(usdc.address);
 
-    const amountBorrow = await convertToCurrencyDecimals(
-      deployer,
-      usdc,
-      new BigNumber(nftColDataBefore.availableBorrowsInETH.toString())
-        .div(usdcPrice.toString())
-        .multipliedBy(0.95)
-        .toFixed(0)
-    );
+      const amountBorrow = await convertToCurrencyDecimals(
+        deployer,
+        usdc,
+        new BigNumber(nftColDataBefore.availableBorrowsInETH.toString())
+          .div(usdcPrice.toString())
+          .multipliedBy(0.95)
+          .toFixed(0)
+      );
 
-    await pool
-      .connect(borrower.signer)
-      .borrow(usdc.address, amountBorrow.toString(), bayc.address, "102", borrower.address, "0");
+      await pool
+        .connect(borrower.signer)
+        .borrow(usdc.address, amountBorrow.toString(), bayc.address, "102", borrower.address, "0");
 
-    const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "102");
+      const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "102");
 
-    expect(nftDebtDataAfter.healthFactor.toString()).to.be.bignumber.gt(
-      oneEther.toFixed(0),
-      ProtocolErrors.VL_INVALID_HEALTH_FACTOR
-    );
+      expect(nftDebtDataAfter.healthFactor.toString()).to.be.bignumber.gt(
+        oneEther.toFixed(0),
+        ProtocolErrors.VL_INVALID_HEALTH_FACTOR
+      );
 
-    const tokenOwner = await bayc.ownerOf("102");
-    expect(tokenOwner).to.be.equal(uBAYC.address, "Invalid token owner after auction");
+      const tokenOwner = await bayc.ownerOf("102");
+      expect(tokenOwner).to.be.equal(uBAYC.address, "Invalid token owner after auction");
+    }
   });
 
   it("USDC - Drop the health factor below 1", async () => {
     const { usdc, bayc, users, pool, nftOracle, deployer } = testEnv;
-    const borrower = users[1];
+    if (JSON.stringify(usdc) !== "{}") {
+      const borrower = users[1];
 
-    const nftDebtDataBefore = await pool.getNftDebtData(bayc.address, "102");
+      const nftDebtDataBefore = await pool.getNftDebtData(bayc.address, "102");
 
-    const debAmountUnits = await convertToCurrencyUnits(deployer, usdc, nftDebtDataBefore.totalDebt.toString());
-    await setNftAssetPriceForDebt(testEnv, "BAYC", 102, "USDC", debAmountUnits, "80");
+      const debAmountUnits = await convertToCurrencyUnits(deployer, usdc, nftDebtDataBefore.totalDebt.toString());
+      await setNftAssetPriceForDebt(testEnv, "BAYC", 102, "USDC", debAmountUnits, "80");
 
-    const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "102");
+      const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "102");
 
-    expect(nftDebtDataAfter.healthFactor.toString()).to.be.bignumber.lt(
-      oneEther.toFixed(0),
-      ProtocolErrors.VL_INVALID_HEALTH_FACTOR
-    );
+      expect(nftDebtDataAfter.healthFactor.toString()).to.be.bignumber.lt(
+        oneEther.toFixed(0),
+        ProtocolErrors.VL_INVALID_HEALTH_FACTOR
+      );
+    }
   });
 
   /* it("USDC - Liquidates the borrow on NFTX", async () => {

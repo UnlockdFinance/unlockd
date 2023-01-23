@@ -166,17 +166,13 @@ export const getWrappedPunkTokenAddress = async (config: ICommonConfiguration, p
 export const getCryptoPunksMarketAddress = async (config: ICommonConfiguration) => {
   const currentNetwork = process.env.MAINNET_FORK === "true" ? "main" : DRE.network.name;
   const punkAddress = getParamPerNetwork(config.CryptoPunksMarket, <eNetwork>currentNetwork);
-
+  if (punkAddress) {
+    return punkAddress;
+  }
   return await (
     await getPunkGateway()
   ).address;
 
-  if (punkAddress) {
-    return punkAddress;
-  }
-  if (currentNetwork.includes("main")) {
-    throw new Error("CryptoPunksMarket not set at mainnet configuration.");
-  }
   const punk = await deployCryptoPunksMarket([]);
   return punk.address;
 };

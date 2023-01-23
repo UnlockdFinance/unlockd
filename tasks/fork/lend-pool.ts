@@ -22,7 +22,7 @@ import { getParamPerNetwork, insertContractAddressInDb } from "../../helpers/con
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import { eContractid, eNetwork } from "../../helpers/types";
 
-task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
+task("fork:deploy-lend-pool", "Deploy lend pool for full enviroment")
   .addFlag("verify", "Verify contracts at Etherscan")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .setAction(async ({ verify, pool }, DRE: HardhatRuntimeEnvironment) => {
@@ -44,10 +44,10 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
         throw Error("Invalid UNFT Registry proxy in deployed contracts");
       }
       console.log("Setting UNFTRegistry to address provider...");
-      //await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
+      await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
 
       //Reserves Init & NFTs Init need IncentivesController
-      let incentivesControllerAddress = getParamPerNetwork(poolConfig.IncentivesController, network);
+      let incentivesControllerAddress = await (await getMockIncentivesController()).address;
 
       if (incentivesControllerAddress == undefined || !notFalsyOrZeroAddress(incentivesControllerAddress)) {
         console.log("Invalid Incentives Controller address in pool config. Trying to fetch from deployed contracts...");
@@ -57,7 +57,7 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
         }
       }
       console.log("Setting IncentivesController to address provider...");
-      //await waitForTx(await addressesProvider.setIncentivesController(incentivesControllerAddress));
+      await waitForTx(await addressesProvider.setIncentivesController(incentivesControllerAddress));
 
       //////////////////////////////////////////////////////////////////////////
       console.log("Deploying new libraries implementation...");

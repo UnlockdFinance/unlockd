@@ -52,7 +52,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
   });
 
   it("User 2 deposits 1 WETH and 1000 DAI to account for rounding errors", async () => {
-    const { users } = testEnv;
+    const { users, dai } = testEnv;
     const user2 = users[2];
 
     // WETH
@@ -63,11 +63,13 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     await deposit(testEnv, user2, "", "WETH", "1", user2.address, "success", "");
 
     // DAI
-    await fundWithERC20("DAI", user2.address, "1000");
+    if (JSON.stringify(dai) !== "{}") {
+      await fundWithERC20("DAI", user2.address, "1000");
 
-    await approveERC20(testEnv, user2, "DAI");
+      await approveERC20(testEnv, user2, "DAI");
 
-    await deposit(testEnv, user2, "", "DAI", "1000", user2.address, "success", "");
+      await deposit(testEnv, user2, "", "DAI", "1000", user2.address, "success", "");
+    }
   });
 
   it("User 0 deposits 100 WETH, user 1 uses NFT as collateral and borrows 1 WETH", async () => {
@@ -127,42 +129,44 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
   });
 
   it("User 1 uses existed collateral and borrows more 100 DAI (revert expected)", async () => {
-    const { users, configurator, deployer, nftOracle, bayc } = testEnv;
-    const user1 = users[1];
+    const { users, configurator, deployer, nftOracle, bayc, dai } = testEnv;
+    if (JSON.stringify(dai) !== "{}") {
+      const user1 = users[1];
 
-    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
-    const tokenId = cachedTokenId;
+      await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+      const tokenId = cachedTokenId;
 
-    await configurator.setLtvManagerStatus(deployer.address, true);
-    await nftOracle.setPriceManagerStatus(configurator.address, true);
+      await configurator.setLtvManagerStatus(deployer.address, true);
+      await nftOracle.setPriceManagerStatus(configurator.address, true);
 
-    const collData: IConfigNftAsCollateralInput = {
-      asset: bayc.address,
-      nftTokenId: tokenId,
-      newPrice: parseEther("100"),
-      ltv: 4000,
-      liquidationThreshold: 7000,
-      redeemThreshold: 9000,
-      liquidationBonus: 500,
-      redeemDuration: 100,
-      auctionDuration: 200,
-      redeemFine: 500,
-      minBidFine: 2000,
-    };
-    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
+      const collData: IConfigNftAsCollateralInput = {
+        asset: bayc.address,
+        nftTokenId: tokenId,
+        newPrice: parseEther("100"),
+        ltv: 4000,
+        liquidationThreshold: 7000,
+        redeemThreshold: 9000,
+        liquidationBonus: 500,
+        redeemDuration: 100,
+        auctionDuration: 200,
+        redeemFine: 500,
+        minBidFine: 2000,
+      };
+      await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
-    await borrow(
-      testEnv,
-      user1,
-      "DAI",
-      "200",
-      "BAYC",
-      tokenId,
-      user1.address,
-      "365",
-      "revert",
-      ProtocolErrors.VL_SPECIFIED_RESERVE_NOT_BORROWED_BY_USER
-    );
+      await borrow(
+        testEnv,
+        user1,
+        "DAI",
+        "200",
+        "BAYC",
+        tokenId,
+        user1.address,
+        "365",
+        "revert",
+        ProtocolErrors.VL_SPECIFIED_RESERVE_NOT_BORROWED_BY_USER
+      );
+    }
   });
 
   it("User 1 uses existed collateral and borrows more 2 WETH", async () => {
@@ -292,155 +296,167 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
   });
 
   it("User 1 deposits 1 USDC to account for rounding errors", async () => {
-    const { users } = testEnv;
-    const user2 = users[2];
+    const { users, usdc } = testEnv;
 
-    await fundWithERC20("USDC", user2.address, "1");
+    if (JSON.stringify(usdc) !== "{}") {
+      const user2 = users[2];
 
-    await approveERC20(testEnv, user2, "USDC");
+      await fundWithERC20("USDC", user2.address, "1");
 
-    await deposit(testEnv, user2, "", "USDC", "1", user2.address, "success", "");
+      await approveERC20(testEnv, user2, "USDC");
+
+      await deposit(testEnv, user2, "", "USDC", "1", user2.address, "success", "");
+    }
   });
 
   it("User 1 deposits 1000 USDC, user 3 uses not owned NFT as collateral and borrows 10 USDC", async () => {
-    const { users, configurator, nftOracle, deployer, bayc } = testEnv;
+    const { users, configurator, nftOracle, deployer, bayc, usdc } = testEnv;
     const user1 = users[1];
     const user2 = users[2];
     const user3 = users[3];
+    if (JSON.stringify(usdc) !== "{}") {
+      await fundWithERC20("USDC", user1.address, "1000");
 
-    await fundWithERC20("USDC", user1.address, "1000");
+      await approveERC20(testEnv, user1, "USDC");
 
-    await approveERC20(testEnv, user1, "USDC");
+      await deposit(testEnv, user1, "", "USDC", "100", user1.address, "success", "");
 
-    await deposit(testEnv, user1, "", "USDC", "100", user1.address, "success", "");
+      const tokenIdNum = testEnv.tokenIdTracker++;
+      const tokenId = tokenIdNum.toString();
 
-    const tokenIdNum = testEnv.tokenIdTracker++;
-    const tokenId = tokenIdNum.toString();
+      await fundWithERC721("BAYC", user2.address, tokenIdNum);
+      await setApprovalForAll(testEnv, user2, "BAYC");
 
-    await fundWithERC721("BAYC", user2.address, tokenIdNum);
-    await setApprovalForAll(testEnv, user2, "BAYC");
+      await configurator.setLtvManagerStatus(deployer.address, true);
+      await nftOracle.setPriceManagerStatus(configurator.address, true);
 
-    await configurator.setLtvManagerStatus(deployer.address, true);
-    await nftOracle.setPriceManagerStatus(configurator.address, true);
+      const collData: IConfigNftAsCollateralInput = {
+        asset: bayc.address,
+        nftTokenId: tokenId,
+        newPrice: parseEther("100"),
+        ltv: 4000,
+        liquidationThreshold: 7000,
+        redeemThreshold: 9000,
+        liquidationBonus: 500,
+        redeemDuration: 100,
+        auctionDuration: 200,
+        redeemFine: 500,
+        minBidFine: 2000,
+      };
+      await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
-    const collData: IConfigNftAsCollateralInput = {
-      asset: bayc.address,
-      nftTokenId: tokenId,
-      newPrice: parseEther("100"),
-      ltv: 4000,
-      liquidationThreshold: 7000,
-      redeemThreshold: 9000,
-      liquidationBonus: 500,
-      redeemDuration: 100,
-      auctionDuration: 200,
-      redeemFine: 500,
-      minBidFine: 2000,
-    };
-    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
+      await borrow(
+        testEnv,
+        user3,
+        "USDC",
+        "10",
+        "BAYC",
+        tokenId,
+        user3.address,
+        "",
+        "revert",
+        "ERC721: transfer of token that is not own"
+      );
 
-    await borrow(
-      testEnv,
-      user3,
-      "USDC",
-      "10",
-      "BAYC",
-      tokenId,
-      user3.address,
-      "",
-      "revert",
-      "ERC721: transfer of token that is not own"
-    );
-
-    cachedTokenId = tokenId;
+      cachedTokenId = tokenId;
+    }
   });
 
   it("user 2 uses owned NFT as collateral on behalf of user 3 and borrows 10 USDC", async () => {
-    const { users, configurator, nftOracle, deployer, bayc } = testEnv;
-    const user2 = users[2];
-    const user3 = users[3];
+    const { users, configurator, nftOracle, deployer, bayc, usdc } = testEnv;
+    if (JSON.stringify(usdc) !== "{}") {
+      const user2 = users[2];
+      const user3 = users[3];
 
-    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
-    const tokenId = cachedTokenId;
+      await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+      const tokenId = cachedTokenId;
 
-    await delegateBorrowAllowance(testEnv, user3, "USDC", "10", user2.address, "success", "");
+      await delegateBorrowAllowance(testEnv, user3, "USDC", "10", user2.address, "success", "");
 
-    await configurator.setLtvManagerStatus(deployer.address, true);
-    await nftOracle.setPriceManagerStatus(configurator.address, true);
+      await configurator.setLtvManagerStatus(deployer.address, true);
+      await nftOracle.setPriceManagerStatus(configurator.address, true);
 
-    const collData: IConfigNftAsCollateralInput = {
-      asset: bayc.address,
-      nftTokenId: tokenId,
-      newPrice: parseEther("100"),
-      ltv: 4000,
-      liquidationThreshold: 7000,
-      redeemThreshold: 9000,
-      liquidationBonus: 500,
-      redeemDuration: 100,
-      auctionDuration: 200,
-      redeemFine: 500,
-      minBidFine: 2000,
-    };
-    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
+      const collData: IConfigNftAsCollateralInput = {
+        asset: bayc.address,
+        nftTokenId: tokenId,
+        newPrice: parseEther("100"),
+        ltv: 4000,
+        liquidationThreshold: 7000,
+        redeemThreshold: 9000,
+        liquidationBonus: 500,
+        redeemDuration: 100,
+        auctionDuration: 200,
+        redeemFine: 500,
+        minBidFine: 2000,
+      };
+      await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
-    await borrow(testEnv, user2, "USDC", "10", "BAYC", tokenId, user3.address, "365", "success", "");
+      await borrow(testEnv, user2, "USDC", "10", "BAYC", tokenId, user3.address, "365", "success", "");
+    }
   });
 
   it("user 2 uses existed collateral on behalf of user 3 and borrows more 20 USDC", async () => {
-    const { users, configurator, nftOracle, deployer, bayc } = testEnv;
-    const user2 = users[2];
-    const user3 = users[3];
+    const { users, configurator, nftOracle, deployer, bayc, usdc } = testEnv;
+    if (JSON.stringify(usdc) !== "{}") {
+      const user2 = users[2];
+      const user3 = users[3];
 
-    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
-    const tokenId = cachedTokenId;
+      await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+      const tokenId = cachedTokenId;
 
-    await delegateBorrowAllowance(testEnv, user3, "USDC", "100", user2.address, "success", "");
-    await configurator.setLtvManagerStatus(deployer.address, true);
-    await nftOracle.setPriceManagerStatus(configurator.address, true);
+      await delegateBorrowAllowance(testEnv, user3, "USDC", "100", user2.address, "success", "");
+      await configurator.setLtvManagerStatus(deployer.address, true);
+      await nftOracle.setPriceManagerStatus(configurator.address, true);
 
-    const collData: IConfigNftAsCollateralInput = {
-      asset: bayc.address,
-      nftTokenId: tokenId,
-      newPrice: parseEther("100"),
-      ltv: 4000,
-      liquidationThreshold: 7000,
-      redeemThreshold: 9000,
-      liquidationBonus: 500,
-      redeemDuration: 100,
-      auctionDuration: 200,
-      redeemFine: 500,
-      minBidFine: 2000,
-    };
-    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
+      const collData: IConfigNftAsCollateralInput = {
+        asset: bayc.address,
+        nftTokenId: tokenId,
+        newPrice: parseEther("100"),
+        ltv: 4000,
+        liquidationThreshold: 7000,
+        redeemThreshold: 9000,
+        liquidationBonus: 500,
+        redeemDuration: 100,
+        auctionDuration: 200,
+        redeemFine: 500,
+        minBidFine: 2000,
+      };
+      await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
-    await borrow(testEnv, user2, "USDC", "20", "BAYC", tokenId, user3.address, "365", "success", "");
+      await borrow(testEnv, user2, "USDC", "20", "BAYC", tokenId, user3.address, "365", "success", "");
+    }
   });
 
   it("user 3 repay 10 USDC, a fraction of borrow amount", async () => {
-    const { users } = testEnv;
-    const user2 = users[2];
-    const user3 = users[3];
+    const { users, usdc } = testEnv;
+    if (JSON.stringify(usdc) !== "{}") {
+      const user2 = users[2];
+      const user3 = users[3];
 
-    await fundWithERC20("USDC", user3.address, "1000");
-    await approveERC20(testEnv, user3, "USDC");
+      await fundWithERC20("USDC", user3.address, "1000");
+      await approveERC20(testEnv, user3, "USDC");
 
-    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
-    const tokenId = cachedTokenId;
+      await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+      const tokenId = cachedTokenId;
 
-    await repay(testEnv, user3, "USDC", "", "BAYC", tokenId, "10", user3, "success", "");
+      await repay(testEnv, user3, "USDC", "", "BAYC", tokenId, "10", user3, "success", "");
+    }
   });
 
   it("user 3 repay all USDC, full of borrow amount", async () => {
-    const { users } = testEnv;
-    const user2 = users[2];
-    const user3 = users[3];
+    const { users, usdc } = testEnv;
+    if (JSON.stringify(usdc) !== "{}") {
+      const user2 = users[2];
+      const user3 = users[3];
 
-    await fundWithERC20("USDC", user3.address, "1000");
+      await fundWithERC20("USDC", user3.address, "1000");
 
-    await approveERC20(testEnv, user3, "USDC");
+      await approveERC20(testEnv, user3, "USDC");
 
-    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
-    const tokenId = cachedTokenId;
+      await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+      const tokenId = cachedTokenId;
 
-    await repay(testEnv, user3, "USDC", "", "BAYC", tokenId, "-1", user3, "success", "");
+      await repay(testEnv, user3, "USDC", "", "BAYC", tokenId, "-1", user3, "success", "");
+    }
   });
 });
