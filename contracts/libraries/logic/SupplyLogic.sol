@@ -104,6 +104,8 @@ library SupplyLogic {
 
     reserve.updateInterestRates(params.asset, uToken, 0, amountToWithdraw);
 
+    // @todo withdraw from yearn
+
     IUToken(uToken).burn(params.initiator, params.to, amountToWithdraw, reserve.liquidityIndex);
 
     emit Withdraw(params.initiator, params.asset, amountToWithdraw, params.to);

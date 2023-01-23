@@ -5,6 +5,8 @@ import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvid
 import {ILendPoolConfigurator} from "../interfaces/ILendPoolConfigurator.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
 import {IUToken} from "../interfaces/IUToken.sol";
+
+import {IVault} from "../interfaces/yearn/IVault.sol";
 import {IIncentivesController} from "../interfaces/IIncentivesController.sol";
 import {IncentivizedERC20} from "./IncentivizedERC20.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
@@ -105,6 +107,14 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     uint256 amountScaled = amount.rayDiv(index);
     require(amountScaled != 0, Errors.CT_INVALID_MINT_AMOUNT);
     _mint(user, amountScaled);
+
+    //@todo deposit to yearn vault
+
+    address wethAddress = _addressesProvider.getAddress(keccak256("WETH"));
+    if (_underlyingAsset == wethAddress) {
+      // deposit WETH, get yvWETH
+      IVault(_addressProvider.getAddress(keccak256("IVAULT_ETH"))).deposit(amount);
+    }
 
     emit Mint(user, amount, index);
 

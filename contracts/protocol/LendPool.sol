@@ -5,6 +5,7 @@ import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
 import {IUToken} from "../interfaces/IUToken.sol";
+import {ICryptoPunksMarket} from "../interfaces/ICryptoPunksMarket.sol";
 
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
