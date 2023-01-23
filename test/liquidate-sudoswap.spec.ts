@@ -140,12 +140,12 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
     await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
 
     const extraAmount = await convertToCurrencyDecimals(deployer, weth, "1");
-    console.log("what");
+
     // Select SudoSwap pair to liquidate loan on
     const LSSVMPairsWithId: LSSVMPairWithID[] = LSSVMPairs.filter((pair) => pair.collectionName == "AZUKI");
     let topPrice = BN.from(0);
     let topPair;
-    console.log("ssssssss");
+
     for (const pair of LSSVMPairsWithId) {
       const buyNFTQuote = await pair.LSSVMPair.getBuyNFTQuote(1);
       if (buyNFTQuote.newSpotPrice.gt(topPrice)) {
@@ -157,9 +157,9 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
     // NFT supporting liquidations on sudoswap
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(azuki.address, 1, true));
-    console.log("weffhat");
+
     await waitForTx(await addressesProvider.connect(deployer.signer).setLendPoolLiquidator(liquidator.address));
-    console.log("dddd");
+
     // Send ETH to pair to pay protocol fee
     const selfdestructContract = await new SelfdestructTransferFactory(deployer.signer).deploy();
     // Selfdestruct the mock, pointing to token owner address
