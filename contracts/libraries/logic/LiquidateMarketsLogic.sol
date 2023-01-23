@@ -87,7 +87,7 @@ library LiquidateMarketsLogic {
     address WETH;
   }
   // ADDRESS_ID to fetch Wrapped Ether address from Addresses Provider
-  bytes32 public constant ADDRESS_ID_WETH = 0xADDE000000000000000000000000000000000000000000000000000000000004;
+  bytes32 public constant ADDRESS_ID_WETH = keccak256("WETH");
 
   /**
    * @notice Implements the liquidate feature on NFTX. Through `liquidateNFTX()`, users liquidate assets in the protocol.
