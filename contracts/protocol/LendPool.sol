@@ -315,7 +315,44 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
         nftTokenId: nftTokenId,
         bidPrice: bidPrice,
         onBehalfOf: onBehalfOf,
-        auctionDurationConfigFee: _auctionDurationConfigFee
+        auctionDurationConfigFee: _auctionDurationConfigFee,
+        bidType: DataTypes.BidTypes.Bid
+      })
+    );
+  }
+
+  /**
+   * @dev Function to buyout a non-healthy position collateral-wise
+   * - The bidder want to buy collateral asset of the user getting liquidated
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   * @param buyoutPrice The buyout price of the underlying NFT
+   * @param onBehalfOf Address of the user who will get the underlying NFT, same as msg.sender if the user
+   *   wants to receive them on his own wallet, or a different address if the beneficiary of NFT
+   *   is a different wallet
+   **/
+  function buyOut(
+    address nftAsset,
+    uint256 nftTokenId,
+    uint256 buyoutPrice,
+    address onBehalfOf
+  ) external override nonReentrant whenNotPaused {
+    LiquidateLogic.executeAuction(
+      _addressesProvider,
+      _reserves,
+      _nfts,
+      _nftConfig,
+      _isMarketSupported,
+      _sudoswapPairs,
+      _buildLendPoolVars(),
+      DataTypes.ExecuteAuctionParams({
+        initiator: _msgSender(),
+        nftAsset: nftAsset,
+        nftTokenId: nftTokenId,
+        bidPrice: buyoutPrice,
+        onBehalfOf: onBehalfOf,
+        auctionDurationConfigFee: _auctionDurationConfigFee,
+        bidType: DataTypes.BidTypes.Buyout
       })
     );
   }

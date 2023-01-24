@@ -84,6 +84,14 @@ library DataTypes {
     Defaulted
   }
 
+  /**
+   * @dev Enum describing the bid types
+   */
+  enum BidTypes {
+    Bid,
+    Buyout
+  }
+
   struct LoanData {
     //the id of the nft loan
     uint256 loanId;
@@ -150,6 +158,7 @@ library DataTypes {
     uint256 bidPrice;
     address onBehalfOf;
     uint256 auctionDurationConfigFee;
+    BidTypes bidType;
   }
 
   struct ExecuteRedeemParams {
