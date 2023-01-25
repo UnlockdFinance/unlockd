@@ -77,13 +77,13 @@ interface ILendPoolLoan {
    * @param loanId The loanId that was bought out
    */
   event LoanBoughtOut(
+    address indexed user,
     uint256 indexed loanId,
     address nftAsset,
     uint256 nftTokenId,
     uint256 bidBorrowAmount,
     uint256 borrowIndex,
-    address onBehalfOf,
-    uint256 bidPrice
+    uint256 buyoutAmount
   );
 
   /**
@@ -235,12 +235,12 @@ interface ILendPoolLoan {
    *  - The loan must be in state Active or Auction
    */
   function buyoutLoan(
+    address initiator,
     uint256 loanId,
     address uNftAddress,
-    address onBehalfOf,
-    uint256 buyoutPrice,
     uint256 borrowAmount,
-    uint256 borrowIndex
+    uint256 borrowIndex,
+    uint256 buyoutAmount
   ) external;
 
   /**

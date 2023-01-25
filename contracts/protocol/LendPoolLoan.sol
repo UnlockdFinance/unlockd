@@ -238,12 +238,12 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
    * @inheritdoc ILendPoolLoan
    */
   function buyoutLoan(
+    address initiator,
     uint256 loanId,
     address uNftAddress,
-    address onBehalfOf,
-    uint256 buyoutPrice,
     uint256 borrowAmount,
-    uint256 borrowIndex
+    uint256 borrowIndex,
+    uint256 buyoutAmount
   ) external override onlyLendPool {
     // Must use storage to change state
     DataTypes.LoanData storage loan = _loans[loanId];
@@ -255,10 +255,8 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
 
     // state changes and cleanup
     // NOTE: these must be performed before assets are released to prevent reentrance
-    loan.state = DataTypes.LoanState.Defaulted;
-    loan.bidBorrowAmount = borrowAmount;
-    loan.bidderAddress = onBehalfOf;
-    loan.bidPrice = buyoutPrice;
+    _loans[loanId].state = DataTypes.LoanState.Defaulted;
+    _loans[loanId].bidBorrowAmount = borrowAmount;
 
     _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
 
@@ -268,18 +266,19 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALID_NFT_AMOUNT);
     _nftTotalCollateral[loan.nftAsset] -= 1;
 
-    // burn uNFT and transfer to liquidator
+    // burn uNFT and transfer underlying NFT asset to user
     IUNFT(uNftAddress).burn(loan.nftTokenId);
+
     IERC721Upgradeable(loan.nftAsset).safeTransferFrom(address(this), _msgSender(), loan.nftTokenId);
 
     emit LoanBoughtOut(
+      initiator,
       loanId,
       loan.nftAsset,
       loan.nftTokenId,
       loan.bidBorrowAmount,
       borrowIndex,
-      onBehalfOf,
-      buyoutPrice
+      buyoutAmount
     );
   }
 

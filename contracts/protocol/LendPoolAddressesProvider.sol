@@ -37,6 +37,8 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   bytes32 private constant SUSHI_SWAP_ROUTER = "SUSHI_SWAP_ROUTER";
   bytes32 private constant LSSVM_ROUTER = "LSSVM_ROUTER";
 
+  //bytes32 private constant LOCKEYS_NFT = "LOCKEYS_NFT";
+
   constructor(string memory marketId) {
     _setMarketId(marketId);
   }

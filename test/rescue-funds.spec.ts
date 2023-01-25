@@ -48,7 +48,7 @@ makeSuite("LendPool: Rescue locked funds", (testEnv: TestEnv) => {
 
     await fundWithERC20("WETH", user1.address, "1000");
     const initialBalance = await getERC20Balance(testEnv, user1, "WETH");
-    console.log(initialBalance);
+    //console.log(initialBalance);
 
     await weth.connect(user1.signer).transfer(pool.address, await convertToCurrencyDecimals(user1, weth, "100"));
     //Set new rescuer
@@ -72,7 +72,7 @@ makeSuite("LendPool: Rescue locked funds", (testEnv: TestEnv) => {
 
     await fundWithERC20("WETH", fakeRescuer.address, "1000");
     const initialBalance = await getERC20Balance(testEnv, fakeRescuer, "WETH");
-    console.log(initialBalance);
+    //console.log(initialBalance);
 
     //Set new rescuer
     await setPoolRescuer(testEnv, realRescuer);

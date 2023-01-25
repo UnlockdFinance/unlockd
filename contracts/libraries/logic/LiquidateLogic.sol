@@ -202,7 +202,7 @@ library LiquidateLogic {
     }
 
     // first time bid need to burn debt tokens and transfer reserve to uTokens
-    if (loanData.state == DataTypes.LoanState.Active && params.bidType == DataTypes.BidTypes.Bid) {
+    if (loanData.state == DataTypes.LoanState.Active) {
       // loan's accumulated debt must exceed threshold (heath factor below 1.0)
       require(vars.borrowAmount > vars.thresholdPrice, Errors.LP_BORROW_NOT_EXCEED_LIQUIDATION_THRESHOLD);
 
@@ -214,21 +214,6 @@ library LiquidateLogic {
         params.bidPrice >= (maxPrice + params.auctionDurationConfigFee),
         Errors.LPL_BID_PRICE_LESS_THAN_MIN_BID_REQUIRED
       );
-    } else if (params.bidType == DataTypes.BidTypes.Buyout) {
-      // bid price must greater than borrow debt
-      require(
-        params.bidPrice >= INFTOracleGetter(vars.nftOracle).getNFTPrice(loanData.nftAsset, loanData.nftTokenId),
-        Errors.LPL_BID_PRICE_LESS_THAN_BORROW
-      );
-
-      if ((poolStates.pauseDurationTime > 0) && (loanData.bidStartTimestamp <= poolStates.pauseStartTime)) {
-        vars.extraAuctionDuration = poolStates.pauseDurationTime;
-      }
-      vars.auctionEndTimestamp =
-        loanData.bidStartTimestamp +
-        vars.extraAuctionDuration +
-        (nftConfig.getAuctionDuration() * 1 minutes);
-      require(block.timestamp <= vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_HAS_END);
     } else {
       // bid price must greater than borrow debt
       require(params.bidPrice >= vars.borrowAmount, Errors.LPL_BID_PRICE_LESS_THAN_BORROW);
@@ -247,25 +232,14 @@ library LiquidateLogic {
       require(params.bidPrice >= (loanData.bidPrice + vars.minBidDelta), Errors.LPL_BID_PRICE_LESS_THAN_HIGHEST_PRICE);
     }
 
-    if (params.bidType == DataTypes.BidTypes.Bid) {
-      ILendPoolLoan(vars.loanAddress).auctionLoan(
-        vars.initiator,
-        vars.loanId,
-        params.onBehalfOf,
-        params.bidPrice,
-        vars.borrowAmount,
-        reserveData.variableBorrowIndex
-      );
-    } else if (params.bidType == DataTypes.BidTypes.Buyout) {
-      ILendPoolLoan(vars.loanAddress).buyoutLoan(
-        vars.loanId,
-        nftData.uNftAddress,
-        params.onBehalfOf,
-        params.bidPrice,
-        vars.borrowAmount,
-        reserveData.variableBorrowIndex
-      );
-    }
+    ILendPoolLoan(vars.loanAddress).auctionLoan(
+      vars.initiator,
+      vars.loanId,
+      params.onBehalfOf,
+      params.bidPrice,
+      vars.borrowAmount,
+      reserveData.variableBorrowIndex
+    );
 
     // lock highest bidder bid price amount to lend pool
     IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, address(this), params.bidPrice);
@@ -492,9 +466,9 @@ library LiquidateLogic {
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
     DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
 
+    // If pool paused after bidding start, add pool pausing time as extra auction duration
     ValidationLogic.validateLiquidate(reserveData, nftData, nftConfig, loanData);
 
-    // If pool paused after bidding start, add pool pausing time as extra auction duration
     if ((poolStates.pauseDurationTime > 0) && (loanData.bidStartTimestamp <= poolStates.pauseStartTime)) {
       vars.extraAuctionDuration = poolStates.pauseDurationTime;
     }
@@ -566,6 +540,119 @@ library LiquidateLogic {
         "safeTransferFrom(address,address,uint256)",
         address(this),
         loanData.bidderAddress,
+        params.nftTokenId
+      )
+    );
+    //If transfer was made to a malicious contract, send NFT to treasury
+    if (!success)
+      IERC721Upgradeable(loanData.nftAsset).safeTransferFrom(
+        address(this),
+        IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS(),
+        params.nftTokenId
+      );
+
+    emit Liquidate(
+      vars.initiator,
+      loanData.reserveAsset,
+      vars.borrowAmount,
+      vars.remainAmount,
+      loanData.nftAsset,
+      loanData.nftTokenId,
+      loanData.borrower,
+      vars.loanId
+    );
+
+    return (vars.extraDebtAmount);
+  }
+
+  /**
+   * @notice Implements the liquidate feature. Through `liquidate()`, users liquidate assets in the protocol.
+   * @dev Emits the `Liquidate()` event.
+   * @param reservesData The state of all the reserves
+   * @param nftsData The state of all the nfts
+   * @param nftsConfig The state of the nft by tokenId
+   * @param params The additional parameters needed to execute the liquidate function
+   */
+  function executeBuyout(
+    ILendPoolAddressesProvider addressesProvider,
+    mapping(address => DataTypes.ReserveData) storage reservesData,
+    mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
+    DataTypes.ExecuteLiquidateParams memory params
+  ) external returns (uint256) {
+    LiquidateLocalVars memory vars;
+    vars.initiator = params.initiator;
+
+    vars.poolLoan = addressesProvider.getLendPoolLoan();
+    vars.reserveOracle = addressesProvider.getReserveOracle();
+    vars.nftOracle = addressesProvider.getNFTOracle();
+
+    vars.loanId = ILendPoolLoan(vars.poolLoan).getCollateralLoanId(params.nftAsset, params.nftTokenId);
+    require(vars.loanId != 0, Errors.LP_NFT_IS_NOT_USED_AS_COLLATERAL);
+
+    DataTypes.LoanData memory loanData = ILendPoolLoan(vars.poolLoan).getLoan(vars.loanId);
+
+    DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
+    DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
+    DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
+
+    ValidationLogic.validateBuyout(reserveData, nftData, nftConfig, loanData);
+
+    // lock highest bidder bid price amount to lend pool
+    IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, address(this), params.amount);
+
+    // update state MUST BEFORE get borrow amount which is depent on latest borrow index
+    reserveData.updateState();
+
+    (vars.borrowAmount, , ) = GenericLogic.calculateLoanLiquidatePrice(
+      vars.loanId,
+      loanData.reserveAsset,
+      reserveData,
+      loanData.nftAsset,
+      loanData.nftTokenId,
+      nftConfig,
+      vars.poolLoan,
+      vars.reserveOracle,
+      vars.nftOracle
+    );
+
+    require(params.amount >= vars.borrowAmount, Errors.LP_AMOUNT_LESS_THAN_EXTRA_DEBT);
+
+    vars.remainAmount = params.amount - vars.borrowAmount;
+
+    ILendPoolLoan(vars.poolLoan).buyoutLoan(
+      loanData.bidderAddress,
+      vars.loanId,
+      nftData.uNftAddress,
+      vars.borrowAmount,
+      reserveData.variableBorrowIndex,
+      params.amount
+    );
+
+    IDebtToken(reserveData.debtTokenAddress).burn(
+      loanData.borrower,
+      vars.borrowAmount,
+      reserveData.variableBorrowIndex
+    );
+
+    // update interest rate according latest borrow amount (utilizaton)
+    reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.borrowAmount, 0);
+
+    // transfer borrow amount from lend pool to uToken, repay debt
+    IERC20Upgradeable(loanData.reserveAsset).safeTransfer(reserveData.uTokenAddress, vars.borrowAmount);
+
+    // transfer remain amount to borrower
+    if (vars.remainAmount > 0) {
+      IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.borrower, vars.remainAmount);
+    }
+
+    // transfer erc721 to buyer.
+    //avoid DoS by transferring NFT to a malicious contract that reverts on ERC721 receive
+    (bool success, ) = address(loanData.nftAsset).call(
+      abi.encodeWithSignature(
+        "safeTransferFrom(address,address,uint256)",
+        address(this),
+        vars.initiator,
         params.nftTokenId
       )
     );
