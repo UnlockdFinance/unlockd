@@ -317,7 +317,8 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
         onBehalfOf: onBehalfOf,
         auctionDurationConfigFee: _auctionDurationConfigFee,
         bidType: DataTypes.BidTypes.Bid
-      })
+      }),
+      getLockeyDiscount()
     );
   }
 
@@ -353,7 +354,8 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
         onBehalfOf: onBehalfOf,
         auctionDurationConfigFee: _auctionDurationConfigFee,
         bidType: DataTypes.BidTypes.Buyout
-      })
+      }),
+      getLockeyDiscount()
     );
   }
 
@@ -946,6 +948,21 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    **/
   function getConfigFee() external view override returns (uint256) {
     return _configFee;
+  }
+
+  /**
+   * @dev Sets buyout discount for Lockey holders
+   * @param lockeyDiscount the discount percentage on base 10000 (25% -> 2500)
+   **/
+  function setLockeyDiscount(uint256 lockeyDiscount) external override onlyLendPoolConfigurator {
+    _lockeyDiscount = lockeyDiscount;
+  }
+
+  /**
+   * @dev Returns buyout discount for Lockey holders
+   **/
+  function getLockeyDiscount() public view override returns (uint256) {
+    return _lockeyDiscount;
   }
 
   /**

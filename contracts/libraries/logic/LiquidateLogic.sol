@@ -130,7 +130,8 @@ library LiquidateLogic {
     mapping(address => mapping(uint8 => bool)) storage isMarketSupported,
     mapping(address => address[2]) storage sudoswapPairs,
     DataTypes.ExecuteLendPoolStates memory poolStates,
-    DataTypes.ExecuteAuctionParams memory params
+    DataTypes.ExecuteAuctionParams memory params,
+    uint256 lockeyDiscountPercentage
   ) external {
     require(params.onBehalfOf != address(0), Errors.VL_INVALID_ONBEHALFOF_ADDRESS);
 
@@ -265,6 +266,10 @@ library LiquidateLogic {
         vars.borrowAmount,
         reserveData.variableBorrowIndex
       );
+      // IF the user is a lockey holder, gets a discount
+      if (IERC721Upgradeable(addressesProvider.getLockey()).balanceOf(params.onBehalfOf) > 0) {
+        params.bidPrice = params.bidPrice - ((params.bidPrice * lockeyDiscountPercentage) / 100);
+      }
     }
 
     // lock highest bidder bid price amount to lend pool
@@ -590,4 +595,6 @@ library LiquidateLogic {
 
     return (vars.extraDebtAmount);
   }
+
+  function setLockeyDiscount(uint256 _discount) external {}
 }

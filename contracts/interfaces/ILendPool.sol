@@ -752,4 +752,15 @@ interface ILendPool {
    * @dev Returns if the address is allowed to sell or not on NFTX
    */
   function getIsMarketSupported(address nftAsset, uint8 market) external view returns (bool);
+
+  /**
+   * @dev Sets buyout discount for Lockey holders
+   * @param lockeyDiscount the discount percentage on base 10000 (25% -> 2500)
+   **/
+  function setLockeyDiscount(uint256 lockeyDiscount) external;
+
+  /**
+   * @dev Returns buyout discount for Lockey holders
+   **/
+  function getLockeyDiscount() external view returns (uint256);
 }
