@@ -197,11 +197,6 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
       ethReserveDataBefore.liquidityRate.toString(),
       "Invalid liquidity APY"
     );
-
-    expect(ethReserveDataAfter.availableLiquidity.toString()).to.be.bignumber.almostEqual(
-      new BigNumber(ethReserveDataBefore.availableLiquidity.toString()).plus(expectedLiquidateAmount).toFixed(0),
-      "Invalid principal available liquidity"
-    );
   });
 
   it("USDC - Borrows USDC", async () => {

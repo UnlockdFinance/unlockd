@@ -7,6 +7,7 @@ import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvid
 import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
 import {IDebtToken} from "../interfaces/IDebtToken.sol";
+import {IUToken} from "../interfaces/IUToken.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
@@ -126,16 +127,12 @@ contract UnlockdProtocolDataProvider {
    * @dev Returns the configuration for a specific reserve
    * @param asset The asset to request the configuration
    */
-  function getReserveConfigurationData(address asset)
+  function getReserveConfigurationData(
+    address asset
+  )
     external
     view
-    returns (
-      uint256 decimals,
-      uint256 reserveFactor,
-      bool borrowingEnabled,
-      bool isActive,
-      bool isFrozen
-    )
+    returns (uint256 decimals, uint256 reserveFactor, bool borrowingEnabled, bool isActive, bool isFrozen)
   {
     DataTypes.ReserveConfigurationMap memory configuration = ILendPool(ADDRESSES_PROVIDER.getLendPool())
       .getReserveConfiguration(asset);
@@ -186,11 +183,10 @@ contract UnlockdProtocolDataProvider {
    * @param asset The NFT to request the configuration
    * @param tokenId The token id of the NFT
    */
-  function getNftConfigurationDataByTokenId(address asset, uint256 tokenId)
-    external
-    view
-    returns (NftConfigurationData memory configData)
-  {
+  function getNftConfigurationDataByTokenId(
+    address asset,
+    uint256 tokenId
+  ) external view returns (NftConfigurationData memory configData) {
     DataTypes.NftConfigurationMap memory configuration = ILendPool(ADDRESSES_PROVIDER.getLendPool())
       .getNftConfigByTokenId(asset, tokenId);
 
@@ -213,7 +209,9 @@ contract UnlockdProtocolDataProvider {
    * @dev Returns the stored data for a specific reserve
    * @param asset The asset to request the data
    */
-  function getReserveData(address asset)
+  function getReserveData(
+    address asset
+  )
     external
     view
     returns (
@@ -229,7 +227,7 @@ contract UnlockdProtocolDataProvider {
     DataTypes.ReserveData memory reserve = ILendPool(ADDRESSES_PROVIDER.getLendPool()).getReserveData(asset);
 
     return (
-      IERC20Detailed(asset).balanceOf(reserve.uTokenAddress),
+      IUToken(reserve.uTokenAddress).getAvailableLiquidity(),
       IERC20Detailed(reserve.debtTokenAddress).totalSupply(),
       reserve.currentLiquidityRate,
       reserve.currentVariableBorrowRate,
@@ -244,7 +242,10 @@ contract UnlockdProtocolDataProvider {
    * @param asset The asset to request the data
    * @param asset The user to request the data
    */
-  function getUserReserveData(address asset, address user)
+  function getUserReserveData(
+    address asset,
+    address user
+  )
     external
     view
     returns (
@@ -282,11 +283,10 @@ contract UnlockdProtocolDataProvider {
    * @param nftAsset The NFT address
    * @param nftTokenId The token ID for the NFT
    */
-  function getLoanDataByCollateral(address nftAsset, uint256 nftTokenId)
-    external
-    view
-    returns (LoanData memory loanData)
-  {
+  function getLoanDataByCollateral(
+    address nftAsset,
+    uint256 nftTokenId
+  ) external view returns (LoanData memory loanData) {
     loanData.loanId = ILendPoolLoan(ADDRESSES_PROVIDER.getLendPoolLoan()).getCollateralLoanId(nftAsset, nftTokenId);
     DataTypes.LoanData memory loan = ILendPoolLoan(ADDRESSES_PROVIDER.getLendPoolLoan()).getLoan(loanData.loanId);
     _fillLoanData(loanData, loan);
@@ -329,11 +329,7 @@ contract UnlockdProtocolDataProvider {
   @param asset the NFT collection
   @param tokenId the NFT token Id
    */
-  function getNFTXPrice(
-    address asset,
-    uint256 tokenId,
-    address reserveAsset
-  ) external view returns (uint256) {
+  function getNFTXPrice(address asset, uint256 tokenId, address reserveAsset) external view returns (uint256) {
     return NFTXSeller.getNFTXPrice(ADDRESSES_PROVIDER, asset, tokenId, reserveAsset);
   }
 }

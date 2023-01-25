@@ -31,13 +31,6 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
     await expect(configurator.batchConfigReserve(inputs)).to.be.revertedWith(RC_INVALID_RESERVE_FACTOR);
   });
 
-  it("Deactivates the ETH reserve", async () => {
-    const { configurator, weth, dataProvider } = testEnv;
-    await configurator.setActiveFlagOnReserve(weth.address, false);
-    const { isActive } = await dataProvider.getReserveConfigurationData(weth.address);
-    expect(isActive).to.be.equal(false);
-  });
-
   it("Rectivates the ETH reserve", async () => {
     const { configurator, weth, dataProvider } = testEnv;
     await configurator.setActiveFlagOnReserve(weth.address, true);

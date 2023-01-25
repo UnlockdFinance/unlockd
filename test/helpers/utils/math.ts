@@ -1,4 +1,5 @@
 import BigNumber from "bignumber.js";
+import { BigNumber as BN } from "ethers";
 import {
   HALF_PERCENTAGE,
   HALF_RAY,
@@ -88,4 +89,11 @@ BigNumber.prototype.percentDiv = function (a: BigNumber): BigNumber {
   const halfA = a.div(2).decimalPlaces(0, BigNumber.ROUND_DOWN);
 
   return halfA.plus(this.multipliedBy(PERCENTAGE_FACTOR)).div(a).decimalPlaces(0, BigNumber.ROUND_DOWN);
+};
+export const wadDiv = (a: BN, b: BN): BN => {
+  const halfB = b.div(2);
+
+  const aMulWAD = a.mul(WAD.toString());
+
+  return aMulWAD.add(halfB).div(b);
 };

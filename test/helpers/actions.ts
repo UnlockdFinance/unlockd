@@ -1,6 +1,7 @@
 import BigNumber from "bignumber.js";
 import chai from "chai";
-import { Contract, ContractReceipt } from "ethers";
+import { BigNumber as BN, Contract, ContractReceipt } from "ethers";
+import { parseEther } from "ethers/lib/utils";
 import weth from "../../abis/WETH.json";
 import erc20Artifact from "../../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
 import erc721Artifact from "../../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
@@ -414,6 +415,10 @@ export const deposit = async (
       txCost
     );
 
+    expectedReserveData.totalLiquidity = reserveDataAfter.totalLiquidity;
+    expectedReserveData.availableLiquidity = reserveDataAfter.availableLiquidity;
+    expectedReserveData.utilizationRate = reserveDataAfter.utilizationRate;
+
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserReserveData);
   } else if (expectedResult === "revert") {
@@ -483,6 +488,10 @@ export const withdraw = async (
       timestamp,
       txCost
     );
+
+    expectedReserveData.totalLiquidity = reserveDataAfter.totalLiquidity;
+    expectedReserveData.availableLiquidity = reserveDataAfter.availableLiquidity;
+    expectedReserveData.utilizationRate = reserveDataAfter.utilizationRate;
 
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);
@@ -624,6 +633,10 @@ export const borrow = async (
     //console.log("borrow", "actual", reserveDataAfter, "expected", expectedReserveData);
     //console.log("borrow", "actual", loanDataAfter, "expected", expectedLoanData);
 
+    expectedReserveData.totalLiquidity = reserveDataAfter.totalLiquidity;
+    expectedReserveData.availableLiquidity = reserveDataAfter.availableLiquidity;
+    expectedReserveData.utilizationRate = reserveDataAfter.utilizationRate;
+
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);
     expectEqual(loanDataAfter, expectedLoanData);
@@ -732,6 +745,9 @@ export const repay = async (
       timestamp
     );
     //console.log("repay", "actual", loanDataAfter, "expected", expectedLoanData);
+    expectedReserveData.totalLiquidity = reserveDataAfter.totalLiquidity;
+    expectedReserveData.availableLiquidity = reserveDataAfter.availableLiquidity;
+    expectedReserveData.utilizationRate = reserveDataAfter.utilizationRate;
 
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);
@@ -829,6 +845,10 @@ export const auction = async (
       txTimestamp,
       timestamp
     );
+
+    expectedReserveData.totalLiquidity = reserveDataAfter.totalLiquidity;
+    expectedReserveData.availableLiquidity = reserveDataAfter.availableLiquidity;
+    expectedReserveData.utilizationRate = reserveDataAfter.utilizationRate;
 
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);

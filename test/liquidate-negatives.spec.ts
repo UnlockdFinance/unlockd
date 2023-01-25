@@ -31,6 +31,7 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     // user 0 mint and deposit 100 WETH
     await fundWithERC20("WETH", user0.address, "100");
     await approveERC20(testEnv, user0, "WETH");
+
     const amountDeposit = await convertToCurrencyDecimals(deployer, weth, "100");
     await pool.connect(user0.signer).deposit(weth.address, amountDeposit, user0.address, "0");
 
@@ -61,6 +62,7 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
       minBidFine: 2000,
     };
     await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
+
     await pool
       .connect(user1.signer)
       .borrow(weth.address, BN.from("420000000000000000"), bayc.address, "101", user1.address, "0");
@@ -68,6 +70,7 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     // user 2, 3 mint 100 WETH
     await fundWithERC20("WETH", user2.address, "100");
     await approveERC20(testEnv, user2, "WETH");
+
     await fundWithERC20("WETH", user3.address, "100");
     await approveERC20(testEnv, user3, "WETH");
   });
