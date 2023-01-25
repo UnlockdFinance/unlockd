@@ -37,7 +37,7 @@ library LendingLogic {
    */
   function executeDepositYearn(
     ILendPoolAddressesProvider addressesProvider,
-    DataTypes.ExecuteDepositYearnParams memory params
+    DataTypes.ExecuteYearnParams memory params
   ) internal {
     address wethAddress = addressesProvider.getAddress(keccak256("WETH"));
     // Only deposit if underlying asset is WETH
@@ -60,10 +60,11 @@ library LendingLogic {
    */
   function executeWithdrawYearn(
     ILendPoolAddressesProvider addressesProvider,
-    DataTypes.ExecuteDepositYearnParams memory params
-  ) internal {
+    DataTypes.ExecuteYearnParams memory params
+  ) internal returns (uint256) {
     address wethAddress = addressesProvider.getAddress(keccak256("WETH"));
     // Only withdraw if underlying asset is WETH
+    uint256 value;
     if (params.underlyingAsset == wethAddress) {
       address yVaultWETH = addressesProvider.getAddress(keccak256("YVAULT_WETH"));
 
@@ -71,10 +72,11 @@ library LendingLogic {
 
       uint256 shares = params.amount.wadDiv(pricePerShare);
 
-      IYVault(yVaultWETH).withdraw(shares);
+      value = IYVault(yVaultWETH).withdraw(shares);
 
-      emit WithdrawYearn(params.underlyingAsset, params.amount, yVaultWETH);
+      emit WithdrawYearn(params.underlyingAsset, value, yVaultWETH);
     }
+    return value;
   }
 
   /**

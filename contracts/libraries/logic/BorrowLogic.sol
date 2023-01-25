@@ -154,11 +154,9 @@ library BorrowLogic {
       vars.nftOracle
     );
 
-    require(
-      //@todo update check to fetch balance from yearn
-      IUToken(reserveData.uTokenAddress).getAvailableLiquidity() >= params.amount,
-      Errors.LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY
-    );
+    address uToken = reserveData.uTokenAddress;
+
+    require(IUToken(uToken).getAvailableLiquidity() >= params.amount, Errors.LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY);
 
     if (vars.loanId == 0) {
       IERC721Upgradeable(params.nftAsset).safeTransferFrom(vars.initiator, address(this), params.nftTokenId);
@@ -191,14 +189,18 @@ library BorrowLogic {
     );
 
     // update interest rate according latest borrow amount (utilizaton)
-    reserveData.updateInterestRates(params.asset, reserveData.uTokenAddress, 0, params.amount);
+    reserveData.updateInterestRates(params.asset, uToken, 0, params.amount);
 
-    IUToken(reserveData.uTokenAddress).transferUnderlyingTo(vars.initiator, params.amount);
+    // Withdraw amount from external lending protocol
+    uint256 value = IUToken(uToken).withdrawReserves(params.amount);
+
+    // Transfer underlying to user
+    IUToken(uToken).transferUnderlyingTo(vars.initiator, value);
 
     emit Borrow(
       vars.initiator,
       params.asset,
-      params.amount,
+      value,
       params.nftAsset,
       params.nftTokenId,
       params.onBehalfOf,
@@ -297,15 +299,16 @@ library BorrowLogic {
 
     IDebtToken(reserveData.debtTokenAddress).burn(loanData.borrower, vars.repayAmount, reserveData.variableBorrowIndex);
 
+    address uToken = reserveData.uTokenAddress;
+
     // update interest rate according latest borrow amount (utilizaton)
-    reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.repayAmount, 0);
+    reserveData.updateInterestRates(loanData.reserveAsset, uToken, vars.repayAmount, 0);
 
     // transfer repay amount to uToken
-    IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(
-      vars.initiator,
-      reserveData.uTokenAddress,
-      vars.repayAmount
-    );
+    IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, uToken, vars.repayAmount);
+
+    // Deposit amount repaid to external lending protocol
+    IUToken(uToken).depositReserves(vars.repayAmount);
 
     // transfer erc721 to borrower
     if (!vars.isUpdate) {

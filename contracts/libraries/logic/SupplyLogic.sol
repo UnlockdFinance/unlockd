@@ -71,6 +71,9 @@ library SupplyLogic {
 
     IUToken(uToken).mint(params.onBehalfOf, params.amount, reserve.liquidityIndex);
 
+    // Deposit amount to external lending protocol
+    IUToken(uToken).depositReserves(params.amount);
+
     emit Deposit(params.initiator, params.asset, params.amount, params.onBehalfOf, params.referralCode);
   }
 
@@ -99,11 +102,14 @@ library SupplyLogic {
       amountToWithdraw = userBalance;
     }
 
-    ValidationLogic.validateWithdraw(reserve, amountToWithdraw, userBalance);
+    ValidationLogic.validateWithdraw(reserve, amountToWithdraw, userBalance, uToken);
 
     reserve.updateState();
 
     reserve.updateInterestRates(params.asset, uToken, 0, amountToWithdraw);
+
+    // Withdraw amount from external lending protocol
+    IUToken(uToken).withdrawReserves(amountToWithdraw);
 
     IUToken(uToken).burn(params.initiator, params.to, amountToWithdraw, reserve.liquidityIndex);
 

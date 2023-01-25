@@ -89,11 +89,6 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     require(amountScaled != 0, Errors.CT_INVALID_BURN_AMOUNT);
     _burn(user, amountScaled);
 
-    LendingLogic.executeWithdrawYearn(
-      _addressProvider,
-      DataTypes.ExecuteDepositYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
-    );
-
     IERC20Upgradeable(_underlyingAsset).safeTransfer(receiverOfUnderlying, amount);
 
     emit Burn(user, receiverOfUnderlying, amount, index);
@@ -116,14 +111,32 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     require(amountScaled != 0, Errors.CT_INVALID_MINT_AMOUNT);
     _mint(user, amountScaled);
 
-    LendingLogic.executeDepositYearn(
-      _addressProvider,
-      DataTypes.ExecuteDepositYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
-    );
-
     emit Mint(user, amount, index);
 
     return previousBalance == 0;
+  }
+
+  /**
+   * @dev Deposits `amount` to the lending protocol currently active
+   * @param amount The amount of tokens to deposit
+   */
+  function depositReserves(uint256 amount) external override onlyLendPool {
+    LendingLogic.executeDepositYearn(
+      _addressProvider,
+      DataTypes.ExecuteYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
+    );
+  }
+
+  /**
+   * @dev Withdraws `amount` from the lending protocol currently active
+   * @param amount The amount of tokens to withdraw
+   */
+  function withdrawReserves(uint256 amount) external override onlyLendPool returns (uint256) {
+    uint256 value = LendingLogic.executeWithdrawYearn(
+      _addressProvider,
+      DataTypes.ExecuteYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
+    );
+    return value;
   }
 
   /**

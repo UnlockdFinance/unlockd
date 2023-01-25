@@ -99,6 +99,18 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   function mintToTreasury(uint256 amount, uint256 index) external;
 
   /**
+   * @dev Deposits `amount` to the lending protocol currently active
+   * @param amount The amount of tokens to deposit
+   */
+  function depositReserves(uint256 amount) external;
+
+  /**
+   * @dev Withdraws `amount` from the lending protocol currently active
+   * @param amount The amount of tokens to withdraw
+   */
+  function withdrawReserves(uint256 amount) external returns (uint256);
+
+  /**
    * @dev Transfers the underlying asset to `target`. Used by the LendPool to transfer
    * assets in borrow() and withdraw()
    * @param user The recipient of the underlying

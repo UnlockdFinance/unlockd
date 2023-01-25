@@ -188,12 +188,14 @@ library LiquidateMarketsLogic {
       reserveData.variableBorrowIndex
     );
 
+    address uToken = reserveData.uTokenAddress;
+
     // update interest rate according latest borrow amount (utilizaton)
-    reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.borrowAmount, 0);
+    reserveData.updateInterestRates(loanData.reserveAsset, uToken, vars.borrowAmount, 0);
 
     // NFTX selling price was lower than borrow amount. Treasury must cover the loss
     if (vars.extraDebtAmount > 0) {
-      address treasury = IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS();
+      address treasury = IUToken(uToken).RESERVE_TREASURY_ADDRESS();
       require(
         IERC20Upgradeable(loanData.reserveAsset).balanceOf(treasury) > vars.extraDebtAmount,
         Errors.VL_VALUE_EXCEED_TREASURY_BALANCE
@@ -202,7 +204,10 @@ library LiquidateMarketsLogic {
     }
 
     // transfer borrow amount from lend pool to uToken, repay debt
-    IERC20Upgradeable(loanData.reserveAsset).safeTransfer(reserveData.uTokenAddress, vars.borrowAmount);
+    IERC20Upgradeable(loanData.reserveAsset).safeTransfer(uToken, vars.borrowAmount);
+
+    // Deposit borrow amount to lending protocol
+    IUToken(uToken).depositReserves(vars.borrowAmount);
 
     // transfer fee amount from lend pool to liquidator
     IERC20Upgradeable(loanData.reserveAsset).safeTransfer(vars.liquidator, vars.feeAmount);
@@ -350,12 +355,15 @@ library LiquidateMarketsLogic {
       vars.borrowAmount,
       reserveData.variableBorrowIndex
     );
+
+    address uToken = reserveData.uTokenAddress;
+
     // update interest rate according latest borrow amount (utilizaton)
-    reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.borrowAmount, 0);
+    reserveData.updateInterestRates(loanData.reserveAsset, uToken, vars.borrowAmount, 0);
 
     // SudoSwap selling price was lower than borrow amount. Treasury must cover the loss
     if (vars.extraDebtAmount > 0) {
-      address treasury = IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS();
+      address treasury = IUToken(uToken).RESERVE_TREASURY_ADDRESS();
       require(
         IERC20Upgradeable(loanData.reserveAsset).balanceOf(treasury) > vars.extraDebtAmount,
         Errors.VL_VALUE_EXCEED_TREASURY_BALANCE
@@ -364,7 +372,10 @@ library LiquidateMarketsLogic {
     }
 
     // transfer borrow amount from lend pool to uToken, repay debt
-    IERC20Upgradeable(loanData.reserveAsset).safeTransfer(reserveData.uTokenAddress, vars.borrowAmount);
+    IERC20Upgradeable(loanData.reserveAsset).safeTransfer(uToken, vars.borrowAmount);
+
+    // Deposit borrow amount to lending protocol
+    IUToken(uToken).depositReserves(vars.borrowAmount);
 
     // transfer fee amount from lend pool to liquidator
     IERC20Upgradeable(loanData.reserveAsset).safeTransfer(vars.liquidator, vars.feeAmount);

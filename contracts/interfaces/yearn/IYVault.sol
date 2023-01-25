@@ -19,5 +19,5 @@ interface IYVault {
 
   function deposit(uint256) external;
 
-  function withdraw(uint256) external;
+  function withdraw(uint256) external returns (uint256);
 }
