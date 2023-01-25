@@ -155,7 +155,8 @@ library BorrowLogic {
     );
 
     require(
-      IERC20Upgradeable(params.asset).balanceOf(reserveData.uTokenAddress) >= params.amount,
+      //@todo update check to fetch balance from yearn
+      IUToken(reserveData.uTokenAddress).getAvailableLiquidity() >= params.amount,
       Errors.LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY
     );
 

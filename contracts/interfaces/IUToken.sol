@@ -108,6 +108,12 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   function transferUnderlyingTo(address user, uint256 amount) external returns (uint256);
 
   /**
+   * @dev Returns the scaled balance of the user and the scaled total supply.
+   * @return The available liquidity in reserve
+   **/
+  function getAvailableLiquidity() external view returns (uint256);
+
+  /**
    * @dev Returns the address of the incentives controller contract
    **/
   function getIncentivesController() external view returns (IIncentivesController);

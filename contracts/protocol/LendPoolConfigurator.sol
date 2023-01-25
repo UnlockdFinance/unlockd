@@ -6,6 +6,9 @@ import {IUNFTRegistry} from "../interfaces/IUNFTRegistry.sol";
 import {ILendPoolConfigurator} from "../interfaces/ILendPoolConfigurator.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
+import {INFTOracle} from "../interfaces/INFTOracle.sol";
+import {IUToken} from "../interfaces/IUToken.sol";
+
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
 import {ConfiguratorLogic} from "../libraries/logic/ConfiguratorLogic.sol";
@@ -13,7 +16,7 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {ConfigTypes} from "../libraries/types/ConfigTypes.sol";
-import {INFTOracle} from "../interfaces/INFTOracle.sol";
+
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -699,7 +702,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function _checkReserveNoLiquidity(address asset) internal view {
     DataTypes.ReserveData memory reserveData = _getLendPool().getReserveData(asset);
 
-    uint256 availableLiquidity = IERC20Upgradeable(asset).balanceOf(reserveData.uTokenAddress);
+    uint256 availableLiquidity = IUToken(reserveData.uTokenAddress).getAvailableLiquidity();
 
     require(availableLiquidity == 0 && reserveData.currentLiquidityRate == 0, Errors.LPC_RESERVE_LIQUIDITY_NOT_0);
   }

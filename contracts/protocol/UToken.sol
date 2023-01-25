@@ -180,6 +180,14 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   }
 
   /**
+   * @dev Returns the scaled balance of the user and the scaled total supply.
+   * @return The available liquidity in reserve
+   **/
+  function getAvailableLiquidity() public view override returns (uint256) {
+    return LendingLogic.calculateYearnAvailableLiquidityInReserve(_addressProvider);
+  }
+
+  /**
    * @dev calculates the total supply of the specific uToken
    * since the balance of every single user increases over time, the total supply
    * does that too.

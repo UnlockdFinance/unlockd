@@ -76,4 +76,22 @@ library LendingLogic {
       emit WithdrawYearn(params.underlyingAsset, params.amount, yVaultWETH);
     }
   }
+
+  /**
+   * @notice Implements the yearn vault withdraw feature. Through `executeWithdrawYearn()`, users withdrawn assets are withdrawn from the YVault.
+   * @dev Emits the `WithdrawYearn()` event.
+   * @param addressesProvider The protocol current address provider
+   * @return availableLiquidityInReserve The available liquidity in reserve format
+   */
+  function calculateYearnAvailableLiquidityInReserve(
+    ILendPoolAddressesProvider addressesProvider
+  ) internal view returns (uint256 availableLiquidityInReserve) {
+    address yVaultWETH = addressesProvider.getAddress(keccak256("YVAULT_WETH"));
+
+    uint256 availableLiquidityInShares = IERC20Upgradeable(yVaultWETH).balanceOf(address(this));
+
+    uint256 pricePerShare = IYVault(yVaultWETH).pricePerShare();
+
+    availableLiquidityInReserve = availableLiquidityInShares.wadMul(pricePerShare);
+  }
 }
