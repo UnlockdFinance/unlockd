@@ -88,6 +88,7 @@ library SupplyLogic {
 
     DataTypes.ReserveData storage reserve = reservesData[params.asset];
     address uToken = reserve.uTokenAddress;
+
     require(uToken != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
     uint256 userBalance = IUToken(uToken).balanceOf(params.initiator);
@@ -103,8 +104,6 @@ library SupplyLogic {
     reserve.updateState();
 
     reserve.updateInterestRates(params.asset, uToken, 0, amountToWithdraw);
-
-    // @todo withdraw from yearn
 
     IUToken(uToken).burn(params.initiator, params.to, amountToWithdraw, reserve.liquidityIndex);
 

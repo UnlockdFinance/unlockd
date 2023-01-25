@@ -5,17 +5,18 @@ import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvid
 import {ILendPoolConfigurator} from "../interfaces/ILendPoolConfigurator.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
 import {IUToken} from "../interfaces/IUToken.sol";
-
 import {IYVault} from "../interfaces/yearn/IYVault.sol";
 import {IIncentivesController} from "../interfaces/IIncentivesController.sol";
 import {IncentivizedERC20} from "./IncentivizedERC20.sol";
+
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
+import {LendingLogic} from "../libraries/logic/LendingLogic.sol";
+import {DataTypes} from "../libraries/types/DataTypes.sol";
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import "hardhat/console.sol";
 
 /**
  * @title ERC20 UToken
@@ -84,8 +85,14 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     uint256 index
   ) external override onlyLendPool {
     uint256 amountScaled = amount.rayDiv(index);
+
     require(amountScaled != 0, Errors.CT_INVALID_BURN_AMOUNT);
     _burn(user, amountScaled);
+
+    LendingLogic.executeWithdrawYearn(
+      _addressProvider,
+      DataTypes.ExecuteDepositYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
+    );
 
     IERC20Upgradeable(_underlyingAsset).safeTransfer(receiverOfUnderlying, amount);
 
@@ -109,16 +116,10 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     require(amountScaled != 0, Errors.CT_INVALID_MINT_AMOUNT);
     _mint(user, amountScaled);
 
-    //@todo deposit to yearn vault
-
-    address wethAddress = _addressProvider.getAddress(keccak256("WETH"));
-
-    if (_underlyingAsset == wethAddress) {
-      address yVaultWETH = _addressProvider.getAddress(keccak256("YVAULT_WETH"));
-      // deposit WETH, get yvWETH
-      IERC20Upgradeable(_underlyingAsset).approve(yVaultWETH, amount);
-      IYVault(yVaultWETH).deposit(amount);
-    }
+    LendingLogic.executeDepositYearn(
+      _addressProvider,
+      DataTypes.ExecuteDepositYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
+    );
 
     emit Mint(user, amount, index);
 

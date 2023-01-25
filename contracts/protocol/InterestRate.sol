@@ -3,6 +3,7 @@ pragma solidity 0.8.4;
 
 import {IInterestRate} from "../interfaces/IInterestRate.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
+import {IYVault} from "../interfaces/yearn/IYVault.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 
@@ -101,7 +102,16 @@ contract InterestRate is IInterestRate {
     uint256 totalVariableDebt,
     uint256 reserveFactor
   ) external view override returns (uint256, uint256) {
-    uint256 availableLiquidity = IERC20Upgradeable(reserve).balanceOf(uToken);
+    address yVaultWETH = addressesProvider.getAddress(keccak256("YVAULT_WETH"));
+
+    uint256 availableLiquidityInShares = IERC20Upgradeable(yVaultWETH).balanceOf(uToken);
+
+    uint256 pricePerShare = IYVault(yVaultWETH).pricePerShare();
+
+    uint256 availableLiquidity = availableLiquidityInShares.wadMul(pricePerShare);
+
+    //@todo remove this comment
+    //uint256 availableLiquidity = IERC20Upgradeable(reserve).balanceOf(uToken);
     //avoid stack too deep
     availableLiquidity = availableLiquidity + (liquidityAdded) - (liquidityTaken);
 
@@ -169,11 +179,10 @@ contract InterestRate is IInterestRate {
    * @param currentVariableBorrowRate The current variable borrow rate of the reserve
    * @return The weighted averaged borrow rate
    **/
-  function _getOverallBorrowRate(uint256 totalVariableDebt, uint256 currentVariableBorrowRate)
-    internal
-    pure
-    returns (uint256)
-  {
+  function _getOverallBorrowRate(
+    uint256 totalVariableDebt,
+    uint256 currentVariableBorrowRate
+  ) internal pure returns (uint256) {
     uint256 totalDebt = totalVariableDebt;
 
     if (totalDebt == 0) return 0;

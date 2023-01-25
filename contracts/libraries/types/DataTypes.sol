@@ -183,4 +183,9 @@ library DataTypes {
     uint256 pauseStartTime;
     uint256 pauseDurationTime;
   }
+
+  struct ExecuteDepositYearnParams {
+    address underlyingAsset;
+    uint256 amount;
+  }
 }
