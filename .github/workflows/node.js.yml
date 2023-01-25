@@ -41,4 +41,4 @@ jobs:
         run: npm run test
         env: 
           FORK: goerli
-          RPC_ENDPOINT: https://eth-goerli.g.alchemy.com/v2/y4KsllNNT0Wcjb9hVb3NwpJFqh8k185q
+          RPC_ENDPOINT: https://eth-mainnet.g.alchemy.com/v2/y4KsllNNT0Wcjb9hVb3NwpJFqh8k185q
