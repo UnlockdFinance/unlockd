@@ -257,16 +257,4 @@ interface ILendPoolAddressesProvider {
    * @param liquidator the LendPool liquidator address
    **/
   function setLendPoolLiquidator(address liquidator) external;
-
-  /**
-   * @dev returns the address of the lockey collection
-   * @return the lockey address
-   **/
-  function getLockey() external view returns (address);
-
-  /**
-   * @dev sets the address of the Lockey Collection
-   * @param lockeyCollection the lockey address
-   **/
-  function setLockey(address lockeyCollection) external;
 }

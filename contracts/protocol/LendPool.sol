@@ -343,7 +343,8 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
           amount: buyoutAmount
-        })
+        }),
+        getLockeyDiscount()
       );
   }
 

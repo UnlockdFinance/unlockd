@@ -36,7 +36,6 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   bytes32 private constant NFTX_VAULT_FACTORY = "NFTX_VAULT_FACTORY";
   bytes32 private constant SUSHI_SWAP_ROUTER = "SUSHI_SWAP_ROUTER";
   bytes32 private constant LSSVM_ROUTER = "LSSVM_ROUTER";
-  bytes32 private constant LOCKEY_COLLECTION = "LOCKEY_COLLECTION";
 
   //bytes32 private constant LOCKEYS_NFT = "LOCKEYS_NFT";
 
@@ -398,24 +397,6 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
     require(liquidator != address(0), Errors.INVALID_ZERO_ADDRESS);
     _addresses[LEND_POOL_LIQUIDATOR] = liquidator;
     emit LendPoolLiquidatorUpdated(liquidator);
-  }
-
-  /**
-   * @dev returns the address of the lockey collection
-   * @return the lockey address
-   **/
-  function getLockey() external view override returns (address) {
-    return getAddress(LOCKEY_COLLECTION);
-  }
-
-  /**
-   * @dev sets the address of the Lockey Collection
-   * @param lockeyCollection the lockey address
-   **/
-  function setLockey(address lockeyCollection) external override onlyOwner {
-    require(lockeyCollection != address(0), Errors.INVALID_ZERO_ADDRESS);
-    _addresses[LOCKEY_COLLECTION] = lockeyCollection;
-    emit LockeyCollectionUpdated(lockeyCollection);
   }
 
   /**

@@ -40,6 +40,8 @@ library LiquidateLogic {
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
   using NftConfiguration for DataTypes.NftConfigurationMap;
 
+  bytes32 private constant LOCKEY_COLLECTION = "LOCKEY_COLLECTION";
+
   /**
    * @dev Emitted when a borrower's loan is auctioned.
    * @param user The address of the user initiating the auction
@@ -578,7 +580,8 @@ library LiquidateLogic {
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    DataTypes.ExecuteLiquidateParams memory params
+    DataTypes.ExecuteLiquidateParams memory params,
+    uint256 lockeyDiscount
   ) external returns (uint256) {
     LiquidateLocalVars memory vars;
     vars.initiator = params.initiator;
@@ -598,6 +601,10 @@ library LiquidateLogic {
 
     ValidationLogic.validateBuyout(reserveData, nftData, nftConfig, loanData);
 
+    // IF the user is a lockey holder, gets a discount
+    if (IERC721Upgradeable(addressesProvider.getAddress(LOCKEY_COLLECTION)).balanceOf(params.initiator) > 0) {
+      params.amount = params.amount - ((params.amount * lockeyDiscount) / 100);
+    }
     // lock highest bidder bid price amount to lend pool
     IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, address(this), params.amount);
 
