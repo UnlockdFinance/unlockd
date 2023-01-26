@@ -4,7 +4,6 @@ import { oneEther } from "../helpers/constants";
 import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
 import { fundWithERC20, fundWithERC721, waitForTx } from "../helpers/misc-utils";
 import { IConfigNftAsCollateralInput, ProtocolErrors } from "../helpers/types";
-import { LendPool } from "../types";
 import { approveERC20, setApprovalForAll, setNftAssetPriceForDebt } from "./helpers/actions";
 import { makeSuite } from "./helpers/make-suite";
 
@@ -95,17 +94,15 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
   it("Buyer - buys out the NFT in auction", async () => {
     const { users, pool, nftOracle, bayc } = testEnv;
     const buyer = users[2];
-    const borrower = users[4];
 
     await fundWithERC20("WETH", buyer.address, "1000");
     await approveERC20(testEnv, buyer, "WETH");
 
     const nftPrice = await nftOracle.getNFTPrice(bayc.address, "101");
-    //await configurator.connect(deployer.signer).setTimeframe(360000);
+
     const buyoutPrice = new BigNumber(nftPrice.toString()).multipliedBy(10).toFixed(0);
 
     await waitForTx(await pool.connect(buyer.signer).buyOut(bayc.address, "101", buyoutPrice));
-    //await waitForTx(await pool.connect(buyer.signer).liquidate(bayc.address, "101", buyoutPrice))
 
     expect(await bayc.ownerOf(101), "buyer should be the new owner").to.be.eq(buyer.address);
   });

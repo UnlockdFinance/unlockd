@@ -225,5 +225,12 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.localhost]: "",
     [eEthereumNetwork.goerli]: "",
     [eEthereumNetwork.main]: "0xa258C4606Ca8206D8aA700cE2143D7db854D168c",
-  } 
+  },
+  // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
+  LockeyCollection: { 
+    [eEthereumNetwork.hardhat]: "0x9a29a9DBC70eA932637216A2BF9EbE7E60023798", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "0x9a29a9DBC70eA932637216A2BF9EbE7E60023798",
+  }  
 };

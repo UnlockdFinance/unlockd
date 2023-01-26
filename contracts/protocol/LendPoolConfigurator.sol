@@ -676,18 +676,6 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   }
 
   /**
-   * @dev Sets new treasury to the specified UToken
-   * @param uToken the utoken to update the treasury address to
-   * @param treasury the new treasury address
-   **/
-  function setTreasuryAddress(address uToken, address treasury) external onlyPoolAdmin {
-    require(treasury != address(0), Errors.INVALID_ZERO_ADDRESS);
-    ILendPool cachedPool = _getLendPool();
-    cachedPool.setTreasuryAddress(uToken, treasury);
-    emit UTokenTreasuryUpdated(uToken, treasury);
-  }
-
-  /**
    * @dev Returns the token implementation contract address
    * @param proxyAddress  The address of the proxy contract
    * @return The address of the token implementation contract

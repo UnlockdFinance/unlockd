@@ -88,6 +88,8 @@ export enum eContractid {
   NFTXHelper = "NFTXHelper",
   LSSVMPPair = "LSSVMPair",
   YVault = "YVault",
+  LockeyHolderImpl = "LockeyHolderImpl",
+  LockeyHolder = "LockeyHolder",
 }
 
 export enum ProtocolLoanState {
@@ -467,6 +469,7 @@ export interface ICommonConfiguration {
   SushiSwapRouter: iParamsPerNetwork<tEthereumAddress>;
   LSSVMRouter: iParamsPerNetwork<tEthereumAddress>;
   YVaultWETH: iParamsPerNetwork<tEthereumAddress>;
+  LockeyCollection: iParamsPerNetwork<tEthereumAddress>;
 }
 
 export interface IUnlockdConfiguration extends ICommonConfiguration {

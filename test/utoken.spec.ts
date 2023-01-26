@@ -1,7 +1,9 @@
 import { expect } from "chai";
+import { zeroAddress } from "ethereumjs-util";
 import { APPROVAL_AMOUNT_LENDING_POOL, ZERO_ADDRESS } from "../helpers/constants";
+import { getUToken } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
-import { fundWithERC20, waitForTx } from "../helpers/misc-utils";
+import { createRandomAddress, fundWithERC20, waitForTx } from "../helpers/misc-utils";
 import { ProtocolErrors } from "../helpers/types";
 import { CommonsConfig } from "../markets/unlockd/commons";
 import { approveERC20 } from "./helpers/actions";
@@ -13,6 +15,8 @@ makeSuite("UToken", (testEnv: TestEnv) => {
   afterEach("Reset", () => {
     testEnv.mockIncentivesController.resetHandleActionIsCalled();
   });
+
+  const { CALLER_NOT_POOL_ADMIN, INVALID_ZERO_ADDRESS } = ProtocolErrors;
 
   it("Check WETH basic parameters", async () => {
     const { weth, uWETH, pool } = testEnv;
@@ -37,6 +41,32 @@ makeSuite("UToken", (testEnv: TestEnv) => {
 
     const wantPool = await uWETH.POOL();
     expect(wantPool).to.be.equal(pool.address);
+  });
+
+  it("Check the onlyAdmin on set treasury to new utoken", async () => {
+    const { users, uWETH } = testEnv;
+    await expect(
+      uWETH.connect(users[2].signer).setTreasuryAddress(users[2].address),
+      CALLER_NOT_POOL_ADMIN
+    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+  });
+
+  it("Check the zero check on set treasury to new utoken", async () => {
+    const { deployer, uWETH } = testEnv;
+    await expect(
+      uWETH.connect(deployer.signer).setTreasuryAddress(zeroAddress()),
+      INVALID_ZERO_ADDRESS
+    ).to.be.revertedWith(INVALID_ZERO_ADDRESS);
+  });
+
+  it("Check the address is properly updated in WETH uToken", async () => {
+    const { deployer, weth, dataProvider, uWETH } = testEnv;
+    const expectedAddress = await createRandomAddress();
+    const { uTokenAddress } = await dataProvider.getReserveTokenData(weth.address);
+
+    await uWETH.connect(deployer.signer).setTreasuryAddress(expectedAddress);
+
+    await expect(await (await getUToken(uTokenAddress)).RESERVE_TREASURY_ADDRESS()).to.be.equal(expectedAddress);
   });
 
   it("User 0 deposits 1000 WETH, transfers uweth to user 1", async () => {
