@@ -1,8 +1,14 @@
 import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
 import { getReservesConfigByPool } from "../helpers/configuration";
-import { fundWithERC20, fundWithERC721, waitForTx } from "../helpers/misc-utils";
-import { IConfigNftAsCollateralInput, IReserveParams, iUnlockdPoolAssets, UnlockdPools } from "../helpers/types";
+import { advanceTimeAndBlock, fundWithERC20, fundWithERC721, waitForTx } from "../helpers/misc-utils";
+import {
+  IConfigNftAsCollateralInput,
+  IReserveParams,
+  iUnlockdPoolAssets,
+  ProtocolErrors,
+  UnlockdPools,
+} from "../helpers/types";
 import {
   approveERC20,
   borrow,
@@ -87,9 +93,22 @@ makeSuite("LendPool: Withdraw", (testEnv: TestEnv) => {
     await withdraw(testEnv, user0, "WETH", "0.5", "success", "");
   });
 
-  it("User 0 withdraws remaining half of the deposited WETH", async () => {
+  it("User 0 tries to withdraw remaining half of the deposited WETH (expect revert due to not enough liquidity)", async () => {
     const { users } = testEnv;
     const user0 = users[0];
+
+    await withdraw(testEnv, user0, "WETH", "-1", "revert", ProtocolErrors.LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY);
+  });
+
+  it("User 0 tries to withdraw remaining half of the deposited WETH ", async () => {
+    const { users } = testEnv;
+    const user0 = users[0];
+    const user1 = users[1];
+
+    await fundWithERC20("WETH", user1.address, "1");
+    await approveERC20(testEnv, user1, "WETH");
+
+    await deposit(testEnv, user1, "", "WETH", "1", user1.address, "success", "");
 
     await withdraw(testEnv, user0, "WETH", "-1", "success", "");
   });

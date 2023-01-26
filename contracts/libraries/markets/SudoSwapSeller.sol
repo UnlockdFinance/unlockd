@@ -19,7 +19,7 @@ library SudoSwapSeller {
     uint256[] nftIds;
   }
   // Address ID for Sudoswap LSSVM router in addresses provider
-  bytes32 public constant ADDRESS_ID_LSSVM_ROUTER = 0xADDE000000000000000000000000000000000000000000000000000000000003;
+  bytes32 public constant ADDRESS_ID_LSSVM_ROUTER = keccak256("LSSVM_ROUTER");
 
   /**
    * @dev Sells an asset in a SudoSwap liquid market

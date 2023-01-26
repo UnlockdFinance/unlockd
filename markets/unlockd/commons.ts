@@ -219,4 +219,11 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.goerli]: "0x25b4EfC43c9dCAe134233CD577fFca7CfAd6748F",
     [eEthereumNetwork.main]: "0x2b2e8cda09bba9660dca5cb6233787738ad68329",
   },
+  // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
+  YVaultWETH: { 
+    [eEthereumNetwork.hardhat]: "0xa258C4606Ca8206D8aA700cE2143D7db854D168c", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "0xa258C4606Ca8206D8aA700cE2143D7db854D168c",
+  } 
 };

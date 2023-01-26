@@ -8,9 +8,13 @@ import {
   getMintableERC721,
   getUToken,
 } from "../../../helpers/contracts-getters";
-import { DRE, getDb } from "../../../helpers/misc-utils";
+import { DRE, getDb, getNowTimeInSeconds } from "../../../helpers/misc-utils";
 import { tEthereumAddress } from "../../../helpers/types";
 import { ERC20Factory } from "../../../types";
+import type { IYVault } from "../../../types/IYVault";
+
+import { BigNumber as BN } from "ethers";
+import { parseEther } from "ethers/lib/utils";
 import { LendPool } from "../../../types/LendPool";
 import { UnlockdProtocolDataProvider } from "../../../types/UnlockdProtocolDataProvider";
 import { LoanData, NftData, ReserveData, UserReserveData } from "./interfaces";
@@ -174,4 +178,27 @@ export const getERC20TokenBalance = async (reserve: string, user: tEthereumAddre
   const token = await ERC20Factory.connect(reserve, await getDeploySigner()).balanceOf(user);
 
   return token;
+};
+
+export const estimateExpectedYVaultShares = async (yVault: IYVault, amount: BN): Promise<BN> => {
+  return amount.mul(await yVault.totalSupply()).div(await yVaultFreeFunds(yVault));
+};
+
+const yVaultFreeFunds = async (yVault: IYVault): Promise<BN> => {
+  return (await yVault.totalAssets()).sub(await calculateLockedProfit(yVault));
+};
+
+const calculateLockedProfit = async (yVault: IYVault): Promise<BN> => {
+  const lockedFundsRatio = BN.from(await (await getNowTimeInSeconds()).toString())
+    .sub(await yVault.lastReport())
+    .mul(await yVault.lockedProfitDegradation());
+
+  const DEGRADATION_COEFFICIENT = parseEther("10");
+
+  if (lockedFundsRatio.lt(DEGRADATION_COEFFICIENT)) {
+    const lockedProfit = await yVault.lockedProfit();
+
+    return lockedProfit.sub(lockedFundsRatio.mul(lockedProfit).div(DEGRADATION_COEFFICIENT));
+  }
+  return BN.from(0);
 };
