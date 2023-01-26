@@ -1,4 +1,5 @@
 import BigNumber from "bignumber.js";
+import { utils } from "ethers";
 
 // ----------------
 // MATH
@@ -70,12 +71,14 @@ export const SUDOSWAP_PAIRS_MAINNET = {
 // ----------------
 // ADDRESS IDS IN PROVIDER
 // ----------------
-export const ADDRESS_ID_WETH_GATEWAY = "0xADDE000000000000000000000000000000000000000000000000000000000001";
-export const ADDRESS_ID_PUNK_GATEWAY = "0xADDE000000000000000000000000000000000000000000000000000000000002";
-export const ADDRESS_ID_LSSVM_ROUTER = "0xADDE000000000000000000000000000000000000000000000000000000000003";
-export const ADDRESS_ID_WETH = "0xADDE000000000000000000000000000000000000000000000000000000000004";
-export const ADDRESS_ID_PUNKS = "0xADDE000000000000000000000000000000000000000000000000000000000005";
-export const ADDRESS_ID_WPUNKS = "0xADDE000000000000000000000000000000000000000000000000000000000006";
+export const ADDRESS_ID_WETH_GATEWAY = utils.keccak256(utils.toUtf8Bytes("WETH_GATEWAY"));
+export const ADDRESS_ID_PUNK_GATEWAY = utils.keccak256(utils.toUtf8Bytes("PUNK_GATEWAY"));
+export const ADDRESS_ID_LSSVM_ROUTER = utils.keccak256(utils.toUtf8Bytes("LSSVM_ROUTER"));
+export const ADDRESS_ID_WETH = utils.keccak256(utils.toUtf8Bytes("WETH"));
+export const ADDRESS_ID_PUNKS = utils.keccak256(utils.toUtf8Bytes("PUNKS"));
+export const ADDRESS_ID_WPUNKS = utils.keccak256(utils.toUtf8Bytes("WPUNKS"));
+export const ADDRESS_ID_YVAULT_WETH = utils.keccak256(utils.toUtf8Bytes("YVAULT_WETH"));
+export const ADDRESS_ID_LOCKEY_COLLECTION = utils.keccak256(utils.toUtf8Bytes("YVAULT_WETH"));
 
 //Price source: https://data.chain.link/ethereum/mainnet/stablecoins
 export const MOCK_RESERVE_AGGREGATORS_PRICES = {
@@ -93,7 +96,7 @@ export const MOCK_NFT_AGGREGATORS_PRICES = {
   DOODLE: oneEther.multipliedBy("2.69").toFixed(),
   COOL: oneEther.multipliedBy("6.66").toFixed(),
   MEEBITS: oneEther.multipliedBy("2.88").toFixed(),
-  AZUKI: oneEther.multipliedBy("6.23").toFixed(),
+  MAYC: oneEther.multipliedBy("6.23").toFixed(),
   WOW: oneEther.multipliedBy("7.77").toFixed(),
   CLONEX: oneEther.multipliedBy("11.95").toFixed(),
   AZUKI: oneEther.multipliedBy("10.50").toFixed(),
@@ -107,7 +110,7 @@ export const MOCK_NFT_AGGREGATORS_MAXSUPPLY = {
   DOODLE: "150", //9999
   COOL: "150", //9999
   MEEBITS: "150", //20000
-  AZUKI: "150", //19422
+  MAYC: "150", //19422
   WOW: "150", //5555
   CLONEX: "150", //19310
   AZUKI: "150", //10000
@@ -121,7 +124,7 @@ export const MOCK_NFT_BASE_URIS = {
   DOODLE: "ipfs://QmPMc4tcBsMqLRuCQtPmPe84bpSjrC3Ky7t3JWuHXYB4aS/",
   COOL: "https://api.coolcatsnft.com/cat/",
   MEEBITS: "https://meebits.larvalabs.com/meebit/1",
-  AZUKI: "https://boredapeyachtclub.com/api/mutants/",
+  MAYC: "https://boredapeyachtclub.com/api/mutants/",
   WOW: "https://wow-prod-nftribe.s3.eu-west-2.amazonaws.com/t/",
   CLONEX: "https://clonex-assets.rtfkt.com/",
   AZUKI: "https://ikzttp.mypinata.cloud/ipfs/QmQFkLSQysj94s5GvTHPyzTxrawwtjgiiYS2TBLgrvw8CW/",

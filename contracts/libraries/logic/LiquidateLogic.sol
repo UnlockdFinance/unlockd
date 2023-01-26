@@ -10,6 +10,7 @@ import {INFTOracleGetter} from "../../interfaces/INFTOracleGetter.sol";
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
 import {ILendPool} from "../../interfaces/ILendPool.sol";
 import {ILSSVMPair} from "../../interfaces/sudoswap/ILSSVMPair.sol";
+import {ILockeyHolder} from "../../interfaces/ILockeyHolder.sol";
 
 import {ReserveLogic} from "./ReserveLogic.sol";
 import {GenericLogic} from "./GenericLogic.sol";
@@ -427,6 +428,7 @@ library LiquidateLogic {
     address poolLoan;
     address reserveOracle;
     address nftOracle;
+    address lockeysCollection;
     uint256 loanId;
     uint256 borrowAmount;
     uint256 extraDebtAmount;
@@ -580,8 +582,7 @@ library LiquidateLogic {
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    DataTypes.ExecuteLiquidateParams memory params,
-    uint256 lockeyDiscount
+    DataTypes.ExecuteLiquidateParams memory params
   ) external returns (uint256) {
     LiquidateLocalVars memory vars;
     vars.initiator = params.initiator;
@@ -589,6 +590,7 @@ library LiquidateLogic {
     vars.poolLoan = addressesProvider.getLendPoolLoan();
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
+    vars.lockeysCollection = addressesProvider.getAddress(keccak256("ADDRESS_ID_LOCKEY_COLLECTION"));
 
     vars.loanId = ILendPoolLoan(vars.poolLoan).getCollateralLoanId(params.nftAsset, params.nftTokenId);
     require(vars.loanId != 0, Errors.LP_NFT_IS_NOT_USED_AS_COLLATERAL);
@@ -602,10 +604,10 @@ library LiquidateLogic {
     ValidationLogic.validateBuyout(reserveData, nftData, nftConfig, loanData);
 
     // IF the user is a lockey holder, gets a discount
-    if (IERC721Upgradeable(addressesProvider.getAddress(LOCKEY_COLLECTION)).balanceOf(params.initiator) > 0) {
-      params.amount = params.amount - ((params.amount * lockeyDiscount) / 100);
+    if (IERC721Upgradeable(vars.lockeysCollection).balanceOf(params.initiator) > 0) {
+      params.amount = params.amount.percentMul(ILockeyHolder(vars.lockeysCollection).getLockeyDiscountPercentage());
     }
-    // lock highest bidder bid price amount to lend pool
+    //lock highest bidder bid price amount to lend pool
     IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, address(this), params.amount);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index

@@ -24,8 +24,6 @@ contract LendPoolStorage {
   uint256 internal _liquidateFeePercentage;
   uint256 internal _timeframe;
   uint256 internal _configFee;
-  address internal _lockeyAddress;
-  uint256 internal _lockeyDiscount;
   bool internal _paused;
 
   mapping(address => DataTypes.ReserveData) internal _reserves;

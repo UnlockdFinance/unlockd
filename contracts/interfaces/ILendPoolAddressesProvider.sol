@@ -29,7 +29,6 @@ interface ILendPoolAddressesProvider {
   event LSSVMRouterUpdated(address indexed newAddress);
   event LendPoolLiquidatorUpdated(address indexed newAddress);
   event LtvManagerUpdated(address indexed newAddress);
-  event LockeyCollectionUpdated(address indexed newAddress);
 
   /**
    * @dev Returns the id of the Unlockd market to which this contracts points to

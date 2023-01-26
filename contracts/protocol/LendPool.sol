@@ -45,7 +45,7 @@ import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Cont
  * - To be covered by a proxy contract, owned by the LendPoolAddressesProvider of the specific market
  * - All admin functions are callable by the LendPoolConfigurator contract defined also in the
  *   LendPoolAddressesProvider
- * @author Unlockd
+ * @author BendDao - changes Unlockd
  **/
 // !!! For Upgradable: DO NOT ADJUST Inheritance Order !!!
 contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721ReceiverUpgradeable, LendPoolStorage {
@@ -343,8 +343,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
           amount: buyoutAmount
-        }),
-        getLockeyDiscount()
+        })
       );
   }
 
@@ -937,21 +936,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    **/
   function getConfigFee() external view override returns (uint256) {
     return _configFee;
-  }
-
-  /**
-   * @dev Sets buyout discount for Lockey holders
-   * @param lockeyDiscount the discount percentage on base 10000 (25% -> 2500)
-   **/
-  function setLockeyDiscount(uint256 lockeyDiscount) external override onlyLendPoolConfigurator {
-    _lockeyDiscount = lockeyDiscount;
-  }
-
-  /**
-   * @dev Returns buyout discount for Lockey holders
-   **/
-  function getLockeyDiscount() public view override returns (uint256) {
-    return _lockeyDiscount;
   }
 
   /**
