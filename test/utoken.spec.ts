@@ -1,11 +1,16 @@
-import { expect } from "chai";
-import { APPROVAL_AMOUNT_LENDING_POOL, ZERO_ADDRESS } from "../helpers/constants";
+const chai = require("chai");
+import { parseEther } from "ethers/lib/utils";
+import { ADDRESS_ID_YVAULT_WETH, APPROVAL_AMOUNT_LENDING_POOL, ZERO_ADDRESS } from "../helpers/constants";
+import { getMintableERC20, getYVault } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { fundWithERC20, waitForTx } from "../helpers/misc-utils";
 import { ProtocolErrors } from "../helpers/types";
 import { CommonsConfig } from "../markets/unlockd/commons";
 import { approveERC20 } from "./helpers/actions";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
+import { wadDiv } from "./helpers/utils/math";
+
+const { expect } = chai;
 
 makeSuite("UToken", (testEnv: TestEnv) => {
   const { INVALID_FROM_BALANCE_AFTER_TRANSFER, INVALID_TO_BALANCE_AFTER_TRANSFER } = ProtocolErrors;
@@ -37,6 +42,40 @@ makeSuite("UToken", (testEnv: TestEnv) => {
 
     const wantPool = await uWETH.POOL();
     expect(wantPool).to.be.equal(pool.address);
+  });
+
+  it("10 WETH are sent to UToken, sweep deposits them into Yearn Vault", async () => {
+    const { users, pool, weth, uWETH, deployer, addressesProvider } = testEnv;
+
+    await fundWithERC20("WETH", uWETH.address, "10");
+
+    const yVault = await getYVault(await addressesProvider.getAddress(ADDRESS_ID_YVAULT_WETH));
+    const pricePerShare = await yVault.pricePerShare();
+
+    const erc20YVault = await getMintableERC20(await addressesProvider.getAddress(ADDRESS_ID_YVAULT_WETH));
+
+    const yvWETHBalanceBefore = await erc20YVault.balanceOf(uWETH.address);
+    await expect(yvWETHBalanceBefore).to.be.equal(0);
+
+    const availableLiquidityBefore = await uWETH.getAvailableLiquidity();
+    await expect(availableLiquidityBefore).to.be.equal(0);
+
+    await uWETH.sweepUToken();
+
+    // YVault computes shares in the following format, we account for a small precision error in assertions below:
+    // freeFunds = _totalAssets() - _calculateLockedProfit()
+    // shares =  amount * totalSupply / freeFunds
+    const yvWETHBalanceAfter = await erc20YVault.balanceOf(uWETH.address);
+    const yvWETHExpectedBalance = wadDiv(parseEther("10"), pricePerShare);
+
+    await expect(yvWETHExpectedBalance).to.be.within(yvWETHBalanceAfter, yvWETHBalanceAfter.add(1000));
+
+    const availableLiquidityAfter = await uWETH.getAvailableLiquidity();
+
+    await expect(availableLiquidityAfter.toString()).to.be.within(
+      parseEther("10").sub(1000),
+      parseEther("10").toString()
+    );
   });
 
   it("User 0 deposits 1000 WETH, transfers uweth to user 1", async () => {

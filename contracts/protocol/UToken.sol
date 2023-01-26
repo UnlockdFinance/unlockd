@@ -36,13 +36,8 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     _;
   }
 
-  modifier onlyLendPoolConfigurator() {
-    require(_msgSender() == address(_getLendPoolConfigurator()), Errors.LP_CALLER_NOT_LEND_POOL_CONFIGURATOR);
-    _;
-  }
-
   modifier onlyPoolAdmin() {
-    require(_addressProvider.getPoolAdmin() == msg.sender, Errors.CALLER_NOT_POOL_ADMIN);
+    require(_msgSender() == _addressProvider.getPoolAdmin(), Errors.CALLER_NOT_POOL_ADMIN);
     _;
   }
 
@@ -152,7 +147,10 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
 
     uint256 amount = underlyingAsset.balanceOf(address(this));
 
-    depositReserves(amount);
+    LendingLogic.executeDepositYearn(
+      _addressProvider,
+      DataTypes.ExecuteYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
+    );
 
     emit UTokenSwept(address(this), address(underlyingAsset), amount);
   }
