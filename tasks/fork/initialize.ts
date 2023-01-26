@@ -1,6 +1,7 @@
 import { task } from "hardhat/config";
 import { exit } from "process";
-import { ConfigNames, getTreasuryAddress, loadPoolConfig } from "../../helpers/configuration";
+import { ConfigNames, getTreasuryAddress, getYVaultWETHAddress, loadPoolConfig } from "../../helpers/configuration";
+import { ADDRESS_ID_YVAULT_WETH } from "../../helpers/constants";
 import {
   getLendPoolAddressesProvider,
   getPunkGateway,
@@ -53,6 +54,10 @@ task("fork:initialize-lend-pool", "Initialize lend pool configuration.")
         verify
       );
       await configureReservesByHelper(poolConfig.ReservesConfig, reserveAssets, admin);
+
+      const yVaultWETHAddress = await getYVaultWETHAddress(poolConfig);
+
+      await waitForTx(await addressesProvider.setAddress(ADDRESS_ID_YVAULT_WETH, yVaultWETHAddress));
 
       //////////////////////////////////////////////////////////////////////////
       console.log("Init & Config NFT assets");

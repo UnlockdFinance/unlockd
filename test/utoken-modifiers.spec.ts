@@ -26,4 +26,12 @@ makeSuite("UToken: Modifiers", (testEnv: TestEnv) => {
     const { deployer, uWETH } = testEnv;
     await expect(uWETH.transferUnderlyingTo(deployer.address, "1")).to.be.revertedWith(CT_CALLER_MUST_BE_LEND_POOL);
   });
+  it("Tries to invoke depositReserves not being the Pool", async () => {
+    const { deployer, uWETH } = testEnv;
+    await expect(uWETH.depositReserves("1")).to.be.revertedWith(CT_CALLER_MUST_BE_LEND_POOL);
+  });
+  it("Tries to invoke withdrawReserves not being the Pool", async () => {
+    const { deployer, uWETH } = testEnv;
+    await expect(uWETH.withdrawReserves("1")).to.be.revertedWith(CT_CALLER_MUST_BE_LEND_POOL);
+  });
 });

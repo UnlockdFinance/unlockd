@@ -87,6 +87,7 @@ export enum eContractid {
   SushiSwapRouter = "SushiSwapRouter",
   NFTXHelper = "NFTXHelper",
   LSSVMPPair = "LSSVMPair",
+  YVault = "YVault",
 }
 
 export enum ProtocolLoanState {
@@ -465,6 +466,7 @@ export interface ICommonConfiguration {
   NFTXVaultFactory: iParamsPerNetwork<tEthereumAddress>;
   SushiSwapRouter: iParamsPerNetwork<tEthereumAddress>;
   LSSVMRouter: iParamsPerNetwork<tEthereumAddress>;
+  YVaultWETH: iParamsPerNetwork<tEthereumAddress>;
 }
 
 export interface IUnlockdConfiguration extends ICommonConfiguration {
