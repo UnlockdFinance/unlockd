@@ -939,6 +939,21 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   }
 
   /**
+   * @dev Sets buyout discount for Lockey holders
+   * @param lockeyDiscount the discount percentage on base 10000 (25% -> 2500)
+   **/
+  function setLockeyDiscount(uint256 lockeyDiscount) external override onlyLendPoolConfigurator {
+    _lockeyDiscount = lockeyDiscount;
+  }
+
+  /**
+   * @dev Returns buyout discount for Lockey holders
+   **/
+  function getLockeyDiscount() public view override returns (uint256) {
+    return _lockeyDiscount;
+  }
+
+  /**
    * @dev sets the fee to be charged on first bid on nft
    * @param auctionDurationConfigFee the amount to charge to the user
    **/
