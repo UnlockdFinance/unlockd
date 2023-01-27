@@ -472,7 +472,7 @@ before(async () => {
   }
 
   console.log("-> Initialize make suite...");
-  await initializeMakeSuite();
+  await initializeMakeSuite("main");
 
   console.log("\n***************");
   console.log("Setup and snapshot finished");

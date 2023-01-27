@@ -169,7 +169,7 @@ const testEnv: TestEnv = {
   nowTimeTracker: {} as number,
 } as TestEnv;
 
-export async function initializeMakeSuite() {
+export async function initializeMakeSuite(network?: string) {
   const [_deployer, ...restSigners] = await getEthersSigners();
   const deployer: SignerWithAddress = {
     address: await _deployer.getAddress(),
@@ -185,28 +185,28 @@ export async function initializeMakeSuite() {
   testEnv.deployer = deployer;
   testEnv.liquidator = deployer;
 
-  testEnv.unftRegistry = await getUNFTRegistryProxy();
+  testEnv.unftRegistry = await getUNFTRegistryProxy("", network);
 
-  testEnv.pool = await getLendPool();
+  testEnv.pool = await getLendPool("", network);
 
-  testEnv.loan = await getLendPoolLoanProxy();
+  testEnv.loan = await getLendPoolLoanProxy("", network);
 
-  testEnv.configurator = await getLendPoolConfiguratorProxy();
+  testEnv.configurator = await getLendPoolConfiguratorProxy("", network);
 
-  testEnv.addressesProvider = await getLendPoolAddressesProvider();
+  testEnv.addressesProvider = await getLendPoolAddressesProvider("", network);
 
-  testEnv.reserveOracle = await getReserveOracle();
-  testEnv.mockChainlinkOracle = await getMockChainlinkOracle();
-  testEnv.mockReserveOracle = await getMockReserveOracle();
-  testEnv.nftOracle = await getNFTOracle();
+  testEnv.reserveOracle = await getReserveOracle("", network);
+  testEnv.mockChainlinkOracle = await getMockChainlinkOracle("", network);
+  testEnv.mockReserveOracle = await getMockReserveOracle("", network);
+  testEnv.nftOracle = await getNFTOracle("", network);
 
-  testEnv.mockNftOracle = await getMockNFTOracle();
+  testEnv.mockNftOracle = await getMockNFTOracle("", network);
 
-  testEnv.dataProvider = await getUnlockdProtocolDataProvider();
-  testEnv.walletProvider = await getWalletProvider();
-  testEnv.uiProvider = await getUIPoolDataProvider();
+  testEnv.dataProvider = await getUnlockdProtocolDataProvider("", network);
+  testEnv.walletProvider = await getWalletProvider("", network);
+  testEnv.uiProvider = await getUIPoolDataProvider("", network);
 
-  testEnv.mockIncentivesController = await getMockIncentivesController();
+  testEnv.mockIncentivesController = await getMockIncentivesController("", network);
 
   // Reserve Tokens
   const allReserveTokens = await testEnv.dataProvider.getAllReservesTokenDatas();
@@ -276,10 +276,10 @@ export async function initializeMakeSuite() {
   testEnv.bayc = await getMintableERC721(baycAddress!);
   testEnv.azuki = await getMintableERC721(azukiAddress!);
   testEnv.tokenId = 1;
-  testEnv.cryptoPunksMarket = await getCryptoPunksMarket();
+  testEnv.cryptoPunksMarket = await getCryptoPunksMarket("", network);
 
-  testEnv.wrappedPunk = await getWrappedPunk();
-  testEnv.punkGateway = await getPunkGateway();
+  testEnv.wrappedPunk = await getWrappedPunk("", network);
+  testEnv.punkGateway = await getPunkGateway("", network);
 
   testEnv.tokenIdTracker = 100;
   testEnv.punkIndexTracker = 100;
