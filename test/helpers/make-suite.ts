@@ -11,6 +11,7 @@ import {
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
   getLendPoolLoanProxy,
+  getLockeyHolderProxy,
   getLSSVMPair,
   getMintableERC20,
   getMintableERC721,
@@ -39,6 +40,7 @@ import { tEthereumAddress } from "../../helpers/types";
 import {
   CryptoPunksMarket,
   LendPoolLoan,
+  LockeyHolder,
   MockIncentivesController,
   PunkGateway,
   UiPoolDataProvider,
@@ -123,6 +125,7 @@ export interface TestEnv {
   nftxVaultFactory: INFTXVaultFactoryV2;
   sushiSwapRouter: IUniswapV2Router02;
   LSSVMPairs: LSSVMPairWithID[];
+  lockeyHolder: LockeyHolder;
 }
 
 let buidlerevmSnapshotId = "0x1";
@@ -167,6 +170,7 @@ const testEnv: TestEnv = {
   tokenIdTracker: {} as number,
   roundIdTracker: {} as number,
   nowTimeTracker: {} as number,
+  lockeyHolder: {} as LockeyHolder,
 } as TestEnv;
 
 export async function initializeMakeSuite() {
@@ -300,6 +304,8 @@ export async function initializeMakeSuite() {
       testEnv.LSSVMPairs.push(pairWithID);
     });
   }
+
+  testEnv.lockeyHolder = await getLockeyHolderProxy();
 }
 
 const setSnapshot = async () => {

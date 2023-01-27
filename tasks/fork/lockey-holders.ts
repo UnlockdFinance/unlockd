@@ -24,7 +24,7 @@ task("fork:deploy-lockey-holders", "Deploy the lockey holders contract")
 
     await waitForTx(await addressesProvider.setAddressAsProxy(ADDRESS_ID_LOCKEY_HOLDER, lockeyHolderImpl.address, []));
 
-    const lockeyHoldersProxy = await getLockeyHolderProxy(await addressesProvider.getLendPoolLoan());
+    const lockeyHoldersProxy = await getLockeyHolderProxy(await addressesProvider.getAddress(ADDRESS_ID_LOCKEY_HOLDER));
 
     await insertContractAddressInDb(eContractid.LockeyHolder, lockeyHoldersProxy.address);
 

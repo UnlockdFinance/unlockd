@@ -41,8 +41,6 @@ library LiquidateLogic {
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
   using NftConfiguration for DataTypes.NftConfigurationMap;
 
-  bytes32 private constant LOCKEY_COLLECTION = "LOCKEY_COLLECTION";
-
   /**
    * @dev Emitted when a borrower's loan is auctioned.
    * @param user The address of the user initiating the auction
@@ -430,6 +428,7 @@ library LiquidateLogic {
     address reserveOracle;
     address nftOracle;
     address lockeysCollection;
+    address lockeyHolderAddress;
     uint256 loanId;
     uint256 borrowAmount;
     uint256 extraDebtAmount;
@@ -597,6 +596,7 @@ library LiquidateLogic {
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
     vars.lockeysCollection = addressesProvider.getAddress(keccak256("LOCKEY_COLLECTION"));
+    vars.lockeyHolderAddress = addressesProvider.getAddress(keccak256("LOCKEY_HOLDER"));
 
     vars.loanId = ILendPoolLoan(vars.poolLoan).getCollateralLoanId(params.nftAsset, params.nftTokenId);
     require(vars.loanId != 0, Errors.LP_NFT_IS_NOT_USED_AS_COLLATERAL);
@@ -633,7 +633,7 @@ library LiquidateLogic {
     // IF the user is a lockey holder, gets a discount
     if (IERC721Upgradeable(vars.lockeysCollection).balanceOf(params.initiator) > 0) {
       require(
-        params.amount >= nftPrice.percentMul(ILockeyHolder(vars.lockeysCollection).getLockeyDiscountPercentage()),
+        params.amount >= nftPrice.percentMul(ILockeyHolder(vars.lockeyHolderAddress).getLockeyDiscountPercentage()),
         Errors.LP_AMOUNT_LESS_THAN_EXTRA_DEBT
       );
     } else {

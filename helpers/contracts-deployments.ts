@@ -127,7 +127,7 @@ export const deployUNFTRegistry = async (verify?: boolean) => {
 export const deployLockeyHolder = async (verify?: boolean) => {
   const lockeyHolderImpl = await new LockeyHolderFactory(await getDeploySigner()).deploy();
   await insertContractAddressInDb(eContractid.LockeyHolderImpl, lockeyHolderImpl.address);
-  return withSaveAndVerify(lockeyHolderImpl, eContractid.LockeyHolderImpl, [], verify);
+  return withSaveAndVerify(lockeyHolderImpl, eContractid.LockeyHolder, [], verify);
 };
 
 export const deployReserveLogicLibrary = async (verify?: boolean) =>

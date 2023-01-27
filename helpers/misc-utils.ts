@@ -223,9 +223,15 @@ export const fundWithERC20 = async (tokenSymbol: string, receiver: string, amoun
 export const fundWithERC721 = async (tokenSymbol: string, receiver: string, tokenId: number) => {
   const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
   const network = <eNetwork>DRE.network.name;
-  const nftsAssets = getParamPerNetwork(poolConfig.NftsAssets, network);
+  let nftsAssets;
+  let token;
 
-  const token = new Contract(nftsAssets[tokenSymbol], erc721Artifact.abi);
+  if (tokenSymbol == "LOCKEY") {
+    token = new Contract(getParamPerNetwork(poolConfig.LockeyCollection, network), erc721Artifact.abi);
+  } else {
+    nftsAssets = getParamPerNetwork(poolConfig.NftsAssets, network);
+    token = new Contract(nftsAssets[tokenSymbol], erc721Artifact.abi);
+  }
 
   const receiverSigner = await getEthersSignerByAddress(receiver);
 

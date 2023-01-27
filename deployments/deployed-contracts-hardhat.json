@@ -174,11 +174,10 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LockeyHolderImpl": {
-    "address": "0x4C8871d8f224eE3Cd12a14fF3B691a1A0dB392ec",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+    "address": "0x4C8871d8f224eE3Cd12a14fF3B691a1A0dB392ec"
   },
   "LockeyHolder": {
-    "address": "0x0000000000000000000000000000000000000000"
+    "address": "0xc831fAe49f2c324704F7133CB8bE08BC768904cf"
   },
   "WETHMocked": {
     "address": "0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104",
