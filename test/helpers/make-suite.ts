@@ -196,11 +196,11 @@ export async function initializeMakeSuite(network?: string) {
   testEnv.addressesProvider = await getLendPoolAddressesProvider("", network);
 
   testEnv.reserveOracle = await getReserveOracle("", network);
-  testEnv.mockChainlinkOracle = await getMockChainlinkOracle("", network);
-  testEnv.mockReserveOracle = await getMockReserveOracle("", network);
+  testEnv.mockChainlinkOracle = await getMockChainlinkOracle("", "");
+  testEnv.mockReserveOracle = await getMockReserveOracle("", "");
   testEnv.nftOracle = await getNFTOracle("", network);
 
-  testEnv.mockNftOracle = await getMockNFTOracle("", network);
+  testEnv.mockNftOracle = await getMockNFTOracle("", "");
 
   testEnv.dataProvider = await getUnlockdProtocolDataProvider("", network);
   testEnv.walletProvider = await getWalletProvider("", network);

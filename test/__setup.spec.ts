@@ -2,7 +2,7 @@ import { formatEther, parseEther } from "@ethersproject/units";
 import { MockContract } from "ethereum-waffle";
 import { Signer } from "ethers";
 import rawBRE from "hardhat";
-import { FORK } from "../hardhat.config";
+import { FORK, TEST_UPGRADE } from "../hardhat.config";
 import {
   ConfigNames,
   getEmergencyAdmin,
@@ -465,14 +465,14 @@ before(async () => {
   const FORK = process.env.FORK;
 
   if (FORK) {
-    await rawBRE.run("unlockd:fork", { skipRegistry: false });
+    if (!TEST_UPGRADE) await rawBRE.run("unlockd:fork", { skipRegistry: false });
   } else {
     console.log("-> Deploying test environment...");
     await buildTestEnv(deployer, secondaryWallet);
   }
 
   console.log("-> Initialize make suite...");
-  await initializeMakeSuite("main");
+  await initializeMakeSuite(TEST_UPGRADE ? "main" : "");
 
   console.log("\n***************");
   console.log("Setup and snapshot finished");
