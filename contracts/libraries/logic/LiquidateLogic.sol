@@ -602,19 +602,43 @@ library LiquidateLogic {
     require(vars.loanId != 0, Errors.LP_NFT_IS_NOT_USED_AS_COLLATERAL);
 
     DataTypes.LoanData memory loanData = ILendPoolLoan(vars.poolLoan).getLoan(vars.loanId);
-
     DataTypes.ReserveData storage reserveData = reservesData[loanData.reserveAsset];
     DataTypes.NftData storage nftData = nftsData[loanData.nftAsset];
     DataTypes.NftConfigurationMap storage nftConfig = nftsConfig[loanData.nftAsset][loanData.nftTokenId];
 
+    uint256 nftPrice = INFTOracleGetter(vars.nftOracle).getNFTPrice(loanData.nftAsset, loanData.nftTokenId);
+
+    // Check for health factor
+    (, , uint256 healthFactor) = GenericLogic.calculateLoanData(
+      loanData.reserveAsset,
+      reserveData,
+      loanData.nftAsset,
+      loanData.nftTokenId,
+      nftConfig,
+      vars.poolLoan,
+      vars.loanId,
+      vars.reserveOracle,
+      vars.nftOracle
+    );
+
+    //Loan must be unhealthy in order to get liquidated
+    require(
+      healthFactor <= GenericLogic.HEALTH_FACTOR_LIQUIDATION_THRESHOLD,
+      Errors.VL_HEALTH_FACTOR_LOWER_THAN_LIQUIDATION_THRESHOLD
+    );
+
     ValidationLogic.validateBuyout(reserveData, nftData, nftConfig, loanData);
+    require(params.amount > vars.borrowAmount, Errors.LP_AMOUNT_LESS_THAN_DEBT);
 
     // IF the user is a lockey holder, gets a discount
     if (IERC721Upgradeable(vars.lockeysCollection).balanceOf(params.initiator) > 0) {
-      params.amount = params.amount.percentMul(ILockeyHolder(vars.lockeysCollection).getLockeyDiscountPercentage());
+      require(
+        params.amount >= nftPrice.percentMul(ILockeyHolder(vars.lockeysCollection).getLockeyDiscountPercentage()),
+        Errors.LP_AMOUNT_LESS_THAN_EXTRA_DEBT
+      );
+    } else {
+      require(params.amount >= nftPrice, Errors.LP_AMOUNT_LESS_THAN_VALUATION);
     }
-    //lock highest bidder bid price amount to lend pool
-    IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, address(this), params.amount);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();
@@ -631,7 +655,8 @@ library LiquidateLogic {
       vars.nftOracle
     );
 
-    require(params.amount >= vars.borrowAmount, Errors.LP_AMOUNT_LESS_THAN_EXTRA_DEBT);
+    //lock highest bidder bid price amount to lend pool
+    IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, address(this), params.amount);
 
     vars.remainAmount = params.amount - vars.borrowAmount;
 

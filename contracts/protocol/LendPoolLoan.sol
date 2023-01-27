@@ -247,11 +247,6 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   ) external override onlyLendPool {
     // Must use storage to change state
     DataTypes.LoanData storage loan = _loans[loanId];
-    // Ensure valid loan state
-    require(
-      loan.state == DataTypes.LoanState.Active || loan.state == DataTypes.LoanState.Auction,
-      Errors.LPL_INVALID_LOAN_STATE
-    );
 
     // state changes and cleanup
     // NOTE: these must be performed before assets are released to prevent reentrance
