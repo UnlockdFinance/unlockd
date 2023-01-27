@@ -27,6 +27,7 @@ contract LockeyHolder is Initializable {
    **/
   function initialize(ILendPoolAddressesProvider provider) public initializer {
     require(address(provider) != address(0), Errors.INVALID_ZERO_ADDRESS);
+    _addressesProvider = provider;
   }
 
   /**
