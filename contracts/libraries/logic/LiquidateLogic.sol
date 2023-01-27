@@ -681,6 +681,9 @@ library LiquidateLogic {
     // transfer borrow amount from lend pool to uToken, repay debt
     IERC20Upgradeable(loanData.reserveAsset).safeTransfer(reserveData.uTokenAddress, vars.borrowAmount);
 
+    // Deposit amount from debt repaid to lending protocol
+    IUToken(reserveData.uTokenAddress).depositReserves(vars.borrowAmount);
+
     // transfer remain amount to borrower
     if (vars.remainAmount > 0) {
       IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.borrower, vars.remainAmount);

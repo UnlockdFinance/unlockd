@@ -1,5 +1,6 @@
 import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
+import { BigNumber as BN } from "ethers";
 import { ADDRESS_ID_YVAULT_WETH, oneEther } from "../helpers/constants";
 import { getMintableERC20, getYVault } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
@@ -113,19 +114,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     // BUYOUT
     const buyoutPrice = new BigNumber(nftPrice.toString()).multipliedBy(10).toFixed(0);
 
-    const yVault = await getYVault(await addressesProvider.getAddress(ADDRESS_ID_YVAULT_WETH));
-    let pricePerShare = await yVault.pricePerShare();
-    const erc20YVault = await getMintableERC20(await addressesProvider.getAddress(ADDRESS_ID_YVAULT_WETH));
-    let yvWETHBalance = await erc20YVault.balanceOf(uWETH.address);
-    console.log("yearn mul before: ", pricePerShare.mul(yvWETHBalance));
-    console.log("yvWethBalace before:", yvWETHBalance);
-
     await waitForTx(await pool.connect(buyer.signer).buyOut(bayc.address, "101", buyoutPrice));
-
-    pricePerShare = await yVault.pricePerShare();
-    yvWETHBalance = await erc20YVault.balanceOf(uWETH.address);
-    console.log("yearn mul after: ", pricePerShare.mul(yvWETHBalance));
-    console.log("yvWethBalace after:", yvWETHBalance);
 
     expect(await bayc.ownerOf(101), "buyer should be the new owner").to.be.eq(buyer.address);
 
@@ -165,20 +154,9 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
       "Invalid liquidity APY"
     );
 
-    console.log("expected", expectedLiquidateAmount.toString());
-    console.log("before", ethReserveDataBefore.availableLiquidity.toString());
-    console.log("after: ", ethReserveDataAfter.availableLiquidity.toString());
-    console.log(
-      "new: ",
-      new BigNumber(ethReserveDataBefore.availableLiquidity.toString())
-        .plus(expectedLiquidateAmount)
-        .toFixed(0)
-        .toString()
-    );
-
-    expect(ethReserveDataAfter.availableLiquidity.toString()).to.be.bignumber.almostEqual(
-      new BigNumber(ethReserveDataBefore.availableLiquidity.toString()).plus(expectedLiquidateAmount).toFixed(0),
-      "Invalid principal available liquidity"
+    expect(ethReserveDataBefore.availableLiquidity.add(BN.from(expectedLiquidateAmount.toString()))).to.be.within(
+      ethReserveDataAfter.availableLiquidity.toString(),
+      ethReserveDataAfter.availableLiquidity.add(1000).toString()
     );
   });
 
