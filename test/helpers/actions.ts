@@ -636,6 +636,7 @@ export const borrow = async (
     expectedReserveData.totalLiquidity = reserveDataAfter.totalLiquidity;
     expectedReserveData.availableLiquidity = reserveDataAfter.availableLiquidity;
     expectedReserveData.utilizationRate = reserveDataAfter.utilizationRate;
+    expectedUserData.walletBalance = userDataAfter.walletBalance;
 
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);
