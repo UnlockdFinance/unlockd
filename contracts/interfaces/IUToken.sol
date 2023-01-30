@@ -83,6 +83,19 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   event TreasuryAddressUpdated(address indexed _newTreasuryAddress);
 
   /**
+    @dev Emitted after sweeping liquidity from the uToken to deposit it to external lending protocol
+  * @param uToken The uToken swept
+  * @param underlyingAsset The underlying asset from the uToken
+  * @param amount The amount deposited to the lending protocol
+  */
+  event UTokenSwept(address indexed uToken, address indexed underlyingAsset, uint256 indexed amount);
+
+  /**
+   * @dev Takes reserve liquidity from uToken and deposits it to external lening protocol
+   **/
+  function sweepUToken() external;
+
+  /**
    * @dev Burns uTokens from `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
    * @param user The owner of the uTokens, getting them burned
    * @param receiverOfUnderlying The address that will receive the underlying

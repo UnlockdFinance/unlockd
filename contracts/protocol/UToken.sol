@@ -37,7 +37,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   }
 
   modifier onlyPoolAdmin() {
-    require(_addressProvider.getPoolAdmin() == msg.sender, Errors.CALLER_NOT_POOL_ADMIN);
+    require(_msgSender() == _addressProvider.getPoolAdmin(), Errors.CALLER_NOT_POOL_ADMIN);
     _;
   }
 
@@ -120,7 +120,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
    * @dev Deposits `amount` to the lending protocol currently active
    * @param amount The amount of tokens to deposit
    */
-  function depositReserves(uint256 amount) external override onlyLendPool {
+  function depositReserves(uint256 amount) public override onlyLendPool {
     LendingLogic.executeDepositYearn(
       _addressProvider,
       DataTypes.ExecuteYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
@@ -131,12 +131,28 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
    * @dev Withdraws `amount` from the lending protocol currently active
    * @param amount The amount of tokens to withdraw
    */
-  function withdrawReserves(uint256 amount) external override onlyLendPool returns (uint256) {
+  function withdrawReserves(uint256 amount) public override onlyLendPool returns (uint256) {
     uint256 value = LendingLogic.executeWithdrawYearn(
       _addressProvider,
       DataTypes.ExecuteYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
     );
     return value;
+  }
+
+  /**
+   * @dev Takes reserve liquidity from uToken and deposits it to external lening protocol
+   **/
+  function sweepUToken() external override onlyPoolAdmin {
+    IERC20Upgradeable underlyingAsset = IERC20Upgradeable(_underlyingAsset);
+
+    uint256 amount = underlyingAsset.balanceOf(address(this));
+
+    LendingLogic.executeDepositYearn(
+      _addressProvider,
+      DataTypes.ExecuteYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
+    );
+
+    emit UTokenSwept(address(this), address(underlyingAsset), amount);
   }
 
   /**
