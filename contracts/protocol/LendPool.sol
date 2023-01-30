@@ -1107,17 +1107,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     return _safeHealthFactor;
   }
 
-  /**
-   * @dev Sets new treasury to the specified UToken
-   * @param uToken the utoken to update the treasury address to
-   * @param treasury the new treasury address
-   **/
-  function setTreasuryAddress(address uToken, address treasury) external override onlyLendPoolConfigurator {
-    require(treasury != address(0), Errors.INVALID_ZERO_ADDRESS);
-    IUToken(uToken).setTreasuryAddress(treasury);
-    emit TreasuryAddressUpdated(uToken, treasury);
-  }
-
   function _addReserveToList(address asset) internal {
     uint256 reservesCount = _reservesCount;
 

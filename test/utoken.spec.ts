@@ -1,9 +1,10 @@
 const chai = require("chai");
+import { zeroAddress } from "ethereumjs-util";
 import { parseEther } from "ethers/lib/utils";
 import { ADDRESS_ID_YVAULT_WETH, APPROVAL_AMOUNT_LENDING_POOL, ZERO_ADDRESS } from "../helpers/constants";
-import { getMintableERC20, getYVault } from "../helpers/contracts-getters";
+import { getMintableERC20, getUToken, getYVault } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
-import { fundWithERC20, waitForTx } from "../helpers/misc-utils";
+import { createRandomAddress, fundWithERC20, waitForTx } from "../helpers/misc-utils";
 import { ProtocolErrors } from "../helpers/types";
 import { CommonsConfig } from "../markets/unlockd/commons";
 import { approveERC20 } from "./helpers/actions";
@@ -13,7 +14,12 @@ import { wadDiv } from "./helpers/utils/math";
 const { expect } = chai;
 
 makeSuite("UToken", (testEnv: TestEnv) => {
-  const { INVALID_FROM_BALANCE_AFTER_TRANSFER, INVALID_TO_BALANCE_AFTER_TRANSFER } = ProtocolErrors;
+  const {
+    INVALID_FROM_BALANCE_AFTER_TRANSFER,
+    INVALID_TO_BALANCE_AFTER_TRANSFER,
+    CALLER_NOT_POOL_ADMIN,
+    INVALID_ZERO_ADDRESS,
+  } = ProtocolErrors;
 
   afterEach("Reset", () => {
     testEnv.mockIncentivesController.resetHandleActionIsCalled();
@@ -42,6 +48,32 @@ makeSuite("UToken", (testEnv: TestEnv) => {
 
     const wantPool = await uWETH.POOL();
     expect(wantPool).to.be.equal(pool.address);
+  });
+
+  it("Check the onlyAdmin on set treasury to new utoken", async () => {
+    const { configurator, users, bayc } = testEnv;
+    await expect(
+      configurator.connect(users[2].signer).setTreasuryAddress(bayc.address, users[0].address),
+      CALLER_NOT_POOL_ADMIN
+    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+  });
+
+  it("Check the zero check on set treasury to new utoken", async () => {
+    const { configurator, deployer, bayc } = testEnv;
+    await expect(
+      configurator.connect(deployer.signer).setTreasuryAddress(bayc.address, zeroAddress()),
+      INVALID_ZERO_ADDRESS
+    ).to.be.revertedWith(INVALID_ZERO_ADDRESS);
+  });
+
+  it("Check the address is properly updated in WETH uToken", async () => {
+    const { configurator, deployer, weth, dataProvider } = testEnv;
+    const expectedAddress = await createRandomAddress();
+    const { uTokenAddress } = await dataProvider.getReserveTokenData(weth.address);
+
+    await configurator.connect(deployer.signer).setTreasuryAddress(uTokenAddress, expectedAddress);
+
+    await expect(await (await getUToken(uTokenAddress)).RESERVE_TREASURY_ADDRESS()).to.be.equal(expectedAddress);
   });
 
   it("10 WETH are sent to UToken, sweep deposits them into Yearn Vault", async () => {
