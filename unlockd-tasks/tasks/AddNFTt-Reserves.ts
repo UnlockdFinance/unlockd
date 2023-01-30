@@ -28,7 +28,8 @@ task("unft-registerNFT", "Deploy unft tokens for dev enviroment")
 
 task("addAsset-NFTOracle", "Add an NFT Address to the Oracle")
   .addParam("nftaddress", `The address of the NFT to add`)
-  .setAction(async ({ nftaddress }) => {
+  .setAction(async ({ nftaddress }, localBRE) => {
+    await localBRE.run("set-DRE");
     const nftOracle = await getNFTOracle();
     await waitForTx(await nftOracle.addCollection(nftaddress));
     console.log("NFTOracle: token address added: ", nftaddress);
@@ -36,7 +37,8 @@ task("addAsset-NFTOracle", "Add an NFT Address to the Oracle")
 
 task("initNFTReserve", "Initializes the NFT Reserve")
   .addParam("nftaddress", `The address of the NFT to add`)
-  .setAction(async ({ nftaddress }) => {
+  .setAction(async ({ nftaddress }, localBRE) => {
+    await localBRE.run("set-DRE");
     const configurator = await getLendPoolConfiguratorProxy();
 
     await waitForTx(await configurator.batchInitNft([{ underlyingAsset: nftaddress }]));
@@ -48,7 +50,8 @@ task("configNFTReserve", "Initializes the NFT Reserve")
   .addParam("tokenid", `The tokenId of the NFT to add`)
   .addParam("maxsupply", `The address of the NFT to add`)
   .addParam("maxtokenid", `The address of the NFT to add`)
-  .setAction(async ({ nftaddress, tokenid, maxsupply, maxtokenid }) => {
+  .setAction(async ({ nftaddress, tokenid, maxsupply, maxtokenid }, localBRE) => {
+    await localBRE.run("set-DRE");
     const configurator = await getLendPoolConfiguratorProxy();
     const nftsParams = {
       asset: nftaddress,
@@ -71,9 +74,10 @@ task("configNFTReserve", "Initializes the NFT Reserve")
 
 task("auth-wethgateway", "Authorize Weth Gateway to do transactions.")
   .addParam("nftaddress", "the address of the NFT to authorize")
-  .setAction(async ({ nftaddress }) => {
+  .setAction(async ({ nftaddress }, localBRE) => {
     ////////////////////////////////////////////////////////////////////////////
     // Init & Config Reserve assets
+    await localBRE.run("set-DRE");
     const wethGateway = await getWETHGateway();
     await waitForTx(await wethGateway.authorizeLendPoolNFT([nftaddress]));
     console.log("ERC721 address authorized for: ", nftaddress);

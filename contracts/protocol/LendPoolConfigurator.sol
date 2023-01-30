@@ -19,6 +19,7 @@ import {ConfigTypes} from "../libraries/types/ConfigTypes.sol";
 
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {ILockeyHolder} from "../interfaces/ILockeyHolder.sol";
 
 /**
  * @title LendPoolConfigurator contract
@@ -672,18 +673,6 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     ILendPool cachedPool = _getLendPool();
     cachedPool.updateRescuer(rescuer);
     emit RescuerUpdated(rescuer);
-  }
-
-  /**
-   * @dev Sets new treasury to the specified UToken
-   * @param uToken the utoken to update the treasury address to
-   * @param treasury the new treasury address
-   **/
-  function setTreasuryAddress(address uToken, address treasury) external onlyPoolAdmin {
-    require(treasury != address(0), Errors.INVALID_ZERO_ADDRESS);
-    ILendPool cachedPool = _getLendPool();
-    cachedPool.setTreasuryAddress(uToken, treasury);
-    emit UTokenTreasuryUpdated(uToken, treasury);
   }
 
   /**

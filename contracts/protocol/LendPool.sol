@@ -45,9 +45,9 @@ import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Cont
  * - To be covered by a proxy contract, owned by the LendPoolAddressesProvider of the specific market
  * - All admin functions are callable by the LendPoolConfigurator contract defined also in the
  *   LendPoolAddressesProvider
- * @author Unlockd
+ * @author BendDao - changes Unlockd
  **/
-// !!! For Upgradable: DO NOT ADJUST Inheritance Order !!!
+// !!! For Upgradable: DO NOT ADJUST Inheritance Order
 contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721ReceiverUpgradeable, LendPoolStorage {
   using SafeERC20Upgradeable for IERC20Upgradeable;
   using SafeERC20 for IERC20;
@@ -318,6 +318,33 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
         auctionDurationConfigFee: _auctionDurationConfigFee
       })
     );
+  }
+
+  /**
+   * @dev Function to buyout a non-healthy position collateral-wise
+   * - The bidder want to buy collateral asset of the user getting liquidated
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   * @param buyoutAmount The buyout price of the underlying NFT
+   **/
+  function buyOut(
+    address nftAsset,
+    uint256 nftTokenId,
+    uint256 buyoutAmount
+  ) external override nonReentrant whenNotPaused returns (uint256) {
+    return
+      LiquidateLogic.executeBuyout(
+        _addressesProvider,
+        _reserves,
+        _nfts,
+        _nftConfig,
+        DataTypes.ExecuteLiquidateParams({
+          initiator: _msgSender(),
+          nftAsset: nftAsset,
+          nftTokenId: nftTokenId,
+          amount: buyoutAmount
+        })
+      );
   }
 
   /**
@@ -1105,17 +1132,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    */
   function getSafeHealthFactor() external view override returns (uint256) {
     return _safeHealthFactor;
-  }
-
-  /**
-   * @dev Sets new treasury to the specified UToken
-   * @param uToken the utoken to update the treasury address to
-   * @param treasury the new treasury address
-   **/
-  function setTreasuryAddress(address uToken, address treasury) external override onlyLendPoolConfigurator {
-    require(treasury != address(0), Errors.INVALID_ZERO_ADDRESS);
-    IUToken(uToken).setTreasuryAddress(treasury);
-    emit TreasuryAddressUpdated(uToken, treasury);
   }
 
   function _addReserveToList(address asset) internal {

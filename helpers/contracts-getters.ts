@@ -12,6 +12,7 @@ import {
   LendPoolFactory,
   LendPoolLoanFactory,
   LiquidateLogicFactory,
+  LockeyHolderFactory,
   MintableERC20Factory,
   MintableERC721Factory,
   MockChainlinkOracleFactory,
@@ -139,7 +140,14 @@ export const getLendPoolLoanProxy = async (address?: tEthereumAddress, db?: stri
   );
 };
 
-export const getLendPool = async (address?: tEthereumAddress, db?: string) =>
+export const getLockeyHolderProxy = async (address?: tEthereumAddress) => {
+  return await LockeyHolderFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.LockeyHolder}`).value()).address,
+    await getDeploySigner()
+  );
+};
+
+export const getLendPool = async (address?: tEthereumAddress) =>
   await LendPoolFactory.connect(
     address ||
       (

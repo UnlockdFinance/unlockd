@@ -154,7 +154,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   } = {
     ...(await deployAllMockNfts(false, false)),
   };
-  console.log("MOCK NFTS::::::", mockNfts);
+  // console.log("MOCK NFTS::::::", mockNfts);
   const cryptoPunksMarket = await getCryptoPunksMarket();
   await waitForTx(await cryptoPunksMarket.allInitialOwnersAssigned());
   const wrappedPunk = await getWrappedPunk();
@@ -445,8 +445,8 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   await waitForTx(
     await punkGateway.authorizeLendPoolERC20([
       allReservesAddresses.WETH,
-      allReservesAddresses.DAI,
-      allReservesAddresses.USDC,
+      // allReservesAddresses.DAI,
+      // allReservesAddresses.USDC,
     ])
   );
   await insertContractAddressInDb(eContractid.PunkGateway, punkGateway.address);

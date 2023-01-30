@@ -284,6 +284,36 @@ library ValidationLogic {
   }
 
   /**
+   * @dev Validates the liquidation action
+   * @param reserveData The reserve data of the principal
+   * @param nftData The data of the underlying NFT
+   * @param loanData The loan data of the underlying NFT
+   **/
+  function validateBuyout(
+    DataTypes.ReserveData storage reserveData,
+    DataTypes.NftData storage nftData,
+    DataTypes.NftConfigurationMap storage nftConfig,
+    DataTypes.LoanData memory loanData
+  ) internal view {
+    require(nftData.uNftAddress != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
+    require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
+
+    require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
+
+    require(nftData.configuration.getActive(), Errors.VL_NO_ACTIVE_NFT);
+
+    /**
+     * @dev additional check for individual asset
+     */
+    require(nftConfig.getActive(), Errors.VL_NO_ACTIVE_NFT);
+
+    require(
+      loanData.state == DataTypes.LoanState.Active || loanData.state == DataTypes.LoanState.Auction,
+      Errors.LPL_INVALID_LOAN_STATE
+    );
+  }
+
+  /**
    * @dev Validates the liquidation NFTX action
    * @param reserveData The reserve data of the principal
    * @param nftData The data of the underlying NFT

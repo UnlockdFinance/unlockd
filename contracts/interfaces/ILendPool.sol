@@ -228,11 +228,6 @@ interface ILendPool {
   event SafeHealthFactorUpdated(uint256 indexed newSafeHealthFactor);
 
   /**
-  @dev Emitted after setting the new treasury address on the specified uToken
-  */
-  event TreasuryAddressUpdated(address indexed uToken, address indexed treasury);
-
-  /**
    * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying uTokens.
    * - E.g. User deposits 100 USDC and gets in return 100 uusdc
    * @param reserve The address of the underlying asset to deposit
@@ -303,6 +298,15 @@ interface ILendPool {
    *   is a different wallet
    **/
   function auction(address nftAsset, uint256 nftTokenId, uint256 bidPrice, address onBehalfOf) external;
+
+  /**
+   * @dev Function to buyout a non-healthy position collateral-wise
+   * - The bidder want to buy collateral asset of the user getting liquidated
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   * @param buyoutAmount The buyout price of the underlying NFT
+   **/
+  function buyOut(address nftAsset, uint256 nftTokenId, uint256 buyoutAmount) external returns (uint256);
 
   /**
    * @notice Redeem a NFT loan which state is in Auction
@@ -640,13 +644,6 @@ interface ILendPool {
    * @param newSafeHealthFactor New safe health factor value
    */
   function updateSafeHealthFactor(uint256 newSafeHealthFactor) external;
-
-  /**
-   * @dev Sets new treasury to the specified UToken
-   * @param uToken the utoken to update the treasury address to
-   * @param treasury the new treasury address
-   **/
-  function setTreasuryAddress(address uToken, address treasury) external;
 
   /**
    * @notice Rescue tokens or ETH locked up in this contract.
