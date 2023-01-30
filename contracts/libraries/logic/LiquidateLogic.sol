@@ -627,6 +627,18 @@ library LiquidateLogic {
       Errors.VL_HEALTH_FACTOR_LOWER_THAN_LIQUIDATION_THRESHOLD
     );
 
+    (vars.borrowAmount, , ) = GenericLogic.calculateLoanLiquidatePrice(
+      vars.loanId,
+      loanData.reserveAsset,
+      reserveData,
+      loanData.nftAsset,
+      loanData.nftTokenId,
+      nftConfig,
+      vars.poolLoan,
+      vars.reserveOracle,
+      vars.nftOracle
+    );
+
     ValidationLogic.validateBuyout(reserveData, nftData, nftConfig, loanData);
     require(params.amount > vars.borrowAmount, Errors.LP_AMOUNT_LESS_THAN_DEBT);
 
@@ -634,7 +646,7 @@ library LiquidateLogic {
     if (IERC721Upgradeable(vars.lockeysCollection).balanceOf(params.initiator) > 0) {
       require(
         params.amount >= nftPrice.percentMul(ILockeyHolder(vars.lockeyHolderAddress).getLockeyDiscountPercentage()),
-        Errors.LP_AMOUNT_LESS_THAN_EXTRA_DEBT
+        Errors.LP_AMOUNT_LESS_THAN_VALUATION
       );
     } else {
       require(params.amount >= nftPrice, Errors.LP_AMOUNT_LESS_THAN_VALUATION);

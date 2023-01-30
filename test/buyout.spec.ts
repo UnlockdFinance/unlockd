@@ -1,8 +1,7 @@
 import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
 import { BigNumber as BN } from "ethers";
-import { ADDRESS_ID_YVAULT_WETH, oneEther } from "../helpers/constants";
-import { getMintableERC20, getYVault } from "../helpers/contracts-getters";
+import { oneEther } from "../helpers/constants";
 import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
 import { fundWithERC20, fundWithERC721, waitForTx } from "../helpers/misc-utils";
 import { IConfigNftAsCollateralInput, ProtocolErrors, ProtocolLoanState } from "../helpers/types";
@@ -95,7 +94,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
   });
 
   it("Buyer - buys out the NFT in auction", async () => {
-    const { users, pool, nftOracle, bayc, dataProvider, weth, addressesProvider, uWETH } = testEnv;
+    const { users, pool, nftOracle, bayc, dataProvider, weth } = testEnv;
     const buyer = users[2];
     const borrower = users[4];
 
@@ -250,11 +249,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // BUYOUT
-    const roige = await addressesProvider.getPoolAdmin();
-    console.log(roige);
     await lockeyHolder.connect(deployer.signer).setLockeyDiscountPercentage(BN.from("300")); // 3%
-    const discount = await lockeyHolder.getLockeyDiscountPercentage();
-    console.log(discount.toString());
     console.log("Balance before: ", (await weth.balanceOf(buyer.address)).toString());
 
     await fundWithERC721("LOCKEY", buyer.address, 1);

@@ -80,17 +80,17 @@ task("dev:mint-mock-nfts", "Mint mock nfts for dev enviroment")
     // await waitForTx(await wpunk.registerProxy());
 
     // BAYC
-    const baycAddress = await getContractAddressInDb("BAYC");
-    const bayc = await getMintableERC721(baycAddress);
-    if (index <= 1) {
-      // first time to set base uri
-      await waitForTx(await bayc.setBaseURI("ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/"));
-    }
-    for (let tokenIndex = Number(index); tokenIndex < Number(index) + Number(amount); tokenIndex++) {
-      console.log("Mint BAYC:", tokenIndex);
-      await waitForTx(await bayc.mint(tokenIndex));
-    }
-    console.log("BAYC Balances:", (await bayc.balanceOf(user)).toString());
+    // const baycAddress = await getContractAddressInDb("BAYC");
+    // const bayc = await getMintableERC721(baycAddress);
+    // if (index <= 1) {
+    //   // first time to set base uri
+    //   await waitForTx(await bayc.setBaseURI("ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/"));
+    // }
+    // for (let tokenIndex = Number(index); tokenIndex < Number(index) + Number(amount); tokenIndex++) {
+    //   console.log("Mint BAYC:", tokenIndex);
+    //   await waitForTx(await bayc.mint(tokenIndex));
+    // }
+    // console.log("BAYC Balances:", (await bayc.balanceOf(user)).toString());
   });
 
 task("dev:mint-mock-reserves", "Mint mock reserves for dev enviroment")
