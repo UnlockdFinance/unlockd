@@ -147,7 +147,7 @@ export const getLockeyHolderProxy = async (address?: tEthereumAddress) => {
   );
 };
 
-export const getLendPool = async (address?: tEthereumAddress) =>
+export const getLendPool = async (address?: tEthereumAddress, db?: string) =>
   await LendPoolFactory.connect(
     address ||
       (

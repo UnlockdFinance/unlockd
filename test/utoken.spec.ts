@@ -1,19 +1,16 @@
-import { parseEther } from "ethers/lib/utils";
 import { zeroAddress } from "ethereumjs-util";
-import { ADDRESS_ID_YVAULT_WETH, APPROVAL_AMOUNT_LENDING_POOL, ZERO_ADDRESS } from "../helpers/constants";
-import { getUToken } from "../helpers/contracts-getters";
-import { getMintableERC20, getYVault } from "../helpers/contracts-getters";
+import { parseEther } from "ethers/lib/utils";
+import { ADDRESS_ID_YVAULT_WETH, ZERO_ADDRESS } from "../helpers/constants";
+import { getMintableERC20, getUToken, getYVault } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { createRandomAddress, fundWithERC20, waitForTx } from "../helpers/misc-utils";
 import { ProtocolErrors } from "../helpers/types";
-import { CommonsConfig } from "../markets/unlockd/commons";
 import { approveERC20 } from "./helpers/actions";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 import { wadDiv } from "./helpers/utils/math";
 
 const chai = require("chai");
 const { expect } = chai;
-
 
 makeSuite("UToken", (testEnv: TestEnv) => {
   const { INVALID_FROM_BALANCE_AFTER_TRANSFER, INVALID_TO_BALANCE_AFTER_TRANSFER } = ProtocolErrors;
@@ -81,6 +78,7 @@ makeSuite("UToken", (testEnv: TestEnv) => {
       parseEther("10").sub(1000),
       parseEther("10").toString()
     );
+  });
 
   it("Check the onlyAdmin on set treasury to new utoken", async () => {
     const { users, uWETH } = testEnv;

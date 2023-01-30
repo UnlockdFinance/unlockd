@@ -79,10 +79,11 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LendPoolImpl": {
-    "address": "0x58B6e24b2a462Ef81e154515Ab7adc804512325c"
+    "address": "0x0b1c63041dd4a8049c61FAD207598c7Fd52D2D20"
   },
   "LendPool": {
-    "address": "0xc831fAe49f2c324704F7133CB8bE08BC768904cf"
+    "address": "0x0b1c63041dd4a8049c61FAD207598c7Fd52D2D20",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LendPoolLoanImpl": {
     "address": "0x1Dc8C005cdd4a52136eDf5e7c4FC6C662E0f7E73"
@@ -131,7 +132,7 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "InterestRate": {
-    "address": "0x5F25714195e6Ba02cD01dB804f6222F924B9CC27",
+    "address": "0x8Fe994bA879dF436bDA80d1fc559d192608939f6",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "rateStrategyWETH": {
@@ -170,7 +171,7 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "SelfdestructTransferMock": {
-    "address": "0x4b799F692bF206A935DbbD88CC3E598614c59c4C",
+    "address": "0x3BF21CaEF42b4A4b98D53e9d9b868B51c9Ab8279",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LockeyHolderImpl": {
@@ -237,46 +238,6 @@
   },
   "USDT": {
     "address": "0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "WETHMocked": {
-    "address": "0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "WETH": {
-    "address": "0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "WPUNKS": {
-    "address": "0x025FE4760c6f14dE878C22cEb09A3235F16dAe53",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "MintableERC721": {
-    "address": "0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "BAYC": {
-    "address": "0xb2f97A3c2E48cd368901657e31Faaa93035CE390",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "DOODLE": {
-    "address": "0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "AZUKI": {
-    "address": "0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "NFTXVaultFactory": {
-    "address": "0xc27F09fe69Ddd42b2d84e15eC384B5462339727A",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "UniswapV2Factory": {
-    "address": "0x0c6ee9D95dD6e39C1808d3fF219a6cE9b70E8dA7",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "SushiSwapRouter": {
-    "address": "0xc5b75fA87Bc8F55bD989642DFE0Bbdd44748cD3b",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   }
 }
