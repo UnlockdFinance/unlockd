@@ -109,6 +109,10 @@ library DataTypes {
     uint256 bidBorrowAmount;
     //bidder address of first bid
     address firstBidderAddress;
+    //discount rate for the Dutch auction
+    uint256 dutchDiscountRate;
+    //starting price for the NFT Dutch auction
+    uint256 startingPrice;
   }
 
   struct ExecuteDepositParams {
