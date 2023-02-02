@@ -4,6 +4,8 @@ import bignumberChai from "chai-bignumber";
 import { solidity } from "ethereum-waffle";
 import { Signer } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { UPGRADE } from "../../hardhat.config";
+import { ConfigNames, getLendPoolLiquidator, loadPoolConfig } from "../../helpers/configuration";
 import { SUDOSWAP_PAIRS_GOERLI, SUDOSWAP_PAIRS_MAINNET } from "../../helpers/constants";
 import {
   getCryptoPunksMarket,
@@ -171,6 +173,7 @@ const testEnv: TestEnv = {
 
 export async function initializeMakeSuite(network?: string) {
   const [_deployer, ...restSigners] = await getEthersSigners();
+  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
   const deployer: SignerWithAddress = {
     address: await _deployer.getAddress(),
     signer: _deployer,
@@ -182,31 +185,34 @@ export async function initializeMakeSuite(network?: string) {
       address: await signer.getAddress(),
     });
   }
+
   testEnv.deployer = deployer;
-  testEnv.liquidator = deployer;
+  const liquidator = await getLendPoolLiquidator(poolConfig);
 
-  testEnv.unftRegistry = await getUNFTRegistryProxy("", network);
+  testEnv.liquidator = testEnv.users.find((signer) => signer.address === liquidator)!;
 
-  testEnv.pool = await getLendPool("", network);
+  testEnv.unftRegistry = await getUNFTRegistryProxy();
 
-  testEnv.loan = await getLendPoolLoanProxy("", network);
+  testEnv.pool = await getLendPool();
 
-  testEnv.configurator = await getLendPoolConfiguratorProxy("", network);
+  testEnv.loan = await getLendPoolLoanProxy();
 
-  testEnv.addressesProvider = await getLendPoolAddressesProvider("", network);
+  testEnv.configurator = await getLendPoolConfiguratorProxy();
 
-  testEnv.reserveOracle = await getReserveOracle("", network);
-  testEnv.mockChainlinkOracle = await getMockChainlinkOracle("", "");
-  testEnv.mockReserveOracle = await getMockReserveOracle("", "");
-  testEnv.nftOracle = await getNFTOracle("", network);
+  testEnv.addressesProvider = await getLendPoolAddressesProvider();
 
-  testEnv.mockNftOracle = await getMockNFTOracle("", "");
+  testEnv.reserveOracle = await getReserveOracle();
+  testEnv.mockChainlinkOracle = await getMockChainlinkOracle();
+  testEnv.mockReserveOracle = await getMockReserveOracle();
+  testEnv.nftOracle = await getNFTOracle();
 
-  testEnv.dataProvider = await getUnlockdProtocolDataProvider("", network);
-  testEnv.walletProvider = await getWalletProvider("", network);
-  testEnv.uiProvider = await getUIPoolDataProvider("", network);
+  testEnv.mockNftOracle = await getMockNFTOracle();
 
-  testEnv.mockIncentivesController = await getMockIncentivesController("", network);
+  testEnv.dataProvider = await getUnlockdProtocolDataProvider();
+  testEnv.walletProvider = await getWalletProvider();
+  testEnv.uiProvider = await getUIPoolDataProvider();
+
+  testEnv.mockIncentivesController = await getMockIncentivesController();
 
   // Reserve Tokens
   const allReserveTokens = await testEnv.dataProvider.getAllReservesTokenDatas();
@@ -246,12 +252,12 @@ export async function initializeMakeSuite(network?: string) {
   if (uUsdcAddress) testEnv.uUsdc = await getUToken(uUsdcAddress);
 
   if (uWEthAddress) testEnv.uWETH = await getUToken(uWEthAddress);
-
+  if (UPGRADE) await testEnv.uWETH.sweepUToken();
   testEnv.wethGateway = await getWETHGateway();
 
   // NFT Tokens
   const allUNftTokens = await testEnv.dataProvider.getAllNftsTokenDatas();
-  console.log("allUNftTokens", allUNftTokens);
+
   const uPunkAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "WPUNKS")?.uNftAddress;
   const uBaycAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "BAYC")?.uNftAddress;
   const uAzukiAddress = allUNftTokens.find((tokenData) => tokenData.nftSymbol === "AZUKI")?.uNftAddress;
@@ -276,10 +282,10 @@ export async function initializeMakeSuite(network?: string) {
   testEnv.bayc = await getMintableERC721(baycAddress!);
   testEnv.azuki = await getMintableERC721(azukiAddress!);
   testEnv.tokenId = 1;
-  testEnv.cryptoPunksMarket = await getCryptoPunksMarket("", network);
+  testEnv.cryptoPunksMarket = await getCryptoPunksMarket();
 
-  testEnv.wrappedPunk = await getWrappedPunk("", network);
-  testEnv.punkGateway = await getPunkGateway("", network);
+  testEnv.wrappedPunk = await getWrappedPunk();
+  testEnv.punkGateway = await getPunkGateway();
 
   testEnv.tokenIdTracker = 100;
   testEnv.punkIndexTracker = 100;

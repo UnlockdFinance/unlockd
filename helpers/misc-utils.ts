@@ -10,7 +10,7 @@ import weth from "../abis/WETH.json";
 import erc20Artifact from "../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
 import erc721Artifact from "../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
 import wrappedPunkArtifact from "../artifacts/contracts/mock/WrappedPunk/WrappedPunk.sol/WrappedPunk.json";
-import { FORK } from "../hardhat.config";
+import { FORK, UPGRADE } from "../hardhat.config";
 import { SignerWithAddress } from "../test/helpers/make-suite";
 import { SelfdestructTransferFactory } from "../types";
 import { ConfigNames, loadPoolConfig } from "./configuration";
@@ -23,7 +23,7 @@ import {
   getEthersSigners,
   getParamPerNetwork,
 } from "./contracts-helpers";
-import { eNetwork, tEthereumAddress } from "./types";
+import { eEthereumNetwork, eNetwork, tEthereumAddress } from "./types";
 import BN = require("bn.js");
 
 export const toWad = (value: string | number) => new BigNumber(value).times(WAD).toFixed();
@@ -117,9 +117,9 @@ interface DbEntry {
   };
 }
 
-export const printContracts = () => {
+export const printContracts = (database?: string) => {
   const network = DRE.network.name;
-  const db = getDb(network);
+  const db = getDb(database ? database : network);
   console.log("Contracts deployed at", network);
   console.log("---------------------------------");
 

@@ -51,27 +51,27 @@ makeSuite("UToken", (testEnv: TestEnv) => {
   });
 
   it("Check the onlyAdmin on set treasury to new utoken", async () => {
-    const { configurator, users, bayc } = testEnv;
+    const { uWETH, users, bayc } = testEnv;
     await expect(
-      configurator.connect(users[2].signer).setTreasuryAddress(bayc.address, users[0].address),
+      uWETH.connect(users[2].signer).setTreasuryAddress(bayc.address),
       CALLER_NOT_POOL_ADMIN
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
 
   it("Check the zero check on set treasury to new utoken", async () => {
-    const { configurator, deployer, bayc } = testEnv;
+    const { uWETH, deployer, bayc } = testEnv;
     await expect(
-      configurator.connect(deployer.signer).setTreasuryAddress(bayc.address, zeroAddress()),
+      uWETH.connect(deployer.signer).setTreasuryAddress(zeroAddress()),
       INVALID_ZERO_ADDRESS
     ).to.be.revertedWith(INVALID_ZERO_ADDRESS);
   });
 
   it("Check the address is properly updated in WETH uToken", async () => {
-    const { configurator, deployer, weth, dataProvider } = testEnv;
+    const { uWETH, deployer, weth, dataProvider } = testEnv;
     const expectedAddress = await createRandomAddress();
     const { uTokenAddress } = await dataProvider.getReserveTokenData(weth.address);
 
-    await configurator.connect(deployer.signer).setTreasuryAddress(uTokenAddress, expectedAddress);
+    await uWETH.connect(deployer.signer).setTreasuryAddress(expectedAddress);
 
     await expect(await (await getUToken(uTokenAddress)).RESERVE_TREASURY_ADDRESS()).to.be.equal(expectedAddress);
   });

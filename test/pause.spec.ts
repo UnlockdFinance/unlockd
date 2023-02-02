@@ -1,8 +1,9 @@
 import { parseEther } from "@ethersproject/units";
 import { BigNumber } from "bignumber.js";
+import { ConfigNames, getEmergencyAdmin, loadPoolConfig } from "../helpers/configuration";
 import { APPROVAL_AMOUNT_LENDING_POOL } from "../helpers/constants";
 import { getEmergencyAdminSigner } from "../helpers/contracts-getters";
-import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
+import { convertToCurrencyDecimals, getEthersSignerByAddress } from "../helpers/contracts-helpers";
 import { fundWithERC20, fundWithERC721, waitForTx } from "../helpers/misc-utils";
 import { IConfigNftAsCollateralInput, ProtocolErrors } from "../helpers/types";
 import { approveERC20, setApprovalForAll } from "./helpers/actions";
@@ -153,8 +154,10 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     const depositor = users[3];
     const borrower = users[4];
     const liquidator = users[5];
-    const emergencyAdminSigner = await getEmergencyAdminSigner();
 
+    const emergencyAdminSigner = await getEthersSignerByAddress(
+      await getEmergencyAdmin(loadPoolConfig(ConfigNames.Unlockd))
+    );
     await fundWithERC20("WETH", depositor.address, "1000");
     await approveERC20(testEnv, depositor, "WETH");
 
@@ -238,7 +241,9 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
     const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, deployer, liquidator } = testEnv;
     const depositor = users[3];
     const borrower = users[4];
-    const emergencyAdminSigner = await getEmergencyAdminSigner();
+    const emergencyAdminSigner = await getEthersSignerByAddress(
+      await getEmergencyAdmin(loadPoolConfig(ConfigNames.Unlockd))
+    );
 
     await fundWithERC20("WETH", depositor.address, "1000");
     await approveERC20(testEnv, depositor, "WETH");
@@ -299,6 +304,7 @@ makeSuite("LendPool: Pause", (testEnv: TestEnv) => {
 
     // add  supporting liquidations on  NFTX for auction price purposes
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+    await configurator.connect(deployer.signer).setLtvManagerStatus(liquidator.address, true);
 
     await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
 

@@ -23,8 +23,8 @@ import { PunkGateway, UnlockdUpgradeableProxy } from "../../types";
 
 task(`fork:deploy-punk-gateway`, `Deploys the PunkGateway contract`)
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
-  .addFlag("verify", `Verify contract via Etherscan API.`)
-  .setAction(async ({ verify, pool }, DRE) => {
+  .addFlag("testUpgrade", "Test upgradeability")
+  .setAction(async ({ testupgrade, pool }, DRE) => {
     await DRE.run("set-DRE");
 
     if (!DRE.network.config.chainId) {
@@ -51,7 +51,7 @@ task(`fork:deploy-punk-gateway`, `Deploys the PunkGateway contract`)
     console.log("WPUNKS.address", wpunk);
 
     // this contract is not support upgrade, just deploy new contract
-    const punkGateWayImpl = await deployPunkGateway(verify);
+    const punkGateWayImpl = await deployPunkGateway(false);
     const initEncodedData = punkGateWayImpl.interface.encodeFunctionData("initialize", [
       addressesProvider.address,
       wethGateWay.address,
@@ -83,7 +83,7 @@ task(`fork:deploy-punk-gateway`, `Deploys the PunkGateway contract`)
         proxyAdmin.address,
         punkGateWayImpl.address,
         initEncodedData,
-        verify
+        false
       );
 
       punkGateWay = await getPunkGateway(punkGatewayProxy.address);
