@@ -201,7 +201,7 @@ export const calcExpectedReserveDataAfterBorrow = (
   const amountBorrowedBN = new BigNumber(amountBorrowed);
 
   expectedReserveData.liquidityIndex = calcExpectedLiquidityIndex(reserveDataBeforeAction, txTimestamp);
-
+  //@todo
   expectedReserveData.variableBorrowIndex = calcExpectedVariableBorrowIndex(reserveDataBeforeAction, txTimestamp);
 
   expectedReserveData.availableLiquidity = newAvailableLiquidity;
@@ -209,6 +209,7 @@ export const calcExpectedReserveDataAfterBorrow = (
   expectedReserveData.lastUpdateTimestamp = txTimestamp;
 
   {
+    //@todo
     expectedReserveData.scaledVariableDebt = reserveDataBeforeAction.scaledVariableDebt.plus(
       amountBorrowedBN.rayDiv(expectedReserveData.variableBorrowIndex)
     );
@@ -400,11 +401,8 @@ export const calcExpectedUserDataAfterBorrow = (
   const expectedUserData = <UserReserveData>{};
 
   const amountBorrowedBN = new BigNumber(amountBorrowed);
-
   {
-    expectedUserData.scaledVariableDebt = reserveDataBeforeAction.scaledVariableDebt.plus(
-      amountBorrowedBN.rayDiv(expectedDataAfterAction.variableBorrowIndex)
-    );
+    expectedUserData.scaledVariableDebt = amountBorrowedBN.rayDiv(expectedDataAfterAction.variableBorrowIndex);
   }
 
   expectedUserData.currentVariableDebt = calcExpectedVariableDebtTokenBalance(
@@ -991,7 +989,12 @@ const calcExpectedVariableBorrowIndex = (reserveData: ReserveData, timestamp: Bi
   if (reserveData.totalVariableDebt.eq("0")) {
     return reserveData.variableBorrowIndex;
   }
-
+  console.log(
+    "CALCULATING CUMULATED INTEREST...",
+    reserveData.variableBorrowRate.toString(),
+    timestamp.toString(),
+    reserveData.lastUpdateTimestamp.toString()
+  );
   const cumulatedInterest = calcCompoundedInterest(
     reserveData.variableBorrowRate,
     timestamp,

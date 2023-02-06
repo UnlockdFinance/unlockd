@@ -99,6 +99,7 @@ export const getEmergencyAdmin = async (config: ICommonConfiguration): Promise<t
 
 export const getLendPoolLiquidator = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
   const currentNetwork = DRE.network.name;
+
   const targetAddress = getParamPerNetwork(config.LendPoolLiquidator, <eNetwork>currentNetwork);
   if (targetAddress) {
     return targetAddress;

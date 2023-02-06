@@ -470,7 +470,7 @@ before(async () => {
       testskipRegistry: false,
       skipOracle: UPGRADE ? true : false,
       upgradeLendPool: UPGRADE ? true : false,
-      upgradeLendPoolLoan: UPGRADE ? false : false,
+      upgradeLendPoolLoan: UPGRADE ? true : false,
       upgradeLendPoolConfigurator: UPGRADE ? true : false,
       upgradeUToken: UPGRADE ? true : false,
       upgradeWallet: UPGRADE ? false : true,

@@ -251,13 +251,23 @@ export const fundWithERC721 = async (tokenSymbol: string, receiver: string, toke
 };
 
 export const fundWithWrappedPunk = async (receiver: string, punkIndex: number) => {
-  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
-  const network = <eNetwork>DRE.network.name;
-  const nftsAssets = getParamPerNetwork(poolConfig.NftsAssets, network);
-
-  nftsAssets["WPUNKS"] = await (await getWrappedPunk()).address;
-
   const cryptoPunksMarket = await getCryptoPunksMarket();
+  console.log("cryptoPunksMarket.ADDRESS", cryptoPunksMarket.address);
+  const owner = await cryptoPunksMarket.punkIndexToAddress(punkIndex);
+  console.log("2");
+  await (DRE as HardhatRuntimeEnvironment).network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [owner],
+  });
+  const tokenOwnerSigner = await getEthersSignerByAddress(owner);
+  if (UPGRADE) {
+    await cryptoPunksMarket.connect(tokenOwnerSigner).transferPunk(receiver, punkIndex);
+  } else {
+    await cryptoPunksMarket.connect(tokenOwnerSigner).setInitialOwner(receiver, punkIndex);
+  }
 
-  await cryptoPunksMarket.setInitialOwner(receiver, punkIndex);
+  await (DRE as HardhatRuntimeEnvironment).network.provider.request({
+    method: "hardhat_stopImpersonatingAccount",
+    params: [owner],
+  });
 };

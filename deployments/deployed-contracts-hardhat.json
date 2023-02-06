@@ -67,19 +67,19 @@
     "address": "0xFC7f036a8FB66D031675239413F9179A82932a53"
   },
   "LendPoolLoanImpl": {
-    "address": "0x6FfD77E502b561E08CdE65C311bf920d9FE1dB88"
+    "address": "0xF30bEeAD1A45849d9edd58ead8fd8C493769c2e0"
   },
   "LendPoolLoan": {
     "address": "0x00da789CEBF4A0da965FbcB9e4d72F1A15c67Eb6"
   },
   "LendPoolConfiguratorImpl": {
-    "address": "0xF30bEeAD1A45849d9edd58ead8fd8C493769c2e0"
+    "address": "0xA38aF170a6030A4AA6A73F27e31913896D02d9E5"
   },
   "LendPoolConfigurator": {
     "address": "0x82CefdbdFe6c4A868962E7B78A3CE54f952FE209"
   },
   "UToken": {
-    "address": "0xA38aF170a6030A4AA6A73F27e31913896D02d9E5",
+    "address": "0xeDfBc20906e2A6EEdF51CF9E0847EE12E8C24a38",
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   },
   "DebtToken": {
@@ -87,29 +87,29 @@
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   },
   "ReserveOracleImpl": {
-    "address": "0x46dBEC49711AB9b6231571c9BB8566a61c7F2403"
+    "address": "0x619D601151F99eA38D058419B7f9c4dC21bE5f74"
   },
   "ReserveOracle": {
-    "address": "0x4140551DcF114841611Ea51B788601E288b925A7",
+    "address": "0x9af65377B22db90Bf8E244118D900cb5912C06A0",
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   },
   "InterestRate": {
-    "address": "0xA5D14177dbf569CDb551348ed00ABA0F1cAA7754",
+    "address": "0x46dBEC49711AB9b6231571c9BB8566a61c7F2403",
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   },
   "rateStrategyWETH": {},
   "WETHGatewayImpl": {
-    "address": "0x795A9e0a33A77697cA47110Fe4755ebae8cc493d"
+    "address": "0xFbD2Bcee595C6dd9897d09F8aac4dE4d25Da2406"
   },
   "WETHGateway": {
-    "address": "0x0d5A790175C95fd1fC032bb066f1166fBDCa155f",
+    "address": "0x66CD472E4404D0C62d7068b4D69e28D5Ed6C32c2",
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   },
   "PunkGatewayImpl": {
-    "address": "0xf0931526d7914202cB559fe6d618777Ba71b0802"
+    "address": "0xf49c6c3A753643eF9a31A1cfBD1d38e364A1637c"
   },
   "PunkGateway": {
-    "address": "0x52497C21B2C366b453d5b2d77d49eDF0a2eEd14d",
+    "address": "0x2540b104310EFa795DE0a9247Ba3942b71385251",
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   },
   "WalletBalanceProvider": {
@@ -117,7 +117,7 @@
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   },
   "UnlockdProtocolDataProvider": {
-    "address": "0xB42Ff0dF5EACE0659AEf396FddC78b709A73d2c7",
+    "address": "0xDD6f141853933161aa9988Ca1A437a70feC0347b",
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   },
   "UIPoolDataProvider": {
@@ -160,19 +160,15 @@
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   },
   "MockReserveOracle": {
-    "address": "0x170bB0C8Ddc9018368A47437E57b1Cf605e8470F",
-    "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
-  },
-  "MockChainlinkOracle": {
     "address": "0x5e26B6dFe23592f0f66dd148DA0E38a602539F8e",
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   },
-  "MockNFTOracle": {
+  "MockChainlinkOracle": {
     "address": "0x9bD271073c7BC8BDa93Be6f7b3B85Bd30fEAa7FE",
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   },
-  "SelfdestructTransferMock": {
-    "address": "0x848bA006252aEcAAE67f74b95AF49cAB69308634",
+  "MockNFTOracle": {
+    "address": "0xE265605de1d4560F231f6c2739F1e7D2A631d84a",
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   }
 }

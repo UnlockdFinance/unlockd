@@ -57,7 +57,6 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
   .addFlag("upgradeProtocolDataProvider", "Upgrade Unlockd Protocol Data Provider")
   .addFlag("upgradeUiDataProvider", "Upgrade UI Pool Data Provider")
   .addFlag("upgradeInterestRate", "Upgrade Interest Rate")
-
   .setAction(
     async (
       {

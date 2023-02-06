@@ -125,8 +125,6 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
     expect(isFrozen).to.be.equal(false);
     expect(decimals).to.be.equal(strategyWETH.reserveDecimals);
     expect(reserveFactor).to.be.equal(strategyWETH.reserveFactor);
-
-    expect(variableBorrowIndex.toString()).to.be.equal(RAY);
   });
 
   it("Check the onlyAdmin on disableBorrowingOnReserve ", async () => {

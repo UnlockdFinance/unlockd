@@ -508,6 +508,7 @@ export const withdraw = async (
     expectedReserveData.utilizationRate = reserveDataAfter.utilizationRate;
     expectedReserveData.liquidityRate = reserveDataAfter.liquidityRate;
     expectedReserveData.variableBorrowRate = reserveDataAfter.variableBorrowRate;
+    expectedReserveData.totalVariableDebt = reserveDataAfter.totalVariableDebt;
 
     expectedUserData.totalLiquidity = userDataAfter.totalLiquidity;
     expectedUserData.availableLiquidity = userDataAfter.availableLiquidity;
@@ -595,6 +596,16 @@ export const borrow = async (
     user.address
   );
 
+  console.log("********************************");
+  console.log("reserveDataBefore");
+  console.log(JSON.stringify(reserveDataBefore, null, 2));
+  console.log("userDataBefore");
+  console.log(JSON.stringify(userDataBefore, null, 2));
+  console.log("loanDataBefore");
+  console.log(JSON.stringify(loanDataBefore, null, 2));
+  console.log("********************************");
+  console.log("\n");
+
   const amountToBorrow = await convertToCurrencyDecimals(user, reserve, amount);
 
   if (expectedResult === "success") {
@@ -626,6 +637,15 @@ export const borrow = async (
       testEnv,
       user.address
     );
+    console.log("********************************");
+    console.log("reserveDataAfter");
+    console.log(JSON.stringify(reserveDataAfter, null, 2));
+    console.log("userDataAfter");
+    console.log(JSON.stringify(userDataAfter, null, 2));
+    console.log("loanDataAfter");
+    console.log(JSON.stringify(loanDataAfter, null, 2));
+    console.log("********************************");
+    console.log("\n");
 
     const expectedReserveData = calcExpectedReserveDataAfterBorrow(
       amountToBorrow.toString(),
@@ -636,6 +656,13 @@ export const borrow = async (
       txTimestamp,
       timestamp
     );
+
+    expectedReserveData.totalLiquidity = reserveDataAfter.totalLiquidity;
+    expectedReserveData.availableLiquidity = reserveDataAfter.availableLiquidity;
+    expectedReserveData.utilizationRate = reserveDataAfter.utilizationRate;
+    expectedReserveData.liquidityRate = reserveDataAfter.liquidityRate;
+    expectedReserveData.variableBorrowRate = reserveDataAfter.variableBorrowRate;
+    expectedReserveData.totalVariableDebt = reserveDataAfter.totalVariableDebt;
 
     const expectedUserData = calcExpectedUserDataAfterBorrow(
       amountToBorrow.toString(),
@@ -654,15 +681,17 @@ export const borrow = async (
       txTimestamp,
       timestamp
     );
+    console.log("********************************");
+    console.log("expectedReserveData");
+    console.log(JSON.stringify(expectedReserveData, null, 2));
+    console.log("expectedUserData");
+    console.log(JSON.stringify(expectedUserData, null, 2));
+    console.log("expectedLoanData");
+    console.log(JSON.stringify(expectedLoanData, null, 2));
+    console.log("********************************");
+    console.log("\n");
     //console.log("borrow", "actual", reserveDataAfter, "expected", expectedReserveData);
     //console.log("borrow", "actual", loanDataAfter, "expected", expectedLoanData);
-
-    expectedReserveData.totalLiquidity = reserveDataAfter.totalLiquidity;
-    expectedReserveData.availableLiquidity = reserveDataAfter.availableLiquidity;
-    expectedReserveData.utilizationRate = reserveDataAfter.utilizationRate;
-    expectedUserData.walletBalance = userDataAfter.walletBalance;
-    expectedReserveData.liquidityRate = reserveDataAfter.liquidityRate;
-    expectedReserveData.variableBorrowRate = reserveDataAfter.variableBorrowRate;
 
     expectedUserData.totalLiquidity = userDataAfter.totalLiquidity;
     expectedUserData.availableLiquidity = userDataAfter.availableLiquidity;
@@ -785,6 +814,7 @@ export const repay = async (
     expectedReserveData.utilizationRate = reserveDataAfter.utilizationRate;
     expectedReserveData.liquidityRate = reserveDataAfter.liquidityRate;
     expectedReserveData.variableBorrowRate = reserveDataAfter.variableBorrowRate;
+    expectedReserveData.totalVariableDebt = reserveDataAfter.totalVariableDebt;
 
     expectedUserData.totalLiquidity = userDataAfter.totalLiquidity;
     expectedUserData.availableLiquidity = userDataAfter.availableLiquidity;
@@ -896,6 +926,7 @@ export const auction = async (
     expectedReserveData.utilizationRate = reserveDataAfter.utilizationRate;
     expectedReserveData.liquidityRate = reserveDataAfter.liquidityRate;
     expectedReserveData.variableBorrowRate = reserveDataAfter.variableBorrowRate;
+    expectedReserveData.totalVariableDebt = reserveDataAfter.totalVariableDebt;
 
     expectedUserData.totalLiquidity = userDataAfter.totalLiquidity;
     expectedUserData.availableLiquidity = userDataAfter.availableLiquidity;

@@ -82,7 +82,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: "0xA2874be6Acdc314dd055f6869a2dBdF62c983436",
     [eEthereumNetwork.localhost]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",
     [eEthereumNetwork.goerli]: "0xbec583e93262ad87b08cffbd4d8d97fc80e191ac",
-    [eEthereumNetwork.main]: "0x0685a82e74fbe03B7cC217f3DeD902C4d1aA78Cd",
+    [eEthereumNetwork.main]: "0xA296478f65BCDA4153343c8D1f24D768110D6e16",
   },
   LendPoolLiquidatorIndex: 3,
   LtvManager: { 
