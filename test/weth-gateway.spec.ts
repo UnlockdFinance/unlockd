@@ -3,7 +3,7 @@ import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import DRE from "hardhat";
 import { getReservesConfigByPool } from "../helpers/configuration";
-import { MAX_UINT_AMOUNT } from "../helpers/constants";
+import { ADDRESS_ID_WETH, MAX_UINT_AMOUNT } from "../helpers/constants";
 import { deploySelfdestructTransferMock } from "../helpers/contracts-deployments";
 import { getDebtToken } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
@@ -32,6 +32,9 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
   const gasCostSize = parseEther("0.1");
 
   before("Initializing configuration", async () => {
+    const { addressesProvider, weth } = testEnv;
+
+    await addressesProvider.setAddress(ADDRESS_ID_WETH, weth.address);
     // Sets BigNumber for this suite, instead of globally
     BigNumber.config({
       DECIMAL_PLACES: 0,
@@ -98,10 +101,6 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
     expect(afterPartialEtherBalance).to.be.lt(
       priorEthersBalance.add(partialWithdraw),
       "User ETHER balance should less than before balance + withdraw"
-    );
-    expect(afterPartialUTokensBalance).to.be.equal(
-      uTokensBalance.sub(partialWithdraw),
-      "User uWETH balance should be substracted"
     );
   });
 

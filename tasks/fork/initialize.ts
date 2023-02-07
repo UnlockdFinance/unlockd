@@ -19,9 +19,9 @@ import { waitForTx } from "../../helpers/misc-utils";
 import { eNetwork } from "../../helpers/types";
 
 task("fork:initialize-lend-pool", "Initialize lend pool configuration.")
-  .addFlag("verify", "Verify contracts at Etherscan")
+  .addFlag("testUpgrade", "Test upgradeability")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
-  .setAction(async ({ verify, pool }, localBRE) => {
+  .setAction(async ({ testupgrade, pool }, localBRE) => {
     try {
       await localBRE.run("set-DRE");
       const network = <eNetwork>localBRE.network.name;
@@ -34,42 +34,48 @@ task("fork:initialize-lend-pool", "Initialize lend pool configuration.")
       const treasuryAddress = await getTreasuryAddress(poolConfig);
 
       //////////////////////////////////////////////////////////////////////////
-      console.log("Init & Config Reserve assets");
-      const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
+      if (!testupgrade) {
+        console.log("Init & Config Reserve assets");
+        const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
 
-      if (!reserveAssets) {
-        throw "Reserve assets is undefined. Check ReserveAssets configuration at config directory";
+        if (!reserveAssets) {
+          throw "Reserve assets is undefined. Check ReserveAssets configuration at config directory";
+        }
+
+        await initReservesByHelper(
+          poolConfig.ReservesConfig,
+          reserveAssets,
+          poolConfig.UTokenNamePrefix,
+          poolConfig.UTokenSymbolPrefix,
+          poolConfig.DebtTokenNamePrefix,
+          poolConfig.DebtTokenSymbolPrefix,
+          admin,
+          treasuryAddress,
+          pool,
+          false
+        );
+        await configureReservesByHelper(poolConfig.ReservesConfig, reserveAssets, admin);
       }
-
-      await initReservesByHelper(
-        poolConfig.ReservesConfig,
-        reserveAssets,
-        poolConfig.UTokenNamePrefix,
-        poolConfig.UTokenSymbolPrefix,
-        poolConfig.DebtTokenNamePrefix,
-        poolConfig.DebtTokenSymbolPrefix,
-        admin,
-        treasuryAddress,
-        pool,
-        verify
-      );
-      await configureReservesByHelper(poolConfig.ReservesConfig, reserveAssets, admin);
-
       const yVaultWETHAddress = await getYVaultWETHAddress(poolConfig);
-
+      if (!yVaultWETHAddress) {
+        throw "YVault is undefined. Check ReserveAssets configuration at config directory";
+      }
+      console.log("Setting YVaultWETH with address: ", yVaultWETHAddress, " in addressesProvider...");
       await waitForTx(await addressesProvider.setAddress(ADDRESS_ID_YVAULT_WETH, yVaultWETHAddress));
 
       //////////////////////////////////////////////////////////////////////////
-      console.log("Init & Config NFT assets");
+      if (!testupgrade) {
+        console.log("Init & Config NFT assets");
 
-      const nftsAssets = getParamPerNetwork(poolConfig.NftsAssets, network);
+        const nftsAssets = getParamPerNetwork(poolConfig.NftsAssets, network);
 
-      if (!nftsAssets) {
-        throw "NFT assets is undefined. Check NftsAssets configuration at config directory";
+        if (!nftsAssets) {
+          throw "NFT assets is undefined. Check NftsAssets configuration at config directory";
+        }
+        nftsAssets["WPUNKS"] = await (await getWrappedPunk()).address;
+        await initNftsByHelper(poolConfig.NftsConfig, nftsAssets, admin, pool, false);
+        await configureNftsByHelper(poolConfig.NftsConfig, nftsAssets, admin);
       }
-      nftsAssets["WPUNKS"] = await (await getWrappedPunk()).address;
-      await initNftsByHelper(poolConfig.NftsConfig, nftsAssets, admin, pool, verify);
-      await configureNftsByHelper(poolConfig.NftsConfig, nftsAssets, admin);
     } catch (err) {
       console.error(err);
       exit(1);

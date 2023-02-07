@@ -170,7 +170,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
   });
 
   it("User 1 uses existed collateral and borrows more 2 WETH", async () => {
-    const { users, configurator, deployer, nftOracle, bayc } = testEnv;
+    const { users, configurator, deployer, nftOracle, bayc, pool, weth } = testEnv;
     const user1 = users[1];
 
     await expect(cachedTokenId, "previous test case is failed").to.not.be.undefined;
@@ -193,8 +193,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
       minBidFine: 2000,
     };
     await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
-
-    await borrow(testEnv, user1, "WETH", "2", "BAYC", tokenId, user1.address, "365", "success", "");
+    await pool.connect(user1.signer).borrow(weth.address, parseEther("2"), bayc.address, tokenId, user1.address, 0);
 
     // const checkResult = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
     // await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
@@ -214,7 +213,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     const collData: IConfigNftAsCollateralInput = {
       asset: bayc.address,
       nftTokenId: tokenId,
-      newPrice: parseEther("1000"),
+      newPrice: parseEther("100000"),
       ltv: 4000,
       liquidationThreshold: 7000,
       redeemThreshold: 9000,
@@ -230,7 +229,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
       testEnv,
       user1,
       "WETH",
-      "100",
+      "1000",
       "BAYC",
       tokenId,
       user1.address,

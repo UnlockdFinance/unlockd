@@ -73,7 +73,7 @@ makeSuite("DataProvider", (testEnv) => {
 
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
 
-    await pool.connect(borrower.signer).approveValuation(bayc.address, "101");
+    await pool.connect(borrower.signer).approveValuation(bayc.address, "101", { value: await pool.getConfigFee() });
 
     await pool
       .connect(borrower.signer)
@@ -109,6 +109,7 @@ makeSuite("DataProvider", (testEnv) => {
           return userReserveData;
         }
       });
+
       //console.log("userReservesData", userReservesData);
       expect(userWethData?.variableDebt).to.be.gt(0);
     }
@@ -122,6 +123,7 @@ makeSuite("DataProvider", (testEnv) => {
       });
       //console.log("aggReservesData", aggReservesData);
       expect(aggWethData?.isActive).to.be.equal(true);
+
       expect(aggWethData?.totalVariableDebt).to.be.gt(0);
       const aggUserWethData = aggReservesData[1].find((userReserveData) => {
         if (userReserveData.underlyingAsset === weth.address) {
@@ -151,6 +153,7 @@ makeSuite("DataProvider", (testEnv) => {
       });
       //console.log("simpleNftsData", simpleNftsData);
       expect(baycData?.isActive).to.be.equal(true);
+
       expect(baycData?.totalCollateral).to.be.gt(0);
     }
 
@@ -161,6 +164,7 @@ makeSuite("DataProvider", (testEnv) => {
           return userNftData;
         }
       });
+
       //console.log("userNftsData", userNftsData);
       expect(userBaycData?.totalCollateral).to.be.gt(0);
     }
@@ -180,6 +184,7 @@ makeSuite("DataProvider", (testEnv) => {
           return userNftData;
         }
       });
+
       expect(aggUserBaycData?.totalCollateral).to.be.gt(0);
     }
   });
@@ -228,6 +233,7 @@ makeSuite("DataProvider", (testEnv) => {
         }
       });
       expect(assetIndex).to.not.equal(undefined);
+
       expect(borrowerBalances[1][assetIndex]).to.be.gt(0);
 
       const tokenData = await dataProvider.getReserveTokenData(borrowerBalances[0][assetIndex]);

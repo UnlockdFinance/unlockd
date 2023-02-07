@@ -155,7 +155,6 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
 
     // end auction duration
     await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
-
     await expect(pool.connect(liquidator.signer).liquidateNFTX(bayc.address, "101", 0)).to.be.revertedWith(
       ProtocolErrors.LPL_INVALID_LOAN_STATE
     );

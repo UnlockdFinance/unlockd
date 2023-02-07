@@ -10,7 +10,7 @@ import weth from "../abis/WETH.json";
 import erc20Artifact from "../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
 import erc721Artifact from "../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
 import wrappedPunkArtifact from "../artifacts/contracts/mock/WrappedPunk/WrappedPunk.sol/WrappedPunk.json";
-import { FORK } from "../hardhat.config";
+import { FORK, UPGRADE } from "../hardhat.config";
 import { SignerWithAddress } from "../test/helpers/make-suite";
 import { SelfdestructTransferFactory } from "../types";
 import { ConfigNames, loadPoolConfig } from "./configuration";
@@ -23,7 +23,7 @@ import {
   getEthersSigners,
   getParamPerNetwork,
 } from "./contracts-helpers";
-import { eNetwork, tEthereumAddress } from "./types";
+import { eEthereumNetwork, eNetwork, tEthereumAddress } from "./types";
 import BN = require("bn.js");
 
 export const toWad = (value: string | number) => new BigNumber(value).times(WAD).toFixed();
@@ -117,9 +117,9 @@ interface DbEntry {
   };
 }
 
-export const printContracts = () => {
+export const printContracts = (database?: string) => {
   const network = DRE.network.name;
-  const db = getDb(network);
+  const db = getDb(database ? database : network);
   console.log("Contracts deployed at", network);
   console.log("---------------------------------");
 
@@ -257,13 +257,23 @@ export const fundWithERC721 = async (tokenSymbol: string, receiver: string, toke
 };
 
 export const fundWithWrappedPunk = async (receiver: string, punkIndex: number) => {
-  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
-  const network = <eNetwork>DRE.network.name;
-  const nftsAssets = getParamPerNetwork(poolConfig.NftsAssets, network);
-
-  nftsAssets["WPUNKS"] = await (await getWrappedPunk()).address;
-
   const cryptoPunksMarket = await getCryptoPunksMarket();
+  console.log("cryptoPunksMarket.ADDRESS", cryptoPunksMarket.address);
+  const owner = await cryptoPunksMarket.punkIndexToAddress(punkIndex);
+  console.log("2");
+  await (DRE as HardhatRuntimeEnvironment).network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [owner],
+  });
+  const tokenOwnerSigner = await getEthersSignerByAddress(owner);
+  if (UPGRADE) {
+    await cryptoPunksMarket.connect(tokenOwnerSigner).transferPunk(receiver, punkIndex);
+  } else {
+    await cryptoPunksMarket.connect(tokenOwnerSigner).setInitialOwner(receiver, punkIndex);
+  }
 
-  await cryptoPunksMarket.setInitialOwner(receiver, punkIndex);
+  await (DRE as HardhatRuntimeEnvironment).network.provider.request({
+    method: "hardhat_stopImpersonatingAccount",
+    params: [owner],
+  });
 };
