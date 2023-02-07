@@ -46,10 +46,7 @@ library LendingLogic {
       address yVaultWETH = addressesProvider.getAddress(keccak256("YVAULT_WETH"));
 
       IERC20Upgradeable(params.underlyingAsset).safeApprove(yVaultWETH, params.amount);
-      uint256 availableLiquidityInSharesBefore = IERC20Upgradeable(yVaultWETH).balanceOf(address(this));
-
       IYVault(yVaultWETH).deposit(params.amount);
-      uint256 availableLiquidityInShares = IERC20Upgradeable(yVaultWETH).balanceOf(address(this));
 
       emit DepositYearn(params.underlyingAsset, params.amount, yVaultWETH);
     }
