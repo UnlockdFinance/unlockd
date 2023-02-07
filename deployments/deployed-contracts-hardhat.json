@@ -175,5 +175,29 @@
   "SelfdestructTransferMock": {
     "address": "0x2EE64e38E66c94AAb4853B0440Bbc8390690A8c4",
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
+  },
+  "SushiSwapRouter": {
+    "address": "0xc5b75fA87Bc8F55bD989642DFE0Bbdd44748cD3b",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
+  "MintableERC20": {
+    "address": "0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
+  "DAI": {
+    "address": "0xa05ffF82bcC0C599984b0839218DC6ee9328d1Fb",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
+  "BUSD": {
+    "address": "0x025FE4760c6f14dE878C22cEb09A3235F16dAe53",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
+  "USDC": {
+    "address": "0xb2f97A3c2E48cd368901657e31Faaa93035CE390",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
+  "USDT": {
+    "address": "0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   }
 }

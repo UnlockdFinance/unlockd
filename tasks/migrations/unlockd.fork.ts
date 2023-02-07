@@ -147,8 +147,10 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
       //////////////////////////////////////////////////////////////////////////
       console.log("\n\nDeploy UNFT Registry");
       await DRE.run("fork:deploy-unft-registry", { pool: POOL_NAME, testupgrade: testupgrade, createunfts: true });
-
+      
       //////////////////////////////////////////////////////////////////////////
+      console.log("\n\nDeploy Lockey Holders");
+      await DRE.run("fork:deploy-lockey-holders", { pool: POOL_NAME, verify });
 
       //////////////////////////////////////////////////////////////////////////
       console.log("\n\nDeploy lend pool");

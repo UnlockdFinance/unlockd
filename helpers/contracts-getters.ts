@@ -12,6 +12,7 @@ import {
   LendPoolFactory,
   LendPoolLoanFactory,
   LiquidateLogicFactory,
+  LockeyHolderFactory,
   MintableERC20Factory,
   MintableERC721Factory,
   MockChainlinkOracleFactory,
@@ -112,7 +113,14 @@ export const getLendPoolLoanProxy = async (address?: tEthereumAddress) => {
   );
 };
 
-export const getLendPool = async (address?: tEthereumAddress) =>
+export const getLockeyHolderProxy = async (address?: tEthereumAddress) => {
+  return await LockeyHolderFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.LockeyHolder}`).value()).address,
+    await getDeploySigner()
+  );
+};
+
+export const getLendPool = async (address?: tEthereumAddress, db?: string) =>
   await LendPoolFactory.connect(
     address || (await getDb(DRE.network.name).get(`${eContractid.LendPool}`).value()).address,
     await getDeploySigner()
@@ -142,11 +150,11 @@ export const getNFTOracle = async (address?: tEthereumAddress) =>
     await getDeploySigner()
   );
 
-// export const getMockNFT = async (address?: tEthereumAddress) =>
-//   await MockNFTOracleFactory.connect(
-//     address || (await getDb(DRE.network.name).get(`${eContractid.MockNFT}`).value()).address,
-//     await getDeploySigner()
-//   );
+export const getMockNFT = async (address?: tEthereumAddress) =>
+   await MockNFTOracleFactory.connect(
+     address || (await getDb(DRE.network.name).get(`${eContractid.MockNFT}`).value()).address,
+     await getDeploySigner()
+   );
 
 export const getNFTOracleImpl = async (address?: tEthereumAddress) =>
   await NFTOracleFactory.connect(

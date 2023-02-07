@@ -6,11 +6,11 @@ import { getMintableERC20, getUToken, getYVault } from "../helpers/contracts-get
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { createRandomAddress, fundWithERC20, waitForTx } from "../helpers/misc-utils";
 import { ProtocolErrors } from "../helpers/types";
-import { CommonsConfig } from "../markets/unlockd/commons";
 import { approveERC20 } from "./helpers/actions";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 import { wadDiv } from "./helpers/utils/math";
 
+const chai = require("chai");
 const { expect } = chai;
 
 makeSuite("UToken", (testEnv: TestEnv) => {
@@ -24,6 +24,8 @@ makeSuite("UToken", (testEnv: TestEnv) => {
   afterEach("Reset", () => {
     testEnv.mockIncentivesController.resetHandleActionIsCalled();
   });
+
+  const { CALLER_NOT_POOL_ADMIN, INVALID_ZERO_ADDRESS } = ProtocolErrors;
 
   it("Check WETH basic parameters", async () => {
     const { weth, uWETH, pool } = testEnv;
