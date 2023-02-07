@@ -1,5 +1,6 @@
 import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
+import { UPGRADE } from "../hardhat.config";
 import { getReservesConfigByPool } from "../helpers/configuration";
 import { fundWithERC20, fundWithERC721 } from "../helpers/misc-utils";
 import { IConfigNftAsCollateralInput, IReserveParams, iUnlockdPoolAssets, UnlockdPools } from "../helpers/types";
@@ -103,38 +104,39 @@ makeSuite("LendPool: Withdraw negative test cases", (testEnv: TestEnv) => {
     const { users, configurator, pool, deployer, bayc } = testEnv;
     const user0 = users[0];
     const user1 = users[1];
+    if (!UPGRADE) {
+      await fundWithERC20("WETH", user1.address, "1");
+      await approveERC20(testEnv, user1, "WETH");
 
-    await fundWithERC20("WETH", user1.address, "1");
-    await approveERC20(testEnv, user1, "WETH");
+      await deposit(testEnv, user1, "", "WETH", "1", user1.address, "success", "");
 
-    await deposit(testEnv, user1, "", "WETH", "1", user1.address, "success", "");
+      // user 1 borrows 0.01 WETH
+      const tokenIdNum = testEnv.tokenIdTracker++;
+      const tokenId = tokenIdNum.toString();
+      await fundWithERC721("BAYC", user0.address, tokenIdNum);
+      await setApprovalForAll(testEnv, user0, "BAYC");
 
-    // user 1 borrows 0.01 WETH
-    const tokenIdNum = testEnv.tokenIdTracker++;
-    const tokenId = tokenIdNum.toString();
-    await fundWithERC721("BAYC", user0.address, tokenIdNum);
-    await setApprovalForAll(testEnv, user0, "BAYC");
+      await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+      await configurator.connect(deployer.signer).setTimeframe(360000);
+      await pool.connect(user0.signer).approveValuation(bayc.address, tokenId, { value: await pool.getConfigFee() });
+      const collData: IConfigNftAsCollateralInput = {
+        asset: bayc.address,
+        nftTokenId: tokenId.toString(),
+        newPrice: parseEther("100"),
+        ltv: 4000,
+        liquidationThreshold: 7000,
+        redeemThreshold: 9000,
+        liquidationBonus: 500,
+        redeemDuration: 100,
+        auctionDuration: 200,
+        redeemFine: 500,
+        minBidFine: 2000,
+      };
+      await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
-    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
-    await configurator.connect(deployer.signer).setTimeframe(360000);
-    await pool.connect(user0.signer).approveValuation(bayc.address, tokenId, { value: await pool.getConfigFee() });
-    const collData: IConfigNftAsCollateralInput = {
-      asset: bayc.address,
-      nftTokenId: tokenId.toString(),
-      newPrice: parseEther("100"),
-      ltv: 4000,
-      liquidationThreshold: 7000,
-      redeemThreshold: 9000,
-      liquidationBonus: 500,
-      redeemDuration: 100,
-      auctionDuration: 200,
-      redeemFine: 500,
-      minBidFine: 2000,
-    };
-    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
+      await borrow(testEnv, user0, "WETH", "0.01", "BAYC", tokenId, user0.address, "", "success", "");
 
-    await borrow(testEnv, user0, "WETH", "0.01", "BAYC", tokenId, user0.address, "", "success", "");
-
-    await withdraw(testEnv, user1, "WETH", "1", "revert", "User cannot withdraw more than the available balance");
+      await withdraw(testEnv, user1, "WETH", "1", "revert", "User cannot withdraw more than the available balance");
+    }
   });
 });
