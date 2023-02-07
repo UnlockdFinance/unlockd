@@ -6,7 +6,7 @@ import { Signer } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { UPGRADE } from "../../hardhat.config";
 import { ConfigNames, getLendPoolLiquidator, loadPoolConfig } from "../../helpers/configuration";
-import { SUDOSWAP_PAIRS_GOERLI, SUDOSWAP_PAIRS_MAINNET } from "../../helpers/constants";
+import { ADDRESS_ID_WETH, SUDOSWAP_PAIRS_GOERLI, SUDOSWAP_PAIRS_MAINNET } from "../../helpers/constants";
 import {
   getCryptoPunksMarket,
   getLendPool,
@@ -231,6 +231,8 @@ export async function initializeMakeSuite(network?: string) {
   console.log("daiAdd", daiAddress);
   console.log("usdcAdd", usdcAddress);
   console.log("wethAdd", wethAddress);
+
+  await testEnv.addressesProvider.setAddress(ADDRESS_ID_WETH, wethAddress!);
 
   // if (!uDaiAddress || !uUsdcAddress || !uWEthAddress) {
   //   console.error("Invalid UTokens", uDaiAddress, uUsdcAddress, uWEthAddress);

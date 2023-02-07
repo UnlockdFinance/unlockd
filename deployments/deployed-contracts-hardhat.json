@@ -61,10 +61,11 @@
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   },
   "LendPoolImpl": {
-    "address": "0x7aD5757a964d8E73ae75607E023ac7C3EBF2AaA6"
+    "address": "0x7D739bA7eD9F62552FfB5e674B58BADebAF3c2C4"
   },
   "LendPool": {
-    "address": "0xFC7f036a8FB66D031675239413F9179A82932a53"
+    "address": "0x7D739bA7eD9F62552FfB5e674B58BADebAF3c2C4",
+    "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   },
   "LendPoolLoanImpl": {
     "address": "0xF30bEeAD1A45849d9edd58ead8fd8C493769c2e0"
@@ -94,7 +95,7 @@
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   },
   "InterestRate": {
-    "address": "0x46dBEC49711AB9b6231571c9BB8566a61c7F2403",
+    "address": "0xf1Bc60bD080b5cF263EE8744714993D6551da109",
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   },
   "rateStrategyWETH": {},
@@ -169,6 +170,10 @@
   },
   "MockNFTOracle": {
     "address": "0xE265605de1d4560F231f6c2739F1e7D2A631d84a",
+    "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
+  },
+  "SelfdestructTransferMock": {
+    "address": "0x2EE64e38E66c94AAb4853B0440Bbc8390690A8c4",
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   }
 }

@@ -3,7 +3,7 @@ import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { UPGRADE } from "../hardhat.config";
 import { getReservesConfigByPool } from "../helpers/configuration";
-import { ADDRESS_ID_PUNKS, ADDRESS_ID_WPUNKS, MAX_UINT_AMOUNT, ONE_YEAR } from "../helpers/constants";
+import { ADDRESS_ID_PUNKS, ADDRESS_ID_WETH, ADDRESS_ID_WPUNKS, MAX_UINT_AMOUNT, ONE_YEAR } from "../helpers/constants";
 import { getDebtToken } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals, getEthersSignerByAddress } from "../helpers/contracts-helpers";
 import {
@@ -39,8 +39,10 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
   const zero = BN.from(0);
 
   before("Initializing configuration", async () => {
-    const { wethGateway, punkGateway, users } = testEnv;
+    const { wethGateway, punkGateway, users, addressesProvider, weth } = testEnv;
     const [depositor, borrower] = users;
+
+    await addressesProvider.setAddress(ADDRESS_ID_WETH, weth.address);
     // Sets BigNumber for this suite, instead of globally
     BigNumber.config({
       DECIMAL_PLACES: 0,
@@ -70,22 +72,20 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
     if (!UPGRADE) {
       await cryptoPunksMarket.allInitialOwnersAssigned();
     }
-    console.log("PUNKGATEWAY*****");
+
     await fundWithWrappedPunk(user.address, punkIndex);
 
-    console.log("REACHED");
     await waitForTx(await cryptoPunksMarket.connect(user.signer).transferPunk(punkGateway.address, punkIndex));
-    console.log("REACHED 2");
+
     const tokenOwnerAfterBadTransfer = await cryptoPunksMarket.punkIndexToAddress(punkIndex);
-    console.log("REACHE 4D");
+
     expect(tokenOwnerAfterBadTransfer).to.be.eq(punkGateway.address, "User should have lost the punk here.");
 
     await punkGateway
       .connect(deployer.signer)
       .emergencyPunksTransfer(cryptoPunksMarket.address, user.address, punkIndex);
-    console.log("REACHED 5");
+
     const tokenOwnerAfterRecovery = await cryptoPunksMarket.punkIndexToAddress(punkIndex);
-    console.log("REACHED 7");
 
     expect(tokenOwnerAfterRecovery).to.be.eq(user.address, "User should recover the punk due emergency transfer");
   });
@@ -301,13 +301,13 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
     } = testEnv;
 
     const [depositor, user, anotherUser] = users;
-    const depositSize = parseEther("50");
-    console.log("AVAILABLE LIQUIDITY BEFORE DEPOSIT: " + (await uWETH.getAvailableLiquidity()).toString());
+    const depositSize = await convertToCurrencyDecimals(depositor, weth, "50");
+    console.log("weth.address", uWETH.address);
+    console.log("AVAILABLE LIQUIDITY BEFORE DEPOSIT: " + (await (await uWETH.getAvailableLiquidity()).toString()));
     // Deposit with native ETH
-    await waitForTx(
-      await wethGateway.connect(depositor.signer).depositETH(depositor.address, "0", { value: depositSize })
-    );
-    console.log("AVAILABLE LIQUIDITY AFTER DEPOSIT: " + (await uWETH.getAvailableLiquidity()).toString());
+
+    await wethGateway.connect(depositor.signer).depositETH(depositor.address, 0, { value: depositSize });
+    console.log("AVAILABLE LIQUIDITY AFTER DEPOSIT: " + (await (await uWETH.getAvailableLiquidity()).toString()));
 
     const borrowSize1 = parseEther("1");
     const borrowSize2 = parseEther("2");
@@ -482,7 +482,7 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
     const collData: IConfigNftAsCollateralInput = {
       asset: wrappedPunk.address,
       nftTokenId: punkIndex.toString(),
-      newPrice: parseEther("100"),
+      newPrice: parseEther("1000"),
       ltv: 4000,
       liquidationThreshold: 7000,
       redeemThreshold: 9000,

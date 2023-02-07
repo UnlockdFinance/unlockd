@@ -519,6 +519,7 @@ export const withdraw = async (
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);
   } else if (expectedResult === "revert") {
+    console.log("WITHDRAWING ", amountToWithdraw);
     await expect(pool.connect(user.signer).withdraw(reserve.address, amountToWithdraw, user.address), revertMessage).to
       .be.reverted;
   }

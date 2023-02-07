@@ -1,11 +1,19 @@
 import BigNumber from "bignumber.js";
 import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
+import { UPGRADE } from "../hardhat.config";
 import { getReservesConfigByPool } from "../helpers/configuration";
 import { MAX_UINT_AMOUNT, oneEther, ONE_DAY } from "../helpers/constants";
 import { getDebtToken } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
-import { advanceTimeAndBlock, fundWithERC20, increaseTime, sleep, waitForTx } from "../helpers/misc-utils";
+import {
+  advanceTimeAndBlock,
+  fundWithERC20,
+  fundWithWrappedPunk,
+  increaseTime,
+  sleep,
+  waitForTx,
+} from "../helpers/misc-utils";
 import {
   IConfigNftAsCollateralInput,
   IReserveParams,
@@ -319,7 +327,12 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     };
 
     // mint native punk
-    await waitForTx(await cryptoPunksMarket.connect(user.signer).getPunk(punkIndex));
+
+    if (!UPGRADE) {
+      await cryptoPunksMarket.allInitialOwnersAssigned();
+    }
+
+    await fundWithWrappedPunk(user.address, punkIndex);
     await waitForTx(
       await cryptoPunksMarket.connect(user.signer).offerPunkForSaleToAddress(punkIndex, 0, punkGateway.address)
     );
@@ -532,7 +545,12 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     };
 
     // mint native punk
-    await waitForTx(await cryptoPunksMarket.connect(borrower.signer).getPunk(punkIndex));
+
+    if (!UPGRADE) {
+      await cryptoPunksMarket.allInitialOwnersAssigned();
+    }
+
+    await fundWithWrappedPunk(borrower.address, punkIndex);
     await waitForTx(
       await cryptoPunksMarket.connect(borrower.signer).offerPunkForSaleToAddress(punkIndex, 0, punkGateway.address)
     );
