@@ -242,16 +242,6 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   }
 
   /**
-   * @dev Sets new treasury to the specified UToken
-   * @param treasury the new treasury address
-   **/
-  function setTreasuryAddress(address treasury) external override onlyPoolAdmin {
-    require(treasury != address(0), Errors.INVALID_ZERO_ADDRESS);
-    _treasury = treasury;
-    emit TreasuryAddressUpdated(treasury);
-  }
-
-  /**
    * @dev Returns the address of the Unlockd treasury, receiving the fees on this uToken
    **/
   function RESERVE_TREASURY_ADDRESS() public view override returns (address) {

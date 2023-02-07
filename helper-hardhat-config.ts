@@ -22,23 +22,6 @@ export const buildForkConfig = (): HardhatNetworkForkingUserConfig | undefined =
   return forkMode;
 };
 
-interface AccountsConfig {
-  mnemonic: string;
-  path: string;
-  initialIndex: number;
-  count: number;
-  passphrase: string;
-}
-export const buildAccountsConfig = (): AccountsConfig => {
-  return {
-    mnemonic: process.env.MNEMONIC!,
-    path: "m/44'/60'/0'/0",
-    initialIndex: 0,
-    count: 20,
-    passphrase: "",
-  }
-};
-
 export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number> = {
   [eEthereumNetwork.goerli]: 65 * GWEI,
   [eEthereumNetwork.main]: 65 * GWEI,

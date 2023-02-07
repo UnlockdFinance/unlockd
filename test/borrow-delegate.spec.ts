@@ -49,7 +49,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
   });
 
   it("Delegatee try to Borrow WETH to different onBehalf", async () => {
-    const { users, bayc, configurator, deployer, nftOracle, uWETH } = testEnv;
+    const { users, bayc, configurator, deployer, nftOracle } = testEnv;
     const depositor = users[1];
     const borrower = users[2];
     const delegatee = users[3];
@@ -86,9 +86,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
       redeemFine: 500,
       minBidFine: 2000,
     };
-
     await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
-
     await borrow(
       testEnv,
       delegatee,

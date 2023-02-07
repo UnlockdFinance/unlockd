@@ -33,7 +33,6 @@ export enum eContractid {
   BorrowLogic = "BorrowLogic",
   LiquidateLogic = "LiquidateLogic",
   LiquidateMarketsLogic = "LiquidateMarketsLogic",
-  LendingLogic = "LendingLogic",
   ConfiguratorLogic = "ConfiguratorLogic",
   LendPool = "LendPool",
   LendPoolLoan = "LendPoolLoan",

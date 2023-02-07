@@ -107,7 +107,11 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
    * @param amount The amount getting burned
    * @param index The variable debt index of the reserve
    **/
-  function burn(address user, uint256 amount, uint256 index) external override onlyLendPool {
+  function burn(
+    address user,
+    uint256 amount,
+    uint256 index
+  ) external override onlyLendPool {
     uint256 amountScaled = amount.rayDiv(index);
     require(amountScaled != 0, Errors.CT_INVALID_BURN_AMOUNT);
 
@@ -226,7 +230,11 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
     revert("APPROVAL_NOT_SUPPORTED");
   }
 
-  function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
+  function transferFrom(
+    address sender,
+    address recipient,
+    uint256 amount
+  ) public virtual override returns (bool) {
     sender;
     recipient;
     amount;
@@ -267,7 +275,11 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
     return _borrowAllowances[fromUser][toUser];
   }
 
-  function _decreaseBorrowAllowance(address delegator, address delegatee, uint256 amount) internal {
+  function _decreaseBorrowAllowance(
+    address delegator,
+    address delegatee,
+    uint256 amount
+  ) internal {
     require(_borrowAllowances[delegator][delegatee] >= amount, Errors.CT_BORROW_ALLOWANCE_NOT_ENOUGH);
 
     uint256 newAllowance = _borrowAllowances[delegator][delegatee] - amount;
