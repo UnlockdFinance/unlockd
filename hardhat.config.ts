@@ -4,7 +4,7 @@ import { HardhatUserConfig } from "hardhat/types";
 import { accounts } from "./test-wallets.js";
 import { eEthereumNetwork, eNetwork } from "./helpers/types";
 import { BUIDLEREVM_CHAINID } from "./helpers/buidler-constants";
-import { buildAccountsConfig, buildForkConfig, NETWORKS_DEFAULT_GAS } from "./helper-hardhat-config";
+import { buildForkConfig, NETWORKS_DEFAULT_GAS } from "./helper-hardhat-config";
 import { bootstrap } from "global-agent";
 import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
@@ -37,7 +37,7 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
 const RPC_ENDPOINT = process.env.RPC_ENDPOINT || "";
 const FORK_RPC_ENDPOINT = process.env.FORK_RPC_ENDPOINT || "";
 export const FORK = process.env.FORK || "";
-export const UPGRADE = process.env.UPGRADE || "";
+export const TEST_UPGRADE = process.env.TEST_UPGRADE || "";
 
 // Prevent to load scripts before compilation and typechain
 if (!SKIP_LOAD) {
@@ -122,7 +122,7 @@ const buidlerConfig: HardhatUserConfig = {
     },
     goerli: getCommonNetworkConfig(eEthereumNetwork.goerli, 5),
     main: getCommonNetworkConfig(eEthereumNetwork.main, 1),
-    hardhat: { 
+    hardhat: {
       hardfork: "london",
       blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,
       gas: DEFAULT_BLOCK_GAS_LIMIT,
@@ -131,12 +131,12 @@ const buidlerConfig: HardhatUserConfig = {
       chainId: BUIDLEREVM_CHAINID,
       throwOnTransactionFailures: true,
       throwOnCallFailures: true,
-      accounts: UPGRADE ? buildAccountsConfig() : accounts.map(({ secretKey, balance }: { secretKey: string; balance: string }) => ({
+      accounts: accounts.map(({ secretKey, balance }: { secretKey: string; balance: string }) => ({
         privateKey: secretKey,
         balance: balance,
       })),
       forking: buildForkConfig(),
-    }, 
+    },
     ganache: {
       hardfork: "istanbul",
       url: "http://ganache:8545",

@@ -1,9 +1,8 @@
 import BigNumber from "bignumber.js";
 import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
-import { UPGRADE } from "../hardhat.config";
 import { getReservesConfigByPool } from "../helpers/configuration";
-import { ADDRESS_ID_PUNKS, ADDRESS_ID_WETH, ADDRESS_ID_WPUNKS, MAX_UINT_AMOUNT, ONE_YEAR } from "../helpers/constants";
+import { ADDRESS_ID_PUNKS, ADDRESS_ID_WPUNKS, MAX_UINT_AMOUNT, ONE_YEAR } from "../helpers/constants";
 import { getDebtToken } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals, getEthersSignerByAddress } from "../helpers/contracts-helpers";
 import {
@@ -39,10 +38,8 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
   const zero = BN.from(0);
 
   before("Initializing configuration", async () => {
-    const { wethGateway, punkGateway, users, addressesProvider, weth } = testEnv;
+    const { wethGateway, punkGateway, users } = testEnv;
     const [depositor, borrower] = users;
-
-    await addressesProvider.setAddress(ADDRESS_ID_WETH, weth.address);
     // Sets BigNumber for this suite, instead of globally
     BigNumber.config({
       DECIMAL_PLACES: 0,
@@ -67,24 +64,17 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
   it("Owner can do emergency CryptoPunks recovery", async () => {
     const { users, cryptoPunksMarket, punkGateway, deployer } = testEnv;
     const user = users[0];
-
+    await cryptoPunksMarket.allInitialOwnersAssigned();
     const punkIndex = testEnv.punkIndexTracker++;
-    if (!UPGRADE) {
-      await cryptoPunksMarket.allInitialOwnersAssigned();
-    }
-
-    await fundWithWrappedPunk(user.address, punkIndex);
+    await waitForTx(await cryptoPunksMarket.connect(user.signer).getPunk(punkIndex));
 
     await waitForTx(await cryptoPunksMarket.connect(user.signer).transferPunk(punkGateway.address, punkIndex));
-
     const tokenOwnerAfterBadTransfer = await cryptoPunksMarket.punkIndexToAddress(punkIndex);
-
     expect(tokenOwnerAfterBadTransfer).to.be.eq(punkGateway.address, "User should have lost the punk here.");
 
     await punkGateway
       .connect(deployer.signer)
       .emergencyPunksTransfer(cryptoPunksMarket.address, user.address, punkIndex);
-
     const tokenOwnerAfterRecovery = await cryptoPunksMarket.punkIndexToAddress(punkIndex);
 
     expect(tokenOwnerAfterRecovery).to.be.eq(user.address, "User should recover the punk due emergency transfer");
@@ -93,12 +83,9 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
   it("Should fail: not supported collection", async () => {
     const { users, cryptoPunksMarket, punkGateway, deployer, pool, addressesProvider, wrappedPunk } = testEnv;
     const user = users[0];
+    await cryptoPunksMarket.allInitialOwnersAssigned();
     const punkIndex = testEnv.punkIndexTracker++;
-    if (!UPGRADE) {
-      await cryptoPunksMarket.allInitialOwnersAssigned();
-    }
-
-    await fundWithWrappedPunk(user.address, punkIndex);
+    await waitForTx(await cryptoPunksMarket.connect(user.signer).getPunk(punkIndex));
     await addressesProvider.setAddress(ADDRESS_ID_PUNKS, cryptoPunksMarket.address);
     await addressesProvider.setAddress(ADDRESS_ID_WPUNKS, await createRandomAddress());
     await expect(pool.connect(user.signer).approveValuation(cryptoPunksMarket.address, punkIndex)).to.be.revertedWith(
@@ -110,12 +97,9 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
     const { users, cryptoPunksMarket, punkGateway, deployer, pool, addressesProvider, wrappedPunk } = testEnv;
     const user = users[0];
     const user2 = users[1];
+    await cryptoPunksMarket.allInitialOwnersAssigned();
     const punkIndex = testEnv.punkIndexTracker++;
-    if (!UPGRADE) {
-      await cryptoPunksMarket.allInitialOwnersAssigned();
-    }
-
-    await fundWithWrappedPunk(user.address, punkIndex);
+    await waitForTx(await cryptoPunksMarket.connect(user.signer).getPunk(punkIndex));
     await addressesProvider.setAddress(ADDRESS_ID_PUNKS, cryptoPunksMarket.address);
     await addressesProvider.setAddress(ADDRESS_ID_WPUNKS, await createRandomAddress());
     await expect(pool.connect(user2.signer).approveValuation(cryptoPunksMarket.address, punkIndex)).to.be.revertedWith(
@@ -126,15 +110,13 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
   it("Check approve valuation on cryptopunks", async () => {
     const { users, cryptoPunksMarket, punkGateway, deployer, pool, addressesProvider, wrappedPunk } = testEnv;
     const user = users[0];
+    await cryptoPunksMarket.allInitialOwnersAssigned();
     const punkIndex = testEnv.punkIndexTracker++;
-    if (!UPGRADE) {
-      await cryptoPunksMarket.allInitialOwnersAssigned();
-    }
-    await fundWithWrappedPunk(user.address, punkIndex);
+    await waitForTx(await cryptoPunksMarket.connect(user.signer).getPunk(punkIndex));
     await addressesProvider.setAddress(ADDRESS_ID_PUNKS, cryptoPunksMarket.address);
     await addressesProvider.setAddress(ADDRESS_ID_WPUNKS, wrappedPunk.address);
-    const configFee = await pool.getConfigFee();
-    await pool.connect(user.signer).approveValuation(cryptoPunksMarket.address, punkIndex, { value: configFee });
+
+    await pool.connect(user.signer).approveValuation(cryptoPunksMarket.address, punkIndex);
   });
 
   it("Borrow some USDC and repay it", async () => {
@@ -297,17 +279,15 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
       configurator,
       nftOracle,
       deployer,
-      uWETH,
     } = testEnv;
 
     const [depositor, user, anotherUser] = users;
-    const depositSize = await convertToCurrencyDecimals(depositor, weth, "50");
-    console.log("weth.address", uWETH.address);
-    console.log("AVAILABLE LIQUIDITY BEFORE DEPOSIT: " + (await (await uWETH.getAvailableLiquidity()).toString()));
-    // Deposit with native ETH
+    const depositSize = parseEther("5");
 
-    await wethGateway.connect(depositor.signer).depositETH(depositor.address, 0, { value: depositSize });
-    console.log("AVAILABLE LIQUIDITY AFTER DEPOSIT: " + (await (await uWETH.getAvailableLiquidity()).toString()));
+    // Deposit with native ETH
+    await waitForTx(
+      await wethGateway.connect(depositor.signer).depositETH(depositor.address, "0", { value: depositSize })
+    );
 
     const borrowSize1 = parseEther("1");
     const borrowSize2 = parseEther("2");
@@ -369,7 +349,7 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
 
     // borrow first eth
     await waitForTx(await punkGateway.connect(user.signer).borrowETH(borrowSize1, punkIndex, user.address, "0"));
-    console.log("AVAILABLE LIQUIDITY AFTER FIRST BORROW: " + (await uWETH.getAvailableLiquidity()).toString());
+
     await advanceTimeAndBlock(100);
 
     const collData2: IConfigNftAsCollateralInput = {
@@ -389,8 +369,6 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
 
     // borrow more eth
     await waitForTx(await punkGateway.connect(user.signer).borrowETH(borrowSize2, punkIndex, user.address, "0"));
-
-    console.log("AVAILABLE LIQUIDITY AFTER SECOND BORROW: " + (await uWETH.getAvailableLiquidity()).toString());
 
     // Check debt
     const loanDataAfterBorrow = await dataProvider.getLoanDataByCollateral(wrappedPunk.address, punkIndex);
@@ -482,7 +460,7 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
     const collData: IConfigNftAsCollateralInput = {
       asset: wrappedPunk.address,
       nftTokenId: punkIndex.toString(),
-      newPrice: parseEther("1000"),
+      newPrice: parseEther("100"),
       ltv: 4000,
       liquidationThreshold: 7000,
       redeemThreshold: 9000,

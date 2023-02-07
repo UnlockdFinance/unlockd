@@ -45,7 +45,6 @@ library SudoSwapSeller {
     pairSwaps[0] = PairSwapSpecific({pair: ILSSVMPair(LSSVMPair), nftIds: nftTokenIds});
 
     IERC721Upgradeable(nftAsset).approve(LSSVMRouterAddress, nftTokenId);
-
     amount = LSSVMRouter.swapNFTsForToken(pairSwaps, amountOutMinSudoswap, lendPoolAddress, block.timestamp);
   }
 }

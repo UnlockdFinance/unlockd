@@ -127,7 +127,6 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
       testEnv;
     const liquidator = users[3];
     const borrower = users[1];
-    const treasury = users[9];
 
     const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(azuki.address, "101");
 
@@ -166,13 +165,13 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
     // Selfdestruct the mock, pointing to token owner address
     await waitForTx(await selfdestructContract.destroyAndTransfer(topPair.address, { value: parseEther("10") }));
     const owner = await azuki.ownerOf(101);
-
-    await uWETH.setTreasuryAddress(treasury.address);
-    // Allow pool to transfer treasury tokens in case SudoSwap sold price is less than borrowed amount
-    const tx = await weth.connect(treasury.signer).approve(pool.address, MAX_UINT_AMOUNT);
-    await fundWithERC20("WETH", treasury.address, "10");
-
     const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+    const treasuryAddress = await getTreasuryAddress(poolConfig);
+    const treasurySigner = await getEthersSignerByAddress(treasuryAddress);
+
+    // Allow pool to transfer treasury tokens in case SudoSwap sold price is less than borrowed amount
+    const tx = await weth.connect(treasurySigner).approve(pool.address, MAX_UINT_AMOUNT);
+    await fundWithERC20("WETH", treasuryAddress, "10");
 
     await waitForTx(
       await addressesProvider
