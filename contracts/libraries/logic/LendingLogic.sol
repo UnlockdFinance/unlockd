@@ -40,7 +40,6 @@ library LendingLogic {
     DataTypes.ExecuteYearnParams memory params
   ) internal {
     address wethAddress = addressesProvider.getAddress(keccak256("WETH"));
-
     // Only deposit if underlying asset is WETH
     if (params.underlyingAsset == wethAddress) {
       address yVaultWETH = addressesProvider.getAddress(keccak256("YVAULT_WETH"));

@@ -1,6 +1,5 @@
 import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
-import { UPGRADE } from "../hardhat.config";
 import { getReservesConfigByPool } from "../helpers/configuration";
 import { advanceTimeAndBlock, fundWithERC20, fundWithERC721, waitForTx } from "../helpers/misc-utils";
 import {
@@ -97,8 +96,8 @@ makeSuite("LendPool: Withdraw", (testEnv: TestEnv) => {
   it("User 0 tries to withdraw remaining half of the deposited WETH (expect revert due to not enough liquidity)", async () => {
     const { users } = testEnv;
     const user0 = users[0];
-    if (!UPGRADE)
-      await withdraw(testEnv, user0, "WETH", "-1", "revert", ProtocolErrors.LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY);
+
+    await withdraw(testEnv, user0, "WETH", "-1", "revert", ProtocolErrors.LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY);
   });
 
   it("User 0 tries to withdraw remaining half of the deposited WETH ", async () => {

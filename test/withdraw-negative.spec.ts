@@ -107,7 +107,6 @@ makeSuite("LendPool: Withdraw negative test cases", (testEnv: TestEnv) => {
     if (!UPGRADE) {
       await fundWithERC20("WETH", user1.address, "1");
       await approveERC20(testEnv, user1, "WETH");
-
       await deposit(testEnv, user1, "", "WETH", "1", user1.address, "success", "");
 
       // user 1 borrows 0.01 WETH

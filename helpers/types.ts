@@ -33,7 +33,6 @@ export enum eContractid {
   BorrowLogic = "BorrowLogic",
   LiquidateLogic = "LiquidateLogic",
   LiquidateMarketsLogic = "LiquidateMarketsLogic",
-  LendingLogic = "LendingLogic",
   ConfiguratorLogic = "ConfiguratorLogic",
   LendPool = "LendPool",
   LendPoolLoan = "LendPoolLoan",
@@ -89,6 +88,8 @@ export enum eContractid {
   NFTXHelper = "NFTXHelper",
   LSSVMPPair = "LSSVMPair",
   YVault = "YVault",
+  LockeyHolderImpl = "LockeyHolderImpl",
+  LockeyHolder = "LockeyHolder",
 }
 
 export enum ProtocolLoanState {
@@ -174,6 +175,9 @@ export enum ProtocolErrors {
   LP_COLLECTION_NOT_SUPPORTED = "425",
   LP_MSG_VALUE_DIFFERENT_FROM_CONFIG_FEE = "426",
   LP_INVALID_SAFE_HEALTH_FACTOR = "427",
+  LP_AMOUNT_LESS_THAN_DEBT = "428",
+  LP_AMOUNT_LESS_THAN_VALUATION = "429",
+
   //lend pool loan errors
   LPL_INVALID_LOAN_STATE = "480",
   LPL_INVALID_LOAN_AMOUNT = "481",
@@ -191,6 +195,7 @@ export enum ProtocolErrors {
   LPL_AMOUNT_LESS_THAN_BID_FINE = "493",
   LPL_BID_INVALID_BID_FINE = "494",
   LPL_BID_PRICE_LESS_THAN_MIN_BID_REQUIRED = "495",
+  LPL_BID_NOT_BUYOUT_PRICE = "496",
   //common token errors
   CT_CALLER_MUST_BE_LEND_POOL = "500", // 'The caller of this function must be a lending pool'
   CT_INVALID_MINT_AMOUNT = "501", //invalid amount to mint
@@ -467,6 +472,7 @@ export interface ICommonConfiguration {
   SushiSwapRouter: iParamsPerNetwork<tEthereumAddress>;
   LSSVMRouter: iParamsPerNetwork<tEthereumAddress>;
   YVaultWETH: iParamsPerNetwork<tEthereumAddress>;
+  LockeyCollection: iParamsPerNetwork<tEthereumAddress>;
 }
 
 export interface IUnlockdConfiguration extends ICommonConfiguration {

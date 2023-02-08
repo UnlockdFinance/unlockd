@@ -2,7 +2,7 @@ import { formatEther, parseEther } from "@ethersproject/units";
 import { MockContract } from "ethereum-waffle";
 import { Signer } from "ethers";
 import rawBRE from "hardhat";
-import { FORK, UPGRADE } from "../hardhat.config";
+import { FORK, TEST_UPGRADE } from "../hardhat.config";
 import {
   ConfigNames,
   getEmergencyAdmin,
@@ -154,7 +154,7 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   } = {
     ...(await deployAllMockNfts(false, false)),
   };
-  console.log("MOCK NFTS::::::", mockNfts);
+  // console.log("MOCK NFTS::::::", mockNfts);
   const cryptoPunksMarket = await getCryptoPunksMarket();
   await waitForTx(await cryptoPunksMarket.allInitialOwnersAssigned());
   const wrappedPunk = await getWrappedPunk();
@@ -445,8 +445,8 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   await waitForTx(
     await punkGateway.authorizeLendPoolERC20([
       allReservesAddresses.WETH,
-      allReservesAddresses.DAI,
-      allReservesAddresses.USDC,
+      // allReservesAddresses.DAI,
+      // allReservesAddresses.USDC,
     ])
   );
   await insertContractAddressInDb(eContractid.PunkGateway, punkGateway.address);
@@ -465,26 +465,14 @@ before(async () => {
   const FORK = process.env.FORK;
 
   if (FORK) {
-    await rawBRE.run("unlockd:fork", {
-      testupgrade: UPGRADE ? true : false,
-      testskipRegistry: false,
-      skipOracle: UPGRADE ? true : false,
-      upgradeLendPool: UPGRADE ? true : false,
-      upgradeLendPoolLoan: UPGRADE ? true : false,
-      upgradeLendPoolConfigurator: UPGRADE ? true : false,
-      upgradeUToken: UPGRADE ? true : false,
-      upgradeWallet: UPGRADE ? false : true,
-      upgradeProtocolDataProvider: UPGRADE ? true : true,
-      upgradeUiDataProvider: UPGRADE ? false : true,
-      upgradeInterestRate: UPGRADE ? true : false,
-    });
+    if (!TEST_UPGRADE) await rawBRE.run("unlockd:fork", { skipRegistry: false });
   } else {
     console.log("-> Deploying test environment...");
     await buildTestEnv(deployer, secondaryWallet);
   }
 
   console.log("-> Initialize make suite...");
-  await initializeMakeSuite(UPGRADE ? "main" : "");
+  await initializeMakeSuite(TEST_UPGRADE ? "main" : "");
 
   console.log("\n***************");
   console.log("Setup and snapshot finished");

@@ -103,8 +103,6 @@ export const calcExpectedUserDataAfterWithdraw = (
 
 export const calcExpectedReserveDataAfterDeposit = (
   amountDeposited: string,
-  newAvailableLiquidity: BigNumber,
-  newTotalLiquidity: BigNumber,
   reserveDataBeforeAction: ReserveData,
   txTimestamp: BigNumber
 ): ReserveData => {
@@ -112,9 +110,10 @@ export const calcExpectedReserveDataAfterDeposit = (
 
   expectedReserveData.address = reserveDataBeforeAction.address;
 
-  expectedReserveData.totalLiquidity = newTotalLiquidity;
-
-  expectedReserveData.availableLiquidity = newAvailableLiquidity;
+  expectedReserveData.totalLiquidity = new BigNumber(reserveDataBeforeAction.totalLiquidity).plus(amountDeposited);
+  expectedReserveData.availableLiquidity = new BigNumber(reserveDataBeforeAction.availableLiquidity).plus(
+    amountDeposited
+  );
 
   expectedReserveData.liquidityIndex = calcExpectedLiquidityIndex(reserveDataBeforeAction, txTimestamp);
   expectedReserveData.variableBorrowIndex = calcExpectedVariableBorrowIndex(reserveDataBeforeAction, txTimestamp);
@@ -143,8 +142,6 @@ export const calcExpectedReserveDataAfterDeposit = (
 
 export const calcExpectedReserveDataAfterWithdraw = (
   amountWithdrawn: string,
-  newAvailableLiquidity: BigNumber,
-  newTotalLiquidity: BigNumber,
   reserveDataBeforeAction: ReserveData,
   userDataBeforeAction: UserReserveData,
   txTimestamp: BigNumber
@@ -157,7 +154,9 @@ export const calcExpectedReserveDataAfterWithdraw = (
     amountWithdrawn = calcExpectedUTokenBalance(reserveDataBeforeAction, userDataBeforeAction, txTimestamp).toFixed();
   }
 
-  expectedReserveData.availableLiquidity = newAvailableLiquidity;
+  expectedReserveData.availableLiquidity = new BigNumber(reserveDataBeforeAction.availableLiquidity).minus(
+    amountWithdrawn
+  );
 
   expectedReserveData.scaledVariableDebt = reserveDataBeforeAction.scaledVariableDebt;
 
@@ -168,7 +167,9 @@ export const calcExpectedReserveDataAfterWithdraw = (
     expectedReserveData.variableBorrowIndex
   );
 
-  expectedReserveData.totalLiquidity = newTotalLiquidity;
+  expectedReserveData.totalLiquidity = new BigNumber(reserveDataBeforeAction.availableLiquidity)
+    .minus(amountWithdrawn)
+    .plus(expectedReserveData.totalVariableDebt);
 
   expectedReserveData.utilizationRate = calcExpectedUtilizationRate(
     expectedReserveData.totalVariableDebt,
@@ -187,8 +188,6 @@ export const calcExpectedReserveDataAfterWithdraw = (
 
 export const calcExpectedReserveDataAfterBorrow = (
   amountBorrowed: string,
-  newAvailableLiquidity: BigNumber,
-  newTotalLiquidity: BigNumber,
   reserveDataBeforeAction: ReserveData,
   userDataBeforeAction: UserReserveData,
   txTimestamp: BigNumber,
@@ -201,15 +200,14 @@ export const calcExpectedReserveDataAfterBorrow = (
   const amountBorrowedBN = new BigNumber(amountBorrowed);
 
   expectedReserveData.liquidityIndex = calcExpectedLiquidityIndex(reserveDataBeforeAction, txTimestamp);
-  //@todo
+
   expectedReserveData.variableBorrowIndex = calcExpectedVariableBorrowIndex(reserveDataBeforeAction, txTimestamp);
 
-  expectedReserveData.availableLiquidity = newAvailableLiquidity;
+  expectedReserveData.availableLiquidity = reserveDataBeforeAction.availableLiquidity.minus(amountBorrowedBN);
 
   expectedReserveData.lastUpdateTimestamp = txTimestamp;
 
   {
-    //@todo
     expectedReserveData.scaledVariableDebt = reserveDataBeforeAction.scaledVariableDebt.plus(
       amountBorrowedBN.rayDiv(expectedReserveData.variableBorrowIndex)
     );
@@ -242,7 +240,9 @@ export const calcExpectedReserveDataAfterBorrow = (
       )
     );
 
-    expectedReserveData.totalLiquidity = newTotalLiquidity;
+    expectedReserveData.totalLiquidity = expectedReserveData.availableLiquidity.plus(
+      expectedReserveData.totalVariableDebt
+    );
 
     expectedReserveData.utilizationRate = calcExpectedUtilizationRate(
       expectedReserveData.totalVariableDebt,
@@ -255,8 +255,6 @@ export const calcExpectedReserveDataAfterBorrow = (
 
 export const calcExpectedReserveDataAfterRepay = (
   amountRepaid: string,
-  newAvailableLiquidity: BigNumber,
-  newTotalLiquidity: BigNumber,
   reserveDataBeforeAction: ReserveData,
   userDataBeforeAction: UserReserveData,
   txTimestamp: BigNumber,
@@ -292,9 +290,11 @@ export const calcExpectedReserveDataAfterRepay = (
     );
   }
 
-  expectedReserveData.availableLiquidity = newAvailableLiquidity;
+  expectedReserveData.availableLiquidity = reserveDataBeforeAction.availableLiquidity.plus(amountRepaidBN);
 
-  expectedReserveData.totalLiquidity = newTotalLiquidity;
+  expectedReserveData.totalLiquidity = expectedReserveData.availableLiquidity.plus(
+    expectedReserveData.totalVariableDebt
+  );
 
   expectedReserveData.utilizationRate = calcExpectedUtilizationRate(
     expectedReserveData.totalVariableDebt,
@@ -317,8 +317,6 @@ export const calcExpectedReserveDataAfterRepay = (
 
 export const calcExpectedReserveDataAfterAuction = (
   amountAuctioned: string,
-  newAvailableLiquidity: BigNumber,
-  newTotalLiquidity: BigNumber,
   reserveDataBeforeAction: ReserveData,
   userDataBeforeAction: UserReserveData,
   loanDataBeforeAction: LoanData,
@@ -329,8 +327,6 @@ export const calcExpectedReserveDataAfterAuction = (
 
   const expectedReserveData = calcExpectedReserveDataAfterRepay(
     amountRepaidBN.toString(),
-    newAvailableLiquidity,
-    newTotalLiquidity,
     reserveDataBeforeAction,
     userDataBeforeAction,
     txTimestamp,
@@ -342,8 +338,6 @@ export const calcExpectedReserveDataAfterAuction = (
 
 export const calcExpectedReserveDataAfterRedeem = (
   amountRedeemed: string,
-  newAvailableLiquidity: BigNumber,
-  newTotalLiquidity: BigNumber,
   reserveDataBeforeAction: ReserveData,
   userDataBeforeAction: UserReserveData,
   loanDataBeforeAction: LoanData,
@@ -354,8 +348,6 @@ export const calcExpectedReserveDataAfterRedeem = (
 
   const expectedReserveData = calcExpectedReserveDataAfterRepay(
     amountRepaidBN.toString(),
-    newAvailableLiquidity,
-    newTotalLiquidity,
     reserveDataBeforeAction,
     userDataBeforeAction,
     txTimestamp,
@@ -367,8 +359,6 @@ export const calcExpectedReserveDataAfterRedeem = (
 
 export const calcExpectedReserveDataAfterLiquidate = (
   reserveDataBeforeAction: ReserveData,
-  newAvailableLiquidity: BigNumber,
-  newTotalLiquidity: BigNumber,
   userDataBeforeAction: UserReserveData,
   loanDataBeforeAction: LoanData,
   txTimestamp: BigNumber,
@@ -379,8 +369,6 @@ export const calcExpectedReserveDataAfterLiquidate = (
 
   const expectedReserveData = calcExpectedReserveDataAfterRepay(
     amountRepaidBN.toString(),
-    newAvailableLiquidity,
-    newTotalLiquidity,
     reserveDataBeforeAction,
     userDataBeforeAction,
     txTimestamp,
@@ -401,8 +389,11 @@ export const calcExpectedUserDataAfterBorrow = (
   const expectedUserData = <UserReserveData>{};
 
   const amountBorrowedBN = new BigNumber(amountBorrowed);
+
   {
-    expectedUserData.scaledVariableDebt = amountBorrowedBN.rayDiv(expectedDataAfterAction.variableBorrowIndex);
+    expectedUserData.scaledVariableDebt = reserveDataBeforeAction.scaledVariableDebt.plus(
+      amountBorrowedBN.rayDiv(expectedDataAfterAction.variableBorrowIndex)
+    );
   }
 
   expectedUserData.currentVariableDebt = calcExpectedVariableDebtTokenBalance(
@@ -989,12 +980,7 @@ const calcExpectedVariableBorrowIndex = (reserveData: ReserveData, timestamp: Bi
   if (reserveData.totalVariableDebt.eq("0")) {
     return reserveData.variableBorrowIndex;
   }
-  console.log(
-    "CALCULATING CUMULATED INTEREST...",
-    reserveData.variableBorrowRate.toString(),
-    timestamp.toString(),
-    reserveData.lastUpdateTimestamp.toString()
-  );
+
   const cumulatedInterest = calcCompoundedInterest(
     reserveData.variableBorrowRate,
     timestamp,

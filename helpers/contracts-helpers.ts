@@ -3,7 +3,6 @@ import { signTypedData_v4 } from "eth-sig-util";
 import { ECDSASignature, fromRpcSig } from "ethereumjs-util";
 import { Contract, ethers, Signer, utils } from "ethers";
 import { Artifact } from "hardhat/types";
-import { UPGRADE } from "../hardhat.config";
 import { SignerWithAddress } from "../test/helpers/make-suite";
 import { ERC20 } from "../types";
 import { MintableERC20 } from "../types/MintableERC20";
@@ -173,7 +172,7 @@ export const linkBytecode = (artifact: Artifact, libraries: any) => {
 
 export const getParamPerNetwork = <T>(param: iParamsPerNetwork<T>, network: eNetwork) => {
   const { main, goerli, hardhat, localhost } = param as iEthereumParamsPerNetwork<T>;
-  if (UPGRADE) return main;
+
   switch (network) {
     case eEthereumNetwork.hardhat:
       return hardhat;
