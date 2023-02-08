@@ -188,4 +188,20 @@ library DataTypes {
     address underlyingAsset;
     uint256 amount;
   }
+
+  struct SellDebt {
+    uint256 debtId;
+    address debtor;
+    address nftAsset;
+    uint256 tokenId;
+    uint256 sellPrice;
+    address reserveAsset;
+    uint256 scaleAmount;
+    uint256 bidStartTimestamp;
+    address bidderAddress;
+    uint256 bidPrice;
+    uint256 bidBorrowAmount;
+    bool auction;
+    bool auctionEndTimestamp;
+  }
 }
