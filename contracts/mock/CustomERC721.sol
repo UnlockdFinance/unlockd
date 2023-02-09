@@ -11,6 +11,7 @@ import {ERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/
 contract CustomERC721 is ERC721Enumerable {
   error ZeroAddress();
   error MaxSupplyReached();
+  error MaxNFTsPerWalletReached();
 
   uint16 public _currTokenId;
   string public baseURI;
@@ -30,6 +31,7 @@ contract CustomERC721 is ERC721Enumerable {
    * @return A boolean that indicates if the operation was successful.
    */
   function mint(address to, uint256 amount) public returns (bool) {
+    if ((balanceOf(msg.sender) + amount) >= 3) revert MaxNFTsPerWalletReached();
     if (to == address(0)) revert ZeroAddress();
     if (_currTokenId + amount >= MAX_SUPPLY) revert MaxSupplyReached();
 

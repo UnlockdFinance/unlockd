@@ -32,9 +32,9 @@ export const UnlockdConfig: IUnlockdConfiguration = {
   NftsConfig: {
     WPUNKS: strategyNft_WPUNKS,
     BAYC: strategyNft_BAYC,
-    DOODLE: strategyNft_DOODLE,
+    /* DOODLE: strategyNft_DOODLE,
     AZUKI: strategyNft_AZUKI,
-    /*  MAYC: strategyNft_MAYC,
+     MAYC: strategyNft_MAYC,
     CLONEX: strategyNft_CLONEX,
     AZUKI: strategyNft_AZUKI,
     KONGZ: strategyNft_KONGZ,
@@ -85,11 +85,11 @@ export const UnlockdConfig: IUnlockdConfiguration = {
       BAYC: "0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457",
       DOODLE: "0x2F7f69a3cd22FcfFB5E0C0fB7Ae5Eb278b3919Ff",
     },
-    [eEthereumNetwork.goerli]: {
-      //WPUNKS: "0xa9ED41c141d04647276F24EE06258e57a041a158",
-      BAYC: "0x9278420Bf7548970799c56ef9A0B081862515330",
-      DOODLE: '0x11FC8C3fd1826f16aD154c18355bcA89a742B1C8',
-      AZUKI: '0xaD46D0235b2698aaD03803443b7a50383bdefc1c',
+    [eEthereumNetwork.goerli]: { 
+      WPUNKS: "0x97F1f0E9A8F55Bf1Da9392332a0C44cE52E83E38",
+      BAYC: "0x3705a823c23f7a94562295cA60Ec00617DA6823b",
+      //DOODLE: '0x11FC8C3fd1826f16aD154c18355bcA89a742B1C8',
+      //AZUKI: '0xaD46D0235b2698aaD03803443b7a50383bdefc1c',
       // COOL: '0xC0c31e50c6412f76C84B31b825b8DeF7072B042d',
       // MEEBITS: '0x05a95e8509498cc461e5c2f157eaebb7b8ad1b78',
       // MAYC: '0x8c15f1c3868f7439549d85fe1b09e34e9646a983',

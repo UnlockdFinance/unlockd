@@ -53,13 +53,13 @@ export const CommonsConfig: ICommonConfiguration = {
   ProxyAdminPool: {
     [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: undefined,
-    [eEthereumNetwork.goerli]: undefined,
+    [eEthereumNetwork.goerli]: '0x8CBfc7F0f4Fd5D4221335f471aEC44B822f56660',
     [eEthereumNetwork.main]: '0xb7493E15Af772c14c7cE3180Ff388925e6593c6b',
   },
   ProxyAdminFund: {
     [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: undefined,
-    [eEthereumNetwork.goerli]: undefined,
+    [eEthereumNetwork.goerli]: '0xA9d67F1b0f46cc0588ED20AA071aB50b9A2D38f8',
     [eEthereumNetwork.main]: '0x38a97DE7216b54FCc83A918CF5dB1Bb0447913a4',
   },
 
@@ -78,7 +78,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.main]: "0x653f5769e08FB9cd6c4faC48Bad8a1B64B7Cf85d",
   },
   EmergencyAdminIndex: 1,
-  LendPoolLiquidator: {
+  LendPoolLiquidator: { 
     [eEthereumNetwork.hardhat]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",
     [eEthereumNetwork.localhost]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",
     [eEthereumNetwork.goerli]: "0xD90d48680Ed26e873e9461f286EC95AD603abE7a",
@@ -98,20 +98,20 @@ export const CommonsConfig: ICommonConfiguration = {
     /// Add contract From U
     [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: "0x8b89F971cA1A5dE1B7df7f554a3024eE84FeeB05",
-    [eEthereumNetwork.goerli]: "0x66Bd8515F157A203EEFedc4A739E3e0BcE7FA76c",
+    [eEthereumNetwork.goerli]: "0xF6bA9b7ce803fd04355673F782FA719A19c902Fb",
     [eEthereumNetwork.main]: "0x255f25335662c88Fcc7deC402cADf2f4f0E08300",
   },
 
   ProviderRegistry: {
     [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: "",
-    [eEthereumNetwork.goerli]: "0x7C5AB2070cC4820e50145606d9f24409175959Ad",
+    [eEthereumNetwork.goerli]: "0x4Ac593920D734BE24250cb0bfAC39DF621C6e636",
     [eEthereumNetwork.main]: "0xe5BF48BC5Fd3FCD1c7Fc76795C7b08ccc139a949",
   },
   ProviderRegistryOwner: {
     [eEthereumNetwork.hardhat]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",
     [eEthereumNetwork.localhost]: "",
-    [eEthereumNetwork.goerli]: "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59",
+    [eEthereumNetwork.goerli]: "0x67539d650922Af9D2c611251ac9749f167e51Ac0",
     [eEthereumNetwork.main]: "0x67539d650922Af9D2c611251ac9749f167e51Ac0",
   },
  
@@ -177,7 +177,7 @@ export const CommonsConfig: ICommonConfiguration = {
     // hardhat dev:deploy-mock-nfts
     [eEthereumNetwork.hardhat]: "", // deployed in local evm
     [eEthereumNetwork.localhost]: "0xb2f97A3c2E48cd368901657e31Faaa93035CE390",
-    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.goerli]: "0x3aFE908110e5c5275Bc96a9e42DB1B322590bDa4",
     [eEthereumNetwork.main]: "0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb",
   }, 
   WrappedPunkToken: {
@@ -190,13 +190,13 @@ export const CommonsConfig: ICommonConfiguration = {
   ReserveFactorTreasuryAddress: {
     [eEthereumNetwork.hardhat]: "0xb37c26638305f8b3d9c4c316f46caf9bdea8a47b", // from hardhat node
     [eEthereumNetwork.localhost]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",
-    [eEthereumNetwork.goerli]: "0xf260132F9189Af2F3fb058995fa6C294AcE00D92",
+    [eEthereumNetwork.goerli]: "0x99f9870D36711f30C93a6614f179AaFf047Ec3f2",
     [eEthereumNetwork.main]: "0xc9B7b4dc9FB5CA759f7a8c0E8416FA303BEd389D",
   },
   IncentivesController: {
     [eEthereumNetwork.hardhat]: "0xaa46E190C34B4f65b1f5d702Fac021b2525C93a5",
     [eEthereumNetwork.localhost]: "0xF9107B537482fE7cE75a6646BEad2A97BFA4eB0E",
-    [eEthereumNetwork.goerli]: "0xaa46E190C34B4f65b1f5d702Fac021b2525C93a5",
+    [eEthereumNetwork.goerli]: "0x876252A90E1CfEF75b40E235629a2E67BC7E68A8",
     [eEthereumNetwork.main]: "0xf40a2617170af5d8079D7a476F6475b2106328D4",
   }, 
   // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
