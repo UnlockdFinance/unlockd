@@ -106,7 +106,7 @@ makeSuite("UToken", (testEnv: TestEnv) => {
     );
   });
 
-  it("User 8 deposits 1000 WETH, transfers uweth to user 9", async () => {
+  it("User 8 deposits 1000 WETH, transfers uweth to user 6", async () => {
     const { users, pool, weth, uWETH, deployer } = testEnv;
 
     await fundWithERC20("WETH", users[8].address, "1000");
@@ -120,14 +120,14 @@ makeSuite("UToken", (testEnv: TestEnv) => {
     await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
     const fromBalanceBeforeTransfer = await uWETH.balanceOf(users[8].address);
     const amountTransfer = await convertToCurrencyDecimals(deployer, weth, "500");
-    await uWETH.connect(users[8].signer).transfer(users[9].address, amountTransfer);
+    await uWETH.connect(users[8].signer).transfer(users[6].address, amountTransfer);
 
     // const checkResult = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
     // await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
     // expect(checkResult).to.be.equal(true, "IncentivesController not called");
 
     const fromBalance = await uWETH.balanceOf(users[8].address);
-    const toBalance = await uWETH.balanceOf(users[9].address);
+    const toBalance = await uWETH.balanceOf(users[6].address);
 
     expect(toBalance.toString()).to.be.equal(amountTransfer.toString(), INVALID_TO_BALANCE_AFTER_TRANSFER);
   });
