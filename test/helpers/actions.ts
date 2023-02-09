@@ -398,7 +398,6 @@ export const deposit = async (
       timestamp,
     } = await getContractsData(reserve.address, onBehalfOf, testEnv, sender.address);
 
-    console.log("\n");
     const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
 
     const expectedReserveData = calcExpectedReserveDataAfterDeposit(
@@ -519,7 +518,6 @@ export const withdraw = async (
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);
   } else if (expectedResult === "revert") {
-    console.log("WITHDRAWING ", amountToWithdraw);
     await expect(pool.connect(user.signer).withdraw(reserve.address, amountToWithdraw, user.address), revertMessage).to
       .be.reverted;
   }
@@ -597,16 +595,6 @@ export const borrow = async (
     user.address
   );
 
-  console.log("********************************");
-  console.log("reserveDataBefore");
-  console.log(JSON.stringify(reserveDataBefore, null, 2));
-  console.log("userDataBefore");
-  console.log(JSON.stringify(userDataBefore, null, 2));
-  console.log("loanDataBefore");
-  console.log(JSON.stringify(loanDataBefore, null, 2));
-  console.log("********************************");
-  console.log("\n");
-
   const amountToBorrow = await convertToCurrencyDecimals(user, reserve, amount);
 
   if (expectedResult === "success") {
@@ -638,15 +626,6 @@ export const borrow = async (
       testEnv,
       user.address
     );
-    console.log("********************************");
-    console.log("reserveDataAfter");
-    console.log(JSON.stringify(reserveDataAfter, null, 2));
-    console.log("userDataAfter");
-    console.log(JSON.stringify(userDataAfter, null, 2));
-    console.log("loanDataAfter");
-    console.log(JSON.stringify(loanDataAfter, null, 2));
-    console.log("********************************");
-    console.log("\n");
 
     const expectedReserveData = calcExpectedReserveDataAfterBorrow(
       amountToBorrow.toString(),
@@ -682,15 +661,7 @@ export const borrow = async (
       txTimestamp,
       timestamp
     );
-    console.log("********************************");
-    console.log("expectedReserveData");
-    console.log(JSON.stringify(expectedReserveData, null, 2));
-    console.log("expectedUserData");
-    console.log(JSON.stringify(expectedUserData, null, 2));
-    console.log("expectedLoanData");
-    console.log(JSON.stringify(expectedLoanData, null, 2));
-    console.log("********************************");
-    console.log("\n");
+
     //console.log("borrow", "actual", reserveDataAfter, "expected", expectedReserveData);
     //console.log("borrow", "actual", loanDataAfter, "expected", expectedLoanData);
 
@@ -699,6 +670,7 @@ export const borrow = async (
     expectedUserData.utilizationRate = userDataAfter.utilizationRate;
     expectedUserData.liquidityRate = userDataAfter.liquidityRate;
     expectedUserData.variableBorrowRate = userDataAfter.variableBorrowRate;
+    expectedUserData.walletBalance = userDataAfter.walletBalance;
 
     expectEqual(reserveDataAfter, expectedReserveData);
     expectEqual(userDataAfter, expectedUserData);

@@ -989,12 +989,6 @@ const calcExpectedVariableBorrowIndex = (reserveData: ReserveData, timestamp: Bi
   if (reserveData.totalVariableDebt.eq("0")) {
     return reserveData.variableBorrowIndex;
   }
-  console.log(
-    "CALCULATING CUMULATED INTEREST...",
-    reserveData.variableBorrowRate.toString(),
-    timestamp.toString(),
-    reserveData.lastUpdateTimestamp.toString()
-  );
   const cumulatedInterest = calcCompoundedInterest(
     reserveData.variableBorrowRate,
     timestamp,

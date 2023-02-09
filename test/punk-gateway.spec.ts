@@ -67,7 +67,7 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
   it("Owner can do emergency CryptoPunks recovery", async () => {
     const { users, cryptoPunksMarket, punkGateway, deployer } = testEnv;
     const user = users[0];
-
+    console.log("USER: " + user.address);
     const punkIndex = testEnv.punkIndexTracker++;
     if (!UPGRADE) {
       await cryptoPunksMarket.allInitialOwnersAssigned();
@@ -302,12 +302,10 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
 
     const [depositor, user, anotherUser] = users;
     const depositSize = await convertToCurrencyDecimals(depositor, weth, "50");
-    console.log("weth.address", uWETH.address);
-    console.log("AVAILABLE LIQUIDITY BEFORE DEPOSIT: " + (await (await uWETH.getAvailableLiquidity()).toString()));
+
     // Deposit with native ETH
 
     await wethGateway.connect(depositor.signer).depositETH(depositor.address, 0, { value: depositSize });
-    console.log("AVAILABLE LIQUIDITY AFTER DEPOSIT: " + (await (await uWETH.getAvailableLiquidity()).toString()));
 
     const borrowSize1 = parseEther("1");
     const borrowSize2 = parseEther("2");

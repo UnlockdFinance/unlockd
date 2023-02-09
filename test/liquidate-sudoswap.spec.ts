@@ -127,7 +127,7 @@ makeSuite("LendPool: Liquidation on SudoSwap", (testEnv) => {
       testEnv;
     const liquidator = users[3];
     const borrower = users[1];
-    const treasury = users[9];
+    const treasury = users[7];
 
     const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(azuki.address, "101");
 

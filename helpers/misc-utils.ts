@@ -23,7 +23,7 @@ import {
   getEthersSigners,
   getParamPerNetwork,
 } from "./contracts-helpers";
-import { eEthereumNetwork, eNetwork, tEthereumAddress } from "./types";
+import { eContractid, eEthereumNetwork, eNetwork, tEthereumAddress } from "./types";
 import BN = require("bn.js");
 
 export const toWad = (value: string | number) => new BigNumber(value).times(WAD).toFixed();
@@ -32,6 +32,13 @@ export const bnToBigNumber = (amount: BN): BigNumber => new BigNumber(<any>amoun
 export const stringToBigNumber = (amount: string): BigNumber => new BigNumber(amount);
 
 export const getDb = (network: string) => low(new FileSync(`./deployments/deployed-contracts-${network}.json`));
+
+export const setUpgradeDb = async () => {
+  const mainDb = getDb(eEthereumNetwork.main);
+  const hardhatDb = getDb(eEthereumNetwork.hardhat);
+  const mainState = mainDb.getState();
+  hardhatDb.setState(mainState).write();
+};
 
 export let DRE: HardhatRuntimeEnvironment;
 
@@ -252,18 +259,20 @@ export const fundWithERC721 = async (tokenSymbol: string, receiver: string, toke
 
 export const fundWithWrappedPunk = async (receiver: string, punkIndex: number) => {
   const cryptoPunksMarket = await getCryptoPunksMarket();
-  console.log("cryptoPunksMarket.ADDRESS", cryptoPunksMarket.address);
+
   const owner = await cryptoPunksMarket.punkIndexToAddress(punkIndex);
-  console.log("2");
+
   await (DRE as HardhatRuntimeEnvironment).network.provider.request({
     method: "hardhat_impersonateAccount",
     params: [owner],
   });
+
   const tokenOwnerSigner = await getEthersSignerByAddress(owner);
+
   if (UPGRADE) {
     await cryptoPunksMarket.connect(tokenOwnerSigner).transferPunk(receiver, punkIndex);
   } else {
-    await cryptoPunksMarket.connect(tokenOwnerSigner).setInitialOwner(receiver, punkIndex);
+    await cryptoPunksMarket.setInitialOwner(receiver, punkIndex);
   }
 
   await (DRE as HardhatRuntimeEnvironment).network.provider.request({

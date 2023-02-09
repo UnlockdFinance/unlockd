@@ -74,7 +74,13 @@ import {
   initNFTXByHelper,
   initReservesByHelper,
 } from "../helpers/init-helpers";
-import { impersonateAccountsHardhat, stopImpersonateAccountsHardhat, waitForTx } from "../helpers/misc-utils";
+import {
+  getDb,
+  impersonateAccountsHardhat,
+  setUpgradeDb,
+  stopImpersonateAccountsHardhat,
+  waitForTx,
+} from "../helpers/misc-utils";
 import {
   addAssetsInNFTOracle,
   deployAllChainlinkMockAggregators,
@@ -465,6 +471,7 @@ before(async () => {
   const FORK = process.env.FORK;
 
   if (FORK) {
+    if (UPGRADE) setUpgradeDb();
     await rawBRE.run("unlockd:fork", {
       testupgrade: UPGRADE ? true : false,
       testskipRegistry: false,
