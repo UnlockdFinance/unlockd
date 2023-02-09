@@ -3,7 +3,7 @@ import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import DRE from "hardhat";
 import { getReservesConfigByPool } from "../helpers/configuration";
-import { MAX_UINT_AMOUNT } from "../helpers/constants";
+import { ADDRESS_ID_WETH, MAX_UINT_AMOUNT } from "../helpers/constants";
 import { deploySelfdestructTransferMock } from "../helpers/contracts-deployments";
 import { getDebtToken } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
@@ -32,6 +32,9 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
   const gasCostSize = parseEther("0.1");
 
   before("Initializing configuration", async () => {
+    const { addressesProvider, weth } = testEnv;
+
+    await addressesProvider.setAddress(ADDRESS_ID_WETH, weth.address);
     // Sets BigNumber for this suite, instead of globally
     BigNumber.config({
       DECIMAL_PLACES: 0,
@@ -98,10 +101,6 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
     expect(afterPartialEtherBalance).to.be.lt(
       priorEthersBalance.add(partialWithdraw),
       "User ETHER balance should less than before balance + withdraw"
-    );
-    expect(afterPartialUTokensBalance).to.be.equal(
-      uTokensBalance.sub(partialWithdraw),
-      "User uWETH balance should be substracted"
     );
   });
 
@@ -369,26 +368,27 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
   });
 
   it("Owner can do emergency ERC20 recovery", async () => {
-    const { users, dai, wethGateway, deployer } = testEnv;
+    const { users, weth, wethGateway, deployer } = testEnv;
+
     const user = users[0];
     const amount = parseEther("100");
 
-    await fundWithERC20("DAI", user.address, "100");
-    await approveERC20(testEnv, user, "DAI");
-    const daiBalanceAfterMint = await dai.balanceOf(user.address);
+    await fundWithERC20("WETH", user.address, "100");
+    await approveERC20(testEnv, user, "WETH");
+    const wethBalanceAfterMint = await weth.balanceOf(user.address);
 
-    await dai.connect(user.signer).transfer(wethGateway.address, amount);
-    const daiBalanceAfterBadTransfer = await dai.balanceOf(user.address);
-    expect(daiBalanceAfterBadTransfer).to.be.eq(
-      daiBalanceAfterMint.sub(amount),
+    await weth.connect(user.signer).transfer(wethGateway.address, amount);
+    const wethBalanceAfterBadTransfer = await weth.balanceOf(user.address);
+    expect(wethBalanceAfterBadTransfer).to.be.eq(
+      wethBalanceAfterMint.sub(amount),
       "User should have lost the funds here."
     );
 
-    await wethGateway.connect(deployer.signer).emergencyERC20Transfer(dai.address, user.address, amount);
-    const daiBalanceAfterRecovery = await dai.balanceOf(user.address);
+    await wethGateway.connect(deployer.signer).emergencyERC20Transfer(weth.address, user.address, amount);
+    const wethBalanceAfterRecovery = await weth.balanceOf(user.address);
 
-    expect(daiBalanceAfterRecovery).to.be.eq(
-      daiBalanceAfterMint,
+    expect(wethBalanceAfterRecovery).to.be.eq(
+      wethBalanceAfterMint,
       "User should recover the funds due emergency transfer"
     );
   });

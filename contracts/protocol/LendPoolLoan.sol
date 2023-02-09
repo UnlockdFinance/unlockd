@@ -374,6 +374,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     DataTypes.SudoSwapParams memory sudoswapParams
   ) external override onlyLendPool returns (uint256 sellPrice) {
     // Must use storage to change state
+
     DataTypes.LoanData storage loan = _loans[loanId];
 
     // Ensure valid loan state

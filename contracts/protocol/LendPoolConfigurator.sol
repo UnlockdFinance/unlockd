@@ -6,6 +6,9 @@ import {IUNFTRegistry} from "../interfaces/IUNFTRegistry.sol";
 import {ILendPoolConfigurator} from "../interfaces/ILendPoolConfigurator.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
+import {INFTOracle} from "../interfaces/INFTOracle.sol";
+import {IUToken} from "../interfaces/IUToken.sol";
+
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
 import {ConfiguratorLogic} from "../libraries/logic/ConfiguratorLogic.sol";
@@ -13,7 +16,7 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {ConfigTypes} from "../libraries/types/ConfigTypes.sol";
-import {INFTOracle} from "../interfaces/INFTOracle.sol";
+
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -672,18 +675,6 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   }
 
   /**
-   * @dev Sets new treasury to the specified UToken
-   * @param uToken the utoken to update the treasury address to
-   * @param treasury the new treasury address
-   **/
-  function setTreasuryAddress(address uToken, address treasury) external onlyPoolAdmin {
-    require(treasury != address(0), Errors.INVALID_ZERO_ADDRESS);
-    ILendPool cachedPool = _getLendPool();
-    cachedPool.setTreasuryAddress(uToken, treasury);
-    emit UTokenTreasuryUpdated(uToken, treasury);
-  }
-
-  /**
    * @dev Returns the token implementation contract address
    * @param proxyAddress  The address of the proxy contract
    * @return The address of the token implementation contract
@@ -699,7 +690,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function _checkReserveNoLiquidity(address asset) internal view {
     DataTypes.ReserveData memory reserveData = _getLendPool().getReserveData(asset);
 
-    uint256 availableLiquidity = IERC20Upgradeable(asset).balanceOf(reserveData.uTokenAddress);
+    uint256 availableLiquidity = IUToken(reserveData.uTokenAddress).getAvailableLiquidity();
 
     require(availableLiquidity == 0 && reserveData.currentLiquidityRate == 0, Errors.LPC_RESERVE_LIQUIDITY_NOT_0);
   }

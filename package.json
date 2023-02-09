@@ -28,7 +28,7 @@
     "unlockd:goerli:mock:migration": "npm run compile && npm run hardhat:goerli -- unlockd:mock",
     "unlockd:localhost:full:migration": "npm run compile && npm run hardhat:localhost -- unlockd:mainnet",
     "unlockd:goerli:full:migration": "npm run compile && npm run hardhat:goerli -- unlockd:mainnet",
-    "unlockd:fork:full:migration": "npm run compile && npm run hardhat -- unlockd:mainnet",
+    "unlockd:fork:full:migration": "npm run compile && npm run hardhat -- unlockd:fork",
     "unlockd:main:full:migration": "npm run compile && npm run hardhat:main -- unlockd:mainnet --verify",
     "goerli:verify": "npm run hardhat:goerli verify:general -- --all --pool Unlockd",
     "goerli:verify:reserves": "npm run hardhat:goerli verify:reserves -- --pool Unlockd",
