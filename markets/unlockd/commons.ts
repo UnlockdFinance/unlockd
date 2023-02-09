@@ -53,13 +53,13 @@ export const CommonsConfig: ICommonConfiguration = {
   ProxyAdminPool: {
     [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: undefined,
-    [eEthereumNetwork.goerli]: '0x8CBfc7F0f4Fd5D4221335f471aEC44B822f56660',
+    [eEthereumNetwork.goerli]: undefined,
     [eEthereumNetwork.main]: '0xb7493E15Af772c14c7cE3180Ff388925e6593c6b',
   },
   ProxyAdminFund: {
     [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: undefined,
-    [eEthereumNetwork.goerli]: '0xA9d67F1b0f46cc0588ED20AA071aB50b9A2D38f8',
+    [eEthereumNetwork.goerli]: undefined,
     [eEthereumNetwork.main]: '0x38a97DE7216b54FCc83A918CF5dB1Bb0447913a4',
   },
 
@@ -67,21 +67,21 @@ export const CommonsConfig: ICommonConfiguration = {
   PoolAdmin: {
     [eEthereumNetwork.hardhat]: "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15",
     [eEthereumNetwork.localhost]: undefined,
-    [eEthereumNetwork.goerli]: "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59",
+    [eEthereumNetwork.goerli]: "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F",
     [eEthereumNetwork.main]: "0x0756cCC18E390dbdD0F9855A3B38458bb6157E31",
   },
   PoolAdminIndex: 0,
   EmergencyAdmin: {
     [eEthereumNetwork.hardhat]: "0x51d25beeef0193c96cfda7fff9bd7411c2bdbdd3",
     [eEthereumNetwork.localhost]: undefined,
-    [eEthereumNetwork.goerli]: "0x51d25beeef0193c96cfda7fff9bd7411c2bdbdd3",
+    [eEthereumNetwork.goerli]: "0x6050DAb083016FE89a64A7aAb13aEF05E730c94b",
     [eEthereumNetwork.main]: "0x653f5769e08FB9cd6c4faC48Bad8a1B64B7Cf85d",
   },
   EmergencyAdminIndex: 1,
   LendPoolLiquidator: {
     [eEthereumNetwork.hardhat]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",
     [eEthereumNetwork.localhost]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",
-    [eEthereumNetwork.goerli]: "0xbec583e93262ad87b08cffbd4d8d97fc80e191ac",
+    [eEthereumNetwork.goerli]: "0xD90d48680Ed26e873e9461f286EC95AD603abE7a",
     [eEthereumNetwork.main]: "0x0685a82e74fbe03B7cC217f3DeD902C4d1aA78Cd",
   },
   LendPoolLiquidatorIndex: 0,
@@ -89,7 +89,7 @@ export const CommonsConfig: ICommonConfiguration = {
     // The wallet address that will be set as loan to value Manager
     [eEthereumNetwork.hardhat]: "0x392b30d9c3ac1ef8dac7dfc394311fb9e5554c53",
     [eEthereumNetwork.localhost]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",
-    [eEthereumNetwork.goerli]: "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59",
+    [eEthereumNetwork.goerli]: "0xD90d48680Ed26e873e9461f286EC95AD603abE7a",
     [eEthereumNetwork.main]: "0x0685a82e74fbe03B7cC217f3DeD902C4d1aA78Cd",
   },
   LtvManagerIndex: 0,

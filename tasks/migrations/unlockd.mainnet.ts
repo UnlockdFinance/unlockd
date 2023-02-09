@@ -8,7 +8,7 @@ import {
   loadPoolConfig,
 } from "../../helpers/configuration";
 import { getDeploySigner } from "../../helpers/contracts-getters";
-import { getEthersSignerByAddress } from "../../helpers/contracts-helpers";
+import { getEthersSignerByAddress, getEthersSigners } from "../../helpers/contracts-helpers";
 import { checkVerification } from "../../helpers/etherscan-verification";
 import { printContracts } from "../../helpers/misc-utils";
 
@@ -52,9 +52,9 @@ task("unlockd:mainnet", "Deploy full enviroment")
 
     console.log("\n\nMigration started");
 
-    // ////////////////////////////////////////////////////////////////////////
-    //console.log("\n\nDeploy proxy admin");
-    //await DRE.run("full:deploy-proxy-admin", { pool: POOL_NAME, verify: verify });
+    ////////////////////////////////////////////////////////////////////////
+    console.log("\n\nDeploy proxy admin");
+    await DRE.run("full:deploy-proxy-admin", { pool: POOL_NAME, verify: verify });
 
     // //////////////////////////////////////////////////////////////////////////
     //console.log("\n\nDeploy address provider");
@@ -96,14 +96,14 @@ task("unlockd:mainnet", "Deploy full enviroment")
     //await DRE.run("full:initialize-gateway", { pool: POOL_NAME, verify: verify });
 
     // //////////////////////////////////////////////////////////////////////////
-    console.log("\n\nDeploy data provider");
-    await DRE.run("full:deploy-data-provider", {
-      pool: POOL_NAME,
-      wallet: true,
-      ui: true,
-      protocol: true,
-      verify: verify,
-    });
+    // console.log("\n\nDeploy data provider");
+    // await DRE.run("full:deploy-data-provider", {
+    //   pool: POOL_NAME,
+    //   wallet: true,
+    //   ui: true,
+    //   protocol: true,
+    //   verify: verify,
+    // });
 
     /* if (verify) {
       printContracts();
