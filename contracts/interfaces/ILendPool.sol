@@ -300,6 +300,15 @@ interface ILendPool {
   function auction(address nftAsset, uint256 nftTokenId, uint256 bidPrice, address onBehalfOf) external;
 
   /**
+   * @dev Function to buyout a non-healthy position collateral-wise
+   * - The bidder want to buy collateral asset of the user getting liquidated
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   * @param buyoutAmount The buyout price of the underlying NFT
+   **/
+  function buyOut(address nftAsset, uint256 nftTokenId, uint256 buyoutAmount) external returns (uint256);
+
+  /**
    * @notice Redeem a NFT loan which state is in Auction
    * - E.g. User repays 100 USDC, burning loan and receives collateral asset
    * @param nftAsset The address of the underlying NFT used as collateral
