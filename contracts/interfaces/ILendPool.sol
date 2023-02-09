@@ -2,6 +2,8 @@
 pragma solidity 0.8.4;
 
 import {ILendPoolAddressesProvider} from "./ILendPoolAddressesProvider.sol";
+import {IUToken} from "./IUToken.sol";
+
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 
@@ -224,11 +226,6 @@ interface ILendPool {
   @dev Emitted after setting the new safe health factor value for redeems
   */
   event SafeHealthFactorUpdated(uint256 indexed newSafeHealthFactor);
-
-  /**
-  @dev Emitted after setting the new treasury address on the specified uToken
-  */
-  event TreasuryAddressUpdated(address indexed uToken, address indexed treasury);
 
   /**
    * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying uTokens.
@@ -638,13 +635,6 @@ interface ILendPool {
    * @param newSafeHealthFactor New safe health factor value
    */
   function updateSafeHealthFactor(uint256 newSafeHealthFactor) external;
-
-  /**
-   * @dev Sets new treasury to the specified UToken
-   * @param uToken the utoken to update the treasury address to
-   * @param treasury the new treasury address
-   **/
-  function setTreasuryAddress(address uToken, address treasury) external;
 
   /**
    * @notice Rescue tokens or ETH locked up in this contract.

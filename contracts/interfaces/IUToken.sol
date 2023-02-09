@@ -83,6 +83,19 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   event TreasuryAddressUpdated(address indexed _newTreasuryAddress);
 
   /**
+    @dev Emitted after sweeping liquidity from the uToken to deposit it to external lending protocol
+  * @param uToken The uToken swept
+  * @param underlyingAsset The underlying asset from the uToken
+  * @param amount The amount deposited to the lending protocol
+  */
+  event UTokenSwept(address indexed uToken, address indexed underlyingAsset, uint256 indexed amount);
+
+  /**
+   * @dev Takes reserve liquidity from uToken and deposits it to external lening protocol
+   **/
+  function sweepUToken() external;
+
+  /**
    * @dev Burns uTokens from `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
    * @param user The owner of the uTokens, getting them burned
    * @param receiverOfUnderlying The address that will receive the underlying
@@ -99,6 +112,18 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   function mintToTreasury(uint256 amount, uint256 index) external;
 
   /**
+   * @dev Deposits `amount` to the lending protocol currently active
+   * @param amount The amount of tokens to deposit
+   */
+  function depositReserves(uint256 amount) external;
+
+  /**
+   * @dev Withdraws `amount` from the lending protocol currently active
+   * @param amount The amount of tokens to withdraw
+   */
+  function withdrawReserves(uint256 amount) external returns (uint256);
+
+  /**
    * @dev Transfers the underlying asset to `target`. Used by the LendPool to transfer
    * assets in borrow() and withdraw()
    * @param user The recipient of the underlying
@@ -106,6 +131,12 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
    * @return The amount transferred
    **/
   function transferUnderlyingTo(address user, uint256 amount) external returns (uint256);
+
+  /**
+   * @dev Returns the scaled balance of the user and the scaled total supply.
+   * @return The available liquidity in reserve
+   **/
+  function getAvailableLiquidity() external view returns (uint256);
 
   /**
    * @dev Returns the address of the incentives controller contract
