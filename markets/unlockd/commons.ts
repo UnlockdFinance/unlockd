@@ -68,7 +68,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15",
     [eEthereumNetwork.localhost]: undefined,
     [eEthereumNetwork.goerli]: "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F",
-    [eEthereumNetwork.main]: "0x0756cCC18E390dbdD0F9855A3B38458bb6157E31",
+    [eEthereumNetwork.main]: "0x67539d650922Af9D2c611251ac9749f167e51Ac0",
   },
   PoolAdminIndex: 0,
   EmergencyAdmin: {
@@ -79,10 +79,10 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   EmergencyAdminIndex: 1,
   LendPoolLiquidator: { 
-    [eEthereumNetwork.hardhat]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",
+    [eEthereumNetwork.hardhat]: "0xA2874be6Acdc314dd055f6869a2dBdF62c983436",
     [eEthereumNetwork.localhost]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",
     [eEthereumNetwork.goerli]: "0xD90d48680Ed26e873e9461f286EC95AD603abE7a",
-    [eEthereumNetwork.main]: "0x0685a82e74fbe03B7cC217f3DeD902C4d1aA78Cd",
+    [eEthereumNetwork.main]: "0xA296478f65BCDA4153343c8D1f24D768110D6e16",
   },
   LendPoolLiquidatorIndex: 3,
   LtvManager: { 
