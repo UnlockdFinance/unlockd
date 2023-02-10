@@ -1,12 +1,28 @@
 import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
+import DRE from "hardhat";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { UPGRADE } from "../hardhat.config";
 import { getReservesConfigByPool } from "../helpers/configuration";
 import { ADDRESS_ID_YVAULT_WETH } from "../helpers/constants";
-import { getMintableERC20, getYVault } from "../helpers/contracts-getters";
+import { deployMockYVault, deployUnlockdUpgradeableProxy } from "../helpers/contracts-deployments";
+import {
+  getMintableERC20,
+  getMockYVault,
+  getUnlockdProxyAdminById,
+  getUnlockdUpgradeableProxy,
+  getYVault,
+} from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { advanceTimeAndBlock, fundWithERC20, fundWithERC721, waitForTx } from "../helpers/misc-utils";
-import { IConfigNftAsCollateralInput, IReserveParams, iUnlockdPoolAssets, UnlockdPools } from "../helpers/types";
+import {
+  eContractid,
+  IConfigNftAsCollateralInput,
+  IReserveParams,
+  iUnlockdPoolAssets,
+  UnlockdPools,
+} from "../helpers/types";
+import { MockYVault } from "../types";
 import {
   approveERC20,
   borrow,
@@ -25,6 +41,8 @@ const chai = require("chai");
 const { expect } = chai;
 
 makeSuite("UToken: Yearn integration", (testEnv) => {
+  let mockYVault: MockYVault;
+
   before("Initializing configuration", async () => {
     // Sets BigNumber for this suite, instead of globally
     BigNumber.config({
@@ -37,6 +55,24 @@ makeSuite("UToken: Yearn integration", (testEnv) => {
     calculationsConfiguration.reservesParams = <iUnlockdPoolAssets<IReserveParams>>(
       getReservesConfigByPool(UnlockdPools.proto)
     );
+    const mockYVaultImpl = await deployMockYVault();
+
+    const initEncodedData = mockYVaultImpl.interface.encodeFunctionData("initialize", [
+      testEnv.addressesProvider.address,
+      testEnv.weth.address,
+      "MockYVault",
+      "YVWeth",
+    ]);
+    const proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
+    let mockYVaultProxy = await deployUnlockdUpgradeableProxy(
+      eContractid.MockYVault,
+      proxyAdmin.address,
+      mockYVaultImpl.address,
+      initEncodedData,
+      false
+    );
+
+    mockYVault = await getMockYVault(mockYVaultProxy.address);
   });
   after("Reset", () => {
     // Reset BigNumber
@@ -242,59 +278,32 @@ makeSuite("UToken: Yearn integration", (testEnv) => {
     }
   });
 
-  // it("User 3 borrow all liquidity from the pool", async () => {
-  //   const { users, pool, weth, addressesProvider, uWETH, deployer, configurator, nftOracle, bayc } = testEnv;
-  //   const user3 = users[3];
+  it("MockYVault: user deposits 10 WETH, 10 MockYVWETH are transferred to him", async () => {
+    const { users, pool, weth, addressesProvider, uWETH, deployer } = testEnv;
+    if (!UPGRADE) {
+      await fundWithERC20("WETH", deployer.address, "10");
+      await approveERC20(testEnv, deployer, "WETH");
 
-  //   const tokenIdNum = testEnv.tokenIdTracker++;
-  //   const tokenId = tokenIdNum.toString();
-  //   await fundWithERC721("BAYC", user3.address, tokenIdNum);
+      await weth.connect(deployer.signer).approve(mockYVault.address, parseEther("10"));
+      await mockYVault.connect(deployer.signer).deposit(parseEther("10"));
 
-  //   await setApprovalForAll(testEnv, user3, "BAYC");
+      const balanceUToken = await mockYVault.balanceOf(deployer.address);
+      await expect(balanceUToken).to.be.equal(parseEther("10"));
 
-  //   //await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
+      const balanceYVault = await weth.balanceOf(mockYVault.address);
+      await expect(balanceYVault).to.be.equal(parseEther("10"));
+    }
+  });
+  it("MockYVault: test onlyUTokenOrPoolAdmin", async () => {
+    const { users, pool, weth, addressesProvider, uWETH } = testEnv;
+    if (!UPGRADE) {
+      await fundWithERC20("WETH", users[5].address, "10");
+      await approveERC20(testEnv, users[5], "WETH");
 
-  //   await configurator.setLtvManagerStatus(deployer.address, true);
-  //   await nftOracle.setPriceManagerStatus(configurator.address, true);
-
-  //   const price = await convertToCurrencyDecimals(user3, weth, "100");
-  //   await configurator.setLtvManagerStatus(deployer.address, true);
-  //   await nftOracle.setPriceManagerStatus(bayc.address, true);
-
-  //   const collData: IConfigNftAsCollateralInput = {
-  //     asset: bayc.address,
-  //     nftTokenId: tokenId,
-  //     newPrice: parseEther("100"),
-  //     ltv: 4000,
-  //     liquidationThreshold: 7000,
-  //     redeemThreshold: 9000,
-  //     liquidationBonus: 500,
-  //     redeemDuration: 100,
-  //     auctionDuration: 200,
-  //     redeemFine: 500,
-  //     minBidFine: 2000,
-  //   };
-  //   await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
-
-  //   await borrow(testEnv, user3, "WETH", "1", "BAYC", tokenId, user3.address, "365", "success", "");
-
-  //   const yVault = await getYVault(await addressesProvider.getAddress(ADDRESS_ID_YVAULT_WETH));
-
-  //   // const pricePerShare = await yVault.pricePerShare();
-  //   // const erc20YVault = await getMintableERC20(await addressesProvider.getAddress(ADDRESS_ID_YVAULT_WETH));
-  //   // const yvWETHBalance = await erc20YVault.balanceOf(uWETH.address);
-
-  //   // // Vault has now 1020 WETH, from which 1010 come from UToken deposits
-
-  //   // // YVault computes shares in the following format, we account for a small precision error in assertions below:
-  //   // // freeFunds = _totalAssets() - _calculateLockedProfit()
-  //   // // shares =  amount * totalSupply / freeFunds
-  //   // const yvWETHExpectedBalance = wadDiv(parseEther("1010"), pricePerShare);
-
-  //   // await expect(yvWETHExpectedBalance).to.be.within(yvWETHBalance, yvWETHBalance.add(1000));
-
-  //   // const availableLiquidity = await uWETH.getAvailableLiquidity();
-
-  //   // await expect(availableLiquidity.toString()).to.be.within(parseEther("1010").sub(1000), parseEther("1010").toString());
-  // });
+      await weth.connect(users[5].signer).approve(mockYVault.address, parseEther("10"));
+      await expect(mockYVault.connect(users[5].signer).deposit(parseEther("10"))).to.be.revertedWith(
+        "Caller not UToken nor Pool Admin"
+      );
+    }
+  });
 });
