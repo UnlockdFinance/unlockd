@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import { UPGRADE } from "../hardhat.config";
-import { PERCENTAGE_FACTOR } from "../helpers/constants";
+import { oneRay, PERCENTAGE_FACTOR } from "../helpers/constants";
 import { deployInterestRate } from "../helpers/contracts-deployments";
 import { rateStrategyStableOne } from "../markets/unlockd/rateStrategies";
 import { strategyWETH } from "../markets/unlockd/reservesConfigs";
@@ -90,5 +90,42 @@ makeSuite("Interest rate tests", (testEnv: TestEnv) => {
         "Invalid variable rate"
       );
     }
+  });
+  it("Checks onlyPoolAdmin in configInterestRate", async () => {
+    const { users } = testEnv;
+
+    await expect(
+      rateInstance
+        .connect(users[5].signer)
+        .configInterestRate(
+          new BigNumber(0.8).multipliedBy(oneRay).toFixed(),
+          new BigNumber(0.2).multipliedBy(oneRay).toFixed(),
+          new BigNumber(0.16).multipliedBy(oneRay).toFixed(),
+          new BigNumber(2).multipliedBy(oneRay).toFixed()
+        )
+    ).to.be.revertedWith("Caller not pool admin");
+  });
+  it("Checksconfig on interest rates", async () => {
+    const {} = testEnv;
+
+    await rateInstance.configInterestRate(
+      new BigNumber(0.9).multipliedBy(oneRay).toFixed(),
+      new BigNumber(0.03).multipliedBy(oneRay).toFixed(),
+      new BigNumber(0.04).multipliedBy(oneRay).toFixed(),
+      new BigNumber(0.6).multipliedBy(oneRay).toFixed()
+    );
+
+    await expect(await rateInstance.OPTIMAL_UTILIZATION_RATE()).to.be.equal(
+      new BigNumber(0.9).multipliedBy(oneRay).toFixed()
+    );
+    await expect(await rateInstance.baseVariableBorrowRate()).to.be.equal(
+      new BigNumber(0.03).multipliedBy(oneRay).toFixed()
+    );
+    await expect(await rateInstance.variableRateSlope1()).to.be.equal(
+      new BigNumber(0.04).multipliedBy(oneRay).toFixed()
+    );
+    await expect(await rateInstance.variableRateSlope2()).to.be.equal(
+      new BigNumber(0.6).multipliedBy(oneRay).toFixed()
+    );
   });
 });
