@@ -18,6 +18,7 @@ import {
   MockIncentivesControllerFactory,
   MockNFTOracleFactory,
   MockReserveOracleFactory,
+  MockYVaultFactory,
   NFTOracleFactory,
   PunkGatewayFactory,
   ReserveLogicFactory,
@@ -497,3 +498,6 @@ export const getLSSVMPair = async (address?: tEthereumAddress) =>
   );
 export const getYVault = async (address: tEthereumAddress) =>
   await IYVaultFactory.connect(address, await getDeploySigner());
+
+export const getMockYVault = async (address: tEthereumAddress) =>
+  await MockYVaultFactory.connect(address, await getDeploySigner());

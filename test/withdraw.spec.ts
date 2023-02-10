@@ -111,7 +111,7 @@ makeSuite("LendPool: Withdraw", (testEnv: TestEnv) => {
 
     await deposit(testEnv, user1, "", "WETH", "1", user1.address, "success", "");
 
-    await withdraw(testEnv, user0, "WETH", "-1", "success", "");
+    await withdraw(testEnv, user0, "WETH", "0.5", "success", "");
   });
 
   it("Users 0 and 1 Deposit 1000 DAI, both withdraw", async () => {
