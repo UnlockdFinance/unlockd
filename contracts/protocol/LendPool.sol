@@ -56,10 +56,10 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
   using NftConfiguration for DataTypes.NftConfigurationMap;
 
-  bytes32 public constant ADDRESS_ID_WETH_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000001;
-  bytes32 public constant ADDRESS_ID_PUNK_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000002;
-  bytes32 public constant ADDRESS_ID_PUNKS = 0xADDE000000000000000000000000000000000000000000000000000000000005;
-  bytes32 public constant ADDRESS_ID_WPUNKS = 0xADDE000000000000000000000000000000000000000000000000000000000006;
+  bytes32 public constant ADDRESS_ID_WETH_GATEWAY = keccak256("WETH_GATEWAY");
+  bytes32 public constant ADDRESS_ID_PUNK_GATEWAY = keccak256("PUNK_GATEWAY");
+  bytes32 public constant ADDRESS_ID_PUNKS = keccak256("PUNKS");
+  bytes32 public constant ADDRESS_ID_WPUNKS = keccak256("WPUNKS");
 
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
@@ -1105,17 +1105,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    */
   function getSafeHealthFactor() external view override returns (uint256) {
     return _safeHealthFactor;
-  }
-
-  /**
-   * @dev Sets new treasury to the specified UToken
-   * @param uToken the utoken to update the treasury address to
-   * @param treasury the new treasury address
-   **/
-  function setTreasuryAddress(address uToken, address treasury) external override onlyLendPoolConfigurator {
-    require(treasury != address(0), Errors.INVALID_ZERO_ADDRESS);
-    IUToken(uToken).setTreasuryAddress(treasury);
-    emit TreasuryAddressUpdated(uToken, treasury);
   }
 
   function _addReserveToList(address asset) internal {

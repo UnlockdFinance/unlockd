@@ -1,84 +1,134 @@
-import { expect } from "chai";
-import { APPROVAL_AMOUNT_LENDING_POOL, ZERO_ADDRESS } from "../helpers/constants";
+const chai = require("chai");
+import { zeroAddress } from "ethereumjs-util";
+import { parseEther } from "ethers/lib/utils";
+import { ADDRESS_ID_YVAULT_WETH, APPROVAL_AMOUNT_LENDING_POOL, ZERO_ADDRESS } from "../helpers/constants";
+import { getMintableERC20, getUToken, getYVault } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
-import { fundWithERC20, waitForTx } from "../helpers/misc-utils";
+import { createRandomAddress, fundWithERC20, waitForTx } from "../helpers/misc-utils";
 import { ProtocolErrors } from "../helpers/types";
 import { CommonsConfig } from "../markets/unlockd/commons";
 import { approveERC20 } from "./helpers/actions";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
+import { wadDiv } from "./helpers/utils/math";
+
+const { expect } = chai;
 
 makeSuite("UToken", (testEnv: TestEnv) => {
-  const { INVALID_FROM_BALANCE_AFTER_TRANSFER, INVALID_TO_BALANCE_AFTER_TRANSFER } = ProtocolErrors;
+  const {
+    INVALID_FROM_BALANCE_AFTER_TRANSFER,
+    INVALID_TO_BALANCE_AFTER_TRANSFER,
+    CALLER_NOT_POOL_ADMIN,
+    INVALID_ZERO_ADDRESS,
+  } = ProtocolErrors;
 
   afterEach("Reset", () => {
     testEnv.mockIncentivesController.resetHandleActionIsCalled();
   });
 
-  it("Check DAI basic parameters", async () => {
-    const { dai, uDai, pool } = testEnv;
+  it("Check WETH basic parameters", async () => {
+    const { weth, uWETH, pool } = testEnv;
 
-    const symbol = await dai.symbol();
-    const bSymbol = await uDai.symbol();
-    expect(bSymbol).to.be.equal(CommonsConfig.UTokenSymbolPrefix + symbol);
+    const symbol = await uWETH.symbol();
+    const bSymbol = await uWETH.symbol();
+    expect(bSymbol).to.be.equal(symbol);
 
-    //const name = await dai.name();
-    const bName = await uDai.name();
-    expect(bName).to.be.equal(CommonsConfig.UTokenNamePrefix + " " + symbol);
+    const name = await weth.name();
+    const bName = await uWETH.name();
+    expect(bName).to.be.equal("Unlockd interest bearing WETH");
 
-    const decimals = await dai.decimals();
-    const bDecimals = await uDai.decimals();
+    const decimals = await weth.decimals();
+    const bDecimals = await uWETH.decimals();
     expect(decimals).to.be.equal(bDecimals);
 
-    const treasury = await uDai.RESERVE_TREASURY_ADDRESS();
+    const treasury = await uWETH.RESERVE_TREASURY_ADDRESS();
     expect(treasury).to.be.not.equal(ZERO_ADDRESS);
 
-    const underAsset = await uDai.UNDERLYING_ASSET_ADDRESS();
-    expect(underAsset).to.be.equal(dai.address);
+    const underAsset = await uWETH.UNDERLYING_ASSET_ADDRESS();
+    expect(underAsset).to.be.equal(weth.address);
 
-    const wantPool = await uDai.POOL();
+    const wantPool = await uWETH.POOL();
     expect(wantPool).to.be.equal(pool.address);
   });
 
-  it("User 0 deposits 1000 DAI, transfers uDai to user 1", async () => {
-    const { users, pool, dai, uDai, deployer } = testEnv;
+  it("Check the onlyAdmin on set treasury to new utoken", async () => {
+    const { uWETH, users, bayc } = testEnv;
+    await expect(
+      uWETH.connect(users[2].signer).setTreasuryAddress(bayc.address),
+      CALLER_NOT_POOL_ADMIN
+    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+  });
 
-    await fundWithERC20("DAI", users[0].address, "1000");
-    await approveERC20(testEnv, users[0], "DAI");
+  it("Check the zero check on set treasury to new utoken", async () => {
+    const { uWETH, deployer, bayc } = testEnv;
+    await expect(
+      uWETH.connect(deployer.signer).setTreasuryAddress(zeroAddress()),
+      INVALID_ZERO_ADDRESS
+    ).to.be.revertedWith(INVALID_ZERO_ADDRESS);
+  });
 
-    //user 1 deposits 1000 DAI
-    const amountDeposit = await convertToCurrencyDecimals(deployer, dai, "1000");
+  it("Check the address is properly updated in WETH uToken", async () => {
+    const { uWETH, deployer, weth, dataProvider } = testEnv;
+    const expectedAddress = await createRandomAddress();
+    const { uTokenAddress } = await dataProvider.getReserveTokenData(weth.address);
 
-    await pool.connect(users[0].signer).deposit(dai.address, amountDeposit, users[0].address, "0");
+    await uWETH.connect(deployer.signer).setTreasuryAddress(expectedAddress);
+
+    await expect(await (await getUToken(uTokenAddress)).RESERVE_TREASURY_ADDRESS()).to.be.equal(expectedAddress);
+  });
+
+  it("10 WETH are sent to UToken, sweep deposits them into Yearn Vault", async () => {
+    const { users, pool, weth, uWETH, deployer, addressesProvider } = testEnv;
+
+    await fundWithERC20("WETH", uWETH.address, "10");
+
+    const yVault = await getYVault(await addressesProvider.getAddress(ADDRESS_ID_YVAULT_WETH));
+    const pricePerShare = await yVault.pricePerShare();
+
+    const erc20YVault = await getMintableERC20(await addressesProvider.getAddress(ADDRESS_ID_YVAULT_WETH));
+
+    const yvWETHBalanceBefore = await erc20YVault.balanceOf(uWETH.address);
+    const availableLiquidityBefore = await uWETH.getAvailableLiquidity();
+    await uWETH.sweepUToken();
+
+    // YVault computes shares in the following format, we account for a small precision error in assertions below:
+    // freeFunds = _totalAssets() - _calculateLockedProfit()
+    // shares =  amount * totalSupply / freeFunds
+    const yvWETHBalanceAfter = await erc20YVault.balanceOf(uWETH.address);
+    const yvWETHExpectedBalance = wadDiv(parseEther("10"), pricePerShare);
+    const balanceExpected = yvWETHBalanceBefore.add(yvWETHExpectedBalance);
+    await expect(balanceExpected).to.be.within(yvWETHBalanceAfter, yvWETHBalanceAfter.add(1000));
+
+    const availableLiquidityAfter = await uWETH.getAvailableLiquidity();
+
+    await expect(availableLiquidityAfter.toString()).to.be.within(
+      availableLiquidityBefore.add(parseEther("10").sub(1000)),
+      availableLiquidityBefore.add(parseEther("10")).toString()
+    );
+  });
+
+  it("User 8 deposits 1000 WETH, transfers uweth to user 6", async () => {
+    const { users, pool, weth, uWETH, deployer } = testEnv;
+
+    await fundWithERC20("WETH", users[8].address, "1000");
+    await approveERC20(testEnv, users[8], "WETH");
+
+    //user 1 deposits 1000 weth
+    const amountDeposit = await convertToCurrencyDecimals(deployer, weth, "1000");
+
+    await pool.connect(users[8].signer).deposit(weth.address, amountDeposit, users[8].address, "0");
 
     await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
-
-    await uDai.connect(users[0].signer).transfer(users[1].address, amountDeposit);
+    const fromBalanceBeforeTransfer = await uWETH.balanceOf(users[8].address);
+    const amountTransfer = await convertToCurrencyDecimals(deployer, weth, "500");
+    await uWETH.connect(users[8].signer).transfer(users[6].address, amountTransfer);
 
     // const checkResult = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
     // await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
     // expect(checkResult).to.be.equal(true, "IncentivesController not called");
 
-    const fromBalance = await uDai.balanceOf(users[0].address);
-    const toBalance = await uDai.balanceOf(users[1].address);
+    const fromBalance = await uWETH.balanceOf(users[8].address);
+    const toBalance = await uWETH.balanceOf(users[6].address);
 
-    expect(fromBalance.toString()).to.be.equal("0", INVALID_FROM_BALANCE_AFTER_TRANSFER);
-    expect(toBalance.toString()).to.be.equal(amountDeposit.toString(), INVALID_TO_BALANCE_AFTER_TRANSFER);
-  });
-
-  it("User 1 receive uDai from user 0, transfers 50% to user 2", async () => {
-    const { users, pool, dai, uDai } = testEnv;
-
-    const amountTransfer = (await uDai.balanceOf(users[1].address)).div(2);
-
-    await uDai.connect(users[1].signer).transfer(users[2].address, amountTransfer);
-
-    const fromBalance = await uDai.balanceOf(users[1].address);
-    const toBalance = await uDai.balanceOf(users[2].address);
-
-    expect(fromBalance.toString()).to.be.equal(amountTransfer.toString(), INVALID_FROM_BALANCE_AFTER_TRANSFER);
     expect(toBalance.toString()).to.be.equal(amountTransfer.toString(), INVALID_TO_BALANCE_AFTER_TRANSFER);
-
-    await uDai.totalSupply();
-    await uDai.getScaledUserBalanceAndSupply(users[1].address);
   });
 });

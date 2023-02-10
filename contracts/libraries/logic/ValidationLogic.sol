@@ -12,6 +12,7 @@ import {DataTypes} from "../types/DataTypes.sol";
 import {IInterestRate} from "../../interfaces/IInterestRate.sol";
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
 import {ILendPool} from "../../interfaces/ILendPool.sol";
+import {IUToken} from "../../interfaces/IUToken.sol";
 
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
@@ -51,13 +52,18 @@ library ValidationLogic {
   function validateWithdraw(
     DataTypes.ReserveData storage reserveData,
     uint256 amount,
-    uint256 userBalance
+    uint256 userBalance,
+    address uToken
   ) external view {
     require(amount != 0, Errors.VL_INVALID_AMOUNT);
     require(amount <= userBalance, Errors.VL_NOT_ENOUGH_AVAILABLE_USER_BALANCE);
 
     (bool isActive, , , ) = reserveData.configuration.getFlags();
     require(isActive, Errors.VL_NO_ACTIVE_RESERVE);
+
+    // Case where there is not enough liquidity to cover user's withdrawal
+    uint256 availableLiquidity = IUToken(uToken).getAvailableLiquidity();
+    require(amount <= availableLiquidity, Errors.LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY);
   }
 
   struct ValidateBorrowLocalVars {

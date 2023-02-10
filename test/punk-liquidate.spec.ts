@@ -1,11 +1,19 @@
 import BigNumber from "bignumber.js";
 import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
+import { UPGRADE } from "../hardhat.config";
 import { getReservesConfigByPool } from "../helpers/configuration";
 import { MAX_UINT_AMOUNT, oneEther, ONE_DAY } from "../helpers/constants";
 import { getDebtToken } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
-import { advanceTimeAndBlock, fundWithERC20, increaseTime, sleep, waitForTx } from "../helpers/misc-utils";
+import {
+  advanceTimeAndBlock,
+  fundWithERC20,
+  fundWithWrappedPunk,
+  increaseTime,
+  sleep,
+  waitForTx,
+} from "../helpers/misc-utils";
 import {
   IConfigNftAsCollateralInput,
   IReserveParams,
@@ -74,110 +82,111 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
       configurator,
       deployer,
     } = testEnv;
+    if (JSON.stringify(usdc) !== "{}") {
+      const [depositor, borrower] = users;
+      const liquidator = users[4];
+      const depositUnit = "200000";
+      const depositSize = await convertToCurrencyDecimals(deployer, usdc, "200000");
 
-    const [depositor, borrower] = users;
-    const liquidator = users[4];
-    const depositUnit = "200000";
-    const depositSize = await convertToCurrencyDecimals(deployer, usdc, "200000");
+      await sleep(1000 * 1);
+      await setNftAssetPrice(testEnv, "WPUNKS", 101, parseEther("50").toString());
 
-    await sleep(1000 * 1);
-    await setNftAssetPrice(testEnv, "WPUNKS", 101, parseEther("50").toString());
+      // Delegates borrowing power of WETH to WETHGateway
+      const reserveData = await pool.getReserveData(usdc.address);
+      const debtToken = await getDebtToken(reserveData.debtTokenAddress);
+      await waitForTx(await debtToken.connect(borrower.signer).approveDelegation(punkGateway.address, MAX_UINT_AMOUNT));
 
-    // Delegates borrowing power of WETH to WETHGateway
-    const reserveData = await pool.getReserveData(usdc.address);
-    const debtToken = await getDebtToken(reserveData.debtTokenAddress);
-    await waitForTx(await debtToken.connect(borrower.signer).approveDelegation(punkGateway.address, MAX_UINT_AMOUNT));
+      const punkIndex = testEnv.punkIndexTracker++;
 
-    const punkIndex = testEnv.punkIndexTracker++;
+      const getPunkOwner = async () => {
+        const owner = await cryptoPunksMarket.punkIndexToAddress(punkIndex);
 
-    const getPunkOwner = async () => {
-      const owner = await cryptoPunksMarket.punkIndexToAddress(punkIndex);
+        return owner;
+      };
 
-      return owner;
-    };
+      // Deposit USDC
+      await fundWithERC20("USDC", depositor.address, "200000");
+      await approveERC20(testEnv, depositor, "USDC");
+      await deposit(testEnv, depositor, "", "USDC", depositUnit.toString(), depositor.address, "success", "");
 
-    // Deposit USDC
-    await fundWithERC20("USDC", depositor.address, "200000");
-    await approveERC20(testEnv, depositor, "USDC");
-    await deposit(testEnv, depositor, "", "USDC", depositUnit.toString(), depositor.address, "success", "");
+      // mint native punk
+      await waitForTx(await cryptoPunksMarket.connect(borrower.signer).getPunk(punkIndex));
+      await waitForTx(
+        await cryptoPunksMarket.connect(borrower.signer).offerPunkForSaleToAddress(punkIndex, 0, punkGateway.address)
+      );
 
-    // mint native punk
-    await waitForTx(await cryptoPunksMarket.connect(borrower.signer).getPunk(punkIndex));
-    await waitForTx(
-      await cryptoPunksMarket.connect(borrower.signer).offerPunkForSaleToAddress(punkIndex, 0, punkGateway.address)
-    );
+      const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(wrappedPunk.address, punkIndex);
 
-    const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(wrappedPunk.address, punkIndex);
+      // borrow usdc, health factor above 1
+      const nftColDataBefore = await pool.getNftCollateralData(wrappedPunk.address, 101, usdc.address);
 
-    // borrow usdc, health factor above 1
-    const nftColDataBefore = await pool.getNftCollateralData(wrappedPunk.address, 101, usdc.address);
+      await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
 
-    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+      await nftOracle.connect(deployer.signer).setPriceManagerStatus(configurator.address, true);
 
-    await nftOracle.connect(deployer.signer).setPriceManagerStatus(configurator.address, true);
+      await configurator.connect(deployer.signer).setTimeframe(720000);
 
-    await configurator.connect(deployer.signer).setTimeframe(720000);
+      const collData: IConfigNftAsCollateralInput = {
+        asset: wrappedPunk.address,
+        nftTokenId: punkIndex.toString(),
+        newPrice: parseEther("100"),
+        ltv: 4000,
+        liquidationThreshold: 7000,
+        redeemThreshold: 9000,
+        liquidationBonus: 500,
+        redeemDuration: 100,
+        auctionDuration: 200,
+        redeemFine: 500,
+        minBidFine: 2000,
+      };
+      await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
-    const collData: IConfigNftAsCollateralInput = {
-      asset: wrappedPunk.address,
-      nftTokenId: punkIndex.toString(),
-      newPrice: parseEther("100"),
-      ltv: 4000,
-      liquidationThreshold: 7000,
-      redeemThreshold: 9000,
-      liquidationBonus: 500,
-      redeemDuration: 100,
-      auctionDuration: 200,
-      redeemFine: 500,
-      minBidFine: 2000,
-    };
-    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
+      const usdcPrice = await reserveOracle.getAssetPrice(usdc.address);
+      const amountBorrow = await convertToCurrencyDecimals(
+        deployer,
+        usdc,
+        new BigNumber(nftColDataBefore.availableBorrowsInETH.toString())
+          .div(usdcPrice.toString())
+          .multipliedBy(0.95)
+          .toFixed(0)
+      );
 
-    const usdcPrice = await reserveOracle.getAssetPrice(usdc.address);
-    const amountBorrow = await convertToCurrencyDecimals(
-      deployer,
-      usdc,
-      new BigNumber(nftColDataBefore.availableBorrowsInETH.toString())
-        .div(usdcPrice.toString())
-        .multipliedBy(0.95)
-        .toFixed(0)
-    );
+      await waitForTx(
+        await punkGateway.connect(borrower.signer).borrow(usdc.address, amountBorrow, punkIndex, borrower.address, "0")
+      );
 
-    await waitForTx(
-      await punkGateway.connect(borrower.signer).borrow(usdc.address, amountBorrow, punkIndex, borrower.address, "0")
-    );
+      await waitForTx(await wrappedPunk.connect(liquidator.signer).setApprovalForAll(punkGateway.address, true));
 
-    await waitForTx(await wrappedPunk.connect(liquidator.signer).setApprovalForAll(punkGateway.address, true));
+      const nftDebtDataAfterBorrow = await pool.getNftDebtData(wrappedPunk.address, punkIndex);
+      expect(nftDebtDataAfterBorrow.healthFactor.toString()).to.be.bignumber.gt(oneEther.toFixed(0));
 
-    const nftDebtDataAfterBorrow = await pool.getNftDebtData(wrappedPunk.address, punkIndex);
-    expect(nftDebtDataAfterBorrow.healthFactor.toString()).to.be.bignumber.gt(oneEther.toFixed(0));
+      // Drop the health factor below 1
+      const debAmountUnits = await convertToCurrencyUnits(deployer, usdc, nftDebtDataAfterBorrow.totalDebt.toString());
+      await setNftAssetPriceForDebt(testEnv, "WPUNKS", punkIndex, "USDC", debAmountUnits, "80");
+      const nftDebtDataAfterOracle = await pool.getNftDebtData(wrappedPunk.address, punkIndex);
+      expect(nftDebtDataAfterOracle.healthFactor.toString()).to.be.bignumber.lt(oneEther.toFixed(0));
 
-    // Drop the health factor below 1
-    const debAmountUnits = await convertToCurrencyUnits(deployer, usdc, nftDebtDataAfterBorrow.totalDebt.toString());
-    await setNftAssetPriceForDebt(testEnv, "WPUNKS", punkIndex, "USDC", debAmountUnits, "80");
-    const nftDebtDataAfterOracle = await pool.getNftDebtData(wrappedPunk.address, punkIndex);
-    expect(nftDebtDataAfterOracle.healthFactor.toString()).to.be.bignumber.lt(oneEther.toFixed(0));
+      // Liquidate USDC loan
+      await fundWithERC20("USDC", liquidator.address, "200000");
+      await approveERC20PunkGateway(testEnv, liquidator, "USDC");
 
-    // Liquidate USDC loan
-    await fundWithERC20("USDC", liquidator.address, "200000");
-    await approveERC20PunkGateway(testEnv, liquidator, "USDC");
+      const { liquidatePrice } = await pool.getNftLiquidatePrice(wrappedPunk.address, punkIndex);
+      const liquidateAmount = liquidatePrice.add(liquidatePrice.mul(5).div(100));
+      await waitForTx(
+        await punkGateway.connect(liquidator.signer).auction(punkIndex, liquidateAmount, liquidator.address)
+      );
 
-    const { liquidatePrice } = await pool.getNftLiquidatePrice(wrappedPunk.address, punkIndex);
-    const liquidateAmount = liquidatePrice.add(liquidatePrice.mul(5).div(100));
-    await waitForTx(
-      await punkGateway.connect(liquidator.signer).auction(punkIndex, liquidateAmount, liquidator.address)
-    );
+      await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
 
-    await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
+      const extraAmount = await convertToCurrencyDecimals(deployer, usdc, "100");
+      await waitForTx(await punkGateway.connect(liquidator.signer).liquidate(punkIndex, extraAmount));
 
-    const extraAmount = await convertToCurrencyDecimals(deployer, usdc, "100");
-    await waitForTx(await punkGateway.connect(liquidator.signer).liquidate(punkIndex, extraAmount));
+      const loanDataAfter = await dataProvider.getLoanDataByLoanId(nftDebtDataAfterBorrow.loanId);
+      expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Defaulted, "Invalid loan state after liquidation");
 
-    const loanDataAfter = await dataProvider.getLoanDataByLoanId(nftDebtDataAfterBorrow.loanId);
-    expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Defaulted, "Invalid loan state after liquidation");
-
-    const punkOwner = await getPunkOwner();
-    expect(punkOwner).to.be.equal(liquidator.address, "Invalid punk owner after liquidation");
+      const punkOwner = await getPunkOwner();
+      expect(punkOwner).to.be.equal(liquidator.address, "Invalid punk owner after liquidation");
+    }
   });
 
   /* it("Borrow USDC and liquidate it on NFTX", async () => {
@@ -318,7 +327,12 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     };
 
     // mint native punk
-    await waitForTx(await cryptoPunksMarket.connect(user.signer).getPunk(punkIndex));
+
+    if (!UPGRADE) {
+      await cryptoPunksMarket.allInitialOwnersAssigned();
+    }
+
+    await fundWithWrappedPunk(user.address, punkIndex);
     await waitForTx(
       await cryptoPunksMarket.connect(user.signer).offerPunkForSaleToAddress(punkIndex, 0, punkGateway.address)
     );
@@ -531,7 +545,12 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     };
 
     // mint native punk
-    await waitForTx(await cryptoPunksMarket.connect(borrower.signer).getPunk(punkIndex));
+
+    if (!UPGRADE) {
+      await cryptoPunksMarket.allInitialOwnersAssigned();
+    }
+
+    await fundWithWrappedPunk(borrower.address, punkIndex);
     await waitForTx(
       await cryptoPunksMarket.connect(borrower.signer).offerPunkForSaleToAddress(punkIndex, 0, punkGateway.address)
     );

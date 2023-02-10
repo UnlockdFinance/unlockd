@@ -44,6 +44,7 @@ import { ILSSVMPairFactory } from "../types/ILSSVMPairFactory";
 import { INFTXVaultFactory } from "../types/INFTXVaultFactory";
 import { INFTXVaultFactoryV2Factory } from "../types/INFTXVaultFactoryV2Factory";
 import { IUniswapV2Router02Factory } from "../types/IUniswapV2Router02Factory";
+import { IYVaultFactory } from "../types/IYVaultFactory";
 import { getEthersSigners, MockNftMap, MockTokenMap } from "./contracts-helpers";
 import { DRE, getDb, omit } from "./misc-utils";
 import { eContractid, NftContractId, PoolConfiguration, tEthereumAddress, TokenContractId } from "./types";
@@ -494,3 +495,5 @@ export const getLSSVMPair = async (address?: tEthereumAddress) =>
     address || (await getDb(DRE.network.name).get(`${eContractid.LSSVMPPair}`).value()).address,
     await getDeploySigner()
   );
+export const getYVault = async (address: tEthereumAddress) =>
+  await IYVaultFactory.connect(address, await getDeploySigner());

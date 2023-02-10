@@ -18,7 +18,7 @@ import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC7
  */
 library NFTXSeller {
   // ADDRESS_ID to fetch Wrapped Ether address from Addresses Provider
-  bytes32 public constant ADDRESS_ID_WETH = 0xADDE000000000000000000000000000000000000000000000000000000000004;
+  bytes32 public constant ADDRESS_ID_WETH = keccak256("WETH");
 
   /**
    * @dev Sells an asset in an NFTX liquid market

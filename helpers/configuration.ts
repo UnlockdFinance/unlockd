@@ -99,6 +99,7 @@ export const getEmergencyAdmin = async (config: ICommonConfiguration): Promise<t
 
 export const getLendPoolLiquidator = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
   const currentNetwork = DRE.network.name;
+
   const targetAddress = getParamPerNetwork(config.LendPoolLiquidator, <eNetwork>currentNetwork);
   if (targetAddress) {
     return targetAddress;
@@ -123,7 +124,10 @@ export const getTreasuryAddress = async (config: ICommonConfiguration): Promise<
   const currentNetwork = DRE.network.name;
   return getParamPerNetwork(config.ReserveFactorTreasuryAddress, <eNetwork>currentNetwork);
 };
-
+export const getYVaultWETHAddress = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
+  const currentNetwork = DRE.network.name;
+  return getParamPerNetwork(config.YVaultWETH, <eNetwork>currentNetwork);
+};
 export const getSushiswapRouter = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
   const currentNetwork = DRE.network.name;
   return getParamPerNetwork(config.SushiSwapRouter, <eNetwork>currentNetwork);

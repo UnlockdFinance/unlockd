@@ -50,12 +50,9 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
   /**
    * @inheritdoc IUiPoolDataProvider
    */
-  function getSimpleReservesData(ILendPoolAddressesProvider provider)
-    public
-    view
-    override
-    returns (AggregatedReserveData[] memory)
-  {
+  function getSimpleReservesData(
+    ILendPoolAddressesProvider provider
+  ) public view override returns (AggregatedReserveData[] memory) {
     ILendPool lendPool = ILendPool(provider.getLendPool());
     address[] memory reserves = lendPool.getReservesList();
     uint256 reservesLength = reserves.length;
@@ -79,12 +76,10 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
   /**
    * @inheritdoc IUiPoolDataProvider
    */
-  function getUserReservesData(ILendPoolAddressesProvider provider, address user)
-    external
-    view
-    override
-    returns (UserReserveData[] memory)
-  {
+  function getUserReservesData(
+    ILendPoolAddressesProvider provider,
+    address user
+  ) external view override returns (UserReserveData[] memory) {
     ILendPool lendPool = ILendPool(provider.getLendPool());
     address[] memory reserves = lendPool.getReservesList();
 
@@ -106,12 +101,10 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
   /**
    * @inheritdoc IUiPoolDataProvider
    */
-  function getReservesData(ILendPoolAddressesProvider provider, address user)
-    external
-    view
-    override
-    returns (AggregatedReserveData[] memory, UserReserveData[] memory)
-  {
+  function getReservesData(
+    ILendPoolAddressesProvider provider,
+    address user
+  ) external view override returns (AggregatedReserveData[] memory, UserReserveData[] memory) {
     ILendPool lendPool = ILendPool(provider.getLendPool());
     address[] memory reserves = lendPool.getReservesList();
     uint256 reservesLength = reserves.length;
@@ -160,7 +153,7 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
     reserveData.interestRateAddress = baseData.interestRateAddress;
     reserveData.priceInEth = reserveOracle.getAssetPrice(reserveData.underlyingAsset);
 
-    reserveData.availableLiquidity = IERC20Detailed(reserveData.underlyingAsset).balanceOf(reserveData.uTokenAddress);
+    reserveData.availableLiquidity = IUToken(reserveData.uTokenAddress).getAvailableLiquidity();
     reserveData.totalVariableDebt = IDebtToken(reserveData.debtTokenAddress).totalSupply();
 
     // reserve configuration
@@ -206,12 +199,9 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
   /**
    * @inheritdoc IUiPoolDataProvider
    */
-  function getSimpleNftsData(ILendPoolAddressesProvider provider)
-    external
-    view
-    override
-    returns (AggregatedNftData[] memory)
-  {
+  function getSimpleNftsData(
+    ILendPoolAddressesProvider provider
+  ) external view override returns (AggregatedNftData[] memory) {
     ILendPool lendPool = ILendPool(provider.getLendPool());
     ILendPoolLoan lendPoolLoan = ILendPoolLoan(provider.getLendPoolLoan());
     address[] memory nfts = lendPool.getNftsList();
@@ -236,12 +226,10 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
   /**
    * @inheritdoc IUiPoolDataProvider
    */
-  function getUserNftsData(ILendPoolAddressesProvider provider, address user)
-    external
-    view
-    override
-    returns (UserNftData[] memory)
-  {
+  function getUserNftsData(
+    ILendPoolAddressesProvider provider,
+    address user
+  ) external view override returns (UserNftData[] memory) {
     ILendPool lendPool = ILendPool(provider.getLendPool());
     ILendPoolLoan lendPoolLoan = ILendPoolLoan(provider.getLendPoolLoan());
     address[] memory nfts = lendPool.getNftsList();
@@ -266,12 +254,10 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
   /**
    * @inheritdoc IUiPoolDataProvider
    */
-  function getNftsData(ILendPoolAddressesProvider provider, address user)
-    external
-    view
-    override
-    returns (AggregatedNftData[] memory, UserNftData[] memory)
-  {
+  function getNftsData(
+    ILendPoolAddressesProvider provider,
+    address user
+  ) external view override returns (AggregatedNftData[] memory, UserNftData[] memory) {
     ILendPool lendPool = ILendPool(provider.getLendPool());
     ILendPoolLoan lendPoolLoan = ILendPoolLoan(provider.getLendPoolLoan());
     address[] memory nfts = lendPool.getNftsList();

@@ -11,7 +11,7 @@ import "../interfaces/ILendPoolLoan.sol";
 import "../interfaces/IWETHGateway.sol";
 
 contract RepayAndTransferHelper is ReentrancyGuard, Ownable {
-  bytes32 public constant ADDRESS_ID_WETH_GATEWAY = 0xADDE000000000000000000000000000000000000000000000000000000000001;
+  bytes32 public constant ADDRESS_ID_WETH_GATEWAY = keccak256("WETH_GATEWAY");
 
   ILendPoolAddressesProvider public addressProvider;
 
@@ -19,11 +19,7 @@ contract RepayAndTransferHelper is ReentrancyGuard, Ownable {
     addressProvider = ILendPoolAddressesProvider(addressProvider_);
   }
 
-  function repayETHAndTransferERC721(
-    address nftAsset,
-    uint256 nftTokenId,
-    address target
-  ) public payable nonReentrant {
+  function repayETHAndTransferERC721(address nftAsset, uint256 nftTokenId, address target) public payable nonReentrant {
     require(target != address(0), "zero target address");
 
     ILendPoolLoan poolLoan = ILendPoolLoan(addressProvider.getLendPoolLoan());
