@@ -39,24 +39,24 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
 
       //   throw Error("Invalid UNFT Registry address in pool config");
       // }
-      const unftRegistryProxy = await getUNFTRegistryProxy();
-      if (unftRegistryProxy == undefined || !notFalsyOrZeroAddress(unftRegistryProxy.address)) {
-        throw Error("Invalid UNFT Registry proxy in deployed contracts");
-      }
-      console.log("Setting UNFTRegistry to address provider...");
-      //await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
+      // const unftRegistryProxy = await getUNFTRegistryProxy();
+      // if (unftRegistryProxy == undefined || !notFalsyOrZeroAddress(unftRegistryProxy.address)) {
+      //   throw Error("Invalid UNFT Registry proxy in deployed contracts");
+      // }
+      // //console.log("Setting UNFTRegistry to address provider...");
+      // //await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
 
-      //Reserves Init & NFTs Init need IncentivesController
-      let incentivesControllerAddress = getParamPerNetwork(poolConfig.IncentivesController, network);
+      // //Reserves Init & NFTs Init need IncentivesController
+      // let incentivesControllerAddress = getParamPerNetwork(poolConfig.IncentivesController, network);
 
-      if (incentivesControllerAddress == undefined || !notFalsyOrZeroAddress(incentivesControllerAddress)) {
-        console.log("Invalid Incentives Controller address in pool config. Trying to fetch from deployed contracts...");
-        incentivesControllerAddress = await (await getMockIncentivesController()).address;
-        if (incentivesControllerAddress == undefined || !notFalsyOrZeroAddress(incentivesControllerAddress)) {
-          throw Error("Invalid IncentivesController address in both pool config and deployed contracts");
-        }
-      }
-      console.log("Setting IncentivesController to address provider...");
+      // if (incentivesControllerAddress == undefined || !notFalsyOrZeroAddress(incentivesControllerAddress)) {
+      //   console.log("Invalid Incentives Controller address in pool config. Trying to fetch from deployed contracts...");
+      //   incentivesControllerAddress = await (await getMockIncentivesController()).address;
+      //   if (incentivesControllerAddress == undefined || !notFalsyOrZeroAddress(incentivesControllerAddress)) {
+      //     throw Error("Invalid IncentivesController address in both pool config and deployed contracts");
+      //   }
+      // }
+      // console.log("Setting IncentivesController to address provider...");
       //await waitForTx(await addressesProvider.setIncentivesController(incentivesControllerAddress));
 
       //////////////////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       ////////////////////////////////////////////////////////////////////////
       const admin = await DRE.ethers.getSigner(await getEmergencyAdmin(poolConfig));
       // Pause market during deployment
-      await waitForTx(await lendPoolConfiguratorProxy.connect(admin).setPoolPause(true));
+      // await waitForTx(await lendPoolConfiguratorProxy.connect(admin).setPoolPause(true));
       // Generic UToken & DebtToken Implementation in Pool
       await deployUTokenImplementations(pool, poolConfig.ReservesConfig, verify);
     } catch (error) {

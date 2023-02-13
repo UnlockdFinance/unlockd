@@ -96,36 +96,36 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "InterestRate": {
-    "address": "0x9502b1F459F54aF8E994f2F11344c7f0DAD2e111",
+    "address": "0x3d6471F2d560B3eC02F2Ed93b28BEAA7D6fCD482",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "rateStrategyWETH": {
     "address": "0x3d6471F2d560B3eC02F2Ed93b28BEAA7D6fCD482"
   },
   "WETHGatewayImpl": {
-    "address": "0x97fA6F470182716a7dB00675164797d628a4074a"
+    "address": "0xda1F1717Ca713e7a93C64b98A21A8E966E978dA9"
   },
   "WETHGateway": {
-    "address": "0xDFa63eA3DaB57Fc8926231EB3CB0f1b70c53424a",
+    "address": "0x43cc629a2149EFCA6ce62258cEf1c45C01091b8F",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "PunkGatewayImpl": {
-    "address": "0x58954c33A07348dB1ad3d9758ddE1a78223a2220"
+    "address": "0xDFa63eA3DaB57Fc8926231EB3CB0f1b70c53424a"
   },
   "PunkGateway": {
-    "address": "0x9a195074E9932098bb90f5a80E3Bdf87Ed9244Ac",
+    "address": "0x13d06c7686365f37186dC5E95c2e23E685A01AAb",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "WalletBalanceProvider": {
-    "address": "0x7326573C3689831ADBf8050F1e5a2fB31C8441d8",
+    "address": "0x6e41fB61F92789d78ed6b7B70B5452c13706c2fE",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "UnlockdProtocolDataProvider": {
-    "address": "0x816b2d94590fbcE4C06a70FBb770323166867549",
+    "address": "0x81B8C7e1cC7037940893dD3320562E950E98848c",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "UIPoolDataProvider": {
-    "address": "0xD024caf0B8667D0D50e87C35Da1AF295ccd96CeC",
+    "address": "0x51bda59320165617F7209a38D08b11ccefF58F1a",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "WPUNKS": {
