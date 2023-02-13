@@ -4,7 +4,7 @@ import { deployMockYVault, deployRateStrategy } from "../../helpers/contracts-de
 import { getOwnerWallet, getUserWallet } from "../helpers/config";
 import { Functions } from "../helpers/protocolFunctions";
 
-task("deploy-yvault", "Deploy Mock Yearn Vault").setAction(async (localBRE) => {
+task("deploy-yvault", "Deploy Mock Yearn Vault").setAction(async ({}, localBRE) => {
   await localBRE.run("set-DRE");
   const mockYVault = await deployMockYVault();
   console.log("Mock YVault deployed successfully at address: " + mockYVault.address);

@@ -201,5 +201,12 @@
   "LendingLogic": {
     "address": "0x11a6E945A9b312eD0AB4679f32e3B459d1349A62",
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
+  },
+  "MockYVaultImpl": {
+    "address": "0x9E688272Daf18522591E114B7b2Fe04Eca43039E"
+  },
+  "MockYVault": {
+    "address": "0x9E688272Daf18522591E114B7b2Fe04Eca43039E",
+    "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   }
 }
