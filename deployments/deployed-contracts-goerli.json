@@ -148,7 +148,7 @@
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "UnlockdProtocolDataProvider": {
-    "address": "0x5Ad2095B5E6f7c7482457D6C164827Eb3f706103",
+    "address": "0xC430f2b3Bfc15519B96214242F369EA335EC9015",
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "InterestRate": {
@@ -165,11 +165,11 @@
     "address": "0x4113374ac29eA3f7ab7cb955005d2BE8762faD47"
   },
   "WalletBalanceProvider": {
-    "address": "0x1F2A8533fCfF0686D753Aef17c40Adb188519726",
+    "address": "0xA09Fa89c50c52f7C2d6e3aCfcaf81f00c30eFA10",
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "UIPoolDataProvider": {
-    "address": "0x967fD9de6ba00115d53524425cbb60AAC83B74b4",
+    "address": "0xFB513b4F412236A9fBA1d60ccFc5b8349a634afc",
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "NFTXVaultFactory": {
