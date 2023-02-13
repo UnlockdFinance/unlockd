@@ -23,13 +23,13 @@ task("full:upgrade-utoken", "Upgrade UToken")
 
       const addressesProvider = await getLendPoolAddressesProvider();
       console.log("Deploying new generic UToken implementation...");
-      const genericUTokenImpl = await deployGenericUTokenImpl(false);
+      const genericUTokenImpl = await deployGenericUTokenImpl(true);
       const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
       const reserveAddresses: string[] = [];
       for (const [assetSymbol, assetAddress] of Object.entries(reserveAssets) as [string, string][]) {
         reserveAddresses.push(assetAddress);
       }
-
+      console.log("RESERVE ADDRESSES: " + reserveAddresses);
       const updateUTokenInputParams: {
         asset: string;
         implementation: string;

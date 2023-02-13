@@ -70,9 +70,9 @@ task("unlockd:mainnet", "Deploy full enviroment")
 
     // //////////////////////////////////////////////////////////////////////////
 
-    // //////////////////////////////////////////////////////////////////////////
-    //console.log("\n\nDeploy lend pool");
-    //await DRE.run("full:deploy-lend-pool", { pool: POOL_NAME, verify: verify });
+    //////////////////////////////////////////////////////////////////////////
+    // console.log("\n\nDeploy lend pool");
+    // await DRE.run("full:deploy-lend-pool", { pool: POOL_NAME, verify: verify });
 
     //console.log("\n\nDeploy reserve oracle");
     //await DRE.run("full:deploy-oracle-reserve", { pool: POOL_NAME, skipOracle: false, verify: verify });
@@ -95,11 +95,11 @@ task("unlockd:mainnet", "Deploy full enviroment")
     //console.log("\n\nInitialize gateway");
     //await DRE.run("full:initialize-gateway", { pool: POOL_NAME, verify: verify });
 
-    // //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy data provider");
     await DRE.run("full:deploy-data-provider", {
       pool: POOL_NAME,
-      wallet: true,
+      wallet: false,
       ui: true,
       protocol: true,
       verify: verify,
