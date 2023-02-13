@@ -10,6 +10,12 @@
     "address": "0xed1a46EBE904dD6562f5F20A515009752Fb5bAdE",
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"
   },
+  "CryptoPunksMarket": {
+    "address": "0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb"
+  },
+  "WrappedPunk": {
+    "address": "0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6"
+  },
   "UnlockdProxyAdminFund": {
     "address": "0x38a97DE7216b54FCc83A918CF5dB1Bb0447913a4",
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"

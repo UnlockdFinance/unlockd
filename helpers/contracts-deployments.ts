@@ -25,6 +25,7 @@ import {
   MockIncentivesControllerFactory,
   MockNFTOracleFactory,
   MockReserveOracleFactory,
+  MockYVaultFactory,
   NFTOracleFactory,
   NFTXVaultFactoryV2Factory,
   PunkGatewayFactory,
@@ -238,6 +239,17 @@ export const deployLiquidateMarketsLogicLibrary = async (verify?: boolean) => {
   return withSaveAndVerify(liquidateMarketsLogic, eContractid.LiquidateMarketsLogic, [], verify);
 };
 
+export const deployLendingLogicLibrary = async (verify?: boolean) => {
+  const lendingLogicArtifact = await readArtifact(eContractid.LendingLogic);
+  const linkedLendingLogicByteCode = linkBytecode(lendingLogicArtifact, {});
+
+  const lendingLogicFactory = await DRE.ethers.getContractFactory(lendingLogicArtifact.abi, linkedLendingLogicByteCode);
+
+  const lendingLogic = await (await lendingLogicFactory.connect(await getDeploySigner()).deploy()).deployed();
+
+  return withSaveAndVerify(lendingLogic, eContractid.LendingLogic, [], verify);
+};
+
 export const deployUnlockdLibraries = async (verify?: boolean) => {
   await deployLendPoolLibraries(verify);
   await deployConfiguratorLibraries(verify);
@@ -253,6 +265,7 @@ export const deployLendPoolLibraries = async (verify?: boolean) => {
   const borrowLogic = await deployBorrowLogicLibrary(verify);
   const liquidateLogic = await deployLiquidateLogicLibrary(verify);
   const liquidateMarketsLogic = await deployLiquidateMarketsLogicLibrary(verify);
+  const lendingLogic = await deployLendingLogicLibrary(verify);
 };
 
 export const deployLendPoolLoanLibraries = async (verify?: boolean) => {
@@ -268,6 +281,7 @@ export const getLendPoolLibraries = async (verify?: boolean): Promise<LendPoolLi
   const borrowLogicAddress = await getContractAddressInDb(eContractid.BorrowLogic);
   const liquidateLogicAddress = await getContractAddressInDb(eContractid.LiquidateLogic);
   const liquidateMarketsLogicAddress = await getContractAddressInDb(eContractid.LiquidateMarketsLogic);
+  const lendingLogicAddress = await getContractAddressInDb(eContractid.LendingLogic);
 
   // Hardcoded solidity placeholders, if any library changes path this will fail.
   // The '__$PLACEHOLDER$__ can be calculated via solidity keccak, but the LendPoolLibraryAddresses Type seems to
@@ -289,6 +303,7 @@ export const getLendPoolLibraries = async (verify?: boolean): Promise<LendPoolLi
     [PLACEHOLDER_BORROW_LOGIC]: borrowLogicAddress,
     [PLACEHOLDER_LIQUIDATE_LOGIC]: liquidateLogicAddress,
     [PLACEHOLDER_LIQUIDATE_MARKETS_LOGIC]: liquidateMarketsLogicAddress,
+    //[PLACEHOLDER_LENDING_LOGIC]: lendingLogicAddress,
   };
 };
 
@@ -301,6 +316,7 @@ const PLACEHOLDER_SUPPLY_LOGIC = "__$2f7c76ee15bdc1d8f3b34a04b86951fc56$__";
 const PLACEHOLDER_BORROW_LOGIC = "__$77c5a84c43428e206d5bf08427df63fefa$__";
 const PLACEHOLDER_LIQUIDATE_LOGIC = "__$ce70b23849b5cbed90e6e2f622d8887206$__";
 const PLACEHOLDER_LIQUIDATE_MARKETS_LOGIC = "__$c15a8e9c5d7316be199525d6743e45041d$__";
+const PLACEHOLDER_LENDING_LOGIC = "__$699e5c33e8e07a9111c9cc5bf3943ca373$__";
 
 export const deployConfiguratorLibraries = async (verify?: boolean) => {
   const cfgLogic = await deployConfiguratorLogicLibrary(verify);
@@ -710,4 +726,10 @@ export const deploySushiSwapRouter = async (verify?: boolean) => {
     [uniswapV2Factory.address, ZERO_ADDRESS],
     verify
   );
+};
+
+export const deployMockYVault = async (verify?: boolean) => {
+  const mockYVaultImpl = await new MockYVaultFactory(await getDeploySigner()).deploy();
+  await insertContractAddressInDb(eContractid.MockYVaultImpl, mockYVaultImpl.address);
+  return withSaveAndVerify(mockYVaultImpl, eContractid.MockYVault, [], verify);
 };

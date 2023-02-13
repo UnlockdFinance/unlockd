@@ -236,13 +236,6 @@ interface ILendPoolConfigurator {
   event DebtTokenUpgraded(address indexed asset, address indexed proxy, address indexed implementation);
 
   /**
-   * @dev Emitted when the treasury address is updated in a uToken
-   * @param uTokenAddress The address of the uToken to update
-   * @param newTreasuryAddress The new treasury address to be set as uToken treasury
-   **/
-  event UTokenTreasuryUpdated(address indexed uTokenAddress, address indexed newTreasuryAddress);
-
-  /**
    * @dev Emitted when the lend pool rescuer is updated
    * @param rescuer the new rescuer address
    **/

@@ -384,15 +384,16 @@ library LiquidateLogic {
 
     IDebtToken(reserveData.debtTokenAddress).burn(loanData.borrower, vars.repayAmount, reserveData.variableBorrowIndex);
 
+    address uToken = reserveData.uTokenAddress;
+
     // update interest rate according latest borrow amount (utilizaton)
-    reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.repayAmount, 0);
+    reserveData.updateInterestRates(loanData.reserveAsset, uToken, vars.repayAmount, 0);
 
     // transfer repay amount from borrower to uToken
-    IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(
-      vars.initiator,
-      reserveData.uTokenAddress,
-      vars.repayAmount
-    );
+    IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, uToken, vars.repayAmount);
+
+    // Deposit amount redeemed to lending protocol
+    IUToken(uToken).depositReserves(vars.repayAmount);
 
     if (loanData.bidderAddress != address(0)) {
       // transfer (return back) last bid price amount from lend pool to bidder
@@ -517,8 +518,10 @@ library LiquidateLogic {
       reserveData.variableBorrowIndex
     );
 
+    address uToken = reserveData.uTokenAddress;
+
     // update interest rate according latest borrow amount (utilizaton)
-    reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.borrowAmount, 0);
+    reserveData.updateInterestRates(loanData.reserveAsset, uToken, vars.borrowAmount, 0);
 
     // transfer extra borrow amount from liquidator to lend pool
     if (vars.extraDebtAmount > 0) {
@@ -526,7 +529,10 @@ library LiquidateLogic {
     }
 
     // transfer borrow amount from lend pool to uToken, repay debt
-    IERC20Upgradeable(loanData.reserveAsset).safeTransfer(reserveData.uTokenAddress, vars.borrowAmount);
+    IERC20Upgradeable(loanData.reserveAsset).safeTransfer(uToken, vars.borrowAmount);
+
+    // Deposit amount from debt repaid to lending protocol
+    IUToken(uToken).depositReserves(vars.borrowAmount);
 
     // transfer remain amount to borrower
     if (vars.remainAmount > 0) {
@@ -547,7 +553,7 @@ library LiquidateLogic {
     if (!success)
       IERC721Upgradeable(loanData.nftAsset).safeTransferFrom(
         address(this),
-        IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS(),
+        IUToken(uToken).RESERVE_TREASURY_ADDRESS(),
         params.nftTokenId
       );
 

@@ -33,6 +33,7 @@ export enum eContractid {
   BorrowLogic = "BorrowLogic",
   LiquidateLogic = "LiquidateLogic",
   LiquidateMarketsLogic = "LiquidateMarketsLogic",
+  LendingLogic = "LendingLogic",
   ConfiguratorLogic = "ConfiguratorLogic",
   LendPool = "LendPool",
   LendPoolLoan = "LendPoolLoan",
@@ -87,6 +88,9 @@ export enum eContractid {
   SushiSwapRouter = "SushiSwapRouter",
   NFTXHelper = "NFTXHelper",
   LSSVMPPair = "LSSVMPair",
+  YVault = "YVault",
+  MockYVault = "MockYVault",
+  MockYVaultImpl = "MockYVaultImpl",
 }
 
 export enum ProtocolLoanState {
@@ -244,8 +248,8 @@ export interface iAssetCommon<T> {
 export interface iAssetBase<T> {
   //BUSD: T;
   WETH: T;
-  DAI: T;
-  USDC: T;
+  //DAI: T;
+  //USDC: T;
   //USDT: T;
 }
 
@@ -270,9 +274,9 @@ export type iAssetAggregatorBase<T> = iAssetsWithoutETH<T>;
 
 export enum TokenContractId {
   WETH = "WETH",
-  DAI = "DAI",
+  //DAI = "DAI",
   //BUSD = 'BUSD',
-  USDC = "USDC",
+  //USDC = "USDC",
   //USDT = 'USDT',
 }
 
@@ -464,6 +468,7 @@ export interface ICommonConfiguration {
   NFTXVaultFactory: iParamsPerNetwork<tEthereumAddress>;
   SushiSwapRouter: iParamsPerNetwork<tEthereumAddress>;
   LSSVMRouter: iParamsPerNetwork<tEthereumAddress>;
+  YVaultWETH: iParamsPerNetwork<tEthereumAddress>;
 }
 
 export interface IUnlockdConfiguration extends ICommonConfiguration {

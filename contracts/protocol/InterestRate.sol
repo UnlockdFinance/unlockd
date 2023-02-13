@@ -3,6 +3,8 @@ pragma solidity 0.8.4;
 
 import {IInterestRate} from "../interfaces/IInterestRate.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
+import {IUToken} from "../interfaces/IUToken.sol";
+import {IYVault} from "../interfaces/yearn/IYVault.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 
@@ -19,13 +21,18 @@ contract InterestRate is IInterestRate {
   using WadRayMath for uint256;
   using PercentageMath for uint256;
 
+  modifier onlyPoolAdmin() {
+    require(msg.sender == addressesProvider.getPoolAdmin(), "Caller not pool admin");
+    _;
+  }
+
   ILendPoolAddressesProvider public immutable addressesProvider;
 
   /**
    * @dev this constant represents the utilization rate at which the pool aims to obtain most competitive borrow rates.
    * Expressed in ray
    **/
-  uint256 public immutable OPTIMAL_UTILIZATION_RATE;
+  uint256 public OPTIMAL_UTILIZATION_RATE;
 
   /**
    * @dev This constant represents the excess utilization rate above the optimal. It's always equal to
@@ -33,16 +40,16 @@ contract InterestRate is IInterestRate {
    * Expressed in ray
    **/
 
-  uint256 public immutable EXCESS_UTILIZATION_RATE;
+  uint256 public EXCESS_UTILIZATION_RATE;
 
   // Base variable borrow rate when Utilization rate = 0. Expressed in ray
-  uint256 internal immutable _baseVariableBorrowRate;
+  uint256 internal _baseVariableBorrowRate;
 
   // Slope of the variable interest curve when utilization rate > 0 and <= OPTIMAL_UTILIZATION_RATE. Expressed in ray
-  uint256 internal immutable _variableRateSlope1;
+  uint256 internal _variableRateSlope1;
 
   // Slope of the variable interest curve when utilization rate > OPTIMAL_UTILIZATION_RATE. Expressed in ray
-  uint256 internal immutable _variableRateSlope2;
+  uint256 internal _variableRateSlope2;
 
   constructor(
     ILendPoolAddressesProvider provider,
@@ -101,7 +108,8 @@ contract InterestRate is IInterestRate {
     uint256 totalVariableDebt,
     uint256 reserveFactor
   ) external view override returns (uint256, uint256) {
-    uint256 availableLiquidity = IERC20Upgradeable(reserve).balanceOf(uToken);
+    uint256 availableLiquidity = IUToken(uToken).getAvailableLiquidity();
+
     //avoid stack too deep
     availableLiquidity = availableLiquidity + (liquidityAdded) - (liquidityTaken);
 
@@ -169,11 +177,10 @@ contract InterestRate is IInterestRate {
    * @param currentVariableBorrowRate The current variable borrow rate of the reserve
    * @return The weighted averaged borrow rate
    **/
-  function _getOverallBorrowRate(uint256 totalVariableDebt, uint256 currentVariableBorrowRate)
-    internal
-    pure
-    returns (uint256)
-  {
+  function _getOverallBorrowRate(
+    uint256 totalVariableDebt,
+    uint256 currentVariableBorrowRate
+  ) internal pure returns (uint256) {
     uint256 totalDebt = totalVariableDebt;
 
     if (totalDebt == 0) return 0;
@@ -183,5 +190,18 @@ contract InterestRate is IInterestRate {
     uint256 overallBorrowRate = weightedVariableRate.rayDiv(totalDebt.wadToRay());
 
     return overallBorrowRate;
+  }
+
+  function configInterestRate(
+    uint256 optimalUtilizationRate_,
+    uint256 baseVariableBorrowRate_,
+    uint256 variableRateSlope1_,
+    uint256 variableRateSlope2_
+  ) public onlyPoolAdmin {
+    OPTIMAL_UTILIZATION_RATE = optimalUtilizationRate_;
+    EXCESS_UTILIZATION_RATE = WadRayMath.ray() - (optimalUtilizationRate_);
+    _baseVariableBorrowRate = baseVariableBorrowRate_;
+    _variableRateSlope1 = variableRateSlope1_;
+    _variableRateSlope2 = variableRateSlope2_;
   }
 }

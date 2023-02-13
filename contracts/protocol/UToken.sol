@@ -5,10 +5,14 @@ import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvid
 import {ILendPoolConfigurator} from "../interfaces/ILendPoolConfigurator.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
 import {IUToken} from "../interfaces/IUToken.sol";
+import {IYVault} from "../interfaces/yearn/IYVault.sol";
 import {IIncentivesController} from "../interfaces/IIncentivesController.sol";
 import {IncentivizedERC20} from "./IncentivizedERC20.sol";
+
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
+import {LendingLogic} from "../libraries/logic/LendingLogic.sol";
+import {DataTypes} from "../libraries/types/DataTypes.sol";
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
@@ -32,8 +36,8 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     _;
   }
 
-  modifier onlyLendPoolConfigurator() {
-    require(_msgSender() == address(_getLendPoolConfigurator()), Errors.LP_CALLER_NOT_LEND_POOL_CONFIGURATOR);
+  modifier onlyPoolAdmin() {
+    require(_msgSender() == _addressProvider.getPoolAdmin(), Errors.CALLER_NOT_POOL_ADMIN);
     _;
   }
 
@@ -81,6 +85,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     uint256 index
   ) external override onlyLendPool {
     uint256 amountScaled = amount.rayDiv(index);
+
     require(amountScaled != 0, Errors.CT_INVALID_BURN_AMOUNT);
     _burn(user, amountScaled);
 
@@ -109,6 +114,45 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     emit Mint(user, amount, index);
 
     return previousBalance == 0;
+  }
+
+  /**
+   * @dev Deposits `amount` to the lending protocol currently active
+   * @param amount The amount of tokens to deposit
+   */
+  function depositReserves(uint256 amount) public override onlyLendPool {
+    LendingLogic.executeDepositYearn(
+      _addressProvider,
+      DataTypes.ExecuteYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
+    );
+  }
+
+  /**
+   * @dev Withdraws `amount` from the lending protocol currently active
+   * @param amount The amount of tokens to withdraw
+   */
+  function withdrawReserves(uint256 amount) public override onlyLendPool returns (uint256) {
+    uint256 value = LendingLogic.executeWithdrawYearn(
+      _addressProvider,
+      DataTypes.ExecuteYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
+    );
+    return value;
+  }
+
+  /**
+   * @dev Takes reserve liquidity from uToken and deposits it to external lening protocol
+   **/
+  function sweepUToken() external override onlyPoolAdmin {
+    IERC20Upgradeable underlyingAsset = IERC20Upgradeable(_underlyingAsset);
+
+    uint256 amount = underlyingAsset.balanceOf(address(this));
+
+    LendingLogic.executeDepositYearn(
+      _addressProvider,
+      DataTypes.ExecuteYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
+    );
+
+    emit UTokenSwept(address(this), address(underlyingAsset), amount);
   }
 
   /**
@@ -165,6 +209,14 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   }
 
   /**
+   * @dev Returns the scaled balance of the user and the scaled total supply.
+   * @return The available liquidity in reserve
+   **/
+  function getAvailableLiquidity() public view override returns (uint256) {
+    return LendingLogic.calculateYearnAvailableLiquidityInReserve(_addressProvider);
+  }
+
+  /**
    * @dev calculates the total supply of the specific uToken
    * since the balance of every single user increases over time, the total supply
    * does that too.
@@ -189,10 +241,14 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     return super.totalSupply();
   }
 
-  function setTreasuryAddress(address treasury) external override onlyLendPool {
+  /**
+   * @dev Sets new treasury to the specified UToken
+   * @param treasury the new treasury address
+   **/
+  function setTreasuryAddress(address treasury) external override onlyPoolAdmin {
     require(treasury != address(0), Errors.INVALID_ZERO_ADDRESS);
     _treasury = treasury;
-    emit TreasuryAddressUpdated(_treasury);
+    emit TreasuryAddressUpdated(treasury);
   }
 
   /**

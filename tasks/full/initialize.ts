@@ -1,6 +1,7 @@
 import { task } from "hardhat/config";
 import { exit } from "process";
-import { ConfigNames, getTreasuryAddress, loadPoolConfig } from "../../helpers/configuration";
+import { ConfigNames, getTreasuryAddress, getYVaultWETHAddress, loadPoolConfig } from "../../helpers/configuration";
+import { ADDRESS_ID_YVAULT_WETH } from "../../helpers/constants";
 import { getLendPoolAddressesProvider, getPunkGateway, getWETHGateway } from "../../helpers/contracts-getters";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import {
@@ -9,7 +10,7 @@ import {
   initNftsByHelper,
   initReservesByHelper,
 } from "../../helpers/init-helpers";
-import { waitForTx } from "../../helpers/misc-utils";
+import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import { eNetwork } from "../../helpers/types";
 
 task("full:initialize-lend-pool", "Initialize lend pool configuration.")
@@ -48,6 +49,13 @@ task("full:initialize-lend-pool", "Initialize lend pool configuration.")
         verify
       );
       await configureReservesByHelper(poolConfig.ReservesConfig, reserveAssets, admin);
+      console.log("Setting WETH YVault in addresses provider...");
+      const yVaultWETHAddress = await getYVaultWETHAddress(poolConfig);
+
+      if (yVaultWETHAddress == undefined || !notFalsyOrZeroAddress(yVaultWETHAddress)) {
+        throw Error("Invalid WETH YVault address in pool config");
+      }
+      await waitForTx(await addressesProvider.setAddress(ADDRESS_ID_YVAULT_WETH, yVaultWETHAddress));
 
       //////////////////////////////////////////////////////////////////////////
       console.log("Init & Config NFT assets");

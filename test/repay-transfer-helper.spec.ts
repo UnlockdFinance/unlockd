@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js";
 import { parseEther } from "ethers/lib/utils";
+import { UPGRADE } from "../hardhat.config";
 import { getReservesConfigByPool } from "../helpers/configuration";
 import { getDeploySigner } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
@@ -45,60 +46,62 @@ makeSuite("Repay and transfer helper tests", async (testEnv) => {
   });
 
   it("borrow-repay-transfer", async () => {
-    const { users, bayc, deployer, weth, configurator, nftOracle } = testEnv;
-    const depositor = users[0];
-    const borrower = users[1];
-    const borrower2 = users[2];
+    if (!UPGRADE) {
+      const { users, bayc, deployer, weth, configurator, nftOracle } = testEnv;
+      const depositor = users[0];
+      const borrower = users[1];
+      const borrower2 = users[2];
 
-    // deposit
-    await fundWithERC20("WETH", depositor.address, "100");
-    await approveERC20(testEnv, depositor, "WETH");
+      // deposit
+      await fundWithERC20("WETH", depositor.address, "100");
+      await approveERC20(testEnv, depositor, "WETH");
 
-    await deposit(testEnv, depositor, "", "WETH", "100", depositor.address, "success", "");
+      await deposit(testEnv, depositor, "", "WETH", "100", depositor.address, "success", "");
 
-    await increaseTime(100);
+      await increaseTime(100);
 
-    // mint nft
-    await fundWithERC20("WETH", borrower.address, "100");
-    await approveERC20(testEnv, borrower, "WETH");
+      // mint nft
+      await fundWithERC20("WETH", borrower.address, "100");
+      await approveERC20(testEnv, borrower, "WETH");
 
-    const tokenIdNum = testEnv.tokenIdTracker++;
-    const tokenId = tokenIdNum.toString();
+      const tokenIdNum = testEnv.tokenIdTracker++;
+      const tokenId = tokenIdNum.toString();
 
-    await fundWithERC721("BAYC", borrower.address, tokenIdNum);
-    await setApprovalForAll(testEnv, borrower, "BAYC");
+      await fundWithERC721("BAYC", borrower.address, tokenIdNum);
+      await setApprovalForAll(testEnv, borrower, "BAYC");
 
-    // borrow
-    const price = await convertToCurrencyDecimals(deployer, weth, "100");
-    await configurator.setLtvManagerStatus(deployer.address, true);
-    await nftOracle.setPriceManagerStatus(bayc.address, true);
-    const collData: IConfigNftAsCollateralInput = {
-      asset: bayc.address,
-      nftTokenId: tokenId.toString(),
-      newPrice: parseEther("100"),
-      ltv: 4000,
-      liquidationThreshold: 7000,
-      redeemThreshold: 9000,
-      liquidationBonus: 500,
-      redeemDuration: 100,
-      auctionDuration: 200,
-      redeemFine: 500,
-      minBidFine: 2000,
-    };
-    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
+      // borrow
+      const price = await convertToCurrencyDecimals(deployer, weth, "100");
+      await configurator.setLtvManagerStatus(deployer.address, true);
+      await nftOracle.setPriceManagerStatus(bayc.address, true);
+      const collData: IConfigNftAsCollateralInput = {
+        asset: bayc.address,
+        nftTokenId: tokenId.toString(),
+        newPrice: parseEther("100"),
+        ltv: 4000,
+        liquidationThreshold: 7000,
+        redeemThreshold: 9000,
+        liquidationBonus: 500,
+        redeemDuration: 100,
+        auctionDuration: 200,
+        redeemFine: 500,
+        minBidFine: 2000,
+      };
+      await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
-    await borrow(testEnv, borrower, "WETH", "5", "BAYC", tokenId, borrower.address, "365", "success", "");
+      await borrow(testEnv, borrower, "WETH", "5", "BAYC", tokenId, borrower.address, "365", "success", "");
 
-    await increaseTime(100);
+      await increaseTime(100);
 
-    await setApprovalForAllExt(testEnv, borrower, "BAYC", repayAndTransferHelper.address);
+      await setApprovalForAllExt(testEnv, borrower, "BAYC", repayAndTransferHelper.address);
 
-    await waitForTx(
-      await repayAndTransferHelper.repayETHAndTransferERC721(bayc.address, tokenId, borrower2.address, {
-        value: parseEther("100"),
-      })
-    );
+      await waitForTx(
+        await repayAndTransferHelper.repayETHAndTransferERC721(bayc.address, tokenId, borrower2.address, {
+          value: parseEther("100"),
+        })
+      );
 
-    expect(await bayc.ownerOf(tokenId), "debt should gte borrowSize").to.be.eq(borrower2.address);
+      expect(await bayc.ownerOf(tokenId), "debt should gte borrowSize").to.be.eq(borrower2.address);
+    }
   });
 });

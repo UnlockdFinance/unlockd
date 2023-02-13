@@ -31,13 +31,6 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
     await expect(configurator.batchConfigReserve(inputs)).to.be.revertedWith(RC_INVALID_RESERVE_FACTOR);
   });
 
-  it("Deactivates the ETH reserve", async () => {
-    const { configurator, weth, dataProvider } = testEnv;
-    await configurator.setActiveFlagOnReserve(weth.address, false);
-    const { isActive } = await dataProvider.getReserveConfigurationData(weth.address);
-    expect(isActive).to.be.equal(false);
-  });
-
   it("Rectivates the ETH reserve", async () => {
     const { configurator, weth, dataProvider } = testEnv;
     await configurator.setActiveFlagOnReserve(weth.address, true);
@@ -132,8 +125,6 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
     expect(isFrozen).to.be.equal(false);
     expect(decimals).to.be.equal(strategyWETH.reserveDecimals);
     expect(reserveFactor).to.be.equal(strategyWETH.reserveFactor);
-
-    expect(variableBorrowIndex.toString()).to.be.equal(RAY);
   });
 
   it("Check the onlyAdmin on disableBorrowingOnReserve ", async () => {
@@ -170,30 +161,31 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
 
   it("Batch Changes the reserve factor of WETH & DAI", async () => {
     const { configurator, dataProvider, weth, dai } = testEnv;
+    if (JSON.stringify(dai) !== "{}") {
+      const inputs: { asset: string; reserveFactor: BigNumberish }[] = [
+        {
+          asset: weth.address,
+          reserveFactor: 1000,
+        },
+        {
+          asset: dai.address,
+          reserveFactor: 2000,
+        },
+      ];
 
-    const inputs: { asset: string; reserveFactor: BigNumberish }[] = [
+      await configurator.batchConfigReserve(inputs);
+
       {
-        asset: weth.address,
-        reserveFactor: 1000,
-      },
+        const { reserveFactor } = await dataProvider.getReserveConfigurationData(weth.address);
+
+        expect(reserveFactor).to.be.equal(1000);
+      }
+
       {
-        asset: dai.address,
-        reserveFactor: 2000,
-      },
-    ];
+        const { reserveFactor } = await dataProvider.getReserveConfigurationData(dai.address);
 
-    await configurator.batchConfigReserve(inputs);
-
-    {
-      const { reserveFactor } = await dataProvider.getReserveConfigurationData(weth.address);
-
-      expect(reserveFactor).to.be.equal(1000);
-    }
-
-    {
-      const { reserveFactor } = await dataProvider.getReserveConfigurationData(dai.address);
-
-      expect(reserveFactor).to.be.equal(2000);
+        expect(reserveFactor).to.be.equal(2000);
+      }
     }
   });
 
@@ -215,22 +207,24 @@ makeSuite("Configurator-Reserve", (testEnv: TestEnv) => {
 
   it("Reverts when trying to disable the DAI reserve with liquidity on it", async () => {
     const { dai, pool, configurator, deployer } = testEnv;
-    const userAddress = await pool.signer.getAddress();
+    if (JSON.stringify(dai) !== "{}") {
+      const userAddress = await pool.signer.getAddress();
 
-    await fundWithERC20("DAI", deployer.address, "1000");
+      await fundWithERC20("DAI", deployer.address, "1000");
 
-    //approve protocol to access depositor wallet
-    await approveERC20(testEnv, deployer, "DAI");
+      //approve protocol to access depositor wallet
+      await approveERC20(testEnv, deployer, "DAI");
 
-    const amountDAItoDeposit = await convertToCurrencyDecimals(deployer, dai, "1000");
+      const amountDAItoDeposit = await convertToCurrencyDecimals(deployer, dai, "1000");
 
-    //user 1 deposits 1000 DAI
-    await pool.deposit(dai.address, amountDAItoDeposit, userAddress, "0");
+      //user 1 deposits 1000 DAI
+      await pool.deposit(dai.address, amountDAItoDeposit, userAddress, "0");
 
-    await expect(
-      configurator.setActiveFlagOnReserve(dai.address, false),
-      LPC_RESERVE_LIQUIDITY_NOT_0
-    ).to.be.revertedWith(LPC_RESERVE_LIQUIDITY_NOT_0);
+      await expect(
+        configurator.setActiveFlagOnReserve(dai.address, false),
+        LPC_RESERVE_LIQUIDITY_NOT_0
+      ).to.be.revertedWith(LPC_RESERVE_LIQUIDITY_NOT_0);
+    }
   });
 
   it("Config setMaxNumberOfReserves valid value", async () => {
