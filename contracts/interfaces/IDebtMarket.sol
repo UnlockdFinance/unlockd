@@ -13,8 +13,6 @@ interface IDebtSeller {
    * @dev Emitted when a debt listting  is created
    */
   event DebtListtingCreated(
-    address indexed onBehalfOf,
-    uint256 indexed debtId,
     DataTypes.DebtMarketListing marketListing,
     uint256 totalByCollection,
     uint256 totalByUserAndCollection
@@ -30,4 +28,9 @@ interface IDebtSeller {
     uint256 totalByCollection,
     uint256 totalByUserAndCollection
   );
+
+  /**
+   * @dev Emitted when a debt is bougth
+   */
+  event DebtSold(address indexed from, address indexed to, uint256 indexed debtId);
 }

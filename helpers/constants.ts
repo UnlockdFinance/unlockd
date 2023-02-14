@@ -80,6 +80,7 @@ export const ADDRESS_ID_WPUNKS = utils.keccak256(utils.toUtf8Bytes("WPUNKS"));
 export const ADDRESS_ID_YVAULT_WETH = utils.keccak256(utils.toUtf8Bytes("YVAULT_WETH"));
 export const ADDRESS_ID_LOCKEY_COLLECTION = utils.keccak256(utils.toUtf8Bytes("LOCKEY_COLLECTION"));
 export const ADDRESS_ID_LOCKEY_HOLDER = utils.keccak256(utils.toUtf8Bytes("LOCKEY_HOLDER"));
+export const ADDRESS_ID_DEBT_MARKET = utils.keccak256(utils.toUtf8Bytes("DEBT_MARKET"));
 
 //Price source: https://data.chain.link/ethereum/mainnet/stablecoins
 export const MOCK_RESERVE_AGGREGATORS_PRICES = {

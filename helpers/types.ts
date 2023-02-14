@@ -91,6 +91,8 @@ export enum eContractid {
   YVault = "YVault",
   LockeyHolderImpl = "LockeyHolderImpl",
   LockeyHolder = "LockeyHolder",
+  DebtMarketImpl = "DebtMarketImpl",
+  DebtMarket = "DebtMarket",
 }
 
 export enum ProtocolLoanState {

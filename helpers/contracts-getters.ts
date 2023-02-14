@@ -3,6 +3,7 @@ import {
   ConfiguratorLogicFactory,
   CryptoPunksMarketFactory,
   CustomERC721Factory,
+  DebtMarketFactory,
   DebtTokenFactory,
   GenericLogicFactory,
   InterestRateFactory,
@@ -146,6 +147,13 @@ export const getNFTOracle = async (address?: tEthereumAddress) =>
 export const getLockeyHolderProxy = async (address?: tEthereumAddress) => {
   return await LockeyHolderFactory.connect(
     address || (await getDb(DRE.network.name).get(`${eContractid.LockeyHolder}`).value()).address,
+    await getDeploySigner()
+  );
+};
+
+export const getDebtMarketProxy = async (address?: tEthereumAddress) => {
+  return await DebtMarketFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.DebtMarket}`).value()).address,
     await getDeploySigner()
   );
 };
