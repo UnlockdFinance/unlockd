@@ -276,12 +276,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
 
     expect(await bayc.ownerOf(101), "buyer should be the new owner").to.be.eq(buyer.address);
     expect(bidderBalanceBeforeBid).to.be.eq(bidderBalanceAfterBuyout);
-    console.log("bidderBalanceBeforeBid", bidderBalanceBeforeBid.toString());
-    console.log("bidderBalanceAfterBid", bidderBalanceAfterBid.toString());
-    console.log("bidderBalanceAfterBuyout", bidderBalanceAfterBuyout.toString());
-    //expect(await weth.balanceOf(buyer.address)).to.be.eq(balanceBefore.add(buyoutPrice));
 
-    console.log("Balance after: ", (await weth.balanceOf(buyer.address)).toString());
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     const loanDataAfter = await dataProvider.getLoanDataByLoanId(loanDataBefore.loanId);
