@@ -83,7 +83,7 @@ library Errors {
   string public constant LP_MSG_VALUE_DIFFERENT_FROM_CONFIG_FEE = "426";
   string public constant LP_INVALID_SAFE_HEALTH_FACTOR = "427";
   string public constant LP_AMOUNT_LESS_THAN_DEBT = "428";
-  string public constant LP_AMOUNT_LESS_THAN_VALUATION = "429";
+  string public constant LP_AMOUNT_LESS_THAN_REQUIRED_BUYOUT_PRICE = "429";
 
   //lend pool loan errors
   string public constant LPL_INVALID_LOAN_STATE = "480";

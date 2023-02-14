@@ -231,13 +231,17 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     );
   });
 
-  it("Lockey Holder: Buyer - buys out the NFT in auction and deducts because his a lockey holder.", async () => {
+  it("Lockey Holder: Buyer - buys out the NFT in auction and deducts because he is a lockey holder.", async () => {
     const { users, pool, nftOracle, bayc, dataProvider, weth, lockeyHolder, deployer, addressesProvider } = testEnv;
     const buyer = users[2];
     const borrower = users[4];
+    const bidder = users[6];
 
     await fundWithERC20("WETH", buyer.address, "1000");
     await approveERC20(testEnv, buyer, "WETH");
+
+    await fundWithERC20("WETH", bidder.address, "100");
+    await approveERC20(testEnv, bidder, "WETH");
 
     const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, "101");
 
@@ -249,17 +253,32 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // BUYOUT
-    await lockeyHolder.connect(deployer.signer).setLockeyDiscountPercentage(BN.from("300")); // 3%
-    console.log("Balance before: ", (await weth.balanceOf(buyer.address)).toString());
+    await lockeyHolder.connect(deployer.signer).setLockeyDiscountPercentage(BN.from("9700")); // 97% of original price
 
     await fundWithERC721("LOCKEY", buyer.address, 1);
 
-    const buyoutPrice = new BigNumber(nftPrice.toString()).toFixed(0);
+    // Price is discounted by less amount. Revert expected
+    const buyoutPriceIncorrect = new BigNumber(
+      new BigNumber(nftPrice.toString()).percentMul(new BigNumber("9699"))
+    ).toFixed(0);
+    await expect(pool.connect(buyer.signer).buyOut(bayc.address, "101", buyoutPriceIncorrect)).to.be.revertedWith(
+      ProtocolErrors.LP_AMOUNT_LESS_THAN_REQUIRED_BUYOUT_PRICE
+    );
 
+    // Bidder bids
+    const bidderBalanceBeforeBid = await weth.balanceOf(bidder.address);
+    await pool.connect(bidder.signer).auction(bayc.address, "101", parseEther("50"), bidder.address);
+    const bidderBalanceAfterBid = await weth.balanceOf(bidder.address);
+    // Price is discounted
+    const buyoutPrice = new BigNumber(new BigNumber(nftPrice.toString()).percentMul(new BigNumber("9700"))).toFixed(0);
     await waitForTx(await pool.connect(buyer.signer).buyOut(bayc.address, "101", buyoutPrice));
+    const bidderBalanceAfterBuyout = await weth.balanceOf(bidder.address);
 
     expect(await bayc.ownerOf(101), "buyer should be the new owner").to.be.eq(buyer.address);
-
+    expect(bidderBalanceBeforeBid).to.be.eq(bidderBalanceAfterBuyout);
+    console.log("bidderBalanceBeforeBid", bidderBalanceBeforeBid.toString());
+    console.log("bidderBalanceAfterBid", bidderBalanceAfterBid.toString());
+    console.log("bidderBalanceAfterBuyout", bidderBalanceAfterBuyout.toString());
     //expect(await weth.balanceOf(buyer.address)).to.be.eq(balanceBefore.add(buyoutPrice));
 
     console.log("Balance after: ", (await weth.balanceOf(buyer.address)).toString());
