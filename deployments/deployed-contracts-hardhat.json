@@ -63,10 +63,11 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LendPoolImpl": {
-    "address": "0xDB8c2AE619685b26C26a9ff48698049C363784f3"
+    "address": "0x982dd0a5d44dF3930a819539B24d57573d6918C9"
   },
   "LendPool": {
-    "address": "0x80Fa1fA8B0CaF15CFC3961C934cFA860945d9139"
+    "address": "0x982dd0a5d44dF3930a819539B24d57573d6918C9",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LendPoolLoanImpl": {
     "address": "0x32727fA2ad74483C8DC1F899C5c06AcCd5eDAED8"
@@ -96,7 +97,7 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "InterestRate": {
-    "address": "0x4aC0F2F1f78d86e52DD4F3D5BFf1075785bAEf0f",
+    "address": "0xeBA083F8f5485f8c7e3722FAEf9760c956903938",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "rateStrategyWETH": {
@@ -159,12 +160,6 @@
     "address": "0xAAF09660FafD2138fC9e5dA036D2a101A623b52F",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
-  "LockeyHolderImpl": {
-    "address": "0x4C8871d8f224eE3Cd12a14fF3B691a1A0dB392ec"
-  },
-  "LockeyHolder": {
-    "address": "0xc831fAe49f2c324704F7133CB8bE08BC768904cf"
-  },
   "LendingLogic": {
     "address": "0x5c769753F192449c3c6AeC7BF2145928eb261699",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
@@ -182,7 +177,13 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "SelfdestructTransferMock": {
-    "address": "0xF44B6b279f21e5a6D453a788f85fAa45505E2A57",
+    "address": "0x4B04E049BEB2DEBDE2b9B93c5888f6cF1FAD3682",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
+  "LockeyManagerImpl": {
+    "address": "0x4C8871d8f224eE3Cd12a14fF3B691a1A0dB392ec"
+  },
+  "LockeyManager": {
+    "address": "0xc831fAe49f2c324704F7133CB8bE08BC768904cf"
   }
 }

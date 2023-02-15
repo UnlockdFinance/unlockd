@@ -10,7 +10,7 @@ import {INFTOracleGetter} from "../../interfaces/INFTOracleGetter.sol";
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
 import {ILendPool} from "../../interfaces/ILendPool.sol";
 import {ILSSVMPair} from "../../interfaces/sudoswap/ILSSVMPair.sol";
-import {ILockeyHolder} from "../../interfaces/ILockeyHolder.sol";
+import {ILockeyManager} from "../../interfaces/ILockeyManager.sol";
 
 import {ReserveLogic} from "./ReserveLogic.sol";
 import {GenericLogic} from "./GenericLogic.sol";
@@ -607,7 +607,7 @@ library LiquidateLogic {
     uint256 remainAmount;
     uint256 nftPrice;
     address lockeysCollection;
-    address lockeyHolderAddress;
+    address lockeyManagerAddress;
   }
 
   /**
@@ -624,7 +624,7 @@ library LiquidateLogic {
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
     DataTypes.ExecuteBuyoutParams memory params
-  ) external returns (uint256) {
+  ) external {
     require(params.onBehalfOf != address(0), Errors.VL_INVALID_ONBEHALFOF_ADDRESS);
 
     BuyoutLocalVars memory vars;
@@ -634,7 +634,7 @@ library LiquidateLogic {
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
     vars.lockeysCollection = addressesProvider.getAddress(keccak256("LOCKEY_COLLECTION"));
-    vars.lockeyHolderAddress = addressesProvider.getAddress(keccak256("LOCKEY_HOLDER"));
+    vars.lockeyManagerAddress = addressesProvider.getAddress(keccak256("LOCKEY_HOLDER"));
 
     vars.loanId = ILendPoolLoan(vars.poolLoan).getCollateralLoanId(params.nftAsset, params.nftTokenId);
     require(vars.loanId != 0, Errors.LP_NFT_IS_NOT_USED_AS_COLLATERAL);
@@ -681,15 +681,15 @@ library LiquidateLogic {
 
     require(params.amount > vars.borrowAmount, Errors.LP_AMOUNT_LESS_THAN_DEBT);
 
-    // If the user is a lockey holder, gets a discount
-    if (IERC721Upgradeable(vars.lockeysCollection).balanceOf(vars.onBehalfOf) > 0) {
+    // If the user is a lockey holder, he gets a discount
+    if (IERC721Upgradeable(vars.lockeysCollection).balanceOf(vars.onBehalfOf) != 0) {
       require(
-        params.amount >=
-          vars.nftPrice.percentMul(ILockeyHolder(vars.lockeyHolderAddress).getLockeyDiscountPercentage()),
-        Errors.LP_AMOUNT_LESS_THAN_REQUIRED_BUYOUT_PRICE
+        params.amount ==
+          vars.nftPrice.percentMul(ILockeyManager(vars.lockeyManagerAddress).getLockeyDiscountPercentage()),
+        Errors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE
       );
     } else {
-      require(params.amount >= vars.nftPrice, Errors.LP_AMOUNT_LESS_THAN_REQUIRED_BUYOUT_PRICE);
+      require(params.amount == vars.nftPrice, Errors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
     }
 
     reserveData.updateState();
@@ -775,7 +775,5 @@ library LiquidateLogic {
         vars.loanId
       );
     }
-
-    return (vars.remainAmount);
   }
 }

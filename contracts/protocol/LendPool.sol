@@ -335,21 +335,20 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     uint256 nftTokenId,
     uint256 buyoutAmount,
     address onBehalfOf
-  ) external override nonReentrant whenNotPaused returns (uint256) {
-    return
-      LiquidateLogic.executeBuyout(
-        _addressesProvider,
-        _reserves,
-        _nfts,
-        _nftConfig,
-        DataTypes.ExecuteBuyoutParams({
-          initiator: _msgSender(),
-          nftAsset: nftAsset,
-          nftTokenId: nftTokenId,
-          amount: buyoutAmount,
-          onBehalfOf: onBehalfOf
-        })
-      );
+  ) external override nonReentrant whenNotPaused {
+    LiquidateLogic.executeBuyout(
+      _addressesProvider,
+      _reserves,
+      _nfts,
+      _nftConfig,
+      DataTypes.ExecuteBuyoutParams({
+        initiator: _msgSender(),
+        nftAsset: nftAsset,
+        nftTokenId: nftTokenId,
+        amount: buyoutAmount,
+        onBehalfOf: onBehalfOf
+      })
+    );
   }
 
   /**

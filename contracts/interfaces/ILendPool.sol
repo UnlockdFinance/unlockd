@@ -333,12 +333,7 @@ interface ILendPool {
    *   wants to receive them on his own wallet, or a different address if the beneficiary of NFT
    *   is a different wallet
    **/
-  function buyout(
-    address nftAsset,
-    uint256 nftTokenId,
-    uint256 buyoutAmount,
-    address onBehalfOf
-  ) external returns (uint256);
+  function buyout(address nftAsset, uint256 nftTokenId, uint256 buyoutAmount, address onBehalfOf) external;
 
   /**
    * @notice Redeem a NFT loan which state is in Auction

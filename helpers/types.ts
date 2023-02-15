@@ -89,8 +89,8 @@ export enum eContractid {
   NFTXHelper = "NFTXHelper",
   LSSVMPPair = "LSSVMPair",
   YVault = "YVault",
-  LockeyHolderImpl = "LockeyHolderImpl",
-  LockeyHolder = "LockeyHolder",
+  LockeyManagerImpl = "LockeyManagerImpl",
+  LockeyManager = "LockeyManager",
 }
 
 export enum ProtocolLoanState {
@@ -177,7 +177,7 @@ export enum ProtocolErrors {
   LP_MSG_VALUE_DIFFERENT_FROM_CONFIG_FEE = "426",
   LP_INVALID_SAFE_HEALTH_FACTOR = "427",
   LP_AMOUNT_LESS_THAN_DEBT = "428",
-  LP_AMOUNT_LESS_THAN_REQUIRED_BUYOUT_PRICE = "429",
+  LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE = "429",
 
   //lend pool loan errors
   LPL_INVALID_LOAN_STATE = "480",

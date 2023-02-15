@@ -404,18 +404,21 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
         .auctionETH(bayc.address, tokenId, bidder.address, { value: parseEther("50") })
     );
 
-    // Try to get a discount not being a lockey holder (expect revert)
     const nftPrice = await nftOracle.getNFTPrice(bayc.address, tokenId);
-    const buyoutAmountIncorrect = new BigNumber(
-      new BigNumber(nftPrice.toString()).percentMul(new BigNumber("9700"))
-    ).toFixed(0);
-
+    // Amount is less than nft price (revert expected)
     await expect(
       wethGateway
         .connect(buyer.signer)
-        .buyoutETH(bayc.address, tokenId, buyer.address, { value: buyoutAmountIncorrect })
-    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_LESS_THAN_REQUIRED_BUYOUT_PRICE);
+        .buyoutETH(bayc.address, tokenId, buyer.address, { value: nftPrice.sub(parseEther("0.0000000000001")) })
+    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
     const buyoutAmount = nftPrice;
+
+    // Amount is more than nft price (revert expected)
+    await expect(
+      wethGateway
+        .connect(buyer.signer)
+        .buyoutETH(bayc.address, tokenId, buyer.address, { value: nftPrice.add(parseEther("0.0000000000001")) })
+    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
 
     // Execute buyout successfully (expect success)
     await waitForTx(
@@ -434,9 +437,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Defaulted, "Invalid loan state after liquidation");
 
     // Borrower should have the remaining amount (buyout amount - borrow amount) back
-
     const borrowerBalanceAfterBuyoutInWeth = await weth.balanceOf(borrower.address);
-
     await expect(borrowerBalanceAfterBuyoutInWeth).to.be.gt(0);
   });
   it("(Lockey Holder) - Borrow ETH and liquidate it through buyout", async () => {
@@ -453,7 +454,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
       dataProvider,
       configurator,
       deployer,
-      lockeyHolder,
+      lockeyManager,
     } = testEnv;
 
     const depositor = users[0];
@@ -537,7 +538,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
 
     await fundWithERC721("LOCKEY", buyer.address, 1);
 
-    await lockeyHolder.connect(deployer.signer).setLockeyDiscountPercentage(BN.from("9700")); // 97% of original price
+    await lockeyManager.connect(deployer.signer).setLockeyDiscountPercentage(BN.from("9700")); // 97% of original price
 
     await waitForTx(
       await wethGateway.connect(buyer.signer).buyoutETH(bayc.address, tokenId, buyer.address, { value: buyoutAmount })
