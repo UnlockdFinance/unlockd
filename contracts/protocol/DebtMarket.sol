@@ -6,6 +6,7 @@ import {CountersUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Cou
 import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
+import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
@@ -14,6 +15,8 @@ import {IDebtSeller} from "../interfaces/IDebtMarket.sol";
 import {IUNFT} from "../interfaces/IUNFT.sol";
 import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
+
+import "hardhat/console.sol";
 
 contract DebtMarket is Initializable, ContextUpgradeable, IDebtSeller {
   using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -54,6 +57,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtSeller {
     uint256 loanId;
     address buyer;
     uint256 debtId;
+    uint256 borrowAmount;
   }
 
   function initialize(ILendPoolAddressesProvider addressesProvider) external initializer {
@@ -66,38 +70,46 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtSeller {
     vars.lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
     vars.lendPoolAddress = _addressesProvider.getLendPool();
     vars.loanId = ILendPoolLoan(vars.lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
-    (, uint256 borrowAmount) = ILendPoolLoan(vars.lendPoolLoanAddress).getLoanReserveBorrowAmount(vars.loanId);
+    (, vars.borrowAmount) = ILendPoolLoan(vars.lendPoolLoanAddress).getLoanReserveBorrowAmount(vars.loanId);
 
     DataTypes.LoanData memory loanData = ILendPoolLoan(vars.lendPoolLoanAddress).getLoan(vars.loanId);
     DataTypes.ReserveData memory reserveData = ILendPool(vars.lendPoolAddress).getReserveData(loanData.reserveAsset);
     DataTypes.NftData memory nftData = ILendPool(vars.lendPoolAddress).getNftData(loanData.nftAsset);
-
     vars.buyer = _msgSender();
+
     vars.debtId = _nftToDebtIds[nftAsset][tokenId];
-
     // Burn debt from seller
-    IDebtToken(reserveData.debtTokenAddress).burn(loanData.borrower, borrowAmount, reserveData.variableBorrowIndex);
-    // Burn unft from seller
-    IUNFT(nftData.uNftAddress).burn(loanData.nftTokenId);
-
+    IDebtToken(reserveData.debtTokenAddress).burn(
+      loanData.borrower,
+      vars.borrowAmount,
+      reserveData.variableBorrowIndex
+    );
     // Mint debt from buyer
     IDebtToken(reserveData.debtTokenAddress).mint(
       vars.buyer,
       vars.buyer,
-      borrowAmount,
+      vars.borrowAmount,
       reserveData.variableBorrowIndex
     );
 
+    // Burn unft from seller
     // Mint unft from buyer
-    IUNFT(nftData.uNftAddress).mint(vars.buyer, loanData.nftTokenId);
-
+    ILendPoolLoan(vars.lendPoolLoanAddress).reMintUNFT(
+      nftData.uNftAddress,
+      loanData.nftTokenId,
+      loanData.borrower,
+      vars.buyer
+    );
     // Remove the offer listting
     DataTypes.DebtMarketListing storage marketOrder = _marketDebts[vars.debtId];
     marketOrder.state = DataTypes.DebtMarketState.Sold;
     _deleteDebtOfferListting(nftAsset, tokenId);
 
     // Pay to the seller with ERC20
-    require(marketOrder.sellPrice > msg.value, "Insufficient amount");
+    console.log(marketOrder.sellPrice, msg.value);
+
+    require(msg.value == marketOrder.sellPrice, "Insufficient amount");
+
     (bool sent, ) = loanData.borrower.call{value: marketOrder.sellPrice}("");
     require(sent, "Failed to send Ether");
 

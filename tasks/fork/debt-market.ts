@@ -22,4 +22,6 @@ task("fork:deploy-debt-market", "Deploy the debt market contract")
 
     const proxy = await getDebtMarketProxy(await addressesProvider.getAddress(ADDRESS_ID_DEBT_MARKET));
     await insertContractAddressInDb(eContractid.DebtMarket, proxy.address);
+
+    await waitForTx(await addressesProvider.setAddress(ADDRESS_ID_DEBT_MARKET, proxy.address));
   });

@@ -111,6 +111,7 @@ library Errors {
   string public constant CT_INVALID_MINT_AMOUNT = "501"; //invalid amount to mint
   string public constant CT_INVALID_BURN_AMOUNT = "502"; //invalid amount to burn
   string public constant CT_BORROW_ALLOWANCE_NOT_ENOUGH = "503";
+  string public constant CT_CALLER_MUST_BE_DEBT_MARKET = "504"; // 'The caller of this function must be a debt market'
 
   //reserve logic errors
   string public constant RL_RESERVE_ALREADY_INITIALIZED = "601"; // 'Reserve has already been initialized'

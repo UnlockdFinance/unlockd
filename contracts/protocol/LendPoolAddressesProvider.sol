@@ -36,6 +36,7 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   bytes32 private constant NFTX_VAULT_FACTORY = "NFTX_VAULT_FACTORY";
   bytes32 private constant SUSHI_SWAP_ROUTER = "SUSHI_SWAP_ROUTER";
   bytes32 private constant LSSVM_ROUTER = "LSSVM_ROUTER";
+  bytes32 private constant DEBT_MARKET = "DEBT_MARKET";
 
   constructor(string memory marketId) {
     _setMarketId(marketId);

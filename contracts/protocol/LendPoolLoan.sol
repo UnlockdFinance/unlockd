@@ -17,12 +17,14 @@ import {IERC721ReceiverUpgradeable} from "@openzeppelin/contracts-upgradeable/to
 import {CountersUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+import "hardhat/console.sol";
 
 contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC721ReceiverUpgradeable {
   using WadRayMath for uint256;
   using CountersUpgradeable for CountersUpgradeable.Counter;
 
   ILendPoolAddressesProvider private _addressesProvider;
+  bytes32 public constant DEBT_MARKET = keccak256("DEBT_MARKET");
 
   CountersUpgradeable.Counter private _loanIdTracker;
   mapping(uint256 => DataTypes.LoanData) private _loans;
@@ -37,6 +39,10 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
    **/
   modifier onlyLendPool() {
     require(_msgSender() == address(_getLendPool()), Errors.CT_CALLER_MUST_BE_LEND_POOL);
+    _;
+  }
+  modifier onlyDebtMarket() {
+    require(_msgSender() == _addressesProvider.getAddress(DEBT_MARKET), Errors.CT_CALLER_MUST_BE_DEBT_MARKET);
     _;
   }
 
@@ -550,5 +556,26 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
    */
   function getLoanIdTracker() external view override returns (CountersUpgradeable.Counter memory) {
     return _loanIdTracker;
+  }
+
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
+  function reMintUNFT(
+    address nftAsset,
+    uint256 tokenId,
+    address oldOnBehalfOf,
+    address newOnBehalfOf
+  ) external override onlyDebtMarket {
+    console.log(oldOnBehalfOf);
+    console.log(newOnBehalfOf);
+    _userNftCollateral[oldOnBehalfOf][nftAsset] -= 1;
+    IUNFT(nftAsset).burn(tokenId);
+
+    IUNFT(nftAsset).mint(newOnBehalfOf, tokenId);
+    _userNftCollateral[newOnBehalfOf][nftAsset] += 1;
+
+    DataTypes.LoanData storage loan = _loans[_nftToLoanIds[nftAsset][tokenId]];
+    loan.borrower = newOnBehalfOf;
   }
 }

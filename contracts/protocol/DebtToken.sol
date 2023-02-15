@@ -11,6 +11,7 @@ import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "hardhat/console.sol";
 
 /**
  * @title DebtToken
@@ -22,11 +23,19 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
 
   ILendPoolAddressesProvider internal _addressProvider;
   address internal _underlyingAsset;
+  bytes32 public constant DEBT_MARKET = keccak256("DEBT_MARKET");
 
   mapping(address => mapping(address => uint256)) internal _borrowAllowances;
 
   modifier onlyLendPool() {
     require(_msgSender() == address(_getLendPool()), Errors.CT_CALLER_MUST_BE_LEND_POOL);
+    _;
+  }
+  modifier onlyLendPoolOrDebtMarket() {
+    require(
+      _msgSender() == address(_getLendPool()) || _msgSender() == _addressProvider.getAddress(DEBT_MARKET),
+      Errors.CT_CALLER_MUST_BE_LEND_POOL
+    );
     _;
   }
 
@@ -81,7 +90,7 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
     address onBehalfOf,
     uint256 amount,
     uint256 index
-  ) external override onlyLendPool returns (bool) {
+  ) external override onlyLendPoolOrDebtMarket returns (bool) {
     if (initiator != onBehalfOf) {
       _decreaseBorrowAllowance(onBehalfOf, initiator, amount);
     }
@@ -107,10 +116,10 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
    * @param amount The amount getting burned
    * @param index The variable debt index of the reserve
    **/
-  function burn(address user, uint256 amount, uint256 index) external override onlyLendPool {
+  function burn(address user, uint256 amount, uint256 index) external override onlyLendPoolOrDebtMarket {
     uint256 amountScaled = amount.rayDiv(index);
     require(amountScaled != 0, Errors.CT_INVALID_BURN_AMOUNT);
-
+    console.log(amountScaled);
     _burn(user, amountScaled);
 
     emit Transfer(user, address(0), amount);

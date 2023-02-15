@@ -66,18 +66,51 @@ makeSuite("Buy and sell the debts", (testEnv) => {
   it("Create a debt listting", async () => {
     const { users, debtMarket, bayc } = testEnv;
     const seller = users[4];
-    const buyer = users[5];
+    const nftAsset = bayc.address;
+    const tokenId = 101;
+    await borrow(seller, tokenId, 10);
 
-    await borrow(seller, 101, 10);
+    await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 50, seller.address);
 
-    await debtMarket.connect(seller.signer).createDebtListing(bayc.address, 101, 50, seller.address);
-
-    const debtId = await debtMarket.getDebtId(bayc.address, 101);
+    const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
     const debt = await debtMarket.getDebt(debtId);
     expect(debt.debtor).equals(seller.address, "Invalid debtor");
-    expect(debt.nftAsset).equals(bayc.address, "Invalid nftAsset");
-    expect(debt.tokenId).equals(101, "Invalid tokenId");
+    expect(debt.nftAsset).equals(nftAsset, "Invalid nftAsset");
+    expect(debt.tokenId).equals(tokenId, "Invalid tokenId");
     expect(debt.debtId).equals(debtId, "Invalid debtId");
-    expect(debt.sellPrice.toString()).to.be.bignumber.gt("9", "Invalid sell price");
+    expect(debt.sellPrice.toString()).to.be.bignumber.gt("49", "Invalid sell price");
+    expect(debt.sellPrice.toString()).to.be.bignumber.lt("51", "Invalid sell price");
+    expect(debt.sellPrice.toString()).to.be.bignumber.eq("50", "Invalid sell price");
+  });
+  it("Buy a debt", async () => {
+    const { users, debtMarket, bayc, uBAYC, dataProvider } = testEnv;
+    const seller = users[4];
+    const buyer = users[5];
+    const nftAsset = bayc.address;
+    const tokenId = 102;
+    console.log(seller.address);
+    console.log(buyer.address);
+
+    await borrow(seller, tokenId, 10);
+
+    const oldLoan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
+
+    await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 50, seller.address);
+    await debtMarket.connect(buyer.signer).buy(nftAsset, tokenId, { value: 50 });
+
+    const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+    const debt = await debtMarket.getDebt(debtId);
+    expect(debt.state).equals(2, "Invalid debt offer state");
+
+    const loan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
+
+    //Check previous unft brn and minted on the new
+    expect(uBAYC.balanceOf(seller.address), 0, "Invalid balance of UToken");
+    expect(uBAYC.balanceOf(buyer.address), 1, "Invalid balance of UToken");
+    //Check previous debt amount of the loan is same as actual
+    expect(oldLoan.currentAmount).equals(loan.currentAmount, "Invalid amount between old and new loan");
+    //Check previous owner of the loan
+    expect(oldLoan.borrower).equals(seller.address, "Invalid previuos loan debtor");
+    expect(loan.borrower).equals(buyer.address, "Invalid new loan debtor");
   });
 });
