@@ -309,6 +309,33 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
   }
 
   /**
+    @dev Executes the buyout for an NFT with a non-healthy position collateral-wise
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+    * @param onBehalfOf The address that will receive the NFT, same as msg.sender if the user
+   *   wants to receive them on his own wallet, or a different address if the beneficiary of the NFT
+   *   is a different wallet
+   **/
+  function buyoutETH(address nftAsset, uint256 nftTokenId, address onBehalfOf) external payable override nonReentrant {
+    _checkValidCallerAndOnBehalfOf(onBehalfOf);
+
+    ILendPool cachedPool = _getLendPool();
+    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
+
+    uint256 loanId = cachedPoolLoan.getCollateralLoanId(nftAsset, nftTokenId);
+    require(loanId > 0, "collateral loan id not exist");
+
+    DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
+    require(loan.reserveAsset == address(WETH), "loan reserve not WETH");
+
+    if (msg.value > 0) {
+      WETH.deposit{value: msg.value}();
+    }
+
+    cachedPool.buyout(nftAsset, nftTokenId, msg.value, onBehalfOf);
+  }
+
+  /**
    * @dev transfer ETH to an address, revert if it fails.
    * @param to recipient of the transfer
    * @param value the amount to send

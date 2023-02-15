@@ -326,11 +326,15 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    * @param buyoutAmount The buyout price of the underlying NFT
+   * @param onBehalfOf Address of the user who will get the underlying NFT, same as msg.sender if the user
+   *   wants to receive them on his own wallet, or a different address if the beneficiary of NFT
+   *   is a different wallet
    **/
-  function buyOut(
+  function buyout(
     address nftAsset,
     uint256 nftTokenId,
-    uint256 buyoutAmount
+    uint256 buyoutAmount,
+    address onBehalfOf
   ) external override nonReentrant whenNotPaused returns (uint256) {
     return
       LiquidateLogic.executeBuyout(
@@ -338,11 +342,12 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
         _reserves,
         _nfts,
         _nftConfig,
-        DataTypes.ExecuteLiquidateParams({
+        DataTypes.ExecuteBuyoutParams({
           initiator: _msgSender(),
           nftAsset: nftAsset,
           nftTokenId: nftTokenId,
-          amount: buyoutAmount
+          amount: buyoutAmount,
+          onBehalfOf: onBehalfOf
         })
       );
   }

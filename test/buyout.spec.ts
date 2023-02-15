@@ -113,7 +113,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     // BUYOUT
     const buyoutPrice = new BigNumber(nftPrice.toString()).multipliedBy(10).toFixed(0);
 
-    await waitForTx(await pool.connect(buyer.signer).buyOut(bayc.address, "101", buyoutPrice));
+    await waitForTx(await pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPrice, buyer.address));
 
     expect(await bayc.ownerOf(101), "buyer should be the new owner").to.be.eq(buyer.address);
 
@@ -261,17 +261,17 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     const buyoutPriceIncorrect = new BigNumber(
       new BigNumber(nftPrice.toString()).percentMul(new BigNumber("9699"))
     ).toFixed(0);
-    await expect(pool.connect(buyer.signer).buyOut(bayc.address, "101", buyoutPriceIncorrect)).to.be.revertedWith(
-      ProtocolErrors.LP_AMOUNT_LESS_THAN_REQUIRED_BUYOUT_PRICE
-    );
+    await expect(
+      pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPriceIncorrect, buyer.address)
+    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_LESS_THAN_REQUIRED_BUYOUT_PRICE);
 
     // Bidder bids
     const bidderBalanceBeforeBid = await weth.balanceOf(bidder.address);
     await pool.connect(bidder.signer).auction(bayc.address, "101", parseEther("50"), bidder.address);
-    const bidderBalanceAfterBid = await weth.balanceOf(bidder.address);
+
     // Price is discounted
     const buyoutPrice = new BigNumber(new BigNumber(nftPrice.toString()).percentMul(new BigNumber("9700"))).toFixed(0);
-    await waitForTx(await pool.connect(buyer.signer).buyOut(bayc.address, "101", buyoutPrice));
+    await waitForTx(await pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPrice, buyer.address));
     const bidderBalanceAfterBuyout = await weth.balanceOf(bidder.address);
 
     expect(await bayc.ownerOf(101), "buyer should be the new owner").to.be.eq(buyer.address);

@@ -105,19 +105,24 @@ library LiquidateLogic {
    * @dev Emitted when an NFT is purchased via Buyout.
    * @param user The address of the user initiating the Buyout
    * @param reserve The address of the underlying asset of the reserve
-   * @param repayAmount The amount of reserve repaid by the buyer
-   * @param remainAmount The amount of reserve received by the borrower
+   * @param buyoutAmount The amount of reserve paid by the buyer
+   * @param borrowAmount The loan borrowed amount
+   * @param nftAsset The amount of reserve received by the borrower
+   * @param nftTokenId The token id of the underlying NFT used as collateral
+   * @param borrower The loan borrower address
+   * @param onBehalfOf The receiver of the underlying NFT
    * @param loanId The loan ID of the NFT loans
    **/
   event Buyout(
     address user,
     address indexed reserve,
-    uint256 repayAmount,
-    uint256 remainAmount,
+    uint256 buyoutAmount,
+    uint256 borrowAmount,
     address indexed nftAsset,
     uint256 nftTokenId,
-    address indexed borrower,
-    uint256 loanId
+    address borrower,
+    address onBehalfOf,
+    uint256 indexed loanId
   );
 
   struct AuctionLocalVars {
@@ -593,6 +598,7 @@ library LiquidateLogic {
 
   struct BuyoutLocalVars {
     address initiator;
+    address onBehalfOf;
     address poolLoan;
     address reserveOracle;
     address nftOracle;
@@ -617,11 +623,13 @@ library LiquidateLogic {
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    DataTypes.ExecuteLiquidateParams memory params
+    DataTypes.ExecuteBuyoutParams memory params
   ) external returns (uint256) {
+    require(params.onBehalfOf != address(0), Errors.VL_INVALID_ONBEHALFOF_ADDRESS);
+
     BuyoutLocalVars memory vars;
     vars.initiator = params.initiator;
-
+    vars.onBehalfOf = params.onBehalfOf;
     vars.poolLoan = addressesProvider.getLendPoolLoan();
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
@@ -674,7 +682,7 @@ library LiquidateLogic {
     require(params.amount > vars.borrowAmount, Errors.LP_AMOUNT_LESS_THAN_DEBT);
 
     // If the user is a lockey holder, gets a discount
-    if (IERC721Upgradeable(vars.lockeysCollection).balanceOf(params.initiator) > 0) {
+    if (IERC721Upgradeable(vars.lockeysCollection).balanceOf(vars.onBehalfOf) > 0) {
       require(
         params.amount >=
           vars.nftPrice.percentMul(ILockeyHolder(vars.lockeyHolderAddress).getLockeyDiscountPercentage()),
@@ -718,7 +726,7 @@ library LiquidateLogic {
     // update interest rate according latest borrow amount (utilizaton)
     reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.borrowAmount, 0);
 
-    //Transfer buyout amount
+    //Transfer buyout amount to lendpool
     IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, address(this), params.amount);
 
     // transfer borrow amount from lend pool to uToken, repay debt
@@ -728,7 +736,7 @@ library LiquidateLogic {
     IUToken(reserveData.uTokenAddress).depositReserves(vars.borrowAmount);
 
     // transfer remain amount to borrower
-    if (vars.remainAmount > 0) {
+    if (vars.remainAmount != 0) {
       IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.borrower, vars.remainAmount);
     }
 
@@ -743,7 +751,7 @@ library LiquidateLogic {
       abi.encodeWithSignature(
         "safeTransferFrom(address,address,uint256)",
         address(this),
-        vars.initiator,
+        vars.onBehalfOf,
         params.nftTokenId
       )
     );
@@ -754,17 +762,19 @@ library LiquidateLogic {
         IUToken(reserveData.uTokenAddress).RESERVE_TREASURY_ADDRESS(),
         params.nftTokenId
       );
-
-    emit Buyout(
-      vars.initiator,
-      loanData.reserveAsset,
-      vars.borrowAmount,
-      vars.remainAmount,
-      loanData.nftAsset,
-      loanData.nftTokenId,
-      loanData.borrower,
-      vars.loanId
-    );
+    {
+      emit Buyout(
+        vars.initiator,
+        loanData.reserveAsset,
+        params.amount,
+        vars.borrowAmount,
+        loanData.nftAsset,
+        loanData.nftTokenId,
+        loanData.borrower,
+        vars.onBehalfOf,
+        vars.loanId
+      );
+    }
 
     return (vars.remainAmount);
   }

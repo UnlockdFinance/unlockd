@@ -149,19 +149,24 @@ interface ILendPool {
    * @dev Emitted when an NFT is purchased via Buyout.
    * @param user The address of the user initiating the Buyout
    * @param reserve The address of the underlying asset of the reserve
-   * @param repayAmount The amount of reserve repaid by the buyer
-   * @param remainAmount The amount of reserve received by the borrower
+   * @param buyoutAmount The amount of reserve paid by the buyer
+   * @param borrowAmount The loan borrowed amount
+   * @param nftAsset The amount of reserve received by the borrower
+   * @param nftTokenId The token id of the underlying NFT used as collateral
+   * @param borrower The loan borrower address
+   * @param onBehalfOf The receiver of the underlying NFT
    * @param loanId The loan ID of the NFT loans
    **/
   event Buyout(
     address user,
     address indexed reserve,
-    uint256 repayAmount,
-    uint256 remainAmount,
+    uint256 buyoutAmount,
+    uint256 borrowAmount,
     address indexed nftAsset,
     uint256 nftTokenId,
-    address indexed borrower,
-    uint256 loanId
+    address borrower,
+    address onBehalfOf,
+    uint256 indexed loanId
   );
 
   /**
@@ -324,8 +329,16 @@ interface ILendPool {
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    * @param buyoutAmount The buyout price of the underlying NFT
+   * @param onBehalfOf Address of the user who will get the underlying NFT, same as msg.sender if the user
+   *   wants to receive them on his own wallet, or a different address if the beneficiary of NFT
+   *   is a different wallet
    **/
-  function buyOut(address nftAsset, uint256 nftTokenId, uint256 buyoutAmount) external returns (uint256);
+  function buyout(
+    address nftAsset,
+    uint256 nftTokenId,
+    uint256 buyoutAmount,
+    address onBehalfOf
+  ) external returns (uint256);
 
   /**
    * @notice Redeem a NFT loan which state is in Auction
