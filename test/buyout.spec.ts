@@ -252,12 +252,16 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     const buyer = users[2];
     const borrower = users[4];
     const bidder = users[6];
+    const firstBidder = users[7];
 
     await fundWithERC20("WETH", buyer.address, "1000");
     await approveERC20(testEnv, buyer, "WETH");
 
     await fundWithERC20("WETH", bidder.address, "100");
     await approveERC20(testEnv, bidder, "WETH");
+
+    await fundWithERC20("WETH", firstBidder.address, "100");
+    await approveERC20(testEnv, firstBidder, "WETH");
 
     const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, "101");
 
@@ -289,17 +293,24 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
       pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPriceIncorrect, buyer.address)
     ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
 
-    // Bidder bids
+    // First bidder bids
+    const firstBidderBalanceBeforeBid = await weth.balanceOf(firstBidder.address);
+    await pool.connect(firstBidder.signer).auction(bayc.address, "101", parseEther("49"), firstBidder.address);
+
+    // Second bidder bids
     const bidderBalanceBeforeBid = await weth.balanceOf(bidder.address);
     await pool.connect(bidder.signer).auction(bayc.address, "101", parseEther("50"), bidder.address);
 
     // Price is discounted
     const buyoutPrice = new BigNumber(new BigNumber(nftPrice.toString()).percentMul(new BigNumber("9700"))).toFixed(0);
     await waitForTx(await pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPrice, buyer.address));
+
+    const firstBidderBalanceAfterBid = await weth.balanceOf(firstBidder.address);
     const bidderBalanceAfterBuyout = await weth.balanceOf(bidder.address);
 
     expect(await bayc.ownerOf(101), "buyer should be the new owner").to.be.eq(buyer.address);
     expect(bidderBalanceBeforeBid).to.be.eq(bidderBalanceAfterBuyout);
+    expect(firstBidderBalanceAfterBid).to.be.gt(firstBidderBalanceBeforeBid);
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
 

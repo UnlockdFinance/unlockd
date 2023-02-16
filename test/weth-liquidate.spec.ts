@@ -430,7 +430,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
 
     // Bidder should have its ETH bid amount back.
     const bidderBalanceAfterBuyout = await weth.balanceOf(bidder.address);
-    expect(bidderBalanceAfterBuyout).to.be.eq(bidderBalanceBeforeAuction.add(parseEther("50")));
+    expect(bidderBalanceAfterBuyout).to.be.gt(bidderBalanceBeforeAuction.add(parseEther("50")));
 
     // Loan should be defaulted
     const loanDataAfter = await dataProvider.getLoanDataByLoanId(nftDebtDataBeforeAuction.loanId);
@@ -549,7 +549,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
 
     // Bidder should have its ETH bid amount back.
     const bidderBalanceAfterBuyout = await weth.balanceOf(bidder.address);
-    expect(bidderBalanceAfterBuyout).to.be.eq(bidderBalanceBeforeAuction.add(parseEther("50")));
+    expect(bidderBalanceAfterBuyout).to.be.gt(bidderBalanceBeforeAuction.add(parseEther("50")));
 
     // Loan should be defaulted
     const loanDataAfter = await dataProvider.getLoanDataByLoanId(nftDebtDataBeforeAuction.loanId);

@@ -605,6 +605,7 @@ library LiquidateLogic {
     uint256 loanId;
     uint256 borrowAmount;
     uint256 remainAmount;
+    uint256 bidFine;
     uint256 nftPrice;
     address lockeysCollection;
     address lockeyManagerAddress;
@@ -677,6 +678,16 @@ library LiquidateLogic {
       vars.nftOracle
     );
 
+    (, vars.bidFine) = GenericLogic.calculateLoanBidFine(
+      loanData.reserveAsset,
+      reserveData,
+      loanData.nftAsset,
+      nftConfig,
+      loanData,
+      vars.poolLoan,
+      vars.reserveOracle
+    );
+
     ValidationLogic.validateBuyout(reserveData, nftData, nftConfig, loanData);
 
     require(params.amount > vars.borrowAmount, Errors.LP_AMOUNT_LESS_THAN_DEBT);
@@ -706,8 +717,6 @@ library LiquidateLogic {
       vars.nftOracle
     );
 
-    vars.remainAmount = params.amount - vars.borrowAmount;
-
     ILendPoolLoan(vars.poolLoan).buyoutLoan(
       loanData.bidderAddress,
       vars.loanId,
@@ -735,14 +744,25 @@ library LiquidateLogic {
     // Deposit amount from debt repaid to lending protocol
     IUToken(reserveData.uTokenAddress).depositReserves(vars.borrowAmount);
 
+    vars.remainAmount = params.amount - vars.borrowAmount;
+
+    // In case the NFT has bids, transfer (give back) bid amount to bidder, and send incentive fine to first bidder
+    if (loanData.bidderAddress != address(0)) {
+      IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.bidderAddress, loanData.bidPrice);
+      // Remaining amount can cover the bid fine.
+      if (vars.remainAmount >= vars.bidFine) {
+        vars.remainAmount -= vars.bidFine;
+        IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.firstBidderAddress, vars.bidFine);
+      } else if (vars.remainAmount > 0) {
+        // Remaining amount can not cover the bid fine, but it is greater than 0
+        IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.firstBidderAddress, vars.remainAmount);
+        vars.remainAmount = 0;
+      }
+    }
+
     // transfer remain amount to borrower
     if (vars.remainAmount != 0) {
       IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.borrower, vars.remainAmount);
-    }
-
-    // In case the NFT has bids, transfer (give back) bid amount to bidder
-    if (loanData.bidderAddress != address(0)) {
-      IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.bidderAddress, loanData.bidPrice);
     }
 
     // transfer erc721 to buyer.
