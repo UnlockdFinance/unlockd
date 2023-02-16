@@ -119,7 +119,6 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
   function burn(address user, uint256 amount, uint256 index) external override onlyLendPoolOrDebtMarket {
     uint256 amountScaled = amount.rayDiv(index);
     require(amountScaled != 0, Errors.CT_INVALID_BURN_AMOUNT);
-    console.log(amountScaled);
     _burn(user, amountScaled);
 
     emit Transfer(user, address(0), amount);

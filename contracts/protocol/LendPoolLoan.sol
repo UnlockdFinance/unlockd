@@ -11,13 +11,14 @@ import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {NFTXSeller} from "../libraries/markets/NFTXSeller.sol";
 import {SudoSwapSeller} from "../libraries/markets/SudoSwapSeller.sol";
+import {IUNFTRegistry} from "../interfaces/IUNFTRegistry.sol";
+import {ILendPool} from "../interfaces/ILendPool.sol";
 
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {IERC721ReceiverUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
 import {CountersUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
-import "hardhat/console.sol";
 
 contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC721ReceiverUpgradeable {
   using WadRayMath for uint256;
@@ -104,7 +105,6 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     loanData.scaledAmount = amountScaled;
 
     _userNftCollateral[onBehalfOf][nftAsset] += 1;
-
     _nftTotalCollateral[nftAsset] += 1;
 
     emit LoanCreated(initiator, onBehalfOf, loanId, nftAsset, nftTokenId, reserveAsset, amount, borrowIndex);
@@ -567,15 +567,19 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     address oldOnBehalfOf,
     address newOnBehalfOf
   ) external override onlyDebtMarket {
-    console.log(oldOnBehalfOf);
-    console.log(newOnBehalfOf);
+    DataTypes.NftData memory nftData = ILendPool(_addressesProvider.getLendPool()).getNftData(nftAsset);
+
+    require(_userNftCollateral[oldOnBehalfOf][nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
+
+    IUNFT(nftData.uNftAddress).burn(tokenId);
+
     _userNftCollateral[oldOnBehalfOf][nftAsset] -= 1;
-    IUNFT(nftAsset).burn(tokenId);
 
-    IUNFT(nftAsset).mint(newOnBehalfOf, tokenId);
+    IUNFT(nftData.uNftAddress).mint(newOnBehalfOf, tokenId);
     _userNftCollateral[newOnBehalfOf][nftAsset] += 1;
+    uint256 loanId = _nftToLoanIds[nftAsset][tokenId];
 
-    DataTypes.LoanData storage loan = _loans[_nftToLoanIds[nftAsset][tokenId]];
+    DataTypes.LoanData storage loan = _loans[loanId];
     loan.borrower = newOnBehalfOf;
   }
 }

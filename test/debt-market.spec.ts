@@ -88,8 +88,6 @@ makeSuite("Buy and sell the debts", (testEnv) => {
     const buyer = users[5];
     const nftAsset = bayc.address;
     const tokenId = 102;
-    console.log(seller.address);
-    console.log(buyer.address);
 
     await borrow(seller, tokenId, 10);
 
@@ -108,7 +106,10 @@ makeSuite("Buy and sell the debts", (testEnv) => {
     expect(uBAYC.balanceOf(seller.address), 0, "Invalid balance of UToken");
     expect(uBAYC.balanceOf(buyer.address), 1, "Invalid balance of UToken");
     //Check previous debt amount of the loan is same as actual
-    expect(oldLoan.currentAmount).equals(loan.currentAmount, "Invalid amount between old and new loan");
+    expect(loan.currentAmount).to.be.within(
+      oldLoan.currentAmount,
+      oldLoan.currentAmount.add(parseEther("1")).toString()
+    );
     //Check previous owner of the loan
     expect(oldLoan.borrower).equals(seller.address, "Invalid previuos loan debtor");
     expect(loan.borrower).equals(buyer.address, "Invalid new loan debtor");

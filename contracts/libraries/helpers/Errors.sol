@@ -155,4 +155,14 @@ library Errors {
 
   //NFTOracleErrors
   string public constant NFTO_INVALID_PRICEM_ADDRESS = "900";
+
+  //Debt Market
+  string public constant DM_CALLER_NOT_THE_OWNER = "1000";
+  string public constant DM_DEBT_SHOULD_EXIST = "1001";
+  string public constant DM_INVALID_AMOUNT = "1002";
+  string public constant DM_FAIL_ON_SEND_ETH = "1003";
+  string public constant DM_DEBT_SHOULD_NOT_BE_SOLD = "1004";
+  string public constant DM_DEBT_ALREADY_EXIST = "1005";
+  string public constant DM_LOAN_SHOULD_EXIST = "1006";
+  string public constant DM_AUCTION_ALREADY_ENDED = "1007";
 }

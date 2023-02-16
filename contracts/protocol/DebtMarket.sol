@@ -9,14 +9,13 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
+
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
 import {IDebtSeller} from "../interfaces/IDebtMarket.sol";
 import {IUNFT} from "../interfaces/IUNFT.sol";
 import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
-
-import "hardhat/console.sol";
 
 contract DebtMarket is Initializable, ContextUpgradeable, IDebtSeller {
   using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -38,16 +37,16 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtSeller {
     uint256 loanId = ILendPoolLoan(lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
     DataTypes.LoanData memory loanData = ILendPoolLoan(lendPoolLoanAddress).getLoan(loanId);
 
-    require(loanData.borrower == msg.sender, "Caller not owner fo the nft");
+    require(loanData.borrower == msg.sender, Errors.DM_CALLER_NOT_THE_OWNER);
     _;
   }
 
   modifier debtShouldExistGuard(address nftAsset, uint256 tokenId) {
     uint256 debtId = _nftToDebtIds[nftAsset][tokenId];
-    require(debtId != 0, "DEBT SHOULD EXIST");
+    require(debtId != 0, Errors.DM_DEBT_SHOULD_EXIST);
     DataTypes.DebtMarketListing memory selldebt = _marketDebts[debtId];
-    require(_userTotalDebtByCollection[selldebt.debtor][nftAsset] >= 1, "DEBT SHOULD EXIST");
-    require(_totalDebtsByCollection[nftAsset] >= 1, "DEBT SHOULD EXIST");
+    require(_userTotalDebtByCollection[selldebt.debtor][nftAsset] >= 1, Errors.DM_DEBT_SHOULD_EXIST);
+    require(_totalDebtsByCollection[nftAsset] >= 1, Errors.DM_DEBT_SHOULD_EXIST);
     _;
   }
 
@@ -95,7 +94,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtSeller {
     // Burn unft from seller
     // Mint unft from buyer
     ILendPoolLoan(vars.lendPoolLoanAddress).reMintUNFT(
-      nftData.uNftAddress,
+      loanData.nftAsset,
       loanData.nftTokenId,
       loanData.borrower,
       vars.buyer
@@ -106,12 +105,10 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtSeller {
     _deleteDebtOfferListting(nftAsset, tokenId);
 
     // Pay to the seller with ERC20
-    console.log(marketOrder.sellPrice, msg.value);
-
-    require(msg.value == marketOrder.sellPrice, "Insufficient amount");
+    require(msg.value == marketOrder.sellPrice, Errors.DM_INVALID_AMOUNT);
 
     (bool sent, ) = loanData.borrower.call{value: marketOrder.sellPrice}("");
-    require(sent, "Failed to send Ether");
+    require(sent, Errors.DM_FAIL_ON_SEND_ETH);
 
     // Create a event
     emit DebtSold(loanData.borrower, vars.buyer, vars.debtId);
@@ -130,7 +127,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtSeller {
 
     _nftToDebtIds[nftAsset][tokenId] = 0;
     DataTypes.DebtMarketListing storage selldebt = _marketDebts[debtId];
-    require(selldebt.state != DataTypes.DebtMarketState.Sold, "DEBT SHOULD NOT BE SOLD");
+    require(selldebt.state != DataTypes.DebtMarketState.Sold, Errors.DM_DEBT_SHOULD_NOT_BE_SOLD);
     selldebt.state = DataTypes.DebtMarketState.Canceled;
     _deleteDebtOfferListting(nftAsset, tokenId);
 
@@ -156,12 +153,12 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtSeller {
 
   function _createDebt(address nftAsset, uint256 tokenId, uint256 sellPrice, address onBehalfOf) internal {
     require(onBehalfOf != address(0), Errors.VL_INVALID_ONBEHALFOF_ADDRESS);
-    require(sellPrice > 0, "MORE THAN 0");
-    require(_nftToDebtIds[nftAsset][tokenId] == 0, "DEBT ALREADY EXIST");
+    require(sellPrice > 0, Errors.DM_INVALID_AMOUNT);
+    require(_nftToDebtIds[nftAsset][tokenId] == 0, Errors.DM_DEBT_ALREADY_EXIST);
 
     address lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
     uint256 loanId = ILendPoolLoan(lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
-    require(loanId != 0, "LOAN SHOULD EXIST");
+    require(loanId != 0, Errors.DM_LOAN_SHOULD_EXIST);
 
     uint256 debtId = _debtIdTracker.current();
     _debtIdTracker.increment();
@@ -203,7 +200,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtSeller {
     DataTypes.DebtMarketListing storage marketListing = _marketDebts[debtId];
     marketListing.sellType = DataTypes.DebtMarketType.Auction;
 
-    require(auctionEndTimestamp > block.timestamp, "AUCTION ALREADY ENDED");
+    require(auctionEndTimestamp > block.timestamp, Errors.DM_AUCTION_ALREADY_ENDED);
     //Create auction
   }
 
