@@ -2,7 +2,7 @@
 pragma solidity 0.8.4;
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 
-interface IDebtSeller {
+interface IDebtMarket {
   /**
    * @dev Emitted on initialization to share location of dependent notes
    * @param pool The address of the associated lend pool
@@ -33,4 +33,6 @@ interface IDebtSeller {
    * @dev Emitted when a debt is bougth
    */
   event DebtSold(address indexed from, address indexed to, uint256 indexed debtId);
+
+  function buy(address nftAsset, uint256 tokenId, address onBehalfOf) external;
 }

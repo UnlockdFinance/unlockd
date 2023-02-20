@@ -105,4 +105,18 @@ interface IPunkGateway {
    * @param punkIndex The index of the CryptoPunk to repay
    **/
   function liquidateETH(uint256 punkIndex) external payable returns (uint256);
+
+  /**
+   * @notice buy a debt punk loan with native ETH
+   * @param punkIndex The index of the CryptoPunk to repay
+   **/
+  function buyDebtPunkETH(uint256 punkIndex, address onBehalfOf) external payable;
+
+  /**
+   * @notice buy a debt punk loan
+   * @param punkIndex The index of the CryptoPunk to repay
+   * @param onBehalfOf Address of the user who will receive the CryptoPunk. Should be the address of the user itself
+   * calling the function if he wants to get collateral
+   **/
+  function buyDebtPunk(uint256 punkIndex, address onBehalfOf) external;
 }

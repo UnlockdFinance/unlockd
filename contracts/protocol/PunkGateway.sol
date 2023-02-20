@@ -8,14 +8,16 @@ import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ER
 import {ERC721HolderUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
 
 import {Errors} from "../libraries/helpers/Errors.sol";
+import {DataTypes} from "../libraries/types/DataTypes.sol";
+
 import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
 import {IPunks} from "../interfaces/IPunks.sol";
 import {IWrappedPunks} from "../interfaces/IWrappedPunks.sol";
 import {IPunkGateway} from "../interfaces/IPunkGateway.sol";
-import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {IWETHGateway} from "../interfaces/IWETHGateway.sol";
+import {IDebtMarket} from "../interfaces/IDebtMarket.sol";
 
 import {EmergencyTokenRecoveryUpgradeable} from "./EmergencyTokenRecoveryUpgradeable.sol";
 
@@ -239,6 +241,25 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     }
 
     return (paybackAmount, burn);
+  }
+
+  function buyDebtPunk(uint256 punkIndex, address onBehalfOf) external override nonReentrant {
+    bytes32 DEBT_MARKET = keccak256("DEBT_MARKET");
+
+    IDebtMarket debtMarketAddress = IDebtMarket(_addressProvider.getAddress(DEBT_MARKET));
+    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
+    uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
+    require(loanId != 0, "PunkGateway: no loan with such punkIndex");
+
+    debtMarketAddress.buy(address(wrappedPunks), punkIndex, onBehalfOf);
+  }
+
+  function buyDebtPunkETH(uint256 punkIndex, address onBehalfOf) external payable override nonReentrant {
+    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
+    uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
+    require(loanId != 0, "PunkGateway: no loan with such punkIndex");
+
+    _wethGateway.buyDebtETH(address(wrappedPunks), punkIndex, onBehalfOf);
   }
 
   function auction(uint256 punkIndex, uint256 bidPrice, address onBehalfOf) external override nonReentrant {

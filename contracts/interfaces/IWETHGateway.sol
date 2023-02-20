@@ -72,4 +72,11 @@ interface IWETHGateway {
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    */
   function liquidateETH(address nftAsset, uint256 nftTokenId) external payable returns (uint256);
+
+  /**
+   * @dev buy a debt on the WETH reserve
+   * @param nftAsset The address of the debt NFT used as collateral
+   * @param nftTokenId The token ID of the debt NFT used as collateral
+   */
+  function buyDebtETH(address nftAsset, uint256 nftTokenId, address onBehalfOf) external payable;
 }

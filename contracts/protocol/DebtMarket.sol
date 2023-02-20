@@ -5,6 +5,8 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {CountersUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
@@ -12,13 +14,15 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
-import {IDebtSeller} from "../interfaces/IDebtMarket.sol";
+import {IDebtMarket} from "../interfaces/IDebtMarket.sol";
 import {IUNFT} from "../interfaces/IUNFT.sol";
 import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
+import "hardhat/console.sol";
 
-contract DebtMarket is Initializable, ContextUpgradeable, IDebtSeller {
+contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   using CountersUpgradeable for CountersUpgradeable.Counter;
+  using SafeERC20Upgradeable for IERC20Upgradeable;
 
   ILendPoolAddressesProvider internal _addressesProvider;
 
@@ -36,7 +40,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtSeller {
     address lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
     uint256 loanId = ILendPoolLoan(lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
     DataTypes.LoanData memory loanData = ILendPoolLoan(lendPoolLoanAddress).getLoan(loanId);
-
+    console.log(loanData.borrower);
     require(loanData.borrower == msg.sender, Errors.DM_CALLER_NOT_THE_OWNER);
     _;
   }
@@ -63,7 +67,11 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtSeller {
     _addressesProvider = addressesProvider;
   }
 
-  function buy(address nftAsset, uint256 tokenId) external payable debtShouldExistGuard(nftAsset, tokenId) {
+  function buy(
+    address nftAsset,
+    uint256 tokenId,
+    address onBehalfOf
+  ) external override debtShouldExistGuard(nftAsset, tokenId) {
     BuyLocalVars memory vars;
 
     vars.lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
@@ -74,7 +82,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtSeller {
     DataTypes.LoanData memory loanData = ILendPoolLoan(vars.lendPoolLoanAddress).getLoan(vars.loanId);
     DataTypes.ReserveData memory reserveData = ILendPool(vars.lendPoolAddress).getReserveData(loanData.reserveAsset);
     DataTypes.NftData memory nftData = ILendPool(vars.lendPoolAddress).getNftData(loanData.nftAsset);
-    vars.buyer = _msgSender();
+    vars.buyer = onBehalfOf;
 
     vars.debtId = _nftToDebtIds[nftAsset][tokenId];
     // Burn debt from seller
@@ -105,10 +113,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtSeller {
     _deleteDebtOfferListting(nftAsset, tokenId);
 
     // Pay to the seller with ERC20
-    require(msg.value == marketOrder.sellPrice, Errors.DM_INVALID_AMOUNT);
-
-    (bool sent, ) = loanData.borrower.call{value: marketOrder.sellPrice}("");
-    require(sent, Errors.DM_FAIL_ON_SEND_ETH);
+    IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(_msgSender(), loanData.borrower, marketOrder.sellPrice);
 
     // Create a event
     emit DebtSold(loanData.borrower, vars.buyer, vars.debtId);

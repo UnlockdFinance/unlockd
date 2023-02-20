@@ -6,6 +6,7 @@ import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC7
 
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {IWETH} from "../interfaces/IWETH.sol";
+import {IDebtMarket} from "../interfaces/IDebtMarket.sol";
 import {IWETHGateway} from "../interfaces/IWETHGateway.sol";
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
@@ -306,6 +307,29 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     }
 
     return (extraAmount);
+  }
+
+  function buyDebtETH(address nftAsset, uint256 nftTokenId, address onBehalfOf) external payable override nonReentrant {
+    bytes32 DEBT_MARKET = keccak256("DEBT_MARKET");
+
+    IDebtMarket debtMarketAddress = IDebtMarket(_addressProvider.getAddress(DEBT_MARKET));
+    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
+
+    uint256 loanId = cachedPoolLoan.getCollateralLoanId(nftAsset, nftTokenId);
+    require(loanId > 0, "collateral loan id not exist");
+
+    DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
+    require(loan.reserveAsset == address(WETH), "loan reserve not WETH");
+
+    if (msg.value > 0) {
+      WETH.deposit{value: msg.value}();
+    }
+
+    if (WETH.allowance(address(this), address(debtMarketAddress)) == 0) {
+      WETH.approve(address(debtMarketAddress), type(uint256).max);
+    }
+
+    debtMarketAddress.buy(nftAsset, nftTokenId, onBehalfOf);
   }
 
   /**

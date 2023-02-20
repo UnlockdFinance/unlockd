@@ -448,4 +448,58 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
     );
     expect(wethGatewayAfterRecovery).to.be.eq("0", "WETHGateway ether balance should be zero.");
   });
+  it("Buy a debt with ETH", async () => {
+    const { users, debtMarket, wethGateway, bayc, uBAYC, dataProvider, configurator, deployer, nftOracle } = testEnv;
+    const seller = users[4];
+    const buyer = users[5];
+    const nftAsset = bayc.address;
+    const tokenIdNum = testEnv.tokenIdTracker++;
+    const tokenId = tokenIdNum.toString();
+
+    await fundWithERC721("BAYC", seller.address, tokenIdNum);
+    await setApprovalForAll(testEnv, seller, "BAYC");
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(bayc.address, true);
+
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: tokenId.toString(),
+      newPrice: parseEther("100"),
+      ltv: 4000,
+      liquidationThreshold: 7000,
+      redeemThreshold: 9000,
+      liquidationBonus: 500,
+      redeemDuration: 100,
+      auctionDuration: 200,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
+    await configurator.setTimeframe(3600);
+    // Borrow with NFT
+    await borrow(testEnv, seller, "WETH", "1", "BAYC", tokenId, seller.address, "365", "success", "");
+
+    const oldLoan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
+
+    await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 50, seller.address);
+    await wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 50 });
+
+    const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+    const debt = await debtMarket.getDebt(debtId);
+    expect(debt.state).equals(2, "Invalid debt offer state");
+
+    const loan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
+
+    //Check previous unft brn and minted on the new
+    expect(uBAYC.balanceOf(seller.address), 0, "Invalid balance of UToken");
+    expect(uBAYC.balanceOf(buyer.address), 1, "Invalid balance of UToken");
+    //Check previous debt amount of the loan is same as actual
+    expect(loan.currentAmount).to.be.within(
+      oldLoan.currentAmount,
+      oldLoan.currentAmount.add(parseEther("1")).toString()
+    );
+    //Check previous owner of the loan
+    expect(oldLoan.borrower).equals(seller.address, "Invalid previuos loan debtor");
+    expect(loan.borrower).equals(buyer.address, "Invalid new loan debtor");
+  });
 });
