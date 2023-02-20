@@ -11,7 +11,6 @@ import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "hardhat/console.sol";
 
 /**
  * @title DebtToken
@@ -119,6 +118,7 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
   function burn(address user, uint256 amount, uint256 index) external override onlyLendPoolOrDebtMarket {
     uint256 amountScaled = amount.rayDiv(index);
     require(amountScaled != 0, Errors.CT_INVALID_BURN_AMOUNT);
+
     _burn(user, amountScaled);
 
     emit Transfer(user, address(0), amount);

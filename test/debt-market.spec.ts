@@ -1,9 +1,5 @@
 import { parseEther } from "ethers/lib/utils";
-import { oneEther } from "../helpers/constants";
-import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
-import { fundWithERC20, fundWithERC721 } from "../helpers/misc-utils";
-import { IConfigNftAsCollateralInput, ProtocolErrors } from "../helpers/types";
-import { approveERC20, setApprovalForAll } from "./helpers/actions";
+import { borrowBayc } from "./helpers/actions";
 import { makeSuite } from "./helpers/make-suite";
 
 const chai = require("chai");
@@ -11,64 +7,12 @@ const chai = require("chai");
 const { expect } = chai;
 
 makeSuite("Buy and sell the debts", (testEnv) => {
-  async function borrow(borrower, nftTokenId, amountBorrow) {
-    const { users, pool, nftOracle, weth, bayc, configurator, deployer } = testEnv;
-    const depositor = users[3];
-
-    await fundWithERC20("WETH", depositor.address, "1000");
-    await approveERC20(testEnv, depositor, "WETH");
-
-    //user 3 deposits 1000 WETH
-    const amountDeposit = await convertToCurrencyDecimals(depositor, weth, "1000"); //deployer
-
-    await pool.connect(depositor.signer).deposit(weth.address, amountDeposit, depositor.address, "0");
-
-    //user 4 mints BAYC to borrower
-    //mints BAYC to borrower
-    await fundWithERC721("BAYC", borrower.address, nftTokenId);
-    //approve protocol to access borrower wallet
-    await setApprovalForAll(testEnv, borrower, "BAYC");
-
-    //user 4 borrows
-    await configurator.setLtvManagerStatus(deployer.address, true);
-    await nftOracle.setPriceManagerStatus(deployer.address, true);
-
-    type NewType = IConfigNftAsCollateralInput;
-
-    const collData: NewType = {
-      asset: bayc.address,
-      nftTokenId: `${nftTokenId}`,
-      newPrice: parseEther("100"),
-      ltv: 4000,
-      liquidationThreshold: 7000,
-      redeemThreshold: 9000,
-      liquidationBonus: 500,
-      redeemDuration: 2820,
-      auctionDuration: 2880,
-      redeemFine: 500,
-      minBidFine: 2000,
-    };
-    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
-
-    const amountToBorrow = await convertToCurrencyDecimals(deployer, weth, `${amountBorrow}`);
-
-    await pool
-      .connect(borrower.signer)
-      .borrow(weth.address, amountToBorrow.toString(), bayc.address, `${nftTokenId}`, borrower.address, "0");
-
-    const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, `${nftTokenId}`);
-
-    expect(nftDebtDataAfter.healthFactor.toString()).to.be.bignumber.gt(
-      oneEther.toFixed(0),
-      ProtocolErrors.VL_INVALID_HEALTH_FACTOR
-    );
-  }
   it("Create a debt listting", async () => {
     const { users, debtMarket, bayc } = testEnv;
     const seller = users[4];
     const nftAsset = bayc.address;
     const tokenId = testEnv.tokenIdTracker++;
-    await borrow(seller, tokenId, 10);
+    await borrowBayc(testEnv, seller, tokenId, 10);
 
     await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 50, seller.address);
 
@@ -80,6 +24,24 @@ makeSuite("Buy and sell the debts", (testEnv) => {
     expect(debt.debtId).equals(debtId, "Invalid debtId");
     expect(debt.sellPrice.toString()).to.be.bignumber.eq("50", "Invalid sell price");
   });
+
+  it("Cancel a debt listting", async () => {
+    const { users, debtMarket, bayc } = testEnv;
+    const seller = users[4];
+    const nftAsset = bayc.address;
+    const tokenId = testEnv.tokenIdTracker++;
+    await borrowBayc(testEnv, seller, tokenId, 10);
+
+    await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 50, seller.address);
+    const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+    await debtMarket.connect(seller.signer).cancelDebtListing(nftAsset, tokenId);
+
+    const canceledDebt = await debtMarket.getDebt(debtId);
+    expect(canceledDebt.state).to.be.equals(3);
+
+    const canceledDebtId = await debtMarket.getDebtId(nftAsset, tokenId);
+    expect(canceledDebtId).to.be.equals(0);
+  });
   it("Buy a debt with ETH", async () => {
     const { users, debtMarket, wethGateway, bayc, uBAYC, dataProvider } = testEnv;
     const seller = users[4];
@@ -87,7 +49,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
     const nftAsset = bayc.address;
     const tokenId = testEnv.tokenIdTracker++;
 
-    await borrow(seller, tokenId, 10);
+    await borrowBayc(testEnv, seller, tokenId, 10);
 
     const oldLoan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
 
@@ -111,22 +73,5 @@ makeSuite("Buy and sell the debts", (testEnv) => {
     //Check previous owner of the loan
     expect(oldLoan.borrower).equals(seller.address, "Invalid previuos loan debtor");
     expect(loan.borrower).equals(buyer.address, "Invalid new loan debtor");
-  });
-  it("Cancel a debt listting", async () => {
-    const { users, debtMarket, bayc } = testEnv;
-    const seller = users[4];
-    const nftAsset = bayc.address;
-    const tokenId = testEnv.tokenIdTracker++;
-    await borrow(seller, tokenId, 10);
-
-    await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 50, seller.address);
-    const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
-    await debtMarket.connect(seller.signer).cancelDebtListing(nftAsset, tokenId);
-
-    const canceledDebt = await debtMarket.getDebt(debtId);
-    expect(canceledDebt.state).to.be.equals(3);
-
-    const canceledDebtId = await debtMarket.getDebtId(nftAsset, tokenId);
-    expect(canceledDebtId).to.be.equals(0);
   });
 });

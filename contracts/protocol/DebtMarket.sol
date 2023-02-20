@@ -8,6 +8,7 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
+import {ReserveLogic} from "../libraries/logic/ReserveLogic.sol";
 import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
@@ -18,11 +19,11 @@ import {IDebtMarket} from "../interfaces/IDebtMarket.sol";
 import {IUNFT} from "../interfaces/IUNFT.sol";
 import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
-import "hardhat/console.sol";
 
 contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   using CountersUpgradeable for CountersUpgradeable.Counter;
   using SafeERC20Upgradeable for IERC20Upgradeable;
+  using ReserveLogic for DataTypes.ReserveData;
 
   ILendPoolAddressesProvider internal _addressesProvider;
 
@@ -40,7 +41,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     address lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
     uint256 loanId = ILendPoolLoan(lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
     DataTypes.LoanData memory loanData = ILendPoolLoan(lendPoolLoanAddress).getLoan(loanId);
-    console.log(loanData.borrower);
+
     require(loanData.borrower == msg.sender, Errors.DM_CALLER_NOT_THE_OWNER);
     _;
   }
@@ -77,11 +78,13 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     vars.lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
     vars.lendPoolAddress = _addressesProvider.getLendPool();
     vars.loanId = ILendPoolLoan(vars.lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
-    (, vars.borrowAmount) = ILendPoolLoan(vars.lendPoolLoanAddress).getLoanReserveBorrowAmount(vars.loanId);
 
     DataTypes.LoanData memory loanData = ILendPoolLoan(vars.lendPoolLoanAddress).getLoan(vars.loanId);
     DataTypes.ReserveData memory reserveData = ILendPool(vars.lendPoolAddress).getReserveData(loanData.reserveAsset);
-    DataTypes.NftData memory nftData = ILendPool(vars.lendPoolAddress).getNftData(loanData.nftAsset);
+    // reserveData.updateState();
+
+    (, vars.borrowAmount) = ILendPoolLoan(vars.lendPoolLoanAddress).getLoanReserveBorrowAmount(vars.loanId);
+
     vars.buyer = onBehalfOf;
 
     vars.debtId = _nftToDebtIds[nftAsset][tokenId];
@@ -130,11 +133,12 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   function cancelDebtListing(address nftAsset, uint256 tokenId) external debtShouldExistGuard(nftAsset, tokenId) {
     uint256 debtId = _nftToDebtIds[nftAsset][tokenId];
 
-    _nftToDebtIds[nftAsset][tokenId] = 0;
     DataTypes.DebtMarketListing storage selldebt = _marketDebts[debtId];
     require(selldebt.state != DataTypes.DebtMarketState.Sold, Errors.DM_DEBT_SHOULD_NOT_BE_SOLD);
     selldebt.state = DataTypes.DebtMarketState.Canceled;
     _deleteDebtOfferListting(nftAsset, tokenId);
+
+    _nftToDebtIds[nftAsset][tokenId] = 0;
 
     emit DebtListtingCanceled(
       selldebt.debtor,
@@ -165,8 +169,9 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     uint256 loanId = ILendPoolLoan(lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
     require(loanId != 0, Errors.DM_LOAN_SHOULD_EXIST);
 
-    uint256 debtId = _debtIdTracker.current();
     _debtIdTracker.increment();
+
+    uint256 debtId = _debtIdTracker.current();
     _nftToDebtIds[nftAsset][tokenId] = debtId;
     DataTypes.DebtMarketListing storage marketListing = _marketDebts[debtId];
 
