@@ -66,11 +66,16 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     require(_addressesProvider.getPoolAdmin() == msg.sender, Errors.CALLER_NOT_POOL_ADMIN);
     _;
   }
+  modifier nonDuplicatedDebt(address nftAsset, uint256 tokenId) {
+    require(_nftToDebtIds[nftAsset][tokenId] == 0, Errors.DM_DEBT_ALREADY_EXIST);
+    _;
+  }
   modifier onlyOwnerOfBorrowedNft(address nftAsset, uint256 tokenId) {
     address lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
     uint256 loanId = ILendPoolLoan(lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
-    DataTypes.LoanData memory loanData = ILendPoolLoan(lendPoolLoanAddress).getLoan(loanId);
+    require(loanId != 0, Errors.DM_LOAN_SHOULD_EXIST);
 
+    DataTypes.LoanData memory loanData = ILendPoolLoan(lendPoolLoanAddress).getLoan(loanId);
     require(loanData.borrower == msg.sender, Errors.DM_CALLER_NOT_THE_OWNER);
     _;
   }
@@ -264,7 +269,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     uint256 tokenId,
     uint256 sellPrice,
     address onBehalfOf
-  ) external nonReentrant onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
+  ) external nonReentrant nonDuplicatedDebt(nftAsset, tokenId) onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
     _createDebt(nftAsset, tokenId, sellPrice, onBehalfOf);
 
     uint256 debtId = _debtIdTracker.current();
@@ -289,7 +294,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     uint256 sellPrice,
     address onBehalfOf,
     uint256 auctionEndTimestamp
-  ) external nonReentrant onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
+  ) external nonReentrant nonDuplicatedDebt(nftAsset, tokenId) onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
     // solhint-disable-next-line
     require(auctionEndTimestamp >= block.timestamp, Errors.DM_AUCTION_ALREADY_ENDED);
 
@@ -316,7 +321,6 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   function _createDebt(address nftAsset, uint256 tokenId, uint256 sellPrice, address onBehalfOf) internal {
     require(onBehalfOf != address(0), Errors.VL_INVALID_ONBEHALFOF_ADDRESS);
     require(sellPrice > 0, Errors.DM_INVALID_AMOUNT);
-    require(_nftToDebtIds[nftAsset][tokenId] == 0, Errors.DM_DEBT_ALREADY_EXIST);
 
     address lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
     uint256 loanId = ILendPoolLoan(lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
