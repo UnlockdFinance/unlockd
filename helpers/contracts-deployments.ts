@@ -17,6 +17,8 @@ import {
   LendPoolFactory,
   LendPoolLoanFactory,
   LiquidateLogicFactory,
+  LockeyManager,
+  LockeyManagerFactory,
   MintableERC20,
   MintableERC20Factory,
   MintableERC721,
@@ -121,6 +123,12 @@ export const deployUNFTRegistry = async (verify?: boolean) => {
   const unftRegistryImpl = await new UNFTRegistryFactory(await getDeploySigner()).deploy();
   await insertContractAddressInDb(eContractid.UNFTRegistryImpl, unftRegistryImpl.address);
   return withSaveAndVerify(unftRegistryImpl, eContractid.UNFTRegistry, [], verify);
+};
+
+export const deployLockeyManager = async (verify?: boolean) => {
+  const lockeyManagerImpl = await new LockeyManagerFactory(await getDeploySigner()).deploy();
+  await insertContractAddressInDb(eContractid.LockeyManagerImpl, lockeyManagerImpl.address);
+  return withSaveAndVerify(lockeyManagerImpl, eContractid.LockeyManager, [], verify);
 };
 
 export const deployReserveLogicLibrary = async (verify?: boolean) =>

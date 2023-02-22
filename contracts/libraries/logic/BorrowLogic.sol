@@ -140,9 +140,7 @@ library BorrowLogic {
     vars.loanAddress = addressesProvider.getLendPoolLoan();
 
     vars.loanId = ILendPoolLoan(vars.loanAddress).getCollateralLoanId(params.nftAsset, params.nftTokenId);
-    vars.totalSupply = IERC721EnumerableUpgradeable(params.nftAsset).totalSupply();
-    require(vars.totalSupply <= nftData.maxSupply, Errors.LP_NFT_SUPPLY_NUM_EXCEED_MAX_LIMIT);
-    require(params.nftTokenId <= nftData.maxTokenId, Errors.LP_NFT_TOKEN_ID_EXCEED_MAX_LIMIT);
+
     ValidationLogic.validateBorrow(
       params,
       reserveData,
