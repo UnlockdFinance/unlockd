@@ -10,18 +10,24 @@ interface IDebtMarket {
   event Initialized(address indexed pool);
 
   /**
-   * @dev Emitted when a debt listting  is created
+   * @dev Emitted when a debt listing  is created with a fixed price
    */
-  event DebtListtingCreated(
-    DataTypes.DebtMarketListing marketListing,
-    uint256 totalByCollection,
-    uint256 totalByUserAndCollection
+  event DebtListingCreated(
+    uint256 debtId,
+    address debtor,
+    address indexed nftAsset,
+    uint256 indexed tokenId,
+    DebtMarketType indexed sellType,
+    DebtMarketState state,
+    uint256 sellPrice,
+    address reserveAsset,
+    uint256 debtAmount
   );
 
   /**
-   * @dev Emitted when a debt listting  is canceled
+   * @dev Emitted when a debt listing  is canceled
    */
-  event DebtListtingCanceled(
+  event DebtListingCanceled(
     address indexed onBehalfOf,
     uint256 indexed debtId,
     DataTypes.DebtMarketListing marketListing,

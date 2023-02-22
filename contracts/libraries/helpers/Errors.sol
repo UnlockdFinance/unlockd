@@ -165,4 +165,7 @@ library Errors {
   string public constant DM_DEBT_ALREADY_EXIST = "1005";
   string public constant DM_LOAN_SHOULD_EXIST = "1006";
   string public constant DM_AUCTION_ALREADY_ENDED = "1007";
+  string public constant DM_BID_PRICE_LESS_THAN_SELL_PRICE = "1008";
+  string public constant DM_BID_PRICE_LESS_THAN_PREVIOUS_BID = "1009";
+  string public constant DM_INVALID_SELL_TYPE = "1010";
 }

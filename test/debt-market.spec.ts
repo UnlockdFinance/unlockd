@@ -7,7 +7,7 @@ const chai = require("chai");
 const { expect } = chai;
 
 makeSuite("Buy and sell the debts", (testEnv) => {
-  it("Create a debt listting", async () => {
+  it("Create a debt listing", async () => {
     const { users, debtMarket, bayc } = testEnv;
     const seller = users[4];
     const nftAsset = bayc.address;
@@ -25,7 +25,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
     expect(debt.sellPrice.toString()).to.be.bignumber.eq("50", "Invalid sell price");
   });
 
-  it("Cancel a debt listting", async () => {
+  it("Cancel a debt listing", async () => {
     const { users, debtMarket, bayc } = testEnv;
     const seller = users[4];
     const nftAsset = bayc.address;

@@ -190,8 +190,8 @@ library DataTypes {
   }
 
   enum DebtMarketType {
-    Auction,
-    FixedPrice
+    FixedPrice, //0
+    Auction //1
   }
 
   enum DebtMarketState {
@@ -213,11 +213,9 @@ library DataTypes {
     DebtMarketState state;
     uint256 sellPrice;
     address reserveAsset;
-    uint256 scaleAmount;
-    uint256 bidStartTimestamp;
+    uint256 scaledAmount;
     address bidderAddress;
     uint256 bidPrice;
-    uint256 bidBorrowAmount;
-    bool auctionEndTimestamp;
+    uint256 auctionEndTimestamp;
   }
 }
