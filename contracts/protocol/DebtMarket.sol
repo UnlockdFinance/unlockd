@@ -12,6 +12,7 @@ import {ReserveLogic} from "../libraries/logic/ReserveLogic.sol";
 import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
+import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 
 import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
@@ -19,8 +20,6 @@ import {IDebtMarket} from "../interfaces/IDebtMarket.sol";
 import {IUNFT} from "../interfaces/IUNFT.sol";
 import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
-
-import {PercentageMath} from "../math/PercentageMath.sol";
 
 contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -98,11 +97,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     _addressesProvider = addressesProvider;
   }
 
-  function buy(
-    address nftAsset,
-    uint256 tokenId,
-    address onBehalfOf
-  ) external override nonReentrant debtShouldExistGuard(nftAsset, tokenId) {
+  function _transferDebt(address nftAsset, uint256 tokenId, address onBehalfOf) internal {
     BuyLocalVars memory vars;
 
     vars.lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
@@ -144,12 +139,27 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     DataTypes.DebtMarketListing storage marketOrder = _marketListings[vars.debtId];
     marketOrder.state = DataTypes.DebtMarketState.Sold;
     _deleteDebtOfferListing(nftAsset, tokenId);
+  }
 
+  function buy(
+    address nftAsset,
+    uint256 tokenId,
+    address onBehalfOf
+  ) external override nonReentrant debtShouldExistGuard(nftAsset, tokenId) {
+    uint256 debtId = _nftToDebtIds[nftAsset][tokenId];
+    address lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
+    uint256 loanId = ILendPoolLoan(lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
+    require(loanId != 0, Errors.DM_LOAN_SHOULD_EXIST);
+
+    DataTypes.LoanData memory loanData = ILendPoolLoan(lendPoolLoanAddress).getLoan(loanId);
+    DataTypes.DebtMarketListing memory marketOrder = _marketListings[debtId];
+
+    _transferDebt(nftAsset, tokenId, onBehalfOf);
     // Pay to the seller with ERC20
     IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(_msgSender(), loanData.borrower, marketOrder.sellPrice);
 
     // Create a event
-    emit DebtSold(loanData.borrower, vars.buyer, vars.debtId);
+    emit DebtSold(loanData.borrower, onBehalfOf, debtId);
   }
 
   struct BidLocalVars {
@@ -157,13 +167,37 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     address previousBidder;
     uint256 previousBidPrice;
     uint256 borrowAmount;
+    uint256 debtId;
+  }
+
+  function claim(
+    address nftAsset,
+    uint256 tokenId,
+    address onBehalfOf
+  ) external override nonReentrant debtShouldExistGuard(nftAsset, tokenId) {
+    BidLocalVars memory vars;
+    vars.debtId = _nftToDebtIds[nftAsset][tokenId];
+    DataTypes.DebtMarketListing storage marketListing = _marketListings[vars.debtId];
+
+    require(onBehalfOf == marketListing.bidderAddress, Errors.DM_INVALID_CLAIM_RECEIVER);
+    require(marketListing.sellType == DataTypes.DebtMarketType.Auction, Errors.DM_INVALID_SELL_TYPE);
+    require(block.timestamp > marketListing.auctionEndTimestamp, Errors.DM_AUCTION_NOT_ALREADY_ENDED);
+
+    marketListing.state = DataTypes.DebtMarketState.Sold;
+
+    _transferDebt(nftAsset, tokenId, onBehalfOf);
+
+    IERC20Upgradeable(marketListing.reserveAsset).safeTransfer(marketListing.debtor, marketListing.bidPrice);
+
+    // Create a event
+    emit DebtSold(marketListing.debtor, onBehalfOf, vars.debtId);
   }
 
   function bid(
     address nftAsset,
     uint256 tokenId,
     uint256 bidPrice,
-    uint256 onBehalfOf
+    address onBehalfOf
   ) external override nonReentrant debtShouldExistGuard(nftAsset, tokenId) {
     BidLocalVars memory vars;
     vars.debtId = _nftToDebtIds[nftAsset][tokenId];
@@ -177,21 +211,22 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
       bidPrice > (marketListing.bidPrice + marketListing.bidPrice.percentMul(bidDelta)),
       Errors.DM_BID_PRICE_LESS_THAN_PREVIOUS_BID
     );
-    require(marketListing.sellType == DebtMarketType.Auction, Errors.DM_INVALID_SELL_TYPE);
+    require(marketListing.sellType == DataTypes.DebtMarketType.Auction, Errors.DM_INVALID_SELL_TYPE);
     require(block.timestamp <= marketListing.auctionEndTimestamp, Errors.DM_AUCTION_ALREADY_ENDED);
 
-    marketListing.state = DebtMarketState.Active;
+    marketListing.state = DataTypes.DebtMarketState.Active;
     marketListing.bidderAddress = onBehalfOf;
     marketListing.bidPrice = bidPrice;
 
+    IERC20Upgradeable(marketListing.reserveAsset).safeTransferFrom(_msgSender(), address(this), bidPrice);
+
     if (vars.previousBidder != address(0)) {
       IERC20Upgradeable(marketListing.reserveAsset).safeTransferFrom(
-        _msgSender(),
+        address(this),
         vars.previousBidder,
         vars.previousBidPrice
       );
     }
-    //@todo transfer from bidder to DebtMarket.sol
   }
 
   function cancelDebtListing(
@@ -206,6 +241,14 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     _deleteDebtOfferListing(nftAsset, tokenId);
 
     _nftToDebtIds[nftAsset][tokenId] = 0;
+
+    if (selldebt.bidderAddress != address(0)) {
+      IERC20Upgradeable(selldebt.reserveAsset).safeTransferFrom(
+        address(this),
+        selldebt.bidderAddress,
+        selldebt.bidPrice
+      );
+    }
 
     emit DebtListingCanceled(
       selldebt.debtor,
@@ -232,7 +275,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
       marketListing.debtor,
       marketListing.nftAsset,
       marketListing.tokenId,
-      marketListing.sellType, // Fixed price
+      marketListing.sellType,
       marketListing.state,
       marketListing.sellPrice,
       marketListing.reserveAsset,
