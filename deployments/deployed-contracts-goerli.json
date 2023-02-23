@@ -23,7 +23,7 @@
     "address": "0xa9ED41c141d04647276F24EE06258e57a041a158",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
-  "WPUNKS": { 
+  "WPUNKS": {
     "address": "0xa9ED41c141d04647276F24EE06258e57a041a158",
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
@@ -233,8 +233,8 @@
     "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "CustomERC721": {
-    "address": "0xaD46D0235b2698aaD03803443b7a50383bdefc1c",
-    "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
+    "address": "0xBE9DF8E5bC7d8D98E28516E2D437e4D761114251",
+    "deployer": "0xfb63B055ff1816024A8bfCC879bE92C5BC4f2089"
   },
   "LiquidateMarketsLogic": {
     "address": "0xc1b1C822069e3C4594C9ceDf4353E1B94099D2e8",

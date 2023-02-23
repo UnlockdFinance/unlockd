@@ -529,7 +529,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    * @param asset The address of the underlying asset of the reserve
    * @return The state of the reserve
    **/
-  function getReserveData(address asset) external view override returns (DataTypes.ReserveData memory) {
+  function getReserveData(address asset) public view override returns (DataTypes.ReserveData memory) {
     return _reserves[asset];
   }
 
@@ -1136,6 +1136,31 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    */
   function getSafeHealthFactor() external view override returns (uint256) {
     return _safeHealthFactor;
+  }
+
+  /**
+   * @dev Updates the liquidity cumulative index and the variable borrow index.
+   * @param reserve the reserve object
+   **/
+  function updateReserveState(address reserve) external override {
+    DataTypes.ReserveData storage reserveData = _reserves[reserve];
+    require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
+    require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
+
+    reserveData.updateState();
+  }
+
+  /**
+   * @dev Updates the reserve current stable borrow rate, the current variable borrow rate and the current liquidity rate
+   * @param reserve The address of the reserve to be updated
+   **/
+  function updateReserveInterestRates(address reserve) external override {
+    DataTypes.ReserveData storage reserveData = _reserves[reserve];
+    address uTokenAddress = reserveData.uTokenAddress;
+    require(uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
+    require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
+
+    reserveData.updateInterestRates(reserve, uTokenAddress, 0, 0);
   }
 
   function _addReserveToList(address asset) internal {
