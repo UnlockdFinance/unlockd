@@ -520,16 +520,6 @@ interface ILendPool {
     returns (uint256 loanId, address bidderAddress, uint256 bidPrice, uint256 bidBorrowAmount, uint256 bidFine);
 
   /**
-   * @dev Returns the state and configuration of the nft
-   * @param nftAsset The address of the underlying asset of the nft
-   * @param nftAsset The token ID of the asset
-   **/
-  function getNftLiquidatePrice(
-    address nftAsset,
-    uint256 nftTokenId
-  ) external view returns (uint256 liquidatePrice, uint256 paybackAmount);
-
-  /**
    * @dev Returns the list of nft addresses in the protocol
    **/
   function getNftsList() external view returns (address[] memory);
@@ -644,6 +634,18 @@ interface ILendPool {
    * @param newSafeHealthFactor New safe health factor value
    */
   function updateSafeHealthFactor(uint256 newSafeHealthFactor) external;
+
+  /**
+   * @dev Updates the liquidity cumulative index and the variable borrow index.
+   * @param reserve the reserve object
+   **/
+  function updateReserveState(address reserve) external;
+
+  /**
+   * @dev Updates the reserve current stable borrow rate, the current variable borrow rate and the current liquidity rate
+   * @param reserve The address of the reserve to be updated
+   **/
+  function updateReserveInterestRates(address reserve) external;
 
   /**
    * @notice Rescue tokens or ETH locked up in this contract.

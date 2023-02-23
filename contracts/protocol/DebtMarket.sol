@@ -39,8 +39,6 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   uint256 private constant _ENTERED = 1;
   uint256 private _status;
 
-  uint256 public bidDelta;
-
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
    * Calling a `nonReentrant` function from another `nonReentrant`
@@ -66,11 +64,16 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     require(_addressesProvider.getPoolAdmin() == msg.sender, Errors.CALLER_NOT_POOL_ADMIN);
     _;
   }
+  modifier nonDuplicatedDebt(address nftAsset, uint256 tokenId) {
+    require(_nftToDebtIds[nftAsset][tokenId] == 0, Errors.DM_DEBT_ALREADY_EXIST);
+    _;
+  }
   modifier onlyOwnerOfBorrowedNft(address nftAsset, uint256 tokenId) {
     address lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
     uint256 loanId = ILendPoolLoan(lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
-    DataTypes.LoanData memory loanData = ILendPoolLoan(lendPoolLoanAddress).getLoan(loanId);
+    require(loanId != 0, Errors.DM_LOAN_SHOULD_EXIST);
 
+    DataTypes.LoanData memory loanData = ILendPoolLoan(lendPoolLoanAddress).getLoan(loanId);
     require(loanData.borrower == msg.sender, Errors.DM_CALLER_NOT_THE_OWNER);
     _;
   }
@@ -179,8 +182,8 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     vars.debtId = _nftToDebtIds[nftAsset][tokenId];
     DataTypes.DebtMarketListing storage marketListing = _marketListings[vars.debtId];
 
-    require(onBehalfOf == marketListing.bidderAddress, Errors.DM_INVALID_CLAIM_RECEIVER);
     require(marketListing.sellType == DataTypes.DebtMarketType.Auction, Errors.DM_INVALID_SELL_TYPE);
+    require(onBehalfOf == marketListing.bidderAddress, Errors.DM_INVALID_CLAIM_RECEIVER);
     require(block.timestamp > marketListing.auctionEndTimestamp, Errors.DM_AUCTION_NOT_ALREADY_ENDED);
 
     marketListing.state = DataTypes.DebtMarketState.Sold;
@@ -208,7 +211,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
 
     require(bidPrice >= marketListing.sellPrice, Errors.DM_BID_PRICE_LESS_THAN_SELL_PRICE);
     require(
-      bidPrice > (marketListing.bidPrice + marketListing.bidPrice.percentMul(bidDelta)),
+      bidPrice > (marketListing.bidPrice + marketListing.bidPrice.percentMul(1e2)),
       Errors.DM_BID_PRICE_LESS_THAN_PREVIOUS_BID
     );
     require(marketListing.sellType == DataTypes.DebtMarketType.Auction, Errors.DM_INVALID_SELL_TYPE);
@@ -264,7 +267,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     uint256 tokenId,
     uint256 sellPrice,
     address onBehalfOf
-  ) external nonReentrant onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
+  ) external nonReentrant nonDuplicatedDebt(nftAsset, tokenId) onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
     _createDebt(nftAsset, tokenId, sellPrice, onBehalfOf);
 
     uint256 debtId = _debtIdTracker.current();
@@ -289,7 +292,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     uint256 sellPrice,
     address onBehalfOf,
     uint256 auctionEndTimestamp
-  ) external nonReentrant onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
+  ) external nonReentrant nonDuplicatedDebt(nftAsset, tokenId) onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
     // solhint-disable-next-line
     require(auctionEndTimestamp >= block.timestamp, Errors.DM_AUCTION_ALREADY_ENDED);
 
@@ -316,7 +319,6 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   function _createDebt(address nftAsset, uint256 tokenId, uint256 sellPrice, address onBehalfOf) internal {
     require(onBehalfOf != address(0), Errors.VL_INVALID_ONBEHALFOF_ADDRESS);
     require(sellPrice > 0, Errors.DM_INVALID_AMOUNT);
-    require(_nftToDebtIds[nftAsset][tokenId] == 0, Errors.DM_DEBT_ALREADY_EXIST);
 
     address lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
     uint256 loanId = ILendPoolLoan(lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);

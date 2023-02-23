@@ -650,13 +650,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
       _addressesProvider.getNFTOracle()
     );
 
-    (, totalDebt) = GenericLogic.calculateNftDebtData(
-      reserveAsset,
-      reserveData,
-      _addressesProvider.getLendPoolLoan(),
-      loanId,
-      _addressesProvider.getReserveOracle()
-    );
+    (, totalDebt) = ILendPoolLoan(_addressesProvider.getLendPoolLoan()).getLoanReserveBorrowAmount(loanId);
 
     availableBorrows = GenericLogic.calculateAvailableBorrows(totalCollateral, totalDebt, ltv);
 
@@ -715,47 +709,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     uint256 liquidatePrice;
     uint256 paybackAmount;
     uint256 remainAmount;
-  }
-
-  /**
-   * @dev Returns the state and configuration of the nft
-   * @param nftAsset The address of the underlying asset of the nft
-   * @param nftTokenId The token ID of the asset
-   **/
-  function getNftLiquidatePrice(
-    address nftAsset,
-    uint256 nftTokenId
-  ) external view override returns (uint256 liquidatePrice, uint256 paybackAmount) {
-    GetLiquidationPriceLocalVars memory vars;
-
-    vars.poolLoan = _addressesProvider.getLendPoolLoan();
-    vars.loanId = ILendPoolLoan(vars.poolLoan).getCollateralLoanId(nftAsset, nftTokenId);
-    if (vars.loanId == 0) {
-      return (0, 0);
-    }
-
-    DataTypes.LoanData memory loanData = ILendPoolLoan(vars.poolLoan).getLoan(vars.loanId);
-
-    DataTypes.ReserveData storage reserveData = _reserves[loanData.reserveAsset];
-    DataTypes.NftConfigurationMap storage nftConfig = _nftConfig[nftAsset][nftTokenId];
-
-    (vars.paybackAmount, vars.thresholdPrice, vars.liquidatePrice) = GenericLogic.calculateLoanLiquidatePrice(
-      vars.loanId,
-      loanData.reserveAsset,
-      reserveData,
-      loanData.nftAsset,
-      loanData.nftTokenId,
-      nftConfig,
-      vars.poolLoan,
-      _addressesProvider.getReserveOracle(),
-      _addressesProvider.getNFTOracle()
-    );
-
-    if (vars.liquidatePrice < vars.paybackAmount) {
-      vars.liquidatePrice = vars.paybackAmount;
-    }
-
-    return (vars.liquidatePrice, vars.paybackAmount);
   }
 
   /**
@@ -1132,6 +1085,31 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    */
   function getSafeHealthFactor() external view override returns (uint256) {
     return _safeHealthFactor;
+  }
+
+  /**
+   * @dev Updates the liquidity cumulative index and the variable borrow index.
+   * @param reserve the reserve object
+   **/
+  function updateReserveState(address reserve) external override {
+    DataTypes.ReserveData storage reserveData = _reserves[reserve];
+    require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
+    require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
+
+    reserveData.updateState();
+  }
+
+  /**
+   * @dev Updates the reserve current stable borrow rate, the current variable borrow rate and the current liquidity rate
+   * @param reserve The address of the reserve to be updated
+   **/
+  function updateReserveInterestRates(address reserve) external override {
+    DataTypes.ReserveData storage reserveData = _reserves[reserve];
+    address uTokenAddress = reserveData.uTokenAddress;
+    require(uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
+    require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
+
+    reserveData.updateInterestRates(reserve, uTokenAddress, 0, 0);
   }
 
   function _addReserveToList(address asset) internal {
