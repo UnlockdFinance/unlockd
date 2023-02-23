@@ -1,4 +1,5 @@
 import { parseEther } from "ethers/lib/utils";
+import moment from "moment";
 import { borrowBayc } from "./helpers/actions";
 import { makeSuite } from "./helpers/make-suite";
 
@@ -24,7 +25,6 @@ makeSuite("Buy and sell the debts", (testEnv) => {
     expect(debt.debtId).equals(debtId, "Invalid debtId");
     expect(debt.sellPrice.toString()).to.be.bignumber.eq("50", "Invalid sell price");
   });
-
   it("Cancel a debt listing", async () => {
     const { users, debtMarket, bayc } = testEnv;
     const seller = users[4];
@@ -73,5 +73,24 @@ makeSuite("Buy and sell the debts", (testEnv) => {
     //Check previous owner of the loan
     expect(oldLoan.borrower).equals(seller.address, "Invalid previuos loan debtor");
     expect(loan.borrower).equals(buyer.address, "Invalid new loan debtor");
+  });
+  it("Create a bid", async () => {
+    const { users, debtMarket, bayc, wethGateway } = testEnv;
+    const seller = users[4];
+    const bidder = users[5];
+    const nftAsset = bayc.address;
+    const tokenId = testEnv.tokenIdTracker++;
+    await borrowBayc(testEnv, seller, tokenId, 10);
+    const auctionEndTimestamp = moment().add(1, "days").unix();
+    await debtMarket
+      .connect(seller.signer)
+      .createDebtListingWithAuction(nftAsset, tokenId, 50, seller.address, auctionEndTimestamp);
+    await wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 50 });
+    const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+    const debt = await debtMarket.getDebt(debtId);
+
+    expect(debt.state).equals(1, "Invalid debt offer state");
+    expect(debt.bidPrice).equals(50, "Invalid bid price");
+    expect(debt.bidderAddress).equals(bidder.address, "Invalid bidder address");
   });
 });

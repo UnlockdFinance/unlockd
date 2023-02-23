@@ -168,4 +168,6 @@ library Errors {
   string public constant DM_BID_PRICE_LESS_THAN_SELL_PRICE = "1008";
   string public constant DM_BID_PRICE_LESS_THAN_PREVIOUS_BID = "1009";
   string public constant DM_INVALID_SELL_TYPE = "1010";
+  string public constant DM_AUCTION_NOT_ALREADY_ENDED = "1011";
+  string public constant DM_INVALID_CLAIM_RECEIVER = "1012";
 }
