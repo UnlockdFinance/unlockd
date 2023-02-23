@@ -211,7 +211,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
 
     require(bidPrice >= marketListing.sellPrice, Errors.DM_BID_PRICE_LESS_THAN_SELL_PRICE);
     require(
-      bidPrice > (marketListing.bidPrice + marketListing.bidPrice.percentMul(1e2)),
+      bidPrice > (marketListing.bidPrice + marketListing.bidPrice.percentMul(PercentageMath.ONE_PERCENT)),
       Errors.DM_BID_PRICE_LESS_THAN_PREVIOUS_BID
     );
     require(marketListing.sellType == DataTypes.DebtMarketType.Auction, Errors.DM_INVALID_SELL_TYPE);
