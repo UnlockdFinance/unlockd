@@ -45,4 +45,6 @@ interface IDebtMarket {
   function claim(address nftAsset, uint256 tokenId, address onBehalfOf) external;
 
   function bid(address nftAsset, uint256 tokenId, uint256 bidPrice, address onBehalfOf) external;
+
+  function setDeltaBidPercent(uint256 value) external;
 }

@@ -1,5 +1,6 @@
 import { parseEther } from "ethers/lib/utils";
 import moment from "moment";
+import { getPoolAdminSigner } from "../helpers/contracts-getters";
 import { advanceTimeAndBlock, fundWithERC721, waitForTx } from "../helpers/misc-utils";
 import { borrowBayc } from "./helpers/actions";
 import { makeSuite } from "./helpers/make-suite";
@@ -96,6 +97,41 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       expect(debt.bidPrice).equals(50, "Invalid bid price");
       expect(debt.bidderAddress).equals(bidder.address, "Invalid bidder address");
     });
+    it("Update a debt listing delta bids", async () => {
+      const { users, debtMarket, bayc, wethGateway } = testEnv;
+      const seller = users[4];
+      const bidder = users[5];
+      const secondBidder = users[6];
+      const nftAsset = bayc.address;
+      const poolAdmin = await getPoolAdminSigner();
+
+      const tokenId = testEnv.tokenIdTracker++;
+      await borrowBayc(testEnv, seller, tokenId, 10);
+      const auctionEndTimestamp = moment().add(1, "days").unix();
+      await debtMarket
+        .connect(seller.signer)
+        .createDebtListingWithAuction(nftAsset, tokenId, 100, seller.address, auctionEndTimestamp);
+      //Delta to 10%
+      await debtMarket.connect(poolAdmin).setDeltaBidPercent(1000);
+      await wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 100 });
+      const tx = wethGateway
+        .connect(secondBidder.signer)
+        .bidDebtETH(nftAsset, tokenId, secondBidder.address, { value: 102 });
+      await expect(tx).to.be.revertedWith("1009");
+      //Delta to 1%
+      await debtMarket.connect(poolAdmin).setDeltaBidPercent(100);
+      await wethGateway
+        .connect(secondBidder.signer)
+        .bidDebtETH(nftAsset, tokenId, secondBidder.address, { value: 102 });
+      const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+      const debt = await debtMarket.getDebt(debtId);
+
+      expect(debt.sellType).equals(1, "Invalid debt offer type");
+      expect(debt.state).equals(1, "Invalid debt offer state");
+      expect(debt.bidPrice).equals(102, "Invalid bid price");
+      expect(debt.bidderAddress).equals(secondBidder.address, "Invalid bidder address");
+    });
+
     it("Cancel a debt listing with bids", async () => {
       const { users, debtMarket, bayc, weth, wethGateway } = testEnv;
       const seller = users[4];

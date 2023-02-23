@@ -38,6 +38,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   uint256 private constant _NOT_ENTERED = 0;
   uint256 private constant _ENTERED = 1;
   uint256 private _status;
+  uint256 private _deltaBidPercent;
 
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
@@ -98,6 +99,11 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
 
   function initialize(ILendPoolAddressesProvider addressesProvider) external initializer {
     _addressesProvider = addressesProvider;
+    _deltaBidPercent = PercentageMath.ONE_PERCENT;
+  }
+
+  function setDeltaBidPercent(uint256 value) external override nonReentrant onlyPoolAdmin {
+    _deltaBidPercent = value;
   }
 
   function _transferDebt(address nftAsset, uint256 tokenId, address onBehalfOf) internal {
@@ -211,7 +217,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
 
     require(bidPrice >= marketListing.sellPrice, Errors.DM_BID_PRICE_LESS_THAN_SELL_PRICE);
     require(
-      bidPrice > (marketListing.bidPrice + marketListing.bidPrice.percentMul(PercentageMath.ONE_PERCENT)),
+      bidPrice > (marketListing.bidPrice + marketListing.bidPrice.percentMul(_deltaBidPercent)),
       Errors.DM_BID_PRICE_LESS_THAN_PREVIOUS_BID
     );
     require(marketListing.sellType == DataTypes.DebtMarketType.Auction, Errors.DM_INVALID_SELL_TYPE);
