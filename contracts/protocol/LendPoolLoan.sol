@@ -571,15 +571,15 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
 
     require(_userNftCollateral[oldOnBehalfOf][nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
 
-    IUNFT(nftData.uNftAddress).burn(tokenId);
-
     _userNftCollateral[oldOnBehalfOf][nftAsset] -= 1;
-
-    IUNFT(nftData.uNftAddress).mint(newOnBehalfOf, tokenId);
     _userNftCollateral[newOnBehalfOf][nftAsset] += 1;
+
     uint256 loanId = _nftToLoanIds[nftAsset][tokenId];
 
     DataTypes.LoanData storage loan = _loans[loanId];
     loan.borrower = newOnBehalfOf;
+
+    IUNFT(nftData.uNftAddress).burn(tokenId);
+    IUNFT(nftData.uNftAddress).mint(newOnBehalfOf, tokenId);
   }
 }

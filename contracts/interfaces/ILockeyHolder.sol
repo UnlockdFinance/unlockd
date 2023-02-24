@@ -12,4 +12,8 @@ interface ILockeyHolder {
    * @dev Returns the lockeys discount percentage
    **/
   function getLockeyDiscountPercentage() external view returns (uint256);
+
+  function getLockeyDiscountPercentageOnDebtMarket() external view returns (uint256);
+
+  function setLockeyDiscountPercentageOnDebtMarket(uint256 discountPercentage) external;
 }

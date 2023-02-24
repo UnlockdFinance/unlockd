@@ -15,6 +15,7 @@ import {Errors} from "../libraries/helpers/Errors.sol";
 contract LockeyHolder is Initializable {
   uint256 internal _lockeyDiscount;
   ILendPoolAddressesProvider internal _addressesProvider;
+  uint256 internal _lockeyDiscountOnDebtMarket;
 
   modifier onlyPoolAdmin() {
     require(_addressesProvider.getPoolAdmin() == msg.sender, Errors.CALLER_NOT_POOL_ADMIN);
@@ -43,5 +44,20 @@ contract LockeyHolder is Initializable {
    **/
   function getLockeyDiscountPercentage() external view returns (uint256) {
     return _lockeyDiscount;
+  }
+
+  /**
+   * @dev Sets the discountPercentageOnDebtMarket an allowed percentage for lockey holders
+   * @param discountPercentage percentage allowed to deduct
+   **/
+  function setLockeyDiscountPercentageOnDebtMarket(uint256 discountPercentage) external onlyPoolAdmin {
+    _lockeyDiscountOnDebtMarket = discountPercentage;
+  }
+
+  /**
+   * @dev Returns the lockey discount percentage on debt market
+   **/
+  function getLockeyDiscountPercentageOnDebtMarket() external view returns (uint256) {
+    return _lockeyDiscountOnDebtMarket;
   }
 }

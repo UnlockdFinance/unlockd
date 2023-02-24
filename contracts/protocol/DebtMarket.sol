@@ -7,6 +7,7 @@ import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Cont
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 
 import {ReserveLogic} from "../libraries/logic/ReserveLogic.sol";
 import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
@@ -20,6 +21,7 @@ import {IDebtMarket} from "../interfaces/IDebtMarket.sol";
 import {IUNFT} from "../interfaces/IUNFT.sol";
 import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
+import {ILockeyHolder} from "../interfaces/ILockeyHolder.sol";
 
 contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -38,6 +40,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   uint256 private constant _NOT_ENTERED = 0;
   uint256 private constant _ENTERED = 1;
   uint256 private _status;
+  uint256 private _deltaBidPercent;
 
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
@@ -87,7 +90,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     _;
   }
 
-  struct BuyLocalVars {
+  struct TransferLocalVars {
     address lendPoolLoanAddress;
     address lendPoolAddress;
     uint256 loanId;
@@ -95,13 +98,26 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     uint256 debtId;
     uint256 borrowAmount;
   }
+  struct BuyLocalVars {
+    uint256 debtId;
+    address lendPoolLoanAddress;
+    address lockeysCollection;
+    address lockeyHolderAddress;
+    uint256 loanId;
+    uint256 price;
+  }
 
   function initialize(ILendPoolAddressesProvider addressesProvider) external initializer {
     _addressesProvider = addressesProvider;
+    _deltaBidPercent = PercentageMath.ONE_PERCENT;
+  }
+
+  function setDeltaBidPercent(uint256 value) external override nonReentrant onlyPoolAdmin {
+    _deltaBidPercent = value;
   }
 
   function _transferDebt(address nftAsset, uint256 tokenId, address onBehalfOf) internal {
-    BuyLocalVars memory vars;
+    TransferLocalVars memory vars;
 
     vars.lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
     vars.lendPoolAddress = _addressesProvider.getLendPool();
@@ -147,22 +163,37 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   function buy(
     address nftAsset,
     uint256 tokenId,
-    address onBehalfOf
+    address onBehalfOf,
+    uint256 amount
   ) external override nonReentrant debtShouldExistGuard(nftAsset, tokenId) {
-    uint256 debtId = _nftToDebtIds[nftAsset][tokenId];
-    address lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
-    uint256 loanId = ILendPoolLoan(lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
-    require(loanId != 0, Errors.DM_LOAN_SHOULD_EXIST);
+    BuyLocalVars memory vars;
 
-    DataTypes.LoanData memory loanData = ILendPoolLoan(lendPoolLoanAddress).getLoan(loanId);
-    DataTypes.DebtMarketListing memory marketOrder = _marketListings[debtId];
+    vars.debtId = _nftToDebtIds[nftAsset][tokenId];
+    vars.lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
+    vars.lockeysCollection = _addressesProvider.getAddress(keccak256("LOCKEY_COLLECTION"));
+    vars.lockeyHolderAddress = _addressesProvider.getAddress(keccak256("LOCKEY_HOLDER"));
+    vars.loanId = ILendPoolLoan(vars.lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
+    require(vars.loanId != 0, Errors.DM_LOAN_SHOULD_EXIST);
+
+    DataTypes.LoanData memory loanData = ILendPoolLoan(vars.lendPoolLoanAddress).getLoan(vars.loanId);
+    DataTypes.DebtMarketListing memory marketOrder = _marketListings[vars.debtId];
 
     _transferDebt(nftAsset, tokenId, onBehalfOf);
+    vars.price = marketOrder.sellPrice;
+
+    if (IERC721Upgradeable(vars.lockeysCollection).balanceOf(onBehalfOf) > 0) {
+      vars.price = marketOrder.sellPrice.percentMul(
+        ILockeyHolder(vars.lockeyHolderAddress).getLockeyDiscountPercentageOnDebtMarket()
+      );
+    }
+
+    require(vars.price == amount, Errors.DM_AMOUNT_DIFFERENT_FROM_SELL_PRICE);
+
     // Pay to the seller with ERC20
-    IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(_msgSender(), loanData.borrower, marketOrder.sellPrice);
+    IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(_msgSender(), loanData.borrower, vars.price);
 
     // Create a event
-    emit DebtSold(loanData.borrower, onBehalfOf, debtId);
+    emit DebtSold(loanData.borrower, onBehalfOf, vars.debtId);
   }
 
   struct BidLocalVars {
@@ -211,7 +242,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
 
     require(bidPrice >= marketListing.sellPrice, Errors.DM_BID_PRICE_LESS_THAN_SELL_PRICE);
     require(
-      bidPrice > (marketListing.bidPrice + marketListing.bidPrice.percentMul(1e2)),
+      bidPrice > (marketListing.bidPrice + marketListing.bidPrice.percentMul(_deltaBidPercent)),
       Errors.DM_BID_PRICE_LESS_THAN_PREVIOUS_BID
     );
     require(marketListing.sellType == DataTypes.DebtMarketType.Auction, Errors.DM_INVALID_SELL_TYPE);

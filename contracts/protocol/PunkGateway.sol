@@ -243,7 +243,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (paybackAmount, burn);
   }
 
-  function buyDebtPunk(uint256 punkIndex, address onBehalfOf) external override nonReentrant {
+  function buyDebtPunk(uint256 punkIndex, address onBehalfOf, uint256 amount) external override nonReentrant {
     bytes32 DEBT_MARKET = keccak256("DEBT_MARKET");
 
     IDebtMarket debtMarketAddress = IDebtMarket(_addressProvider.getAddress(DEBT_MARKET));
@@ -251,7 +251,12 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
     require(loanId != 0, "PunkGateway: no loan with such punkIndex");
 
-    debtMarketAddress.buy(address(wrappedPunks), punkIndex, onBehalfOf);
+    (, , address reserve, ) = cachedPoolLoan.getLoanCollateralAndReserve(loanId);
+
+    IERC20Upgradeable(reserve).safeTransferFrom(msg.sender, address(this), amount);
+    IERC20Upgradeable(reserve).approve(address(debtMarketAddress), amount);
+
+    debtMarketAddress.buy(address(wrappedPunks), punkIndex, onBehalfOf, amount);
   }
 
   function buyDebtPunkETH(uint256 punkIndex, address onBehalfOf) external payable override nonReentrant {
@@ -259,7 +264,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
     require(loanId != 0, "PunkGateway: no loan with such punkIndex");
 
-    _wethGateway.buyDebtETH(address(wrappedPunks), punkIndex, onBehalfOf);
+    _wethGateway.buyDebtETH{value: msg.value}(address(wrappedPunks), punkIndex, onBehalfOf);
   }
 
   function auction(uint256 punkIndex, uint256 bidPrice, address onBehalfOf) external override nonReentrant {
