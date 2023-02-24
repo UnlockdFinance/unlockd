@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
 import {IReservoir} from "../../interfaces/reservoir/IReservoir.sol";
 
-contract ReservoirAdapter is Initializable {
+import {BaseAdapter} from "./abstracts/BaseAdapter.sol";
+
+contract ReservoirAdapter is BaseAdapter, IReservoir {
   IReservoir internal _reservoir;
 
   /**
@@ -14,7 +16,8 @@ contract ReservoirAdapter is Initializable {
    * @param provider The address of the LendPoolAddressesProvider
    **/
   function initialize(ILendPoolAddressesProvider provider, IReservoir reservoir) external initializer {
-    require(address(reservoir) != address(0), Errors.INVALID_ZERO_ADDRESS);
+    if (address(reservoir) == address(0)) revert InvalidZeroAddress();
+
     __BaseAdapter_init(provider);
     _reservoir = reservoir;
   }
@@ -22,7 +25,7 @@ contract ReservoirAdapter is Initializable {
   function liquidateReservoir(
     address nftAsset,
     uint256 tokenId,
-    ExecutionInfo executionInfo
+    ExecutionInfo calldata executionInfo
   ) external override nonReentrant {
     _performInitialChecks(nftAsset, tokenId);
 
@@ -30,8 +33,8 @@ contract ReservoirAdapter is Initializable {
 
     _updateReserveInterestRates(nftAsset, tokenId);
 
-    _validateHealthFactor(nftAsset, tokenId);
+    _validateLoanHealthFactor(nftAsset, tokenId);
 
-    _reservoir.execute(executionInfo);
+    //@todo burn UNFT and transfer it
   }
 }

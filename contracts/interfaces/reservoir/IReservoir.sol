@@ -13,5 +13,5 @@ interface IReservoir {
     uint256 value;
   }
 
-  function execute(ExecutionInfo[] calldata executionInfos) external payable;
+  function liquidateReservoir(address nftAsset, uint256 tokenId, ExecutionInfo calldata executionInfo) external;
 }
