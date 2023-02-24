@@ -243,7 +243,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (paybackAmount, burn);
   }
 
-  function buyDebtPunk(uint256 punkIndex, address onBehalfOf) external override nonReentrant {
+  function buyDebtPunk(uint256 punkIndex, address onBehalfOf, uint256 amount) external override nonReentrant {
     bytes32 DEBT_MARKET = keccak256("DEBT_MARKET");
 
     IDebtMarket debtMarketAddress = IDebtMarket(_addressProvider.getAddress(DEBT_MARKET));
@@ -251,7 +251,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
     require(loanId != 0, "PunkGateway: no loan with such punkIndex");
 
-    debtMarketAddress.buy(address(wrappedPunks), punkIndex, onBehalfOf);
+    debtMarketAddress.buy(address(wrappedPunks), punkIndex, onBehalfOf, amount);
   }
 
   function buyDebtPunkETH(uint256 punkIndex, address onBehalfOf) external payable override nonReentrant {

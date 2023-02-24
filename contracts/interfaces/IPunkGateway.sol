@@ -118,5 +118,5 @@ interface IPunkGateway {
    * @param onBehalfOf Address of the user who will receive the CryptoPunk. Should be the address of the user itself
    * calling the function if he wants to get collateral
    **/
-  function buyDebtPunk(uint256 punkIndex, address onBehalfOf) external;
+  function buyDebtPunk(uint256 punkIndex, address onBehalfOf, uint256 amount) external;
 }

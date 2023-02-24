@@ -40,7 +40,7 @@ interface IDebtMarket {
    */
   event DebtSold(address indexed from, address indexed to, uint256 indexed debtId);
 
-  function buy(address nftAsset, uint256 tokenId, address onBehalfOf) external;
+  function buy(address nftAsset, uint256 tokenId, address onBehalfOf, uint256 amount) external;
 
   function claim(address nftAsset, uint256 tokenId, address onBehalfOf) external;
 

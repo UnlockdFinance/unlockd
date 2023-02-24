@@ -341,7 +341,7 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
       WETH.approve(address(debtMarketAddress), type(uint256).max);
     }
 
-    debtMarketAddress.buy(nftAsset, nftTokenId, onBehalfOf);
+    debtMarketAddress.buy(nftAsset, nftTokenId, onBehalfOf, msg.value);
   }
 
   /**

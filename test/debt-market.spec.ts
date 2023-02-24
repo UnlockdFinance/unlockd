@@ -1,7 +1,9 @@
+import { BigNumber as BN, Contract } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import moment from "moment";
 import { getPoolAdminSigner } from "../helpers/contracts-getters";
-import { advanceTimeAndBlock, fundWithERC721, waitForTx } from "../helpers/misc-utils";
+import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
+import { advanceTimeAndBlock, DRE, fundWithERC721, fundWithWrappedPunk, waitForTx } from "../helpers/misc-utils";
 import { borrowBayc } from "./helpers/actions";
 import { makeSuite } from "./helpers/make-suite";
 
@@ -131,7 +133,6 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       expect(debt.bidPrice).equals(102, "Invalid bid price");
       expect(debt.bidderAddress).equals(secondBidder.address, "Invalid bidder address");
     });
-
     it("Cancel a debt listing with bids", async () => {
       const { users, debtMarket, bayc, weth, wethGateway } = testEnv;
       const seller = users[4];
@@ -213,6 +214,24 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       expect(oldLoan.borrower).equals(seller.address, "Invalid previuos loan debtor");
       expect(loan.borrower).equals(bidder.address, "Invalid new loan debtor");
     });
+    it("Buy a debt with a lockey holder discount", async () => {
+      const { users, debtMarket, bayc, wethGateway, uBAYC, dataProvider, lockeyHolder, deployer } = testEnv;
+      const seller = users[4];
+      const buyer = users[6];
+      const nftAsset = bayc.address;
+      const tokenId = testEnv.tokenIdTracker++;
+
+      await fundWithERC721("LOCKEY", buyer.address, 1);
+      await borrowBayc(testEnv, seller, tokenId, 10);
+      await lockeyHolder.connect(deployer.signer).setLockeyDiscountPercentageOnDebtMarket(BN.from("10000")); // 0% discount
+      await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 100, seller.address);
+      const tx_one = wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 1 });
+      await expect(tx_one).to.be.revertedWith("1013");
+      await lockeyHolder.connect(deployer.signer).setLockeyDiscountPercentageOnDebtMarket(BN.from("9700")); // 3% discount
+      const tx_two = wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 96 });
+      await expect(tx_two).to.be.revertedWith("1013");
+      await wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 97 });
+    });
   });
   describe("Negative", function () {
     const createDebtListting = async (testEnv, nftAsset, amount, seller) => {
@@ -221,6 +240,32 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       await borrowBayc(testEnv, seller, tokenId, 10);
       return debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, amount, seller.address);
     };
+    describe("Revert on try to buy a debt listing", function () {
+      it("When it is a the price is lowest than the offer", async () => {
+        const { users, debtMarket, bayc, wethGateway, uBAYC, dataProvider, lockeyHolder, deployer } = testEnv;
+        const seller = users[4];
+        const buyer = users[5];
+        const nftAsset = bayc.address;
+        const tokenId = testEnv.tokenIdTracker++;
+
+        await borrowBayc(testEnv, seller, tokenId, 10);
+        await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 100, seller.address);
+        const tx = wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 1 });
+        await expect(tx).to.be.revertedWith("1013");
+      });
+      it("When it is a the price is highest than the offer", async () => {
+        const { users, debtMarket, bayc, wethGateway, uBAYC, dataProvider, lockeyHolder, deployer } = testEnv;
+        const seller = users[4];
+        const buyer = users[5];
+        const nftAsset = bayc.address;
+        const tokenId = testEnv.tokenIdTracker++;
+
+        await borrowBayc(testEnv, seller, tokenId, 10);
+        await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 100, seller.address);
+        const tx = wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 101 });
+        await expect(tx).to.be.revertedWith("1013");
+      });
+    });
     describe("Revert on try to create listing", function () {
       it("When it is a debt listing without the ownership of the nft", async () => {
         const { users, bayc } = testEnv;
