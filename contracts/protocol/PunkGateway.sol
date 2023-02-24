@@ -251,6 +251,11 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
     require(loanId != 0, "PunkGateway: no loan with such punkIndex");
 
+    (, , address reserve, ) = cachedPoolLoan.getLoanCollateralAndReserve(loanId);
+
+    IERC20Upgradeable(reserve).safeTransferFrom(msg.sender, address(this), amount);
+    IERC20Upgradeable(reserve).approve(address(debtMarketAddress), amount);
+
     debtMarketAddress.buy(address(wrappedPunks), punkIndex, onBehalfOf, amount);
   }
 
@@ -259,7 +264,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
     require(loanId != 0, "PunkGateway: no loan with such punkIndex");
 
-    _wethGateway.buyDebtETH(address(wrappedPunks), punkIndex, onBehalfOf);
+    _wethGateway.buyDebtETH{value: msg.value}(address(wrappedPunks), punkIndex, onBehalfOf);
   }
 
   function auction(uint256 punkIndex, uint256 bidPrice, address onBehalfOf) external override nonReentrant {

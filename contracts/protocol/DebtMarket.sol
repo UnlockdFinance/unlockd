@@ -23,8 +23,6 @@ import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILockeyHolder} from "../interfaces/ILockeyHolder.sol";
 
-import "hardhat/console.sol";
-
 contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   using CountersUpgradeable for CountersUpgradeable.Counter;
   using SafeERC20Upgradeable for IERC20Upgradeable;
