@@ -209,7 +209,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   }
 
   /**
-   * @dev Returns the scaled balance of the user and the scaled total supply.
+   * @dev Returns the available liquidity for the UToken
    * @return The available liquidity in reserve
    **/
   function getAvailableLiquidity() public view override returns (uint256) {

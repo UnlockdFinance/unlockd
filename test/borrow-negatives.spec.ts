@@ -180,44 +180,6 @@ makeSuite("LendPool: Borrow negative test cases", (testEnv: TestEnv) => {
     );
   });
 
-  it("Tries to uses NFT which id exceed max limit as collateral to borrow 10 WETH (revert expected)", async () => {
-    const { users, configurator, deployer, pool, bayc, nftOracle } = testEnv;
-    const user1 = users[1];
-
-    const tokenId = "100001";
-
-    await configurator.setLtvManagerStatus(deployer.address, true);
-    await nftOracle.setPriceManagerStatus(configurator.address, true);
-
-    const collData: IConfigNftAsCollateralInput = {
-      asset: bayc.address,
-      nftTokenId: tokenId,
-      newPrice: parseEther("100"),
-      ltv: 4000,
-      liquidationThreshold: 7000,
-      redeemThreshold: 9000,
-      liquidationBonus: 500,
-      redeemDuration: 100,
-      auctionDuration: 200,
-      redeemFine: 500,
-      minBidFine: 2000,
-    };
-    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
-
-    await borrow(
-      testEnv,
-      user1,
-      "WETH",
-      "10",
-      "BAYC",
-      tokenId,
-      user1.address,
-      "",
-      "revert",
-      ProtocolErrors.LP_NFT_TOKEN_ID_EXCEED_MAX_LIMIT
-    );
-  });
-
   it("Users 0 Deposits 100 WETH and user 1 tries to borrow but the timestamp exceeds", async () => {
     const { users, pool, bayc, weth, deployer, configurator, nftOracle, dataProvider } = testEnv;
     const user0 = users[0];

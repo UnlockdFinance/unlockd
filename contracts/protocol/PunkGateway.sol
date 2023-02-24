@@ -302,6 +302,24 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return (extraRetAmount);
   }
 
+  function buyout(uint256 punkIndex, uint256 amount, address onBehalfOf) external override nonReentrant {
+    _checkValidCallerAndOnBehalfOf(onBehalfOf);
+
+    ILendPool cachedPool = _getLendPool();
+    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
+
+    uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
+    require(loanId != 0, "PunkGateway: no loan with such punkIndex");
+
+    (, , address reserve, ) = cachedPoolLoan.getLoanCollateralAndReserve(loanId);
+
+    IERC20Upgradeable(reserve).transferFrom(msg.sender, address(this), amount);
+
+    cachedPool.buyout(address(wrappedPunks), punkIndex, amount, onBehalfOf);
+
+    _withdrawPunk(punkIndex, onBehalfOf);
+  }
+
   /**
    * @notice Liquidate punk in NFTX
    * @param punkIndex The index of the CryptoPunk to liquidate
@@ -433,6 +451,19 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     }
 
     return extraAmount;
+  }
+
+  function buyoutETH(uint256 punkIndex, address onBehalfOf) external payable override nonReentrant {
+    _checkValidCallerAndOnBehalfOf(onBehalfOf);
+
+    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
+
+    uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
+    require(loanId != 0, "PunkGateway: no loan with such punkIndex");
+
+    _wethGateway.buyoutETH{value: msg.value}(address(wrappedPunks), punkIndex, onBehalfOf);
+
+    _withdrawPunk(punkIndex, onBehalfOf);
   }
 
   /**

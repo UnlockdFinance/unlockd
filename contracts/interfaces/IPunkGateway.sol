@@ -35,7 +35,7 @@ interface IPunkGateway {
 
   /**
    * @notice auction a unhealth punk loan with ERC20 reserve
-   * @param punkIndex The index of the CryptoPunk used as collteral
+   * @param punkIndex The index of the CryptoPunk used as collateral
    * @param bidPrice The bid price
    **/
   function auction(uint256 punkIndex, uint256 bidPrice, address onBehalfOf) external;
@@ -50,9 +50,19 @@ interface IPunkGateway {
 
   /**
    * @notice liquidate a unhealth punk loan with ERC20 reserve
-   * @param punkIndex The index of the CryptoPunk used as collteral
+   * @param punkIndex The index of the CryptoPunk used as collateral
    **/
   function liquidate(uint256 punkIndex, uint256 amount) external returns (uint256);
+
+  /**
+   * @notice Executes the buyout for an NFT with a non-healthy position collateral-wise
+   * @param punkIndex The index of the CryptoPunk used as collateral
+   * @param amount The amount to send for the buyout
+   * @param onBehalfOf The address that will receive the NFT, same as msg.sender if the user
+   *   wants to receive them on his own wallet, or a different address if the beneficiary of the NFT
+   *   is a different wallet
+   **/
+  function buyout(uint256 punkIndex, uint256 amount, address onBehalfOf) external;
 
   /**
    * @notice liquidate a unhealth punk loan on NFTX
@@ -105,4 +115,13 @@ interface IPunkGateway {
    * @param punkIndex The index of the CryptoPunk to repay
    **/
   function liquidateETH(uint256 punkIndex) external payable returns (uint256);
+
+  /**
+   * @notice Executes the buyout for an NFT with a non-healthy position collateral-wise with native ETH
+   * @param punkIndex The index of the CryptoPunk used as collateral
+   * @param onBehalfOf The address that will receive the NFT, same as msg.sender if the user
+   *   wants to receive them on his own wallet, or a different address if the beneficiary of the NFT
+   *   is a different wallet
+   **/
+  function buyoutETH(uint256 punkIndex, address onBehalfOf) external payable;
 }

@@ -67,7 +67,6 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
   it("Owner can do emergency CryptoPunks recovery", async () => {
     const { users, cryptoPunksMarket, punkGateway, deployer } = testEnv;
     const user = users[0];
-    console.log("USER: " + user.address);
     const punkIndex = testEnv.punkIndexTracker++;
     if (!UPGRADE) {
       await cryptoPunksMarket.allInitialOwnersAssigned();
@@ -367,7 +366,6 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
 
     // borrow first eth
     await waitForTx(await punkGateway.connect(user.signer).borrowETH(borrowSize1, punkIndex, user.address, "0"));
-    console.log("AVAILABLE LIQUIDITY AFTER FIRST BORROW: " + (await uWETH.getAvailableLiquidity()).toString());
     await advanceTimeAndBlock(100);
 
     const collData2: IConfigNftAsCollateralInput = {
