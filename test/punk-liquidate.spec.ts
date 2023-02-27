@@ -170,7 +170,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
       await fundWithERC20("USDC", liquidator.address, "200000");
       await approveERC20PunkGateway(testEnv, liquidator, "USDC");
 
-      const { liquidatePrice } = await pool.getNftLiquidatePrice(wrappedPunk.address, punkIndex);
+      const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(usdc.address, wrappedPunk.address, punkIndex);
       const liquidateAmount = liquidatePrice.add(liquidatePrice.mul(5).div(100));
       await waitForTx(
         await punkGateway.connect(liquidator.signer).auction(punkIndex, liquidateAmount, liquidator.address)
@@ -393,7 +393,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     expect(nftDebtDataAfterOracle.healthFactor.toString()).to.be.bignumber.lt(oneEther.toFixed(0));
 
     // Liquidate ETH loan with native ETH
-    const { liquidatePrice } = await pool.getNftLiquidatePrice(wrappedPunk.address, punkIndex);
+    const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(weth.address, wrappedPunk.address, punkIndex);
     const liquidateAmountSend = liquidatePrice.add(liquidatePrice.mul(5).div(100));
     await waitForTx(
       await punkGateway
@@ -612,7 +612,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     expect(nftDebtDataAfterOracle.healthFactor.toString()).to.be.bignumber.lt(oneEther.toFixed(0));
 
     // Auction ETH loan with native ETH
-    const { liquidatePrice } = await pool.getNftLiquidatePrice(wrappedPunk.address, punkIndex);
+    const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(weth.address, wrappedPunk.address, punkIndex);
     const liquidateAmountSend = liquidatePrice.add(liquidatePrice.mul(5).div(100));
     await waitForTx(
       await punkGateway
