@@ -112,52 +112,88 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     _deltaBidPercent = PercentageMath.ONE_PERCENT;
   }
 
-  function setDeltaBidPercent(uint256 value) external override nonReentrant onlyPoolAdmin {
-    _deltaBidPercent = value;
+  function createDebtListing(
+    address nftAsset,
+    uint256 tokenId,
+    uint256 sellPrice,
+    address onBehalfOf
+  ) external nonReentrant nonDuplicatedDebt(nftAsset, tokenId) onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
+    _createDebt(nftAsset, tokenId, sellPrice, onBehalfOf);
+
+    uint256 debtId = _debtIdTracker.current();
+    DataTypes.DebtMarketListing memory marketListing = _marketListings[debtId];
+
+    emit DebtListingCreated(
+      marketListing.debtId,
+      marketListing.debtor,
+      marketListing.nftAsset,
+      marketListing.tokenId,
+      marketListing.sellType,
+      marketListing.state,
+      marketListing.sellPrice,
+      marketListing.reserveAsset,
+      marketListing.scaledAmount
+    );
   }
 
-  function _transferDebt(address nftAsset, uint256 tokenId, address onBehalfOf) internal {
-    TransferLocalVars memory vars;
+  function createDebtListingWithAuction(
+    address nftAsset,
+    uint256 tokenId,
+    uint256 sellPrice,
+    address onBehalfOf,
+    uint256 auctionEndTimestamp
+  ) external nonReentrant nonDuplicatedDebt(nftAsset, tokenId) onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
+    // solhint-disable-next-line
+    require(auctionEndTimestamp >= block.timestamp, Errors.DM_AUCTION_ALREADY_ENDED);
 
-    vars.lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
-    vars.lendPoolAddress = _addressesProvider.getLendPool();
-    vars.loanId = ILendPoolLoan(vars.lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
+    _createDebt(nftAsset, tokenId, sellPrice, onBehalfOf);
 
-    DataTypes.LoanData memory loanData = ILendPoolLoan(vars.lendPoolLoanAddress).getLoan(vars.loanId);
-    DataTypes.ReserveData memory reserveData = ILendPool(vars.lendPoolAddress).getReserveData(loanData.reserveAsset);
-    // reserveData.updateState();
+    uint256 debtId = _nftToDebtIds[nftAsset][tokenId];
+    DataTypes.DebtMarketListing storage marketListing = _marketListings[debtId];
+    marketListing.sellType = DataTypes.DebtMarketType.Auction;
+    marketListing.auctionEndTimestamp = auctionEndTimestamp;
 
-    (, vars.borrowAmount) = ILendPoolLoan(vars.lendPoolLoanAddress).getLoanReserveBorrowAmount(vars.loanId);
-
-    vars.buyer = onBehalfOf;
-
-    vars.debtId = _nftToDebtIds[nftAsset][tokenId];
-    // Burn debt from seller
-    IDebtToken(reserveData.debtTokenAddress).burn(
-      loanData.borrower,
-      vars.borrowAmount,
-      reserveData.variableBorrowIndex
+    emit DebtAuctionCreated(
+      marketListing.debtId,
+      marketListing.debtor,
+      marketListing.nftAsset,
+      marketListing.tokenId,
+      marketListing.sellType, // Auction
+      marketListing.state,
+      marketListing.sellPrice,
+      marketListing.reserveAsset,
+      marketListing.scaledAmount
     );
-    // Mint debt from buyer
-    IDebtToken(reserveData.debtTokenAddress).mint(
-      vars.buyer,
-      vars.buyer,
-      vars.borrowAmount,
-      reserveData.variableBorrowIndex
-    );
+  }
 
-    // Burn unft from seller
-    // Mint unft from buyer
-    ILendPoolLoan(vars.lendPoolLoanAddress).reMintUNFT(
-      loanData.nftAsset,
-      loanData.nftTokenId,
-      loanData.borrower,
-      vars.buyer
-    );
-    // Remove the offer listing
-    DataTypes.DebtMarketListing storage marketOrder = _marketListings[vars.debtId];
-    marketOrder.state = DataTypes.DebtMarketState.Sold;
+  function cancelDebtListing(
+    address nftAsset,
+    uint256 tokenId
+  ) external nonReentrant debtShouldExistGuard(nftAsset, tokenId) {
+    uint256 debtId = _nftToDebtIds[nftAsset][tokenId];
+
+    DataTypes.DebtMarketListing storage selldebt = _marketListings[debtId];
+    require(selldebt.state != DataTypes.DebtMarketState.Sold, Errors.DM_DEBT_SHOULD_NOT_BE_SOLD);
+    selldebt.state = DataTypes.DebtMarketState.Canceled;
     _deleteDebtOfferListing(nftAsset, tokenId);
+
+    _nftToDebtIds[nftAsset][tokenId] = 0;
+
+    if (selldebt.bidderAddress != address(0)) {
+      IERC20Upgradeable(selldebt.reserveAsset).safeTransferFrom(
+        address(this),
+        selldebt.bidderAddress,
+        selldebt.bidPrice
+      );
+    }
+
+    emit DebtListingCanceled(
+      selldebt.debtor,
+      selldebt.debtId,
+      selldebt,
+      _totalDebtsByCollection[nftAsset],
+      _userTotalDebtByCollection[selldebt.debtor][nftAsset]
+    );
   }
 
   function buy(
@@ -204,29 +240,6 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     uint256 debtId;
   }
 
-  function claim(
-    address nftAsset,
-    uint256 tokenId,
-    address onBehalfOf
-  ) external override nonReentrant debtShouldExistGuard(nftAsset, tokenId) {
-    BidLocalVars memory vars;
-    vars.debtId = _nftToDebtIds[nftAsset][tokenId];
-    DataTypes.DebtMarketListing storage marketListing = _marketListings[vars.debtId];
-
-    require(marketListing.sellType == DataTypes.DebtMarketType.Auction, Errors.DM_INVALID_SELL_TYPE);
-    require(onBehalfOf == marketListing.bidderAddress, Errors.DM_INVALID_CLAIM_RECEIVER);
-    require(block.timestamp > marketListing.auctionEndTimestamp, Errors.DM_AUCTION_NOT_ALREADY_ENDED);
-
-    marketListing.state = DataTypes.DebtMarketState.Sold;
-
-    _transferDebt(nftAsset, tokenId, onBehalfOf);
-
-    IERC20Upgradeable(marketListing.reserveAsset).safeTransfer(marketListing.debtor, marketListing.bidPrice);
-
-    // Create a event
-    emit DebtSold(marketListing.debtor, onBehalfOf, vars.debtId);
-  }
-
   function bid(
     address nftAsset,
     uint256 tokenId,
@@ -261,90 +274,46 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
         vars.previousBidPrice
       );
     }
-  }
 
-  function cancelDebtListing(
-    address nftAsset,
-    uint256 tokenId
-  ) external nonReentrant debtShouldExistGuard(nftAsset, tokenId) {
-    uint256 debtId = _nftToDebtIds[nftAsset][tokenId];
-
-    DataTypes.DebtMarketListing storage selldebt = _marketListings[debtId];
-    require(selldebt.state != DataTypes.DebtMarketState.Sold, Errors.DM_DEBT_SHOULD_NOT_BE_SOLD);
-    selldebt.state = DataTypes.DebtMarketState.Canceled;
-    _deleteDebtOfferListing(nftAsset, tokenId);
-
-    _nftToDebtIds[nftAsset][tokenId] = 0;
-
-    if (selldebt.bidderAddress != address(0)) {
-      IERC20Upgradeable(selldebt.reserveAsset).safeTransferFrom(
-        address(this),
-        selldebt.bidderAddress,
-        selldebt.bidPrice
-      );
-    }
-
-    emit DebtListingCanceled(
-      selldebt.debtor,
-      selldebt.debtId,
-      selldebt,
-      _totalDebtsByCollection[nftAsset],
-      _userTotalDebtByCollection[selldebt.debtor][nftAsset]
+    emit BidPlaced(
+      marketListing.bidderAddress,
+      marketListing.reserveAsset,
+      nftAsset,
+      tokenId,
+      vars.debtId,
+      marketListing.bidPrice
     );
   }
 
-  function createDebtListing(
+  function claim(
     address nftAsset,
     uint256 tokenId,
-    uint256 sellPrice,
     address onBehalfOf
-  ) external nonReentrant nonDuplicatedDebt(nftAsset, tokenId) onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
-    _createDebt(nftAsset, tokenId, sellPrice, onBehalfOf);
+  ) external override nonReentrant debtShouldExistGuard(nftAsset, tokenId) {
+    BidLocalVars memory vars;
+    vars.debtId = _nftToDebtIds[nftAsset][tokenId];
+    DataTypes.DebtMarketListing storage marketListing = _marketListings[vars.debtId];
 
-    uint256 debtId = _debtIdTracker.current();
-    DataTypes.DebtMarketListing memory marketListing = _marketListings[debtId];
+    require(marketListing.sellType == DataTypes.DebtMarketType.Auction, Errors.DM_INVALID_SELL_TYPE);
+    require(onBehalfOf == marketListing.bidderAddress, Errors.DM_INVALID_CLAIM_RECEIVER);
+    require(block.timestamp > marketListing.auctionEndTimestamp, Errors.DM_AUCTION_NOT_ALREADY_ENDED);
 
-    emit DebtListingCreated(
-      marketListing.debtId,
-      marketListing.debtor,
-      marketListing.nftAsset,
-      marketListing.tokenId,
-      marketListing.sellType,
-      marketListing.state,
-      marketListing.sellPrice,
-      marketListing.reserveAsset,
-      marketListing.scaledAmount
-    );
+    marketListing.state = DataTypes.DebtMarketState.Sold;
+
+    _transferDebt(nftAsset, tokenId, onBehalfOf);
+
+    IERC20Upgradeable(marketListing.reserveAsset).safeTransfer(marketListing.debtor, marketListing.bidPrice);
+
+    // Create a event
+    emit DebtClaimed(marketListing.debtor, onBehalfOf, vars.debtId);
   }
 
-  function createDebtListingWithAuction(
-    address nftAsset,
-    uint256 tokenId,
-    uint256 sellPrice,
-    address onBehalfOf,
-    uint256 auctionEndTimestamp
-  ) external nonReentrant nonDuplicatedDebt(nftAsset, tokenId) onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
-    // solhint-disable-next-line
-    require(auctionEndTimestamp >= block.timestamp, Errors.DM_AUCTION_ALREADY_ENDED);
-
-    _createDebt(nftAsset, tokenId, sellPrice, onBehalfOf);
-
+  function _deleteDebtOfferListing(address nftAsset, uint256 tokenId) internal {
     uint256 debtId = _nftToDebtIds[nftAsset][tokenId];
-    DataTypes.DebtMarketListing storage marketListing = _marketListings[debtId];
-    marketListing.sellType = DataTypes.DebtMarketType.Auction;
-    marketListing.auctionEndTimestamp = auctionEndTimestamp;
+    DataTypes.DebtMarketListing storage selldebt = _marketListings[debtId];
 
-    emit DebtListingCreated(
-      marketListing.debtId,
-      marketListing.debtor,
-      marketListing.nftAsset,
-      marketListing.tokenId,
-      marketListing.sellType, // Auction
-      marketListing.state,
-      marketListing.sellPrice,
-      marketListing.reserveAsset,
-      marketListing.scaledAmount
-    );
+    _userTotalDebtByCollection[selldebt.debtor][nftAsset] -= 1;
+    _totalDebtsByCollection[nftAsset] -= 1;
   }
 
   function _createDebt(address nftAsset, uint256 tokenId, uint256 sellPrice, address onBehalfOf) internal {
@@ -378,12 +347,52 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     _totalDebtsByCollection[nftAsset] += 1;
   }
 
-  function _deleteDebtOfferListing(address nftAsset, uint256 tokenId) internal {
-    uint256 debtId = _nftToDebtIds[nftAsset][tokenId];
-    DataTypes.DebtMarketListing storage selldebt = _marketListings[debtId];
+  function _transferDebt(address nftAsset, uint256 tokenId, address onBehalfOf) internal {
+    TransferLocalVars memory vars;
 
-    _userTotalDebtByCollection[selldebt.debtor][nftAsset] -= 1;
-    _totalDebtsByCollection[nftAsset] -= 1;
+    vars.lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
+    vars.lendPoolAddress = _addressesProvider.getLendPool();
+    vars.loanId = ILendPoolLoan(vars.lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
+
+    DataTypes.LoanData memory loanData = ILendPoolLoan(vars.lendPoolLoanAddress).getLoan(vars.loanId);
+    DataTypes.ReserveData memory reserveData = ILendPool(vars.lendPoolAddress).getReserveData(loanData.reserveAsset);
+    // reserveData.updateState();
+
+    (, vars.borrowAmount) = ILendPoolLoan(vars.lendPoolLoanAddress).getLoanReserveBorrowAmount(vars.loanId);
+
+    vars.buyer = onBehalfOf;
+
+    vars.debtId = _nftToDebtIds[nftAsset][tokenId];
+    // Burn debt from seller
+    IDebtToken(reserveData.debtTokenAddress).burn(
+      loanData.borrower,
+      vars.borrowAmount,
+      reserveData.variableBorrowIndex
+    );
+    // Mint debt from buyer
+    IDebtToken(reserveData.debtTokenAddress).mint(
+      vars.buyer,
+      vars.buyer,
+      vars.borrowAmount,
+      reserveData.variableBorrowIndex
+    );
+
+    // Burn unft from seller
+    // Mint unft from buyer
+    ILendPoolLoan(vars.lendPoolLoanAddress).reMintUNFT(
+      loanData.nftAsset,
+      loanData.nftTokenId,
+      loanData.borrower,
+      vars.buyer
+    );
+    // Remove the offer listing
+    DataTypes.DebtMarketListing storage marketOrder = _marketListings[vars.debtId];
+    marketOrder.state = DataTypes.DebtMarketState.Sold;
+    _deleteDebtOfferListing(nftAsset, tokenId);
+  }
+
+  function setDeltaBidPercent(uint256 value) external override nonReentrant onlyPoolAdmin {
+    _deltaBidPercent = value;
   }
 
   function getDebtId(address nftAsset, uint256 tokenId) external view returns (uint256) {
