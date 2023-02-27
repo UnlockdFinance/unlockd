@@ -250,7 +250,6 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // BUYOUT
     await lockeyHolder.connect(deployer.signer).setLockeyDiscountPercentage(BN.from("300")); // 3%
-    console.log("Balance before: ", (await weth.balanceOf(buyer.address)).toString());
 
     await fundWithERC721("LOCKEY", buyer.address, 1);
 
@@ -259,10 +258,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     await waitForTx(await pool.connect(buyer.signer).buyOut(bayc.address, "101", buyoutPrice));
 
     expect(await bayc.ownerOf(101), "buyer should be the new owner").to.be.eq(buyer.address);
-
     //expect(await weth.balanceOf(buyer.address)).to.be.eq(balanceBefore.add(buyoutPrice));
-
-    console.log("Balance after: ", (await weth.balanceOf(buyer.address)).toString());
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     const loanDataAfter = await dataProvider.getLoanDataByLoanId(loanDataBefore.loanId);
