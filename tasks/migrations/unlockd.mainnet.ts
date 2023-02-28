@@ -68,6 +68,10 @@ task("unlockd:mainnet", "Deploy full enviroment")
     // console.log("\n\nDeploy UNFT Registry");
     // await DRE.run("full:deploy-unft-registry", { pool: POOL_NAME, verify, createunfts: true });
 
+    //////////////////////////////////////////////////////////////////////////
+    console.log("\n\nDeploy Lockey Holders");
+    await DRE.run("full:deploy-lockey-holders", { pool: POOL_NAME });
+
     // //////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////////
