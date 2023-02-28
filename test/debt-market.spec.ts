@@ -1,6 +1,7 @@
 import { BigNumber as BN, Contract } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import moment from "moment";
+import { FORK_BLOCK_NUMBER } from "../hardhat.config";
 import { MAX_UINT_AMOUNT } from "../helpers/constants";
 import { getDebtToken, getPoolAdminSigner } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
@@ -10,6 +11,7 @@ import {
   fundWithERC20,
   fundWithERC721,
   fundWithWrappedPunk,
+  increaseTime,
   waitForTx,
 } from "../helpers/misc-utils";
 import { IConfigNftAsCollateralInput } from "../helpers/types";
@@ -194,7 +196,9 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       const nftAsset = bayc.address;
       const tokenId = testEnv.tokenIdTracker++;
       await borrowBayc(testEnv, seller, tokenId, 10);
-      const auctionEndTimestamp = moment().add(5, "minutes").unix();
+      const currTimestamp = (await users[0].signer.provider!.getBlock(FORK_BLOCK_NUMBER)).timestamp;
+      console.log("TIMESTAMP", currTimestamp.toString());
+      const auctionEndTimestamp = moment(currTimestamp).add(5, "minutes").unix();
       const oldLoan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
 
       const tx = await debtMarket
@@ -203,7 +207,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       await waitForTx(tx);
 
       await wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 50 });
-      await advanceTimeAndBlock(10000);
+      await increaseTime(10000);
       await debtMarket.connect(bidder.signer).claim(nftAsset, tokenId, bidder.address);
       const loan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
       const debtId = await debtMarket.getDebtId(nftAsset, tokenId);

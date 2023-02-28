@@ -37,6 +37,7 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
 const RPC_ENDPOINT = process.env.RPC_ENDPOINT || "";
 const FORK_RPC_ENDPOINT = process.env.FORK_RPC_ENDPOINT || "";
 export const FORK = process.env.FORK || "";
+export const FORK_BLOCK_NUMBER = process.env.FORK_BLOCK_NUMBER || "";
 export const UPGRADE = process.env.UPGRADE || "";
 
 // Prevent to load scripts before compilation and typechain
