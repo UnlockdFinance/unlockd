@@ -23,6 +23,12 @@ import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILockeyHolder} from "../interfaces/ILockeyHolder.sol";
 
+/**
+ * @title DebtMarket
+ * @notice Main contract to manage sell the debt with a fixed price or with auctions
+ * @author Unlockd
+ **/
+
 contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   using CountersUpgradeable for CountersUpgradeable.Counter;
   using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -62,15 +68,25 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     // https://eips.ethereum.org/EIPS/eip-2200)
     _status = _NOT_ENTERED;
   }
-
+  /**
+   * @dev Prevents a contract calling from non pool admin address, directly .
+   */
   modifier onlyPoolAdmin() {
     require(_addressesProvider.getPoolAdmin() == msg.sender, Errors.CALLER_NOT_POOL_ADMIN);
     _;
   }
+
+  /**
+   * @dev Prevents create debt duplicated  .
+   */
   modifier nonDuplicatedDebt(address nftAsset, uint256 tokenId) {
     require(_nftToDebtIds[nftAsset][tokenId] == 0, Errors.DM_DEBT_ALREADY_EXIST);
     _;
   }
+
+  /**
+   * @dev Prevents a contract calling from non owner of the NFT  .
+   */
   modifier onlyOwnerOfBorrowedNft(address nftAsset, uint256 tokenId) {
     address lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
     uint256 loanId = ILendPoolLoan(lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
@@ -81,6 +97,9 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     _;
   }
 
+  /**
+   * @dev Prevents fails if debt no exist  .
+   */
   modifier debtShouldExistGuard(address nftAsset, uint256 tokenId) {
     uint256 debtId = _nftToDebtIds[nftAsset][tokenId];
     require(debtId != 0, Errors.DM_DEBT_SHOULD_EXIST);
@@ -98,6 +117,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     uint256 debtId;
     uint256 borrowAmount;
   }
+
   struct BuyLocalVars {
     uint256 debtId;
     address lendPoolLoanAddress;
@@ -112,12 +132,15 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     _deltaBidPercent = PercentageMath.ONE_PERCENT;
   }
 
+  /**
+   * @inheritdoc IDebtMarket
+   */
   function createDebtListing(
     address nftAsset,
     uint256 tokenId,
     uint256 sellPrice,
     address onBehalfOf
-  ) external nonReentrant nonDuplicatedDebt(nftAsset, tokenId) onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
+  ) external override nonReentrant nonDuplicatedDebt(nftAsset, tokenId) onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
     _createDebt(nftAsset, tokenId, sellPrice, onBehalfOf);
 
     uint256 debtId = _debtIdTracker.current();
@@ -136,13 +159,16 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     );
   }
 
+  /**
+   * @inheritdoc IDebtMarket
+   */
   function createDebtListingWithAuction(
     address nftAsset,
     uint256 tokenId,
     uint256 sellPrice,
     address onBehalfOf,
     uint256 auctionEndTimestamp
-  ) external nonReentrant nonDuplicatedDebt(nftAsset, tokenId) onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
+  ) external override nonReentrant nonDuplicatedDebt(nftAsset, tokenId) onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
     // solhint-disable-next-line
     require(auctionEndTimestamp >= block.timestamp, Errors.DM_AUCTION_ALREADY_ENDED);
 
@@ -166,10 +192,13 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     );
   }
 
+  /**
+   * @inheritdoc IDebtMarket
+   */
   function cancelDebtListing(
     address nftAsset,
     uint256 tokenId
-  ) external nonReentrant debtShouldExistGuard(nftAsset, tokenId) {
+  ) external override nonReentrant debtShouldExistGuard(nftAsset, tokenId) {
     uint256 debtId = _nftToDebtIds[nftAsset][tokenId];
 
     DataTypes.DebtMarketListing storage selldebt = _marketListings[debtId];
@@ -196,6 +225,9 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     );
   }
 
+  /**
+   * @inheritdoc IDebtMarket
+   */
   function buy(
     address nftAsset,
     uint256 tokenId,
@@ -240,6 +272,9 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     uint256 debtId;
   }
 
+  /**
+   * @inheritdoc IDebtMarket
+   */
   function bid(
     address nftAsset,
     uint256 tokenId,
@@ -285,6 +320,9 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     );
   }
 
+  /**
+   * @inheritdoc IDebtMarket
+   */
   function claim(
     address nftAsset,
     uint256 tokenId,
@@ -391,19 +429,31 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     _deleteDebtOfferListing(nftAsset, tokenId);
   }
 
+  /**
+   * @inheritdoc IDebtMarket
+   */
   function setDeltaBidPercent(uint256 value) external override nonReentrant onlyPoolAdmin {
     _deltaBidPercent = value;
   }
 
-  function getDebtId(address nftAsset, uint256 tokenId) external view returns (uint256) {
+  /**
+   * @inheritdoc IDebtMarket
+   */
+  function getDebtId(address nftAsset, uint256 tokenId) external view override returns (uint256) {
     return _nftToDebtIds[nftAsset][tokenId];
   }
 
-  function getDebt(uint256 debtId) external view returns (DataTypes.DebtMarketListing memory sellDebt) {
+  /**
+   * @inheritdoc IDebtMarket
+   */
+  function getDebt(uint256 debtId) external view override returns (DataTypes.DebtMarketListing memory sellDebt) {
     return _marketListings[debtId];
   }
 
-  function getDebtIdTracker() external view returns (CountersUpgradeable.Counter memory) {
+  /**
+   * @inheritdoc IDebtMarket
+   */
+  function getDebtIdTracker() external view override returns (CountersUpgradeable.Counter memory) {
     return _debtIdTracker;
   }
 }

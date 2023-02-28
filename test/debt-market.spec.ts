@@ -87,7 +87,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         oldLoan.currentAmount.add(parseEther("1")).toString()
       );
       //Check previous owner of the loan
-      expect(oldLoan.borrower).equals(seller.address, "Invalid previuos loan debtor");
+      expect(oldLoan.borrower).equals(seller.address, "Invalid previous loan debtor");
       expect(loan.borrower).equals(buyer.address, "Invalid new loan debtor");
     });
     it("Create a bid", async () => {
@@ -235,7 +235,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         oldLoan.currentAmount.add(parseEther("1")).toString()
       );
       //Check previous owner of the loan
-      expect(oldLoan.borrower).equals(seller.address, "Invalid previuos loan debtor");
+      expect(oldLoan.borrower).equals(seller.address, "Invalid previous loan debtor");
       expect(loan.borrower).equals(bidder.address, "Invalid new loan debtor");
     });
     it("Buy a debt with a LOCKEY HOLDER discount", async () => {
@@ -273,7 +273,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         oldLoan.currentAmount.add(parseEther("1")).toString()
       );
       //Check previous owner of the loan
-      expect(oldLoan.borrower).equals(seller.address, "Invalid previuos loan debtor");
+      expect(oldLoan.borrower).equals(seller.address, "Invalid previous loan debtor");
       expect(loan.borrower).equals(buyer.address, "Invalid new loan debtor");
     });
     it("Buy a PUNK debt with WETH", async () => {
@@ -347,7 +347,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         oldLoan.currentAmount.add(parseEther("1")).toString()
       );
       //Check previous owner of the loan
-      expect(oldLoan.borrower).equals(seller.address, "Invalid previuos loan debtor");
+      expect(oldLoan.borrower).equals(seller.address, "Invalid previous loan debtor");
       expect(loan.borrower).equals(buyer.address, "Invalid new loan debtor");
     });
     it("Buy a PUNK debt with ETH", async () => {
@@ -420,7 +420,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         oldLoan.currentAmount.add(parseEther("1")).toString()
       );
       //Check previous owner of the loan
-      expect(oldLoan.borrower).equals(seller.address, "Invalid previuos loan debtor");
+      expect(oldLoan.borrower).equals(seller.address, "Invalid previous loan debtor");
       expect(loan.borrower).equals(buyer.address, "Invalid new loan debtor");
     });
   });
