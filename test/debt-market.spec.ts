@@ -97,7 +97,9 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       const nftAsset = bayc.address;
       const tokenId = testEnv.tokenIdTracker++;
       await borrowBayc(testEnv, seller, tokenId, 10);
-      const auctionEndTimestamp = moment().add(1, "days").unix();
+      const blockNumber = await users[0].signer.provider!.getBlockNumber();
+      const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
+      const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
       await debtMarket
         .connect(seller.signer)
         .createDebtListingWithAuction(nftAsset, tokenId, 50, seller.address, auctionEndTimestamp);
@@ -120,7 +122,9 @@ makeSuite("Buy and sell the debts", (testEnv) => {
 
       const tokenId = testEnv.tokenIdTracker++;
       await borrowBayc(testEnv, seller, tokenId, 10);
-      const auctionEndTimestamp = moment().add(1, "days").unix();
+      const blockNumber = await users[0].signer.provider!.getBlockNumber();
+      const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
+      const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
       await debtMarket
         .connect(seller.signer)
         .createDebtListingWithAuction(nftAsset, tokenId, 100, seller.address, auctionEndTimestamp);
@@ -151,7 +155,9 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       const nftAsset = bayc.address;
       const tokenId = testEnv.tokenIdTracker++;
       await borrowBayc(testEnv, seller, tokenId, 10);
-      const auctionEndTimestamp = moment().add(1, "days").unix();
+      const blockNumber = await users[0].signer.provider!.getBlockNumber();
+      const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
+      const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
       await debtMarket
         .connect(seller.signer)
         .createDebtListingWithAuction(nftAsset, tokenId, 50, seller.address, auctionEndTimestamp);
@@ -175,7 +181,9 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       const nftAsset = bayc.address;
       const tokenId = testEnv.tokenIdTracker++;
       await borrowBayc(testEnv, seller, tokenId, 10);
-      const auctionEndTimestamp = moment().add(1, "days").unix();
+      const blockNumber = await users[0].signer.provider!.getBlockNumber();
+      const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
+      const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
       await debtMarket
         .connect(seller.signer)
         .createDebtListingWithAuction(nftAsset, tokenId, 50, seller.address, auctionEndTimestamp);
@@ -196,18 +204,21 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       const nftAsset = bayc.address;
       const tokenId = testEnv.tokenIdTracker++;
       await borrowBayc(testEnv, seller, tokenId, 10);
-      const currTimestamp = (await users[0].signer.provider!.getBlock(FORK_BLOCK_NUMBER)).timestamp;
-      console.log("TIMESTAMP", currTimestamp.toString());
-      const auctionEndTimestamp = moment(currTimestamp).add(5, "minutes").unix();
+      const blockNumber = await users[0].signer.provider!.getBlockNumber();
+      const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
+      const auctionEndTimestamp = moment(currTimestamp).add(5, "minutes").unix() * 1000;
       const oldLoan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
 
-      const tx = await debtMarket
-        .connect(seller.signer)
-        .createDebtListingWithAuction(nftAsset, tokenId, 50, seller.address, auctionEndTimestamp);
-      await waitForTx(tx);
+      await waitForTx(
+        await debtMarket
+          .connect(seller.signer)
+          .createDebtListingWithAuction(nftAsset, tokenId, 50, seller.address, auctionEndTimestamp)
+      );
 
-      await wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 50 });
-      await increaseTime(10000);
+      await waitForTx(
+        await wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 50 })
+      );
+      await increaseTime(2000000);
       await debtMarket.connect(bidder.signer).claim(nftAsset, tokenId, bidder.address);
       const loan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
       const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
@@ -553,7 +564,9 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const nftAsset = bayc.address;
         const tokenId = testEnv.tokenIdTracker++;
         await borrowBayc(testEnv, seller, tokenId, 10);
-        const auctionEndTimestamp = moment().add(1, "days").unix();
+        const blockNumber = await users[0].signer.provider!.getBlockNumber();
+        const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
+        const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
         await debtMarket
           .connect(seller.signer)
           .createDebtListingWithAuction(nftAsset, tokenId, 50, seller.address, auctionEndTimestamp);
@@ -568,7 +581,9 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const nftAsset = bayc.address;
         const tokenId = testEnv.tokenIdTracker++;
         await borrowBayc(testEnv, seller, tokenId, 10);
-        const auctionEndTimestamp = moment().add(1, "days").unix();
+        const blockNumber = await users[0].signer.provider!.getBlockNumber();
+        const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
+        const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
         await debtMarket
           .connect(seller.signer)
           .createDebtListingWithAuction(nftAsset, tokenId, 50000, seller.address, auctionEndTimestamp);
@@ -597,12 +612,15 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const nftAsset = bayc.address;
         const tokenId = testEnv.tokenIdTracker++;
         await borrowBayc(testEnv, seller, tokenId, 10);
-        const auctionEndTimestamp = moment().add(12, "hour").unix();
-        const tx = await debtMarket
-          .connect(seller.signer)
-          .createDebtListingWithAuction(nftAsset, tokenId, 50, seller.address, auctionEndTimestamp);
-        await waitForTx(tx);
-        await advanceTimeAndBlock(3700 * 12);
+        const blockNumber = await users[0].signer.provider!.getBlockNumber();
+        const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
+        const auctionEndTimestamp = moment(currTimestamp).add(12, "hour").unix() * 1000;
+        await waitForTx(
+          await debtMarket
+            .connect(seller.signer)
+            .createDebtListingWithAuction(nftAsset, tokenId, 50, seller.address, auctionEndTimestamp)
+        );
+        await advanceTimeAndBlock(3700000 * 12);
 
         const sut = wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 60 });
 
@@ -628,7 +646,9 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const nftAsset = bayc.address;
         const tokenId = testEnv.tokenIdTracker++;
         await borrowBayc(testEnv, seller, tokenId, 10);
-        const auctionEndTimestamp = moment().add(1, "days").unix();
+        const blockNumber = await users[0].signer.provider!.getBlockNumber();
+        const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
+        const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
         await debtMarket
           .connect(seller.signer)
           .createDebtListingWithAuction(nftAsset, tokenId, 50, seller.address, auctionEndTimestamp);
@@ -656,7 +676,9 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const nftAsset = bayc.address;
         const tokenId = testEnv.tokenIdTracker++;
         await borrowBayc(testEnv, seller, tokenId, 10);
-        const auctionEndTimestamp = moment().add(12, "day").unix();
+        const blockNumber = await users[0].signer.provider!.getBlockNumber();
+        const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
+        const auctionEndTimestamp = moment(currTimestamp).add(12, "day").unix() * 1000;
         await waitForTx(
           await debtMarket
             .connect(seller.signer)
