@@ -191,7 +191,8 @@ library DataTypes {
 
   enum DebtMarketType {
     FixedPrice, //0
-    Auction //1
+    Auction, //1
+    Mixed //2
   }
 
   enum DebtMarketState {
@@ -217,5 +218,6 @@ library DataTypes {
     address bidderAddress;
     uint256 bidPrice;
     uint256 auctionEndTimestamp;
+    uint256 startBiddingPrice;
   }
 }
