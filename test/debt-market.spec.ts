@@ -798,6 +798,22 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       expect(debt.bidPrice).equals(102, "Invalid bid price");
       expect(debt.bidderAddress).equals(secondBidder.address, "Invalid bidder address");
     });
+    it("Cancel debt listing on borrow again", async () => {
+      const { users, debtMarket, bayc, pool, weth } = testEnv;
+      const seller = users[4];
+      const nftAsset = bayc.address;
+      const tokenId = testEnv.tokenIdTracker++;
+      await borrowBayc(testEnv, seller, tokenId, 10);
+
+      await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 50, seller.address, 0, 0);
+      const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+
+      await pool.connect(seller.signer).borrow(weth.address, "10", bayc.address, `${tokenId}`, seller.address, "0");
+      const debt = await debtMarket.getDebt(debtId);
+
+      expect(debt.sellType).equals(0, "Invalid debt offer type");
+      expect(debt.state).equals(3, "Invalid debt offer state");
+    });
   });
   describe("Negative", function () {
     const createDebtListing = async (testEnv, nftAsset, amount, seller) => {
