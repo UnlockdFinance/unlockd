@@ -121,10 +121,14 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   struct BuyLocalVars {
     uint256 debtId;
     address lendPoolLoanAddress;
-    address lockeysCollection;
-    address lockeyHolderAddress;
     uint256 loanId;
     uint256 price;
+  }
+
+  struct CreateLocalVars {
+    uint256 debtId;
+    bool isValidAuctionType;
+    bool isValidFixedPriceType;
   }
 
   function initialize(ILendPoolAddressesProvider addressesProvider) external initializer {
@@ -139,12 +143,35 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     address nftAsset,
     uint256 tokenId,
     uint256 sellPrice,
-    address onBehalfOf
+    address onBehalfOf,
+    uint256 startBiddingPrice,
+    uint256 auctionEndTimestamp
   ) external override nonReentrant nonDuplicatedDebt(nftAsset, tokenId) onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
+    CreateLocalVars memory vars;
+
+    vars.isValidAuctionType = (startBiddingPrice != 0 && auctionEndTimestamp != 0);
+    vars.isValidFixedPriceType = (sellPrice != 0);
+
+    require(vars.isValidFixedPriceType || vars.isValidAuctionType, Errors.DM_INVALID_AMOUNT);
+
     _createDebt(nftAsset, tokenId, sellPrice, onBehalfOf);
 
-    uint256 debtId = _debtIdTracker.current();
-    DataTypes.DebtMarketListing memory marketListing = _marketListings[debtId];
+    vars.debtId = _nftToDebtIds[nftAsset][tokenId];
+    DataTypes.DebtMarketListing storage marketListing = _marketListings[vars.debtId];
+
+    marketListing.sellPrice = sellPrice;
+    marketListing.auctionEndTimestamp = auctionEndTimestamp;
+    marketListing.startBiddingPrice = startBiddingPrice;
+
+    if (vars.isValidAuctionType) {
+      // solhint-disable-next-line
+      require(auctionEndTimestamp >= block.timestamp, Errors.DM_AUCTION_ALREADY_ENDED);
+      marketListing.sellType = DataTypes.DebtMarketType.Auction;
+    }
+
+    if (vars.isValidFixedPriceType && vars.isValidAuctionType) {
+      marketListing.sellType = DataTypes.DebtMarketType.Mixed;
+    }
 
     emit DebtListingCreated(
       marketListing.debtId,
@@ -155,40 +182,9 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
       marketListing.state,
       marketListing.sellPrice,
       marketListing.reserveAsset,
-      marketListing.scaledAmount
-    );
-  }
-
-  /**
-   * @inheritdoc IDebtMarket
-   */
-  function createDebtListingWithAuction(
-    address nftAsset,
-    uint256 tokenId,
-    uint256 sellPrice,
-    address onBehalfOf,
-    uint256 auctionEndTimestamp
-  ) external override nonReentrant nonDuplicatedDebt(nftAsset, tokenId) onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
-    // solhint-disable-next-line
-    require(auctionEndTimestamp >= block.timestamp, Errors.DM_AUCTION_ALREADY_ENDED);
-
-    _createDebt(nftAsset, tokenId, sellPrice, onBehalfOf);
-
-    uint256 debtId = _nftToDebtIds[nftAsset][tokenId];
-    DataTypes.DebtMarketListing storage marketListing = _marketListings[debtId];
-    marketListing.sellType = DataTypes.DebtMarketType.Auction;
-    marketListing.auctionEndTimestamp = auctionEndTimestamp;
-
-    emit DebtAuctionCreated(
-      marketListing.debtId,
-      marketListing.debtor,
-      marketListing.nftAsset,
-      marketListing.tokenId,
-      marketListing.sellType, // Auction
-      marketListing.state,
-      marketListing.sellPrice,
-      marketListing.reserveAsset,
-      marketListing.scaledAmount
+      marketListing.scaledAmount,
+      marketListing.auctionEndTimestamp,
+      marketListing.startBiddingPrice
     );
   }
 
@@ -201,27 +197,27 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   ) external override nonReentrant debtShouldExistGuard(nftAsset, tokenId) {
     uint256 debtId = _nftToDebtIds[nftAsset][tokenId];
 
-    DataTypes.DebtMarketListing storage selldebt = _marketListings[debtId];
-    require(selldebt.state != DataTypes.DebtMarketState.Sold, Errors.DM_DEBT_SHOULD_NOT_BE_SOLD);
-    selldebt.state = DataTypes.DebtMarketState.Canceled;
+    DataTypes.DebtMarketListing storage sellDebt = _marketListings[debtId];
+    require(sellDebt.state != DataTypes.DebtMarketState.Sold, Errors.DM_DEBT_SHOULD_NOT_BE_SOLD);
+    sellDebt.state = DataTypes.DebtMarketState.Canceled;
     _deleteDebtOfferListing(nftAsset, tokenId);
 
     _nftToDebtIds[nftAsset][tokenId] = 0;
 
-    if (selldebt.bidderAddress != address(0)) {
-      IERC20Upgradeable(selldebt.reserveAsset).safeTransferFrom(
+    if (sellDebt.bidderAddress != address(0)) {
+      IERC20Upgradeable(sellDebt.reserveAsset).safeTransferFrom(
         address(this),
-        selldebt.bidderAddress,
-        selldebt.bidPrice
+        sellDebt.bidderAddress,
+        sellDebt.bidPrice
       );
     }
 
     emit DebtListingCanceled(
-      selldebt.debtor,
-      selldebt.debtId,
-      selldebt,
+      sellDebt.debtor,
+      sellDebt.debtId,
+      sellDebt,
       _totalDebtsByCollection[nftAsset],
-      _userTotalDebtByCollection[selldebt.debtor][nftAsset]
+      _userTotalDebtByCollection[sellDebt.debtor][nftAsset]
     );
   }
 
@@ -238,28 +234,29 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
 
     vars.debtId = _nftToDebtIds[nftAsset][tokenId];
     vars.lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
-    vars.lockeysCollection = _addressesProvider.getAddress(keccak256("LOCKEY_COLLECTION"));
-    vars.lockeyHolderAddress = _addressesProvider.getAddress(keccak256("LOCKEY_HOLDER"));
     vars.loanId = ILendPoolLoan(vars.lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
     require(vars.loanId != 0, Errors.DM_LOAN_SHOULD_EXIST);
 
     DataTypes.LoanData memory loanData = ILendPoolLoan(vars.lendPoolLoanAddress).getLoan(vars.loanId);
     DataTypes.DebtMarketListing memory marketOrder = _marketListings[vars.debtId];
 
-    _transferDebt(nftAsset, tokenId, onBehalfOf);
-    vars.price = marketOrder.sellPrice;
+    require(
+      marketOrder.sellType == DataTypes.DebtMarketType.Mixed ||
+        marketOrder.sellType == DataTypes.DebtMarketType.FixedPrice,
+      Errors.DM_INVALID_SELL_TYPE
+    );
 
-    if (IERC721Upgradeable(vars.lockeysCollection).balanceOf(onBehalfOf) > 0) {
-      vars.price = marketOrder.sellPrice.percentMul(
-        ILockeyHolder(vars.lockeyHolderAddress).getLockeyDiscountPercentageOnDebtMarket()
-      );
-    }
+    _transferDebt(nftAsset, tokenId, onBehalfOf);
+    vars.price = _priceForLockeyHolders(marketOrder.sellPrice, onBehalfOf);
 
     require(vars.price == amount, Errors.DM_AMOUNT_DIFFERENT_FROM_SELL_PRICE);
 
     // Pay to the seller with ERC20
     IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(_msgSender(), loanData.borrower, vars.price);
 
+    if (marketOrder.bidderAddress != address(0)) {
+      _returnBidFunds(vars.debtId, marketOrder.bidderAddress, marketOrder.bidPrice);
+    }
     // Create a event
     emit DebtSold(loanData.borrower, onBehalfOf, vars.debtId);
   }
@@ -270,6 +267,8 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     uint256 previousBidPrice;
     uint256 borrowAmount;
     uint256 debtId;
+    uint256 price;
+    uint256 sellPrice;
   }
 
   /**
@@ -287,27 +286,39 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     DataTypes.DebtMarketListing storage marketListing = _marketListings[vars.debtId];
     vars.previousBidder = marketListing.bidderAddress;
     vars.previousBidPrice = marketListing.bidPrice;
+    vars.price = bidPrice;
+    vars.sellPrice = _priceForLockeyHolders(marketListing.sellPrice, onBehalfOf);
 
-    require(bidPrice >= marketListing.sellPrice, Errors.DM_BID_PRICE_LESS_THAN_SELL_PRICE);
     require(
-      bidPrice > (marketListing.bidPrice + marketListing.bidPrice.percentMul(_deltaBidPercent)),
-      Errors.DM_BID_PRICE_LESS_THAN_PREVIOUS_BID
+      marketListing.sellType == DataTypes.DebtMarketType.Auction ||
+        marketListing.sellType == DataTypes.DebtMarketType.Mixed,
+      Errors.DM_INVALID_SELL_TYPE
     );
-    require(marketListing.sellType == DataTypes.DebtMarketType.Auction, Errors.DM_INVALID_SELL_TYPE);
+    require(bidPrice >= marketListing.startBiddingPrice, Errors.DM_BID_PRICE_LESS_THAN_MIN_BID_PRICE);
+    if (marketListing.sellType == DataTypes.DebtMarketType.Mixed) {
+      require(bidPrice <= vars.sellPrice, Errors.DM_BID_PRICE_HIGHER_THAN_SELL_PRICE);
+    }
+
     require(block.timestamp <= marketListing.auctionEndTimestamp, Errors.DM_AUCTION_ALREADY_ENDED);
 
-    marketListing.state = DataTypes.DebtMarketState.Active;
+    if (marketListing.sellType == DataTypes.DebtMarketType.Mixed && bidPrice == vars.sellPrice) {
+      // Sell the debt
+      _transferDebt(nftAsset, tokenId, onBehalfOf);
+      vars.price = vars.sellPrice;
+    } else {
+      require(
+        bidPrice > (marketListing.bidPrice + marketListing.bidPrice.percentMul(_deltaBidPercent)),
+        Errors.DM_BID_PRICE_LESS_THAN_PREVIOUS_BID
+      );
+      marketListing.state = DataTypes.DebtMarketState.Active;
+    }
     marketListing.bidderAddress = onBehalfOf;
-    marketListing.bidPrice = bidPrice;
+    marketListing.bidPrice = vars.price;
 
-    IERC20Upgradeable(marketListing.reserveAsset).safeTransferFrom(_msgSender(), address(this), bidPrice);
+    IERC20Upgradeable(marketListing.reserveAsset).safeTransferFrom(_msgSender(), address(this), vars.price);
 
     if (vars.previousBidder != address(0)) {
-      IERC20Upgradeable(marketListing.reserveAsset).safeTransferFrom(
-        address(this),
-        vars.previousBidder,
-        vars.previousBidPrice
-      );
+      _returnBidFunds(vars.debtId, vars.previousBidder, vars.previousBidPrice);
     }
 
     emit BidPlaced(
@@ -318,6 +329,23 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
       vars.debtId,
       marketListing.bidPrice
     );
+  }
+
+  function _returnBidFunds(uint256 debtId, address previousBidder, uint256 previousBidPrice) internal {
+    DataTypes.DebtMarketListing memory marketListing = _marketListings[debtId];
+
+    IERC20Upgradeable(marketListing.reserveAsset).safeTransferFrom(address(this), previousBidder, previousBidPrice);
+  }
+
+  function _priceForLockeyHolders(uint256 marketPrice, address onBehalfOf) internal returns (uint256) {
+    address lockeysCollection = _addressesProvider.getAddress(keccak256("LOCKEY_COLLECTION"));
+    address lockeyHolderAddress = _addressesProvider.getAddress(keccak256("LOCKEY_HOLDER"));
+
+    uint price = marketPrice;
+    if (IERC721Upgradeable(lockeysCollection).balanceOf(onBehalfOf) > 0) {
+      price = marketPrice.percentMul(ILockeyHolder(lockeyHolderAddress).getLockeyDiscountPercentageOnDebtMarket());
+    }
+    return price;
   }
 
   /**
@@ -332,7 +360,11 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     vars.debtId = _nftToDebtIds[nftAsset][tokenId];
     DataTypes.DebtMarketListing storage marketListing = _marketListings[vars.debtId];
 
-    require(marketListing.sellType == DataTypes.DebtMarketType.Auction, Errors.DM_INVALID_SELL_TYPE);
+    require(
+      marketListing.sellType == DataTypes.DebtMarketType.Auction ||
+        marketListing.sellType == DataTypes.DebtMarketType.Mixed,
+      Errors.DM_INVALID_SELL_TYPE
+    );
     require(onBehalfOf == marketListing.bidderAddress, Errors.DM_INVALID_CLAIM_RECEIVER);
     require(block.timestamp > marketListing.auctionEndTimestamp, Errors.DM_AUCTION_NOT_ALREADY_ENDED);
 
@@ -356,7 +388,6 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
 
   function _createDebt(address nftAsset, uint256 tokenId, uint256 sellPrice, address onBehalfOf) internal {
     require(onBehalfOf != address(0), Errors.VL_INVALID_ONBEHALFOF_ADDRESS);
-    require(sellPrice > 0, Errors.DM_INVALID_AMOUNT);
 
     address lendPoolLoanAddress = _addressesProvider.getLendPoolLoan();
     uint256 loanId = ILendPoolLoan(lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
@@ -371,7 +402,6 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     marketListing.debtId = debtId;
     marketListing.nftAsset = nftAsset;
     marketListing.tokenId = tokenId;
-    marketListing.sellPrice = sellPrice;
     marketListing.debtor = onBehalfOf;
 
     (, , address reserveAsset, uint256 scaledAmount) = ILendPoolLoan(lendPoolLoanAddress).getLoanCollateralAndReserve(

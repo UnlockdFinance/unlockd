@@ -32,7 +32,9 @@ interface IDebtMarket {
     DataTypes.DebtMarketState state,
     uint256 sellPrice,
     address reserveAsset,
-    uint256 debtAmount
+    uint256 debtAmount,
+    uint256 auctionEndTimestamp,
+    uint256 startBiddingPrice
   );
 
   /**
@@ -160,27 +162,20 @@ interface IDebtMarket {
   function setDeltaBidPercent(uint256 value) external;
 
   /**
-   * @dev Create a debt listing position with fixed price
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param tokenId The token id of the underlying NFT used as collateral
-   * @param sellPrice Price to sell in wei
-   * @param onBehalfOf Address of the user who will receive
-   */
-  function createDebtListing(address nftAsset, uint256 tokenId, uint256 sellPrice, address onBehalfOf) external;
-
-  /**
    * @dev Create a debt listing position as a auction
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param tokenId The token id of the underlying NFT used as collateral
    * @param sellPrice Price to sell in wei,  min bid
    * @param onBehalfOf Address of the user who will receive
+   * @param startBiddingPrice Price for the initial bid
    * @param auctionEndTimestamp When the auction will be finished
    */
-  function createDebtListingWithAuction(
+  function createDebtListing(
     address nftAsset,
     uint256 tokenId,
     uint256 sellPrice,
     address onBehalfOf,
+    uint256 startBiddingPrice,
     uint256 auctionEndTimestamp
   ) external;
 
