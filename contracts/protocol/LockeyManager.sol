@@ -8,11 +8,11 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {Errors} from "../libraries/helpers/Errors.sol";
 
 /**
- * @title LockeyHolders library
+ * @title LockeyManager
  * @author Unlockd
  * @notice Defines the error messages emitted by the different contracts of the Unlockd protocol
  */
-contract LockeyHolder is Initializable {
+contract LockeyManager is Initializable {
   uint256 internal _lockeyDiscount;
   ILendPoolAddressesProvider internal _addressesProvider;
   uint256 internal _lockeyDiscountOnDebtMarket;
@@ -23,7 +23,7 @@ contract LockeyHolder is Initializable {
   }
 
   /**
-   * @dev Initializes the LockeyHolders contract replacing the constructor
+   * @dev Initializes the LockeyManager contract replacing the constructor
    * @param provider The address of the LendPoolAddressesProvider
    **/
   function initialize(ILendPoolAddressesProvider provider) public initializer {

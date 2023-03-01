@@ -74,6 +74,16 @@ interface IWETHGateway {
   function liquidateETH(address nftAsset, uint256 nftTokenId) external payable returns (uint256);
 
   /**
+    @dev Executes the buyout for an NFT with a non-healthy position collateral-wise
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+    * @param onBehalfOf The address that will receive the NFT, same as msg.sender if the user
+   *   wants to receive them on his own wallet, or a different address if the beneficiary of the NFT
+   *   is a different wallet
+   **/
+  function buyoutETH(address nftAsset, uint256 nftTokenId, address onBehalfOf) external payable;
+
+  /**
    * @dev buy a debt on the WETH reserve
    * @param nftAsset The address of the debt NFT used as collateral
    * @param nftTokenId The token ID of the debt NFT used as collateral

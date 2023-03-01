@@ -14,7 +14,7 @@ import {
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
   getLendPoolLoanProxy,
-  getLockeyHolderProxy,
+  getLockeyManagerProxy,
   getLSSVMPair,
   getMintableERC20,
   getMintableERC721,
@@ -44,7 +44,7 @@ import {
   CryptoPunksMarket,
   DebtMarket,
   LendPoolLoan,
-  LockeyHolder,
+  LockeyManager,
   MockIncentivesController,
   PunkGateway,
   UiPoolDataProvider,
@@ -129,7 +129,7 @@ export interface TestEnv {
   nftxVaultFactory: INFTXVaultFactoryV2;
   sushiSwapRouter: IUniswapV2Router02;
   LSSVMPairs: LSSVMPairWithID[];
-  lockeyHolder: LockeyHolder;
+  lockeyManager: LockeyManager;
   debtMarket: DebtMarket;
 }
 
@@ -175,7 +175,7 @@ const testEnv: TestEnv = {
   tokenIdTracker: {} as number,
   roundIdTracker: {} as number,
   nowTimeTracker: {} as number,
-  lockeyHolder: {} as LockeyHolder,
+  lockeyManager: {} as LockeyManager,
   debtMarket: {} as DebtMarket,
 } as TestEnv;
 
@@ -318,7 +318,7 @@ export async function initializeMakeSuite(network?: string) {
     });
   }
 
-  testEnv.lockeyHolder = await getLockeyHolderProxy();
+  testEnv.lockeyManager = await getLockeyManagerProxy();
 }
 
 const setSnapshot = async () => {

@@ -1,8 +1,8 @@
 import { task } from "hardhat/config";
 import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
 import { ADDRESS_ID_LOCKEY_COLLECTION, ADDRESS_ID_LOCKEY_HOLDER } from "../../helpers/constants";
-import { deployLockeyHolder } from "../../helpers/contracts-deployments";
-import { getLendPoolAddressesProvider, getLockeyHolderProxy } from "../../helpers/contracts-getters";
+import { deployLockeyManager } from "../../helpers/contracts-deployments";
+import { getLendPoolAddressesProvider, getLockeyManagerProxy } from "../../helpers/contracts-getters";
 import { getParamPerNetwork, insertContractAddressInDb } from "../../helpers/contracts-helpers";
 import { waitForTx } from "../../helpers/misc-utils";
 import { eContractid, eNetwork } from "../../helpers/types";
@@ -16,17 +16,19 @@ task("fork:deploy-lockey-holders", "Deploy the lockey holders contract")
     const poolConfig = loadPoolConfig(pool);
 
     console.log("Deploying new Lockey Holders implementation...");
-    const lockeyHolderImpl = await deployLockeyHolder(verify);
+    const lockeyManagerImpl = await deployLockeyManager(verify);
 
     const addressesProvider = await getLendPoolAddressesProvider();
 
-    console.log("Setting lockey holders implementation with address:", lockeyHolderImpl.address);
+    console.log("Setting lockey holders implementation with address:", lockeyManagerImpl.address);
 
-    await waitForTx(await addressesProvider.setAddressAsProxy(ADDRESS_ID_LOCKEY_HOLDER, lockeyHolderImpl.address, []));
+    await waitForTx(await addressesProvider.setAddressAsProxy(ADDRESS_ID_LOCKEY_HOLDER, lockeyManagerImpl.address, []));
 
-    const lockeyHoldersProxy = await getLockeyHolderProxy(await addressesProvider.getAddress(ADDRESS_ID_LOCKEY_HOLDER));
+    const lockeyManagerProxy = await getLockeyManagerProxy(
+      await addressesProvider.getAddress(ADDRESS_ID_LOCKEY_HOLDER)
+    );
 
-    await insertContractAddressInDb(eContractid.LockeyHolder, lockeyHoldersProxy.address);
+    await insertContractAddressInDb(eContractid.LockeyManager, lockeyManagerProxy.address);
 
     const lockeyAddress = getParamPerNetwork(poolConfig.LockeyCollection, network);
 

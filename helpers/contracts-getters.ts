@@ -13,7 +13,7 @@ import {
   LendPoolFactory,
   LendPoolLoanFactory,
   LiquidateLogicFactory,
-  LockeyHolderFactory,
+  LockeyManagerFactory,
   MintableERC20Factory,
   MintableERC721Factory,
   MockChainlinkOracleFactory,
@@ -144,9 +144,9 @@ export const getNFTOracle = async (address?: tEthereumAddress) =>
     await getDeploySigner()
   );
 
-export const getLockeyHolderProxy = async (address?: tEthereumAddress) => {
-  return await LockeyHolderFactory.connect(
-    address || (await getDb(DRE.network.name).get(`${eContractid.LockeyHolder}`).value()).address,
+export const getLockeyManagerProxy = async (address?: tEthereumAddress) => {
+  return await LockeyManagerFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.LockeyManager}`).value()).address,
     await getDeploySigner()
   );
 };

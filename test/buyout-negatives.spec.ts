@@ -22,7 +22,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
 
   const {
     LP_AMOUNT_LESS_THAN_DEBT,
-    LP_AMOUNT_LESS_THAN_VALUATION,
+    LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE,
     VL_HEALTH_FACTOR_LOWER_THAN_LIQUIDATION_THRESHOLD,
     LP_NFT_IS_NOT_USED_AS_COLLATERAL,
   } = ProtocolErrors;
@@ -94,7 +94,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // BUYOUT
     // Debt is 40 eth but tries to buyout with 10 eth.
-    await expect(pool.connect(buyer.signer).buyOut(bayc.address, "101", buyoutPrice)).to.be.revertedWith(
+    await expect(pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPrice, buyer.address)).to.be.revertedWith(
       VL_HEALTH_FACTOR_LOWER_THAN_LIQUIDATION_THRESHOLD
     );
   });
@@ -125,7 +125,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     const nftDebtData = await pool.getNftDebtData(bayc.address, "101");
     const buyoutPrice = nftDebtData[3].sub(100);
 
-    await expect(pool.connect(buyer.signer).buyOut(bayc.address, "0", buyoutPrice)).to.be.revertedWith(
+    await expect(pool.connect(buyer.signer).buyout(bayc.address, "0", buyoutPrice, buyer.address)).to.be.revertedWith(
       LP_NFT_IS_NOT_USED_AS_COLLATERAL
     );
   });
@@ -143,7 +143,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     const nftDebtData = await pool.getNftDebtData(bayc.address, "101");
     const buyoutPrice = nftDebtData[3].sub(100);
 
-    await expect(pool.connect(buyer.signer).buyOut(bayc.address, "101", buyoutPrice)).to.be.revertedWith(
+    await expect(pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPrice, buyer.address)).to.be.revertedWith(
       LP_AMOUNT_LESS_THAN_DEBT
     );
   });
@@ -161,8 +161,8 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // BUYOUT
     // Debt is 40 eth but tries to buyout with 10 eth.
-    await expect(pool.connect(buyer.signer).buyOut(bayc.address, "101", buyoutPrice)).to.be.revertedWith(
-      LP_AMOUNT_LESS_THAN_VALUATION
+    await expect(pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPrice, buyer.address)).to.be.revertedWith(
+      LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE
     );
   });
 });
