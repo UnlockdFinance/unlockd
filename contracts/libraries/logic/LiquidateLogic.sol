@@ -635,7 +635,7 @@ library LiquidateLogic {
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
     vars.lockeysCollection = addressesProvider.getAddress(keccak256("LOCKEY_COLLECTION"));
-    vars.lockeyManagerAddress = addressesProvider.getAddress(keccak256("LOCKEY_HOLDER"));
+    vars.lockeyManagerAddress = addressesProvider.getAddress(keccak256("LOCKEY_MANAGER"));
 
     vars.loanId = ILendPoolLoan(vars.poolLoan).getCollateralLoanId(params.nftAsset, params.nftTokenId);
     require(vars.loanId != 0, Errors.LP_NFT_IS_NOT_USED_AS_COLLATERAL);

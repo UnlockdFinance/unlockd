@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
 import { ConfigNames, loadPoolConfig } from "../../helpers/configuration";
-import { ADDRESS_ID_LOCKEY_COLLECTION, ADDRESS_ID_LOCKEY_HOLDER } from "../../helpers/constants";
+import { ADDRESS_ID_LOCKEY_COLLECTION, ADDRESS_ID_LOCKEY_MANAGER } from "../../helpers/constants";
 import { deployLockeyManager } from "../../helpers/contracts-deployments";
 import { getLendPoolAddressesProvider, getLockeyManagerProxy } from "../../helpers/contracts-getters";
 import { getParamPerNetwork, insertContractAddressInDb } from "../../helpers/contracts-helpers";
@@ -22,10 +22,12 @@ task("fork:deploy-lockey-holders", "Deploy the lockey holders contract")
 
     console.log("Setting lockey holders implementation with address:", lockeyManagerImpl.address);
 
-    await waitForTx(await addressesProvider.setAddressAsProxy(ADDRESS_ID_LOCKEY_HOLDER, lockeyManagerImpl.address, []));
+    await waitForTx(
+      await addressesProvider.setAddressAsProxy(ADDRESS_ID_LOCKEY_MANAGER, lockeyManagerImpl.address, [])
+    );
 
     const lockeyManagerProxy = await getLockeyManagerProxy(
-      await addressesProvider.getAddress(ADDRESS_ID_LOCKEY_HOLDER)
+      await addressesProvider.getAddress(ADDRESS_ID_LOCKEY_MANAGER)
     );
 
     await insertContractAddressInDb(eContractid.LockeyManager, lockeyManagerProxy.address);

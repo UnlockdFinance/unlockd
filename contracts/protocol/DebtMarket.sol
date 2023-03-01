@@ -21,7 +21,7 @@ import {IDebtMarket} from "../interfaces/IDebtMarket.sol";
 import {IUNFT} from "../interfaces/IUNFT.sol";
 import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
-import {ILockeyHolder} from "../interfaces/ILockeyHolder.sol";
+import {ILockeyManager} from "../interfaces/ILockeyManager.sol";
 
 /**
  * @title DebtMarket
@@ -409,7 +409,9 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
 
     DataTypes.LoanData memory loanData = ILendPoolLoan(vars.lendPoolLoanAddress).getLoan(vars.loanId);
     DataTypes.ReserveData memory reserveData = ILendPool(vars.lendPoolAddress).getReserveData(loanData.reserveAsset);
-    // reserveData.updateState();
+
+    ILendPool(vars.lendPoolAddress).updateReserveState(loanData.reserveAsset);
+    ILendPool(vars.lendPoolAddress).updateReserveInterestRates(loanData.reserveAsset);
 
     (, vars.borrowAmount) = ILendPoolLoan(vars.lendPoolLoanAddress).getLoanReserveBorrowAmount(vars.loanId);
 
@@ -455,11 +457,11 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
 
   function _priceForLockeyHolders(uint256 marketPrice, address onBehalfOf) internal view returns (uint256) {
     address lockeysCollection = _addressesProvider.getAddress(keccak256("LOCKEY_COLLECTION"));
-    address lockeyHolderAddress = _addressesProvider.getAddress(keccak256("LOCKEY_HOLDER"));
+    address lockeyManagerAddress = _addressesProvider.getAddress(keccak256("LOCKEY_MANAGER"));
 
     uint price = marketPrice;
     if (IERC721Upgradeable(lockeysCollection).balanceOf(onBehalfOf) > 0) {
-      price = marketPrice.percentMul(ILockeyHolder(lockeyHolderAddress).getLockeyDiscountPercentageOnDebtMarket());
+      price = marketPrice.percentMul(ILockeyManager(lockeyManagerAddress).getLockeyDiscountPercentageOnDebtMarket());
     }
     return price;
   }

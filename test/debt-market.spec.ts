@@ -96,7 +96,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         expect(loan.borrower).equals(buyer.address, "Invalid new loan debtor");
       });
       it("Buy a debt with a LOCKEY HOLDER discount", async () => {
-        const { users, debtMarket, bayc, wethGateway, uBAYC, dataProvider, lockeyHolder, deployer } = testEnv;
+        const { users, debtMarket, bayc, wethGateway, uBAYC, dataProvider, lockeyManager, deployer } = testEnv;
         const seller = users[4];
         const buyer = users[6];
         const nftAsset = bayc.address;
@@ -106,11 +106,11 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await borrowBayc(testEnv, seller, tokenId, 10);
         const oldLoan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
 
-        await lockeyHolder.connect(deployer.signer).setLockeyDiscountPercentageOnDebtMarket(BN.from("10000")); // 0% discount
+        await lockeyManager.connect(deployer.signer).setLockeyDiscountPercentageOnDebtMarket(BN.from("10000")); // 0% discount
         await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 100, seller.address, 0, 0);
         const tx_one = wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 1 });
         await expect(tx_one).to.be.revertedWith("1013");
-        await lockeyHolder.connect(deployer.signer).setLockeyDiscountPercentageOnDebtMarket(BN.from("9700")); // 3% discount
+        await lockeyManager.connect(deployer.signer).setLockeyDiscountPercentageOnDebtMarket(BN.from("9700")); // 3% discount
         const tx_two = wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 96 });
         await expect(tx_two).to.be.revertedWith("1013");
         await wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 97 });
@@ -708,7 +708,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         expect(loan.borrower).equals(bidder.address, "Invalid new loan debtor");
       });
       it("Buy a debt bids same as sell amount with a LOCKEY HOLDER discount", async () => {
-        const { users, debtMarket, bayc, wethGateway, uBAYC, dataProvider, lockeyHolder, deployer, weth } = testEnv;
+        const { users, debtMarket, bayc, wethGateway, uBAYC, dataProvider, lockeyManager, deployer, weth } = testEnv;
         const seller = users[4];
         const bidder = users[5];
         const buyer = users[6];
@@ -719,7 +719,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await borrowBayc(testEnv, seller, tokenId, 10);
         const oldLoan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
 
-        await lockeyHolder.connect(deployer.signer).setLockeyDiscountPercentageOnDebtMarket(BN.from("9700")); // 3% discount
+        await lockeyManager.connect(deployer.signer).setLockeyDiscountPercentageOnDebtMarket(BN.from("9700")); // 3% discount
         const blockNumber = await users[0].signer.provider!.getBlockNumber();
         const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
         const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
@@ -849,7 +849,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
     };
     describe("Revert on try to buy a debt listing", function () {
       it("When it is a the price is lowest than the offer", async () => {
-        const { users, debtMarket, bayc, wethGateway, uBAYC, dataProvider, lockeyHolder, deployer } = testEnv;
+        const { users, debtMarket, bayc, wethGateway, uBAYC, dataProvider, lockeyManager, deployer } = testEnv;
         const seller = users[4];
         const buyer = users[5];
         const nftAsset = bayc.address;
@@ -861,7 +861,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await expect(tx).to.be.revertedWith("1013");
       });
       it("When it is a the price is highest than the offer", async () => {
-        const { users, debtMarket, bayc, wethGateway, uBAYC, dataProvider, lockeyHolder, deployer } = testEnv;
+        const { users, debtMarket, bayc, wethGateway, uBAYC, dataProvider, lockeyManager, deployer } = testEnv;
         const seller = users[4];
         const buyer = users[5];
         const nftAsset = bayc.address;
