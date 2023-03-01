@@ -478,12 +478,12 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const loan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
 
         //Check previous unft brn and minted on the new
-        expect(uBAYC.balanceOf(seller.address), 0, "Invalid balance of UToken");
-        expect(uBAYC.balanceOf(buyer.address), 1, "Invalid balance of UToken");
+        expect(uBAYC.balanceOf(seller.address), 0, "Invalid balance of uNFT");
+        expect(uBAYC.balanceOf(buyer.address), 1, "Invalid balance of uNFT");
         //Check previous debt amount of the loan is same as actual
         expect(loan.currentAmount).to.be.within(
           oldLoan.currentAmount,
-          oldLoan.currentAmount.add(parseEther("1")).toString()
+          oldLoan.currentAmount.add(parseEther("0.0001")).toString()
         );
         //Check previous owner of the loan
         expect(oldLoan.borrower).equals(seller.address, "Invalid previous loan debtor");

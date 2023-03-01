@@ -159,7 +159,6 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     vars.debtId = _nftToDebtIds[nftAsset][tokenId];
     DataTypes.DebtMarketListing storage marketListing = _marketListings[vars.debtId];
 
-    marketListing.sellPrice = sellPrice;
     marketListing.auctionEndTimestamp = auctionEndTimestamp;
     marketListing.startBiddingPrice = startBiddingPrice;
 
@@ -262,8 +261,9 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   }
 
   struct BidLocalVars {
-    uint256 loanId;
     address previousBidder;
+    address lendPoolLoanAddress;
+    uint256 loanId;
     uint256 previousBidPrice;
     uint256 borrowAmount;
     uint256 debtId;
@@ -284,6 +284,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     vars.debtId = _nftToDebtIds[nftAsset][tokenId];
 
     DataTypes.DebtMarketListing storage marketListing = _marketListings[vars.debtId];
+
     vars.previousBidder = marketListing.bidderAddress;
     vars.previousBidPrice = marketListing.bidPrice;
     vars.price = bidPrice;
@@ -331,23 +332,6 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     );
   }
 
-  function _returnBidFunds(uint256 debtId, address previousBidder, uint256 previousBidPrice) internal {
-    DataTypes.DebtMarketListing memory marketListing = _marketListings[debtId];
-
-    IERC20Upgradeable(marketListing.reserveAsset).safeTransferFrom(address(this), previousBidder, previousBidPrice);
-  }
-
-  function _priceForLockeyHolders(uint256 marketPrice, address onBehalfOf) internal returns (uint256) {
-    address lockeysCollection = _addressesProvider.getAddress(keccak256("LOCKEY_COLLECTION"));
-    address lockeyHolderAddress = _addressesProvider.getAddress(keccak256("LOCKEY_HOLDER"));
-
-    uint price = marketPrice;
-    if (IERC721Upgradeable(lockeysCollection).balanceOf(onBehalfOf) > 0) {
-      price = marketPrice.percentMul(ILockeyHolder(lockeyHolderAddress).getLockeyDiscountPercentageOnDebtMarket());
-    }
-    return price;
-  }
-
   /**
    * @inheritdoc IDebtMarket
    */
@@ -378,14 +362,6 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     emit DebtClaimed(marketListing.debtor, onBehalfOf, vars.debtId);
   }
 
-  function _deleteDebtOfferListing(address nftAsset, uint256 tokenId) internal {
-    uint256 debtId = _nftToDebtIds[nftAsset][tokenId];
-    DataTypes.DebtMarketListing storage selldebt = _marketListings[debtId];
-
-    _userTotalDebtByCollection[selldebt.debtor][nftAsset] -= 1;
-    _totalDebtsByCollection[nftAsset] -= 1;
-  }
-
   function _createDebt(address nftAsset, uint256 tokenId, uint256 sellPrice, address onBehalfOf) internal {
     require(onBehalfOf != address(0), Errors.VL_INVALID_ONBEHALFOF_ADDRESS);
 
@@ -403,6 +379,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     marketListing.nftAsset = nftAsset;
     marketListing.tokenId = tokenId;
     marketListing.debtor = onBehalfOf;
+    marketListing.sellPrice = sellPrice;
 
     (, , address reserveAsset, uint256 scaledAmount) = ILendPoolLoan(lendPoolLoanAddress).getLoanCollateralAndReserve(
       loanId
@@ -413,6 +390,14 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
 
     _userTotalDebtByCollection[onBehalfOf][nftAsset] += 1;
     _totalDebtsByCollection[nftAsset] += 1;
+  }
+
+  function _deleteDebtOfferListing(address nftAsset, uint256 tokenId) internal {
+    uint256 debtId = _nftToDebtIds[nftAsset][tokenId];
+    DataTypes.DebtMarketListing storage selldebt = _marketListings[debtId];
+
+    _userTotalDebtByCollection[selldebt.debtor][nftAsset] -= 1;
+    _totalDebtsByCollection[nftAsset] -= 1;
   }
 
   function _transferDebt(address nftAsset, uint256 tokenId, address onBehalfOf) internal {
@@ -429,8 +414,12 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     (, vars.borrowAmount) = ILendPoolLoan(vars.lendPoolLoanAddress).getLoanReserveBorrowAmount(vars.loanId);
 
     vars.buyer = onBehalfOf;
-
     vars.debtId = _nftToDebtIds[nftAsset][tokenId];
+
+    DataTypes.DebtMarketListing storage marketOrder = _marketListings[vars.debtId];
+    require(marketOrder.scaledAmount == loanData.scaledAmount, Errors.DM_BORROWED_AMOUNT_DIVERGED);
+    marketOrder.state = DataTypes.DebtMarketState.Sold;
+
     // Burn debt from seller
     IDebtToken(reserveData.debtTokenAddress).burn(
       loanData.borrower,
@@ -453,10 +442,26 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
       loanData.borrower,
       vars.buyer
     );
+
     // Remove the offer listing
-    DataTypes.DebtMarketListing storage marketOrder = _marketListings[vars.debtId];
-    marketOrder.state = DataTypes.DebtMarketState.Sold;
     _deleteDebtOfferListing(nftAsset, tokenId);
+  }
+
+  function _returnBidFunds(uint256 debtId, address previousBidder, uint256 previousBidPrice) internal {
+    DataTypes.DebtMarketListing memory marketListing = _marketListings[debtId];
+
+    IERC20Upgradeable(marketListing.reserveAsset).safeTransferFrom(address(this), previousBidder, previousBidPrice);
+  }
+
+  function _priceForLockeyHolders(uint256 marketPrice, address onBehalfOf) internal view returns (uint256) {
+    address lockeysCollection = _addressesProvider.getAddress(keccak256("LOCKEY_COLLECTION"));
+    address lockeyHolderAddress = _addressesProvider.getAddress(keccak256("LOCKEY_HOLDER"));
+
+    uint price = marketPrice;
+    if (IERC721Upgradeable(lockeysCollection).balanceOf(onBehalfOf) > 0) {
+      price = marketPrice.percentMul(ILockeyHolder(lockeyHolderAddress).getLockeyDiscountPercentageOnDebtMarket());
+    }
+    return price;
   }
 
   /**
