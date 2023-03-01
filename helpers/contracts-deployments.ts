@@ -27,7 +27,6 @@ import {
   MockIncentivesControllerFactory,
   MockNFTOracleFactory,
   MockReserveOracleFactory,
-  MockYVaultFactory,
   NFTOracleFactory,
   NFTXVaultFactoryV2Factory,
   PunkGatewayFactory,
@@ -734,10 +733,4 @@ export const deploySushiSwapRouter = async (verify?: boolean) => {
     [uniswapV2Factory.address, ZERO_ADDRESS],
     verify
   );
-};
-
-export const deployMockYVault = async (verify?: boolean) => {
-  const mockYVaultImpl = await new MockYVaultFactory(await getDeploySigner()).deploy();
-  await insertContractAddressInDb(eContractid.MockYVaultImpl, mockYVaultImpl.address);
-  return withSaveAndVerify(mockYVaultImpl, eContractid.MockYVault, [], verify);
 };
