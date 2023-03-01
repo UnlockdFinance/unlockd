@@ -25,6 +25,7 @@ import {
   getNFTXVaultFactory,
   getPunkGateway,
   getReserveOracle,
+  getReservoirAdapterProxy,
   getSushiSwapRouter,
   getUIPoolDataProvider,
   getUNFT,
@@ -45,6 +46,7 @@ import {
   LockeyManager,
   MockIncentivesController,
   PunkGateway,
+  ReservoirAdapter,
   UiPoolDataProvider,
   UNFTRegistry,
   WalletBalanceProvider,
@@ -128,6 +130,7 @@ export interface TestEnv {
   sushiSwapRouter: IUniswapV2Router02;
   LSSVMPairs: LSSVMPairWithID[];
   lockeyManager: LockeyManager;
+  reservoirAdapter: ReservoirAdapter;
 }
 
 let buidlerevmSnapshotId = "0x1";
@@ -173,6 +176,7 @@ const testEnv: TestEnv = {
   roundIdTracker: {} as number,
   nowTimeTracker: {} as number,
   lockeyManager: {} as LockeyManager,
+  reservoirAdapter: {} as ReservoirAdapter,
 } as TestEnv;
 
 export async function initializeMakeSuite(network?: string) {
@@ -314,6 +318,7 @@ export async function initializeMakeSuite(network?: string) {
   }
 
   testEnv.lockeyManager = await getLockeyManagerProxy();
+  testEnv.reservoirAdapter = await getReservoirAdapterProxy();
 }
 
 const setSnapshot = async () => {

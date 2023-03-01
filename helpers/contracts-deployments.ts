@@ -34,6 +34,7 @@ import {
   RepayAndTransferHelperFactory,
   ReserveLogicFactory,
   ReserveOracleFactory,
+  ReservoirAdapterFactory,
   //NftLogicFactory,
   SelfdestructTransferFactory,
   SupplyLogicFactory,
@@ -129,6 +130,12 @@ export const deployLockeyManager = async (verify?: boolean) => {
   const lockeyManagerImpl = await new LockeyManagerFactory(await getDeploySigner()).deploy();
   await insertContractAddressInDb(eContractid.LockeyManagerImpl, lockeyManagerImpl.address);
   return withSaveAndVerify(lockeyManagerImpl, eContractid.LockeyManager, [], verify);
+};
+
+export const deployReservoirAdapter = async (verify?: boolean) => {
+  const reservoirAdapterImpl = await new ReservoirAdapterFactory(await getDeploySigner()).deploy();
+  await insertContractAddressInDb(eContractid.ReservoirAdapterImpl, reservoirAdapterImpl.address);
+  return withSaveAndVerify(reservoirAdapterImpl, eContractid.ReservoirAdapter, [], verify);
 };
 
 export const deployReserveLogicLibrary = async (verify?: boolean) =>

@@ -93,6 +93,8 @@ export enum eContractid {
   MockYVaultImpl = "MockYVaultImpl",
   LockeyManagerImpl = "LockeyManagerImpl",
   LockeyManager = "LockeyManager",
+  ReservoirAdapterImpl = "ReservoirAdapterImpl",
+  ReservoirAdapter = "ReservoirAdapter",
 }
 
 export enum ProtocolLoanState {
@@ -488,3 +490,9 @@ export interface ITokenAddress {
 }
 
 export type PoolConfiguration = ICommonConfiguration | IUnlockdConfiguration;
+
+export type ExecutionInfo = {
+  module: string;
+  data: string;
+  value: BigNumber;
+};

@@ -18,6 +18,7 @@ abstract contract BaseAdapter is Initializable {
                           ERRORS
   //////////////////////////////////////////////////////////////*/
   error InvalidZeroAddress();
+  error CallerNotPoolAdmin();
   error ReentrantCall();
   error NftNotUsedAsCollateral();
   error InvalidLoanState();
@@ -63,10 +64,22 @@ abstract contract BaseAdapter is Initializable {
    * `private` function that does the actual work.
    */
   modifier nonReentrant() {
-    if (status == _ENTERED) _revert(ReentrantCall.selector);
+    if (_status == _ENTERED) _revert(ReentrantCall.selector);
     _status = _ENTERED;
     _;
     _status = _NOT_ENTERED;
+  }
+
+  /**
+   * @dev Prevents a contract from calling itself, directly or indirectly.
+   * Calling a `nonReentrant` function from another `nonReentrant`
+   * function is not supported. It is possible to prevent this from happening
+   * by making the `nonReentrant` function external, and making it call a
+   * `private` function that does the actual work.
+   */
+  modifier onlyPoolAdmin() {
+    if (msg.sender != _addressesProvider.getPoolAdmin()) _revert(CallerNotPoolAdmin.selector);
+    _;
   }
 
   /*//////////////////////////////////////////////////////////////

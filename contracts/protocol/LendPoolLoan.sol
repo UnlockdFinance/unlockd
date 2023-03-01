@@ -461,6 +461,50 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     );
   }
 
+  function liquidateLoanMarket(
+    uint256 loanId,
+    address uNftAddress,
+    uint256 borrowAmount,
+    uint256 borrowIndex
+  )
+    external
+    override
+    //todo update modifier
+    onlyLendPool
+  {
+    DataTypes.LoanData storage loan = _loans[loanId];
+
+    // Ensure valid loan state
+    require(loan.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
+
+    loan.state = DataTypes.LoanState.Defaulted;
+
+    _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
+
+    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
+    _userNftCollateral[loan.borrower][loan.nftAsset] -= 1;
+
+    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALID_NFT_AMOUNT);
+    _nftTotalCollateral[loan.nftAsset] -= 1;
+
+    // burn uNFT
+    IUNFT(uNftAddress).burn(loan.nftTokenId);
+
+    //transfer to sender
+    IERC721Upgradeable(loan.nftAsset).safeTransferFrom(address(this), _msgSender(), loan.nftTokenId);
+
+    emit LoanLiquidatedMarket(
+      loanId,
+      loan.nftAsset,
+      loan.nftTokenId,
+      loan.reserveAsset,
+      borrowAmount,
+      borrowIndex,
+      sellPrice,
+      sudoswapParams.LSSVMPair
+    );
+  }
+
   function onERC721Received(address, address, uint256, bytes memory) external pure override returns (bytes4) {
     return IERC721ReceiverUpgradeable.onERC721Received.selector;
   }
