@@ -82,7 +82,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   function initialize(address _admin, address _lendPoolConfigurator) public initializer {
     require(_admin != address(0), Errors.INVALID_ZERO_ADDRESS);
     __Ownable_init();
-    isPriceManager[_msgSender()] = true;
+    isPriceManager[_admin] = true;
     isPriceManager[_lendPoolConfigurator] = true;
   }
 
