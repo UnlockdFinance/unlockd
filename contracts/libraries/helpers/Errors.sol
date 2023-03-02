@@ -105,6 +105,7 @@ library Errors {
   string public constant LPL_BID_NOT_BUYOUT_PRICE = "496";
   string public constant LPL_BUYOUT_DURATION_HAS_END = "497";
   string public constant LPL_BUYOUT_PRICE_LESS_THAN_BORROW = "498";
+  string public constant LPL_CALLER_MUST_BE_MARKET_ADAPTER = "499";
 
   //common token errors
   string public constant CT_CALLER_MUST_BE_LEND_POOL = "500"; // 'The caller of this function must be a lending pool'

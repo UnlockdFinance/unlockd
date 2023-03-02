@@ -478,6 +478,19 @@ export interface ICommonConfiguration {
   LSSVMRouter: iParamsPerNetwork<tEthereumAddress>;
   YVaultWETH: iParamsPerNetwork<tEthereumAddress>;
   LockeyCollection: iParamsPerNetwork<tEthereumAddress>;
+
+  BlurModule: iParamsPerNetwork<tEthereumAddress>;
+  FoundationModule: iParamsPerNetwork<tEthereumAddress>;
+  LooksRareModule: iParamsPerNetwork<tEthereumAddress>;
+  SeaportModule: iParamsPerNetwork<tEthereumAddress>;
+  SeaportV14Module: iParamsPerNetwork<tEthereumAddress>;
+  SudoSwapModule: iParamsPerNetwork<tEthereumAddress>;
+  X2Y2Module: iParamsPerNetwork<tEthereumAddress>;
+  ZeroExv4Module: iParamsPerNetwork<tEthereumAddress>;
+  ZoraModule: iParamsPerNetwork<tEthereumAddress>;
+  ElementModule: iParamsPerNetwork<tEthereumAddress>;
+  NFTXModule: iParamsPerNetwork<tEthereumAddress>;
+  RaribleModule: iParamsPerNetwork<tEthereumAddress>;
 }
 
 export interface IUnlockdConfiguration extends ICommonConfiguration {

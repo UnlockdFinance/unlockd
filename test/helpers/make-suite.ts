@@ -37,9 +37,9 @@ import {
   getWETHMocked,
   getWrappedPunk,
 } from "../../helpers/contracts-getters";
-import { getEthersSigners } from "../../helpers/contracts-helpers";
+import { getEthersSigners, getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { DRE, evmRevert, evmSnapshot, getNowTimeInSeconds } from "../../helpers/misc-utils";
-import { tEthereumAddress } from "../../helpers/types";
+import { eEthereumNetwork, tEthereumAddress } from "../../helpers/types";
 import {
   CryptoPunksMarket,
   LendPoolLoan,
@@ -131,6 +131,20 @@ export interface TestEnv {
   LSSVMPairs: LSSVMPairWithID[];
   lockeyManager: LockeyManager;
   reservoirAdapter: ReservoirAdapter;
+
+  BlurModule: tEthereumAddress;
+  FoundationModule: tEthereumAddress;
+  LooksRareModule: tEthereumAddress;
+  SeaportModule: tEthereumAddress;
+  SeaportV14Module: tEthereumAddress;
+  SudoSwapModule: tEthereumAddress;
+  X2Y2Module: tEthereumAddress;
+  ZeroExv4Module: tEthereumAddress;
+  ZoraModule: tEthereumAddress;
+  ElementModule: tEthereumAddress;
+  NFTXModule: tEthereumAddress;
+  RaribleModule: tEthereumAddress;
+  reservoirModules: tEthereumAddress[];
 }
 
 let buidlerevmSnapshotId = "0x1";
@@ -177,6 +191,19 @@ const testEnv: TestEnv = {
   nowTimeTracker: {} as number,
   lockeyManager: {} as LockeyManager,
   reservoirAdapter: {} as ReservoirAdapter,
+  BlurModule: {} as tEthereumAddress,
+  FoundationModule: {} as tEthereumAddress,
+  LooksRareModule: {} as tEthereumAddress,
+  SeaportModule: {} as tEthereumAddress,
+  SeaportV14Module: {} as tEthereumAddress,
+  SudoSwapModule: {} as tEthereumAddress,
+  X2Y2Module: {} as tEthereumAddress,
+  ZeroExv4Module: {} as tEthereumAddress,
+  ZoraModule: {} as tEthereumAddress,
+  ElementModule: {} as tEthereumAddress,
+  NFTXModule: {} as tEthereumAddress,
+  RaribleModule: {} as tEthereumAddress,
+  reservoirModules: [] as tEthereumAddress[],
 } as TestEnv;
 
 export async function initializeMakeSuite(network?: string) {
@@ -319,6 +346,46 @@ export async function initializeMakeSuite(network?: string) {
 
   testEnv.lockeyManager = await getLockeyManagerProxy();
   testEnv.reservoirAdapter = await getReservoirAdapterProxy();
+
+  const blurModule = getParamPerNetwork(poolConfig.BlurModule, network as eEthereumNetwork);
+  if (blurModule) testEnv.BlurModule = blurModule;
+  const foundationModule = getParamPerNetwork(poolConfig.FoundationModule, network as eEthereumNetwork);
+  if (foundationModule) testEnv.FoundationModule = foundationModule;
+  const looksrareModule = getParamPerNetwork(poolConfig.LooksRareModule, network as eEthereumNetwork);
+  if (looksrareModule) testEnv.LooksRareModule = looksrareModule;
+  const seaportModule = getParamPerNetwork(poolConfig.SeaportModule, network as eEthereumNetwork);
+  if (seaportModule) testEnv.SeaportModule = seaportModule;
+  const seaportV14Module = getParamPerNetwork(poolConfig.SeaportV14Module, network as eEthereumNetwork);
+  if (seaportV14Module) testEnv.SeaportV14Module = seaportV14Module;
+  const sudoswapModule = getParamPerNetwork(poolConfig.SudoSwapModule, network as eEthereumNetwork);
+  if (sudoswapModule) testEnv.SudoSwapModule = sudoswapModule;
+  const x2y2Module = getParamPerNetwork(poolConfig.X2Y2Module, network as eEthereumNetwork);
+  if (x2y2Module) testEnv.X2Y2Module = x2y2Module;
+  const zeroExv4Module = getParamPerNetwork(poolConfig.ZeroExv4Module, network as eEthereumNetwork);
+  if (zeroExv4Module) testEnv.ZeroExv4Module = zeroExv4Module;
+  const zoraModule = getParamPerNetwork(poolConfig.ZoraModule, network as eEthereumNetwork);
+  if (zoraModule) testEnv.ZoraModule = zoraModule;
+  const elementModule = getParamPerNetwork(poolConfig.ElementModule, network as eEthereumNetwork);
+  if (elementModule) testEnv.ElementModule = elementModule;
+  const NFTXModule = getParamPerNetwork(poolConfig.NFTXModule, network as eEthereumNetwork);
+  if (NFTXModule) testEnv.NFTXModule = NFTXModule;
+  const raribleModule = getParamPerNetwork(poolConfig.RaribleModule, network as eEthereumNetwork);
+  if (raribleModule) testEnv.RaribleModule = raribleModule;
+
+  testEnv.reservoirModules = [
+    blurModule,
+    foundationModule,
+    looksrareModule,
+    seaportModule,
+    seaportV14Module,
+    sudoswapModule,
+    x2y2Module,
+    zeroExv4Module,
+    zoraModule,
+    elementModule,
+    NFTXModule,
+    raribleModule,
+  ];
 }
 
 const setSnapshot = async () => {

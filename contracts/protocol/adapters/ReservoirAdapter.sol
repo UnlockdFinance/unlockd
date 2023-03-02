@@ -2,11 +2,15 @@
 pragma solidity 0.8.4;
 
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
 import {IReservoirAdapter} from "../../interfaces/reservoir/IReservoirAdapter.sol";
 
+import {DataTypes} from "../../libraries/types/DataTypes.sol";
+
 import {BaseAdapter} from "./abstracts/BaseAdapter.sol";
+import "hardhat/console.sol";
 
 contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
   /*//////////////////////////////////////////////////////////////
@@ -20,6 +24,11 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
   //////////////////////////////////////////////////////////////*/
   modifier onlyReservoirLiquidator() {
     if (!_liquidators[msg.sender]) _revert(NotReservoirLiquidator.selector);
+    _;
+  }
+
+  modifier isValidModule(address module) {
+    if (!_reservoirModules[module]) _revert(InvalidReservoirModule.selector);
     _;
   }
 
@@ -42,16 +51,29 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
     address nftAsset,
     uint256 tokenId,
     ExecutionInfo calldata executionInfo
-  ) external override nonReentrant onlyReservoirLiquidator {
-    _performInitialChecks(nftAsset, tokenId);
+  ) external override nonReentrant onlyReservoirLiquidator isValidModule(executionInfo.module) {
+    (
+      uint256 loanId,
+      DataTypes.LoanData memory loanData,
+      DataTypes.NftData memory nftData,
+      ,
+      DataTypes.ReserveData memory reserveData
+    ) = _performInitialChecks(nftAsset, tokenId);
 
-    _updateReserveState(nftAsset, tokenId);
+    _updateReserveState(loanData);
 
-    _updateReserveInterestRates(nftAsset, tokenId);
+    _updateReserveInterestRates(loanData);
 
     _validateLoanHealthFactor(nftAsset, tokenId);
 
-    //@todo burn UNFT and transfer it
+    // Clean loan state in LendPoolLoan and receive underlying NFT
+    _updateLoanStateAndTransferUnderlying(loanId, nftData.uNftAddress, reserveData.variableBorrowIndex);
+
+    // Check if module is a valid ERC721 receiver
+    _checkIsValidERC721Receiver(address(this), executionInfo.module, tokenId, executionInfo.data);
+
+    // Safetransfer NFT to Reservoir Module. Trigger `onerc721received` hook initiating the sell
+    IERC721(nftAsset).safeTransferFrom(address(this), executionInfo.module, tokenId, executionInfo.data);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -76,6 +98,40 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
       unchecked {
         ++i;
       }
+    }
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                        INTERNAL FUNCTIONS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @dev Check if receiver module actually implements onERC721Received. Adapted from OZ
+   * @param from The NFT holder
+   * @param to Target contract address receiving the NFT
+   * @param tokenId NFT token Id
+   * @param data Data to send along with the call.
+   * Returns whether the call correctly returned the expected magic value.
+   */
+  function _checkIsValidERC721Receiver(
+    address from,
+    address to,
+    uint256 tokenId,
+    bytes memory data
+  ) internal returns (bool) {
+    if (to.code.length != 0) {
+      try IERC721Receiver(to).onERC721Received(msg.sender, from, tokenId, data) returns (bytes4 retval) {
+        return retval == IERC721Receiver.onERC721Received.selector;
+      } catch (bytes memory reason) {
+        if (reason.length == 0) {
+          _revert(TransferToNonERC721Receiver.selector);
+        }
+        // solhint-disable-next-line no-inline-assembly
+        assembly {
+          revert(add(32, reason), mload(reason))
+        }
+      }
+    } else {
+      return true;
     }
   }
 }

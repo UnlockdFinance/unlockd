@@ -30,10 +30,6 @@ abstract contract BaseAdapter is Initializable {
   error LoanIsHealthy();
 
   /*//////////////////////////////////////////////////////////////
-                          EVENTS
-  //////////////////////////////////////////////////////////////*/
-
-  /*//////////////////////////////////////////////////////////////
                           CONSTANTS
   //////////////////////////////////////////////////////////////*/
   uint256 internal constant HEALTH_FACTOR_LIQUIDATION_THRESHOLD = 1e18;
@@ -101,61 +97,67 @@ abstract contract BaseAdapter is Initializable {
   /*//////////////////////////////////////////////////////////////
                           INTERNALS
   //////////////////////////////////////////////////////////////*/
-  function _performInitialChecks(address nftAsset, uint256 tokenId) internal {
+  function _performInitialChecks(
+    address nftAsset,
+    uint256 tokenId
+  )
+    internal
+    view
+    returns (
+      uint256 loanId,
+      DataTypes.LoanData memory loanData,
+      DataTypes.NftData memory nftData,
+      DataTypes.NftConfigurationMap memory nftConfigByTokenId,
+      DataTypes.ReserveData memory reserveData
+    )
+  {
     ILendPool cachedPool = _lendPool;
     ILendPoolLoan cachedPoolLoan = _lendPoolLoan;
 
     // Ensure loan exists
-    uint256 loanId = cachedPoolLoan.getCollateralLoanId(nftAsset, tokenId);
+    loanId = cachedPoolLoan.getCollateralLoanId(nftAsset, tokenId);
     if (loanId == 0) _revert(NftNotUsedAsCollateral.selector);
 
     // Loan checks
-    DataTypes.LoanData memory loanData = cachedPoolLoan.getLoan(loanId);
+    loanData = cachedPoolLoan.getLoan(loanId);
     if (loanData.state != DataTypes.LoanState.Active) _revert(InvalidLoanState.selector);
 
     // NFT general data checks
-    DataTypes.NftData memory nftData = cachedPool.getNftData(nftAsset);
+    nftData = cachedPool.getNftData(nftAsset);
     if (nftData.uNftAddress == address(0)) _revert(InvalidUNftAddress.selector);
 
     // Additional check for individual asset
-    DataTypes.NftConfigurationMap memory nftConfigByTokenId = cachedPool.getNftConfigByTokenId(nftAsset, tokenId);
+    nftConfigByTokenId = cachedPool.getNftConfigByTokenId(nftAsset, tokenId);
     if ((nftConfigByTokenId.data & ~ACTIVE_MASK) == 0) _revert(InactiveNft.selector);
 
     // Reserve data checks
-    DataTypes.ReserveData memory reserveData = cachedPool.getReserveData(loanData.reserveAsset);
+    reserveData = cachedPool.getReserveData(loanData.reserveAsset);
 
     if (reserveData.uTokenAddress == address(0)) _revert(InvalidUTokenAddress.selector);
 
     if ((reserveData.configuration.data & ~ACTIVE_MASK) == 0) _revert(InactiveReserve.selector);
   }
 
-  function _updateReserveState(address nftAsset, uint256 tokenId) internal {
-    ILendPoolLoan cachedPoolLoan = _lendPoolLoan;
-    ILendPool cachedPool = _lendPool;
-
-    uint256 loanId = cachedPoolLoan.getCollateralLoanId(nftAsset, tokenId);
-    DataTypes.LoanData memory loanData = cachedPoolLoan.getLoan(loanId);
-
-    cachedPool.updateReserveState(loanData.reserveAsset);
+  function _updateReserveState(DataTypes.LoanData memory loanData) internal {
+    _lendPool.updateReserveState(loanData.reserveAsset);
   }
 
-  function _updateReserveInterestRates(address nftAsset, uint256 tokenId) internal {
-    ILendPoolLoan cachedPoolLoan = _lendPoolLoan;
-    ILendPool cachedPool = _lendPool;
-
-    uint256 loanId = cachedPoolLoan.getCollateralLoanId(nftAsset, tokenId);
-    DataTypes.LoanData memory loanData = cachedPoolLoan.getLoan(loanId);
-
-    cachedPool.updateReserveInterestRates(loanData.reserveAsset);
+  function _updateReserveInterestRates(DataTypes.LoanData memory loanData) internal {
+    _lendPool.updateReserveInterestRates(loanData.reserveAsset);
   }
 
-  function _validateLoanHealthFactor(address nftAsset, uint256 tokenId) internal {
-    ILendPool cachedPool = _lendPool;
-
-    (uint256 loanId, , , , , uint256 healthFactor) = cachedPool.getNftDebtData(nftAsset, tokenId);
+  function _validateLoanHealthFactor(address nftAsset, uint256 tokenId) internal view {
+    (, , , , , uint256 healthFactor) = _lendPool.getNftDebtData(nftAsset, tokenId);
 
     // Loan must be unhealthy
     if (healthFactor > HEALTH_FACTOR_LIQUIDATION_THRESHOLD) _revert(LoanIsHealthy.selector);
+  }
+
+  function _updateLoanStateAndTransferUnderlying(uint256 loanId, address uNftAddress, uint256 borrowIndex) internal {
+    ILendPoolLoan cachedPoolLoan = _lendPoolLoan;
+    (, uint256 borrowAmount) = cachedPoolLoan.getLoanReserveBorrowAmount(loanId);
+
+    cachedPoolLoan.liquidateLoanMarket(loanId, uNftAddress, borrowAmount, borrowIndex);
   }
 
   /**
