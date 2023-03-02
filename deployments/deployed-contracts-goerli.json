@@ -210,6 +210,9 @@
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "LockeyManagerImpl": {
-    "address": "0xffe1f4a20B754CC9d7e66904d61c50aA081929f0"
+    "address": "0x0102fc8808413E6c4aaa1b3351edF5D3b64bA96D"
+  },
+  "LockeyManager": {
+    "address": "0x9aEf8386a6379c3B3F0bcfaEdd4901dD0B681F23"
   }
 }
