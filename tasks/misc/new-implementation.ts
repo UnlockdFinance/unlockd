@@ -216,11 +216,7 @@ task("dev:deploy-new-implementation", "Deploy new implementation")
 task("dev:deploy-new-interest-rate", "Deploy new interest rate implementation")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .addFlag("verify", "Verify contracts at Etherscan")
-  .addParam("optUtilRate", "Optimal Utilization Rate, 0-1, 0.65")
-  .addParam("baseRate", "Optimal Utilization Rate, 0-1, 0.03")
-  .addParam("rateSlope1", "Variable Rate Slope1, 0-1, 0.08")
-  .addParam("rateSlope2", "Variable Rate Slope2, 0-1, 1.0")
-  .setAction(async ({ verify, pool, optUtilRate, baseRate, rateSlope1, rateSlope2 }, DRE) => {
+  .setAction(async ({ verify, pool }, DRE) => {
     await DRE.run("set-DRE");
 
     const network = DRE.network.name as eNetwork;
@@ -229,24 +225,19 @@ task("dev:deploy-new-interest-rate", "Deploy new interest rate implementation")
     const providerOwnerSigner = await getEthersSignerByAddress(await addressesProviderRaw.owner());
     const addressesProvider = addressesProviderRaw.connect(providerOwnerSigner);
 
-    /*
-
-export const rateStrategyWETH: IInterestRateStrategyParams = {
-  name: "rateStrategyWETH",
-  optimalUtilizationRate: new BigNumber(0.65).multipliedBy(oneRay).toFixed(),
-  baseVariableBorrowRate: new BigNumber(0.03).multipliedBy(oneRay).toFixed(),
-  variableRateSlope1: new BigNumber(0.08).multipliedBy(oneRay).toFixed(),
-  variableRateSlope2: new BigNumber(1).multipliedBy(oneRay).toFixed(),
-}
-    */
-
-    const optUtilRateInRay = new BigNumber(optUtilRate).multipliedBy(oneRay).toFixed();
-    const baseRateInRay = new BigNumber(baseRate).multipliedBy(oneRay).toFixed();
-    const rateSlope1InRay = new BigNumber(rateSlope1).multipliedBy(oneRay).toFixed();
-    const rateSlope2InRay = new BigNumber(rateSlope2).multipliedBy(oneRay).toFixed();
+    const optimalUtilizationRate = new BigNumber(0.8).multipliedBy(oneRay).toFixed();
+    const baseVariableBorrowRate = new BigNumber(0.2).multipliedBy(oneRay).toFixed();
+    const variableRateSlope1 = new BigNumber(0.16).multipliedBy(oneRay).toFixed();
+    const variableRateSlope2 = new BigNumber(2).multipliedBy(oneRay).toFixed();
 
     const rateInstance = await deployInterestRate(
-      [addressesProvider.address, optUtilRateInRay, baseRateInRay, rateSlope1InRay, rateSlope2InRay],
+      [
+        addressesProvider.address,
+        optimalUtilizationRate,
+        baseVariableBorrowRate,
+        variableRateSlope1,
+        variableRateSlope2,
+      ],
       verify
     );
     console.log("InterestRate implementation address:", rateInstance.address);

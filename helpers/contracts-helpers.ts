@@ -135,6 +135,8 @@ export const withSaveAndVerify = async <ContractType extends Contract>(
   verify?: boolean
 ): Promise<ContractType> => {
   //console.log('contracts-helpers:withSaveAndVerify,','id',id)
+  console.log(instance.deployTransaction.hash);
+  console.log(instance.deployTransaction.nonce);
   await waitForTx(instance.deployTransaction);
   await registerContractInJsonDb(id, instance);
   if (verify) {

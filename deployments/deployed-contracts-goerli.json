@@ -152,7 +152,7 @@
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "InterestRate": {
-    "address": "0xF2aAA85ed669Cd0E4e9D76282f76ff821a37a35F",
+    "address": "0x36F7aa3648d4bc1411217e4F77b5Ab940accd16B",
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "rateStrategyWETH": {
