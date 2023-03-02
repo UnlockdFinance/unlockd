@@ -10,7 +10,6 @@ import {IReservoirAdapter} from "../../interfaces/reservoir/IReservoirAdapter.so
 import {DataTypes} from "../../libraries/types/DataTypes.sol";
 
 import {BaseAdapter} from "./abstracts/BaseAdapter.sol";
-import "hardhat/console.sol";
 
 contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
   /*//////////////////////////////////////////////////////////////
@@ -39,7 +38,7 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
    * @dev Function is invoked by the proxy contract on deployment.
    * @param provider The address of the LendPoolAddressesProvider
    **/
-  function initialize(ILendPoolAddressesProvider provider) external initializer {
+  function initialize(ILendPoolAddressesProvider provider) public initializer {
     if (address(provider) == address(0)) _revert(InvalidZeroAddress.selector);
     __BaseAdapter_init(provider);
   }

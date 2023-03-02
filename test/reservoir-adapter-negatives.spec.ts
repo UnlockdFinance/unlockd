@@ -87,7 +87,7 @@ makeSuite("Reservoir adapter tests", (testEnv: TestEnv) => {
   });
 
   it("ReservoirAdapter: check liquidation of a non-active loan", async () => {
-    const { reservoirAdapter, bayc, users, weth, pool, configurator, deployer, nftOracle } = testEnv;
+    const { reservoirAdapter, bayc, users, weth, pool, configurator, deployer, nftOracle, BlurModule } = testEnv;
     const depositor = users[1];
     const borrower = users[2];
     const bidder = users[3];
@@ -148,7 +148,7 @@ makeSuite("Reservoir adapter tests", (testEnv: TestEnv) => {
     //////////////////////////////////////////////////////////////*/
 
     const executionInfo: ExecutionInfo = {
-      module: await createRandomAddress(),
+      module: BlurModule,
       data: "0x",
       value: BigNumber.from(0),
     };

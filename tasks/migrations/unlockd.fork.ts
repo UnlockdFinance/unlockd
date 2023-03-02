@@ -153,9 +153,6 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
       await DRE.run("fork:deploy-lockey-holders", { pool: POOL_NAME });
 
       //////////////////////////////////////////////////////////////////////////
-      console.log("\n\nDeploy Reservoir Adapter");
-      await DRE.run("fork:deploy-reservoir-adapter", { pool: POOL_NAME });
-      //////////////////////////////////////////////////////////////////////////
 
       //////////////////////////////////////////////////////////////////////////
       console.log("\n\nDeploy lend pool");
@@ -227,6 +224,10 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
         console.log("\n\nInitialize gateway");
         await DRE.run("fork:initialize-gateway", { pool: POOL_NAME, verify: false });
       }
+
+      //////////////////////////////////////////////////////////////////////////
+      console.log("\n\nDeploy Reservoir Adapter");
+      await DRE.run("fork:deploy-reservoir-adapter", { pool: POOL_NAME });
 
       //////////////////////////////////////////////////////////////////////////
       console.log("\n\nDeploy data provider");
