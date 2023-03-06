@@ -60,20 +60,20 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       //await waitForTx(await addressesProvider.setIncentivesController(incentivesControllerAddress));
 
       //////////////////////////////////////////////////////////////////////////
-      console.log("Deploying new libraries implementation...");
-      await deployUnlockdLibraries(verify);
+      // console.log("Deploying new libraries implementation...");
+      // await deployUnlockdLibraries(verify);
 
-      // Reuse/deploy lend pool implementation
-      console.log("Deploying new lend pool implementation ...");
-      const lendPoolImpl = await deployLendPool(verify);
-      console.log("Setting lend pool implementation with address:", lendPoolImpl.address);
-      // Set lending pool impl to Address provider
-      await waitForTx(await addressesProvider.setLendPoolImpl(lendPoolImpl.address, []));
+      // // Reuse/deploy lend pool implementation
+      // console.log("Deploying new lend pool implementation ...");
+      // const lendPoolImpl = await deployLendPool(verify);
+      // console.log("Setting lend pool implementation with address:", lendPoolImpl.address);
+      // // Set lending pool impl to Address provider
+      // await waitForTx(await addressesProvider.setLendPoolImpl(lendPoolImpl.address, []));
 
-      const address = await addressesProvider.getLendPool();
-      const lendPoolProxy = await getLendPool(address);
+      // const address = await addressesProvider.getLendPool();
+      // const lendPoolProxy = await getLendPool(address);
 
-      await insertContractAddressInDb(eContractid.LendPool, lendPoolProxy.address);
+      // await insertContractAddressInDb(eContractid.LendPool, lendPoolProxy.address);
 
       ////////////////////////////////////////////////////////////////////////
       //Reuse/deploy lend pool loan
@@ -89,24 +89,24 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
 
       //////////////////////////////////////////////////////////////////////////
       //Reuse/deploy lend pool configurator
-      console.log("Deploying new configurator implementation...");
-      const lendPoolConfiguratorImpl = await deployLendPoolConfigurator(verify);
-      console.log("Setting lend pool configurator implementation with address:", lendPoolConfiguratorImpl.address);
-      //Set lend pool conf impl to Address Provider
-      await waitForTx(await addressesProvider.setLendPoolConfiguratorImpl(lendPoolConfiguratorImpl.address, []));
+      // console.log("Deploying new configurator implementation...");
+      // const lendPoolConfiguratorImpl = await deployLendPoolConfigurator(verify);
+      // console.log("Setting lend pool configurator implementation with address:", lendPoolConfiguratorImpl.address);
+      // //Set lend pool conf impl to Address Provider
+      // await waitForTx(await addressesProvider.setLendPoolConfiguratorImpl(lendPoolConfiguratorImpl.address, []));
 
-      const lendPoolConfiguratorProxy = await getLendPoolConfiguratorProxy(
-        await addressesProvider.getLendPoolConfigurator()
-      );
+      // const lendPoolConfiguratorProxy = await getLendPoolConfiguratorProxy(
+      //   await addressesProvider.getLendPoolConfigurator()
+      // );
 
-      await insertContractAddressInDb(eContractid.LendPoolConfigurator, lendPoolConfiguratorProxy.address);
+      // await insertContractAddressInDb(eContractid.LendPoolConfigurator, lendPoolConfiguratorProxy.address);
 
-      ////////////////////////////////////////////////////////////////////////
-      const admin = await DRE.ethers.getSigner(await getEmergencyAdmin(poolConfig));
-      // Pause market during deployment
-      // await waitForTx(await lendPoolConfiguratorProxy.connect(admin).setPoolPause(true));
-      // Generic UToken & DebtToken Implementation in Pool
-      await deployUTokenImplementations(pool, poolConfig.ReservesConfig, verify);
+      // ////////////////////////////////////////////////////////////////////////
+      // const admin = await DRE.ethers.getSigner(await getEmergencyAdmin(poolConfig));
+      // // Pause market during deployment
+      // // await waitForTx(await lendPoolConfiguratorProxy.connect(admin).setPoolPause(true));
+      // // Generic UToken & DebtToken Implementation in Pool
+      // await deployUTokenImplementations(pool, poolConfig.ReservesConfig, verify);
     } catch (error) {
       console.log(error);
     }
