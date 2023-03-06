@@ -102,7 +102,7 @@
     "address": "0x9F112F90AcbAf18C5EBb3cB819e630DF8E4C3E67"
   },
   "LendPoolLoanImpl": {
-    "address": "0xdeA2fd180d8C9d78fAfa1fC6611CCc109eFFeD6b"
+    "address": "0xb1Ed57fd9C08B37726132AC3f4a2fea376204Bf3"
   },
   "LendPoolLoan": {
     "address": "0xeE74e1E16B82275CD7bDdb27dd67d92018B322ee"
@@ -133,21 +133,21 @@
     "address": "0xE6Ae84A38c3f2a8782b96E02Bc86107B3799aF72"
   },
   "WETHGatewayImpl": {
-    "address": "0xB9925b4d01302a96Fae85B9f221d2d7719460853"
+    "address": "0xB6efC98A4CD8A647F30Fc56E241d03970D9f8F60"
   },
   "WETHGateway": {
-    "address": "0x116c5aD9d58B7Cc7afe64aDdBB6204D3Ff45bfd9",
+    "address": "0x71beADa6Da5cA79237Fb6B1ed14F34934848FBd9",
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "PunkGatewayImpl": {
-    "address": "0x497dB1417F59492017722F91c45d8E3e3b37c7d2"
+    "address": "0x2e33B7c06072aF8233A06c97db366Efb5a4ff837"
   },
   "PunkGateway": {
-    "address": "0x6DF2A1439cAcb90a8B522b6683A83d1c5B4A5B32",
+    "address": "0x14e3582Fdc46D958F7e61575273344287d034d2e",
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "UnlockdProtocolDataProvider": {
-    "address": "0x5538ac59B2915c36F02ff79B5552F4E3c92daBFa",
+    "address": "0x3C7cD8DCc6caD7B88d539C373a209573cf501255",
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "InterestRate": {
@@ -213,5 +213,11 @@
   },
   "LockeyManager": {
     "address": "0x9aEf8386a6379c3B3F0bcfaEdd4901dD0B681F23"
+  },
+  "DebtMarketImpl": {
+    "address": "0xde8922B2028dDBCB1F15E84c2557404C9E4FcC63"
+  },
+  "DebtMarket": {
+    "address": "0xe741118986159Dd90A2Ad41EB061294c476C8592"
   }
 }
