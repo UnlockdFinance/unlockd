@@ -130,8 +130,7 @@
     "address": "0xe8580217658f7bba0403D4BEcc0942702c6A5Cdb"
   },
   "NFTOracle": {
-    "address": "0x51AEBbcE911f9503DC9F9abD4d842e032279876D",
-    "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
+    "address": "0xE6Ae84A38c3f2a8782b96E02Bc86107B3799aF72"
   },
   "WETHGatewayImpl": {
     "address": "0xB9925b4d01302a96Fae85B9f221d2d7719460853"
@@ -152,7 +151,7 @@
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "InterestRate": {
-    "address": "0xF2aAA85ed669Cd0E4e9D76282f76ff821a37a35F",
+    "address": "0x36F7aa3648d4bc1411217e4F77b5Ab940accd16B",
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "rateStrategyWETH": {
@@ -203,13 +202,16 @@
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "MockYVaultImpl": {
-    "address": "0x4dCA453Ee1bdEC040337d9d4e77C5f0EB21c73e8"
+    "address": "0x39D96E8A9F2d51d8948E02ed5f108E7923111E16",
+    "deployer": "0xB9E29f1256F1AfDc460b99BB4307a20B6053bd59"
   },
   "MockYVault": {
-    "address": "0x390FBCaC6a341E181Ce440B75c1E2532031B4433",
-    "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
+    "address": "0x390FBCaC6a341E181Ce440B75c1E2532031B4433"
   },
   "LockeyManagerImpl": {
-    "address": "0xffe1f4a20B754CC9d7e66904d61c50aA081929f0"
+    "address": "0x0102fc8808413E6c4aaa1b3351edF5D3b64bA96D"
+  },
+  "LockeyManager": {
+    "address": "0x9aEf8386a6379c3B3F0bcfaEdd4901dD0B681F23"
   }
 }

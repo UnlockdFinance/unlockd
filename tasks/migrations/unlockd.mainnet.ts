@@ -84,8 +84,8 @@ task("unlockd:mainnet", "Deploy full enviroment")
     // console.log("\n\nDeploy reserve oracle");
     // await DRE.run("full:deploy-oracle-reserve", { pool: POOL_NAME, skipOracle: false, verify: true });
 
-    // console.log("\n\nDeploy nft oracle");
-    // await DRE.run("full:deploy-oracle-nft", { pool: POOL_NAME, skipOracle: false, verify: true });
+    console.log("\n\nDeploy nft oracle");
+    await DRE.run("full:deploy-oracle-nft", { pool: POOL_NAME, skipOracle: false, verify: true });
 
     // ////////////////////////////////////////////////////////////////////////
     // console.log("\n\nInitialize lend pool");
@@ -103,14 +103,14 @@ task("unlockd:mainnet", "Deploy full enviroment")
     // await DRE.run("full:initialize-gateway", { pool: POOL_NAME, verify: true });
 
     // // //////////////////////////////////////////////////////////////////////////
-    console.log("\n\nDeploy data provider");
-    await DRE.run("full:deploy-data-provider", {
-      pool: POOL_NAME,
-      wallet: true,
-      ui: true,
-      protocol: true,
-      verify: verify,
-    });
+    // console.log("\n\nDeploy data provider");
+    // await DRE.run("full:deploy-data-provider", {
+    //   pool: POOL_NAME,
+    //   wallet: true,
+    //   ui: true,
+    //   protocol: true,
+    //   verify: verify,
+    // });
 
     /* if (verify) {
       printContracts();

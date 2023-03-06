@@ -89,6 +89,8 @@ export enum eContractid {
   NFTXHelper = "NFTXHelper",
   LSSVMPPair = "LSSVMPair",
   YVault = "YVault",
+  MockYVault = "MockYVault",
+  MockYVaultImpl = "MockYVaultImpl",
   LockeyManagerImpl = "LockeyManagerImpl",
   LockeyManager = "LockeyManager",
 }
