@@ -32,11 +32,10 @@ export const UnlockdConfig: IUnlockdConfiguration = {
   NftsConfig: {
     WPUNKS: strategyNft_WPUNKS,
     BAYC: strategyNft_BAYC,
-    /* DOODLE: strategyNft_DOODLE,
     AZUKI: strategyNft_AZUKI,
+    /* DOODLE: strategyNft_DOODLE,
      MAYC: strategyNft_MAYC,
     CLONEX: strategyNft_CLONEX,
-    AZUKI: strategyNft_AZUKI,
     KONGZ: strategyNft_KONGZ,
     COOL: strategyNft_COOL,
     MEEBITS: strategyNft_MEEBITS,
