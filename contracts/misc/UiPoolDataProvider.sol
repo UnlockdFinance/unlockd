@@ -420,8 +420,6 @@ contract UiPoolDataProvider is IUiPoolDataProvider {
       DataTypes.LoanData memory loan = poolLoan.getLoan(loanData.loanId);
       loanData.state = uint256(loan.state);
 
-      (loanData.liquidatePrice, ) = lendPool.getNftLiquidatePrice(nftAssets[i], nftTokenIds[i]);
-
       // NFT auction data
       (, loanData.bidderAddress, loanData.bidPrice, loanData.bidBorrowAmount, loanData.bidFine) = lendPool
         .getNftAuctionData(nftAssets[i], nftTokenIds[i]);

@@ -9,6 +9,7 @@ import { ConfigNames, getLendPoolLiquidator, loadPoolConfig } from "../../helper
 import { ADDRESS_ID_WETH, SUDOSWAP_PAIRS_GOERLI, SUDOSWAP_PAIRS_MAINNET } from "../../helpers/constants";
 import {
   getCryptoPunksMarket,
+  getDebtMarketProxy,
   getLendPool,
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
@@ -41,6 +42,7 @@ import { DRE, evmRevert, evmSnapshot, getNowTimeInSeconds } from "../../helpers/
 import { tEthereumAddress } from "../../helpers/types";
 import {
   CryptoPunksMarket,
+  DebtMarket,
   LendPoolLoan,
   LockeyManager,
   MockIncentivesController,
@@ -128,6 +130,7 @@ export interface TestEnv {
   sushiSwapRouter: IUniswapV2Router02;
   LSSVMPairs: LSSVMPairWithID[];
   lockeyManager: LockeyManager;
+  debtMarket: DebtMarket;
 }
 
 let buidlerevmSnapshotId = "0x1";
@@ -173,6 +176,7 @@ const testEnv: TestEnv = {
   roundIdTracker: {} as number,
   nowTimeTracker: {} as number,
   lockeyManager: {} as LockeyManager,
+  debtMarket: {} as DebtMarket,
 } as TestEnv;
 
 export async function initializeMakeSuite(network?: string) {
@@ -215,6 +219,7 @@ export async function initializeMakeSuite(network?: string) {
   testEnv.dataProvider = await getUnlockdProtocolDataProvider();
   testEnv.walletProvider = await getWalletProvider();
   testEnv.uiProvider = await getUIPoolDataProvider();
+  testEnv.debtMarket = await getDebtMarketProxy();
 
   testEnv.mockIncentivesController = await getMockIncentivesController();
 

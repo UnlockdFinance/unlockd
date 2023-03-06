@@ -11,6 +11,8 @@ import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {NFTXSeller} from "../libraries/markets/NFTXSeller.sol";
 import {SudoSwapSeller} from "../libraries/markets/SudoSwapSeller.sol";
+import {IUNFTRegistry} from "../interfaces/IUNFTRegistry.sol";
+import {ILendPool} from "../interfaces/ILendPool.sol";
 
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {IERC721ReceiverUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
@@ -23,6 +25,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   using CountersUpgradeable for CountersUpgradeable.Counter;
 
   ILendPoolAddressesProvider private _addressesProvider;
+  bytes32 public constant DEBT_MARKET = keccak256("DEBT_MARKET");
 
   CountersUpgradeable.Counter private _loanIdTracker;
   mapping(uint256 => DataTypes.LoanData) private _loans;
@@ -37,6 +40,10 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
    **/
   modifier onlyLendPool() {
     require(_msgSender() == address(_getLendPool()), Errors.CT_CALLER_MUST_BE_LEND_POOL);
+    _;
+  }
+  modifier onlyDebtMarket() {
+    require(_msgSender() == _addressesProvider.getAddress(DEBT_MARKET), Errors.CT_CALLER_MUST_BE_DEBT_MARKET);
     _;
   }
 
@@ -98,7 +105,6 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     loanData.scaledAmount = amountScaled;
 
     _userNftCollateral[onBehalfOf][nftAsset] += 1;
-
     _nftTotalCollateral[nftAsset] += 1;
 
     emit LoanCreated(initiator, onBehalfOf, loanId, nftAsset, nftTokenId, reserveAsset, amount, borrowIndex);
@@ -550,5 +556,30 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
    */
   function getLoanIdTracker() external view override returns (CountersUpgradeable.Counter memory) {
     return _loanIdTracker;
+  }
+
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
+  function reMintUNFT(
+    address nftAsset,
+    uint256 tokenId,
+    address oldOnBehalfOf,
+    address newOnBehalfOf
+  ) external override onlyDebtMarket {
+    DataTypes.NftData memory nftData = ILendPool(_addressesProvider.getLendPool()).getNftData(nftAsset);
+
+    require(_userNftCollateral[oldOnBehalfOf][nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
+
+    _userNftCollateral[oldOnBehalfOf][nftAsset] -= 1;
+    _userNftCollateral[newOnBehalfOf][nftAsset] += 1;
+
+    uint256 loanId = _nftToLoanIds[nftAsset][tokenId];
+
+    DataTypes.LoanData storage loan = _loans[loanId];
+    loan.borrower = newOnBehalfOf;
+
+    IUNFT(nftData.uNftAddress).burn(tokenId);
+    IUNFT(nftData.uNftAddress).mint(newOnBehalfOf, tokenId);
   }
 }

@@ -93,6 +93,8 @@ export enum eContractid {
   MockYVaultImpl = "MockYVaultImpl",
   LockeyManagerImpl = "LockeyManagerImpl",
   LockeyManager = "LockeyManager",
+  DebtMarketImpl = "DebtMarketImpl",
+  DebtMarket = "DebtMarket",
 }
 
 export enum ProtocolLoanState {

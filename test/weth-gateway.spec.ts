@@ -12,6 +12,7 @@ import { IConfigNftAsCollateralInput, IReserveParams, iUnlockdPoolAssets, Unlock
 import {
   approveERC20,
   borrow,
+  borrowBayc,
   configuration as actionsConfiguration,
   mintERC721,
   setApprovalForAll,
