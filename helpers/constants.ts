@@ -133,3 +133,5 @@ export const MOCK_NFT_BASE_URIS = {
   KONGZ: "https://kongz.herokuapp.com/api/metadata/",
   LAND: "https://market.decentraland.org/contracts/0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d/tokens/",
 };
+
+export const RESERVOIR_API_BIDS_BASE_URL = "https://api.reservoir.tools/orders/bids/v5?";

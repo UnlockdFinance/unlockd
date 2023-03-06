@@ -202,3 +202,18 @@ const calculateLockedProfit = async (yVault: IYVault): Promise<BN> => {
   }
   return BN.from(0);
 };
+
+const buildReservoirModuleCallData = async (yVault: IYVault): Promise<BN> => {
+  const lockedFundsRatio = BN.from(await (await getNowTimeInSeconds()).toString())
+    .sub(await yVault.lastReport())
+    .mul(await yVault.lockedProfitDegradation());
+
+  const DEGRADATION_COEFFICIENT = parseEther("10");
+
+  if (lockedFundsRatio.lt(DEGRADATION_COEFFICIENT)) {
+    const lockedProfit = await yVault.lockedProfit();
+
+    return lockedProfit.sub(lockedFundsRatio.mul(lockedProfit).div(DEGRADATION_COEFFICIENT));
+  }
+  return BN.from(0);
+};

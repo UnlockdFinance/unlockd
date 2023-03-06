@@ -52,7 +52,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
    * @dev Only pool admin can call functions marked by this modifier
    **/
   modifier onlyPoolAdmin() {
-    require(_msgSender() == _addressesProvider.getPoolAdmin(), "Caller not pool admin");
+    require(_msgSender() == _addressesProvider.getPoolAdmin(), Errors.CALLER_NOT_POOL_ADMIN);
     _;
   }
 

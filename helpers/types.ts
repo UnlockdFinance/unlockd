@@ -201,6 +201,7 @@ export enum ProtocolErrors {
   LPL_BID_INVALID_BID_FINE = "494",
   LPL_BID_PRICE_LESS_THAN_MIN_BID_REQUIRED = "495",
   LPL_BID_NOT_BUYOUT_PRICE = "496",
+  LPL_CALLER_MUST_BE_MARKET_ADAPTER = "499",
   //common token errors
   CT_CALLER_MUST_BE_LEND_POOL = "500", // 'The caller of this function must be a lending pool'
   CT_INVALID_MINT_AMOUNT = "501", //invalid amount to mint

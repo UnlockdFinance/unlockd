@@ -2,7 +2,6 @@
 pragma solidity 0.8.4;
 
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
 import {IReservoirAdapter} from "../../interfaces/reservoir/IReservoirAdapter.sol";
@@ -54,7 +53,7 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
     (
       uint256 loanId,
       DataTypes.LoanData memory loanData,
-      DataTypes.NftData memory nftData,
+      address uNftAddress,
       ,
       DataTypes.ReserveData memory reserveData
     ) = _performInitialChecks(nftAsset, tokenId);
@@ -66,10 +65,7 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
     _validateLoanHealthFactor(nftAsset, tokenId);
 
     // Clean loan state in LendPoolLoan and receive underlying NFT
-    _updateLoanStateAndTransferUnderlying(loanId, nftData.uNftAddress, reserveData.variableBorrowIndex);
-
-    // Check if module is a valid ERC721 receiver
-    _checkIsValidERC721Receiver(address(this), executionInfo.module, tokenId, executionInfo.data);
+    _updateLoanStateAndTransferUnderlying(loanId, uNftAddress, reserveData.variableBorrowIndex);
 
     // Safetransfer NFT to Reservoir Module. Trigger `onerc721received` hook initiating the sell
     IERC721(nftAsset).safeTransferFrom(address(this), executionInfo.module, tokenId, executionInfo.data);
@@ -97,40 +93,6 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
       unchecked {
         ++i;
       }
-    }
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                        INTERNAL FUNCTIONS
-  //////////////////////////////////////////////////////////////*/
-  /**
-   * @dev Check if receiver module actually implements onERC721Received. Adapted from OZ
-   * @param from The NFT holder
-   * @param to Target contract address receiving the NFT
-   * @param tokenId NFT token Id
-   * @param data Data to send along with the call.
-   * Returns whether the call correctly returned the expected magic value.
-   */
-  function _checkIsValidERC721Receiver(
-    address from,
-    address to,
-    uint256 tokenId,
-    bytes memory data
-  ) internal returns (bool) {
-    if (to.code.length != 0) {
-      try IERC721Receiver(to).onERC721Received(msg.sender, from, tokenId, data) returns (bytes4 retval) {
-        return retval == IERC721Receiver.onERC721Received.selector;
-      } catch (bytes memory reason) {
-        if (reason.length == 0) {
-          _revert(TransferToNonERC721Receiver.selector);
-        }
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-          revert(add(32, reason), mload(reason))
-        }
-      }
-    } else {
-      return true;
     }
   }
 }

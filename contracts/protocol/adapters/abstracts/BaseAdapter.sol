@@ -3,6 +3,7 @@ pragma solidity 0.8.4;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
 import {ILendPoolAddressesProvider} from "../../../interfaces/ILendPoolAddressesProvider.sol";
 import {ILendPool} from "../../../interfaces/ILendPool.sol";
@@ -106,7 +107,7 @@ abstract contract BaseAdapter is Initializable {
     returns (
       uint256 loanId,
       DataTypes.LoanData memory loanData,
-      DataTypes.NftData memory nftData,
+      address uNftAddress,
       DataTypes.NftConfigurationMap memory nftConfigByTokenId,
       DataTypes.ReserveData memory reserveData
     )
@@ -122,20 +123,18 @@ abstract contract BaseAdapter is Initializable {
     loanData = cachedPoolLoan.getLoan(loanId);
     if (loanData.state != DataTypes.LoanState.Active) _revert(InvalidLoanState.selector);
 
-    // NFT general data checks
-    nftData = cachedPool.getNftData(nftAsset);
-    if (nftData.uNftAddress == address(0)) _revert(InvalidUNftAddress.selector);
-
     // Additional check for individual asset
     nftConfigByTokenId = cachedPool.getNftConfigByTokenId(nftAsset, tokenId);
+
     if ((nftConfigByTokenId.data & ~ACTIVE_MASK) == 0) _revert(InactiveNft.selector);
 
     // Reserve data checks
     reserveData = cachedPool.getReserveData(loanData.reserveAsset);
 
-    if (reserveData.uTokenAddress == address(0)) _revert(InvalidUTokenAddress.selector);
-
     if ((reserveData.configuration.data & ~ACTIVE_MASK) == 0) _revert(InactiveReserve.selector);
+
+    // Return NFT data
+    uNftAddress = cachedPool.getNftData(nftAsset).uNftAddress;
   }
 
   function _updateReserveState(DataTypes.LoanData memory loanData) internal {
@@ -169,5 +168,13 @@ abstract contract BaseAdapter is Initializable {
       mstore(0x00, errorSelector)
       revert(0x00, 0x04)
     }
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                      RECEIVER FUNCTIONS
+  //////////////////////////////////////////////////////////////*/
+
+  function onERC721Received(address, address, uint256, bytes memory) external pure returns (bytes4) {
+    return IERC721Receiver.onERC721Received.selector;
   }
 }

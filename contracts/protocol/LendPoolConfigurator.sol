@@ -159,8 +159,11 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     if (!flag) {
       _checkReserveNoLiquidity(asset);
     }
+
     currentConfig.setActive(flag);
+
     cachedPool.setReserveConfiguration(asset, currentConfig.data);
+
     if (flag) {
       emit ReserveActivated(asset);
     } else {

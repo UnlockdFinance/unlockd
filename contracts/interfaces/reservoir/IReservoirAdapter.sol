@@ -9,7 +9,6 @@ pragma solidity 0.8.4;
 interface IReservoirAdapter {
   error NotReservoirLiquidator();
   error InvalidReservoirModule();
-  error TransferToNonERC721Receiver();
 
   struct ExecutionInfo {
     address module;
