@@ -8,8 +8,6 @@ import {IYVault} from "../interfaces/yearn/IYVault.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 
-import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-
 /**
  * @title InterestRate contract
  * @notice Implements the calculation of the interest rates depending on the reserve state

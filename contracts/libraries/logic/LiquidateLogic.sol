@@ -3,9 +3,7 @@ pragma solidity 0.8.4;
 
 import {IUToken} from "../../interfaces/IUToken.sol";
 import {IDebtToken} from "../../interfaces/IDebtToken.sol";
-import {IInterestRate} from "../../interfaces/IInterestRate.sol";
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
-import {IReserveOracleGetter} from "../../interfaces/IReserveOracleGetter.sol";
 import {INFTOracleGetter} from "../../interfaces/INFTOracleGetter.sol";
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
 import {ILendPool} from "../../interfaces/ILendPool.sol";
@@ -25,7 +23,6 @@ import {DataTypes} from "../types/DataTypes.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
-import {IERC721MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721MetadataUpgradeable.sol";
 
 import {NFTXSeller} from "../markets/NFTXSeller.sol";
 
@@ -663,7 +660,7 @@ library LiquidateLogic {
     //Loan must be unhealthy in order to get liquidated
     require(
       healthFactor <= GenericLogic.HEALTH_FACTOR_LIQUIDATION_THRESHOLD,
-      Errors.VL_HEALTH_FACTOR_LOWER_THAN_LIQUIDATION_THRESHOLD
+      Errors.VL_HEALTH_FACTOR_HIGHER_THAN_LIQUIDATION_THRESHOLD
     );
 
     (vars.borrowAmount, , ) = GenericLogic.calculateLoanLiquidatePrice(

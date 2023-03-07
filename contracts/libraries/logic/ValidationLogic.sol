@@ -9,13 +9,9 @@ import {ReserveConfiguration} from "../configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../configuration/NftConfiguration.sol";
 import {Errors} from "../helpers/Errors.sol";
 import {DataTypes} from "../types/DataTypes.sol";
-import {IInterestRate} from "../../interfaces/IInterestRate.sol";
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
 import {ILendPool} from "../../interfaces/ILendPool.sol";
 import {IUToken} from "../../interfaces/IUToken.sol";
-
-import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 /**
  * @title ValidationLogic library
@@ -26,7 +22,6 @@ library ValidationLogic {
   using ReserveLogic for DataTypes.ReserveData;
   using WadRayMath for uint256;
   using PercentageMath for uint256;
-  using SafeERC20Upgradeable for IERC20Upgradeable;
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
   using NftConfiguration for DataTypes.NftConfigurationMap;
 

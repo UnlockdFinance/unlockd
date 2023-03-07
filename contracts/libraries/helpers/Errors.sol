@@ -154,4 +154,7 @@ library Errors {
 
   //NFTOracleErrors
   string public constant NFTO_INVALID_PRICEM_ADDRESS = "900";
+
+  //LockeyManagerErrors
+  string public constant INVALID_DISCOUNT_PERCENTAGE = "1100";
 }

@@ -459,11 +459,6 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
   function buyoutETH(uint256 punkIndex, address onBehalfOf) external payable override nonReentrant {
     _checkValidCallerAndOnBehalfOf(onBehalfOf);
 
-    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
-
-    uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
-    require(loanId != 0, "PunkGateway: no loan with such punkIndex");
-
     _wethGateway.buyoutETH{value: msg.value}(address(wrappedPunks), punkIndex, onBehalfOf);
 
     _withdrawPunk(punkIndex, onBehalfOf);

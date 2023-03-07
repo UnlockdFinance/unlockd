@@ -2,11 +2,8 @@
 pragma solidity 0.8.4;
 
 import {IIncentivesController} from "../interfaces/IIncentivesController.sol";
-import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvider.sol";
-
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 
 /**
@@ -17,11 +14,7 @@ import {IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/tok
 abstract contract IncentivizedERC20 is Initializable, IERC20MetadataUpgradeable, ERC20Upgradeable {
   uint8 private _customDecimals;
 
-  function __IncentivizedERC20_init(
-    string memory name_,
-    string memory symbol_,
-    uint8 decimals_
-  ) internal initializer {
+  function __IncentivizedERC20_init(string memory name_, string memory symbol_, uint8 decimals_) internal initializer {
     __ERC20_init(name_, symbol_);
 
     _customDecimals = decimals_;
@@ -42,11 +35,7 @@ abstract contract IncentivizedERC20 is Initializable, IERC20MetadataUpgradeable,
 
   function _getUnderlyingAssetAddress() internal view virtual returns (address);
 
-  function _transfer(
-    address sender,
-    address recipient,
-    uint256 amount
-  ) internal virtual override {
+  function _transfer(address sender, address recipient, uint256 amount) internal virtual override {
     uint256 oldSenderBalance = super.balanceOf(sender);
     uint256 oldRecipientBalance = super.balanceOf(recipient);
 
