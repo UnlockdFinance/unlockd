@@ -8,7 +8,7 @@ import {IReserveOracleGetter} from "../interfaces/IReserveOracleGetter.sol";
 import {BlockContext} from "../utils/BlockContext.sol";
 
 contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext {
-  uint256 private constant TOKEN_DIGIT = 10**18;
+  uint256 private constant TOKEN_DIGIT = 10 ** 18;
 
   event AggregatorAdded(address currencyKey, address aggregator);
   event AggregatorRemoved(address currencyKey, address aggregator);
@@ -18,6 +18,9 @@ contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext
   address[] public priceFeedKeys;
 
   address public weth;
+
+  /// @custom:oz -upgrades -unsafe -allow constructor
+  constructor() initializer {}
 
   function initialize(address _weth) public initializer {
     __Ownable_init();
@@ -219,7 +222,7 @@ contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext
    * @param _decimals the decimals to format the price to
    **/
   function formatDecimals(uint256 _price, uint8 _decimals) internal pure returns (uint256) {
-    return (_price * TOKEN_DIGIT) / (10**uint256(_decimals));
+    return (_price * TOKEN_DIGIT) / (10 ** uint256(_decimals));
   }
 
   /**

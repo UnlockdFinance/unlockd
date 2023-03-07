@@ -206,7 +206,6 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
       await waitForTx(
         await mockNftOracleImpl.initialize(await addressesProvider.getPoolAdmin(), lendPoolConfigurator.address)
       );
-
       ////////////////////////////////////////////////////////////////////////
 
       console.log("\n\nInitialize lend pool");

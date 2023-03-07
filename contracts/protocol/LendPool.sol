@@ -152,6 +152,9 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     );
   }
 
+  /// @custom:oz -upgrades -unsafe -allow constructor
+  constructor() initializer {}
+
   /**
    * @dev Function is invoked by the proxy contract when the LendPool contract is added to the
    * LendPoolAddressesProvider of the market.

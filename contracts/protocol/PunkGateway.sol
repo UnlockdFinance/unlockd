@@ -56,6 +56,9 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     _status = _NOT_ENTERED;
   }
 
+  /// @custom:oz -upgrades -unsafe -allow constructor
+  constructor() initializer {}
+
   /**
    * @dev Function is invoked by the proxy contract when the PunkGateway contract is added to the
    * LendPoolAddressesProvider of the market.
@@ -188,7 +191,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
 
     cachedPool.borrow(reserveAsset, amount, address(wrappedPunks), punkIndex, onBehalfOf, referralCode);
 
-    IERC20Upgradeable(reserveAsset).transfer(onBehalfOf, amount);
+    IERC20Upgradeable(reserveAsset).safeTransfer(onBehalfOf, amount);
   }
 
   function _withdrawPunk(uint256 punkIndex, address onBehalfOf) internal {
@@ -229,7 +232,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
       amount = debt;
     }
 
-    IERC20Upgradeable(reserve).transferFrom(msg.sender, address(this), amount);
+    IERC20Upgradeable(reserve).safeTransferFrom(msg.sender, address(this), amount);
 
     (uint256 paybackAmount, bool burn) = cachedPool.repay(address(wrappedPunks), punkIndex, amount);
 
@@ -252,7 +255,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
 
     (, , address reserve, ) = cachedPoolLoan.getLoanCollateralAndReserve(loanId);
 
-    IERC20Upgradeable(reserve).transferFrom(msg.sender, address(this), bidPrice);
+    IERC20Upgradeable(reserve).safeTransferFrom(msg.sender, address(this), bidPrice);
 
     cachedPool.auction(address(wrappedPunks), punkIndex, bidPrice, onBehalfOf);
   }
@@ -266,7 +269,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
 
     DataTypes.LoanData memory loan = cachedPoolLoan.getLoan(loanId);
 
-    IERC20Upgradeable(loan.reserveAsset).transferFrom(msg.sender, address(this), (amount + bidFine));
+    IERC20Upgradeable(loan.reserveAsset).safeTransferFrom(msg.sender, address(this), (amount + bidFine));
 
     uint256 paybackAmount = cachedPool.redeem(address(wrappedPunks), punkIndex, amount, bidFine);
 
@@ -288,7 +291,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     require(loan.bidderAddress == _msgSender(), "PunkGateway: caller is not bidder");
 
     if (amount > 0) {
-      IERC20Upgradeable(loan.reserveAsset).transferFrom(msg.sender, address(this), amount);
+      IERC20Upgradeable(loan.reserveAsset).safeTransferFrom(msg.sender, address(this), amount);
     }
 
     uint256 extraRetAmount = cachedPool.liquidate(address(wrappedPunks), punkIndex, amount);
@@ -313,7 +316,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
 
     (, , address reserve, ) = cachedPoolLoan.getLoanCollateralAndReserve(loanId);
 
-    IERC20Upgradeable(reserve).transferFrom(msg.sender, address(this), amount);
+    IERC20Upgradeable(reserve).safeTransferFrom(msg.sender, address(this), amount);
 
     cachedPool.buyout(address(wrappedPunks), punkIndex, amount, onBehalfOf);
 

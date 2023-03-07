@@ -41,6 +41,9 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     _;
   }
 
+  /// @custom:oz -upgrades -unsafe -allow constructor
+  constructor() initializer {}
+
   /**
    * @dev Initializes the uToken
    * @param addressProvider The address of the address provider where this uToken will be used

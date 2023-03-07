@@ -37,6 +37,9 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
 
   event BorrowAllowanceDelegated(address indexed fromUser, address indexed toUser, address asset, uint256 amount);
 
+  /// @custom:oz -upgrades -unsafe -allow constructor
+  constructor() initializer {}
+
   /**
    * @dev Initializes the debt token.
    * @param addressProvider The address of the lend pool
