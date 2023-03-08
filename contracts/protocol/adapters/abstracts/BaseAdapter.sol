@@ -171,7 +171,7 @@ abstract contract BaseAdapter is Initializable {
   }
 
   /*//////////////////////////////////////////////////////////////
-                      RECEIVER FUNCTIONS
+                  ERC721RECEIVER FUNCTION
   //////////////////////////////////////////////////////////////*/
 
   function onERC721Received(address, address, uint256, bytes memory) external pure returns (bytes4) {

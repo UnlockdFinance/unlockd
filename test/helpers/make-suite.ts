@@ -85,6 +85,10 @@ export interface LSSVMPairWithID {
   LSSVMPair: ILSSVMPair;
   collectionName: string;
 }
+export interface ReservoirBidKind {
+  kind: string;
+  contract: Contract;
+}
 export interface TestEnv {
   deployer: SignerWithAddress;
   users: SignerWithAddress[];
@@ -133,19 +137,19 @@ export interface TestEnv {
   lockeyManager: LockeyManager;
   reservoirAdapter: ReservoirAdapter;
 
-  BlurModule: Contract;
-  FoundationModule: Contract;
-  LooksRareModule: Contract;
-  SeaportModule: Contract;
-  SeaportV14Module: Contract;
-  SudoSwapModule: Contract;
-  X2Y2Module: Contract;
-  ZeroExv4Module: Contract;
-  ZoraModule: Contract;
-  ElementModule: Contract;
-  NFTXModule: Contract;
-  RaribleModule: Contract;
-  reservoirModules: Contract[];
+  BlurModule: ReservoirBidKind;
+  FoundationModule: ReservoirBidKind;
+  LooksRareModule: ReservoirBidKind;
+  SeaportModule: ReservoirBidKind;
+  SeaportV14Module: ReservoirBidKind;
+  SudoSwapModule: ReservoirBidKind;
+  X2Y2Module: ReservoirBidKind;
+  ZeroExv4Module: ReservoirBidKind;
+  ZoraModule: ReservoirBidKind;
+  ElementModule: ReservoirBidKind;
+  NFTXModule: ReservoirBidKind;
+  RaribleModule: ReservoirBidKind;
+  reservoirModules: ReservoirBidKind[];
 }
 
 let buidlerevmSnapshotId = "0x1";
@@ -192,19 +196,19 @@ const testEnv: TestEnv = {
   nowTimeTracker: {} as number,
   lockeyManager: {} as LockeyManager,
   reservoirAdapter: {} as ReservoirAdapter,
-  BlurModule: {} as Contract,
-  FoundationModule: {} as Contract,
-  LooksRareModule: {} as Contract,
-  SeaportModule: {} as Contract,
-  SeaportV14Module: {} as Contract,
-  SudoSwapModule: {} as Contract,
-  X2Y2Module: {} as Contract,
-  ZeroExv4Module: {} as Contract,
-  ZoraModule: {} as Contract,
-  ElementModule: {} as Contract,
-  NFTXModule: {} as Contract,
-  RaribleModule: {} as Contract,
-  reservoirModules: [] as Contract[],
+  BlurModule: {} as ReservoirBidKind,
+  FoundationModule: {} as ReservoirBidKind,
+  LooksRareModule: {} as ReservoirBidKind,
+  SeaportModule: {} as ReservoirBidKind,
+  SeaportV14Module: {} as ReservoirBidKind,
+  SudoSwapModule: {} as ReservoirBidKind,
+  X2Y2Module: {} as ReservoirBidKind,
+  ZeroExv4Module: {} as ReservoirBidKind,
+  ZoraModule: {} as ReservoirBidKind,
+  ElementModule: {} as ReservoirBidKind,
+  NFTXModule: {} as ReservoirBidKind,
+  RaribleModule: {} as ReservoirBidKind,
+  reservoirModules: [] as ReservoirBidKind[],
 } as TestEnv;
 
 export async function initializeMakeSuite(network?: string) {
@@ -349,44 +353,77 @@ export async function initializeMakeSuite(network?: string) {
   testEnv.reservoirAdapter = await getReservoirAdapterProxy();
 
   const blurModule = getParamPerNetwork(poolConfig.BlurModule, network as eEthereumNetwork);
-  if (blurModule) testEnv.BlurModule = new Contract(blurModule, RouterAbi, deployer.signer);
+  if (blurModule) {
+    testEnv.BlurModule = { kind: "", contract: new Contract(blurModule, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.BlurModule);
+  }
   const foundationModule = getParamPerNetwork(poolConfig.FoundationModule, network as eEthereumNetwork);
-  if (foundationModule) testEnv.FoundationModule = new Contract(foundationModule, RouterAbi, deployer.signer);
-  const looksrareModule = getParamPerNetwork(poolConfig.LooksRareModule, network as eEthereumNetwork);
-  if (looksrareModule) testEnv.LooksRareModule = new Contract(looksrareModule, RouterAbi, deployer.signer);
-  const seaportModule = getParamPerNetwork(poolConfig.SeaportModule, network as eEthereumNetwork);
-  if (seaportModule) testEnv.SeaportModule = new Contract(seaportModule, RouterAbi, deployer.signer);
-  const seaportV14Module = getParamPerNetwork(poolConfig.SeaportV14Module, network as eEthereumNetwork);
-  if (seaportV14Module) testEnv.SeaportV14Module = new Contract(seaportV14Module, RouterAbi, deployer.signer);
-  const sudoswapModule = getParamPerNetwork(poolConfig.SudoSwapModule, network as eEthereumNetwork);
-  if (sudoswapModule) testEnv.SudoSwapModule = new Contract(sudoswapModule, RouterAbi, deployer.signer);
-  const x2y2Module = getParamPerNetwork(poolConfig.X2Y2Module, network as eEthereumNetwork);
-  if (x2y2Module) testEnv.X2Y2Module = new Contract(x2y2Module, RouterAbi, deployer.signer);
-  const zeroExv4Module = getParamPerNetwork(poolConfig.ZeroExv4Module, network as eEthereumNetwork);
-  if (zeroExv4Module) testEnv.ZeroExv4Module = new Contract(zeroExv4Module, RouterAbi, deployer.signer);
-  const zoraModule = getParamPerNetwork(poolConfig.ZoraModule, network as eEthereumNetwork);
-  if (zoraModule) testEnv.ZoraModule = new Contract(zoraModule, RouterAbi, deployer.signer);
-  const elementModule = getParamPerNetwork(poolConfig.ElementModule, network as eEthereumNetwork);
-  if (elementModule) testEnv.ElementModule = new Contract(elementModule, RouterAbi, deployer.signer);
-  const NFTXModule = getParamPerNetwork(poolConfig.NFTXModule, network as eEthereumNetwork);
-  if (NFTXModule) testEnv.NFTXModule = new Contract(NFTXModule, RouterAbi, deployer.signer);
-  const raribleModule = getParamPerNetwork(poolConfig.RaribleModule, network as eEthereumNetwork);
-  if (raribleModule) testEnv.RaribleModule = new Contract(raribleModule, RouterAbi, deployer.signer);
+  if (foundationModule) {
+    testEnv.FoundationModule = {
+      kind: "foundation",
+      contract: new Contract(foundationModule, RouterAbi, deployer.signer),
+    };
+    testEnv.reservoirModules.push(testEnv.FoundationModule);
+  }
 
-  testEnv.reservoirModules = [
-    testEnv.BlurModule,
-    testEnv.FoundationModule,
-    testEnv.LooksRareModule,
-    testEnv.SeaportModule,
-    testEnv.SeaportV14Module,
-    testEnv.SudoSwapModule,
-    testEnv.X2Y2Module,
-    testEnv.ZeroExv4Module,
-    testEnv.ZoraModule,
-    testEnv.ElementModule,
-    testEnv.NFTXModule,
-    testEnv.RaribleModule,
-  ];
+  const looksrareModule = getParamPerNetwork(poolConfig.LooksRareModule, network as eEthereumNetwork);
+  if (looksrareModule) {
+    testEnv.LooksRareModule = {
+      kind: "looks-rare",
+      contract: new Contract(looksrareModule, RouterAbi, deployer.signer),
+    };
+    testEnv.reservoirModules.push(testEnv.LooksRareModule);
+  }
+
+  const seaportModule = getParamPerNetwork(poolConfig.SeaportModule, network as eEthereumNetwork);
+  if (seaportModule) {
+    testEnv.SeaportModule = { kind: "seaport", contract: new Contract(seaportModule, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.SeaportModule);
+  }
+
+  const seaportV14Module = getParamPerNetwork(poolConfig.SeaportV14Module, network as eEthereumNetwork);
+  if (seaportV14Module) {
+    testEnv.SeaportV14Module = {
+      kind: "seaport-v1.4",
+      contract: new Contract(seaportV14Module, RouterAbi, deployer.signer),
+    };
+    testEnv.reservoirModules.push(testEnv.SeaportV14Module);
+  }
+  const sudoswapModule = getParamPerNetwork(poolConfig.SudoSwapModule, network as eEthereumNetwork);
+  if (sudoswapModule) {
+    testEnv.SudoSwapModule = { kind: "sudoswap", contract: new Contract(sudoswapModule, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.SudoSwapModule);
+  }
+  const x2y2Module = getParamPerNetwork(poolConfig.X2Y2Module, network as eEthereumNetwork);
+  if (x2y2Module) {
+    testEnv.X2Y2Module = { kind: "x2y2", contract: new Contract(x2y2Module, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.X2Y2Module);
+  }
+  const zeroExv4Module = getParamPerNetwork(poolConfig.ZeroExv4Module, network as eEthereumNetwork);
+  if (zeroExv4Module) {
+    testEnv.ZeroExv4Module = { kind: "zeroex-v4", contract: new Contract(zeroExv4Module, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.ZeroExv4Module);
+  }
+  const zoraModule = getParamPerNetwork(poolConfig.ZoraModule, network as eEthereumNetwork);
+  if (zoraModule) {
+    testEnv.ZoraModule = { kind: "zora", contract: new Contract(zoraModule, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.ZoraModule);
+  }
+  const elementModule = getParamPerNetwork(poolConfig.ElementModule, network as eEthereumNetwork);
+  if (elementModule) {
+    testEnv.ElementModule = { kind: "element", contract: new Contract(elementModule, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.ElementModule);
+  }
+  const NFTXModule = getParamPerNetwork(poolConfig.NFTXModule, network as eEthereumNetwork);
+  if (NFTXModule) {
+    testEnv.NFTXModule = { kind: "nftx", contract: new Contract(NFTXModule, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.NFTXModule);
+  }
+  const raribleModule = getParamPerNetwork(poolConfig.RaribleModule, network as eEthereumNetwork);
+  if (raribleModule) {
+    testEnv.RaribleModule = { kind: "rarible", contract: new Contract(raribleModule, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.RaribleModule);
+  }
 }
 
 const setSnapshot = async () => {

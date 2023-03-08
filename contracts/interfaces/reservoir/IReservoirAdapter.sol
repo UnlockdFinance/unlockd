@@ -8,7 +8,13 @@ pragma solidity 0.8.4;
  **/
 interface IReservoirAdapter {
   error NotReservoirLiquidator();
+  error TakerNotReservoirAdapter();
   error InvalidReservoirModule();
+  error InvalidSafeTransferFromExpectedSelector();
+  error InvalidExecuteExpectedSelector();
+  error InvalidReservoirFromAddress();
+  error InvalidReservoirModuleOnExecute();
+  error LowLevelSafeTransferFromFailed();
 
   struct ExecutionInfo {
     address module;
@@ -16,7 +22,7 @@ interface IReservoirAdapter {
     uint256 value;
   }
 
-  function liquidateReservoir(address nftAsset, uint256 tokenId, ExecutionInfo calldata executionInfo) external;
+  function liquidateReservoir(address nftAsset, bytes calldata data) external;
 
   function updateModules(address[] calldata modules, bool flag) external;
 

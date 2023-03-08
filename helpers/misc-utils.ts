@@ -290,7 +290,10 @@ export const fundWithWrappedPunk = async (receiver: string, punkIndex: number) =
 export const fetchAndFilterReservoirBids = async (nftAsset: string, tokenId: string) => {
   const options = { method: "GET", headers: { accept: "*/*", "x-api-key": "demo-api-key" } };
 
-  const response = await fetch(RESERVOIR_API_BIDS_BASE_URL + "?token=" + nftAsset + "%" + tokenId, options);
+  const response = await fetch(RESERVOIR_API_BIDS_BASE_URL + "?token=" + nftAsset + "%3A" + tokenId, options);
   const data = await response.json();
-  console.log(data);
+
+  return data.orders.reduce(function (prev, current) {
+    return prev.price.amount.native > current.price.amount.native ? prev : current;
+  }).kind;
 };

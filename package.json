@@ -6,7 +6,7 @@
     "contracts",
     "artifacts"
   ],
-  "scripts": { 
+  "scripts": {
     "run-env": "yarn && tail -f /dev/null",
     "hardhat": "hardhat",
     "hardhat:node": "hardhat node",
