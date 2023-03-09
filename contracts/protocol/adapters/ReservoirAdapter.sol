@@ -4,7 +4,6 @@ pragma solidity 0.8.4;
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "hardhat/console.sol";
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
 import {IReservoirAdapter} from "../../interfaces/reservoir/IReservoirAdapter.sol";
 
@@ -107,10 +106,10 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
     // Clean loan state in LendPoolLoan and receive underlying NFT
     _updateLoanStateAndTransferUnderlying(loanId, uNftAddress, reserveData.variableBorrowIndex);
 
-    uint256 balanceBeforLiquidation = IERC20(reserveData.reserveAsset).balanceOf(address(this));
+    uint256 balanceBeforeLiquidation = IERC20(loanData.reserveAsset).balanceOf(address(this));
 
     // safeTransfer NFT to Reservoir Module. Trigger `onERC721Received` hook initiating the sell
-    (bool success, ) = nftAsset.call{value: 0}(data);
+    (bool success, ) = nftAsset.call(data);
     if (!success) _revert(LowLevelSafeTransferFromFailed.selector);
 
     // todo safeTransfer liquidated amount to reserves
