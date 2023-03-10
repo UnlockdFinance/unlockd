@@ -15,6 +15,21 @@ interface IReservoirAdapter {
   error InvalidReservoirFromAddress();
   error InvalidReservoirModuleOnExecute();
   error LowLevelSafeTransferFromFailed();
+  error InvalidLiquidateAmount();
+
+  event LiquidatedReservoir(
+    address indexed nftAsset,
+    uint256 indexed tokenId,
+    uint256 indexed loanId,
+    uint256 borrowAmount,
+    uint256 liquidatedAmount,
+    uint256 remainAmount,
+    uint256 extraDebtAmount
+  );
+
+  event ModulesUpdated(address[] indexed modules, bool flag);
+
+  event LiquidatorsUpdated(address[] indexed liquidators, bool flag);
 
   struct ExecutionInfo {
     address module;
@@ -22,7 +37,27 @@ interface IReservoirAdapter {
     uint256 value;
   }
 
-  function liquidateReservoir(address nftAsset, bytes calldata data) external;
+  struct SafeTransferFromDecodedData {
+    address from;
+    address to;
+    uint256 tokenId;
+    bytes4 safeTransferFromSelector;
+  }
+
+  struct SettlementData {
+    uint256 borrowAmount;
+    uint256 balanceBeforeLiquidation;
+    uint256 liquidatedAmount;
+    uint256 extraDebtAmount;
+    uint256 remainAmount;
+  }
+
+  function liquidateReservoir(
+    address nftAsset,
+    address reserveAsset,
+    bytes calldata data,
+    uint256 expectedLiquidateAmount
+  ) external;
 
   function updateModules(address[] calldata modules, bool flag) external;
 

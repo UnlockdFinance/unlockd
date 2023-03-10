@@ -10,6 +10,7 @@ import { ConfigNames, getLendPoolLiquidator, loadPoolConfig } from "../../helper
 import { ADDRESS_ID_WETH, SUDOSWAP_PAIRS_GOERLI, SUDOSWAP_PAIRS_MAINNET } from "../../helpers/constants";
 import {
   getCryptoPunksMarket,
+  getDebtToken,
   getLendPool,
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
@@ -39,7 +40,7 @@ import {
   getWrappedPunk,
 } from "../../helpers/contracts-getters";
 import { getEthersSigners, getParamPerNetwork } from "../../helpers/contracts-helpers";
-import { DRE, evmRevert, evmSnapshot, getNowTimeInSeconds } from "../../helpers/misc-utils";
+import { DRE, evmRevert, evmSnapshot, fundWithERC20, getNowTimeInSeconds } from "../../helpers/misc-utils";
 import { eEthereumNetwork, tEthereumAddress } from "../../helpers/types";
 import {
   CryptoPunksMarket,
@@ -53,6 +54,7 @@ import {
   WalletBalanceProvider,
   WrappedPunk,
 } from "../../types";
+import { DebtToken } from "../../types/DebtToken";
 import { ILSSVMPair } from "../../types/ILSSVMPair";
 import { INFTXVaultFactoryV2 } from "../../types/INFTXVaultFactoryV2";
 import { IUniswapV2Router02 } from "../../types/IUniswapV2Router02";
@@ -108,10 +110,13 @@ export interface TestEnv {
   mockIncentivesController: MockIncentivesController;
   weth: WETH9Mocked;
   uWETH: UToken;
+  dWETH: DebtToken;
   dai: MintableERC20;
   uDai: UToken;
+  dDai: DebtToken;
   usdc: MintableERC20;
   uUsdc: UToken;
+  dUsdc: DebtToken;
   //wpunks: WPUNKSMocked;
   uPUNK: UNFT;
   bayc: MintableERC721;
@@ -177,10 +182,13 @@ const testEnv: TestEnv = {
   LSSVMPairs: [] as LSSVMPairWithID[],
   weth: {} as WETH9Mocked,
   uWETH: {} as UToken,
+  dWETH: {} as DebtToken,
   dai: {} as MintableERC20,
   uDai: {} as UToken,
+  dDai: {} as DebtToken,
   usdc: {} as MintableERC20,
   uUsdc: {} as UToken,
+  dUsdc: {} as DebtToken,
   //wpunks: WPUNKSMocked,
   uPUNK: {} as UNFT,
   bayc: {} as MintableERC721,
@@ -265,12 +273,13 @@ export async function initializeMakeSuite(network?: string) {
   const usdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.tokenAddress;
   const wethAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.tokenAddress;
 
-  console.log("uDai", uDaiAddress);
-  console.log("uUSDC", uUsdcAddress);
-  console.log("uWETH", uWEthAddress);
-  console.log("daiAdd", daiAddress);
-  console.log("usdcAdd", usdcAddress);
-  console.log("wethAdd", wethAddress);
+  const dDaiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.debtTokenAddress;
+  const dUsdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.debtTokenAddress;
+  const dWethAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.debtTokenAddress;
+
+  console.log("uDai", dDaiAddress);
+  console.log("uUSDC", dUsdcAddress);
+  console.log("uWETH", dWethAddress);
 
   await testEnv.addressesProvider.setAddress(ADDRESS_ID_WETH, wethAddress!);
 
@@ -288,12 +297,16 @@ export async function initializeMakeSuite(network?: string) {
   if (usdcAddress) testEnv.usdc = await getMintableERC20(usdcAddress);
   if (wethAddress) testEnv.weth = await getWETHMocked(wethAddress);
 
-  // PREPARE MOCK uNFTS
+  // PREPARE MOCK uTokens
   if (uDaiAddress) testEnv.uDai = await getUToken(uDaiAddress);
-
   if (uUsdcAddress) testEnv.uUsdc = await getUToken(uUsdcAddress);
-
   if (uWEthAddress) testEnv.uWETH = await getUToken(uWEthAddress);
+
+  // PREPARE MOCK debt tokens
+  if (dDaiAddress) testEnv.dDai = await getDebtToken(dDaiAddress);
+  if (dUsdcAddress) testEnv.dUsdc = await getDebtToken(dUsdcAddress);
+  if (dWethAddress) testEnv.dWETH = await getDebtToken(dWethAddress);
+
   if (UPGRADE) await testEnv.uWETH.sweepUToken();
   testEnv.wethGateway = await getWETHGateway();
 
@@ -424,6 +437,10 @@ export async function initializeMakeSuite(network?: string) {
     testEnv.RaribleModule = { kind: "rarible", contract: new Contract(raribleModule, RouterAbi, deployer.signer) };
     testEnv.reservoirModules.push(testEnv.RaribleModule);
   }
+  await testEnv.uWETH.updateUTokenManagers([testEnv.pool.address], true);
+  await testEnv.dWETH.updateBurners([testEnv.pool.address], true);
+
+  await fundWithERC20("WETH", testEnv.wethGateway.address, "1000");
 }
 
 const setSnapshot = async () => {

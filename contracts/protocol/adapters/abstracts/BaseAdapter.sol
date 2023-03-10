@@ -2,18 +2,21 @@
 pragma solidity 0.8.4;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
 import {ILendPoolAddressesProvider} from "../../../interfaces/ILendPoolAddressesProvider.sol";
 import {ILendPool} from "../../../interfaces/ILendPool.sol";
 import {ILendPoolLoan} from "../../../interfaces/ILendPoolLoan.sol";
+import {IUToken} from "../../../interfaces/IUToken.sol";
 
 import {DataTypes} from "../../../libraries/types/DataTypes.sol";
 import {NftConfiguration} from "../../../libraries/configuration/NftConfiguration.sol";
 
 abstract contract BaseAdapter is Initializable {
   using NftConfiguration for DataTypes.NftConfigurationMap;
+  using SafeERC20 for IERC20;
 
   /*//////////////////////////////////////////////////////////////
                           ERRORS
@@ -29,6 +32,7 @@ abstract contract BaseAdapter is Initializable {
   error InactiveReserve();
   error InactiveUToken();
   error LoanIsHealthy();
+  error InsufficientTreasuryBalance();
 
   /*//////////////////////////////////////////////////////////////
                           CONSTANTS
@@ -98,7 +102,12 @@ abstract contract BaseAdapter is Initializable {
   /*//////////////////////////////////////////////////////////////
                           INTERNALS
   //////////////////////////////////////////////////////////////*/
-  function _performInitialChecks(
+  /**
+   * @dev Checks the state of the loan, ensuring basic loan data is correct
+   * @param nftAsset The address of the NFT to be liquidated
+   * @param tokenId The tokenId of the NFT to be liquidated
+   **/
+  function _performLoanChecks(
     address nftAsset,
     uint256 tokenId
   )
@@ -137,14 +146,25 @@ abstract contract BaseAdapter is Initializable {
     uNftAddress = cachedPool.getNftData(nftAsset).uNftAddress;
   }
 
-  function _updateReserveState(DataTypes.LoanData memory loanData) internal {
-    _lendPool.updateReserveState(loanData.reserveAsset);
+  /**
+   * @dev Updates the reserve state calling the lendpool's `updateReserveState`
+   **/
+  function _updateReserveState(address reserveAsset) internal {
+    _lendPool.updateReserveState(reserveAsset);
   }
 
-  function _updateReserveInterestRates(DataTypes.LoanData memory loanData) internal {
-    _lendPool.updateReserveInterestRates(loanData.reserveAsset);
+  /**
+   * @dev Updates the reserve interest rates via the lendpool's `updateReserveInterestRates`
+   **/
+  function _updateReserveInterestRates(address reserveAsset) internal {
+    _lendPool.updateReserveInterestRates(reserveAsset);
   }
 
+  /**
+   * @dev Ensures the loan to be liquidated is unhealthy
+   * @param nftAsset The address of the NFT to be liquidated
+   * @param tokenId The tokenId of the NFT to be liquidated
+   **/
   function _validateLoanHealthFactor(address nftAsset, uint256 tokenId) internal view {
     (, , , , , uint256 healthFactor) = _lendPool.getNftDebtData(nftAsset, tokenId);
 
@@ -152,11 +172,58 @@ abstract contract BaseAdapter is Initializable {
     if (healthFactor > HEALTH_FACTOR_LIQUIDATION_THRESHOLD) _revert(LoanIsHealthy.selector);
   }
 
-  function _updateLoanStateAndTransferUnderlying(uint256 loanId, address uNftAddress, uint256 borrowIndex) internal {
+  /**
+   * @dev Calling `liquidateLoanMarket`, updates the loan state to liquidated and transfers the NFT from the lendpool loan to the adapter
+   * @param loanId The ID of the loan
+   * @param uNftAddress The uNFT address
+   * @param borrowIndex The reserve borrow index
+   **/
+  function _updateLoanStateAndTransferUnderlying(
+    uint256 loanId,
+    address uNftAddress,
+    uint256 borrowIndex
+  ) internal returns (uint256) {
     ILendPoolLoan cachedPoolLoan = _lendPoolLoan;
     (, uint256 borrowAmount) = cachedPoolLoan.getLoanReserveBorrowAmount(loanId);
 
     cachedPoolLoan.liquidateLoanMarket(loanId, uNftAddress, borrowAmount, borrowIndex);
+    return borrowAmount;
+  }
+
+  /**
+   * @dev Performs the transfers of value to the corresponding recipients
+   * @param reserveAsset The address of the loan reserve asset
+   * @param uToken The address of the uToken corresponding to the reserve
+   * @param borrower The borrower address
+   * @param borrowAmount The amount borrowed in the loan
+   * @param extraDebtAmount The amount generated when liquidation amount cannot cover borrow amount
+   * @param remainAmount Difference between the liquidation amount and the borrow amount
+   **/
+  function _settleLiquidation(
+    address reserveAsset,
+    address uToken,
+    address borrower,
+    uint256 borrowAmount,
+    uint256 extraDebtAmount,
+    uint256 remainAmount
+  ) internal {
+    if (extraDebtAmount > 0) {
+      address treasury = IUToken(uToken).RESERVE_TREASURY_ADDRESS();
+      if (IERC20(reserveAsset).balanceOf(treasury) < extraDebtAmount) _revert(InsufficientTreasuryBalance.selector);
+
+      IERC20(reserveAsset).safeTransferFrom(treasury, address(this), extraDebtAmount);
+    }
+
+    // transfer borrow amount from adapter to uToken, repay debt
+    IERC20(reserveAsset).safeTransfer(uToken, borrowAmount);
+
+    // Deposit amount from debt repaid to lending protocol
+    IUToken(uToken).depositReserves(borrowAmount);
+
+    // transfer remain amount to borrower
+    if (remainAmount > 0) {
+      IERC20(reserveAsset).safeTransfer(borrower, remainAmount);
+    }
   }
 
   /**

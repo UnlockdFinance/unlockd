@@ -6,6 +6,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
 import {IReservoirAdapter} from "../../interfaces/reservoir/IReservoirAdapter.sol";
+import {IDebtToken} from "../../interfaces/IDebtToken.sol";
 
 import {DataTypes} from "../../libraries/types/DataTypes.sol";
 
@@ -67,11 +68,19 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
    **/
   function liquidateReservoir(
     address nftAsset,
-    bytes calldata data
+    address reserveAsset,
+    bytes calldata data,
+    uint256 expectedLiquidateAmount
   ) external override nonReentrant onlyReservoirLiquidator {
-    (bytes4 safeTransferFromSelector, address from, address to, uint256 tokenId) = _decodeSafeTransferFromData(data);
+    SafeTransferFromDecodedData memory safeTransferFromDecodedData;
 
-    _validateSafeTransferFromData(safeTransferFromSelector, from, to);
+    safeTransferFromDecodedData = _decodeSafeTransferFromData(data);
+
+    _validateSafeTransferFromData(
+      safeTransferFromDecodedData.safeTransferFromSelector,
+      safeTransferFromDecodedData.from,
+      safeTransferFromDecodedData.to
+    );
 
     // `_decodeReservoirRouterExecuteData` extracts `execute` params using `abi.decode` by slicing the first 4 bytes of the `_data`
     // param to remove the `execute` selector. Because slicing memory arrays is not supported for now in solidity, we can't extract the
@@ -86,7 +95,10 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
     // 164 - onwards: the Reservoir router's `execute` encoded data (selector + calldata)
     (bytes4 executeSelector, address module) = _decodeReservoirRouterExecuteData(data[164:]);
 
-    _validateExecuteData(executeSelector, to, module);
+    _validateExecuteData(executeSelector, safeTransferFromDecodedData.to, module);
+
+    // Check if reserveAsset is valid and update reserve state before actually fetching data.
+    _updateReserveState(reserveAsset);
 
     (
       uint256 loanId,
@@ -94,30 +106,79 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
       address uNftAddress,
       ,
       DataTypes.ReserveData memory reserveData
-    ) = _performInitialChecks(nftAsset, tokenId);
+    ) = _performLoanChecks(nftAsset, safeTransferFromDecodedData.tokenId);
 
-    // Update reserve state before actually checking for the health factor
-    _updateReserveState(loanData);
+    _validateLoanHealthFactor(nftAsset, safeTransferFromDecodedData.tokenId);
 
-    _updateReserveInterestRates(loanData);
-
-    _validateLoanHealthFactor(nftAsset, tokenId);
+    SettlementData memory settlementData;
 
     // Clean loan state in LendPoolLoan and receive underlying NFT
-    _updateLoanStateAndTransferUnderlying(loanId, uNftAddress, reserveData.variableBorrowIndex);
+    settlementData.borrowAmount = _updateLoanStateAndTransferUnderlying(
+      loanId,
+      uNftAddress,
+      reserveData.variableBorrowIndex
+    );
 
-    uint256 balanceBeforeLiquidation = IERC20(loanData.reserveAsset).balanceOf(address(this));
+    settlementData.balanceBeforeLiquidation = IERC20(loanData.reserveAsset).balanceOf(address(this));
 
     // safeTransfer NFT to Reservoir Module. Trigger `onERC721Received` hook initiating the sell
     (bool success, ) = nftAsset.call(data);
     if (!success) _revert(LowLevelSafeTransferFromFailed.selector);
 
-    // todo safeTransfer liquidated amount to reserves
+    // check if liquidated amount is correct regarding the expected liquidation amount
+    settlementData.liquidatedAmount =
+      IERC20(loanData.reserveAsset).balanceOf(address(this)) -
+      settlementData.balanceBeforeLiquidation;
+
+    if (settlementData.liquidatedAmount < expectedLiquidateAmount) _revert(InvalidLiquidateAmount.selector);
+
+    // Liquidated amount can not cover borrow amount
+    if (settlementData.liquidatedAmount < settlementData.borrowAmount) {
+      settlementData.extraDebtAmount = settlementData.borrowAmount - settlementData.liquidatedAmount;
+    }
+    // Liquidated amount exceeds borrow amount
+    if (settlementData.liquidatedAmount > settlementData.borrowAmount) {
+      settlementData.remainAmount = settlementData.liquidatedAmount - settlementData.borrowAmount;
+    }
+
+    // Burn debt
+    IDebtToken(reserveData.debtTokenAddress).burn(
+      loanData.borrower,
+      settlementData.borrowAmount,
+      reserveData.variableBorrowIndex
+    );
+
+    _updateReserveInterestRates(loanData.reserveAsset);
+
+    // transfer amounts to reserve
+    _settleLiquidation(
+      loanData.reserveAsset,
+      reserveData.uTokenAddress,
+      loanData.borrower,
+      settlementData.borrowAmount,
+      settlementData.extraDebtAmount,
+      settlementData.remainAmount
+    );
+
+    emit LiquidatedReservoir(
+      nftAsset,
+      safeTransferFromDecodedData.tokenId,
+      loanId,
+      settlementData.borrowAmount,
+      settlementData.liquidatedAmount,
+      settlementData.remainAmount,
+      settlementData.extraDebtAmount
+    );
   }
 
   /*//////////////////////////////////////////////////////////////
                           SETTERS / GETTERS
   //////////////////////////////////////////////////////////////*/
+  /**
+   * @dev Sets/unsets a set of addresses as `_reservoirModules`
+   * @param modules the modules to be updated
+   * @param flag `true` to set addresses as burners, `false` otherwise
+   **/
   function updateModules(address[] calldata modules, bool flag) external override onlyPoolAdmin {
     uint256 cachedLength = modules.length;
     for (uint256 i = 0; i < cachedLength; ) {
@@ -127,8 +188,14 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
         ++i;
       }
     }
+    emit ModulesUpdated(modules, flag);
   }
 
+  /**
+   * @dev Sets/unsets a set of addresses as `_liquidators`
+   * @param liquidators the liquidators to be updated
+   * @param flag `true` to set addresses as liquidators, `false` otherwise
+   **/
   function updateLiquidators(address[] calldata liquidators, bool flag) external override onlyPoolAdmin {
     uint256 cachedLength = liquidators.length;
     for (uint256 i = 0; i < cachedLength; ) {
@@ -138,12 +205,12 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
         ++i;
       }
     }
+    emit LiquidatorsUpdated(liquidators, flag);
   }
 
   /*//////////////////////////////////////////////////////////////
                         INTERNAL FUNCTIONS
   //////////////////////////////////////////////////////////////*/
-
   /**
    * @dev Decodes the given calldata for Reservoir's sell tokens data encoding.
    * Given that the on-received ERC721/ERC1155 hooks are used by Reservoir modules for approval-less bid filling,
@@ -152,13 +219,15 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
    */
   function _decodeSafeTransferFromData(
     bytes calldata _data
-  ) internal pure returns (bytes4 selector, address from, address to, uint256 tokenId) {
+  ) internal pure returns (SafeTransferFromDecodedData memory safeTransferFromDecodedData) {
     //solhint-disable-next-line no-inline-assembly
+    bytes4 selector;
     assembly {
       selector := calldataload(_data.offset)
     }
-
-    (from, to, tokenId) = abi.decode(_data[4:], (address, address, uint256));
+    safeTransferFromDecodedData.safeTransferFromSelector = selector;
+    (safeTransferFromDecodedData.from, safeTransferFromDecodedData.to, safeTransferFromDecodedData.tokenId) = abi
+      .decode(_data[4:], (address, address, uint256));
   }
 
   /**
@@ -177,6 +246,12 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
     module = executions[0].module;
   }
 
+  /**
+   * @dev Validates the decoded data, ensuring it matches the expected values for `safeTransferFrom`
+   * @param selector the decoded selector
+   * @param from the decoded `from` address
+   * @param to the decoded `to` address
+   */
   function _validateSafeTransferFromData(bytes4 selector, address from, address to) internal view {
     if (selector != SAFETRANSFERFROM_FUNCTION_SELECTOR) _revert(InvalidSafeTransferFromExpectedSelector.selector);
     if (from != address(this)) _revert(InvalidReservoirFromAddress.selector);
@@ -184,6 +259,13 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
     if (!_reservoirModules[to]) _revert(InvalidReservoirModule.selector);
   }
 
+  /**
+   * @dev Validates the decoded data, ensuring it matches the expected values for the `execute` function
+   * in the Reservoir Router
+   * @param selector the decoded selector
+   * @param to the decoded `to` address
+   * @param module the decoded `module` address
+   */
   function _validateExecuteData(bytes4 selector, address to, address module) internal pure {
     if (selector != EXECUTE_FUNCTION_SELECTOR) _revert(InvalidExecuteExpectedSelector.selector);
     if (to != module) _revert(InvalidReservoirModuleOnExecute.selector);

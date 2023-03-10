@@ -24,6 +24,7 @@ library Errors {
   string public constant INVALID_ZERO_ADDRESS = "106";
   string public constant CALLER_NOT_LTV_MANAGER = "107";
   string public constant CALLER_NOT_PRICE_MANAGER = "108";
+  string public constant CALLER_NOT_UTOKEN_MANAGER = "109";
 
   //math library errors
   string public constant MATH_MULTIPLICATION_OVERFLOW = "200";
@@ -84,6 +85,7 @@ library Errors {
   string public constant LP_INVALID_SAFE_HEALTH_FACTOR = "427";
   string public constant LP_AMOUNT_LESS_THAN_DEBT = "428";
   string public constant LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE = "429";
+  string public constant LP_CALLER_NOT_DEBT_BURNER = "430";
 
   //lend pool loan errors
   string public constant LPL_INVALID_LOAN_STATE = "480";
