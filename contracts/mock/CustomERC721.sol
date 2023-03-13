@@ -13,7 +13,7 @@ contract CustomERC721 is ERC721Enumerable {
   error MaxSupplyReached();
   error MaxNFTsPerWalletReached();
 
-  uint16 public _currTokenId;
+  uint16 public _currTokenId = 1;
   string public baseURI;
   address private owner;
   uint256 public constant MAX_SUPPLY = 10_000;
@@ -21,7 +21,6 @@ contract CustomERC721 is ERC721Enumerable {
   constructor(string memory name, string memory symbol) ERC721(name, symbol) {
     baseURI = "";
     owner = _msgSender();
-    _currTokenId = 0;
   }
 
   /**

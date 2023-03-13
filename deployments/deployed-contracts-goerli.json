@@ -190,7 +190,7 @@
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "CustomERC721": {
-    "address": "0x97F1f0E9A8F55Bf1Da9392332a0C44cE52E83E38",
+    "address": "0xF33e2981Eb844Fb690bC92A8dd18E071398ad6Cb",
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "LiquidateMarketsLogic": {
@@ -215,7 +215,7 @@
     "address": "0x9aEf8386a6379c3B3F0bcfaEdd4901dD0B681F23"
   },
   "DebtMarketImpl": {
-    "address": "0xde8922B2028dDBCB1F15E84c2557404C9E4FcC63"
+    "address": "0x1A641f0140C0Cad27B89c20d9495562d20E7D72B"
   },
   "DebtMarket": {
     "address": "0xe741118986159Dd90A2Ad41EB061294c476C8592"
