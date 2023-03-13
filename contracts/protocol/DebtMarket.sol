@@ -408,10 +408,10 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     vars.loanId = ILendPoolLoan(vars.lendPoolLoanAddress).getCollateralLoanId(nftAsset, tokenId);
 
     DataTypes.LoanData memory loanData = ILendPoolLoan(vars.lendPoolLoanAddress).getLoan(vars.loanId);
-    DataTypes.ReserveData memory reserveData = ILendPool(vars.lendPoolAddress).getReserveData(loanData.reserveAsset);
 
     ILendPool(vars.lendPoolAddress).updateReserveState(loanData.reserveAsset);
-    ILendPool(vars.lendPoolAddress).updateReserveInterestRates(loanData.reserveAsset);
+
+    DataTypes.ReserveData memory reserveData = ILendPool(vars.lendPoolAddress).getReserveData(loanData.reserveAsset);
 
     (, vars.borrowAmount) = ILendPoolLoan(vars.lendPoolLoanAddress).getLoanReserveBorrowAmount(vars.loanId);
 
@@ -444,6 +444,8 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
       loanData.borrower,
       vars.buyer
     );
+
+    ILendPool(vars.lendPoolAddress).updateReserveInterestRates(loanData.reserveAsset);
 
     // Remove the offer listing
     _deleteDebtOfferListing(nftAsset, tokenId);
