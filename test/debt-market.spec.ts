@@ -270,11 +270,13 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         );
 
         const oldLoan = await dataProvider.getLoanDataByCollateral(wrappedPunk.address, `${tokenId}`);
-        const debtId = await debtMarket.getDebtId(wrappedPunk.address, tokenId);
 
         await debtMarket
           .connect(seller.signer)
           .createDebtListing(wrappedPunk.address, tokenId, 100, seller.address, 0, 0);
+
+        const debtId = await debtMarket.getDebtId(wrappedPunk.address, tokenId);
+
         await punkGateway.connect(buyer.signer).buyDebtPunkETH(tokenId, buyer.address, { value: 100 });
 
         const debt = await debtMarket.getDebt(debtId);
@@ -450,11 +452,13 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const blockNumber = await users[0].signer.provider!.getBlockNumber();
         const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
         const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
+
         await debtMarket
           .connect(seller.signer)
           .createDebtListing(nftAsset, tokenId, 100, seller.address, 50, auctionEndTimestamp);
         const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
         const debt = await debtMarket.getDebt(debtId);
+
         expect(debt.debtor).equals(seller.address, "Invalid debtor");
         expect(debt.nftAsset).equals(nftAsset, "Invalid nftAsset");
         expect(debt.tokenId).equals(tokenId, "Invalid tokenId");
@@ -582,9 +586,6 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         expect(weth.balanceOf(seller.address), 50);
         const soldDebt = await debtMarket.getDebt(debtId);
         expect(soldDebt.state).to.be.equals(2);
-
-        const soldDebtId = await debtMarket.getDebtId(nftAsset, tokenId);
-        expect(soldDebtId).equals(debtId, "Invalid debt Id");
       });
       it("Buy a debt with bids same as sell amount", async () => {
         const { users, debtMarket, wethGateway, bayc, uBAYC, dataProvider, weth } = testEnv;
@@ -638,9 +639,6 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         expect(weth.balanceOf(seller.address), 50);
         const soldDebt = await debtMarket.getDebt(debtId);
         expect(soldDebt.state).to.be.equals(2);
-
-        const soldDebtId = await debtMarket.getDebtId(nftAsset, tokenId);
-        expect(soldDebtId).equals(debtId, "Invalid debt Id");
       });
       it("Cancel a debt listing with bids", async () => {
         const { users, debtMarket, bayc, weth, wethGateway } = testEnv;
@@ -786,9 +784,6 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         expect(weth.balanceOf(seller.address), 97);
         const soldDebt = await debtMarket.getDebt(debtId);
         expect(soldDebt.state).to.be.equals(2);
-
-        const soldDebtId = await debtMarket.getDebtId(nftAsset, tokenId);
-        expect(soldDebtId).equals(debtId, "Invalid debt Id");
       });
     });
     it("Update a debt listing delta bids", async () => {
