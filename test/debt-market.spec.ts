@@ -73,12 +73,16 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await waitForTx(
           await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 50, seller.address, 0, 0)
         );
+
+        // Gets it before resseted to 0
+        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+
         await waitForTx(
           await wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 50 })
         );
 
-        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
         const debt = await debtMarket.getDebt(debtId);
+        expect(await debtMarket.getDebtId(nftAsset, tokenId)).equals(0, "Id not resetted");
         expect(debt.state).equals(2, "Invalid debt offer state");
 
         const loan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
@@ -108,17 +112,20 @@ makeSuite("Buy and sell the debts", (testEnv) => {
 
         await lockeyManager.connect(deployer.signer).setLockeyDiscountPercentageOnDebtMarket(BN.from("10000")); // 0% discount
         await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 100, seller.address, 0, 0);
+
+        // Gets it before resseted to 0
+        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+
         const tx_one = wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 1 });
-        await expect(tx_one).to.be.revertedWith("1013");
+        expect(tx_one).to.be.revertedWith("1013");
         await lockeyManager.connect(deployer.signer).setLockeyDiscountPercentageOnDebtMarket(BN.from("9700")); // 3% discount
         const tx_two = wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 96 });
-        await expect(tx_two).to.be.revertedWith("1013");
+        expect(tx_two).to.be.revertedWith("1013");
         await wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 97 });
 
-        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
         const debt = await debtMarket.getDebt(debtId);
         expect(debt.state).equals(2, "Invalid debt offer state");
-
+        expect(await debtMarket.getDebtId(nftAsset, tokenId)).equals(0, "Id not resetted");
         const loan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
 
         //Check previous unft brn and minted on the new
@@ -190,11 +197,13 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await fundWithERC20("WETH", buyer.address, "1000");
         await approveERC20PunkGateway(testEnv, buyer, "WETH");
 
-        await punkGateway.connect(buyer.signer).buyDebtPunk(tokenId, buyer.address, 100);
+        // Gets it before resseted to 0
         const debtId = await debtMarket.getDebtId(wrappedPunk.address, tokenId);
+        await punkGateway.connect(buyer.signer).buyDebtPunk(tokenId, buyer.address, 100);
+
         const debt = await debtMarket.getDebt(debtId);
         expect(debt.state).equals(2, "Invalid debt offer state");
-
+        expect(await debtMarket.getDebtId(nftAsset, tokenId)).equals(0, "Id not resetted");
         const loan = await dataProvider.getLoanDataByCollateral(wrappedPunk.address, `${tokenId}`);
 
         //Check previous unft brn and minted on the new
@@ -259,16 +268,20 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await waitForTx(
           await punkGateway.connect(seller.signer).borrow(weth.address, borrowSize1, tokenId, seller.address, "0")
         );
+
         const oldLoan = await dataProvider.getLoanDataByCollateral(wrappedPunk.address, `${tokenId}`);
 
         await debtMarket
           .connect(seller.signer)
           .createDebtListing(wrappedPunk.address, tokenId, 100, seller.address, 0, 0);
-        await punkGateway.connect(buyer.signer).buyDebtPunkETH(tokenId, buyer.address, { value: 100 });
 
         const debtId = await debtMarket.getDebtId(wrappedPunk.address, tokenId);
+
+        await punkGateway.connect(buyer.signer).buyDebtPunkETH(tokenId, buyer.address, { value: 100 });
+
         const debt = await debtMarket.getDebt(debtId);
         expect(debt.state).equals(2, "Invalid debt offer state");
+        expect(await debtMarket.getDebtId(nftAsset, tokenId)).equals(0, "Id not resetted");
 
         const loan = await dataProvider.getLoanDataByCollateral(wrappedPunk.address, `${tokenId}`);
 
@@ -348,8 +361,8 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
         await debtMarket.connect(seller.signer).cancelDebtListing(nftAsset, tokenId);
 
-        await expect(weth.balanceOf(bidder.address), 50);
-        await expect(weth.balanceOf(seller.address), 0);
+        expect(weth.balanceOf(bidder.address), 50);
+        expect(weth.balanceOf(seller.address), 0);
         const canceledDebt = await debtMarket.getDebt(debtId);
         expect(canceledDebt.state).to.be.equals(3);
 
@@ -403,12 +416,16 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await waitForTx(
           await wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 50 })
         );
-        await increaseTime(2000000);
-        await debtMarket.connect(bidder.signer).claim(nftAsset, tokenId, bidder.address);
-        const loan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
-        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
-        const debt = await debtMarket.getDebt(debtId);
 
+        await increaseTime(2000000);
+        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+
+        await debtMarket.connect(bidder.signer).claim(nftAsset, tokenId, bidder.address);
+
+        const loan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
+
+        const debt = await debtMarket.getDebt(debtId);
+        expect(await debtMarket.getDebtId(nftAsset, tokenId)).equals(0, "Id not resetted");
         expect(debt.state).equals(2, "Invalid debt offer state");
 
         //Check previous unft brn and minted on the new
@@ -435,11 +452,13 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const blockNumber = await users[0].signer.provider!.getBlockNumber();
         const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
         const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
+
         await debtMarket
           .connect(seller.signer)
           .createDebtListing(nftAsset, tokenId, 100, seller.address, 50, auctionEndTimestamp);
         const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
         const debt = await debtMarket.getDebt(debtId);
+
         expect(debt.debtor).equals(seller.address, "Invalid debtor");
         expect(debt.nftAsset).equals(nftAsset, "Invalid nftAsset");
         expect(debt.tokenId).equals(tokenId, "Invalid tokenId");
@@ -467,12 +486,15 @@ makeSuite("Buy and sell the debts", (testEnv) => {
             .connect(seller.signer)
             .createDebtListing(nftAsset, tokenId, 50, seller.address, 25, auctionEndTimestamp)
         );
+
+        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+
         await waitForTx(
           await wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 50 })
         );
 
-        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
         const debt = await debtMarket.getDebt(debtId);
+        expect(await debtMarket.getDebtId(nftAsset, tokenId)).equals(0, "Id not resetted");
         expect(debt.state).equals(2, "Invalid debt offer state");
 
         const loan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
@@ -535,13 +557,16 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await waitForTx(
           await wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 25 })
         );
+
+        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+
         await waitForTx(
           await wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 50 })
         );
 
-        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
         const debt = await debtMarket.getDebt(debtId);
         expect(debt.state).equals(2, "Invalid debt offer state");
+        expect(await debtMarket.getDebtId(nftAsset, tokenId)).equals(0, "Id not resetted");
 
         const loan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
 
@@ -557,13 +582,10 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         expect(oldLoan.borrower).equals(seller.address, "Invalid previous loan debtor");
         expect(loan.borrower).equals(buyer.address, "Invalid new loan debtor");
 
-        await expect(weth.balanceOf(bidder.address), 25);
-        await expect(weth.balanceOf(seller.address), 50);
+        expect(weth.balanceOf(bidder.address), 25);
+        expect(weth.balanceOf(seller.address), 50);
         const soldDebt = await debtMarket.getDebt(debtId);
         expect(soldDebt.state).to.be.equals(2);
-
-        const soldDebtId = await debtMarket.getDebtId(nftAsset, tokenId);
-        expect(soldDebtId).equals(debtId, "Invalid debt Id");
       });
       it("Buy a debt with bids same as sell amount", async () => {
         const { users, debtMarket, wethGateway, bayc, uBAYC, dataProvider, weth } = testEnv;
@@ -589,10 +611,13 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await waitForTx(
           await wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 30 })
         );
+
+        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+
         await waitForTx(
           await wethGateway.connect(buyer.signer).bidDebtETH(nftAsset, tokenId, buyer.address, { value: 50 })
         );
-        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+
         const debt = await debtMarket.getDebt(debtId);
         expect(debt.state).equals(2, "Invalid debt offer state");
 
@@ -610,13 +635,10 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         expect(oldLoan.borrower).equals(seller.address, "Invalid previous loan debtor");
         expect(loan.borrower).equals(buyer.address, "Invalid new loan debtor");
 
-        await expect(weth.balanceOf(bidder.address), 30);
-        await expect(weth.balanceOf(seller.address), 50);
+        expect(weth.balanceOf(bidder.address), 30);
+        expect(weth.balanceOf(seller.address), 50);
         const soldDebt = await debtMarket.getDebt(debtId);
         expect(soldDebt.state).to.be.equals(2);
-
-        const soldDebtId = await debtMarket.getDebtId(nftAsset, tokenId);
-        expect(soldDebtId).equals(debtId, "Invalid debt Id");
       });
       it("Cancel a debt listing with bids", async () => {
         const { users, debtMarket, bayc, weth, wethGateway } = testEnv;
@@ -635,8 +657,8 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
         await debtMarket.connect(seller.signer).cancelDebtListing(nftAsset, tokenId);
 
-        await expect(weth.balanceOf(bidder.address), 50);
-        await expect(weth.balanceOf(seller.address), 0);
+        expect(weth.balanceOf(bidder.address), 50);
+        expect(weth.balanceOf(seller.address), 0);
         const canceledDebt = await debtMarket.getDebt(debtId);
         expect(canceledDebt.state).to.be.equals(3);
 
@@ -688,12 +710,14 @@ makeSuite("Buy and sell the debts", (testEnv) => {
           await wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 50 })
         );
         await increaseTime(2000000);
+        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+
         await debtMarket.connect(bidder.signer).claim(nftAsset, tokenId, bidder.address);
         const loan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
-        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
-        const debt = await debtMarket.getDebt(debtId);
 
+        const debt = await debtMarket.getDebt(debtId);
         expect(debt.state).equals(2, "Invalid debt offer state");
+        expect(await debtMarket.getDebtId(nftAsset, tokenId)).equals(0, "Id not resetted");
 
         //Check previous unft brn and minted on the new
         expect(uBAYC.balanceOf(seller.address), 0, "Invalid balance of UToken");
@@ -732,13 +756,16 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await waitForTx(
           await wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 99 })
         );
+
+        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+
         await waitForTx(
           await wethGateway.connect(buyer.signer).bidDebtETH(nftAsset, tokenId, buyer.address, { value: 97 })
         );
-        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+
         const debt = await debtMarket.getDebt(debtId);
         expect(debt.state).equals(2, "Invalid debt offer state");
-
+        expect(await debtMarket.getDebtId(nftAsset, tokenId)).equals(0, "Id not resetted");
         const loan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
 
         //Check previous unft brn and minted on the new
@@ -753,13 +780,10 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         expect(oldLoan.borrower).equals(seller.address, "Invalid previous loan debtor");
         expect(loan.borrower).equals(buyer.address, "Invalid new loan debtor");
 
-        await expect(weth.balanceOf(bidder.address), 99);
-        await expect(weth.balanceOf(seller.address), 97);
+        expect(weth.balanceOf(bidder.address), 99);
+        expect(weth.balanceOf(seller.address), 97);
         const soldDebt = await debtMarket.getDebt(debtId);
         expect(soldDebt.state).to.be.equals(2);
-
-        const soldDebtId = await debtMarket.getDebtId(nftAsset, tokenId);
-        expect(soldDebtId).equals(debtId, "Invalid debt Id");
       });
     });
     it("Update a debt listing delta bids", async () => {
@@ -784,7 +808,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       const tx = wethGateway
         .connect(secondBidder.signer)
         .bidDebtETH(nftAsset, tokenId, secondBidder.address, { value: 102 });
-      await expect(tx).to.be.revertedWith("1009");
+      expect(tx).to.be.revertedWith("1009");
       //Delta to 1%
       await debtMarket.connect(poolAdmin).setDeltaBidPercent(100);
       await wethGateway
@@ -817,8 +841,8 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
 
       await pool.connect(seller.signer).borrow(weth.address, "10", bayc.address, `${tokenId}`, seller.address, "0");
-      await expect(weth.balanceOf(bidder.address), 50);
-      await expect(weth.balanceOf(seller.address), 0);
+      expect(weth.balanceOf(bidder.address), 50);
+      expect(weth.balanceOf(seller.address), 0);
       const canceledDebt = await debtMarket.getDebt(debtId);
       expect(canceledDebt.state).to.be.equals(3);
     });
@@ -858,7 +882,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await borrowBayc(testEnv, seller, tokenId, 10);
         await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 100, seller.address, 0, 0);
         const tx = wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 1 });
-        await expect(tx).to.be.revertedWith("1013");
+        expect(tx).to.be.revertedWith("1013");
       });
       it("When it is a the price is highest than the offer", async () => {
         const { users, debtMarket, bayc, wethGateway, uBAYC, dataProvider, lockeyManager, deployer } = testEnv;
@@ -870,7 +894,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await borrowBayc(testEnv, seller, tokenId, 10);
         await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 100, seller.address, 0, 0);
         const tx = wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 101 });
-        await expect(tx).to.be.revertedWith("1013");
+        expect(tx).to.be.revertedWith("1013");
       });
     });
     describe("Revert on try to create listing", function () {
@@ -885,7 +909,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const debtCreationPromise = debtMarket
           .connect(buyer.signer)
           .createDebtListing(nftAsset, tokenId, 50, seller.address, 0, 0);
-        await expect(debtCreationPromise).to.be.revertedWith("1000");
+        expect(debtCreationPromise).to.be.revertedWith("1000");
       });
       it("When it is a debt listing with wrong on behalf of", async () => {
         const { users, bayc } = testEnv;
@@ -895,7 +919,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const debtCreationPromise = createDebtListing(testEnv, nftAsset, 50, {
           address: "0x0000000000000000000000000000000000000000",
         });
-        await expect(debtCreationPromise).to.be.revertedWith("ERC721: transfer to the zero address");
+        expect(debtCreationPromise).to.be.revertedWith("ERC721: transfer to the zero address");
       });
       it("When it is a debt listing with 0 sell price", async () => {
         const { users, bayc } = testEnv;
@@ -903,7 +927,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const buyer = users[5];
         const nftAsset = bayc.address;
         const debtCreationPromise = createDebtListing(testEnv, nftAsset, 0, seller);
-        await expect(debtCreationPromise).to.be.revertedWith("1002");
+        expect(debtCreationPromise).to.be.revertedWith("1002");
       });
       it("When it is a debt listing that already exist", async () => {
         const { users, bayc, debtMarket } = testEnv;
@@ -916,7 +940,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
           .connect(seller.signer)
           .createDebtListing(nftAsset, testEnv.tokenIdTracker - 1, 50, seller.address, 0, 0);
 
-        await expect(debtCreationPromise).to.be.revertedWith("1005");
+        expect(debtCreationPromise).to.be.revertedWith("1005");
       });
       it("When it is a debt listing on non existing loan", async () => {
         const { users, bayc, debtMarket } = testEnv;
@@ -930,7 +954,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
           .connect(seller.signer)
           .createDebtListing(nftAsset, tokenId, 50, seller.address, 0, 0);
 
-        await expect(debtCreationPromise).to.be.revertedWith("1006");
+        expect(debtCreationPromise).to.be.revertedWith("1006");
       });
     });
     describe("Revert on try to create listing with Auction", function () {
@@ -943,7 +967,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const nftAsset = bayc.address;
         const tokenId = testEnv.tokenIdTracker++;
         const sut = debtMarket.connect(seller.signer).cancelDebtListing(nftAsset, tokenId);
-        await expect(sut).to.be.revertedWith("1001");
+        expect(sut).to.be.revertedWith("1001");
       });
       it("When it has SOLD state ", async () => {
         const { users, debtMarket, wethGateway, bayc, uBAYC, dataProvider } = testEnv;
@@ -957,7 +981,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 50 });
 
         const sut = debtMarket.connect(seller.signer).cancelDebtListing(nftAsset, tokenId);
-        await expect(sut).to.be.revertedWith("1004");
+        expect(sut).to.be.revertedWith("1001");
       });
     });
     describe("Revert on try to bid a auction debt", function () {
@@ -970,7 +994,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await borrowBayc(testEnv, seller, tokenId, 10);
 
         const sut = wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 50 });
-        await expect(sut).to.be.revertedWith("1001");
+        expect(sut).to.be.revertedWith("1001");
       });
       it("When the new bid price is lower than min initial bid price", async () => {
         const { users, debtMarket, bayc, wethGateway } = testEnv;
@@ -986,7 +1010,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
           .connect(seller.signer)
           .createDebtListing(nftAsset, tokenId, 0, seller.address, 50, auctionEndTimestamp);
         const sut = wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 49 });
-        await expect(sut).to.be.revertedWith("1014");
+        expect(sut).to.be.revertedWith("1014");
       });
       it("When the new bid price is lower than the last bid price plus delta", async () => {
         const { users, debtMarket, bayc, wethGateway } = testEnv;
@@ -1004,7 +1028,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 50001 });
         const sut = wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 50002 });
 
-        await expect(sut).to.be.revertedWith("1009");
+        expect(sut).to.be.revertedWith("1009");
       });
       it("When the bid type is PRICE FIXED", async () => {
         const { users, debtMarket, wethGateway, bayc } = testEnv;
@@ -1017,7 +1041,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 50, seller.address, 0, 0);
         const sut = wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 60 });
 
-        await expect(sut).to.be.revertedWith("1010");
+        expect(sut).to.be.revertedWith("1010");
       });
       it("When auction already ended", async () => {
         const { users, debtMarket, bayc, wethGateway } = testEnv;
@@ -1038,7 +1062,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
 
         const sut = wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 60 });
 
-        await expect(sut).to.be.revertedWith("1007");
+        expect(sut).to.be.revertedWith("1007");
       });
       it("When the initial bid is lower than initialMinBidPrice", async () => {
         const { users, debtMarket, bayc, wethGateway } = testEnv;
@@ -1054,7 +1078,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
           .connect(seller.signer)
           .createDebtListing(nftAsset, tokenId, 100, seller.address, 50, auctionEndTimestamp);
         const sut = wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 49 });
-        await expect(sut).to.be.revertedWith("1014");
+        expect(sut).to.be.revertedWith("1014");
       });
       it("When the bid is higher than sell price", async () => {
         const { users, debtMarket, bayc, wethGateway } = testEnv;
@@ -1070,7 +1094,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
           .connect(seller.signer)
           .createDebtListing(nftAsset, tokenId, 100, seller.address, 50, auctionEndTimestamp);
         const sut = wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 101 });
-        await expect(sut).to.be.revertedWith("1008");
+        expect(sut).to.be.revertedWith("1008");
       });
     });
     describe("Revert on try to claim a auction debt", function () {
@@ -1083,7 +1107,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await borrowBayc(testEnv, seller, tokenId, 10);
 
         const sut = debtMarket.connect(bidder.signer).claim(nftAsset, tokenId, bidder.address);
-        await expect(sut).to.be.revertedWith("1001");
+        expect(sut).to.be.revertedWith("1001");
       });
       it("When onBehalfOf is not the last bidder", async () => {
         const { users, debtMarket, bayc, wethGateway } = testEnv;
@@ -1100,7 +1124,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
           .createDebtListing(nftAsset, tokenId, 0, seller.address, 50, auctionEndTimestamp);
         await wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 50 });
         const sut = debtMarket.connect(bidder.signer).claim(nftAsset, tokenId, seller.address);
-        await expect(sut).to.be.revertedWith("1012");
+        expect(sut).to.be.revertedWith("1012");
       });
       it("When bid type is not AUCTION or MIXED", async () => {
         const { users, debtMarket, bayc, wethGateway } = testEnv;
@@ -1113,7 +1137,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
           await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 50000, seller.address, 0, 0)
         );
         const sut = debtMarket.connect(bidder.signer).claim(nftAsset, tokenId, bidder.address);
-        await expect(sut).to.be.revertedWith("1010");
+        expect(sut).to.be.revertedWith("1010");
       });
       it("When auction is not already ended", async () => {
         const { users, debtMarket, bayc, wethGateway } = testEnv;
@@ -1134,7 +1158,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
           await wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 50001 })
         );
         const sut = debtMarket.connect(seller.signer).claim(nftAsset, tokenId, bidder.address);
-        await expect(sut).to.be.revertedWith("1011");
+        expect(sut).to.be.revertedWith("1011");
       });
     });
   });

@@ -201,8 +201,6 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     sellDebt.state = DataTypes.DebtMarketState.Canceled;
     _deleteDebtOfferListing(nftAsset, tokenId);
 
-    _nftToDebtIds[nftAsset][tokenId] = 0;
-
     if (sellDebt.bidderAddress != address(0)) {
       IERC20Upgradeable(sellDebt.reserveAsset).safeTransferFrom(
         address(this),
@@ -398,6 +396,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
 
     _userTotalDebtByCollection[selldebt.debtor][nftAsset] -= 1;
     _totalDebtsByCollection[nftAsset] -= 1;
+    _nftToDebtIds[nftAsset][tokenId] = 0;
   }
 
   function _transferDebt(address nftAsset, uint256 tokenId, address onBehalfOf) internal {
