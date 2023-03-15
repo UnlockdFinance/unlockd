@@ -33,17 +33,16 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       const addressesProvider = await getLendPoolAddressesProvider();
 
       //////////////////////////////////////////////////////////////////////////
-      // let unftRegistryAddress = getParamPerNetwork(poolConfig.UNFTRegistry, network);
+      let unftRegistryAddress = getParamPerNetwork(poolConfig.UNFTRegistry, network);
 
-      // if (unftRegistryAddress == undefined || !notFalsyOrZeroAddress(unftRegistryAddress)) {
-
-      //   throw Error("Invalid UNFT Registry address in pool config");
-      // }
+      if (unftRegistryAddress == undefined || !notFalsyOrZeroAddress(unftRegistryAddress)) {
+        throw Error("Invalid UNFT Registry address in pool config");
+      }
       const unftRegistryProxy = await getUNFTRegistryProxy();
       if (unftRegistryProxy == undefined || !notFalsyOrZeroAddress(unftRegistryProxy.address)) {
         throw Error("Invalid UNFT Registry proxy in deployed contracts");
       }
-      console.log("Setting UNFTRegistry to address provider...");
+      //console.log("Setting UNFTRegistry to address provider...");
       //await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
 
       //Reserves Init & NFTs Init need IncentivesController
@@ -57,7 +56,7 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
         }
       }
       console.log("Setting IncentivesController to address provider...");
-      //await waitForTx(await addressesProvider.setIncentivesController(incentivesControllerAddress));
+      await waitForTx(await addressesProvider.setIncentivesController(incentivesControllerAddress));
 
       //////////////////////////////////////////////////////////////////////////
       console.log("Deploying new libraries implementation...");
@@ -104,7 +103,7 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       ////////////////////////////////////////////////////////////////////////
       const admin = await DRE.ethers.getSigner(await getEmergencyAdmin(poolConfig));
       // Pause market during deployment
-      await waitForTx(await lendPoolConfiguratorProxy.connect(admin).setPoolPause(true));
+      // await waitForTx(await lendPoolConfiguratorProxy.connect(admin).setPoolPause(true));
       // Generic UToken & DebtToken Implementation in Pool
       await deployUTokenImplementations(pool, poolConfig.ReservesConfig, verify);
     } catch (error) {

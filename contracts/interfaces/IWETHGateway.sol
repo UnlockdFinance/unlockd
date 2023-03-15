@@ -82,4 +82,18 @@ interface IWETHGateway {
    *   is a different wallet
    **/
   function buyoutETH(address nftAsset, uint256 nftTokenId, address onBehalfOf) external payable;
+
+  /**
+   * @dev buy a debt on the WETH reserve
+   * @param nftAsset The address of the debt NFT used as collateral
+   * @param nftTokenId The token ID of the debt NFT used as collateral
+   */
+  function buyDebtETH(address nftAsset, uint256 nftTokenId, address onBehalfOf) external payable;
+
+  /**
+   * @dev bids a debt on the WETH reserve
+   * @param nftAsset The address of the debt NFT used as collateral
+   * @param nftTokenId The token ID of the debt NFT used as collateral
+   */
+  function bidDebtETH(address nftAsset, uint256 nftTokenId, address onBehalfOf) external payable;
 }

@@ -7,7 +7,7 @@ import { getParamPerNetwork, insertContractAddressInDb } from "../../helpers/con
 import { waitForTx } from "../../helpers/misc-utils";
 import { eContractid, eNetwork } from "../../helpers/types";
 
-task("fork:deploy-lockey-holders", "Deploy the lockey holders contract")
+task("full:deploy-lockey-holders", "Deploy the lockey holders contract")
   .addFlag("verify", "Verify contracts at Etherscan")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .setAction(async ({ verify, pool }, DRE) => {

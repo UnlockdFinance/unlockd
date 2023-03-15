@@ -6,7 +6,7 @@
     "contracts",
     "artifacts"
   ],
-  "scripts": { 
+  "scripts": {
     "run-env": "yarn && tail -f /dev/null",
     "hardhat": "hardhat",
     "hardhat:node": "hardhat node",
@@ -46,7 +46,8 @@
     }
   },
   "dependencies": {
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "moment": "^2.29.4"
   },
   "devDependencies": {
     "@chainlink/contracts": "0.5.1",

@@ -89,8 +89,12 @@ export enum eContractid {
   NFTXHelper = "NFTXHelper",
   LSSVMPPair = "LSSVMPair",
   YVault = "YVault",
+  MockYVault = "MockYVault",
+  MockYVaultImpl = "MockYVaultImpl",
   LockeyManagerImpl = "LockeyManagerImpl",
   LockeyManager = "LockeyManager",
+  DebtMarketImpl = "DebtMarketImpl",
+  DebtMarket = "DebtMarket",
 }
 
 export enum ProtocolLoanState {
@@ -290,9 +294,9 @@ export interface iNftCommon<T> {
 export interface iNftBase<T> {
   WPUNKS: T;
   BAYC: T;
-  DOODLE: T;
   AZUKI: T;
-  /* COOL: T;
+  /*DOODLE: T;
+   COOL: T;
   MEEBITS: T;
   MAYC: T;
   WOW: T;
@@ -310,9 +314,9 @@ export type iNftAggregatorBase<T> = iNftBase<T>;
 export enum NftContractId {
   WPUNKS = "WPUNKS",
   BAYC = "BAYC",
-  DOODLE = "DOODLE",
   AZUKI = "AZUKI",
-  /* COOL = "COOL",
+  /*DOODLE = "DOODLE",
+   COOL = "COOL",
   MEEBITS = "MEEBITS",
   MAYC = "MAYC",
   WOW = "WOW",
