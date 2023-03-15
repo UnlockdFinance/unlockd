@@ -63,11 +63,10 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LendPoolImpl": {
-    "address": "0x4223d897b2B2A5aDBe97CffC94CC09C909f2aC90"
+    "address": "0xDB8c2AE619685b26C26a9ff48698049C363784f3"
   },
   "LendPool": {
-    "address": "0x4223d897b2B2A5aDBe97CffC94CC09C909f2aC90",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+    "address": "0x80Fa1fA8B0CaF15CFC3961C934cFA860945d9139"
   },
   "LendPoolLoanImpl": {
     "address": "0x32727fA2ad74483C8DC1F899C5c06AcCd5eDAED8"
@@ -97,7 +96,7 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "InterestRate": {
-    "address": "0xc32B56a82144E29725978E8e90c96aA015B87b93",
+    "address": "0x4aC0F2F1f78d86e52DD4F3D5BFf1075785bAEf0f",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "rateStrategyWETH": {
@@ -130,20 +129,16 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "WPUNKS": {
-    "address": "0x025FE4760c6f14dE878C22cEb09A3235F16dAe53",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+    "address": "0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6"
   },
   "BAYC": {
-    "address": "0xb2f97A3c2E48cd368901657e31Faaa93035CE390",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+    "address": "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D"
   },
   "DOODLE": {
-    "address": "0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+    "address": "0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e"
   },
   "AZUKI": {
-    "address": "0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+    "address": "0xED5AF388653567Af2F388E6224dC7C4b3241C544"
   },
   "MockIncentivesController": {
     "address": "0x294E11ac81ED4018d5dC0cc9618Ff2890acC8977",
@@ -164,6 +159,12 @@
     "address": "0xAAF09660FafD2138fC9e5dA036D2a101A623b52F",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
+  "LockeyManagerImpl": {
+    "address": "0x4C8871d8f224eE3Cd12a14fF3B691a1A0dB392ec"
+  },
+  "LockeyManager": {
+    "address": "0xc831fAe49f2c324704F7133CB8bE08BC768904cf"
+  },
   "LendingLogic": {
     "address": "0x5c769753F192449c3c6AeC7BF2145928eb261699",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
@@ -179,51 +180,6 @@
   "MockNFTOracle": {
     "address": "0xC43399Af506f3649482E22c21264B056137Ca7e4",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "SelfdestructTransferMock": {
-    "address": "0x54c8E862c8f4171Fd790f00A7b9691B383047eB1",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "MockYVaultImpl": {
-    "address": "0xc32B56a82144E29725978E8e90c96aA015B87b93"
-  },
-  "MockYVault": {
-    "address": "0x4223d897b2B2A5aDBe97CffC94CC09C909f2aC90",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "WETHMocked": {
-    "address": "0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "WETH": {
-    "address": "0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "MintableERC721": {
-    "address": "0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "UnlockdProxyAdminTest": {
-    "address": "0x69D1108D37825212736aC101B445b6B57a390d13",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "NFTXVaultFactory": {
-    "address": "0x9718F7A661C0137d13EB4f0659dA5E8697075492",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "UniswapV2Factory": {
-    "address": "0xc5b75fA87Bc8F55bD989642DFE0Bbdd44748cD3b",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "SushiSwapRouter": {
-    "address": "0x5F25714195e6Ba02cD01dB804f6222F924B9CC27",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
-  },
-  "LockeyManagerImpl": {
-    "address": "0x4C8871d8f224eE3Cd12a14fF3B691a1A0dB392ec"
-  },
-  "LockeyManager": {
-    "address": "0xc831fAe49f2c324704F7133CB8bE08BC768904cf"
   },
   "ReservoirAdapterImpl": {
     "address": "0xa438453157E27d48e6E7cB74BF8B808D4e2F56eD"
