@@ -1,0 +1,34 @@
+/home/fvenancio/Projects/unlockd/unlockd-tasks/tasks
+- Enviroment
+  - Network : goerli
+wethGateWay.address 0x71beADa6Da5cA79237Fb6B1ed14F34934848FBd9
+CryptoPunksMarket.address 0x3aFE908110e5c5275Bc96a9e42DB1B322590bDa4
+WPUNKS.address 0x97F1f0E9A8F55Bf1Da9392332a0C44cE52E83E38
+contracts-helpers:insertContractAddressInDb, id: PunkGatewayImpl address 0xDbe7FC8e4c3BAaC31333287586998b9965C7414B
+0x244f450d794b1550065bb4b07ce07a5d3e48a750c20c62963c869c343398b8b5
+323
+*** PunkGateway ***
+
+Network: goerli
+tx: 0x244f450d794b1550065bb4b07ce07a5d3e48a750c20c62963c869c343398b8b5
+contract address: 0xDbe7FC8e4c3BAaC31333287586998b9965C7414B
+deployer address: 0x3800107a25762D789c6dD36DeDa01aFef7d5E94F
+gas price: 200000000000
+gas used: 3816053
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: PunkGateway address: 0xDbe7FC8e4c3BAaC31333287586998b9965C7414B deployer 0x3800107a25762D789c6dD36DeDa01aFef7d5E94F
+[ETHERSCAN][WARNING] Delaying Etherscan verification due their API can not find newly deployed contracts
+Compiled 173 Solidity files successfully
+Creating Typechain artifacts in directory types for target ethers-v5
+Successfully generated Typechain artifacts!
+Successfully submitted source code for contract
+contracts/protocol/PunkGateway.sol:PunkGateway at 0xDbe7FC8e4c3BAaC31333287586998b9965C7414B
+for verification on Etherscan. Waiting for verification result...
+
+[ETHERSCAN][INFO] Skipping due OK response:  The Etherscan API responded with a failure status.
+The verification may still succeed but should be checked manually.
+Reason: Already Verified
+Deploying new PunkGateway proxy & implementation...
+

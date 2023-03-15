@@ -19,12 +19,12 @@
     "address": "0x3aFE908110e5c5275Bc96a9e42DB1B322590bDa4"
   },
   "WrappedPunk": {
-    "address": "0xa9ED41c141d04647276F24EE06258e57a041a158",
-    "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
+    "address": "0x97F1f0E9A8F55Bf1Da9392332a0C44cE52E83E38",
+    "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "WPUNKS": {
-    "address": "0xa9ED41c141d04647276F24EE06258e57a041a158",
-    "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
+    "address": "0x97F1f0E9A8F55Bf1Da9392332a0C44cE52E83E38",
+    "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "MintableERC721": {
     "address": "0x81c392eF3f7802d748dd05394ed434C258EF8AD6",
@@ -144,10 +144,10 @@
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "PunkGatewayImpl": {
-    "address": "0x2e33B7c06072aF8233A06c97db366Efb5a4ff837"
+    "address": "0xDbe7FC8e4c3BAaC31333287586998b9965C7414B"
   },
   "PunkGateway": {
-    "address": "0x14e3582Fdc46D958F7e61575273344287d034d2e",
+    "address": "0xDbe7FC8e4c3BAaC31333287586998b9965C7414B",
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "UnlockdProtocolDataProvider": {
