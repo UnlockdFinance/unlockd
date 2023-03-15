@@ -48,6 +48,12 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
    * @param index The new liquidity index of the reserve
    **/
   event Mint(address indexed from, uint256 value, uint256 index);
+  /**
+   * @dev Emitted after setting of addresses as managers
+   * @param managers the managers to be updated
+   * @param flag `true` to set addresses as managers, `false` otherwise
+   **/
+  event UTokenManagersUpdated(address[] indexed managers, bool flag);
 
   /**
    * @dev Mints `amount` uTokens to `user`
@@ -157,4 +163,9 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
    * @dev Sets the address of the treasury to this uToken
    **/
   function setTreasuryAddress(address treasury) external;
+
+  /**
+   * @dev Updates the uToken manager addresses
+   **/
+  function updateUTokenManagers(address[] calldata managers, bool flag) external;
 }

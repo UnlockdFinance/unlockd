@@ -95,6 +95,8 @@ export enum eContractid {
   LockeyManager = "LockeyManager",
   DebtMarketImpl = "DebtMarketImpl",
   DebtMarket = "DebtMarket",
+  ReservoirAdapterImpl = "ReservoirAdapterImpl",
+  ReservoirAdapter = "ReservoirAdapter",
 }
 
 export enum ProtocolLoanState {
@@ -123,6 +125,7 @@ export enum ProtocolErrors {
   INVALID_ZERO_ADDRESS = "106",
   CALLER_NOT_LTV_MANAGER = "107",
   CALLER_NOT_PRICE_MANAGER = "108",
+  CALLER_NOT_UTOKEN_MANAGER = "109",
 
   //math library erros
   MATH_MULTIPLICATION_OVERFLOW = "200",
@@ -201,6 +204,7 @@ export enum ProtocolErrors {
   LPL_BID_INVALID_BID_FINE = "494",
   LPL_BID_PRICE_LESS_THAN_MIN_BID_REQUIRED = "495",
   LPL_BID_NOT_BUYOUT_PRICE = "496",
+  LPL_CALLER_MUST_BE_MARKET_ADAPTER = "499",
   //common token errors
   CT_CALLER_MUST_BE_LEND_POOL = "500", // 'The caller of this function must be a lending pool'
   CT_INVALID_MINT_AMOUNT = "501", //invalid amount to mint
@@ -478,6 +482,19 @@ export interface ICommonConfiguration {
   LSSVMRouter: iParamsPerNetwork<tEthereumAddress>;
   YVaultWETH: iParamsPerNetwork<tEthereumAddress>;
   LockeyCollection: iParamsPerNetwork<tEthereumAddress>;
+
+  BlurModule: iParamsPerNetwork<tEthereumAddress>;
+  FoundationModule: iParamsPerNetwork<tEthereumAddress>;
+  LooksRareModule: iParamsPerNetwork<tEthereumAddress>;
+  SeaportModule: iParamsPerNetwork<tEthereumAddress>;
+  SeaportV14Module: iParamsPerNetwork<tEthereumAddress>;
+  SudoSwapModule: iParamsPerNetwork<tEthereumAddress>;
+  X2Y2Module: iParamsPerNetwork<tEthereumAddress>;
+  ZeroExv4Module: iParamsPerNetwork<tEthereumAddress>;
+  ZoraModule: iParamsPerNetwork<tEthereumAddress>;
+  ElementModule: iParamsPerNetwork<tEthereumAddress>;
+  NFTXModule: iParamsPerNetwork<tEthereumAddress>;
+  RaribleModule: iParamsPerNetwork<tEthereumAddress>;
 }
 
 export interface IUnlockdConfiguration extends ICommonConfiguration {
@@ -490,3 +507,9 @@ export interface ITokenAddress {
 }
 
 export type PoolConfiguration = ICommonConfiguration | IUnlockdConfiguration;
+
+export type ExecutionInfo = {
+  module: string;
+  data: string;
+  value: BigNumber;
+};

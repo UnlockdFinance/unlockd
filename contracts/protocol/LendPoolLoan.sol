@@ -34,6 +34,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   mapping(address => mapping(uint256 => uint256)) private _nftToLoanIds;
   mapping(address => uint256) private _nftTotalCollateral;
   mapping(address => mapping(address => uint256)) private _userNftCollateral;
+  mapping(address => bool) private _marketAdapters;
 
   /**
    * @dev Only lending pool can call functions marked by this modifier
@@ -44,6 +45,21 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   }
   modifier onlyDebtMarket() {
     require(_msgSender() == _addressesProvider.getAddress(DEBT_MARKET), Errors.CT_CALLER_MUST_BE_DEBT_MARKET);
+    _;
+  }
+
+  /**
+   * @dev Only adapter of external markets can call functions marked by this modifier
+   **/
+  modifier onlyMarketAdapter() {
+    require(_marketAdapters[_msgSender()], Errors.LPL_CALLER_MUST_BE_MARKET_ADAPTER);
+    _;
+  }
+  /**
+   * @dev Only pool admin can call functions marked by this modifier
+   **/
+  modifier onlyPoolAdmin() {
+    require(_msgSender() == _addressesProvider.getPoolAdmin(), Errors.CALLER_NOT_POOL_ADMIN);
     _;
   }
 
@@ -465,6 +481,50 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
       sellPrice,
       sudoswapParams.LSSVMPair
     );
+  }
+
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
+  function liquidateLoanMarket(
+    uint256 loanId,
+    address uNftAddress,
+    uint256 borrowAmount,
+    uint256 borrowIndex
+  ) external override onlyMarketAdapter {
+    DataTypes.LoanData storage loan = _loans[loanId];
+
+    // Ensure valid loan state
+    require(loan.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
+
+    loan.state = DataTypes.LoanState.Defaulted;
+
+    _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
+
+    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
+    _userNftCollateral[loan.borrower][loan.nftAsset] -= 1;
+
+    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALID_NFT_AMOUNT);
+    _nftTotalCollateral[loan.nftAsset] -= 1;
+
+    // burn uNFT
+    IUNFT(uNftAddress).burn(loan.nftTokenId);
+
+    //transfer to sender
+    IERC721Upgradeable(loan.nftAsset).safeTransferFrom(address(this), _msgSender(), loan.nftTokenId);
+
+    emit LoanLiquidatedMarket(loanId, loan.nftAsset, loan.nftTokenId, loan.reserveAsset, borrowAmount, borrowIndex);
+  }
+
+  function updateMarketAdapters(address[] calldata adapters, bool flag) external override onlyPoolAdmin {
+    uint256 cachedLength = adapters.length;
+    for (uint256 i = 0; i < cachedLength; ) {
+      require(adapters[i] != address(0), Errors.INVALID_ZERO_ADDRESS);
+      _marketAdapters[adapters[i]] = flag;
+      unchecked {
+        ++i;
+      }
+    }
   }
 
   function onERC721Received(address, address, uint256, bytes memory) external pure override returns (bytes4) {

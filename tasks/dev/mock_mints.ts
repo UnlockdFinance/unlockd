@@ -25,7 +25,10 @@ task("dev:mint-mock-bayc", "Mint mock nfts for dev enviroment")
     const baycAddress = await getContractAddressInDb("BAYC");
     const bayc = await getCustomERC721(baycAddress);
     console.log("Total amount to mint BAYC:", amount);
-    await waitForTx(await bayc.mint(user, amount));
+    const tx = await bayc.mint(user, amount);
+    console.log("NONCE: ", tx.nonce);
+    console.log(tx.hash);
+    await tx.wait(2);
     console.log("BAYC Balances:", (await bayc.balanceOf(user)).toString());
   });
 

@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import { utils } from "ethers";
-
+require("dotenv").config();
 // ----------------
 // MATH
 // ----------------
@@ -81,6 +81,7 @@ export const ADDRESS_ID_YVAULT_WETH = utils.keccak256(utils.toUtf8Bytes("YVAULT_
 export const ADDRESS_ID_LOCKEY_COLLECTION = utils.keccak256(utils.toUtf8Bytes("LOCKEY_COLLECTION"));
 export const ADDRESS_ID_LOCKEY_MANAGER = utils.keccak256(utils.toUtf8Bytes("LOCKEY_MANAGER"));
 export const ADDRESS_ID_DEBT_MARKET = utils.keccak256(utils.toUtf8Bytes("DEBT_MARKET"));
+export const ADDRESS_ID_RESERVOIR_ADAPTER = utils.keccak256(utils.toUtf8Bytes("RESERVOIR_ADAPTER"));
 
 //Price source: https://data.chain.link/ethereum/mainnet/stablecoins
 export const MOCK_RESERVE_AGGREGATORS_PRICES = {
@@ -133,3 +134,9 @@ export const MOCK_NFT_BASE_URIS = {
   KONGZ: "https://kongz.herokuapp.com/api/metadata/",
   LAND: "https://market.decentraland.org/contracts/0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d/tokens/",
 };
+export const SAFETRANSFERFROM_FUNCTION_SELECTOR = "0xb88d4fde";
+export const EXECUTE_FUNCTION_SELECTOR = "0x760f2a0b";
+
+export const RESERVOIR_API_BIDS_BASE_URL = "https://api.reservoir.tools/orders/bids/v5";
+export const RESERVOIR_API_KEY = process.env.RESERVOIR_API_KEY;
+export const RESERVOIR_API_KEY_GOERLI = process.env.RESERVOIR_API_KEY_GOERLI;

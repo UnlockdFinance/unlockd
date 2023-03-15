@@ -251,7 +251,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
   });
 
   it("USDC - Auctions the borrow at first time", async () => {
-    const { usdc, bayc, uBAYC, users, pool, dataProvider, configurator, deployer } = testEnv;
+    const { usdc, bayc, uBAYC, users, pool, dataProvider, configurator, deployer, weth } = testEnv;
     if (JSON.stringify(usdc) !== "{}") {
       const liquidator = users[3];
       const borrower = users[1];

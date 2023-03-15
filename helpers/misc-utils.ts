@@ -14,7 +14,7 @@ import { FORK, UPGRADE } from "../hardhat.config";
 import { SignerWithAddress } from "../test/helpers/make-suite";
 import { SelfdestructTransferFactory } from "../types";
 import { ConfigNames, loadPoolConfig } from "./configuration";
-import { FUNDED_ACCOUNTS_GOERLI, FUNDED_ACCOUNTS_MAINNET, WAD } from "./constants";
+import { FUNDED_ACCOUNTS_GOERLI, FUNDED_ACCOUNTS_MAINNET, RESERVOIR_API_BIDS_BASE_URL, WAD } from "./constants";
 import { deploySelfdestructTransferMock } from "./contracts-deployments";
 import { getCryptoPunksMarket, getDeploySigner, getWrappedPunk } from "./contracts-getters";
 import {
@@ -285,4 +285,15 @@ export const fundWithWrappedPunk = async (receiver: string, punkIndex: number) =
     method: "hardhat_stopImpersonatingAccount",
     params: [owner],
   });
+};
+
+export const fetchAndFilterReservoirBids = async (nftAsset: string, tokenId: string) => {
+  const options = { method: "GET", headers: { accept: "*/*", "x-api-key": "demo-api-key" } };
+
+  const response = await fetch(RESERVOIR_API_BIDS_BASE_URL + "?token=" + nftAsset + "%3A" + tokenId, options);
+  const data = await response.json();
+
+  return data.orders.reduce(function (prev, current) {
+    return prev.price.amount.native > current.price.amount.native ? prev : current;
+  }).kind;
 };

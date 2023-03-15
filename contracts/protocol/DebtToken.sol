@@ -25,21 +25,25 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
   bytes32 public constant DEBT_MARKET = keccak256("DEBT_MARKET");
 
   mapping(address => mapping(address => uint256)) internal _borrowAllowances;
+  mapping(address => bool) internal _debtTokenManagers;
 
   modifier onlyLendPool() {
     require(_msgSender() == address(_getLendPool()), Errors.CT_CALLER_MUST_BE_LEND_POOL);
     _;
   }
-  modifier onlyLendPoolOrDebtMarket() {
-    require(
-      _msgSender() == address(_getLendPool()) || _msgSender() == _addressProvider.getAddress(DEBT_MARKET),
-      Errors.CT_CALLER_MUST_BE_LEND_POOL
-    );
-    _;
-  }
 
   modifier onlyLendPoolConfigurator() {
     require(_msgSender() == address(_getLendPoolConfigurator()), Errors.LP_CALLER_NOT_LEND_POOL_CONFIGURATOR);
+    _;
+  }
+
+  modifier onlyPoolAdmin() {
+    require(_msgSender() == _addressProvider.getPoolAdmin(), "Caller not pool admin");
+    _;
+  }
+
+  modifier onlyDebtTokenManager() {
+    require(_debtTokenManagers[_msgSender()], Errors.LP_CALLER_NOT_DEBT_TOKEN_MANAGER);
     _;
   }
 
@@ -89,7 +93,7 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
     address onBehalfOf,
     uint256 amount,
     uint256 index
-  ) external override onlyLendPoolOrDebtMarket returns (bool) {
+  ) external override onlyDebtTokenManager returns (bool) {
     if (initiator != onBehalfOf) {
       _decreaseBorrowAllowance(onBehalfOf, initiator, amount);
     }
@@ -115,7 +119,7 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
    * @param amount The amount getting burned
    * @param index The variable debt index of the reserve
    **/
-  function burn(address user, uint256 amount, uint256 index) external override onlyLendPoolOrDebtMarket {
+  function burn(address user, uint256 amount, uint256 index) external override onlyDebtTokenManager {
     uint256 amountScaled = amount.rayDiv(index);
     require(amountScaled != 0, Errors.CT_INVALID_BURN_AMOUNT);
 
@@ -282,5 +286,18 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
     _borrowAllowances[delegator][delegatee] = newAllowance;
 
     emit BorrowAllowanceDelegated(delegator, delegatee, _getUnderlyingAssetAddress(), newAllowance);
+  }
+
+  function updateTokenManagers(address[] calldata debtTokenManagers, bool flag) external override onlyPoolAdmin {
+    uint256 cachedLength = debtTokenManagers.length;
+    for (uint256 i = 0; i < cachedLength; ) {
+      require(debtTokenManagers[i] != address(0), Errors.INVALID_ZERO_ADDRESS);
+      _debtTokenManagers[debtTokenManagers[i]] = flag;
+      unchecked {
+        ++i;
+      }
+    }
+
+    emit TokenManagersUpdated(debtTokenManagers, flag);
   }
 }

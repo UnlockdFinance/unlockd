@@ -25,6 +25,7 @@ import {
   PunkGatewayFactory,
   ReserveLogicFactory,
   ReserveOracleFactory,
+  ReservoirAdapterFactory,
   //NftLogicFactory,
   SelfdestructTransferFactory,
   SupplyLogicFactory,
@@ -155,6 +156,13 @@ export const getLockeyManagerProxy = async (address?: tEthereumAddress) => {
 export const getDebtMarketProxy = async (address?: tEthereumAddress) => {
   return await DebtMarketFactory.connect(
     address || (await getDb(DRE.network.name).get(`${eContractid.DebtMarket}`).value()).address,
+    await getDeploySigner()
+  );
+};
+
+export const getReservoirAdapterProxy = async (address?: tEthereumAddress) => {
+  return await ReservoirAdapterFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.ReservoirAdapter}`).value()).address,
     await getDeploySigner()
   );
 };

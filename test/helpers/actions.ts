@@ -190,6 +190,16 @@ export const approveERC20 = async (testEnv: TestEnv, user: SignerWithAddress, re
   await waitForTx(await token.connect(user.signer).approve(pool.address, "100000000000000000000000000000"));
 };
 
+export const approveERC20Adapter = async (testEnv: TestEnv, user: SignerWithAddress, reserveSymbol: string) => {
+  const { reservoirAdapter } = testEnv;
+  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+  const network = <eNetwork>DRE.network.name;
+  const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
+
+  const token = new Contract(reserveAssets[reserveSymbol], reserveSymbol == "WETH" ? weth : erc20Artifact.abi);
+  await waitForTx(await token.connect(user.signer).approve(reservoirAdapter.address, "100000000000000000000000000000"));
+};
+
 export const getERC20Balance = async (testEnv: TestEnv, user: SignerWithAddress, reserveSymbol: string) => {
   const { pool } = testEnv;
   const poolConfig = loadPoolConfig(ConfigNames.Unlockd);

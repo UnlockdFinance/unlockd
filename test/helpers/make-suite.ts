@@ -2,14 +2,16 @@ import chai from "chai";
 // @ts-ignore
 import bignumberChai from "chai-bignumber";
 import { solidity } from "ethereum-waffle";
-import { Signer } from "ethers";
+import { Contract, Signer } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+import RouterAbi from "../../abis/ReservoirV6_0_0.json";
 import { UPGRADE } from "../../hardhat.config";
 import { ConfigNames, getLendPoolLiquidator, loadPoolConfig } from "../../helpers/configuration";
 import { ADDRESS_ID_WETH, SUDOSWAP_PAIRS_GOERLI, SUDOSWAP_PAIRS_MAINNET } from "../../helpers/constants";
 import {
   getCryptoPunksMarket,
   getDebtMarketProxy,
+  getDebtToken,
   getLendPool,
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
@@ -26,6 +28,7 @@ import {
   getNFTXVaultFactory,
   getPunkGateway,
   getReserveOracle,
+  getReservoirAdapterProxy,
   getSushiSwapRouter,
   getUIPoolDataProvider,
   getUNFT,
@@ -37,9 +40,9 @@ import {
   getWETHMocked,
   getWrappedPunk,
 } from "../../helpers/contracts-getters";
-import { getEthersSigners } from "../../helpers/contracts-helpers";
-import { DRE, evmRevert, evmSnapshot, getNowTimeInSeconds } from "../../helpers/misc-utils";
-import { tEthereumAddress } from "../../helpers/types";
+import { getEthersSigners, getParamPerNetwork } from "../../helpers/contracts-helpers";
+import { DRE, evmRevert, evmSnapshot, fundWithERC20, getNowTimeInSeconds } from "../../helpers/misc-utils";
+import { eEthereumNetwork, tEthereumAddress } from "../../helpers/types";
 import {
   CryptoPunksMarket,
   DebtMarket,
@@ -47,11 +50,13 @@ import {
   LockeyManager,
   MockIncentivesController,
   PunkGateway,
+  ReservoirAdapter,
   UiPoolDataProvider,
   UNFTRegistry,
   WalletBalanceProvider,
   WrappedPunk,
 } from "../../types";
+import { DebtToken } from "../../types/DebtToken";
 import { ILSSVMPair } from "../../types/ILSSVMPair";
 import { INFTXVaultFactoryV2 } from "../../types/INFTXVaultFactoryV2";
 import { IUniswapV2Router02 } from "../../types/IUniswapV2Router02";
@@ -84,6 +89,10 @@ export interface LSSVMPairWithID {
   LSSVMPair: ILSSVMPair;
   collectionName: string;
 }
+export interface ReservoirBidKind {
+  kind: string;
+  contract: Contract;
+}
 export interface TestEnv {
   deployer: SignerWithAddress;
   users: SignerWithAddress[];
@@ -103,10 +112,13 @@ export interface TestEnv {
   mockIncentivesController: MockIncentivesController;
   weth: WETH9Mocked;
   uWETH: UToken;
+  dWETH: DebtToken;
   dai: MintableERC20;
   uDai: UToken;
+  dDai: DebtToken;
   usdc: MintableERC20;
   uUsdc: UToken;
+  dUsdc: DebtToken;
   //wpunks: WPUNKSMocked;
   uPUNK: UNFT;
   bayc: MintableERC721;
@@ -131,6 +143,21 @@ export interface TestEnv {
   LSSVMPairs: LSSVMPairWithID[];
   lockeyManager: LockeyManager;
   debtMarket: DebtMarket;
+  reservoirAdapter: ReservoirAdapter;
+
+  BlurModule: ReservoirBidKind;
+  FoundationModule: ReservoirBidKind;
+  LooksRareModule: ReservoirBidKind;
+  SeaportModule: ReservoirBidKind;
+  SeaportV14Module: ReservoirBidKind;
+  SudoSwapModule: ReservoirBidKind;
+  X2Y2Module: ReservoirBidKind;
+  ZeroExv4Module: ReservoirBidKind;
+  ZoraModule: ReservoirBidKind;
+  ElementModule: ReservoirBidKind;
+  NFTXModule: ReservoirBidKind;
+  RaribleModule: ReservoirBidKind;
+  reservoirModules: ReservoirBidKind[];
 }
 
 let buidlerevmSnapshotId = "0x1";
@@ -158,10 +185,13 @@ const testEnv: TestEnv = {
   LSSVMPairs: [] as LSSVMPairWithID[],
   weth: {} as WETH9Mocked,
   uWETH: {} as UToken,
+  dWETH: {} as DebtToken,
   dai: {} as MintableERC20,
   uDai: {} as UToken,
+  dDai: {} as DebtToken,
   usdc: {} as MintableERC20,
   uUsdc: {} as UToken,
+  dUsdc: {} as DebtToken,
   //wpunks: WPUNKSMocked,
   uPUNK: {} as UNFT,
   bayc: {} as MintableERC721,
@@ -177,6 +207,20 @@ const testEnv: TestEnv = {
   nowTimeTracker: {} as number,
   lockeyManager: {} as LockeyManager,
   debtMarket: {} as DebtMarket,
+  reservoirAdapter: {} as ReservoirAdapter,
+  BlurModule: {} as ReservoirBidKind,
+  FoundationModule: {} as ReservoirBidKind,
+  LooksRareModule: {} as ReservoirBidKind,
+  SeaportModule: {} as ReservoirBidKind,
+  SeaportV14Module: {} as ReservoirBidKind,
+  SudoSwapModule: {} as ReservoirBidKind,
+  X2Y2Module: {} as ReservoirBidKind,
+  ZeroExv4Module: {} as ReservoirBidKind,
+  ZoraModule: {} as ReservoirBidKind,
+  ElementModule: {} as ReservoirBidKind,
+  NFTXModule: {} as ReservoirBidKind,
+  RaribleModule: {} as ReservoirBidKind,
+  reservoirModules: [] as ReservoirBidKind[],
 } as TestEnv;
 
 export async function initializeMakeSuite(network?: string) {
@@ -234,12 +278,13 @@ export async function initializeMakeSuite(network?: string) {
   const usdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.tokenAddress;
   const wethAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.tokenAddress;
 
-  console.log("uDai", uDaiAddress);
-  console.log("uUSDC", uUsdcAddress);
-  console.log("uWETH", uWEthAddress);
-  console.log("daiAdd", daiAddress);
-  console.log("usdcAdd", usdcAddress);
-  console.log("wethAdd", wethAddress);
+  const dDaiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.debtTokenAddress;
+  const dUsdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.debtTokenAddress;
+  const dWethAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.debtTokenAddress;
+
+  console.log("uDai", dDaiAddress);
+  console.log("uUSDC", dUsdcAddress);
+  console.log("uWETH", dWethAddress);
 
   await testEnv.addressesProvider.setAddress(ADDRESS_ID_WETH, wethAddress!);
 
@@ -257,12 +302,16 @@ export async function initializeMakeSuite(network?: string) {
   if (usdcAddress) testEnv.usdc = await getMintableERC20(usdcAddress);
   if (wethAddress) testEnv.weth = await getWETHMocked(wethAddress);
 
-  // PREPARE MOCK uNFTS
+  // PREPARE MOCK uTokens
   if (uDaiAddress) testEnv.uDai = await getUToken(uDaiAddress);
-
   if (uUsdcAddress) testEnv.uUsdc = await getUToken(uUsdcAddress);
-
   if (uWEthAddress) testEnv.uWETH = await getUToken(uWEthAddress);
+
+  // PREPARE MOCK debt tokens
+  if (dDaiAddress) testEnv.dDai = await getDebtToken(dDaiAddress);
+  if (dUsdcAddress) testEnv.dUsdc = await getDebtToken(dUsdcAddress);
+  if (dWethAddress) testEnv.dWETH = await getDebtToken(dWethAddress);
+
   if (UPGRADE) await testEnv.uWETH.sweepUToken();
   testEnv.wethGateway = await getWETHGateway();
 
@@ -319,6 +368,84 @@ export async function initializeMakeSuite(network?: string) {
   }
 
   testEnv.lockeyManager = await getLockeyManagerProxy();
+  testEnv.reservoirAdapter = await getReservoirAdapterProxy();
+
+  const blurModule = getParamPerNetwork(poolConfig.BlurModule, network as eEthereumNetwork);
+  if (blurModule) {
+    testEnv.BlurModule = { kind: "", contract: new Contract(blurModule, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.BlurModule);
+  }
+  const foundationModule = getParamPerNetwork(poolConfig.FoundationModule, network as eEthereumNetwork);
+  if (foundationModule) {
+    testEnv.FoundationModule = {
+      kind: "foundation",
+      contract: new Contract(foundationModule, RouterAbi, deployer.signer),
+    };
+    testEnv.reservoirModules.push(testEnv.FoundationModule);
+  }
+
+  const looksrareModule = getParamPerNetwork(poolConfig.LooksRareModule, network as eEthereumNetwork);
+  if (looksrareModule) {
+    testEnv.LooksRareModule = {
+      kind: "looks-rare",
+      contract: new Contract(looksrareModule, RouterAbi, deployer.signer),
+    };
+    testEnv.reservoirModules.push(testEnv.LooksRareModule);
+  }
+
+  const seaportModule = getParamPerNetwork(poolConfig.SeaportModule, network as eEthereumNetwork);
+  if (seaportModule) {
+    testEnv.SeaportModule = { kind: "seaport", contract: new Contract(seaportModule, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.SeaportModule);
+  }
+
+  const seaportV14Module = getParamPerNetwork(poolConfig.SeaportV14Module, network as eEthereumNetwork);
+  if (seaportV14Module) {
+    testEnv.SeaportV14Module = {
+      kind: "seaport-v1.4",
+      contract: new Contract(seaportV14Module, RouterAbi, deployer.signer),
+    };
+    testEnv.reservoirModules.push(testEnv.SeaportV14Module);
+  }
+  const sudoswapModule = getParamPerNetwork(poolConfig.SudoSwapModule, network as eEthereumNetwork);
+  if (sudoswapModule) {
+    testEnv.SudoSwapModule = { kind: "sudoswap", contract: new Contract(sudoswapModule, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.SudoSwapModule);
+  }
+  const x2y2Module = getParamPerNetwork(poolConfig.X2Y2Module, network as eEthereumNetwork);
+  if (x2y2Module) {
+    testEnv.X2Y2Module = { kind: "x2y2", contract: new Contract(x2y2Module, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.X2Y2Module);
+  }
+  const zeroExv4Module = getParamPerNetwork(poolConfig.ZeroExv4Module, network as eEthereumNetwork);
+  if (zeroExv4Module) {
+    testEnv.ZeroExv4Module = { kind: "zeroex-v4", contract: new Contract(zeroExv4Module, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.ZeroExv4Module);
+  }
+  const zoraModule = getParamPerNetwork(poolConfig.ZoraModule, network as eEthereumNetwork);
+  if (zoraModule) {
+    testEnv.ZoraModule = { kind: "zora", contract: new Contract(zoraModule, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.ZoraModule);
+  }
+  const elementModule = getParamPerNetwork(poolConfig.ElementModule, network as eEthereumNetwork);
+  if (elementModule) {
+    testEnv.ElementModule = { kind: "element", contract: new Contract(elementModule, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.ElementModule);
+  }
+  const NFTXModule = getParamPerNetwork(poolConfig.NFTXModule, network as eEthereumNetwork);
+  if (NFTXModule) {
+    testEnv.NFTXModule = { kind: "nftx", contract: new Contract(NFTXModule, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.NFTXModule);
+  }
+  const raribleModule = getParamPerNetwork(poolConfig.RaribleModule, network as eEthereumNetwork);
+  if (raribleModule) {
+    testEnv.RaribleModule = { kind: "rarible", contract: new Contract(raribleModule, RouterAbi, deployer.signer) };
+    testEnv.reservoirModules.push(testEnv.RaribleModule);
+  }
+  await testEnv.uWETH.updateUTokenManagers([testEnv.pool.address], true);
+  await testEnv.dWETH.updateTokenManagers([testEnv.pool.address, testEnv.debtMarket.address], true);
+
+  await fundWithERC20("WETH", testEnv.wethGateway.address, "1000");
 }
 
 const setSnapshot = async () => {

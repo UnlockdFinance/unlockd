@@ -17,11 +17,7 @@ import {IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/tok
 abstract contract IncentivizedERC20 is Initializable, IERC20MetadataUpgradeable, ERC20Upgradeable {
   uint8 private _customDecimals;
 
-  function __IncentivizedERC20_init(
-    string memory name_,
-    string memory symbol_,
-    uint8 decimals_
-  ) internal initializer {
+  function __IncentivizedERC20_init(string memory name_, string memory symbol_, uint8 decimals_) internal initializer {
     __ERC20_init(name_, symbol_);
 
     _customDecimals = decimals_;
@@ -42,11 +38,7 @@ abstract contract IncentivizedERC20 is Initializable, IERC20MetadataUpgradeable,
 
   function _getUnderlyingAssetAddress() internal view virtual returns (address);
 
-  function _transfer(
-    address sender,
-    address recipient,
-    uint256 amount
-  ) internal virtual override {
+  function _transfer(address sender, address recipient, uint256 amount) internal virtual override {
     uint256 oldSenderBalance = super.balanceOf(sender);
     uint256 oldRecipientBalance = super.balanceOf(recipient);
 
