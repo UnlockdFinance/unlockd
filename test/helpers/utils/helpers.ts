@@ -1,3 +1,4 @@
+import { Provider } from "@ethersproject/abstract-provider";
 import BigNumber from "bignumber.js";
 import {
   getDebtToken,
@@ -15,10 +16,10 @@ import type { IYVault } from "../../../types/IYVault";
 
 import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
+import hre from "hardhat";
 import { LendPool } from "../../../types/LendPool";
 import { UnlockdProtocolDataProvider } from "../../../types/UnlockdProtocolDataProvider";
 import { LoanData, NftData, ReserveData, UserReserveData } from "./interfaces";
-
 export const getReserveData = async (
   helper: UnlockdProtocolDataProvider,
   reserve: tEthereumAddress
@@ -203,17 +204,6 @@ const calculateLockedProfit = async (yVault: IYVault): Promise<BN> => {
   return BN.from(0);
 };
 
-const buildReservoirModuleCallData = async (yVault: IYVault): Promise<BN> => {
-  const lockedFundsRatio = BN.from(await (await getNowTimeInSeconds()).toString())
-    .sub(await yVault.lastReport())
-    .mul(await yVault.lockedProfitDegradation());
+export const getCurrentTimestamp = async (provider: Provider) => provider.getBlock("latest").then((b) => b.timestamp);
 
-  const DEGRADATION_COEFFICIENT = parseEther("10");
-
-  if (lockedFundsRatio.lt(DEGRADATION_COEFFICIENT)) {
-    const lockedProfit = await yVault.lockedProfit();
-
-    return lockedProfit.sub(lockedFundsRatio.mul(lockedProfit).div(DEGRADATION_COEFFICIENT));
-  }
-  return BN.from(0);
-};
+export const getChainId = () => hre.network.config.chainId;

@@ -30,7 +30,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   ILendPoolAddressesProvider internal _addressProvider;
   address internal _treasury;
   address internal _underlyingAsset;
-
+  mapping(address => bool) internal _uTokenManagers;
   modifier onlyLendPool() {
     require(_msgSender() == address(_getLendPool()), Errors.CT_CALLER_MUST_BE_LEND_POOL);
     _;
@@ -38,6 +38,11 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
 
   modifier onlyPoolAdmin() {
     require(_msgSender() == _addressProvider.getPoolAdmin(), Errors.CALLER_NOT_POOL_ADMIN);
+    _;
+  }
+
+  modifier onlyUTokenManager() {
+    require(_uTokenManagers[_msgSender()], Errors.CALLER_NOT_UTOKEN_MANAGER);
     _;
   }
 
@@ -120,7 +125,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
    * @dev Deposits `amount` to the lending protocol currently active
    * @param amount The amount of tokens to deposit
    */
-  function depositReserves(uint256 amount) public override onlyLendPool {
+  function depositReserves(uint256 amount) public override onlyUTokenManager {
     LendingLogic.executeDepositYearn(
       _addressProvider,
       DataTypes.ExecuteYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
@@ -131,7 +136,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
    * @dev Withdraws `amount` from the lending protocol currently active
    * @param amount The amount of tokens to withdraw
    */
-  function withdrawReserves(uint256 amount) public override onlyLendPool returns (uint256) {
+  function withdrawReserves(uint256 amount) public override onlyUTokenManager returns (uint256) {
     uint256 value = LendingLogic.executeWithdrawYearn(
       _addressProvider,
       DataTypes.ExecuteYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
@@ -300,6 +305,18 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   function transferUnderlyingTo(address target, uint256 amount) external override onlyLendPool returns (uint256) {
     IERC20Upgradeable(_underlyingAsset).safeTransfer(target, amount);
     return amount;
+  }
+
+  function updateUTokenManagers(address[] calldata managers, bool flag) external override onlyPoolAdmin {
+    uint256 cachedLength = managers.length;
+    for (uint256 i = 0; i < cachedLength; ) {
+      require(managers[i] != address(0), Errors.INVALID_ZERO_ADDRESS);
+      _uTokenManagers[managers[i]] = flag;
+      unchecked {
+        ++i;
+      }
+    }
+    emit UTokenManagersUpdated(managers, flag);
   }
 
   function _getLendPool() internal view returns (ILendPool) {

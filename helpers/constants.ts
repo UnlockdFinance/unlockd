@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import { utils } from "ethers";
-
+require("dotenv").config();
 // ----------------
 // MATH
 // ----------------
@@ -133,5 +133,9 @@ export const MOCK_NFT_BASE_URIS = {
   KONGZ: "https://kongz.herokuapp.com/api/metadata/",
   LAND: "https://market.decentraland.org/contracts/0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d/tokens/",
 };
+export const SAFETRANSFERFROM_FUNCTION_SELECTOR = "0xb88d4fde";
+export const EXECUTE_FUNCTION_SELECTOR = "0x760f2a0b";
 
-export const RESERVOIR_API_BIDS_BASE_URL = "https://api.reservoir.tools/orders/bids/v5?";
+export const RESERVOIR_API_BIDS_BASE_URL = "https://api.reservoir.tools/orders/bids/v5";
+export const RESERVOIR_API_KEY = process.env.RESERVOIR_API_KEY;
+export const RESERVOIR_API_KEY_GOERLI = process.env.RESERVOIR_API_KEY_GOERLI;

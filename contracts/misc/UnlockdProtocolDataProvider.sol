@@ -12,10 +12,15 @@ import {ReserveConfiguration} from "../libraries/configuration/ReserveConfigurat
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {NFTXSeller} from "../libraries/markets/NFTXSeller.sol";
+import {INFTOracleGetter} from "../interfaces/INFTOracleGetter.sol";
+import {IReserveOracleGetter} from "../interfaces/IReserveOracleGetter.sol";
+import {ILSSVMPair} from "../interfaces/sudoswap/ILSSVMPair.sol";
+import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 
 contract UnlockdProtocolDataProvider {
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
   using NftConfiguration for DataTypes.NftConfigurationMap;
+  using PercentageMath for uint256;
 
   struct ReserveTokenData {
     string tokenSymbol;
@@ -331,5 +336,99 @@ contract UnlockdProtocolDataProvider {
    */
   function getNFTXPrice(address asset, uint256 tokenId, address reserveAsset) external view returns (uint256) {
     return NFTXSeller.getNFTXPrice(ADDRESSES_PROVIDER, asset, tokenId, reserveAsset);
+  }
+
+  struct GetLiquidationPriceLocalVars {
+    address poolLoan;
+    uint256 loanId;
+    uint256 thresholdPrice;
+    uint256 liquidatePrice;
+    uint256 paybackAmount;
+    uint256 remainAmount;
+    uint256 ltv;
+    uint256 liquidationThreshold;
+    uint256 liquidationBonus;
+    uint256 nftPriceInETH;
+    uint256 nftPriceInReserve;
+    uint256 reserveDecimals;
+    uint256 reservePriceInETH;
+    uint256 borrowAmount;
+  }
+
+  function getStartingBidPrice(
+    address[2] memory sudoSwapPair,
+    address reserveAsset,
+    address nftAsset,
+    uint256 tokenId
+  ) external view returns (uint256 liqPrice) {
+    ILendPool iLendPool = ILendPool(ADDRESSES_PROVIDER.getLendPool());
+    (, , , uint256 borrowAmount, , ) = iLendPool.getNftDebtData(nftAsset, tokenId);
+
+    liqPrice = borrowAmount;
+
+    if (sudoSwapPair[0] == address(0) || sudoSwapPair[1] == address(0)) {
+      return liqPrice;
+    }
+
+    // Check if collection is supported by NFTX market
+    if (iLendPool.getIsMarketSupported(nftAsset, 0)) {
+      uint256 priceNFTX = NFTXSeller.getNFTXPrice(ADDRESSES_PROVIDER, nftAsset, tokenId, reserveAsset);
+      if (priceNFTX > liqPrice) {
+        liqPrice = priceNFTX;
+      }
+    }
+
+    // Check if collection is supported by SudoSwap market
+    if (iLendPool.getIsMarketSupported(nftAsset, 1)) {
+      for (uint256 i = 0; i < 2; ) {
+        (, uint256 newSpotPrice, , , ) = ILSSVMPair(sudoSwapPair[i]).getBuyNFTQuote(1);
+        if (newSpotPrice > liqPrice) {
+          liqPrice = newSpotPrice;
+        }
+        unchecked {
+          ++i;
+        }
+      }
+    }
+  }
+
+  /**
+   * @dev Returns the state and configuration of the nft
+   * @param nftAsset The address of the underlying asset of the nft
+   * @param nftTokenId The token ID of the asset
+   **/
+  function getNftLiquidatePrice(
+    address reserveAsset,
+    address nftAsset,
+    uint256 nftTokenId
+  ) external view returns (uint256 liquidatePrice, uint256 paybackAmount) {
+    GetLiquidationPriceLocalVars memory vars;
+    ILendPoolLoan lendPoolLoan = ILendPoolLoan(ADDRESSES_PROVIDER.getLendPoolLoan());
+
+    vars.loanId = lendPoolLoan.getCollateralLoanId(nftAsset, nftTokenId);
+    if (vars.loanId == 0) {
+      return (0, 0);
+    }
+
+    (, vars.borrowAmount) = lendPoolLoan.getLoanReserveBorrowAmount(vars.loanId);
+
+    (, , , , vars.ltv, vars.liquidationThreshold, vars.liquidationBonus) = ILendPool(ADDRESSES_PROVIDER.getLendPool())
+      .getNftCollateralData(nftAsset, nftTokenId, reserveAsset);
+
+    vars.nftPriceInETH = INFTOracleGetter(ADDRESSES_PROVIDER.getNFTOracle()).getNFTPrice(nftAsset, nftTokenId);
+    vars.reservePriceInETH = IReserveOracleGetter(ADDRESSES_PROVIDER.getReserveOracle()).getAssetPrice(reserveAsset);
+
+    vars.reserveDecimals = IERC20Detailed(reserveAsset).decimals();
+    vars.nftPriceInReserve = ((10 ** vars.reserveDecimals) * vars.nftPriceInETH) / vars.reservePriceInETH; //Get Decimals
+
+    vars.thresholdPrice = vars.nftPriceInReserve.percentMul(vars.liquidationThreshold);
+
+    vars.liquidatePrice = vars.nftPriceInReserve.percentMul(1e4 - vars.liquidationBonus);
+
+    if (vars.liquidatePrice < vars.paybackAmount) {
+      vars.liquidatePrice = vars.paybackAmount;
+    }
+
+    return (vars.liquidatePrice, vars.paybackAmount);
   }
 }

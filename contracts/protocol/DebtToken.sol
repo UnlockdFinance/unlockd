@@ -24,6 +24,7 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
   address internal _underlyingAsset;
 
   mapping(address => mapping(address => uint256)) internal _borrowAllowances;
+  mapping(address => bool) internal _burners;
 
   modifier onlyLendPool() {
     require(_msgSender() == address(_getLendPool()), Errors.CT_CALLER_MUST_BE_LEND_POOL);
@@ -32,6 +33,16 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
 
   modifier onlyLendPoolConfigurator() {
     require(_msgSender() == address(_getLendPoolConfigurator()), Errors.LP_CALLER_NOT_LEND_POOL_CONFIGURATOR);
+    _;
+  }
+
+  modifier onlyPoolAdmin() {
+    require(_msgSender() == _addressProvider.getPoolAdmin(), "Caller not pool admin");
+    _;
+  }
+
+  modifier onlyBurner() {
+    require(_burners[_msgSender()], Errors.LP_CALLER_NOT_DEBT_BURNER);
     _;
   }
 
@@ -107,7 +118,7 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
    * @param amount The amount getting burned
    * @param index The variable debt index of the reserve
    **/
-  function burn(address user, uint256 amount, uint256 index) external override onlyLendPool {
+  function burn(address user, uint256 amount, uint256 index) external override onlyBurner {
     uint256 amountScaled = amount.rayDiv(index);
     require(amountScaled != 0, Errors.CT_INVALID_BURN_AMOUNT);
 
@@ -274,5 +285,18 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
     _borrowAllowances[delegator][delegatee] = newAllowance;
 
     emit BorrowAllowanceDelegated(delegator, delegatee, _getUnderlyingAssetAddress(), newAllowance);
+  }
+
+  function updateBurners(address[] calldata burners, bool flag) external override onlyPoolAdmin {
+    uint256 cachedLength = burners.length;
+    for (uint256 i = 0; i < cachedLength; ) {
+      require(burners[i] != address(0), Errors.INVALID_ZERO_ADDRESS);
+      _burners[burners[i]] = flag;
+      unchecked {
+        ++i;
+      }
+    }
+
+    emit BurnersUpdated(burners, flag);
   }
 }

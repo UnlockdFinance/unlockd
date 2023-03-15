@@ -114,7 +114,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     // accurate borrow index, increment interest to loanDataBefore.scaledAmount
     await increaseTime(100);
 
-    const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "101");
+    const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(weth.address, bayc.address, "101");
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.1).toFixed(0);
 
     // remove  supporting liquidations on sudoswap / NFTX for auction price purposes
@@ -251,7 +251,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
   });
 
   it("USDC - Auctions the borrow at first time", async () => {
-    const { usdc, bayc, uBAYC, users, pool, dataProvider, configurator, deployer } = testEnv;
+    const { usdc, bayc, uBAYC, users, pool, dataProvider, configurator, deployer, weth } = testEnv;
     if (JSON.stringify(usdc) !== "{}") {
       const liquidator = users[3];
       const borrower = users[1];
@@ -265,7 +265,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
       // accurate borrow index, increment interest to loanDataBefore.scaledAmount
       await increaseTime(100);
 
-      const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, "102");
+      const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(weth.address, bayc.address, "101");
       const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.1).toFixed(0);
       // remove  supporting liquidations on sudoswap / NFTX for auction price purposes
       await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);

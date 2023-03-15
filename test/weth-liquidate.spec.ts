@@ -148,7 +148,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     expect(nftDebtDataBeforeAuction.healthFactor.toString()).to.be.bignumber.lt(oneEther.toFixed(0));
 
     // Liquidate ETH loan with native ETH
-    const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, tokenId);
+    const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(weth.address, bayc.address, tokenId);
     const auctionAmountSend = new BigNumber(liquidatePrice.toString()).multipliedBy(10).toFixed(0);
 
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
@@ -268,7 +268,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     expect(nftDebtDataBeforeAuction.healthFactor.toString()).to.be.bignumber.lt(oneEther.toFixed(0));
 
     // Liquidate ETH loan with native ETH
-    const { liquidatePrice } = await pool.getNftLiquidatePrice(bayc.address, tokenId);
+    const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(weth.address, bayc.address, tokenId);
     const liquidateAmountSend = liquidatePrice.add(liquidatePrice.mul(5).div(100));
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);

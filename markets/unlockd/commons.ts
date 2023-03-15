@@ -261,7 +261,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: "0xfb3f14829f15b1303d6ca677e3fae5a558e064d1", //mainnet address for forking tests
     [eEthereumNetwork.localhost]: "",
     [eEthereumNetwork.goerli]: "0x9ec973b9471fd632aee6d67e0c74855d115bdbad",
-    [eEthereumNetwork.main]: "0xfb3f14829f15b1303d6ca677e3fae5a558e064d1",
+    [eEthereumNetwork.main]: "0xfb3f14829f15b1303d6ca677e3fae5a558e064d1", //,
   },
   SudoSwapModule: {
     [eEthereumNetwork.hardhat]: "0x79abbfdf20fc6dd0c51693bf9a481f7351a70fd2", //mainnet address for forking tests

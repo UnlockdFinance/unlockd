@@ -63,7 +63,7 @@ makeSuite("LendPoolLoan: Modifiers", (testEnv: TestEnv) => {
   });
   it("Tries to invoke updateMarketAdapters not being the pool admin", async () => {
     const { uBAYC, loan, users } = testEnv;
-    await expect(loan.connect(users[2].signer).liquidateLoanMarket("1", uBAYC.address, "1", 0)).to.be.revertedWith(
+    await expect(loan.connect(users[2].signer).updateMarketAdapters([uBAYC.address], false)).to.be.revertedWith(
       CALLER_NOT_POOL_ADMIN
     );
   });

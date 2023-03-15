@@ -57,6 +57,13 @@ interface IDebtToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUp
   event Mint(address indexed from, uint256 value, uint256 index);
 
   /**
+   * @dev Emitted after setting of addresses as burners
+   * @param burners the burners to be updated
+   * @param flag `true` to set addresses as burners, `false` otherwise
+   **/
+  event BurnersUpdated(address[] indexed burners, bool flag);
+
+  /**
    * @dev Mints debt token to the `user` address
    * @param user The address receiving the borrowed underlying
    * @param onBehalfOf The beneficiary of the mint
@@ -64,12 +71,7 @@ interface IDebtToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUp
    * @param index The variable debt index of the reserve
    * @return `true` if the the previous balance of the user is 0
    **/
-  function mint(
-    address user,
-    address onBehalfOf,
-    uint256 amount,
-    uint256 index
-  ) external returns (bool);
+  function mint(address user, address onBehalfOf, uint256 amount, uint256 index) external returns (bool);
 
   /**
    * @dev Emitted when variable debt is burnt
@@ -85,11 +87,7 @@ interface IDebtToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUp
    * @param amount The amount to be burnt
    * @param index The variable debt index of the reserve
    **/
-  function burn(
-    address user,
-    uint256 amount,
-    uint256 index
-  ) external;
+  function burn(address user, uint256 amount, uint256 index) external;
 
   /**
    * @dev Returns the address of the incentives controller contract
@@ -112,4 +110,11 @@ interface IDebtToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUp
    * @return the current allowance of toUser
    **/
   function borrowAllowance(address fromUser, address toUser) external view returns (uint256);
+
+  /**
+   * @dev Updates allowed addresses to be burners of debt token
+   * @param burners array with burners to be updated
+   * @param flag `true` to set as burnet, `false` to unset as burner
+   **/
+  function updateBurners(address[] calldata burners, bool flag) external;
 }
