@@ -798,8 +798,8 @@ makeSuite("Buy and sell the debts", (testEnv) => {
 
       const tokenId = testEnv.tokenIdTracker++;
       await borrowBayc(testEnv, seller, tokenId, 10);
-      const blockNumber = await users[0].signer.provider!.getBlockNumber();
-      const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
+      const blockNumber = await DRE.ethers.provider.getBlockNumber();
+      const currTimestamp = (await DRE.ethers.provider.getBlock(blockNumber)).timestamp;
       const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
       await debtMarket
         .connect(seller.signer)
@@ -832,8 +832,8 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       const nftAsset = bayc.address;
       const tokenId = testEnv.tokenIdTracker++;
       await borrowBayc(testEnv, seller, tokenId, 10);
-      const blockNumber = await users[0].signer.provider!.getBlockNumber();
-      const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
+      const blockNumber = await DRE.ethers.provider.getBlockNumber();
+      const currTimestamp = (await DRE.ethers.provider.getBlock(blockNumber)).timestamp;
       const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
       await debtMarket
         .connect(seller.signer)
