@@ -48,7 +48,7 @@ makeSuite("Reservoir adapter tests", (testEnv: TestEnv) => {
       true
     );
     // Add reservoir adapter as debt token burner
-    await dWETH.updateTokenManagers([reservoirAdapter.address], true);
+    await dWETH.updateBurners([reservoirAdapter.address], true);
 
     // Add reservoir adapter as utoken manager
     await uWETH.updateUTokenManagers([reservoirAdapter.address, pool.address], true);

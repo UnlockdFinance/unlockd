@@ -18,7 +18,6 @@ import {IWrappedPunks} from "../interfaces/IWrappedPunks.sol";
 import {IPunkGateway} from "../interfaces/IPunkGateway.sol";
 import {IWETHGateway} from "../interfaces/IWETHGateway.sol";
 import {IDebtMarket} from "../interfaces/IDebtMarket.sol";
-
 import {EmergencyTokenRecoveryUpgradeable} from "./EmergencyTokenRecoveryUpgradeable.sol";
 
 contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRecoveryUpgradeable {
@@ -162,13 +161,10 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     }
 
     address owner = punks.punkIndexToAddress(punkIndex);
-
     require(owner == _msgSender(), "PunkGateway: not owner of punkIndex");
 
     punks.buyPunk(punkIndex);
-
     punks.transferPunk(proxy, punkIndex);
-
     wrappedPunks.mint(punkIndex);
   }
 

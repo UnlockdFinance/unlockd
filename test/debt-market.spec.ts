@@ -1,7 +1,6 @@
 import { BigNumber as BN, Contract } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import moment from "moment";
-import { FORK_BLOCK_NUMBER } from "../hardhat.config";
 import { MAX_UINT_AMOUNT } from "../helpers/constants";
 import { getDebtToken, getPoolAdminSigner } from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
@@ -160,6 +159,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const nftAsset = cryptoPunksMarket.address;
         const tokenId = testEnv.punkIndexTracker++;
         await fundWithWrappedPunk(seller.address, tokenId);
+
         const borrowSize1 = await convertToCurrencyDecimals(deployer, weth, "1");
 
         await waitForTx(
@@ -183,18 +183,20 @@ makeSuite("Buy and sell the debts", (testEnv) => {
 
         const reserveData = await pool.getReserveData(weth.address);
         const debtToken = await getDebtToken(reserveData.debtTokenAddress);
-
         await waitForTx(await debtToken.connect(seller.signer).approveDelegation(punkGateway.address, MAX_UINT_AMOUNT));
 
         await waitForTx(
           await punkGateway.connect(seller.signer).borrow(weth.address, borrowSize1, tokenId, seller.address, "0")
         );
+
         const oldLoan = await dataProvider.getLoanDataByCollateral(wrappedPunk.address, `${tokenId}`);
 
         await debtMarket
           .connect(seller.signer)
           .createDebtListing(wrappedPunk.address, tokenId, 100, seller.address, 0, 0);
+
         await fundWithERC20("WETH", buyer.address, "1000");
+
         await approveERC20PunkGateway(testEnv, buyer, "WETH");
 
         // Gets it before resseted to 0

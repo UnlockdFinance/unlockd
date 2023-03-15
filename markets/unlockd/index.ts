@@ -67,7 +67,7 @@ export const UnlockdConfig: IUnlockdConfiguration = {
   },
   NftsAssets: {
     [eEthereumNetwork.hardhat]: {
-      WPUNKS: "0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6",
+      WPUNKS: "0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6", 
       BAYC: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D", 
       AZUKI: "0xED5AF388653567Af2F388E6224dC7C4b3241C544",
       //MAYC: '0x60e4d786628fea6478f785a6d7e704777c86a7c6',

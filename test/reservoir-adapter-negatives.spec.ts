@@ -1,4 +1,4 @@
-import { keccak256, zeroAddress } from "ethereumjs-util";
+import { zeroAddress } from "ethereumjs-util";
 import { BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import { FORK_BLOCK_NUMBER } from "../hardhat.config";
@@ -36,7 +36,7 @@ makeSuite("Reservoir adapter negatives", (testEnv: TestEnv) => {
     );
 
     // Add reservoir adapter as debt token burner
-    await dWETH.updateTokenManagers([reservoirAdapter.address], true);
+    await dWETH.updateBurners([reservoirAdapter.address], true);
   });
   beforeEach(async () => {
     snapshotId = await evmSnapshot();

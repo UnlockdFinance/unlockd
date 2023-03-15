@@ -446,6 +446,7 @@ export async function initializeMakeSuite(network?: string) {
   await testEnv.dWETH.updateTokenManagers([testEnv.pool.address, testEnv.debtMarket.address], true);
 
   await fundWithERC20("WETH", testEnv.wethGateway.address, "1000");
+  await fundWithERC20("WETH", testEnv.punkGateway.address, "1000");
 }
 
 const setSnapshot = async () => {
