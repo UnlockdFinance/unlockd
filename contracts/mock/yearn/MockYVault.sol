@@ -69,10 +69,9 @@ contract MockYVault is Initializable, ERC20Upgradeable {
     _mint(msg.sender, amount);
   }
 
-  function withdraw(uint256 amount) external onlyAdminOrUToken returns (uint256) {
+  function withdraw(uint256 amount) external onlyAdminOrUToken {
     _burn(msg.sender, amount);
     underlyingAsset.safeTransfer(msg.sender, amount);
-    return amount;
   }
 
   /**
