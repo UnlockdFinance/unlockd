@@ -140,10 +140,10 @@
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "PunkGatewayImpl": {
-    "address": "0x2e33B7c06072aF8233A06c97db366Efb5a4ff837"
+    "address": "0xbDC89Ba0157d099641e9c41724EF6803306D2C67"
   },
   "PunkGateway": {
-    "address": "0x14e3582Fdc46D958F7e61575273344287d034d2e",
+    "address": "0xFaDaf468504bE605eF04c9e70Deaa75a368d87a7",
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "UnlockdProtocolDataProvider": {

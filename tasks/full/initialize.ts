@@ -98,8 +98,8 @@ task("full:initialize-gateway", "Initialize gateway configuration.")
       for (const [assetSymbol, assetAddress] of Object.entries(nftsAssets) as [string, string][]) {
         nftAddresses.push(assetAddress);
       }
-      console.log("WETHGateway: authorizeLendPoolNFT:", nftAddresses);
-      await waitForTx(await wethGateway.authorizeLendPoolNFT(nftAddresses));
+      // console.log("WETHGateway: authorizeLendPoolNFT:", nftAddresses);
+      // await waitForTx(await wethGateway.authorizeLendPoolNFT(nftAddresses));
 
       const punkGateway = await getPunkGateway();
       const reserveAddresses: string[] = [];

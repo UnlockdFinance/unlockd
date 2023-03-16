@@ -50,6 +50,7 @@ task(`full:deploy-punk-gateway`, `Deploys the PunkGateway contract`)
 
     // this contract is not support upgrade, just deploy new contract
     const punkGateWayImpl = await deployPunkGateway(verify);
+    console.log(addressesProvider.address, wethGateWay.address, punk, wpunk);
     const initEncodedData = punkGateWayImpl.interface.encodeFunctionData("initialize", [
       addressesProvider.address,
       wethGateWay.address,
