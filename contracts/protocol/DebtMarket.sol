@@ -48,6 +48,8 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   uint256 private _status;
   uint256 private _deltaBidPercent;
 
+  mapping(address => bool) public isAuthorizedAddress;
+
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
    * Calling a `nonReentrant` function from another `nonReentrant`
@@ -197,6 +199,10 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     uint256 debtId = _nftToDebtIds[nftAsset][tokenId];
 
     DataTypes.DebtMarketListing storage sellDebt = _marketListings[debtId];
+    require(
+      sellDebt.debtor == msg.sender || isAuthorizedAddress[msg.sender],
+      Errors.DM_CALLER_NOT_THE_OWNER_OR_AUTHORIZED
+    );
     require(sellDebt.state != DataTypes.DebtMarketState.Sold, Errors.DM_DEBT_SHOULD_NOT_BE_SOLD);
     sellDebt.state = DataTypes.DebtMarketState.Canceled;
     _deleteDebtOfferListing(nftAsset, tokenId);
@@ -472,6 +478,16 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
    */
   function setDeltaBidPercent(uint256 value) external override nonReentrant onlyPoolAdmin {
     _deltaBidPercent = value;
+  }
+
+  /**
+   * @inheritdoc IDebtMarket
+   */
+  function setAuthorizedAddress(address newAuthorizedAddress, bool val) external override onlyPoolAdmin {
+    require(newAuthorizedAddress != address(0), Errors.DM_INVALID_AUTHORIZED_ADDRESS);
+    isAuthorizedAddress[newAuthorizedAddress] = val;
+
+    emit AuthorizedAddressChanged(newAuthorizedAddress, val);
   }
 
   /**

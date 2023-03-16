@@ -50,6 +50,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
 
         await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 50, seller.address, 0, 0);
         const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+
         await debtMarket.connect(seller.signer).cancelDebtListing(nftAsset, tokenId);
 
         const canceledDebt = await debtMarket.getDebt(debtId);
@@ -835,6 +836,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       const blockNumber = await DRE.ethers.provider.getBlockNumber();
       const currTimestamp = (await DRE.ethers.provider.getBlock(blockNumber)).timestamp;
       const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
+
       await debtMarket
         .connect(seller.signer)
         .createDebtListing(nftAsset, tokenId, 100, seller.address, 50, auctionEndTimestamp);
@@ -937,11 +939,9 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const buyer = users[5];
         const nftAsset = bayc.address;
         await createDebtListing(testEnv, nftAsset, 50, seller);
-
         const debtCreationPromise = debtMarket
           .connect(seller.signer)
           .createDebtListing(nftAsset, testEnv.tokenIdTracker - 1, 50, seller.address, 0, 0);
-
         expect(debtCreationPromise).to.be.revertedWith("1005");
       });
       it("When it is a debt listing on non existing loan", async () => {
