@@ -1,12 +1,12 @@
 
-> @unlockddao/unlockd-protocol@1.0.2 test:file
-> npm run compile && TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test/__setup.spec.ts ./test/${TEST_FILE}
+> @unlockddao/unlockd-protocol@1.0.2 test
+> npm run compile && TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test/*.spec.ts
 
 
 > @unlockddao/unlockd-protocol@1.0.2 compile
 > cross-env SKIP_LOAD=true hardhat compile
 
-Compiled 44 Solidity files successfully
+Nothing to compile
 Creating Typechain artifacts in directory types for target ethers-v5
 Successfully generated Typechain artifacts!
 /home/fvenancio/Projects/unlockd/unlockd-tasks/tasks
@@ -457,12 +457,12 @@ contracts-helpers:registerContractInJsonDb, contractId: DebtToken address: 0xE2A
 Deploy Debt Market
 Deploying new Debt Market implementation...
 contracts-helpers:insertContractAddressInDb, id: DebtMarketImpl address 0xa85e569EF873Cec2a82012C08057397F93aed686
-0xc5ae433b30466fee5304fce0c84d5625b24d694982a00713ef1436fa4dc5e970
+0xfce500a90e81798b216e4e02022eb9c68665dd61b281b6c0d2fbfe31a8ff9b25
 48
 *** DebtMarket ***
 
 Network: hardhat
-tx: 0xc5ae433b30466fee5304fce0c84d5625b24d694982a00713ef1436fa4dc5e970
+tx: 0xfce500a90e81798b216e4e02022eb9c68665dd61b281b6c0d2fbfe31a8ff9b25
 contract address: 0xa85e569EF873Cec2a82012C08057397F93aed686
 deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
 gas price: 1131050910
@@ -841,9 +841,9 @@ ReservoirAdapter: 0xa62929737dd645647f2030b1D0074F9FB687051F
 WalletBalanceProvider: 0x0b1c63041dd4a8049c61FAD207598c7Fd52D2D20
 UnlockdProtocolDataProvider: 0xf002B72CdE6F0401840C7323c91c1fAfB495E5F5
 UIPoolDataProvider: 0xA9f3bc8329C2Bba825D49937b25054c0FFFb7256
-SelfdestructTransferMock: 0x5aC94dED0Fe79C890AF99f92164D93941a3F6Ac7
-MockYVaultImpl: 0x24A7d384dea2e1Dea6d2fE4f04A3197b2d7a12de
-MockYVault: 0x222193c6A20b1596814ffEea6B320cbF3cFe2c6b
+SelfdestructTransferMock: 0x913685db19129C0f4623EF8feC50Ce6e05671BdB
+MockYVaultImpl: 0x222193c6A20b1596814ffEea6B320cbF3cFe2c6b
+MockYVault: 0xe912fDdd0e088305797339923bc9C047179B4Dd3
 WETHMocked: 0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104
 WETH: 0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104
 WPUNKS: 0x025FE4760c6f14dE878C22cEb09A3235F16dAe53
@@ -868,6 +868,136 @@ uWETH 0xC6FCddb9e53C5E17d4dd401526593C801E13AA8D
 Setup and snapshot finished
 ***************
 
+  LendPoolAddressesProvider
+    ✓ Test the accessibility of the LendPoolAddressesProvider
+contracts-helpers:insertContractAddressInDb, id: LendPoolImpl address 0xeBA083F8f5485f8c7e3722FAEf9760c956903938
+0x856795cad19bf8ea3f84a03ce40faae6803491112b8b2f559d1aa461b5557e1c
+107
+*** LendPool ***
+
+Network: hardhat
+tx: 0x856795cad19bf8ea3f84a03ce40faae6803491112b8b2f559d1aa461b5557e1c
+contract address: 0xeBA083F8f5485f8c7e3722FAEf9760c956903938
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1000096469
+gas used: 5339600
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: LendPool address: 0xeBA083F8f5485f8c7e3722FAEf9760c956903938 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+    ✓ Tests adding a proxied address with `setAddressAsProxy()`
+    ✓ Tests adding a non proxied address with `setAddress()`
+    ✓ Tests specific non-proxied addresses set via `setAddress()`
+
+  LendPool: Borrow/repay test cases
+    ✓ Delegatee try to Borrow WETH to different onBehalf
+
+  LendPool: Borrow negative test cases
+    ✓ Users 0 Deposits 100 WETH and user 1 tries to borrow 0 WETH (revert expected)
+    ✓ User 1 tries to use underpriced NFT as collateral to borrow 100 WETH (revert expected)
+    ✓ User 2 tries to uses user 1 owned NFT as collateral to borrow 10 WETH (revert expected)
+    ✓ Users 0 Deposits 100 WETH and user 1 tries to borrow but the timestamp exceeds
+
+  LendPool: Borrow/repay test cases
+    ✓ User 2 deposits 1 WETH and 1000 DAI to account for rounding errors
+    ✓ User 0 deposits 100 WETH, user 1 uses NFT as collateral and borrows 1 WETH
+    ✓ User 1 uses existed collateral and borrows more 100 DAI (revert expected)
+    ✓ User 1 uses existed collateral and borrows more 2 WETH
+    ✓ User 1 tries to borrow more than the rest of the WETH liquidity (revert expected)
+    ✓ User 1 tries to repay 0 WETH (revert expected)
+    ✓ User 1 repays 0.5 WETH, enough to cover a small part of the interest
+    ✓ User 1 repays all WETH borrow after one year
+    ✓ User 0 withdraws the deposited WETH plus interest
+    ✓ User 1 deposits 1 USDC to account for rounding errors
+    ✓ User 1 deposits 1000 USDC, user 3 uses not owned NFT as collateral and borrows 10 USDC
+    ✓ user 2 uses owned NFT as collateral on behalf of user 3 and borrows 10 USDC
+    ✓ user 2 uses existed collateral on behalf of user 3 and borrows more 20 USDC
+    ✓ user 3 repay 10 USDC, a fraction of borrow amount
+    ✓ user 3 repay all USDC, full of borrow amount
+
+  LendPool: buyout test cases
+    ✓ Borrower - Borrows WETH
+    ✓ Buyer tries to buy with HF above 1
+    ✓ Health Factor goes below 1
+    ✓ Buyer - tries to buy the NFT with a wrong tokenId
+    ✓ Buyer - tries to buy the NFT with a smaller amount than debt
+    ✓ Buyer - tries to buy the NFT with an amount higher than debt lower then valuation
+
+  LendPool: buyout test cases
+    ✓ Borrower - Borrows WETH
+    ✓ Health Factor goes below 1
+    ✓ Buyer - buys out the NFT in auction
+    ✓ Lockey Holder: Borrower - Borrows WETH
+    ✓ Lockey Holder: Health Factor goes below 1
+    ✓ Lockey Holder: Buyer - buys out the NFT in auction and deducts because he is a lockey holder.
+
+  Configurator-NFT
+    ✓ Deactivates the BAYC NFT
+    ✓ Deactivates the BAYC NFT Token
+    ✓ Rectivates the BAYC NFT
+    ✓ Rectivates the BAYC NFT Token
+    ✓ Check the onlyAdmin on deactivateRNft 
+    ✓ Check the onlyAdmin on activateNft 
+    ✓ Freezes the BAYC NFT
+    ✓ Freezes the BAYC NFT Token
+    ✓ Unfreezes the BAYC NFT
+    ✓ Unfreezes the BAYC NFT Token
+    ✓ Check the onlyAdmin on freezeNft 
+    ✓ Check the onlyAdmin on unfreezeNft 
+    ✓ Deactivates the BAYC NFT as collateral
+    ✓ Activates the BAYC NFT as collateral
+    ✓ Check the onlyLtvManager on configureNftAsCollateral 
+    ✓ Deactivates the BAYC NFT as auction
+    ✓ Activates the BAYC NFT as auction
+    ✓ Check the onlyLtvManager on configureNftAsAuction 
+    ✓ Batch Deactivates the BAYC NFT as collateral
+    ✓ Batch Activates the BAYC NFT as collateral
+    ✓ Check the onlyAdmin on batchConfigNft 
+    ✓ Batch Deactivates the BAYC NFT as auction
+    ✓ Batch Activates the BAYC NFT as auction
+    ✓ Reverts when trying to disable the BAYC nft with liquidity on it
+    ✓ Config setMaxNumberOfNfts invalid value
+    ✓ Config setMaxNumberOfNfts invalid value overflowing
+    ✓ Check the onlyAdmin on setMaxNumberOfNfts 
+    ✓ Config the timeFrame for an X amount of time
+    ✓ Check if the config timestamp is correct
+    ✓ Check if general configurations are correct
+    ✓ Check the zero check on set rescuer
+    ✓ (LendPool): Check the only pool admin in safe health factor 
+    ✓ (LendPool): Check invalid 0 value in safe health factor 
+    ✓ (LendPool): Check correct value in safe health factor 
+
+  Configurator-Reserve
+    ✓ Reverts trying to set an invalid reserve factor
+    ✓ Rectivates the ETH reserve
+    ✓ Check the onlyAdmin on deactivateReserve 
+    ✓ Check the onlyAdmin on activateReserve 
+    ✓ Freezes the ETH reserve
+    ✓ Unfreezes the ETH reserve
+    ✓ Check the onlyAdmin on freezeReserve 
+    ✓ Check the onlyAdmin on unfreezeReserve 
+    ✓ Deactivates the ETH reserve for borrowing
+    ✓ Activates the ETH reserve for borrowing
+    ✓ Check the onlyAdmin on disableBorrowingOnReserve 
+    ✓ Check the onlyAdmin on enableBorrowingOnReserve 
+    ✓ Changes the reserve factor of WETH
+    ✓ Check the onlyLendPoolManager on setReserveFactor
+    ✓ Batch Changes the reserve factor of WETH & DAI
+    ✓ Check the onlyPoolAdmin on batchConfigReserve
+    ✓ Reverts when trying to disable the DAI reserve with liquidity on it
+    ✓ Config setMaxNumberOfReserves valid value
+    ✓ Config setMaxNumberOfReserves invalid value
+    ✓ Config setMaxNumberOfReserves invalid value overflow
+    ✓ Check the onlyAdmin on setMaxNumberOfReserves 
+
+  DataProvider
+    ✓ Borrows WETH using 1 BAYC
+    ✓ Query UI Reserve Data
+    ✓ Query UI NFT Data
+    ✓ Query UI Loan Data
+    ✓ Query Wallet Reserve Data
+    ✓ Query Wallet NFT Data
+
   Buy and sell the debts
     Positive
       ✓ Update a debt listing delta bids
@@ -875,7 +1005,6 @@ Setup and snapshot finished
       ✓ Cancel debt listing on borrow again
       FIXED PRICE type debt
         ✓ Create a debt listing
-0xB37C26638305F8B3D9C4c316F46CAF9bDEa8A47b
         ✓ Cancel a debt listing
         ✓ Buy a debt with ETH 
         ✓ Buy a debt with a LOCKEY HOLDER discount
@@ -926,6 +1055,341 @@ Setup and snapshot finished
         ✓ When bid type is not AUCTION or MIXED
         ✓ When auction is not already ended
 
+  LendPool: Deposit
+    ✓ User 0 Deposits 1000 DAI in an empty reserve
+    ✓ User 1 deposits 1000 DAI after user 0
+    ✓ User 0 deposits 1000 USDC in an empty reserve
+    ✓ User 1 deposits 1000 USDC after user 0
+    ✓ User 0 deposits 1 WETH in an empty reserve
+    ✓ User 1 deposits 1 WETH after user 0
+    ✓ User 1 deposits 0 WETH (revert expected)
+    ✓ User 1 deposits 0 DAI (revert expected)
+    ✓ User 1 deposits 100 DAI on behalf of user 2, user 2 tries to borrow 0.01 WETH
+
+  Interest rate tests
+0x6cde1e02d608ad18f8b21b85b8ae94df2e4c9abd3c8159312ef0c7687fc16cbd
+106
+*** InterestRate ***
+
+Network: hardhat
+tx: 0x6cde1e02d608ad18f8b21b85b8ae94df2e4c9abd3c8159312ef0c7687fc16cbd
+contract address: 0xcEBC70fc3dA36e8719388e3Ee7527b0636c08b64
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1000110177
+gas used: 613860
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: InterestRate address: 0xcEBC70fc3dA36e8719388e3Ee7527b0636c08b64 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+    ✓ Checks rates at 0% utilization rate, empty reserve
+    ✓ Checks rates at 80% utilization rate
+    ✓ Checks rates at 100% utilization rate
+
+  LendPool: Malicious Hacker Rentrant
+hacker do reentrant action: ACTION_DEPOSIT
+hacker do reentrant action: ACTION_WITHDRAW
+hacker do reentrant action: ACTION_BORROW
+hacker do reentrant action: ACTION_REPAY
+hacker do reentrant action: ACTION_AUCTION
+hacker do reentrant action: ACTION_REDEEM
+hacker do reentrant action: ACTION_LIQUIDATE_NFTX
+    ✓ Malicious hacker try to reentrant (should revert)
+
+  LendPool: Liquidation negative test cases
+    ✓ User 0 deposit 100 WETH, user 1 mint NFT and borrow 10 WETH
+    ✓ User 1 liquidate on a non-existent NFT
+    ✓ User 2 auction on a loan health factor above 1
+    ✓ Drop loan health factor below 1
+    ✓ User 2 auction price is unable to cover borrow
+    ✓ User 2 auction price is less than liquidate price
+    ✓ User 2 auction price is enough to cover borrow and liqudiate price
+    ✓ User 3 auction price is lesser than user 2
+    ✓ User 2 liquidate before auction duration is end
+    ✓ User 1 redeem but bidFine is not fullfil to borrow amount of user 2 auction
+    ✓ User 1 redeem but amount is not fullfil to mininum repay amount
+    ✓ User 1 redeem but amount is not fullfil to maximum repay amount
+    ✓ Ends redeem duration
+    ✓ User 1 redeem after duration is end
+    ✓ Ends auction duration
+    ✓ User 3 auction after duration is end
+    ✓ User 2 auction consecutively
+
+  LendPool: Liquidation
+    ✓ WETH - Borrows WETH
+    ✓ WETH - Drop the health factor below 1
+    ✓ WETH - Auctions the borrow
+    ✓ WETH - Can't liquidate on NFTX due to invalid loan state
+    ✓ USDC - Borrows USDC
+    ✓ USDC - Drop the health factor below 1
+    ✓ USDC - Auctions the borrow at first time
+    ✓ USDC - Auctions the borrow at second time with higher price
+    ✓ USDC - Can't liquidate on NFTX
+
+  LendPool: Liquidation
+    ✓ WETH - Borrows WETH
+    ✓ WETH - Drop the health factor below 1
+    ✓ USDC - Borrows USDC
+    ✓ USDC - Drop the health factor below 1
+
+  LendPool: Redeem
+    ✓ WETH - Borrows WETH
+    ✓ WETH - Drop the health factor below 1
+    ✓ WETH - Auctions the borrow
+    ✓ WETH - Redeems the borrow
+    ✓ WETH - Repays the borrow
+    ✓ DAI - Borrows DAI
+    ✓ DAI - Drop the health factor below 1
+    ✓ DAI - Auctions the borrow
+    ✓ DAI - Redeems the borrow
+    ✓ DAI - Repays the borrow
+
+  LendPool: Liquidation
+    ✓ WETH - Borrows WETH
+    ✓ WETH - Drop the health factor below 1
+    ✓ WETH - Auctions the borrow
+    ✓ WETH - Liquidates the borrow
+    ✓ USDC - Borrows USDC
+    ✓ USDC - Drop the health factor below 1
+    ✓ USDC - Auctions the borrow at first time
+    ✓ USDC - Auctions the borrow at second time with higher price
+    ✓ USDC - Liquidates the borrow
+
+  LendPool: Liquidation on SudoSwap
+    ✓ WETH - Borrows WETH
+    ✓ WETH - Drop the health factor below 1
+    ✓ WETH - Liquidates the borrow on SudoSwap
+    ✓ DAI - Borrows DAI
+    ✓ DAI - Drop the health factor below 1
+    ✓ DAI - Liquidates the borrow on SudoSwap
+
+  LendPoolLoan: Modifiers
+    ✓ Tries to invoke initNft not being the Pool
+    ✓ Tries to invoke createLoan not being the Pool
+    ✓ Tries to invoke updateLoan not being the Pool
+    ✓ Tries to invoke repayLoan not being the Pool
+    ✓ Tries to invoke auctionLoan not being the Pool
+    ✓ Tries to invoke redeemLoan not being the Pool
+    ✓ Tries to invoke liquidateLoan not being the Pool
+    ✓ Tries to invoke liquidateLoanNFTX not being the Pool
+    ✓ Tries to invoke liquidateLoanMarket not being the Adapter
+    ✓ Tries to invoke updateMarketAdapters not being the pool admin
+
+  NFTOracle: General functioning
+    ✓ Set Admin correctly
+    ✓ Set and get Mocknft price at 1000
+    ✓ Add 2 Multi Assets
+    ✓ Add 3 Multi Assets
+    ✓ Add 3 Multi Assets - BigNumbers
+    ✓ Single asset price updates
+    ✓ Multiple asset price updates
+
+  NFTOracle: Reverting Errors
+    ✓ Should be reverted as NFTOracle is already initialized
+    ✓ Should be reverted as it is a non-existing collection
+    ✓ Should be reverted as price is 0
+    ✓ Should be reverted as the collection has been deleted
+    ✓ Should be reverted as contract is paused
+    ✓ Should be reverted as array lengths aren't matching (2 vs 3)
+    ✓ Testing overflows
+
+  NFTOracle: Test Pause
+    ✓ Should revert as collection is paused
+    ✓ Should revert on multi-paused collections
+
+  LendPool: Pause
+    ✓ Transfer
+    ✓ Deposit
+    ✓ Withdraw
+    ✓ Borrow
+    ✓ Repay
+    ✓ Liquidate
+    ✓ LiquidateNFTX
+
+  PunkGateway: Delegate
+    ✓ Hacker try to borrow and delegate different onBehalf (should revert)
+    ✓ Hacker try to auction and delegate different onBehalf (should revert)
+
+  PunkGateway
+    ✓ Owner can do emergency CryptoPunks recovery
+    ✓ Should fail: not supported collection
+    ✓ Should fail: not holder
+    ✓ Check approve valuation on cryptopunks
+    ✓ Borrow some USDC and repay it
+    ✓ Borrow some ETH and repay it
+    ✓ Borrow all ETH and repay it
+
+  PunkGateway-Liquidate
+    ✓ Borrow USDC and liquidate it
+    ✓ Borrow ETH and liquidate it
+    ✓ Borrow ETH and liquidate it through buyout
+    ✓ Borrow WETH and liquidate it through buyout
+    ✓ Borrow ETH and redeem it
+
+  Repay and transfer helper tests
+    ✓ borrow-repay-transfer
+
+  LendPool: Rescue locked funds
+BigNumber { value: "1000000000000000000000" }
+    ✓ User 1 transfers 100 WETH directly to pool, and rescuer returns funds
+BigNumber { value: "1000000000000000000000" }
+    ✓ Prevents a random user from rescuing tokens 
+
+  ReserveOracle
+    ✓ ReserveOracle: Add Aggregator
+    ✓ ReserveOracle: Remove Aggregator
+    ✓ ReserveOracle: get latest price
+    ✓ ReserveOracle: get eth price
+    ✓ ReserveOracle: get latest timestamp
+    ReserveOracle-TWAP
+      ✓ twap price
+      ✓ asking interval more than asset has
+      ✓ asking interval less than asset has
+      ✓ given variant price period
+      ✓ latest price update time is earlier than the request, return the latest price
+      ✓ get 0 while interval is zero
+
+  Reservoir adapter negatives
+    ✓ BaseAdapter: check onlyPoolAdmin modifier on updateModules/updateLiquidators (expect revert)
+    ✓ ReservoirAdapter: check invalidZeroAddress modifier on updateModules/updateLiquidators (expect revert)
+    ✓ ReservoirAdapter: check onlyReservoirLiquidator modifier (expect revert)
+    ✓ ReservoirAdapter: check liquidation of a non-existing loan
+    ✓ ReservoirAdapter: check liquidation of a non-active loan
+    ✓ ReservoirAdapter: check liquidation of an unactive NFT
+    ✓ ReservoirAdapter: check liquidation of an invalid reserve
+    ✓ ReservoirAdapter: check liquidation of a healthy loan
+    ✓ ReservoirAdapter: check liquidation passing an invalid safeTransferFrom function selector
+    ✓ ReservoirAdapter: check liquidation passing an invalid safeTransferFrom `from` param address
+    ✓ ReservoirAdapter: check liquidation passing an invalid safeTransferFrom `to` module address
+    ✓ ReservoirAdapter: check liquidation passing an invalid execute function selector
+    ✓ ReservoirAdapter: check liquidation passing an invalid module on `execute`
+    ✓ ReservoirAdapter: liquidated amount is less than expected liquidate amount
+    ✓ ReservoirAdapter: treasury not able to cover extra debt amount due to not having enough funds
+
+  Reservoir adapter tests
+    ✓ ReservoirAdapter: liquidate an unhealthy NFT in Seaport v1.4
+    ✓ ReservoirAdapter: liquidate an unhealthy NFT in LooksRare, cover with extra debt by treasury
+
+  Upgradeability
+    ✓ Tries to update the WETH UToken implementation with a different address than the configuator
+    ✓ Upgrades the WETH UToken implementation 
+    ✓ Tries to update the weth DebtToken implementation with a different address than the configuator
+    ✓ Upgrades the weth DebtToken implementation 
+    ✓ Tries to update the LendPoolLoan implementation with a different address than the address provider
+    ✓ Upgrades the LendPoolLoan implementation 
+
+  UToken: Modifiers
+    ✓ Tries to invoke mint not being the Pool
+    ✓ Tries to invoke burn not being the Pool
+    ✓ Tries to invoke mintToTreasury not being the Pool
+    ✓ Tries to invoke transferUnderlyingTo not being the Pool
+    ✓ Tries to invoke depositReserves not being the Pool
+    ✓ Tries to invoke withdrawReserves not being the Pool
+    ✓ Tries to invoke sweepUToken not being the PoolAdmin
+
+  UToken
+    ✓ Check WETH basic parameters
+    ✓ Check the onlyAdmin on set treasury to new utoken
+    ✓ Check the zero check on set treasury to new utoken
+    ✓ Check the address is properly updated in WETH uToken
+    ✓ 10 WETH are sent to UToken, sweep deposits them into Yearn Vault
+    ✓ User 8 deposits 1000 WETH, transfers uweth to user 6
+
+  WETHGateway - Delegate
+    ✓ Hacker try to delegate different onBehalf (should revert)
+    ✓ Borrower try to Borrow more ETH to different onBehalf (should revert)
+Hacker try Borrow more ETH with others NFT
+    ✓ Hacker try to Borrow more ETH (should revert)
+
+  WETHGateway
+    ✓ Deposit WETH via WethGateway 
+    ✓ Withdraw WETH - Partial
+    ✓ Withdraw WETH - Full
+    ✓ Borrow WETH and Full Repay with ETH
+Partial Repay ETH loan with native ETH
+Full Repay ETH loan with native ETH
+    ✓ Borrow ETH and Full Repay with ETH
+    ✓ Should revert if receiver function receives Ether if not WETH
+    ✓ Should revert if fallback functions is called with Ether
+    ✓ Should revert if fallback functions is called
+    ✓ Owner can do emergency ERC20 recovery
+    ✓ Owner can do emergency ERC721 recovery
+0x4199a8afbcca1e85897243e91afbe090fc9c1de6612d2efd3bf6da85fa4b1d89
+138
+*** SelfdestructTransferMock ***
+
+Network: hardhat
+tx: 0x4199a8afbcca1e85897243e91afbe090fc9c1de6612d2efd3bf6da85fa4b1d89
+contract address: 0x913685db19129C0f4623EF8feC50Ce6e05671BdB
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1000000016
+gas used: 88001
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: SelfdestructTransferMock address: 0x913685db19129C0f4623EF8feC50Ce6e05671BdB deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+    ✓ Owner can do emergency native ETH recovery
+
+  WETHGateway - Liquidate
+    ✓ Borrow ETH and Liquidate it
+    ✓ Borrow ETH and Redeem it
+    ✓ Borrow ETH and liquidate it through buyout
+    ✓ (Lockey Holder) - Borrow ETH and liquidate it through buyout
+
+  LendPool: Withdraw negative test cases
+    ✓ Users 0 Deposits 1000 DAI and tries to withdraw 0 DAI (revert expected)
+    ✓ Users 0 tries to withdraw 1100 DAI from the 1000 DAI deposited (revert expected)
+    ✓ Users 1 borrows 100 DAI, users 0 tries to withdraw the 1000 DAI deposited (revert expected)
+    ✓ Users 1 deposits 1 WETH, users 0 borrows 0.01 WETH, users 1 tries to withdraw the 1 WETH deposited (revert expected)
+
+  LendPool: Withdraw
+    ✓ User 0 Deposits 1000 DAI in an empty reserve
+    ✓ User 0 withdraws half of the deposited DAI
+    ✓ User 0 withdraws remaining half of the deposited DAI
+    ✓ User 0 Deposits 1 WETH in an empty reserve
+    ✓ User 0 withdraws half of the deposited WETH
+    ✓ User 0 tries to withdraw remaining half of the deposited WETH (expect revert due to not enough liquidity)
+    ✓ User 0 tries to withdraw remaining half of the deposited WETH 
+    ✓ Users 0 and 1 Deposit 1000 DAI, both withdraw
+    ✓ Users 0 deposits 1000 DAI, user 1 Deposit 1000 USDC and 1 WETH, borrows 100 DAI. User 1 tries to withdraw all the USDC
+
+  UToken: Yearn integration
+contracts-helpers:insertContractAddressInDb, id: MockYVaultImpl address 0x222193c6A20b1596814ffEea6B320cbF3cFe2c6b
+0xc3ac7467ff49b694f893c6839a5f2115b070942ced9beaf64e1199720fcd2448
+119
+*** MockYVaultImpl ***
+
+Network: hardhat
+tx: 0xc3ac7467ff49b694f893c6839a5f2115b070942ced9beaf64e1199720fcd2448
+contract address: 0x222193c6A20b1596814ffEea6B320cbF3cFe2c6b
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1000020223
+gas used: 1536728
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: MockYVaultImpl address: 0x222193c6A20b1596814ffEea6B320cbF3cFe2c6b deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x79ae214682fe0148af10628f01dccd85955daa9f7821e915260c3d6480d767da
+120
+*** MockYVault ***
+
+Network: hardhat
+tx: 0x79ae214682fe0148af10628f01dccd85955daa9f7821e915260c3d6480d767da
+contract address: 0xe912fDdd0e088305797339923bc9C047179B4Dd3
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1000018320
+gas used: 739416
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: MockYVault address: 0xe912fDdd0e088305797339923bc9C047179B4Dd3 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+    ✓ User 0 deposits 10 WETH in an empty reserve, WETH is deposited into Yearn Vault and yvWETH wrapped tokens are given back to UToken
+    ✓ User 1 deposits 10 WETH in the reserve, WETH is deposited into Yearn Vault and yvWETH wrapped tokens are given back to UToken
+    ✓ User 0 withdraws 10 WETH, WETH is withdrawn from the Yearn Vault and WETH is given back to user
+    ✓ User 2 deposits 1000 WETH in the reserve. WETH is deposited into Yearn Vault and yvWETH wrapped tokens are given back to UToken
+    ✓ User 2 withdraws 500 WETH from the reserve, then 500 more. WETH is withdrawn from Yearn Vault and WETH is given back to user
+    ✓ MockYVault: user deposits 10 WETH, 10 MockYVWETH are transferred to him
+    ✓ MockYVault: test onlyUTokenOrPoolAdmin
+
 ·---------------------------------------------------------------------------------|---------------------------|-------------|-----------------------------·
 |                               [90mSolc version: 0.8.4[39m                               ·  [90mOptimizer enabled: true[39m  ·  [90mRuns: 200[39m  ·  [90mBlock limit: 12450000 gas[39m  │
 ··················································································|···························|·············|······························
@@ -933,11 +1397,13 @@ Setup and snapshot finished
 ······································|···········································|·············|·············|·············|···············|··············
 |  [1mContract[22m                           ·  [1mMethod[22m                                   ·  [32mMin[39m        ·  [32mMax[39m        ·  [32mAvg[39m        ·  [1m# calls[22m      ·  [1meur (avg)[22m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mCryptoPunksMarket[39m                  ·  allInitialOwnersAssigned                 ·          -  ·          -  ·      45518  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+|  [90mCryptoPunksMarket[39m                  ·  allInitialOwnersAssigned                 ·      [36m25618[39m  ·      [31m45518[39m  ·      29598  ·           [90m10[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mCryptoPunksMarket[39m                  ·  offerPunkForSaleToAddress                ·          -  ·          -  ·     119299  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
+|  [90mCryptoPunksMarket[39m                  ·  offerPunkForSaleToAddress                ·          -  ·          -  ·     119299  ·           [90m16[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mCryptoPunksMarket[39m                  ·  setInitialOwner                          ·          -  ·          -  ·      77689  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+|  [90mCryptoPunksMarket[39m                  ·  setInitialOwner                          ·      [36m60589[39m  ·      [31m77689[39m  ·      71989  ·           [90m12[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mCryptoPunksMarket[39m                  ·  transferPunk                             ·          -  ·          -  ·      66575  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
 |  [90mDebtMarket[39m                         ·  cancelDebtListing                        ·      [36m85123[39m  ·      [31m99010[39m  ·      95487  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
@@ -949,17 +1415,19 @@ Setup and snapshot finished
 ······································|···········································|·············|·············|·············|···············|··············
 |  [90mDebtMarket[39m                         ·  setDeltaBidPercent                       ·      [36m51164[39m  ·      [31m51174[39m  ·      51169  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mERC20Upgradeable[39m                   ·  approve                                  ·      [36m26200[39m  ·      [31m46364[39m  ·      29722  ·           [90m80[39m  ·          [32m[90m-[32m[39m  │
+|  [90mERC20Upgradeable[39m                   ·  approve                                  ·      [36m26200[39m  ·      [31m53948[39m  ·      39084  ·          [90m243[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mERC20Upgradeable[39m                   ·  transfer                                 ·      [36m34506[39m  ·      [31m51606[39m  ·      50385  ·           [90m84[39m  ·          [32m[90m-[32m[39m  │
+|  [90mERC20Upgradeable[39m                   ·  transfer                                 ·      [36m29706[39m  ·     [31m155144[39m  ·      50559  ·          [90m249[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mERC20Upgradeable[39m                   ·  transferFrom                             ·      [36m39747[39m  ·     [31m124787[39m  ·     107096  ·           [90m82[39m  ·          [32m[90m-[32m[39m  │
+|  [90mERC20Upgradeable[39m                   ·  transferFrom                             ·      [36m39747[39m  ·     [31m124787[39m  ·     110239  ·          [90m173[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mERC721Upgradeable[39m                  ·  setApprovalForAll                        ·      [36m26380[39m  ·      [31m46280[39m  ·      26904  ·           [90m76[39m  ·          [32m[90m-[32m[39m  │
+|  [90mERC721Upgradeable[39m                  ·  safeTransferFrom                         ·          -  ·          -  ·     123319  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mLendPoolAddressesProvider[39m          ·  setAddress                               ·      [36m29481[39m  ·      [31m49381[39m  ·      44787  ·           [90m13[39m  ·          [32m[90m-[32m[39m  │
+|  [90mERC721Upgradeable[39m                  ·  setApprovalForAll                        ·      [36m26380[39m  ·      [31m46280[39m  ·      35198  ·          [90m176[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mLendPoolAddressesProvider[39m          ·  setAddressAsProxy                        ·     [36m633558[39m  ·     [31m684554[39m  ·     657884  ·            [90m6[39m  ·          [32m[90m-[32m[39m  │
+|  [90mLendPoolAddressesProvider[39m          ·  setAddress                               ·      [36m29481[39m  ·      [31m49381[39m  ·      40353  ·           [90m35[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  setAddressAsProxy                        ·     [36m633558[39m  ·     [31m699898[39m  ·     668387  ·            [90m8[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
 |  [90mLendPoolAddressesProvider[39m          ·  setEmergencyAdmin                        ·          -  ·          -  ·      47355  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
@@ -969,9 +1437,9 @@ Setup and snapshot finished
 ······································|···········································|·············|·············|·············|···············|··············
 |  [90mLendPoolAddressesProvider[39m          ·  setLendPoolImpl                          ·          -  ·          -  ·     698762  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mLendPoolAddressesProvider[39m          ·  setLendPoolLiquidator                    ·          -  ·          -  ·      47443  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+|  [90mLendPoolAddressesProvider[39m          ·  setLendPoolLiquidator                    ·      [36m27543[39m  ·      [31m47443[39m  ·      37493  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mLendPoolAddressesProvider[39m          ·  setLendPoolLoanImpl                      ·          -  ·          -  ·     659459  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+|  [90mLendPoolAddressesProvider[39m          ·  setLendPoolLoanImpl                      ·      [36m43396[39m  ·     [31m659459[39m  ·     454105  ·            [90m3[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
 |  [90mLendPoolAddressesProvider[39m          ·  setLSSVMRouter                           ·          -  ·          -  ·      47442  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
@@ -993,9 +1461,11 @@ Setup and snapshot finished
 ······································|···········································|·············|·············|·············|···············|··············
 |  [90mLendPoolAddressesProvider[39m          ·  setWalletBalanceProvider                 ·          -  ·          -  ·      47463  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  transferOwnership                        ·          -  ·          -  ·      28645  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
 |  [90mLendPoolAddressesProviderRegistry[39m  ·  registerAddressesProvider                ·          -  ·          -  ·      92000  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mLendPoolConfigurator[39m               ·  batchConfigNft                           ·    [36m1065432[39m  ·    [31m1105232[39m  ·    1085332  ·           [90m12[39m  ·          [32m[90m-[32m[39m  │
+|  [90mLendPoolConfigurator[39m               ·  batchConfigNft                           ·      [36m88027[39m  ·    [31m1105232[39m  ·     836531  ·           [90m16[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
 |  [90mLendPoolConfigurator[39m               ·  batchConfigReserve                       ·          -  ·          -  ·      68127  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
@@ -1003,55 +1473,189 @@ Setup and snapshot finished
 ······································|···········································|·············|·············|·············|···············|··············
 |  [90mLendPoolConfigurator[39m               ·  batchInitReserve                         ·          -  ·          -  ·    1631471  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mLendPoolConfigurator[39m               ·  configureNftsAsCollateral                ·     [36m116873[39m  ·     [31m133997[39m  ·     117302  ·           [90m42[39m  ·          [32m[90m-[32m[39m  │
+|  [90mLendPoolConfigurator[39m               ·  configureNftAsAuction                    ·      [36m68252[39m  ·      [31m68288[39m  ·      68270  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mLendPoolConfigurator[39m               ·  setBorrowingFlagOnReserve                ·          -  ·          -  ·      66604  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+|  [90mLendPoolConfigurator[39m               ·  configureNftsAsCollateral                ·      [36m96973[39m  ·     [31m133997[39m  ·     116665  ·          [90m103[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mLendPoolConfigurator[39m               ·  setLtvManagerStatus                      ·      [36m39630[39m  ·      [31m59530[39m  ·      40154  ·           [90m38[39m  ·          [32m[90m-[32m[39m  │
+|  [90mLendPoolConfigurator[39m               ·  setActiveFlagOnNft                       ·      [36m78191[39m  ·      [31m83773[39m  ·      80982  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mLendPoolConfigurator[39m               ·  setPoolPause                             ·      [36m81431[39m  ·     [31m101174[39m  ·      91303  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
+|  [90mLendPoolConfigurator[39m               ·  setActiveFlagOnNftByTokenId              ·      [36m69707[39m  ·      [31m69719[39m  ·      69711  ·            [90m3[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  setActiveFlagOnReserve                   ·          -  ·          -  ·      63834  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  setBorrowingFlagOnReserve                ·      [36m66580[39m  ·      [31m66604[39m  ·      66598  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  setFreezeFlagOnNft                       ·      [36m66643[39m  ·      [31m66656[39m  ·      66650  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  setFreezeFlagOnNftByTokenId              ·      [36m69637[39m  ·      [31m69649[39m  ·      69643  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  setFreezeFlagOnReserve                   ·      [36m66583[39m  ·      [31m66595[39m  ·      66589  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  setLtvManagerStatus                      ·      [36m39630[39m  ·      [31m59530[39m  ·      44699  ·          [90m106[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  setNftMinBidFine                         ·      [36m68059[39m  ·      [31m68083[39m  ·      68071  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  setNftRedeemThreshold                    ·      [36m68102[39m  ·      [31m68126[39m  ·      68114  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  setPoolPause                             ·      [36m64331[39m  ·     [31m101174[39m  ·      82753  ·            [90m8[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  setPoolRescuer                           ·      [36m63881[39m  ·      [31m80981[39m  ·      72431  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  setReserveFactor                         ·          -  ·          -  ·      66877  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  updateDebtToken                          ·          -  ·          -  ·      89452  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  updateUToken                             ·          -  ·          -  ·      89342  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mLendPoolLoan[39m                       ·  updateMarketAdapters                     ·          -  ·          -  ·      60517  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mLockeyManager[39m                      ·  setLockeyDiscountPercentage              ·          -  ·          -  ·      58785  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
 |  [90mLockeyManager[39m                      ·  setLockeyDiscountPercentageOnDebtMarket  ·      [36m38797[39m  ·      [31m58697[39m  ·      46364  ·            [90m3[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mMockDebtTokenVersionN[39m              ·  approveDelegation                        ·      [36m39048[39m  ·      [31m56148[39m  ·      47598  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
+|  [90mMaliciousHackerERC721[39m              ·  approveDelegate                          ·          -  ·          -  ·      87457  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mMockDebtTokenVersionN[39m              ·  updateTokenManagers                      ·          -  ·          -  ·      85518  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+|  [90mMaliciousHackerERC721[39m              ·  simulateAction                           ·      [36m26483[39m  ·      [31m43583[39m  ·      28926  ·            [90m7[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mMockLendPoolVersionN[39m               ·  borrow                                   ·     [36m497296[39m  ·     [31m896767[39m  ·     826984  ·           [90m40[39m  ·          [32m[90m-[32m[39m  │
+|  [90mMockChainlinkOracle[39m                ·  mockAddAnswer                            ·     [36m125897[39m  ·     [31m245509[39m  ·     149398  ·            [90m8[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mMockLendPoolVersionN[39m               ·  deposit                                  ·     [36m289015[39m  ·     [31m330097[39m  ·     291354  ·           [90m39[39m  ·          [32m[90m-[32m[39m  │
+|  [90mMockDebtTokenVersionN[39m              ·  approveDelegation                        ·      [36m39048[39m  ·      [31m56148[39m  ·      48589  ·           [90m32[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mMockLendPoolVersionN[39m               ·  setTimeframe                             ·          -  ·          -  ·      78055  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+|  [90mMockDebtTokenVersionN[39m              ·  updateTokenManagers                      ·      [36m62144[39m  ·      [31m85518[39m  ·      69935  ·            [90m3[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mMockNFTOracle[39m                      ·  addCollection                            ·          -  ·          -  ·      54843  ·            [90m6[39m  ·          [32m[90m-[32m[39m  │
+|  [90mMockIncentivesController[39m           ·  resetHandleActionIsCalled                ·      [36m25882[39m  ·      [31m29026[39m  ·      27711  ·           [90m10[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockLendPoolVersionN[39m               ·  approveValuation                         ·      [36m64013[39m  ·      [31m71393[39m  ·      65858  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockLendPoolVersionN[39m               ·  auction                                  ·     [36m354224[39m  ·     [31m489022[39m  ·     478636  ·           [90m13[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockLendPoolVersionN[39m               ·  borrow                                   ·     [36m479601[39m  ·     [31m911379[39m  ·     855572  ·           [90m83[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockLendPoolVersionN[39m               ·  buyout                                   ·     [36m753901[39m  ·     [31m784495[39m  ·     769198  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockLendPoolVersionN[39m               ·  deposit                                  ·     [36m258284[39m  ·     [31m330097[39m  ·     304115  ·          [90m105[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockLendPoolVersionN[39m               ·  liquidate                                ·          -  ·          -  ·     676239  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockLendPoolVersionN[39m               ·  liquidateSudoSwap                        ·          -  ·          -  ·     695344  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockLendPoolVersionN[39m               ·  redeem                                   ·          -  ·          -  ·     453494  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockLendPoolVersionN[39m               ·  repay                                    ·     [36m362026[39m  ·     [31m667724[39m  ·     530848  ·            [90m7[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockLendPoolVersionN[39m               ·  rescue                                   ·          -  ·          -  ·      57172  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockLendPoolVersionN[39m               ·  setIsMarketSupported                     ·      [36m58528[39m  ·      [31m78452[39m  ·      60401  ·           [90m64[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockLendPoolVersionN[39m               ·  setMaxNumberOfReserves                   ·          -  ·          -  ·      62653  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockLendPoolVersionN[39m               ·  setTimeframe                             ·      [36m58143[39m  ·      [31m78055[39m  ·      60888  ·           [90m34[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockLendPoolVersionN[39m               ·  updateSafeHealthFactor                   ·      [36m40196[39m  ·      [31m60096[39m  ·      56771  ·            [90m6[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockLendPoolVersionN[39m               ·  withdraw                                 ·     [36m242816[39m  ·     [31m298916[39m  ·     271560  ·           [90m12[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockNFTOracle[39m                      ·  addCollection                            ·      [36m47505[39m  ·      [31m54843[39m  ·      49822  ·           [90m19[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
 |  [90mMockNFTOracle[39m                      ·  initialize                               ·          -  ·          -  ·     113792  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mMockNFTOracle[39m                      ·  setPriceManagerStatus                    ·          -  ·          -  ·      33894  ·           [90m39[39m  ·          [32m[90m-[32m[39m  │
+|  [90mMockNFTOracle[39m                      ·  removeCollection                         ·          -  ·          -  ·      25685  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockNFTOracle[39m                      ·  setMultipleNFTPrices                     ·      [36m62686[39m  ·      [31m84325[39m  ·      73684  ·            [90m3[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockNFTOracle[39m                      ·  setNFTPrice                              ·      [36m33049[39m  ·      [31m60368[39m  ·      44748  ·          [90m104[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockNFTOracle[39m                      ·  setPause                                 ·      [36m27850[39m  ·      [31m49762[39m  ·      38806  ·           [90m10[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockNFTOracle[39m                      ·  setPriceManagerStatus                    ·      [36m33894[39m  ·      [31m53794[39m  ·      36680  ·          [90m109[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockReserveOracle[39m                  ·  addAggregator                            ·      [36m75602[39m  ·      [31m92702[39m  ·      89282  ·            [90m5[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
 |  [90mMockReserveOracle[39m                  ·  initialize                               ·          -  ·          -  ·      90917  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockReserveOracle[39m                  ·  mock_setBlockTimestamp                   ·          -  ·          -  ·      26541  ·            [90m7[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockReserveOracle[39m                  ·  removeAggregator                         ·      [36m33119[39m  ·      [31m37640[39m  ·      34023  ·            [90m5[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
 |  [90mMockReserveOracle[39m                  ·  setAggregators                           ·          -  ·          -  ·     101406  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mMockUTokenVersionN[39m                 ·  updateUTokenManagers                     ·          -  ·          -  ·      62240  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+|  [90mMockUTokenVersionN[39m                 ·  setTreasuryAddress                       ·          -  ·          -  ·      43321  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockUTokenVersionN[39m                 ·  sweepUToken                              ·          -  ·          -  ·     134869  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockUTokenVersionN[39m                 ·  updateUTokenManagers                     ·      [36m62240[39m  ·      [31m65714[39m  ·      63977  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mMockYVault[39m                         ·  deposit                                  ·          -  ·          -  ·     144875  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mPunkGateway[39m                        ·  auction                                  ·          -  ·          -  ·     520674  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mPunkGateway[39m                        ·  auctionETH                               ·     [36m545619[39m  ·     [31m548419[39m  ·     547486  ·            [90m6[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mPunkGateway[39m                        ·  authorizeCallerWhitelist                 ·      [36m62153[39m  ·     [31m103554[39m  ·      81763  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
 |  [90mPunkGateway[39m                        ·  authorizeLendPoolERC20                   ·          -  ·          -  ·      75339  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mPunkGateway[39m                        ·  borrow                                   ·    [36m1025740[39m  ·    [31m1068640[39m  ·    1047190  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
+|  [90mPunkGateway[39m                        ·  borrow                                   ·    [36m1025740[39m  ·    [31m1068640[39m  ·    1045683  ·            [90m6[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mPunkGateway[39m                        ·  borrowETH                                ·     [36m551412[39m  ·    [31m1132888[39m  ·    1034130  ·           [90m12[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
 |  [90mPunkGateway[39m                        ·  buyDebtPunk                              ·          -  ·          -  ·     616607  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
 |  [90mPunkGateway[39m                        ·  buyDebtPunkETH                           ·          -  ·          -  ·     630973  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mSelfdestructTransfer[39m               ·  destroyAndTransfer                       ·      [36m29253[39m  ·      [31m54253[39m  ·      29562  ·          [90m168[39m  ·          [32m[90m-[32m[39m  │
+|  [90mPunkGateway[39m                        ·  buyout                                   ·          -  ·          -  ·     837437  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mPunkGateway[39m                        ·  buyoutETH                                ·          -  ·          -  ·     893167  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mPunkGateway[39m                        ·  emergencyERC20Transfer                   ·          -  ·          -  ·      65161  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mPunkGateway[39m                        ·  emergencyERC721Transfer                  ·          -  ·          -  ·     126004  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mPunkGateway[39m                        ·  emergencyPunksTransfer                   ·          -  ·          -  ·      79849  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mPunkGateway[39m                        ·  liquidateETH                             ·          -  ·          -  ·     871569  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mPunkGateway[39m                        ·  redeemETH                                ·          -  ·          -  ·     551884  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mPunkGateway[39m                        ·  repayETH                                 ·     [36m459009[39m  ·     [31m830756[39m  ·     724396  ·            [90m8[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mRepayAndTransferHelper[39m             ·  emergencyEtherTransfer                   ·          -  ·          -  ·      42657  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mRepayAndTransferHelper[39m             ·  repayETHAndTransferERC721                ·          -  ·          -  ·     826766  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mReservoirAdapter[39m                   ·  liquidateReservoir                       ·     [36m992136[39m  ·     [31m999083[39m  ·     995610  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mReservoirAdapter[39m                   ·  updateLiquidators                        ·          -  ·          -  ·      62145  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mReservoirAdapter[39m                   ·  updateModules                            ·          -  ·          -  ·     318489  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mSelfdestructTransfer[39m               ·  destroyAndTransfer                       ·      [36m29253[39m  ·      [31m54253[39m  ·      29383  ·          [90m424[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
 |  [90mUNFTRegistry[39m                       ·  createUNFT                               ·     [36m725318[39m  ·     [31m742551[39m  ·     731099  ·            [90m6[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mWETHGateway[39m                        ·  auctionETH                               ·     [36m519756[39m  ·     [31m522556[39m  ·     521856  ·            [90m8[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
 |  [90mWETHGateway[39m                        ·  authorizeLendPoolNFT                     ·          -  ·          -  ·     128862  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
 |  [90mWETHGateway[39m                        ·  bidDebtETH                               ·     [36m217895[39m  ·     [31m622733[39m  ·     289955  ·           [90m27[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
-|  [90mWETHGateway[39m                        ·  buyDebtETH                               ·     [36m599724[39m  ·     [31m671819[39m  ·     634003  ·            [90m8[39m  ·          [32m[90m-[32m[39m  │
+|  [90mWETHGateway[39m                        ·  borrowETH                                ·     [36m504574[39m  ·     [31m986678[39m  ·     920861  ·           [90m16[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mWETHGateway[39m                        ·  buyDebtETH                               ·     [36m599724[39m  ·     [31m671819[39m  ·     633983  ·            [90m8[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mWETHGateway[39m                        ·  buyoutETH                                ·     [36m781225[39m  ·     [31m784096[39m  ·     782661  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mWETHGateway[39m                        ·  depositETH                               ·     [36m293212[39m  ·     [31m365025[39m  ·     323151  ·           [90m21[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mWETHGateway[39m                        ·  liquidateETH                             ·          -  ·          -  ·     727972  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mWETHGateway[39m                        ·  redeemETH                                ·          -  ·          -  ·     506168  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mWETHGateway[39m                        ·  repayETH                                 ·     [36m409514[39m  ·     [31m686436[39m  ·     582584  ·           [90m10[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mWETHGateway[39m                        ·  withdrawETH                              ·     [36m342692[39m  ·     [31m372039[39m  ·     357366  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
+······································|···········································|·············|·············|·············|···············|··············
+|  [90mWrappedPunk[39m                        ·  setApprovalForAll                        ·      [36m26420[39m  ·      [31m46320[39m  ·      36370  ·           [90m12[39m  ·          [32m[90m-[32m[39m  │
 ······································|···········································|·············|·············|·············|···············|··············
 |  [32m[1mDeployments[22m[39m                                                                    ·                                         ·  [1m% of limit[22m   ·             │
 ··················································································|·············|·············|·············|···············|··············
@@ -1067,7 +1671,7 @@ Setup and snapshot finished
 ··················································································|·············|·············|·············|···············|··············
 |  GenericLogic                                                                   ·          -  ·          -  ·      84290  ·        [90m0.7 %[39m  ·          [32m[90m-[32m[39m  │
 ··················································································|·············|·············|·············|···············|··············
-|  InterestRate                                                                   ·          -  ·          -  ·     613848  ·        [90m4.9 %[39m  ·          [32m[90m-[32m[39m  │
+|  InterestRate                                                                   ·     [36m613848[39m  ·     [31m613860[39m  ·     613855  ·        [90m4.9 %[39m  ·          [32m[90m-[32m[39m  │
 ··················································································|·············|·············|·············|···············|··············
 |  LendingLogic                                                                   ·          -  ·          -  ·      72205  ·        [90m0.6 %[39m  ·          [32m[90m-[32m[39m  │
 ··················································································|·············|·············|·············|···············|··············
@@ -1087,6 +1691,8 @@ Setup and snapshot finished
 ··················································································|·············|·············|·············|···············|··············
 |  LockeyManager                                                                  ·          -  ·          -  ·     293619  ·        [90m2.4 %[39m  ·          [32m[90m-[32m[39m  │
 ··················································································|·············|·············|·············|···············|··············
+|  MaliciousHackerERC721                                                          ·          -  ·          -  ·     801955  ·        [90m6.4 %[39m  ·          [32m[90m-[32m[39m  │
+··················································································|·············|·············|·············|···············|··············
 |  MockChainlinkOracle                                                            ·          -  ·          -  ·     620122  ·          [90m5 %[39m  ·          [32m[90m-[32m[39m  │
 ··················································································|·············|·············|·············|···············|··············
 |  MockIncentivesController                                                       ·          -  ·          -  ·     142669  ·        [90m1.1 %[39m  ·          [32m[90m-[32m[39m  │
@@ -1095,11 +1701,15 @@ Setup and snapshot finished
 ··················································································|·············|·············|·············|···············|··············
 |  MockReserveOracle                                                              ·          -  ·          -  ·    1280668  ·       [90m10.3 %[39m  ·          [32m[90m-[32m[39m  │
 ··················································································|·············|·············|·············|···············|··············
+|  MockYVault                                                                     ·          -  ·          -  ·    1536728  ·       [90m12.3 %[39m  ·          [32m[90m-[32m[39m  │
+··················································································|·············|·············|·············|···············|··············
 |  NftLogic                                                                       ·          -  ·          -  ·     141022  ·        [90m1.1 %[39m  ·          [32m[90m-[32m[39m  │
 ··················································································|·············|·············|·············|···············|··············
 |  NFTOracle                                                                      ·          -  ·          -  ·    1047335  ·        [90m8.4 %[39m  ·          [32m[90m-[32m[39m  │
 ··················································································|·············|·············|·············|···············|··············
 |  PunkGateway                                                                    ·          -  ·          -  ·    3814949  ·       [90m30.6 %[39m  ·          [32m[90m-[32m[39m  │
+··················································································|·············|·············|·············|···············|··············
+|  RepayAndTransferHelper                                                         ·          -  ·          -  ·     883669  ·        [90m7.1 %[39m  ·          [32m[90m-[32m[39m  │
 ··················································································|·············|·············|·············|···············|··············
 |  ReserveLogic                                                                   ·          -  ·          -  ·     171208  ·        [90m1.4 %[39m  ·          [32m[90m-[32m[39m  │
 ··················································································|·············|·············|·············|···············|··············
@@ -1121,7 +1731,7 @@ Setup and snapshot finished
 ··················································································|·············|·············|·············|···············|··············
 |  UnlockdProxyAdmin                                                              ·          -  ·          -  ·     470704  ·        [90m3.8 %[39m  ·          [32m[90m-[32m[39m  │
 ··················································································|·············|·············|·············|···············|··············
-|  UnlockdUpgradeableProxy                                                        ·     [36m689038[39m  ·     [31m998847[39m  ·     777193  ·        [90m6.2 %[39m  ·          [32m[90m-[32m[39m  │
+|  UnlockdUpgradeableProxy                                                        ·     [36m689038[39m  ·     [31m998847[39m  ·     770897  ·        [90m6.2 %[39m  ·          [32m[90m-[32m[39m  │
 ··················································································|·············|·············|·············|···············|··············
 |  UToken                                                                         ·          -  ·          -  ·    2873991  ·       [90m23.1 %[39m  ·          [32m[90m-[32m[39m  │
 ··················································································|·············|·············|·············|···············|··············
@@ -1134,5 +1744,5 @@ Setup and snapshot finished
 |  WrappedPunk                                                                    ·          -  ·          -  ·    1992593  ·         [90m16 %[39m  ·          [32m[90m-[32m[39m  │
 ·---------------------------------------------------------------------------------|-------------|-------------|-------------|---------------|-------------·
 
-  44 passing (3m)
+  344 passing (8m)
 
