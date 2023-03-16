@@ -72,11 +72,7 @@ abstract contract BaseAdapter is Initializable {
   }
 
   /**
-   * @dev Prevents a contract from calling itself, directly or indirectly.
-   * Calling a `nonReentrant` function from another `nonReentrant`
-   * function is not supported. It is possible to prevent this from happening
-   * by making the `nonReentrant` function external, and making it call a
-   * `private` function that does the actual work.
+   * @dev Only poolAdmin can call functions restricted by this modifier.
    */
   modifier onlyPoolAdmin() {
     if (msg.sender != _addressesProvider.getPoolAdmin()) _revert(CallerNotPoolAdmin.selector);
@@ -86,6 +82,8 @@ abstract contract BaseAdapter is Initializable {
   /*//////////////////////////////////////////////////////////////
                           INITIALIZATION
   //////////////////////////////////////////////////////////////*/
+  /// @custom:oz -upgrades -unsafe -allow constructor
+  constructor() initializer {}
 
   /**
    * @notice Initialize a new Adapter.
