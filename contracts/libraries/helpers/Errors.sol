@@ -176,4 +176,6 @@ library Errors {
   string public constant DM_AMOUNT_DIFFERENT_FROM_SELL_PRICE = "1013";
   string public constant DM_BID_PRICE_LESS_THAN_MIN_BID_PRICE = "1014";
   string public constant DM_BORROWED_AMOUNT_DIVERGED = "1015";
+  string public constant DM_INVALID_AUTHORIZED_ADDRESS = "1016";
+  string public constant DM_CALLER_NOT_THE_OWNER_OR_AUTHORIZED = "1017";
 }

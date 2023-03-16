@@ -112,6 +112,12 @@ interface IDebtMarket {
   event DebtClaimed(address indexed from, address indexed to, uint256 indexed debtId);
 
   /**
+   * @dev Emited when a new address is authorized to cancel debt listings
+   * @param authorizedAddress Address to authorize
+   */
+  event AuthorizedAddressChanged(address indexed authorizedAddress, bool isAuthorized);
+
+  /**
    * @dev Buy a fixed price debt listing
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param tokenId The token id of the underlying NFT used as collateral
@@ -185,4 +191,10 @@ interface IDebtMarket {
    * @param tokenId The token id of the underlying NFT used as collateral
    */
   function cancelDebtListing(address nftAsset, uint256 tokenId) external;
+
+  /**
+   * @dev Sets the authorized address to cancel the debt listing
+   * @param newAuthorizedAddress Address to authorize
+   */
+  function setAuthorizedAddress(address newAuthorizedAddress, bool val) external;
 }

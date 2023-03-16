@@ -152,12 +152,7 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
       console.log("\n\nDeploy Lockey Holders");
       await DRE.run("fork:deploy-lockey-holders", { pool: POOL_NAME });
       //////////////////////////////////////////////////////////////////////////
-      console.log("\n\nDeploy Debt Market");
-      await DRE.run("fork:deploy-debt-market", {});
 
-      //////////////////////////////////////////////////////////////////////////
-
-      //////////////////////////////////////////////////////////////////////////
       console.log("\n\nDeploy lend pool");
       await DRE.run("fork:deploy-lend-pool", {
         pool: POOL_NAME,
@@ -175,6 +170,13 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
       await waitForTx(await lendPoolConfiguratorProxy.connect(emergencyAdminSigner).setPoolPause(false));
 
       await waitForTx(await lendPoolConfiguratorProxy.connect(poolAdminSigner).setTimeframe(3600000));
+
+      //////////////////////////////////////////////////////////////////////////
+
+      console.log("\n\nDeploy Debt Market");
+      await DRE.run("fork:deploy-debt-market", {});
+
+      //////////////////////////////////////////////////////////////////////////
 
       if (testupgrade && upgradeInterestRate) {
         await DRE.run("fork:deploy-interest-rate", {
