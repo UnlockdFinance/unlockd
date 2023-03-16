@@ -30,6 +30,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const nftAsset = bayc.address;
         const tokenId = testEnv.tokenIdTracker++;
         await borrowBayc(testEnv, seller, tokenId, 10);
+        await fundWithERC20("WETH", seller.address, "1000");
 
         await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 50, seller.address, 0, 0);
 
@@ -52,6 +53,29 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
 
         await debtMarket.connect(seller.signer).cancelDebtListing(nftAsset, tokenId);
+
+        const canceledDebt = await debtMarket.getDebt(debtId);
+        expect(canceledDebt.state).to.be.equals(3);
+
+        const canceledDebtId = await debtMarket.getDebtId(nftAsset, tokenId);
+        expect(canceledDebtId).to.be.equals(0);
+      });
+      it("Create a debt listing and a hacker tries to cancel it, then the real user cancels it", async () => {
+        const { users, debtMarket, bayc } = testEnv;
+        const creator = users[4];
+        const hacker = users[5];
+        const nftAsset = bayc.address;
+        const tokenId = testEnv.tokenIdTracker++;
+        await borrowBayc(testEnv, creator, tokenId, 10);
+
+        await debtMarket.connect(creator.signer).createDebtListing(nftAsset, tokenId, 50, creator.address, 0, 0);
+
+        const tx_one = debtMarket.connect(hacker.signer).cancelDebtListing(nftAsset, tokenId);
+        expect(tx_one).to.be.revertedWith("1017");
+
+        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+
+        await debtMarket.connect(creator.signer).cancelDebtListing(nftAsset, tokenId);
 
         const canceledDebt = await debtMarket.getDebt(debtId);
         expect(canceledDebt.state).to.be.equals(3);
@@ -850,7 +874,6 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       const canceledDebt = await debtMarket.getDebt(debtId);
       expect(canceledDebt.state).to.be.equals(3);
     });
-
     it("Cancel debt listing on borrow again", async () => {
       const { users, debtMarket, bayc, pool, weth } = testEnv;
       const seller = users[4];
@@ -861,7 +884,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 50, seller.address, 0, 0);
       const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
 
-      await pool.connect(seller.signer).borrow(weth.address, "10", bayc.address, `${tokenId}`, seller.address, "0");
+      await pool.connect(seller.signer).borrow(weth.address, "10", bayc.address, tokenId, seller.address, "0");
       const debt = await debtMarket.getDebt(debtId);
 
       expect(debt.sellType).equals(0, "Invalid debt offer type");
@@ -889,7 +912,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         expect(tx).to.be.revertedWith("1013");
       });
       it("When it is a the price is highest than the offer", async () => {
-        const { users, debtMarket, bayc, wethGateway, uBAYC, dataProvider, lockeyManager, deployer } = testEnv;
+        const { users, debtMarket, bayc, wethGateway } = testEnv;
         const seller = users[4];
         const buyer = users[5];
         const nftAsset = bayc.address;
@@ -916,10 +939,9 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         expect(debtCreationPromise).to.be.revertedWith("1000");
       });
       it("When it is a debt listing with wrong on behalf of", async () => {
-        const { users, bayc } = testEnv;
-        const seller = users[4];
-        const buyer = users[5];
+        const { bayc } = testEnv;
         const nftAsset = bayc.address;
+
         const debtCreationPromise = createDebtListing(testEnv, nftAsset, 50, {
           address: "0x0000000000000000000000000000000000000000",
         });
@@ -928,17 +950,20 @@ makeSuite("Buy and sell the debts", (testEnv) => {
       it("When it is a debt listing with 0 sell price", async () => {
         const { users, bayc } = testEnv;
         const seller = users[4];
-        const buyer = users[5];
         const nftAsset = bayc.address;
+
         const debtCreationPromise = createDebtListing(testEnv, nftAsset, 0, seller);
         expect(debtCreationPromise).to.be.revertedWith("1002");
       });
       it("When it is a debt listing that already exist", async () => {
         const { users, bayc, debtMarket } = testEnv;
         const seller = users[4];
-        const buyer = users[5];
         const nftAsset = bayc.address;
-        await createDebtListing(testEnv, nftAsset, 50, seller);
+        const tokenId = testEnv.tokenIdTracker++;
+
+        await borrowBayc(testEnv, seller, tokenId, 10);
+        await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 50, seller.address, 0, 0);
+
         const debtCreationPromise = debtMarket
           .connect(seller.signer)
           .createDebtListing(nftAsset, testEnv.tokenIdTracker - 1, 50, seller.address, 0, 0);
