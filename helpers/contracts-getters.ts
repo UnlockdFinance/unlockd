@@ -3,6 +3,7 @@ import {
   ConfiguratorLogicFactory,
   CryptoPunksMarketFactory,
   CustomERC721Factory,
+  DebtMarketFactory,
   DebtTokenFactory,
   GenericLogicFactory,
   InterestRateFactory,
@@ -148,6 +149,13 @@ export const getNFTOracle = async (address?: tEthereumAddress) =>
 export const getLockeyManagerProxy = async (address?: tEthereumAddress) => {
   return await LockeyManagerFactory.connect(
     address || (await getDb(DRE.network.name).get(`${eContractid.LockeyManager}`).value()).address,
+    await getDeploySigner()
+  );
+};
+
+export const getDebtMarketProxy = async (address?: tEthereumAddress) => {
+  return await DebtMarketFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.DebtMarket}`).value()).address,
     await getDeploySigner()
   );
 };
@@ -515,5 +523,8 @@ export const getLSSVMPair = async (address?: tEthereumAddress) =>
 export const getYVault = async (address: tEthereumAddress) =>
   await IYVaultFactory.connect(address, await getDeploySigner());
 
-export const getMockYVault = async (address: tEthereumAddress) =>
-  await MockYVaultFactory.connect(address, await getDeploySigner());
+export const getMockYVault = async (address?: tEthereumAddress) =>
+  await MockYVaultFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.MockYVault}`).value()).address,
+    await getDeploySigner()
+  );

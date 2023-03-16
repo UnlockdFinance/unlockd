@@ -10,6 +10,7 @@ import { ConfigNames, getLendPoolLiquidator, loadPoolConfig } from "../../helper
 import { ADDRESS_ID_WETH, SUDOSWAP_PAIRS_GOERLI, SUDOSWAP_PAIRS_MAINNET } from "../../helpers/constants";
 import {
   getCryptoPunksMarket,
+  getDebtMarketProxy,
   getDebtToken,
   getLendPool,
   getLendPoolAddressesProvider,
@@ -44,6 +45,7 @@ import { DRE, evmRevert, evmSnapshot, fundWithERC20, getNowTimeInSeconds } from 
 import { eEthereumNetwork, tEthereumAddress } from "../../helpers/types";
 import {
   CryptoPunksMarket,
+  DebtMarket,
   LendPoolLoan,
   LockeyManager,
   MockIncentivesController,
@@ -140,6 +142,7 @@ export interface TestEnv {
   sushiSwapRouter: IUniswapV2Router02;
   LSSVMPairs: LSSVMPairWithID[];
   lockeyManager: LockeyManager;
+  debtMarket: DebtMarket;
   reservoirAdapter: ReservoirAdapter;
 
   BlurModule: ReservoirBidKind;
@@ -203,6 +206,7 @@ const testEnv: TestEnv = {
   roundIdTracker: {} as number,
   nowTimeTracker: {} as number,
   lockeyManager: {} as LockeyManager,
+  debtMarket: {} as DebtMarket,
   reservoirAdapter: {} as ReservoirAdapter,
   BlurModule: {} as ReservoirBidKind,
   FoundationModule: {} as ReservoirBidKind,
@@ -259,6 +263,7 @@ export async function initializeMakeSuite(network?: string) {
   testEnv.dataProvider = await getUnlockdProtocolDataProvider();
   testEnv.walletProvider = await getWalletProvider();
   testEnv.uiProvider = await getUIPoolDataProvider();
+  testEnv.debtMarket = await getDebtMarketProxy();
 
   testEnv.mockIncentivesController = await getMockIncentivesController();
 
@@ -438,9 +443,10 @@ export async function initializeMakeSuite(network?: string) {
     testEnv.reservoirModules.push(testEnv.RaribleModule);
   }
   await testEnv.uWETH.updateUTokenManagers([testEnv.pool.address], true);
-  await testEnv.dWETH.updateBurners([testEnv.pool.address], true);
+  await testEnv.dWETH.updateTokenManagers([testEnv.pool.address, testEnv.debtMarket.address], true);
 
   await fundWithERC20("WETH", testEnv.wethGateway.address, "1000");
+  await fundWithERC20("WETH", testEnv.punkGateway.address, "1000");
 }
 
 const setSnapshot = async () => {

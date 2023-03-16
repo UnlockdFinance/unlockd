@@ -8,13 +8,14 @@ import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
 import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {IUToken} from "../interfaces/IUToken.sol";
+import {ILSSVMPair} from "../interfaces/sudoswap/ILSSVMPair.sol";
+import {INFTOracleGetter} from "../interfaces/INFTOracleGetter.sol";
+import {IReserveOracleGetter} from "../interfaces/IReserveOracleGetter.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {NFTXSeller} from "../libraries/markets/NFTXSeller.sol";
-import {INFTOracleGetter} from "../interfaces/INFTOracleGetter.sol";
-import {IReserveOracleGetter} from "../interfaces/IReserveOracleGetter.sol";
-import {ILSSVMPair} from "../interfaces/sudoswap/ILSSVMPair.sol";
+import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 
 contract UnlockdProtocolDataProvider {
@@ -338,23 +339,6 @@ contract UnlockdProtocolDataProvider {
     return NFTXSeller.getNFTXPrice(ADDRESSES_PROVIDER, asset, tokenId, reserveAsset);
   }
 
-  struct GetLiquidationPriceLocalVars {
-    address poolLoan;
-    uint256 loanId;
-    uint256 thresholdPrice;
-    uint256 liquidatePrice;
-    uint256 paybackAmount;
-    uint256 remainAmount;
-    uint256 ltv;
-    uint256 liquidationThreshold;
-    uint256 liquidationBonus;
-    uint256 nftPriceInETH;
-    uint256 nftPriceInReserve;
-    uint256 reserveDecimals;
-    uint256 reservePriceInETH;
-    uint256 borrowAmount;
-  }
-
   function getStartingBidPrice(
     address[2] memory sudoSwapPair,
     address reserveAsset,
@@ -390,6 +374,23 @@ contract UnlockdProtocolDataProvider {
         }
       }
     }
+  }
+
+  struct GetLiquidationPriceLocalVars {
+    address poolLoan;
+    uint256 loanId;
+    uint256 thresholdPrice;
+    uint256 liquidatePrice;
+    uint256 paybackAmount;
+    uint256 remainAmount;
+    uint256 ltv;
+    uint256 liquidationThreshold;
+    uint256 liquidationBonus;
+    uint256 nftPriceInETH;
+    uint256 nftPriceInReserve;
+    uint256 reserveDecimals;
+    uint256 reservePriceInETH;
+    uint256 borrowAmount;
   }
 
   /**

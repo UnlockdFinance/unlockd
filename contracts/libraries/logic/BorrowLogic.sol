@@ -8,7 +8,7 @@ import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesPro
 import {IReserveOracleGetter} from "../../interfaces/IReserveOracleGetter.sol";
 import {INFTOracleGetter} from "../../interfaces/INFTOracleGetter.sol";
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
-
+import {IDebtMarket} from "../../interfaces/IDebtMarket.sol";
 import {ReserveConfiguration} from "../configuration/ReserveConfiguration.sol";
 import {MathUtils} from "../math/MathUtils.sol";
 import {WadRayMath} from "../math/WadRayMath.sol";
@@ -138,6 +138,7 @@ library BorrowLogic {
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
     vars.loanAddress = addressesProvider.getLendPoolLoan();
+    address debtMarket = addressesProvider.getAddress(keccak256("DEBT_MARKET"));
 
     vars.loanId = ILendPoolLoan(vars.loanAddress).getCollateralLoanId(params.nftAsset, params.nftTokenId);
 
@@ -177,6 +178,11 @@ library BorrowLogic {
         0,
         reserveData.variableBorrowIndex
       );
+
+      uint256 debtId = IDebtMarket(debtMarket).getDebtId(params.nftAsset, params.nftTokenId);
+      if (debtId != 0) {
+        IDebtMarket(debtMarket).cancelDebtListing(params.nftAsset, params.nftTokenId);
+      }
     }
 
     IDebtToken(reserveData.debtTokenAddress).mint(

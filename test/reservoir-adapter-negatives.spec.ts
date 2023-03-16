@@ -36,7 +36,7 @@ makeSuite("Reservoir adapter negatives", (testEnv: TestEnv) => {
     );
 
     // Add reservoir adapter as debt token burner
-    await dWETH.updateBurners([reservoirAdapter.address], true);
+    await dWETH.updateTokenManagers([reservoirAdapter.address], true);
   });
   beforeEach(async () => {
     snapshotId = await evmSnapshot();

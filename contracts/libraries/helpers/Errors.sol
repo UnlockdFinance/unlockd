@@ -85,7 +85,7 @@ library Errors {
   string public constant LP_INVALID_SAFE_HEALTH_FACTOR = "427";
   string public constant LP_AMOUNT_LESS_THAN_DEBT = "428";
   string public constant LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE = "429";
-  string public constant LP_CALLER_NOT_DEBT_BURNER = "430";
+  string public constant LP_CALLER_NOT_DEBT_TOKEN_MANAGER = "430";
 
   //lend pool loan errors
   string public constant LPL_INVALID_LOAN_STATE = "480";
@@ -114,6 +114,7 @@ library Errors {
   string public constant CT_INVALID_MINT_AMOUNT = "501"; //invalid amount to mint
   string public constant CT_INVALID_BURN_AMOUNT = "502"; //invalid amount to burn
   string public constant CT_BORROW_ALLOWANCE_NOT_ENOUGH = "503";
+  string public constant CT_CALLER_MUST_BE_DEBT_MARKET = "504"; // 'The caller of this function must be a debt market'
 
   //reserve logic errors
   string public constant RL_RESERVE_ALREADY_INITIALIZED = "601"; // 'Reserve has already been initialized'
@@ -157,4 +158,22 @@ library Errors {
 
   //NFTOracleErrors
   string public constant NFTO_INVALID_PRICEM_ADDRESS = "900";
+
+  //Debt Market
+  string public constant DM_CALLER_NOT_THE_OWNER = "1000";
+  string public constant DM_DEBT_SHOULD_EXIST = "1001";
+  string public constant DM_INVALID_AMOUNT = "1002";
+  string public constant DM_FAIL_ON_SEND_ETH = "1003";
+  string public constant DM_DEBT_SHOULD_NOT_BE_SOLD = "1004";
+  string public constant DM_DEBT_ALREADY_EXIST = "1005";
+  string public constant DM_LOAN_SHOULD_EXIST = "1006";
+  string public constant DM_AUCTION_ALREADY_ENDED = "1007";
+  string public constant DM_BID_PRICE_HIGHER_THAN_SELL_PRICE = "1008";
+  string public constant DM_BID_PRICE_LESS_THAN_PREVIOUS_BID = "1009";
+  string public constant DM_INVALID_SELL_TYPE = "1010";
+  string public constant DM_AUCTION_NOT_ALREADY_ENDED = "1011";
+  string public constant DM_INVALID_CLAIM_RECEIVER = "1012";
+  string public constant DM_AMOUNT_DIFFERENT_FROM_SELL_PRICE = "1013";
+  string public constant DM_BID_PRICE_LESS_THAN_MIN_BID_PRICE = "1014";
+  string public constant DM_BORROWED_AMOUNT_DIVERGED = "1015";
 }

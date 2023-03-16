@@ -196,4 +196,36 @@ library DataTypes {
     address underlyingAsset;
     uint256 amount;
   }
+
+  enum DebtMarketType {
+    FixedPrice, //0
+    Auction, //1
+    Mixed //2
+  }
+
+  enum DebtMarketState {
+    //No bids
+    New,
+    //Exist bids
+    Active,
+    //Is sold
+    Sold,
+    Canceled
+  }
+
+  struct DebtMarketListing {
+    uint256 debtId;
+    address debtor;
+    address nftAsset;
+    uint256 tokenId;
+    DebtMarketType sellType;
+    DebtMarketState state;
+    uint256 sellPrice;
+    address reserveAsset;
+    uint256 scaledAmount;
+    address bidderAddress;
+    uint256 bidPrice;
+    uint256 auctionEndTimestamp;
+    uint256 startBiddingPrice;
+  }
 }

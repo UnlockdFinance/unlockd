@@ -17,7 +17,17 @@ import {
   getUToken,
 } from "../../helpers/contracts-getters";
 import { convertToCurrencyDecimals, getParamPerNetwork } from "../../helpers/contracts-helpers";
-import { advanceTimeAndBlock, DRE, increaseTime, timeLatest, waitForTx } from "../../helpers/misc-utils";
+import {
+  advanceTimeAndBlock,
+  advanceTimeAndBlock,
+  DRE,
+  fundWithERC20,
+  fundWithERC721,
+  increaseTime,
+  timeLatest,
+  waitForTx,
+  waitForTx,
+} from "../../helpers/misc-utils";
 import { eEthereumNetwork, eNetwork, tEthereumAddress } from "../../helpers/types";
 import { ERC20 } from "../../types";
 import { UToken } from "../../types/UToken";
@@ -1275,4 +1285,50 @@ export const getContractsDataWithLoan = async (
     loanData,
     timestamp: new BigNumber(timestamp),
   };
+};
+
+export const borrowBayc = async (testEnv, borrower, nftTokenId, amountBorrow) => {
+  const { users, pool, nftOracle, weth, bayc, configurator, deployer } = testEnv;
+  const depositor = users[3];
+
+  await fundWithERC20("WETH", depositor.address, "1000");
+  await approveERC20(testEnv, depositor, "WETH");
+
+  //user 3 deposits 1000 WETH
+  const amountDeposit = await convertToCurrencyDecimals(depositor, weth, "1000"); //deployer
+
+  await pool.connect(depositor.signer).deposit(weth.address, amountDeposit, depositor.address, "0");
+
+  //user 4 mints BAYC to borrower
+  //mints BAYC to borrower
+  await fundWithERC721("BAYC", borrower.address, nftTokenId);
+  //approve protocol to access borrower wallet
+  await setApprovalForAll(testEnv, borrower, "BAYC");
+
+  //user 4 borrows
+  await configurator.setLtvManagerStatus(deployer.address, true);
+  await nftOracle.setPriceManagerStatus(deployer.address, true);
+
+  type NewType = IConfigNftAsCollateralInput;
+
+  const collData: NewType = {
+    asset: bayc.address,
+    nftTokenId: `${nftTokenId}`,
+    newPrice: parseEther("100"),
+    ltv: 4000,
+    liquidationThreshold: 7000,
+    redeemThreshold: 9000,
+    liquidationBonus: 500,
+    redeemDuration: 2820,
+    auctionDuration: 2880,
+    redeemFine: 500,
+    minBidFine: 2000,
+  };
+  await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
+
+  const amountToBorrow = await convertToCurrencyDecimals(deployer, weth, `${amountBorrow}`);
+
+  await pool
+    .connect(borrower.signer)
+    .borrow(weth.address, amountToBorrow.toString(), bayc.address, `${nftTokenId}`, borrower.address, "0");
 };

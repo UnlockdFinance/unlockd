@@ -171,7 +171,7 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
       await fundWithERC20("USDC", liquidator.address, "200000");
       await approveERC20PunkGateway(testEnv, liquidator, "USDC");
 
-      const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(usdc.address, wrappedPunk.address, "101");
+      const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(usdc.address, wrappedPunk.address, punkIndex);
       const liquidateAmount = liquidatePrice.add(liquidatePrice.mul(5).div(100));
       await waitForTx(
         await punkGateway.connect(liquidator.signer).auction(punkIndex, liquidateAmount, liquidator.address)

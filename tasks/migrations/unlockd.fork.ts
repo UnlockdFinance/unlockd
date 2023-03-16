@@ -151,6 +151,9 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
       //////////////////////////////////////////////////////////////////////////
       console.log("\n\nDeploy Lockey Holders");
       await DRE.run("fork:deploy-lockey-holders", { pool: POOL_NAME });
+      //////////////////////////////////////////////////////////////////////////
+      console.log("\n\nDeploy Debt Market");
+      await DRE.run("fork:deploy-debt-market", {});
 
       //////////////////////////////////////////////////////////////////////////
 

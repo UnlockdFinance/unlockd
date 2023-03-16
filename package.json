@@ -46,7 +46,8 @@
     }
   },
   "dependencies": {
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "moment": "^2.29.4"
   },
   "devDependencies": {
     "@chainlink/contracts": "0.5.1",

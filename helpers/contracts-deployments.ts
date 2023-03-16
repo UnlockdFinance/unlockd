@@ -8,6 +8,7 @@ import {
   CryptoPunksMarketFactory,
   CustomERC721,
   CustomERC721Factory,
+  DebtMarketFactory,
   DebtTokenFactory,
   GenericLogicFactory,
   InterestRateFactory,
@@ -130,6 +131,12 @@ export const deployLockeyManager = async (verify?: boolean) => {
   const lockeyManagerImpl = await new LockeyManagerFactory(await getDeploySigner()).deploy();
   await insertContractAddressInDb(eContractid.LockeyManagerImpl, lockeyManagerImpl.address);
   return withSaveAndVerify(lockeyManagerImpl, eContractid.LockeyManager, [], verify);
+};
+
+export const deployDebtMarket = async (verify?: boolean) => {
+  const DebtMarketImpl = await new DebtMarketFactory(await getDeploySigner()).deploy();
+  await insertContractAddressInDb(eContractid.DebtMarketImpl, DebtMarketImpl.address);
+  return withSaveAndVerify(DebtMarketImpl, eContractid.DebtMarket, [], verify);
 };
 
 export const deployReservoirAdapter = async (verify?: boolean) => {
@@ -742,9 +749,8 @@ export const deploySushiSwapRouter = async (verify?: boolean) => {
     verify
   );
 };
-
 export const deployMockYVault = async (verify?: boolean) => {
   const mockYVaultImpl = await new MockYVaultFactory(await getDeploySigner()).deploy();
   await insertContractAddressInDb(eContractid.MockYVaultImpl, mockYVaultImpl.address);
-  return withSaveAndVerify(mockYVaultImpl, eContractid.MockYVault, [], verify);
+  return withSaveAndVerify(mockYVaultImpl, eContractid.MockYVaultImpl, [], verify);
 };

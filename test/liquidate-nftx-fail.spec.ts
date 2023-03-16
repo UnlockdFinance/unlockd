@@ -265,7 +265,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
       // accurate borrow index, increment interest to loanDataBefore.scaledAmount
       await increaseTime(100);
 
-      const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(weth.address, bayc.address, "101");
+      const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(usdc.address, bayc.address, "102");
       const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.1).toFixed(0);
       // remove  supporting liquidations on sudoswap / NFTX for auction price purposes
       await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);

@@ -398,4 +398,6 @@ interface ILendPoolLoan {
    *  @dev returns the counter tracker for all the loan ID's in the protocol
    */
   function getLoanIdTracker() external view returns (CountersUpgradeable.Counter memory);
+
+  function reMintUNFT(address nftAsset, uint256 tokenId, address oldOnBehalfOf, address newOnBehalfOf) external;
 }

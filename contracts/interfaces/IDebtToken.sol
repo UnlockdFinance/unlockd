@@ -57,11 +57,11 @@ interface IDebtToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUp
   event Mint(address indexed from, uint256 value, uint256 index);
 
   /**
-   * @dev Emitted after setting of addresses as burners
-   * @param burners the burners to be updated
-   * @param flag `true` to set addresses as burners, `false` otherwise
+   * @dev Emitted after setting of addresses as debt token managers
+   * @param debtTokenManagers the addresses to be updated
+   * @param flag `true` to set addresses as managers, `false` otherwise
    **/
-  event BurnersUpdated(address[] indexed burners, bool flag);
+  event TokenManagersUpdated(address[] indexed debtTokenManagers, bool flag);
 
   /**
    * @dev Mints debt token to the `user` address
@@ -112,9 +112,9 @@ interface IDebtToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUp
   function borrowAllowance(address fromUser, address toUser) external view returns (uint256);
 
   /**
-   * @dev Updates allowed addresses to be burners of debt token
-   * @param burners array with burners to be updated
-   * @param flag `true` to set as burnet, `false` to unset as burner
+   * @dev Updates allowed addresses to be debt token managers
+   * @param debtTokenManagers array with addresses to be updated
+   * @param flag `true` to set as manager, `false` to unset as manager
    **/
-  function updateBurners(address[] calldata burners, bool flag) external;
+  function updateTokenManagers(address[] calldata debtTokenManagers, bool flag) external;
 }
