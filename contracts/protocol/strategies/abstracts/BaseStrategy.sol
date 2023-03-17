@@ -5,54 +5,86 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-/// @title BaseStrategy
-/// @author Forked from https://github.com/yearn/yearn-managers/blob/master/contracts/BaseStrategy.sol
-/// @notice `BaseStrategyUpgradeable` implements all of the required functionalities to interoperate
-/// with the `PoolManager` Contract.
-/// @dev This contract should be inherited and the abstract methods implemented to adapt the `Strategy`
-/// to the particular needs it has to create a return.
-abstract contract BaseStrategy {
+import {IUToken} from "../../../interfaces/IUToken.sol";
+import {ILendPoolAddressesProvider} from "../../../interfaces/ILendPoolAddressesProvider.sol";
+import {IBaseStrategy} from "../../../interfaces/strategies/IBaseStrategy.sol";
+import {IHealthCheck} from "../../../interfaces/strategies/IHealthCheck.sol";
+
+/** @title BaseStrategy
+ * @author Forked from https://github.com/yearn/yearn-vaults/blob/master/contracts/BaseStrategy.sol
+ * @notice `BaseStrategy` sets the base functionality to be implemented by Unlockd strategies.
+ * @dev Inheriting strategies should implement functionality according to the standards defined in this
+ * contract.
+ **/
+abstract contract BaseStrategy is Initializable, IBaseStrategy {
   using SafeERC20 for IERC20;
 
   /*//////////////////////////////////////////////////////////////
                         GENERAL VARS
-    //////////////////////////////////////////////////////////////*/
-  ILendPoolAddressesProvider internal _addressesProvider;
-  IUToken internal _uToken;
-  IERC20 internal _underlyingAsset;
+  //////////////////////////////////////////////////////////////*/
+  IUToken public uToken;
+  ILendPoolAddressesProvider public addressesProvider;
+  IERC20 public underlyingAsset;
   mapping(address => bool) public keepers;
+
+  // health checks
+  bool public doHealthCheck;
+  address public healthCheck;
+
+  bool public emergencyExit;
+
+  /*//////////////////////////////////////////////////////////////
+                      MODIFIERS
+  //////////////////////////////////////////////////////////////*/
 
   /**
    * @dev Only pool admin can call functions marked by this modifier
    **/
   modifier onlyPoolAdmin() {
-    if (msg.sender != _addressesProvider.getPoolAdmin()) _revert(CallerNotPoolAdmin.selector);
+    if (msg.sender != addressesProvider.getPoolAdmin()) _revert(CallerNotPoolAdmin.selector);
+    _;
+  }
+
+  /**
+   * @dev Only valid keepers can call functions marked by this modifier
+   **/
+  modifier onlyKeepers() {
+    if (!keepers[msg.sender]) _revert(InvalidKeeper.selector);
+    _;
+  }
+  /**
+   * @dev Only the UToken associated with this strategy can call functions marked by this modifier
+   **/
+  modifier onlyUToken() {
+    if (msg.sender != address(uToken)) _revert(OnlyUToken.selector);
     _;
   }
 
   /*//////////////////////////////////////////////////////////////
-                          INITIALIZATION
-    //////////////////////////////////////////////////////////////*/
+                        INITIALIZATION
+  //////////////////////////////////////////////////////////////*/
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() initializer {}
 
   /**
    * @notice Initialize a new Strategy.
-   * @param provider The address of the LendPoolAddressesProvider.
+   * @param _provider The address of the LendPoolAddressesProvider.
+   * @param _uToken The address of the UToken associated to the strategy.
+   * @param _keepers The addresses of the keepers to be added as valid keepers to the strategy.
    */
   function __BaseStrategy_init(
-    ILendPoolAddressesProvider provider,
-    IUToken uToken,
+    ILendPoolAddressesProvider _provider,
+    IUToken _uToken,
     address[] calldata _keepers
   ) internal onlyInitializing {
-    if (address(provider) == address(0)) revert InvalidZeroAddress();
-    if (address(uToken) == address(0)) revert InvalidZeroAddress();
-    _addressesProvider = provider;
-    _uToken = uToken;
-    _underlyingAsset = IERC20(uToken.UNDERLYING_ASSET_ADDRESS());
+    if (address(_provider) == address(0)) revert InvalidZeroAddress();
+    if (address(_uToken) == address(0)) revert InvalidZeroAddress();
+    addressesProvider = _provider;
+    uToken = _uToken;
+    underlyingAsset = IERC20(_uToken.UNDERLYING_ASSET_ADDRESS());
     // Approve UToken
-    _underlyingAsset.safeApprove(_uToken, type(uint256).max);
+    underlyingAsset.safeApprove(address(_uToken), type(uint256).max);
 
     // Initialize keepers
     uint256 cachedLength = _keepers.length;
@@ -68,12 +100,168 @@ abstract contract BaseStrategy {
   }
 
   /*//////////////////////////////////////////////////////////////
-                          INTERNALS
-    //////////////////////////////////////////////////////////////*/
+                      STRATEGY CORE 
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @notice Harvests the Strategy, recognizing any profits or losses and adjusting
+   *  the Strategy's position.
+   *  In the rare case the Strategy is in emergency shutdown, this will exit
+   *  the Strategy's position.
+   * @dev When `harvest()` is called, the Strategy reports to the UToken (via
+   *  `UToken.report()`), so in some cases `harvest()` must be called in order
+   *  to take in profits, to borrow newly available funds from the UToken, or
+   *  otherwise adjust its position. In other cases `harvest()` must be
+   *  called to report to the UToken on the Strategy's position, especially if
+   *  any losses have occurred.
+   */
+  function harvest() external onlyKeepers {
+    uint256 profit;
+    uint256 loss;
+    uint256 debtPayment;
+    uint256 debtOutstanding = uToken.debtOutstanding();
+    if (emergencyExit) {
+      // Free up as much capital as possible
+      uint256 amountFreed = _liquidateAllPositions();
+      if (amountFreed < debtOutstanding) {
+        loss = debtOutstanding - amountFreed;
+      } else if (amountFreed > debtOutstanding) {
+        profit = amountFreed - debtOutstanding;
+      }
+      debtPayment = debtOutstanding - loss;
+    } else {
+      // Free up returns for UToken to pull
+      (profit, loss, debtPayment) = _prepareReturn(debtOutstanding);
+    }
+
+    // Allow UToken to take up to the "harvested" balance of this contract,
+    // which is the amount it has earned since the last time it reported to
+    // the UToken.
+    uint256 totalDebt = 0; // @todo replace 0 with: uToken.strategies(address(this)).totalDebt;
+    debtOutstanding = uToken.report(profit, loss, debtPayment);
+
+    // Check if free returns are left, and re-invest them
+    _adjustPosition(debtOutstanding);
+
+    // call healthCheck contract
+    if (doHealthCheck && healthCheck != address(0)) {
+      if (!IHealthCheck(healthCheck).check(profit, loss, debtPayment, debtOutstanding, totalDebt))
+        _revert(HealthCheckFailed.selector);
+    } else {
+      doHealthCheck = true;
+      emit SetDoHealthCheck(true);
+    }
+
+    emit Harvested(profit, loss, debtPayment, debtOutstanding);
+  }
 
   /**
+   * @notice Withdraws `_amountNeeded` to `_uToken`.
+   *  This may only be called by the respective UToken.
+   * @param _amountNeeded How much `underlyingAsset` to withdraw.
+   * @return _loss Any realized losses
+   */
+  function withdraw(uint256 _amountNeeded) external onlyUToken returns (uint256 _loss) {
+    // Liquidate as much as possible to `underlyingAsset`, up to `_amountNeeded`
+    uint256 amountFreed;
+    (amountFreed, _loss) = _liquidatePosition(_amountNeeded);
+    // Send it directly back (NOTE: Using `msg.sender` saves some gas here)
+    underlyingAsset.safeTransfer(msg.sender, amountFreed);
+    // NOTE: Reinvest anything leftover on next `tend`/`harvest`
+  }
+
+  /**
+   * Do anything necessary to prepare this Strategy for migration, such as
+   * transferring any reserve or LP tokens, CDPs, or other tokens or stores of
+   * value.
+   */
+  function _prepareMigration(address _newStrategy) internal virtual;
+
+  /**
+   * @notice Transfers all `underlyingAsset` from this Strategy to `_newStrategy`.
+   *  This may only be called by the UToken.
+   * @dev The new Strategy's UToken must be the same as this Strategy's UToken.
+   *  The migration process should be carefully performed to make sure all
+   * the assets are migrated to the new address, which should have never
+   * interacted with the UToken before.
+   * @param _newStrategy The Strategy to migrate to.
+   */
+  function migrate(address _newStrategy) external onlyPoolAdmin {
+    if (BaseStrategy(_newStrategy).uToken() != uToken) _revert(StrategyNotManagingSameUnderlying.selector);
+    _prepareMigration(_newStrategy);
+    underlyingAsset.safeTransfer(_newStrategy, underlyingAsset.balanceOf(address(this)));
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @notice Performs any adjustments to the core position(s) of this Strategy given
+   * what change the UToken made in the "investable capital" available to the
+   * Strategy.
+   * @dev Note that all "free capital" (capital not invested) in the Strategy after the report
+   * was made is available for reinvestment. This number could be 0, and this scenario should be handled accordingly.
+   * @param _debtOutstanding Total principal + interest of debt yet to be paid back
+   */
+  function _adjustPosition(uint256 _debtOutstanding) internal virtual;
+
+  /**
+   * @notice Liquidate up to `_amountNeeded` of UToken's `underlyingAsset` of this strategy's positions,
+   * irregardless of slippage. Any excess will be re-invested with `_adjustPosition()`.
+   * @dev This function should return the amount of UToken's `underlyingAsset` tokens made available by the
+   * liquidation. If there is a difference between `_amountNeeded` and `_liquidatedAmount`, `_loss` indicates whether the
+   * difference is due to a realized loss, or if there is some other sitution at play
+   * (e.g. locked funds) where the amount made available is less than what is needed.
+   *
+   * NOTE: The invariant `_liquidatedAmount + _loss <= _amountNeeded` should always be maintained
+   * @param _amountNeeded amount of UToken's `underlyingAsset` needed to be liquidated
+   * @return _liquidatedAmount the actual liquidated amount
+   * @return _loss difference between the expected amount needed to reach `_amountNeeded` and the actual liquidated amount
+   */
+  function _liquidatePosition(
+    uint256 _amountNeeded
+  ) internal virtual returns (uint256 _liquidatedAmount, uint256 _loss);
+
+  /**
+   * @notice Liquidates everything and returns the amount that got freed.
+   * @dev This function is used during emergency exit instead of `prepareReturn()` to
+   * liquidate all of the Strategy's positions back to the UToken.
+   */
+  function _liquidateAllPositions() internal virtual returns (uint256 _amountFreed);
+
+  /**
+   * Perform any Strategy unwinding or other calls necessary to capture the
+   * "free return" this Strategy has generated since the last time its core
+   * position(s) were adjusted. Examples include unwrapping extra rewards.
+   * This call is only used during "normal operation" of a Strategy, and
+   * should be optimized to minimize losses as much as possible.
+   *
+   * This method returns any realized profits and/or realized losses
+   * incurred, and should return the total amounts of profits/losses/debt
+   * payments (in UToken's `underlyingAsset` tokens) for the UToken's accounting (e.g.
+   * `underlyingAsset.balanceOf(this) >= _debtPayment + _profit`).
+   *
+   * `_debtOutstanding` will be 0 if the Strategy is not past the configured
+   * debt limit, otherwise its value will be how far past the debt limit
+   * the Strategy is. The Strategy's debt limit is configured in the Vault.
+   *
+   * NOTE: `_debtPayment` should be less than or equal to `_debtOutstanding`.
+   *       It is okay for it to be less than `_debtOutstanding`, as that
+   *       should only used as a guide for how much is left to pay back.
+   *       Payments should be made to minimize loss from slippage, debt,
+   *       withdrawal fees, etc.
+   *
+   * See `UToken.debtOutstanding()`.
+   */
+  function _prepareReturn(
+    uint256 _debtOutstanding
+  ) internal virtual returns (uint256 _profit, uint256 _loss, uint256 _debtPayment);
+
+  /*//////////////////////////////////////////////////////////////
+                          SETTERS
+  //////////////////////////////////////////////////////////////*/
+  /**
    * @dev Sets/unsets a set of addresses as `keepers`
-   * @param keepers the keepers to be updated
+   * @param _keepers the keepers to be updated
    * @param flag `true` to set addresses as keepers, `false` otherwise
    **/
   function updateKeepers(address[] calldata _keepers, bool flag) external override onlyPoolAdmin {
@@ -89,8 +277,26 @@ abstract contract BaseStrategy {
   }
 
   /**
+   * @dev Sets healthcheck contract address
+   * @param _healthCheck the new healthcheck contract
+   **/
+  function setHealthCheck(address _healthCheck) external onlyPoolAdmin {
+    healthCheck = _healthCheck;
+    emit SetHealthCheck(_healthCheck);
+  }
+
+  /**
+   * @dev Sets boolean to handle whether healthcheck should be executed or not
+   * @param _doHealthCheck the new `doHealthCheck` status
+   **/
+  function setDoHealthCheck(bool _doHealthCheck) external onlyPoolAdmin {
+    doHealthCheck = _doHealthCheck;
+    emit SetDoHealthCheck(_doHealthCheck);
+  }
+
+  /**
    * @dev Perform more efficient reverts
-   */
+   **/
   function _revert(bytes4 errorSelector) internal pure {
     //solhint-disable-next-line no-inline-assembly
     assembly {
@@ -98,4 +304,8 @@ abstract contract BaseStrategy {
       revert(0x00, 0x04)
     }
   }
+
+  /*//////////////////////////////////////////////////////////////
+                        VIEW FUNCTIONS
+  //////////////////////////////////////////////////////////////*/
 }

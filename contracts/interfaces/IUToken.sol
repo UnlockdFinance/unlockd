@@ -168,4 +168,10 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
    * @dev Updates the uToken manager addresses
    **/
   function updateUTokenManagers(address[] calldata managers, bool flag) external;
+
+  function debtOutstanding() external returns (uint256);
+
+  function strategies() external returns (uint256);
+
+  function report(uint256 gain, uint256 loss, uint256 _debtPayment) external returns (uint256);
 }

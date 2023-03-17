@@ -362,4 +362,12 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   function _transfer(address from, address to, uint256 amount) internal override {
     _transfer(from, to, amount, true);
   }
+
+  function debtOutstanding() external override returns (uint256) {
+    return 0;
+  }
+
+  function strategies() external override returns (uint256) {}
+
+  function report(uint256 gain, uint256 loss, uint256 _debtPayment) external override returns (uint256) {}
 }
