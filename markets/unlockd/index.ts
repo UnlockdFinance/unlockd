@@ -84,7 +84,7 @@ export const UnlockdConfig: IUnlockdConfiguration = {
       DOODLE: "0x2F7f69a3cd22FcfFB5E0C0fB7Ae5Eb278b3919Ff",
     },
     [eEthereumNetwork.goerli]: { 
-      WPUNKS: "0x97F1f0E9A8F55Bf1Da9392332a0C44cE52E83E38",
+      WPUNKS: "0xC28f63b132e3cEcD44d32AE7505A8E756B7C41bf",
       BAYC: "0x3705a823c23f7a94562295cA60Ec00617DA6823b",
       //DOODLE: '0x11FC8C3fd1826f16aD154c18355bcA89a742B1C8',
       //AZUKI: '0xaD46D0235b2698aaD03803443b7a50383bdefc1c',

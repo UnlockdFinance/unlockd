@@ -182,7 +182,7 @@ export const CommonsConfig: ICommonConfiguration = {
   WrappedPunkToken: {
     [eEthereumNetwork.hardhat]: "0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6",  //mainnet
     [eEthereumNetwork.localhost]: "0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847",
-    [eEthereumNetwork.goerli]: "0xa9ED41c141d04647276F24EE06258e57a041a158",
+    [eEthereumNetwork.goerli]: "0xC28f63b132e3cEcD44d32AE7505A8E756B7C41bf",
     [eEthereumNetwork.main]: "0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6",
   },
 
