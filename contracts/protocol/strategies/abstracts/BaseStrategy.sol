@@ -20,7 +20,7 @@ abstract contract BaseStrategy is Initializable, IBaseStrategy {
   using SafeERC20 for IERC20;
 
   /*//////////////////////////////////////////////////////////////
-                        GENERAL VARS
+                      STATE VARIABLES
   //////////////////////////////////////////////////////////////*/
   IUToken public uToken;
   ILendPoolAddressesProvider public addressesProvider;
@@ -30,8 +30,10 @@ abstract contract BaseStrategy is Initializable, IBaseStrategy {
   // health checks
   bool public doHealthCheck;
   address public healthCheck;
-
   bool public emergencyExit;
+
+  // Gap for upgradeability
+  uint256[50] private __gap;
 
   /*//////////////////////////////////////////////////////////////
                       MODIFIERS
@@ -95,13 +97,13 @@ abstract contract BaseStrategy is Initializable, IBaseStrategy {
         ++i;
       }
     }
-
-    // @todo check for reentrancy
   }
 
   /*//////////////////////////////////////////////////////////////
-                      STRATEGY CORE 
+                    CORE LOGIC
   //////////////////////////////////////////////////////////////*/
+  //TODO: check if we want `tend()`
+
   /**
    * @notice Harvests the Strategy, recognizing any profits or losses and adjusting
    *  the Strategy's position.
@@ -118,7 +120,7 @@ abstract contract BaseStrategy is Initializable, IBaseStrategy {
     uint256 profit;
     uint256 loss;
     uint256 debtPayment;
-    uint256 debtOutstanding = uToken.debtOutstanding();
+    uint256 debtOutstanding = uToken.debtOutstanding(address(this));
     if (emergencyExit) {
       // Free up as much capital as possible
       uint256 amountFreed = _liquidateAllPositions();
@@ -142,14 +144,7 @@ abstract contract BaseStrategy is Initializable, IBaseStrategy {
     // Check if free returns are left, and re-invest them
     _adjustPosition(debtOutstanding);
 
-    // call healthCheck contract
-    if (doHealthCheck && healthCheck != address(0)) {
-      if (!IHealthCheck(healthCheck).check(profit, loss, debtPayment, debtOutstanding, totalDebt))
-        _revert(HealthCheckFailed.selector);
-    } else {
-      doHealthCheck = true;
-      emit SetDoHealthCheck(true);
-    }
+    _performHealthCheck(profit, loss, debtPayment, debtOutstanding, totalDebt);
 
     emit Harvested(profit, loss, debtPayment, debtOutstanding);
   }
@@ -166,15 +161,8 @@ abstract contract BaseStrategy is Initializable, IBaseStrategy {
     (amountFreed, _loss) = _liquidatePosition(_amountNeeded);
     // Send it directly back (NOTE: Using `msg.sender` saves some gas here)
     underlyingAsset.safeTransfer(msg.sender, amountFreed);
-    // NOTE: Reinvest anything leftover on next `tend`/`harvest`
+    // NOTE: Reinvest anything leftover on next `harvest`
   }
-
-  /**
-   * Do anything necessary to prepare this Strategy for migration, such as
-   * transferring any reserve or LP tokens, CDPs, or other tokens or stores of
-   * value.
-   */
-  function _prepareMigration(address _newStrategy) internal virtual;
 
   /**
    * @notice Transfers all `underlyingAsset` from this Strategy to `_newStrategy`.
@@ -190,71 +178,6 @@ abstract contract BaseStrategy is Initializable, IBaseStrategy {
     _prepareMigration(_newStrategy);
     underlyingAsset.safeTransfer(_newStrategy, underlyingAsset.balanceOf(address(this)));
   }
-
-  /*//////////////////////////////////////////////////////////////
-                          INTERNALS
-  //////////////////////////////////////////////////////////////*/
-  /**
-   * @notice Performs any adjustments to the core position(s) of this Strategy given
-   * what change the UToken made in the "investable capital" available to the
-   * Strategy.
-   * @dev Note that all "free capital" (capital not invested) in the Strategy after the report
-   * was made is available for reinvestment. This number could be 0, and this scenario should be handled accordingly.
-   * @param _debtOutstanding Total principal + interest of debt yet to be paid back
-   */
-  function _adjustPosition(uint256 _debtOutstanding) internal virtual;
-
-  /**
-   * @notice Liquidate up to `_amountNeeded` of UToken's `underlyingAsset` of this strategy's positions,
-   * irregardless of slippage. Any excess will be re-invested with `_adjustPosition()`.
-   * @dev This function should return the amount of UToken's `underlyingAsset` tokens made available by the
-   * liquidation. If there is a difference between `_amountNeeded` and `_liquidatedAmount`, `_loss` indicates whether the
-   * difference is due to a realized loss, or if there is some other sitution at play
-   * (e.g. locked funds) where the amount made available is less than what is needed.
-   *
-   * NOTE: The invariant `_liquidatedAmount + _loss <= _amountNeeded` should always be maintained
-   * @param _amountNeeded amount of UToken's `underlyingAsset` needed to be liquidated
-   * @return _liquidatedAmount the actual liquidated amount
-   * @return _loss difference between the expected amount needed to reach `_amountNeeded` and the actual liquidated amount
-   */
-  function _liquidatePosition(
-    uint256 _amountNeeded
-  ) internal virtual returns (uint256 _liquidatedAmount, uint256 _loss);
-
-  /**
-   * @notice Liquidates everything and returns the amount that got freed.
-   * @dev This function is used during emergency exit instead of `prepareReturn()` to
-   * liquidate all of the Strategy's positions back to the UToken.
-   */
-  function _liquidateAllPositions() internal virtual returns (uint256 _amountFreed);
-
-  /**
-   * Perform any Strategy unwinding or other calls necessary to capture the
-   * "free return" this Strategy has generated since the last time its core
-   * position(s) were adjusted. Examples include unwrapping extra rewards.
-   * This call is only used during "normal operation" of a Strategy, and
-   * should be optimized to minimize losses as much as possible.
-   *
-   * This method returns any realized profits and/or realized losses
-   * incurred, and should return the total amounts of profits/losses/debt
-   * payments (in UToken's `underlyingAsset` tokens) for the UToken's accounting (e.g.
-   * `underlyingAsset.balanceOf(this) >= _debtPayment + _profit`).
-   *
-   * `_debtOutstanding` will be 0 if the Strategy is not past the configured
-   * debt limit, otherwise its value will be how far past the debt limit
-   * the Strategy is. The Strategy's debt limit is configured in the Vault.
-   *
-   * NOTE: `_debtPayment` should be less than or equal to `_debtOutstanding`.
-   *       It is okay for it to be less than `_debtOutstanding`, as that
-   *       should only used as a guide for how much is left to pay back.
-   *       Payments should be made to minimize loss from slippage, debt,
-   *       withdrawal fees, etc.
-   *
-   * See `UToken.debtOutstanding()`.
-   */
-  function _prepareReturn(
-    uint256 _debtOutstanding
-  ) internal virtual returns (uint256 _profit, uint256 _loss, uint256 _debtPayment);
 
   /*//////////////////////////////////////////////////////////////
                           SETTERS
@@ -294,6 +217,127 @@ abstract contract BaseStrategy is Initializable, IBaseStrategy {
     emit SetDoHealthCheck(_doHealthCheck);
   }
 
+  /*//////////////////////////////////////////////////////////////
+                        VIEW
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @notice Provide an accurate estimate for the total amount of assets
+   *  (principle + return) that this Strategy is currently managing,
+   *  denominated in terms of `underlyingAsset` tokens.
+   *
+   *  This total should be "realizable" e.g. the total value that could
+   *  *actually* be obtained from this Strategy if it were to divest its
+   *  entire position based on current on-chain conditions.
+   * @dev Care must be taken in using this function, since it relies on external
+   *  systems, which could be manipulated by the attacker to give an inflated
+   *  (or reduced) value produced by this function, based on current on-chain
+   *  conditions (e.g. this function is possible to influence through
+   *  flashloan attacks, oracle manipulations, or other DeFi attack
+   *  mechanisms).
+   * @return The estimated total assets in this Strategy.
+   */
+  function estimatedTotalAssets() public view virtual returns (uint256);
+
+  /**
+   *  @notice Provides an indication of whether this strategy is currently "active"
+   *  in that it is managing an active position, or will manage a position in
+   *  the future. This should correlate to `harvest()` activity, so that Harvest
+   *  events can be tracked externally by indexing agents.
+   *  @return True if the strategy is actively managing a position.
+   */
+  function isActive() public view returns (bool) {
+    return estimatedTotalAssets() != 0;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @notice Performs any adjustments to the core position(s) of this Strategy given
+   * what change the UToken made in the "investable capital" available to the
+   * Strategy.
+   * @dev Note that all "free capital" (capital not invested) in the Strategy after the report
+   * was made is available for reinvestment. This number could be 0, and this scenario should be handled accordingly.
+   * @param _debtOutstanding Total principal + interest of debt yet to be paid back
+   */
+  function _adjustPosition(uint256 _debtOutstanding) internal virtual;
+
+  /**
+   * @notice Liquidate up to `_amountNeeded` of UToken's `underlyingAsset` of this strategy's positions,
+   * irregardless of slippage. Any excess will be re-invested with `_adjustPosition()`.
+   * @dev This function should return the amount of UToken's `underlyingAsset` tokens made available by the
+   * liquidation. If there is a difference between `_amountNeeded` and `_liquidatedAmount`, `_loss` indicates whether the
+   * difference is due to a realized loss, or if there is some other sitution at play
+   * (e.g. locked funds) where the amount made available is less than what is needed.
+   *
+   * NOTE: The invariant `_liquidatedAmount + _loss <= _amountNeeded` should always be maintained
+   * @param _amountNeeded amount of UToken's `underlyingAsset` needed to be liquidated
+   * @return _liquidatedAmount the actual liquidated amount
+   * @return _loss difference between the expected amount needed to reach `_amountNeeded` and the actual liquidated amount
+   */
+  function _liquidatePosition(
+    uint256 _amountNeeded
+  ) internal virtual returns (uint256 _liquidatedAmount, uint256 _loss);
+
+  /**
+   * @notice Liquidates everything and returns the amount that got freed.
+   * @dev This function is used during emergency exit instead of `_prepareReturn()` to
+   * liquidate all of the Strategy's positions back to the UToken.
+   */
+  function _liquidateAllPositions() internal virtual returns (uint256 _amountFreed);
+
+  /**
+   * Perform any Strategy unwinding or other calls necessary to capture the
+   * "free return" this Strategy has generated since the last time its core
+   * position(s) were adjusted. Examples include unwrapping extra rewards.
+   * This call is only used during "normal operation" of a Strategy, and
+   * should be optimized to minimize losses as much as possible.
+   *
+   * This method returns any realized profits and/or realized losses
+   * incurred, and should return the total amounts of profits/losses/debt
+   * payments (in UToken's `underlyingAsset` tokens) for the UToken's accounting (e.g.
+   * `underlyingAsset.balanceOf(this) >= _debtPayment + _profit`).
+   *
+   * `_debtOutstanding` will be 0 if the Strategy is not past the configured
+   * debt limit, otherwise its value will be how far past the debt limit
+   * the Strategy is. The Strategy's debt limit is configured in the UToken.
+   *
+   * NOTE: `_debtPayment` should be less than or equal to `_debtOutstanding`.
+   *       It is okay for it to be less than `_debtOutstanding`, as that
+   *       should only used as a guide for how much is left to pay back.
+   *       Payments should be made to minimize loss from slippage, debt,
+   *       withdrawal fees, etc.
+   *
+   * See `UToken.debtOutstanding()`.
+   */
+  function _prepareReturn(
+    uint256 _debtOutstanding
+  ) internal virtual returns (uint256 _profit, uint256 _loss, uint256 _debtPayment);
+
+  function _performHealthCheck(
+    uint256 profit,
+    uint256 loss,
+    uint256 debtPayment,
+    uint256 debtOutstanding,
+    uint256 totalDebt
+  ) internal {
+    // call healthCheck contract
+    if (doHealthCheck && healthCheck != address(0)) {
+      if (!IHealthCheck(healthCheck).check(profit, loss, debtPayment, debtOutstanding, totalDebt))
+        _revert(HealthCheckFailed.selector);
+    } else {
+      doHealthCheck = true;
+      emit SetDoHealthCheck(true);
+    }
+  }
+
+  /**
+   * @notice Do anything necessary to prepare this Strategy for migration, such as
+   * transferring any reserve or LP tokens, CDPs, or other tokens or stores of
+   * value.
+   */
+  function _prepareMigration(address _newStrategy) internal virtual;
+
   /**
    * @dev Perform more efficient reverts
    **/
@@ -304,8 +348,4 @@ abstract contract BaseStrategy is Initializable, IBaseStrategy {
       revert(0x00, 0x04)
     }
   }
-
-  /*//////////////////////////////////////////////////////////////
-                        VIEW FUNCTIONS
-  //////////////////////////////////////////////////////////////*/
 }

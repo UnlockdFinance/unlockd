@@ -124,10 +124,10 @@
     "deployer": "0xa2f4F4e465AAE91241D61E3518c9f2e7cb74c014"
   },
   "ReserveOracleImpl": {
-    "address": "0x7AbE1b0eB6a82608B4C4FB9A8D3FEe190055708a"
+    "address": "0xf3A31679d22D0C320ca56f8E4bcE2274e34BF93A"
   },
   "ReserveOracle": {
-    "address": "0x816b035dae557c03e6F758BB41da3309F49aAf5e",
+    "address": "0xf3A31679d22D0C320ca56f8E4bcE2274e34BF93A",
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "NFTOracleImpl": {
@@ -144,10 +144,10 @@
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "PunkGatewayImpl": {
-    "address": "0xDbe7FC8e4c3BAaC31333287586998b9965C7414B"
+    "address": "0x85D5370cbDf7b3A9e01bFD1e57FE028E61D2F540"
   },
   "PunkGateway": {
-    "address": "0xDbe7FC8e4c3BAaC31333287586998b9965C7414B",
+    "address": "0x85D5370cbDf7b3A9e01bFD1e57FE028E61D2F540",
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "UnlockdProtocolDataProvider": {

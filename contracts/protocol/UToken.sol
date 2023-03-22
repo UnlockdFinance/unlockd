@@ -17,6 +17,7 @@ import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
 /**
  * @title ERC20 UToken
@@ -27,10 +28,40 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   using WadRayMath for uint256;
   using SafeERC20Upgradeable for IERC20Upgradeable;
 
+  /*//////////////////////////////////////////////////////////////
+                    STATE VARIABLES
+  //////////////////////////////////////////////////////////////*/
   ILendPoolAddressesProvider internal _addressProvider;
   address internal _treasury;
   address internal _underlyingAsset;
   mapping(address => bool) internal _uTokenManagers;
+
+  uint256 public constant MAXIMUM_STRATEGIES = 20;
+  uint256 public constant MAX_BPS = 10_000;
+  // Strategies
+  mapping(address => StrategyParams) public strategies;
+  address[MAXIMUM_STRATEGIES] public withdrawalQueue;
+
+  // Limit for totalAssets the UToken can hold
+  uint256 public depositLimit;
+  // Debt ratio for the UToken across all strategies (in BPS, <= 10k)
+  uint256 public debtRatio;
+  // Amount of `_underlyingAsset` held in the UToken
+  uint256 public totalIdle;
+  // Amount of `_underlyingAsset` that all strategies have borrowed
+  uint256 public totalDebt;
+  // block.timestamp of last report
+  uint256 public lastReport;
+  // How much profit is locked and cant be withdrawn
+  uint256 public lockedProfit;
+  // Rate per block of degradation. DEGRADATION_COEFFICIENT is 100% per block
+  uint256 public lockedProfitDegradation;
+
+  bool public emergencyShutdown;
+
+  /*//////////////////////////////////////////////////////////////
+                      MODIFIERS
+  //////////////////////////////////////////////////////////////*/
   modifier onlyLendPool() {
     require(_msgSender() == address(_getLendPool()), Errors.CT_CALLER_MUST_BE_LEND_POOL);
     _;
@@ -45,6 +76,17 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     require(_uTokenManagers[_msgSender()], Errors.CALLER_NOT_UTOKEN_MANAGER);
     _;
   }
+
+  modifier onlyStrategy() {
+    require(_uTokenManagers[_msgSender()], Errors.CALLER_NOT_UTOKEN_MANAGER);
+    _;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                        INITIALIZATION
+  //////////////////////////////////////////////////////////////*/
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() initializer {}
 
   /**
    * @dev Initializes the uToken
@@ -75,6 +117,9 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     );
   }
 
+  /*//////////////////////////////////////////////////////////////
+                    MINT/BURN LOGIC
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Burns uTokens from `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
    * - Only callable by the LendPool, as extra state updates there need to be managed
@@ -122,45 +167,6 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   }
 
   /**
-   * @dev Deposits `amount` to the lending protocol currently active
-   * @param amount The amount of tokens to deposit
-   */
-  function depositReserves(uint256 amount) public override onlyUTokenManager {
-    LendingLogic.executeDepositYearn(
-      _addressProvider,
-      DataTypes.ExecuteYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
-    );
-  }
-
-  /**
-   * @dev Withdraws `amount` from the lending protocol currently active
-   * @param amount The amount of tokens to withdraw
-   */
-  function withdrawReserves(uint256 amount) public override onlyUTokenManager returns (uint256) {
-    uint256 value = LendingLogic.executeWithdrawYearn(
-      _addressProvider,
-      DataTypes.ExecuteYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
-    );
-    return value;
-  }
-
-  /**
-   * @dev Takes reserve liquidity from uToken and deposits it to external lening protocol
-   **/
-  function sweepUToken() external override onlyPoolAdmin {
-    IERC20Upgradeable underlyingAsset = IERC20Upgradeable(_underlyingAsset);
-
-    uint256 amount = underlyingAsset.balanceOf(address(this));
-
-    LendingLogic.executeDepositYearn(
-      _addressProvider,
-      DataTypes.ExecuteYearnParams({underlyingAsset: _underlyingAsset, amount: amount})
-    );
-
-    emit UTokenSwept(address(this), address(underlyingAsset), amount);
-  }
-
-  /**
    * @dev Mints uTokens to the reserve treasury
    * - Only callable by the LendPool
    * @param amount The amount of tokens getting minted
@@ -181,6 +187,102 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
 
     emit Transfer(address(0), treasury, amount);
     emit Mint(treasury, amount, index);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                    STRATEGIES LOGIC
+  //////////////////////////////////////////////////////////////*/
+
+  /**
+   *  @notice Reports the amount of assets the calling Strategy has free (usually in
+   *  terms of ROI).
+   *  This may only be called by a Strategy managed by this UToken.
+   *  @dev For approved strategies, this is the most efficient behavior.
+   *  The Strategy reports back what it has free, then UToken "decides"
+   *  whether to take some back or give it more. Note that the most it can
+   *  take is `gain + _debtPayment`, and the most it can give is all of the
+   *  remaining reserves. It is important to stress that anything outside of those
+   *  bounds is abnormal behavior.
+   *  All approved strategies must have increased diligence around
+   *  calling this function, as abnormal behavior could become catastrophic.
+   *  @param gain Amount Strategy has realized as a gain on its investment since its
+   *   last report, and is free to be given back to UToken as earnings
+   *  @param loss Amount Strategy has realized as a loss on its investment since its
+   *  last report, and should be accounted for on the UToken's balance sheet.
+   *  The loss will reduce the debtRatio. The next time the strategy will harvest,
+   *  it will pay back the debt in an attempt to adjust to the new debt limit.
+   *  @param _debtPayment Amount Strategy has made available to cover outstanding debt
+   *  @return Amount of debt outstanding (if totalDebt > debtLimit or emergency shutdown).
+   */
+  function report(uint256 gain, uint256 loss, uint256 _debtPayment) external override onlyStrategy returns (uint256) {
+    // Validate that strategy's balance is actually bigger than the gains reported + the amount to cover outstanding debt
+    if (IERC20Upgradeable(_underlyingAsset).balanceOf(msg.sender) < gain + _debtPayment)
+      revert InvalidGainAndDebtPayment();
+
+    if (loss != 0) _reportLoss(msg.sender, loss);
+  }
+
+  /**
+   * @notice Determines if `strategy` is past its debt limit and if any amount of tokens
+   *  should be withdrawn to the UToken.
+   * @param strategy The Strategy to check.
+   * @return The quantity of tokens to withdraw.
+   */
+
+  function debtOutstanding(address strategy) external view override returns (uint256) {
+    uint256 strategyTotalDebt = strategies[strategy].totalDebt;
+    // No amount of tokens are deployed to the Strategy. Return
+    // the known Strategy's debt
+    if (debtRatio == 0) return strategyTotalDebt;
+
+    uint256 strategyDebtLimit = (_totalAssets() * strategies[strategy].debtRatio) / MAX_BPS;
+
+    if (emergencyShutdown) {
+      // Strategy's debt is returned when in emergency shutdown
+      return strategyTotalDebt;
+    } else if (strategyTotalDebt <= strategyDebtLimit) {
+      // No debt outstanding in case the current strategy debt has not reached its debt limit
+      return 0;
+    }
+    // Return outstanding debt in case the debt limit is reached
+    return strategyTotalDebt - strategyDebtLimit;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                  INTERNAL FUNCTIONS 
+  //////////////////////////////////////////////////////////////*/
+  // todo optimize this function
+  function _reportLoss(address strategy, uint256 loss) internal {
+    // It is not possible for the strategy to lose more than the amount lent. Verify this assumption
+    uint256 _totalDebt = strategies[strategy].totalDebt;
+    if (loss > _totalDebt) revert LossHigherThanStrategyTotalDebt();
+    // If UToken actually has deployed capital, adjust the debt ratios for both the UToken and the strategy,
+    // reducing UToken's trust in the strategy
+    if (debtRatio != 0) {
+      // Adjust by the minimum between
+      uint256 ratioAdjustment = Math.min(
+        // todo check for loss of precision
+        (loss * debtRatio) / totalDebt,
+        strategies[strategy].debtRatio
+      );
+      strategies[strategy].debtRatio -= ratioAdjustment;
+      debtRatio -= ratioAdjustment;
+    }
+
+    // Adjust loss parameters
+    strategies[strategy].totalLoss += loss;
+    strategies[strategy].totalDebt = totalDebt - loss;
+    totalDebt -= loss;
+  }
+
+  /**
+  @notice Returns the total quantity of all assets under control of this
+   * UToken, whether they're loaned out to a Strategy, or currently held in
+   * the UToken.
+   *  @return The total assets under control of this UToken.
+   */
+  function _totalAssets() internal view returns (uint256) {
+    return totalIdle + totalDebt;
   }
 
   /**
@@ -319,14 +421,6 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     emit UTokenManagersUpdated(managers, flag);
   }
 
-  function _getLendPool() internal view returns (ILendPool) {
-    return ILendPool(_addressProvider.getLendPool());
-  }
-
-  function _getLendPoolConfigurator() internal view returns (ILendPoolConfigurator) {
-    return ILendPoolConfigurator(_addressProvider.getLendPoolConfigurator());
-  }
-
   /**
    * @dev Transfers the uTokens between two users. Validates the transfer
    * (ie checks for valid HF after the transfer) if required
@@ -353,6 +447,14 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     emit BalanceTransfer(from, to, amount, index);
   }
 
+  function _getLendPool() internal view returns (ILendPool) {
+    return ILendPool(_addressProvider.getLendPool());
+  }
+
+  function _getLendPoolConfigurator() internal view returns (ILendPoolConfigurator) {
+    return ILendPoolConfigurator(_addressProvider.getLendPoolConfigurator());
+  }
+
   /**
    * @dev Overrides the parent _transfer to force validated transfer() and transferFrom()
    * @param from The source address
@@ -362,12 +464,4 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   function _transfer(address from, address to, uint256 amount) internal override {
     _transfer(from, to, amount, true);
   }
-
-  function debtOutstanding() external override returns (uint256) {
-    return 0;
-  }
-
-  function strategies() external override returns (uint256) {}
-
-  function report(uint256 gain, uint256 loss, uint256 _debtPayment) external override returns (uint256) {}
 }

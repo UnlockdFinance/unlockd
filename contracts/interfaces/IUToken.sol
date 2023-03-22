@@ -9,6 +9,8 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
 import {IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 
 interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgradeable {
+  error LossHigherThanStrategyTotalDebt();
+  error InvalidGainAndDebtPayment();
   /**
    * @dev Emitted when an uToken is initialized
    * @param underlyingAsset The address of the underlying asset
@@ -24,24 +26,6 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   );
 
   /**
-   * @dev Initializes the bToken
-   * @param addressProvider The address of the address provider where this bToken will be used
-   * @param treasury The address of the Unlockd treasury, receiving the fees on this bToken
-   * @param underlyingAsset The address of the underlying asset of this bToken
-   * @param uTokenDecimals The amount of token decimals
-   * @param uTokenName The name of the token
-   * @param uTokenSymbol The token symbol
-   */
-  function initialize(
-    ILendPoolAddressesProvider addressProvider,
-    address treasury,
-    address underlyingAsset,
-    uint8 uTokenDecimals,
-    string calldata uTokenName,
-    string calldata uTokenSymbol
-  ) external;
-
-  /**
    * @dev Emitted after the mint action
    * @param from The address performing the mint
    * @param value The amount being
@@ -54,6 +38,33 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
    * @param flag `true` to set addresses as managers, `false` otherwise
    **/
   event UTokenManagersUpdated(address[] indexed managers, bool flag);
+
+  /**
+   * @dev Initializes the bToken
+   * @param addressProvider The address of the address provider where this bToken will be used
+   * @param treasury The address of the Unlockd treasury, receiving the fees on this bToken
+   * @param underlyingAsset The address of the underlying asset of this bToken
+   * @param uTokenDecimals The amount of token decimals
+   * @param uTokenName The name of the token
+   * @param uTokenSymbol The token symbol
+   */
+
+  struct StrategyParams {
+    uint256 debtRatio; // Relation between the amount of assets deployed to the strategy and the total amount of assets belonging to the UToken
+    uint256 lastReport; // block.timestamp of the last time a report occured
+    uint256 totalDebt; // Total outstanding debt that Strategy has
+    uint256 totalGain; // Total returns that Strategy has realized for the UToken
+    uint256 totalLoss; // Total losses that Strategy has realized for the UToken
+  }
+
+  function initialize(
+    ILendPoolAddressesProvider addressProvider,
+    address treasury,
+    address underlyingAsset,
+    uint8 uTokenDecimals,
+    string calldata uTokenName,
+    string calldata uTokenSymbol
+  ) external;
 
   /**
    * @dev Mints `amount` uTokens to `user`
@@ -97,11 +108,6 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   event UTokenSwept(address indexed uToken, address indexed underlyingAsset, uint256 indexed amount);
 
   /**
-   * @dev Takes reserve liquidity from uToken and deposits it to external lening protocol
-   **/
-  function sweepUToken() external;
-
-  /**
    * @dev Burns uTokens from `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
    * @param user The owner of the uTokens, getting them burned
    * @param receiverOfUnderlying The address that will receive the underlying
@@ -116,18 +122,6 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
    * @param index The new liquidity index of the reserve
    */
   function mintToTreasury(uint256 amount, uint256 index) external;
-
-  /**
-   * @dev Deposits `amount` to the lending protocol currently active
-   * @param amount The amount of tokens to deposit
-   */
-  function depositReserves(uint256 amount) external;
-
-  /**
-   * @dev Withdraws `amount` from the lending protocol currently active
-   * @param amount The amount of tokens to withdraw
-   */
-  function withdrawReserves(uint256 amount) external returns (uint256);
 
   /**
    * @dev Transfers the underlying asset to `target`. Used by the LendPool to transfer
@@ -169,9 +163,7 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
    **/
   function updateUTokenManagers(address[] calldata managers, bool flag) external;
 
-  function debtOutstanding() external returns (uint256);
-
-  function strategies() external returns (uint256);
+  function debtOutstanding(address strategy) external returns (uint256);
 
   function report(uint256 gain, uint256 loss, uint256 _debtPayment) external returns (uint256);
 }

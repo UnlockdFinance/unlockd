@@ -211,7 +211,7 @@ abstract contract BaseAdapter is Initializable {
     IERC20(reserveAsset).safeTransfer(uToken, borrowAmount);
 
     // Deposit amount from debt repaid to lending protocol
-    IUToken(uToken).depositReserves(borrowAmount);
+    // todo IUToken(uToken).depositReserves(borrowAmount);
 
     // transfer remain amount to borrower
     if (remainAmount > 0) {
