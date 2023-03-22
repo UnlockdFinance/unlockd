@@ -230,7 +230,7 @@ export const CommonsConfig: ICommonConfiguration = {
   LockeyCollection: {
     [eEthereumNetwork.hardhat]: "0x9a29a9DBC70eA932637216A2BF9EbE7E60023798", //mainnet address for forking tests
     [eEthereumNetwork.localhost]: "",
-    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.goerli]: "0x2a7938b4f5fCb2df8763a1aCda19D96fe1556E91",
     [eEthereumNetwork.main]: "0x9a29a9DBC70eA932637216A2BF9EbE7E60023798",
   },
   BlurModule: {
