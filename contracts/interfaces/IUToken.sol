@@ -55,6 +55,8 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
     uint256 totalDebt; // Total outstanding debt that Strategy has
     uint256 totalGain; // Total returns that Strategy has realized for the UToken
     uint256 totalLoss; // Total losses that Strategy has realized for the UToken
+    uint256 minDebtPerHarvest; // Lower limit on the increase of debt since last harvest
+    uint256 maxDebtPerHarvest; // Upper limit on the increase of debt since last harvest
   }
 
   function initialize(
