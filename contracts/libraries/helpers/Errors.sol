@@ -92,7 +92,7 @@ library Errors {
   string public constant LPL_INVALID_LOAN_AMOUNT = "481";
   string public constant LPL_INVALID_TAKEN_AMOUNT = "482";
   string public constant LPL_AMOUNT_OVERFLOW = "483";
-  string public constant LPL_BID_PRICE_LESS_THAN_LIQUIDATION_PRICE = "484";
+  string public constant LPL_BID_PRICE_LESS_THAN_DEBT_PRICE = "484";
   string public constant LPL_BID_PRICE_LESS_THAN_HIGHEST_PRICE = "485";
   string public constant LPL_BID_REDEEM_DURATION_HAS_END = "486";
   string public constant LPL_BID_USER_NOT_SAME = "487";

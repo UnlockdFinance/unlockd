@@ -172,7 +172,7 @@
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "UIPoolDataProvider": {
-    "address": "0xC40A91Ae298f1637ee152B494A797dfB004dF364",
+    "address": "0x2d77b7284F02b94e168560284220e0Ab56fCAB09",
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "NFTXVaultFactory": {

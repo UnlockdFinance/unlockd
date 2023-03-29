@@ -467,6 +467,36 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         expect(oldLoan.borrower).equals(seller.address, "Invalid previous loan debtor");
         expect(loan.borrower).equals(bidder.address, "Invalid new loan debtor");
       });
+      it("When claiming an auction the previous owner tries to borrow more", async () => {
+        const { users, debtMarket, bayc, wethGateway, weth } = testEnv;
+        const seller = users[4];
+        const bidder = users[5];
+        const nftAsset = bayc.address;
+        const tokenId = testEnv.tokenIdTracker++;
+
+        await borrowBayc(testEnv, seller, tokenId, 10);
+
+        const blockNumber = await users[0].signer.provider!.getBlockNumber();
+        const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
+        const auctionEndTimestamp = moment(currTimestamp).add(5, "minutes").unix() * 1000;
+
+        await waitForTx(
+          await debtMarket
+            .connect(seller.signer)
+            .createDebtListing(nftAsset, tokenId, 0, seller.address, 50, auctionEndTimestamp)
+        );
+
+        await waitForTx(
+          await wethGateway.connect(bidder.signer).bidDebtETH(nftAsset, tokenId, bidder.address, { value: 50 })
+        );
+
+        await increaseTime(2000000);
+        const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
+
+        await borrowBayc(testEnv, seller, tokenId, 3);
+        const debt = await debtMarket.getDebt(debtId);
+        expect(debt.state).equals(3, "Invalid debt offer state");
+      });
     });
     describe("MIXED type debt", function () {
       it("Create a debt listing ", async () => {

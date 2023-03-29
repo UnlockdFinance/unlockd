@@ -197,46 +197,17 @@ library LiquidateLogic {
       vars.nftOracle
     );
 
-    uint256 maxPrice = vars.borrowAmount;
-
-    // Check if collection is supported by NFTX market
-    if (isMarketSupported[loanData.nftAsset][0]) {
-      uint256 priceNFTX = NFTXSeller.getNFTXPrice(
-        addressesProvider,
-        loanData.nftAsset,
-        loanData.nftTokenId,
-        loanData.reserveAsset
-      );
-      if (priceNFTX > maxPrice) {
-        maxPrice = priceNFTX;
-      }
-    }
-
-    // Check if collection is supported by SudoSwap market
-    if (isMarketSupported[loanData.nftAsset][1]) {
-      address[2] memory pairs = sudoswapPairs[loanData.nftAsset];
-      for (uint256 i = 0; i < 2; ) {
-        (, uint256 newSpotPrice, , , ) = ILSSVMPair(pairs[i]).getBuyNFTQuote(1);
-        if (newSpotPrice > maxPrice) {
-          maxPrice = newSpotPrice;
-        }
-        unchecked {
-          ++i;
-        }
-      }
-    }
-
     // first time bid need to burn debt tokens and transfer reserve to uTokens
     if (loanData.state == DataTypes.LoanState.Active) {
       // loan's accumulated debt must exceed threshold (heath factor below 1.0)
       require(vars.borrowAmount > vars.thresholdPrice, Errors.LP_BORROW_NOT_EXCEED_LIQUIDATION_THRESHOLD);
 
       // bid price must greater than liquidate price
-      require(params.bidPrice >= vars.liquidatePrice, Errors.LPL_BID_PRICE_LESS_THAN_LIQUIDATION_PRICE);
+      require(params.bidPrice >= vars.borrowAmount, Errors.LPL_BID_PRICE_LESS_THAN_DEBT_PRICE); // to be removed or updated 2 debt
 
       // bid price must greater than biggest between borrow and markets price, as well as a timestamp configuration fee
       require(
-        params.bidPrice >= (maxPrice + params.auctionDurationConfigFee),
+        params.bidPrice >= (vars.borrowAmount + params.auctionDurationConfigFee),
         Errors.LPL_BID_PRICE_LESS_THAN_MIN_BID_REQUIRED
       );
     } else {
