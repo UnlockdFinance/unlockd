@@ -7,7 +7,7 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 
 import {IUToken} from "../../../interfaces/IUToken.sol";
 import {ILendPoolAddressesProvider} from "../../../interfaces/ILendPoolAddressesProvider.sol";
-import {IBaseStrategy} from "../../../interfaces/strategies/IBaseStrategy.sol";
+import {IStrategy} from "../../../interfaces/strategies/IStrategy.sol";
 import {IHealthCheck} from "../../../interfaces/strategies/IHealthCheck.sol";
 
 /** @title BaseStrategy
@@ -16,7 +16,7 @@ import {IHealthCheck} from "../../../interfaces/strategies/IHealthCheck.sol";
  * @dev Inheriting strategies should implement functionality according to the standards defined in this
  * contract.
  **/
-abstract contract BaseStrategy is Initializable, IBaseStrategy {
+abstract contract BaseStrategy is Initializable, IStrategy {
   using SafeERC20 for IERC20;
 
   /*//////////////////////////////////////////////////////////////
@@ -153,11 +153,11 @@ abstract contract BaseStrategy is Initializable, IBaseStrategy {
    * @notice Withdraws `_amountNeeded` to `_uToken`.
    *  This may only be called by the respective UToken.
    * @param _amountNeeded How much `underlyingAsset` to withdraw.
+   * @return amountFreed Any realized gains
    * @return _loss Any realized losses
    */
-  function withdraw(uint256 _amountNeeded) external onlyUToken returns (uint256 _loss) {
+  function withdraw(uint256 _amountNeeded) external override onlyUToken returns (uint256 amountFreed, uint256 _loss) {
     // Liquidate as much as possible to `underlyingAsset`, up to `_amountNeeded`
-    uint256 amountFreed;
     (amountFreed, _loss) = _liquidatePosition(_amountNeeded);
     // Send it directly back (NOTE: Using `msg.sender` saves some gas here)
     underlyingAsset.safeTransfer(msg.sender, amountFreed);
@@ -236,7 +236,7 @@ abstract contract BaseStrategy is Initializable, IBaseStrategy {
    *  mechanisms).
    * @return The estimated total assets in this Strategy.
    */
-  function estimatedTotalAssets() public view virtual returns (uint256);
+  function estimatedTotalAssets() public view virtual override returns (uint256);
 
   /**
    *  @notice Provides an indication of whether this strategy is currently "active"

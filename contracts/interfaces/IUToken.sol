@@ -9,8 +9,27 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
 import {IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 
 interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgradeable {
+  /**
+   * @dev Reverts when the loss reported by the strategy is higher than the actual debt loaned from the UToken to the strategy
+   **/
   error LossHigherThanStrategyTotalDebt();
+  /**
+   * @dev Reverts when the strategy's balance is less than the actual gains + debt payment reported
+   **/
   error InvalidGainAndDebtPayment();
+  /**
+   * @dev Reverts when the actual withdrawn amount from the strategy is different from the balance increase in the uToken
+   **/
+  error BalanceMismatch();
+  /**
+   * @dev Reverts when there is not enough balance of underlying in order to withdraw
+   **/
+  error NotEnoughLiquidity();
+  /**
+   * @dev Reverts when the maxmimum tolerated loss is exceeded in the strategy fund withdrawal process
+   **/
+  error MaxLossExceeded();
+
   /**
    * @dev Emitted when an uToken is initialized
    * @param underlyingAsset The address of the underlying asset
@@ -108,6 +127,42 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   * @param amount The amount deposited to the lending protocol
   */
   event UTokenSwept(address indexed uToken, address indexed underlyingAsset, uint256 indexed amount);
+
+  /**
+    @dev Emitted after reporting to the UToken from a strategy
+  * @param strategy The caller strategy
+  * @param gain The gains reported from the strategy
+  * @param loss The loss reported from the strategy
+  * @param debtPayment The amount to consider as a debt payment
+  * @param strategyGain The gains added to the strategy
+  * @param strategyLoss The loss added to the strategy
+  * @param strategyTotalDebt The strategy's new total debt
+  * @param credit The loaned amount to the strategy in this report
+  * @param strategyDebtRatio The debt ratio for that strategy
+  */
+  event StrategyReported(
+    address indexed strategy,
+    uint256 gain,
+    uint256 loss,
+    uint256 debtPayment,
+    uint256 strategyGain,
+    uint256 strategyLoss,
+    uint256 strategyTotalDebt,
+    uint256 credit,
+    uint256 strategyDebtRatio
+  );
+  /**
+   * @dev Emitted after withdrawing funds from a strategy
+   * @param strategy The strategy withdrawn from
+   * @param amountWithdrawn The amount withdrawn from the strategy
+   * @param loss The loss reported from the strategy
+   */
+  event WithdrawnFromStrategy(address indexed strategy, uint256 indexed amountWithdrawn, uint256 indexed loss);
+  /**
+   * @dev Emitted after withdrawing funds from the UToken
+   * @param amountWithdrawn The amount withdrawn from the UToken in terms of underlying
+   */
+  event ReservesWithdrawn(uint256 indexed amountWithdrawn);
 
   /**
    * @dev Burns uTokens from `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
