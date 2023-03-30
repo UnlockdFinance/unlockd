@@ -39,7 +39,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   address internal _underlyingAsset;
   mapping(address => bool) internal _uTokenManagers;
 
-  uint256 public constant MAXIMUM_STRATEGIES = 20;
+  uint256 public constant MAXIMUM_STRATEGIES = 5;
   uint256 public constant MAX_BPS = 10_000; // 100% [BPS]
   uint256 public constant MAX_LOSS = 1; // Max tolerated loss on withdrawal (0.01%) [BPS]
   uint256 public constant DEGRADATION_COEFFICIENT = 10 ** 18;
@@ -184,8 +184,12 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
       uint256 totalLoss;
       for (uint256 i; i < len; ) {
         address strategy = withdrawalQueue[i];
-        // We can finish withdrawing from strategies as we have enough funds
+
+        // We reached the queue limit
+        if (strategy == address(0)) break;
+
         uint256 initialBalanceOfUnderlying = IERC20Upgradeable(_underlyingAsset).balanceOf(address(this));
+        // We can finish withdrawing from strategies as we have enough funds
         if (initialBalanceOfUnderlying >= amount) break;
 
         uint256 amountNeeded = amount - initialBalanceOfUnderlying;
