@@ -43,7 +43,7 @@ abstract contract BaseAdapter is Initializable {
   uint256 private constant _ENTERED = 2;
 
   /*//////////////////////////////////////////////////////////////
-                          GENERAL VARS
+                          STORAGE
   //////////////////////////////////////////////////////////////*/
   ILendPoolAddressesProvider internal _addressesProvider;
 

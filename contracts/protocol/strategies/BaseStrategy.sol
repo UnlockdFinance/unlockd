@@ -102,7 +102,6 @@ abstract contract BaseStrategy is Initializable, IStrategy {
   /*//////////////////////////////////////////////////////////////
                     CORE LOGIC
   //////////////////////////////////////////////////////////////*/
-  //TODO: check if we want `tend()`
 
   /**
    * @notice Harvests the Strategy, recognizing any profits or losses and adjusting
@@ -138,7 +137,7 @@ abstract contract BaseStrategy is Initializable, IStrategy {
     // Allow UToken to take up to the "harvested" balance of this contract,
     // which is the amount it has earned since the last time it reported to
     // the UToken.
-    uint256 totalDebt = 0; // @todo replace 0 with: uToken.strategies(address(this)).totalDebt;
+    uint256 totalDebt = uToken.strategies(address(this)).totalDebt;
     debtOutstanding = uToken.report(profit, loss, debtPayment);
 
     // Check if free returns are left, and re-invest them
@@ -159,7 +158,7 @@ abstract contract BaseStrategy is Initializable, IStrategy {
   function withdraw(uint256 _amountNeeded) external override onlyUToken returns (uint256 amountFreed, uint256 _loss) {
     // Liquidate as much as possible to `underlyingAsset`, up to `_amountNeeded`
     (amountFreed, _loss) = _liquidatePosition(_amountNeeded);
-    // Send it directly back (NOTE: Using `msg.sender` saves some gas here)
+    // Send it directly back
     underlyingAsset.safeTransfer(msg.sender, amountFreed);
     // NOTE: Reinvest anything leftover on next `harvest`
   }
@@ -252,7 +251,7 @@ abstract contract BaseStrategy is Initializable, IStrategy {
   /*//////////////////////////////////////////////////////////////
                           INTERNALS
   //////////////////////////////////////////////////////////////*/
-  /**
+  /*
    * @notice Performs any adjustments to the core position(s) of this Strategy given
    * what change the UToken made in the "investable capital" available to the
    * Strategy.
@@ -304,7 +303,7 @@ abstract contract BaseStrategy is Initializable, IStrategy {
    *
    * NOTE: `_debtPayment` should be less than or equal to `_debtOutstanding`.
    *       It is okay for it to be less than `_debtOutstanding`, as that
-   *       should only used as a guide for how much is left to pay back.
+   *       should only be used as a guide for how much is left to pay back.
    *       Payments should be made to minimize loss from slippage, debt,
    *       withdrawal fees, etc.
    *
