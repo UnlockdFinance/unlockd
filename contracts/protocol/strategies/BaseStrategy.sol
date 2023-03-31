@@ -5,10 +5,10 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-import {IUToken} from "../../../interfaces/IUToken.sol";
-import {ILendPoolAddressesProvider} from "../../../interfaces/ILendPoolAddressesProvider.sol";
-import {IStrategy} from "../../../interfaces/strategies/IStrategy.sol";
-import {IHealthCheck} from "../../../interfaces/strategies/IHealthCheck.sol";
+import {IUToken} from "../../interfaces/IUToken.sol";
+import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
+import {IStrategy} from "../../interfaces/strategies/IStrategy.sol";
+import {IHealthCheck} from "../../interfaces/strategies/IHealthCheck.sol";
 
 /** @title BaseStrategy
  * @author Forked from https://github.com/yearn/yearn-vaults/blob/master/contracts/BaseStrategy.sol
@@ -33,7 +33,7 @@ abstract contract BaseStrategy is Initializable, IStrategy {
   bool public emergencyExit;
 
   // Gap for upgradeability
-  uint256[50] private __gap;
+  uint256[20] private __gap;
 
   /*//////////////////////////////////////////////////////////////
                       MODIFIERS

@@ -5,6 +5,9 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
+import {ILendPoolAddressesProvider} from "../../../interfaces/ILendPoolAddressesProvider.sol";
+import {IStrategy} from "../../../interfaces/strategies/IStrategy.sol";
+
 /** @title BaseLender
  * @author Forked and adapted from https://github.com/Grandthrax/yearnV2-generic-lender-strat/tree/master/contracts/GenericLender
  * @notice `BaseLender` sets the base functionality to be implemented by Unlockd lender contracts.
@@ -34,7 +37,7 @@ abstract contract BaseLender is Initializable {
   // Underlying decimals
   uint256 public underlyingDecimals;
   // Gap for upgradeability
-  uint256[50] private __gap;
+  uint256[20] private __gap;
 
   /*//////////////////////////////////////////////////////////////
                           MODIFIERS
@@ -70,19 +73,14 @@ abstract contract BaseLender is Initializable {
   /**
    * @notice Deposits current lender balance to lender's managed protocol
    **/
-  function deposit() external onlyStrategy {
-    // Deposit all current balance
-    _deposit(underlyingAsset.balanceOf(address(this)));
-  }
+  function deposit() external virtual;
 
   /**
    * @notice Withdraws the specified amount from lender's managed protocol
    * @param amount the amount to withdraw
    * @return Withdrawn amount
    **/
-  function withdraw(uint256 amount) external onlyStrategy returns (uint256) {
-    return _withdraw(amount);
-  }
+  function withdraw(uint256 amount) external virtual returns (uint256);
 
   /** todo: see the caveats of this kind of withdrawal and handle accordingly
    * @notice Withdraws all amount from the lender without checking for errors
@@ -90,9 +88,7 @@ abstract contract BaseLender is Initializable {
    * aiming at withdrawing the provided amount and transferring all of it to the UToken
    * @param amount the amount to withdraw in the emergency state
    **/
-  function emergencyWithdraw(uint256 amount) external onlyStrategy {
-    _emergencyWithdraw(amount);
-  }
+  function emergencyWithdraw(uint256 amount) external virtual;
 
   /**
    * @notice Withdraws all the deposited funds in lender's managed protocol
@@ -157,6 +153,7 @@ abstract contract BaseLender is Initializable {
   /*//////////////////////////////////////////////////////////////
                         INTERNALS
   //////////////////////////////////////////////////////////////*/
+
   /**
    * @notice Returns the total assets under management.
    * It is important to note that the total assets under management
