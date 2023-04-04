@@ -329,51 +329,11 @@ contract UnlockdProtocolDataProvider {
     loanData.bidBorrowAmount = loan.bidBorrowAmount;
   }
 
-  /* CAUTION: Price uint is ETH based (WEI, 18 decimals) */
-  /**
-  @dev returns the NFT price for a given NFT valued by NFTX
-  @param asset the NFT collection
-  @param tokenId the NFT token Id
-   */
-  function getNFTXPrice(address asset, uint256 tokenId, address reserveAsset) external view returns (uint256) {
-    return NFTXSeller.getNFTXPrice(ADDRESSES_PROVIDER, asset, tokenId, reserveAsset);
-  }
-
-  function getStartingBidPrice(
-    address[2] memory sudoSwapPair,
-    address reserveAsset,
-    address nftAsset,
-    uint256 tokenId
-  ) external view returns (uint256 liqPrice) {
+  function getStartingBidPrice(address nftAsset, uint256 tokenId) external view returns (uint256 liqPrice) {
     ILendPool iLendPool = ILendPool(ADDRESSES_PROVIDER.getLendPool());
     (, , , uint256 borrowAmount, , ) = iLendPool.getNftDebtData(nftAsset, tokenId);
 
     liqPrice = borrowAmount;
-
-    if (sudoSwapPair[0] == address(0) || sudoSwapPair[1] == address(0)) {
-      return liqPrice;
-    }
-
-    // Check if collection is supported by NFTX market
-    if (iLendPool.getIsMarketSupported(nftAsset, 0)) {
-      uint256 priceNFTX = NFTXSeller.getNFTXPrice(ADDRESSES_PROVIDER, nftAsset, tokenId, reserveAsset);
-      if (priceNFTX > liqPrice) {
-        liqPrice = priceNFTX;
-      }
-    }
-
-    // Check if collection is supported by SudoSwap market
-    if (iLendPool.getIsMarketSupported(nftAsset, 1)) {
-      for (uint256 i = 0; i < 2; ) {
-        (, uint256 newSpotPrice, , , ) = ILSSVMPair(sudoSwapPair[i]).getBuyNFTQuote(1);
-        if (newSpotPrice > liqPrice) {
-          liqPrice = newSpotPrice;
-        }
-        unchecked {
-          ++i;
-        }
-      }
-    }
   }
 
   struct GetLiquidationPriceLocalVars {

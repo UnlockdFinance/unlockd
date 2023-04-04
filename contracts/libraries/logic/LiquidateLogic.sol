@@ -152,8 +152,6 @@ library LiquidateLogic {
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    mapping(address => mapping(uint8 => bool)) storage isMarketSupported,
-    mapping(address => address[2]) storage sudoswapPairs,
     DataTypes.ExecuteLendPoolStates memory poolStates,
     DataTypes.ExecuteAuctionParams memory params
   ) external {
@@ -203,7 +201,7 @@ library LiquidateLogic {
       require(vars.borrowAmount > vars.thresholdPrice, Errors.LP_BORROW_NOT_EXCEED_LIQUIDATION_THRESHOLD);
 
       // bid price must greater than liquidate price
-      require(params.bidPrice >= vars.borrowAmount, Errors.LPL_BID_PRICE_LESS_THAN_DEBT_PRICE); // to be removed or updated 2 debt
+      require(params.bidPrice >= vars.borrowAmount, Errors.LPL_BID_PRICE_LESS_THAN_DEBT_PRICE);
 
       // bid price must greater than biggest between borrow and markets price, as well as a timestamp configuration fee
       require(

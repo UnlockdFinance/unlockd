@@ -245,22 +245,6 @@ export const deployLiquidateLogicLibrary = async (verify?: boolean) => {
   );
 };
 
-export const deployLiquidateMarketsLogicLibrary = async (verify?: boolean) => {
-  const liquidateMarketsLogicArtifact = await readArtifact(eContractid.LiquidateMarketsLogic);
-  const linkedLiquidateMarketsLogicByteCode = linkBytecode(liquidateMarketsLogicArtifact, {});
-
-  const liquidateMarketsLogicFactory = await DRE.ethers.getContractFactory(
-    liquidateMarketsLogicArtifact.abi,
-    linkedLiquidateMarketsLogicByteCode
-  );
-
-  const liquidateMarketsLogic = await (
-    await liquidateMarketsLogicFactory.connect(await getDeploySigner()).deploy()
-  ).deployed();
-
-  return withSaveAndVerify(liquidateMarketsLogic, eContractid.LiquidateMarketsLogic, [], verify);
-};
-
 export const deployLendingLogicLibrary = async (verify?: boolean) => {
   const lendingLogicArtifact = await readArtifact(eContractid.LendingLogic);
   const linkedLendingLogicByteCode = linkBytecode(lendingLogicArtifact, {});
@@ -286,7 +270,6 @@ export const deployLendPoolLibraries = async (verify?: boolean) => {
   const supplyLogic = await deploySupplyLogicLibrary(verify);
   const borrowLogic = await deployBorrowLogicLibrary(verify);
   const liquidateLogic = await deployLiquidateLogicLibrary(verify);
-  const liquidateMarketsLogic = await deployLiquidateMarketsLogicLibrary(verify);
   const lendingLogic = await deployLendingLogicLibrary(verify);
 };
 
@@ -302,7 +285,6 @@ export const getLendPoolLibraries = async (verify?: boolean): Promise<LendPoolLi
   const supplyLogicAddress = await getContractAddressInDb(eContractid.SupplyLogic);
   const borrowLogicAddress = await getContractAddressInDb(eContractid.BorrowLogic);
   const liquidateLogicAddress = await getContractAddressInDb(eContractid.LiquidateLogic);
-  const liquidateMarketsLogicAddress = await getContractAddressInDb(eContractid.LiquidateMarketsLogic);
   const lendingLogicAddress = await getContractAddressInDb(eContractid.LendingLogic);
 
   // Hardcoded solidity placeholders, if any library changes path this will fail.
@@ -324,7 +306,6 @@ export const getLendPoolLibraries = async (verify?: boolean): Promise<LendPoolLi
     [PLACEHOLDER_SUPPLY_LOGIC]: supplyLogicAddress,
     [PLACEHOLDER_BORROW_LOGIC]: borrowLogicAddress,
     [PLACEHOLDER_LIQUIDATE_LOGIC]: liquidateLogicAddress,
-    [PLACEHOLDER_LIQUIDATE_MARKETS_LOGIC]: liquidateMarketsLogicAddress,
     //[PLACEHOLDER_LENDING_LOGIC]: lendingLogicAddress,
   };
 };

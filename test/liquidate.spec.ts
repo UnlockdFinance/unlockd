@@ -119,8 +119,6 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.1).toFixed(0);
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
 
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
     await pool.connect(liquidator.signer).auction(bayc.address, "101", auctionPrice, liquidator.address);
 
     // check result
@@ -311,8 +309,6 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
 
       await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
 
-      await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
-      await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
       await pool.connect(liquidator.signer).auction(bayc.address, "102", auctionPrice, liquidator.address);
 
       // check result
@@ -355,9 +351,6 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
 
       // remove  supporting liquidations on sudoswap / NFTX for auction price purposes
       await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
-
-      await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
-      await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
 
       await pool.connect(liquidator4.signer).auction(bayc.address, "102", auctionPrice, liquidator4.address);
 

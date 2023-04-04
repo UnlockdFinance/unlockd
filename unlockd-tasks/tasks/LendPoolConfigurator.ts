@@ -2,17 +2,6 @@ import { task } from "hardhat/config";
 import { getMnemonicEmergencyWallet, getOwnerWallet } from "../helpers/config";
 import { Functions } from "../helpers/protocolFunctions";
 
-task("configurator:setIsMarketSupported", "Set the allowed collections to liquidate on the markets")
-  .addParam("nftaddress", "The nft address to add to the market")
-  .addParam("marketid", "The market id: 0 is NFTX and 1 is sudoswap")
-  .addFlag("val", "true or false if the collection is market supported")
-  .setAction(async ({ nftaddress, marketid, val }) => {
-    const wallet = await getOwnerWallet();
-
-    const tx = await Functions.LENDPOOLCONFIGURATOR.setIsMarketSupported(wallet, nftaddress, marketid, val);
-    console.log(tx);
-  });
-
 task("configurator:setTimeframe", "Set the timeframe in the protocol")
   .addParam("newtimeframe", "The timeframe value")
   .setAction(async ({ newtimeframe }) => {

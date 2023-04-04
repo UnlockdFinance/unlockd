@@ -355,28 +355,6 @@ interface ILendPool {
   function liquidate(address nftAsset, uint256 nftTokenId, uint256 amount) external returns (uint256);
 
   /**
-   * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The collateral asset is sold on NFTX & Sushiswap
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param nftTokenId The token ID of the underlying NFT used as collateral
-   **/
-  function liquidateNFTX(address nftAsset, uint256 nftTokenId, uint256 amountOutMin) external returns (uint256);
-
-  /**
-   * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The collateral asset is sold on NFTX & Sushiswap
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param nftTokenId The token ID of the underlying NFT used as collateral
-   **/
-  function liquidateSudoSwap(
-    address nftAsset,
-    uint256 nftTokenId,
-    uint256 amountOutMin,
-    address LSSVMPair,
-    uint256 amountOutMinSudoswap
-  ) external returns (uint256);
-
-  /**
    * @dev Approves valuation of an NFT for a user
    * @dev Just the NFT holder can trigger the configuration
    * @param nftAsset The address of the underlying NFT used as collateral
@@ -704,13 +682,6 @@ interface ILendPool {
   function setTimeframe(uint256 timeframe) external;
 
   /**
-   * @dev Adds and address to be allowed to sell on NFTX
-   * @param nftAsset the nft address of the NFT to sell
-   * @param val if true is allowed to sell if false is not
-   **/
-  function setIsMarketSupported(address nftAsset, uint8 market, bool val) external;
-
-  /**
    * @dev sets the fee for configuringNFTAsCollateral
    * @param configFee the amount to charge to the user
    **/
@@ -763,9 +734,4 @@ interface ILendPool {
    * @dev Returns the auctionDurationConfigFee amount
    **/
   function getAuctionDurationConfigFee() external view returns (uint256);
-
-  /**
-   * @dev Returns if the address is allowed to sell or not on NFTX
-   */
-  function getIsMarketSupported(address nftAsset, uint8 market) external view returns (bool);
 }

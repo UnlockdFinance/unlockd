@@ -145,14 +145,6 @@ const getReserveNormalizedVariableDebt = async (wallet: Wallet, nftAddress: stri
 const getReservesList = async (wallet: Wallet) => {
   return Contracts.lendPool.connect(wallet).getReservesList();
 };
-const liquidateNFTX = async (wallet: Wallet, nftAddress: string, tokenId: number) => {
-  const gas = await Contracts.lendPool.connect(wallet).estimateGas.liquidateNFTX(nftAddress, tokenId, 0);
-
-  const strGas = gas.toString();
-  const gasPrice = Math.round(parseInt(strGas) * 1.1);
-  console.log(gasPrice);
-  return Contracts.lendPool.connect(wallet).liquidateNFTX(nftAddress, tokenId, 0, { gasLimit: gasPrice.toFixed(0) });
-};
 //#endregion
 
 //#region WETHGateway
@@ -402,12 +394,6 @@ const mintNFTX = async (wallet: Wallet, token: Contract, tokenIds: string[], amo
 };
 //#endregion
 
-//#region LendPoolConfigurator for any doubts in the parameters
-// check the LendPoolConfigurator.sol or ILendPoolconfigurator.sol
-const setIsMarketSupported = async (wallet: Wallet, nftAddresses: string, marketId: string, val: boolean) => {
-  return Contracts.lendPoolConfigurator.connect(wallet).setIsMarketSupported(nftAddresses, marketId, val);
-};
-
 const setTimeframe = async (wallet: Wallet, newTimeframe: string) => {
   return Contracts.lendPoolConfigurator.connect(wallet).setTimeframe(newTimeframe);
 };
@@ -574,7 +560,6 @@ export const Functions = {
     getConfigFee: getConfigFee,
     getTimeframe: getTimeframe,
     getNftConfigByTokenId: getNftConfigByTokenId,
-    liquidateNFTX: liquidateNFTX,
     getReserveConfiguration: getReserveConfiguration,
     getNftConfiguration: getNftConfiguration,
     getNftData: getNftData,
@@ -664,7 +649,6 @@ export const Functions = {
     getUNFTAddresses: getUNFTAddresses,
   },
   LENDPOOLCONFIGURATOR: {
-    setIsMarketSupported: setIsMarketSupported,
     setConfigFee: setConfigFee,
     setTimeframe: setTimeframe,
     setActiveFlagOnNft: setActiveFlagOnNft,
