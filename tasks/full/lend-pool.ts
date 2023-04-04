@@ -43,7 +43,7 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
         throw Error("Invalid UNFT Registry proxy in deployed contracts");
       }
       //console.log("Setting UNFTRegistry to address provider...");
-      //await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
+      await waitForTx(await addressesProvider.setUNFTRegistry(unftRegistryProxy.address));
 
       //Reserves Init & NFTs Init need IncentivesController
       let incentivesControllerAddress = getParamPerNetwork(poolConfig.IncentivesController, network);
@@ -100,12 +100,12 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
 
       await insertContractAddressInDb(eContractid.LendPoolConfigurator, lendPoolConfiguratorProxy.address);
 
-      ////////////////////////////////////////////////////////////////////////
-      const admin = await DRE.ethers.getSigner(await getEmergencyAdmin(poolConfig));
-      // Pause market during deployment
-      // await waitForTx(await lendPoolConfiguratorProxy.connect(admin).setPoolPause(true));
-      // Generic UToken & DebtToken Implementation in Pool
-      await deployUTokenImplementations(pool, poolConfig.ReservesConfig, verify);
+      //   ////////////////////////////////////////////////////////////////////////
+      //   const admin = await DRE.ethers.getSigner(await getEmergencyAdmin(poolConfig));
+      //   // Pause market during deployment
+      //   // await waitForTx(await lendPoolConfiguratorProxy.connect(admin).setPoolPause(true));
+      //   // Generic UToken & DebtToken Implementation in Pool
+      //   await deployUTokenImplementations(pool, poolConfig.ReservesConfig, verify);
     } catch (error) {
       console.log(error);
     }
