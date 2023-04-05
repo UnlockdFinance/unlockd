@@ -434,7 +434,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
    * @return The quantity of underlying tokens available for the Strategy to draw on.
    */
   // todo optimize function
-  function _computeAvailableCredit(address strategy) internal returns (uint256) {
+  function _computeAvailableCredit(address strategy) internal view returns (uint256) {
     if (emergencyShutdown) return 0;
     uint256 totalAssets = _totalAssets();
     uint256 uTokenDebtLimit = _computeDebtLimit(debtRatio, totalAssets);
@@ -463,12 +463,12 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   }
 
   // todo comment
-  function _computeDebtLimit(uint256 _debtRatio, uint256 _totalAssets) internal view returns (uint256) {
-    return (_totalAssets * _debtRatio) / MAX_BPS;
+  function _computeDebtLimit(uint256 debtRatio_, uint256 totalAssets_) internal pure returns (uint256) {
+    return (totalAssets_ * debtRatio_) / MAX_BPS;
   }
 
   // todo comment
-  function _calculateLockedProfit() internal returns (uint256) {
+  function _calculateLockedProfit() internal view returns (uint256) {
     uint256 lockedFundsRatio = (block.timestamp - lastReport) * lockedProfitDegradation;
     if (lockedFundsRatio < DEGRADATION_COEFFICIENT)
       return lockedProfit - ((lockedFundsRatio * lockedProfit) / DEGRADATION_COEFFICIENT);
@@ -522,6 +522,14 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
    **/
   function getAvailableLiquidity() public view override returns (uint256) {
     return LendingLogic.calculateYearnAvailableLiquidityInReserve(_addressProvider);
+  }
+
+  /**
+   * @dev Returns the params of a requested strategy
+   * @return The strategy params of the requested strategy
+   **/
+  function getStrategy(address strategy) external view override returns (StrategyParams memory) {
+    return strategies[strategy];
   }
 
   /**

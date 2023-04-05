@@ -223,4 +223,6 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   function debtOutstanding(address strategy) external returns (uint256);
 
   function report(uint256 gain, uint256 loss, uint256 _debtPayment) external returns (uint256);
+
+  function getStrategy(address strategy) external view returns (StrategyParams memory);
 }

@@ -11,7 +11,7 @@ import {IStrategy} from "../../interfaces/strategies/IStrategy.sol";
 import {IHealthCheck} from "../../interfaces/strategies/IHealthCheck.sol";
 
 /** @title BaseStrategy
- * @author Forked from https://github.com/yearn/yearn-vaults/blob/master/contracts/BaseStrategy.sol
+ * @author Forked and adapted from https://github.com/yearn/yearn-vaults/blob/master/contracts/BaseStrategy.sol
  * @notice `BaseStrategy` sets the base functionality to be implemented by Unlockd strategies.
  * @dev Inheriting strategies should implement functionality according to the standards defined in this
  * contract.
@@ -80,8 +80,8 @@ abstract contract BaseStrategy is Initializable, IStrategy {
     IUToken _uToken,
     address[] calldata _keepers
   ) internal onlyInitializing {
-    if (address(_provider) == address(0)) revert InvalidZeroAddress();
-    if (address(_uToken) == address(0)) revert InvalidZeroAddress();
+    if (address(_provider) == address(0)) _revert(InvalidZeroAddress.selector);
+    if (address(_uToken) == address(0)) _revert(InvalidZeroAddress.selector);
     addressesProvider = _provider;
     uToken = _uToken;
     underlyingAsset = IERC20(_uToken.UNDERLYING_ASSET_ADDRESS());
@@ -137,7 +137,7 @@ abstract contract BaseStrategy is Initializable, IStrategy {
     // Allow UToken to take up to the "harvested" balance of this contract,
     // which is the amount it has earned since the last time it reported to
     // the UToken.
-    uint256 totalDebt = uToken.strategies(address(this)).totalDebt;
+    uint256 totalDebt = uToken.getStrategy(address(this)).totalDebt;
     debtOutstanding = uToken.report(profit, loss, debtPayment);
 
     // Check if free returns are left, and re-invest them
@@ -173,7 +173,8 @@ abstract contract BaseStrategy is Initializable, IStrategy {
    * @param _newStrategy The Strategy to migrate to.
    */
   function migrate(address _newStrategy) external onlyPoolAdmin {
-    if (BaseStrategy(_newStrategy).uToken() != uToken) _revert(StrategyNotManagingSameUnderlying.selector);
+    if (address(IStrategy(_newStrategy).getUToken()) != address(uToken))
+      _revert(StrategyNotManagingSameUnderlying.selector);
     _prepareMigration(_newStrategy);
     underlyingAsset.safeTransfer(_newStrategy, underlyingAsset.balanceOf(address(this)));
   }
@@ -248,6 +249,14 @@ abstract contract BaseStrategy is Initializable, IStrategy {
     return estimatedTotalAssets() != 0;
   }
 
+  /**
+   *  @notice Returns the Strategy's uToken
+   *  @return the uToken
+   */
+  function getUToken() public view override returns (IUToken) {
+    return uToken;
+  }
+
   /*//////////////////////////////////////////////////////////////
                           INTERNALS
   //////////////////////////////////////////////////////////////*/
@@ -257,33 +266,31 @@ abstract contract BaseStrategy is Initializable, IStrategy {
    * Strategy.
    * @dev Note that all "free capital" (capital not invested) in the Strategy after the report
    * was made is available for reinvestment. This number could be 0, and this scenario should be handled accordingly.
-   * @param _debtOutstanding Total principal + interest of debt yet to be paid back
+   * @param debtOutstanding Total principal + interest of debt yet to be paid back
    */
-  function _adjustPosition(uint256 _debtOutstanding) internal virtual;
+  function _adjustPosition(uint256 debtOutstanding) internal virtual;
 
   /**
-   * @notice Liquidate up to `_amountNeeded` of UToken's `underlyingAsset` of this strategy's positions,
+   * @notice Liquidate up to `amountNeeded` of UToken's `underlyingAsset` of this strategy's positions,
    * irregardless of slippage. Any excess will be re-invested with `_adjustPosition()`.
    * @dev This function should return the amount of UToken's `underlyingAsset` tokens made available by the
-   * liquidation. If there is a difference between `_amountNeeded` and `_liquidatedAmount`, `_loss` indicates whether the
+   * liquidation. If there is a difference between `amountNeeded` and `liquidatedAmount`, `loss` indicates whether the
    * difference is due to a realized loss, or if there is some other sitution at play
    * (e.g. locked funds) where the amount made available is less than what is needed.
    *
-   * NOTE: The invariant `_liquidatedAmount + _loss <= _amountNeeded` should always be maintained
-   * @param _amountNeeded amount of UToken's `underlyingAsset` needed to be liquidated
-   * @return _liquidatedAmount the actual liquidated amount
-   * @return _loss difference between the expected amount needed to reach `_amountNeeded` and the actual liquidated amount
+   * NOTE: The invariant `liquidatedAmount + loss <= amountNeeded` should always be maintained
+   * @param amountNeeded amount of UToken's `underlyingAsset` needed to be liquidated
+   * @return liquidatedAmount the actual liquidated amount
+   * @return loss difference between the expected amount needed to reach `amountNeeded` and the actual liquidated amount
    */
-  function _liquidatePosition(
-    uint256 _amountNeeded
-  ) internal virtual returns (uint256 _liquidatedAmount, uint256 _loss);
+  function _liquidatePosition(uint256 amountNeeded) internal virtual returns (uint256 liquidatedAmount, uint256 loss);
 
   /**
    * @notice Liquidates everything and returns the amount that got freed.
    * @dev This function is used during emergency exit instead of `_prepareReturn()` to
    * liquidate all of the Strategy's positions back to the UToken.
    */
-  function _liquidateAllPositions() internal virtual returns (uint256 _amountFreed);
+  function _liquidateAllPositions() internal virtual returns (uint256 amountFreed);
 
   /**
    * Perform any Strategy unwinding or other calls necessary to capture the
@@ -295,14 +302,14 @@ abstract contract BaseStrategy is Initializable, IStrategy {
    * This method returns any realized profits and/or realized losses
    * incurred, and should return the total amounts of profits/losses/debt
    * payments (in UToken's `underlyingAsset` tokens) for the UToken's accounting (e.g.
-   * `underlyingAsset.balanceOf(this) >= _debtPayment + _profit`).
+   * `underlyingAsset.balanceOf(this) >= debtPayment + profit`).
    *
-   * `_debtOutstanding` will be 0 if the Strategy is not past the configured
+   * `debtOutstanding` will be 0 if the Strategy is not past the configured
    * debt limit, otherwise its value will be how far past the debt limit
    * the Strategy is. The Strategy's debt limit is configured in the UToken.
    *
-   * NOTE: `_debtPayment` should be less than or equal to `_debtOutstanding`.
-   *       It is okay for it to be less than `_debtOutstanding`, as that
+   * NOTE: `debtPayment` should be less than or equal to `debtOutstanding`.
+   *       It is okay for it to be less than `debtOutstanding`, as that
    *       should only be used as a guide for how much is left to pay back.
    *       Payments should be made to minimize loss from slippage, debt,
    *       withdrawal fees, etc.
@@ -310,8 +317,8 @@ abstract contract BaseStrategy is Initializable, IStrategy {
    * See `UToken.debtOutstanding()`.
    */
   function _prepareReturn(
-    uint256 _debtOutstanding
-  ) internal virtual returns (uint256 _profit, uint256 _loss, uint256 _debtPayment);
+    uint256 debtOutstanding
+  ) internal virtual returns (uint256 profit, uint256 loss, uint256 debtPayment);
 
   function _performHealthCheck(
     uint256 profit,
@@ -334,8 +341,17 @@ abstract contract BaseStrategy is Initializable, IStrategy {
    * @notice Do anything necessary to prepare this Strategy for migration, such as
    * transferring any reserve or LP tokens, CDPs, or other tokens or stores of
    * value.
+   * @param newStrategy the new strategy to migrate to
    */
-  function _prepareMigration(address _newStrategy) internal virtual;
+  function _prepareMigration(address newStrategy) internal virtual;
+
+  /**
+   * @notice Returns the current strategy's balance in underlying token
+   * @return the strategy's balance of underlying token
+   */
+  function _underlyingBalance() internal view returns (uint256) {
+    return underlyingAsset.balanceOf(address(this));
+  }
 
   /**
    * @dev Perform more efficient reverts
