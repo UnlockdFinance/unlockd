@@ -32,6 +32,9 @@ abstract contract BaseStrategy is Initializable, IStrategy {
   address public healthCheck;
   bool public emergencyExit;
 
+  // Name of the strategy
+  bytes32 public strategyName;
+
   // Gap for upgradeability
   uint256[20] private __gap;
 
@@ -71,14 +74,17 @@ abstract contract BaseStrategy is Initializable, IStrategy {
 
   /**
    * @notice Initialize a new Strategy.
+   * @dev note that the strategy name must be at most 32 bytes long
    * @param _provider The address of the LendPoolAddressesProvider.
    * @param _uToken The address of the UToken associated to the strategy.
    * @param _keepers The addresses of the keepers to be added as valid keepers to the strategy.
+   * @param _strategyName the name of the strategy
    */
   function __BaseStrategy_init(
     ILendPoolAddressesProvider _provider,
     IUToken _uToken,
-    address[] calldata _keepers
+    address[] calldata _keepers,
+    bytes32 _strategyName
   ) internal onlyInitializing {
     if (address(_provider) == address(0)) _revert(InvalidZeroAddress.selector);
     if (address(_uToken) == address(0)) _revert(InvalidZeroAddress.selector);
@@ -97,6 +103,8 @@ abstract contract BaseStrategy is Initializable, IStrategy {
         ++i;
       }
     }
+
+    strategyName = _strategyName;
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -115,38 +123,7 @@ abstract contract BaseStrategy is Initializable, IStrategy {
    *  called to report to the UToken on the Strategy's position, especially if
    *  any losses have occurred.
    */
-  function harvest() external onlyKeepers {
-    uint256 profit;
-    uint256 loss;
-    uint256 debtPayment;
-    uint256 debtOutstanding = uToken.debtOutstanding(address(this));
-    if (emergencyExit) {
-      // Free up as much capital as possible
-      uint256 amountFreed = _liquidateAllPositions();
-      if (amountFreed < debtOutstanding) {
-        loss = debtOutstanding - amountFreed;
-      } else if (amountFreed > debtOutstanding) {
-        profit = amountFreed - debtOutstanding;
-      }
-      debtPayment = debtOutstanding - loss;
-    } else {
-      // Free up returns for UToken to pull
-      (profit, loss, debtPayment) = _prepareReturn(debtOutstanding);
-    }
-
-    // Allow UToken to take up to the "harvested" balance of this contract,
-    // which is the amount it has earned since the last time it reported to
-    // the UToken.
-    uint256 totalDebt = uToken.getStrategy(address(this)).totalDebt;
-    debtOutstanding = uToken.report(profit, loss, debtPayment);
-
-    // Check if free returns are left, and re-invest them
-    _adjustPosition(debtOutstanding);
-
-    _performHealthCheck(profit, loss, debtPayment, debtOutstanding, totalDebt);
-
-    emit Harvested(profit, loss, debtPayment, debtOutstanding);
-  }
+  function harvest() external virtual;
 
   /**
    * @notice Withdraws `_amountNeeded` to `_uToken`.
@@ -255,6 +232,14 @@ abstract contract BaseStrategy is Initializable, IStrategy {
    */
   function getUToken() public view override returns (IUToken) {
     return uToken;
+  }
+
+  /**
+   *  @notice Returns the Strategy's name
+   *  @return the name of the strategy
+   */
+  function name() external view returns (bytes32) {
+    return strategyName;
   }
 
   /*//////////////////////////////////////////////////////////////

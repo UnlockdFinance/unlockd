@@ -10,13 +10,14 @@ import {IYVault} from "../../interfaces/yearn/IYVault.sol";
 
 /** @title GenericYVaultStrategy
  * @author https://github.com/Grandthrax/yearn-steth-acc/blob/master/contracts/Strategy.sol
- * @notice `GenericYVaultStrategy` enables investing/divesting funds to any Yearn Vault
+ * @notice `GenericYVaultStrategy` supplies an underlying token into a generic YVault,
+ * earning the vault's yield in return
  **/
 contract GenericYVaultStrategy is BaseStrategy {
   using SafeERC20 for IERC20;
 
   /*//////////////////////////////////////////////////////////////
-                        ERRRORS
+                        ERRORS
   //////////////////////////////////////////////////////////////*/
   error NotEnoughFundsToInvest();
 
@@ -51,18 +52,64 @@ contract GenericYVaultStrategy is BaseStrategy {
     ILendPoolAddressesProvider _provider,
     IUToken _uToken,
     address[] calldata _keepers,
+    bytes32 _strategyName,
     IYVault _yVault
   ) public initializer {
     if (address(_yVault) == address(0)) _revert(InvalidZeroAddress.selector);
-    __BaseStrategy_init(_provider, _uToken, _keepers);
+    __BaseStrategy_init(_provider, _uToken, _keepers, _strategyName);
     yVault = _yVault;
     underlyingAsset.safeApprove(address(_yVault), type(uint256).max);
     maxSingleTrade = 1_000 * 1e18;
   }
 
   /*//////////////////////////////////////////////////////////////
-                      INVEST LOGIC
+                      CORE LOGIC
   //////////////////////////////////////////////////////////////*/
+  /**
+   * @notice Harvests the Strategy, recognizing any profits or losses and adjusting
+   *  the Strategy's position.
+   *  In the rare case the Strategy is in emergency shutdown, this will exit
+   *  the Strategy's position.
+   * @dev When `harvest()` is called, the Strategy reports to the UToken (via
+   *  `UToken.report()`), so in some cases `harvest()` must be called in order
+   *  to take in profits, to borrow newly available funds from the UToken, or
+   *  otherwise adjust its position. In other cases `harvest()` must be
+   *  called to report to the UToken on the Strategy's position, especially if
+   *  any losses have occurred.
+   */
+  function harvest() external override onlyKeepers {
+    uint256 profit;
+    uint256 loss;
+    uint256 debtPayment;
+    uint256 debtOutstanding = uToken.debtOutstanding(address(this));
+    if (emergencyExit) {
+      // Free up as much capital as possible
+      uint256 amountFreed = _liquidateAllPositions();
+      if (amountFreed < debtOutstanding) {
+        loss = debtOutstanding - amountFreed;
+      } else if (amountFreed > debtOutstanding) {
+        profit = amountFreed - debtOutstanding;
+      }
+      debtPayment = debtOutstanding - loss;
+    } else {
+      // Free up returns for UToken to pull
+      (profit, loss, debtPayment) = _prepareReturn(debtOutstanding);
+    }
+
+    // Allow UToken to take up to the "harvested" balance of this contract,
+    // which is the amount it has earned since the last time it reported to
+    // the UToken.
+    uint256 totalDebt = uToken.getStrategy(address(this)).totalDebt;
+    debtOutstanding = uToken.report(profit, loss, debtPayment);
+
+    // Check if free returns are left, and re-invest them
+    _adjustPosition(debtOutstanding);
+
+    _performHealthCheck(profit, loss, debtPayment, debtOutstanding, totalDebt);
+
+    emit Harvested(profit, loss, debtPayment, debtOutstanding);
+  }
+
   /**
    * @notice Invests current Strategy balance to the yearn vault
    * @dev Performs a direct investment rather than the usual `harvest`
@@ -74,6 +121,10 @@ contract GenericYVaultStrategy is BaseStrategy {
   /*//////////////////////////////////////////////////////////////
                          SETTERS
   //////////////////////////////////////////////////////////////*/
+  /**
+   * @notice Sets the maximum single trade amount allowed
+   * @param _maxSingleTrade The new maximum single trade value
+   */
   function setMaxSingleTrade(uint256 _maxSingleTrade) external onlyPoolAdmin {
     if (_maxSingleTrade == 0) _revert(InvalidZeroAmount.selector);
     maxSingleTrade = _maxSingleTrade;
@@ -109,9 +160,9 @@ contract GenericYVaultStrategy is BaseStrategy {
   /**
    * @notice Invests `amount` of underlying, depositing it in the Yearn Vault
    * @param amount The amount of underlying to be deposited in the vault
-   * @return The amount of shares received, in terms of underlying
+   * @return depositedAmount The amount of shares received, in terms of underlying
    */
-  function _invest(uint256 amount) internal returns (uint256) {
+  function _invest(uint256 amount) internal returns (uint256 depositedAmount) {
     // Don't do anything if amount to invest is 0
     if (amount == 0) return 0;
 
@@ -130,8 +181,8 @@ contract GenericYVaultStrategy is BaseStrategy {
 
     uint256 shares = vault.deposit(amount);
 
+    depositedAmount = _shareValue(shares);
     emit Invested(msg.sender, amount);
-    return _shareValue(shares);
   }
 
   /**
