@@ -192,7 +192,7 @@ contract GenericYVaultStrategy is BaseStrategy {
    * the requested `shares` to divest
    * @dev care should be taken, as the `shares` parameter is *not* in terms of underlying,
    * but of yvault shares
-   * @return the total amount divested, in terms of underlying
+   * @return the total amount divested, in terms of underlying asset
    **/
   function _divest(uint256 shares) internal returns (uint256) {
     uint256 withdrawn = yVault.withdraw(shares);

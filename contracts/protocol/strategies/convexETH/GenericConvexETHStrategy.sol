@@ -11,13 +11,14 @@ import {IConvex} from "../../../interfaces/convex/IConvex.sol";
 import {IConvexRewards} from "../../../interfaces/convex/IConvexRewards.sol";
 import {ICurve} from "../../../interfaces/curve/ICurve.sol";
 import {IWETH} from "../../../interfaces/IWETH.sol";
+import {IUniswapV2Router02} from "../../../interfaces/IUniswapV2Router02.sol";
 
 /** @title GenericConvexETHStrategy
  * @author Unlockd
  * @notice `GenericConvexETHStrategy` deposits liquidity in a Curve pool (without staking
  in the Curve gauge), and then stakes the received LP tokens into Convex's pool
- * to earn CVX on top of Curve's native rewards. CVX's rewards are staked in Convex to get
- * extra rewards.
+ * to earn CVX on top of Curve's native rewards. CVX's rewards are staked in the Convex pool rewards contract 
+ * to earn extra rewards.
  **/
 contract GenericConvexETHStrategy is BaseStrategy {
   using SafeERC20 for IERC20;
@@ -47,6 +48,7 @@ contract GenericConvexETHStrategy is BaseStrategy {
   IERC20 public constant cvx = IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B);
 
   uint256 public constant MAX_BPS = 10_000; // 100% [BPS]
+  uint256 public constant MIN_SWAP_AMOUNT = 1e17; // 100% [BPS]
 
   /*//////////////////////////////////////////////////////////////
                           STORAGE
@@ -55,20 +57,22 @@ contract GenericConvexETHStrategy is BaseStrategy {
   // Convex
   IConvex public convexBooster; // Main Convex deposit contract for LP tokens.
   uint256 public pid; // The convex pool identifier
-  IConvexRewards public convexMainRewardPool; // Main convex reward contract for all Convex LP pools.
+  IConvexRewards public convexRewardPool; // Main convex reward contract for all Convex LP pools.
   IERC20 public convexLpToken; // Main reward token for `convexRewardPool`
   IERC20 public rewardToken; // Main reward token for `convexRewardPool`
 
   // Curve
   ICurve public curvePool; // Main Curve pool for this Strategy
-  ICurve public crvEthPool; // CRV-ETH pool in Curve
-  ICurve public cvxEthPool; // CVX-ETH pool in Curve
+  ICurve public crvWethPool; // CRV-WETH pool in Curve
+  ICurve public cvxWEthPool; // CVX-WETH pool in Curve
 
   IReserveOracleGetter public reserveOracle;
 
   uint256 public maxSingleTrade;
 
   uint256 public slippageTolerance; // BPS
+
+  IUniswapV2Router02 router; // Router of preference to swap extra reward tokens
 
   /*//////////////////////////////////////////////////////////////
                           PROXY INIT LOGIC
@@ -89,15 +93,17 @@ contract GenericConvexETHStrategy is BaseStrategy {
     IConvex _convexBooster,
     uint256 _pid,
     ICurve _curvePool,
-    ICurve _crvEthPool,
-    ICurve _cvxEthPool
+    ICurve _crvWethPool,
+    ICurve _cvxWethPool,
+    IUniswapV2Router02 _router
   ) public initializer {
     if (
       address(_reserveOracle) == address(0) ||
       address(_convexBooster) == address(0) ||
       address(_curvePool) == address(0) ||
-      address(_crvEthPool) == address(0) ||
-      address(_cvxEthPool) == address(0)
+      address(_crvWethPool) == address(0) ||
+      address(_cvxWethPool) == address(0) ||
+      address(_router) == address(0)
     ) _revert(InvalidZeroAddress.selector);
 
     __BaseStrategy_init(_provider, _uToken, _keepers, _strategyName);
@@ -112,9 +118,9 @@ contract GenericConvexETHStrategy is BaseStrategy {
 
     if (_shutdown) _revert(ConvexPoolShutdown.selector);
 
-    convexMainRewardPool = IConvexRewards(_crvRewards);
+    convexRewardPool = IConvexRewards(_crvRewards);
     convexLpToken = IERC20(_token);
-    rewardToken = IERC20(convexMainRewardPool.rewardToken());
+    rewardToken = IERC20(convexRewardPool.rewardToken());
 
     // Curve init
     curvePool = _curvePool;
@@ -122,13 +128,15 @@ contract GenericConvexETHStrategy is BaseStrategy {
     // In Curve's ETH-peggedETH pairs, N_TOKENS index 0 should always be ETH. Make sure this is true.
     if (_curvePool.coins(0) != 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE) _revert(InvalidCoinIndex.selector);
 
-    crvEthPool = _crvEthPool;
-    cvxEthPool = _cvxEthPool;
+    crvWethPool = _crvWethPool;
+    cvxWethPool = _cvxWethPool;
 
     // Approve pools
     curvePool.safeApprove(address(convexBooster), type(uint256).max);
-    crv.safeApprove(address(crvEthPool), type(uint256).max);
-    curvePool.safeApprove(address(cvxEthPool), type(uint256).max);
+    crv.safeApprove(address(_crvWethPool), type(uint256).max);
+    curvePool.safeApprove(address(_cvxWethPool), type(uint256).max);
+
+    router = _router;
 
     maxSingleTrade = 1_000 * 1e18;
     slippageTolerance = 30; // 0.3%
@@ -224,18 +232,18 @@ contract GenericConvexETHStrategy is BaseStrategy {
 
     uint256 lpAmount = _lpForAmount(amount);
 
+    // Unwrap WETH to interact with Curve
+    IWETH(address(underlyingAsset)).withdraw(amount);
+
     uint256 lpReceived;
     if (ethBalance >= peggedEthBalance) {
       // Add ETH as liquidity to Curve pool
-      // It is compulsory to unwrap WETH and deposit as ETH to the pool
-      IWETH(address(underlyingAsset)).withdraw(amount);
-
       // Curve deposit could return less LP amount due to slippage. Make sure we manage it.
       lpReceived = curve.add_liquidity{value: amount}([amount, 0], _computeMinExpectedAmount(lpAmount));
     } else {
       // Add pegged ETH as liquidity to Curve pool
       // Swap ETH for pegged ETH asset.
-      uint256 peggedReceivedAmount = curve.exchange(0, 1, amount, amount);
+      uint256 peggedReceivedAmount = curve.exchange{value: amount}(0, 1, amount, amount);
 
       lpReceived = curve.add_liquidity([0, peggedReceivedAmount], _computeMinExpectedAmount(peggedReceivedAmount));
     }
@@ -249,13 +257,55 @@ contract GenericConvexETHStrategy is BaseStrategy {
   }
 
   /**
-   * @notice Divests amount `shares` from the Convex pool
+   * @notice Divests amount `amount` from the Convex pool
    * Note that divesting from the pool could potentially cause loss, so the divested amount might actually be different from
-   * the requested `shares` to divest
-   * @return the total amount divested, in terms of underlying
+   * the requested `amount` to divest
+   * @dev care should be taken, as the `amount` parameter is *not* in terms of underlying,
+   * but of Curve's LP tokens
+   * @return the total amount divested, in terms of underlying asset
    **/
-  function _divest(uint256 shares) internal returns (uint256) {
-    //todo
+  function _divest(uint256 amount) internal returns (uint256) {}
+
+  /**
+   * @notice Claims rewards, converting them to `underlyingAsset`.
+   * @dev All CRV, CVX and extra token rewards are claimed.
+   **/
+  function _unwindRewards() internal {
+    // Claim rewards in CRV, CVX and extra rewards. Always claim extras.
+    IConvexRewards rewardPool = convexRewardPool;
+    rewardPool.getReward(address(this), true);
+
+    uint256 crvBalance = _crvBalance();
+    if (crvBalance > MIN_SWAP_AMOUNT) {
+      // Exchange CRV <> WETH
+      crvWethPool.exchange(1, O, crvBalance, _computeMinExpectedAmount(crvBalance)); //todo change for expected amount in ETH
+    }
+    uint256 cvxBalance;
+    if (cvxBalance > MIN_SWAP_AMOUNT) {
+      // Exchange CVX <> WETH
+      cvxWethPool.exchange(1, O, cvxBalance, _computeMinExpectedAmount(cvxBalance)); //todo change for expected amount in ETH
+    }
+
+    uint256 extraRewardsLength = rewardPool.extraRewardsLength();
+
+    for (uint256 i; i < extraRewardsLength; ) {
+      IConvexRewards extraReward = IConvexRewards(rewardPool.extraRewards(i));
+      IERC20 extraRewardToken = IERC20(extraReward.rewardToken());
+      // Check if the reward token is not CRV nor CVX
+      if (address(extraRewardToken) != address(crv) && address(extraRewardToken) != address(cvx)) {
+        uint256[] memory amounts = router.swapExactTokensForTokens(
+          extraRewardToken.balanceOf(address(this)),
+          amountOutMin, //todo update
+          [address(extraRewardToken), address(weth)],
+          address(this),
+          block.timestamp
+        );
+        amounts[1];
+      }
+      unchecked {
+        ++i;
+      }
+    }
   }
 
   /*
@@ -323,7 +373,13 @@ contract GenericConvexETHStrategy is BaseStrategy {
   function _prepareReturn(
     uint256 debtOutstanding
   ) internal override returns (uint256 profit, uint256 loss, uint256 debtPayment) {
-    //todo
+    uint256 amountUnwinded = _unwindRewards();
+
+    uint256 underlyingBalance = _underlyingBalance();
+    uint256 lpBalance = _stakedBalance();
+    uint256 totalAssets = underlyingBalance + _lpForAmount(shares);
+
+    uint256 debt = uToken.getStrategy(address(this)).totalDebt;
   }
 
   /**
@@ -338,8 +394,16 @@ contract GenericConvexETHStrategy is BaseStrategy {
                       INTERNAL VIEW
   //////////////////////////////////////////////////////////////*/
 
-  function _cvxBalanceInUnderlying() internal view returns (uint256) {
-    //uint256 crvToEthPrice = oracle.getAssetPrice(address(crv));
+  function _cvxBalance() internal view returns (uint256) {
+    return cvx.balanceOf(address(this));
+  }
+
+  function _crvBalance() internal view returns (uint256) {
+    return crv.balanceOf(address(this));
+  }
+
+  function _stakedBalance() internal view returns (uint256) {
+    return convexRewardPool.balanceOf(address(this));
   }
 
   /**

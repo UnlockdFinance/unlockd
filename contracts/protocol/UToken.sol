@@ -203,7 +203,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
           continue;
 
         (uint256 amountWithdrawn, uint256 loss) = IStrategy(strategy).withdraw(amountNeeded);
-        // Ensure the amount withdrawn returned from the strategy is in fact the actual balance adjustement after withdrawal
+        // Ensure the amount withdrawn returned from the strategy is the actual balance adjustement after withdrawal
         if (
           amountWithdrawn != (IERC20Upgradeable(_underlyingAsset).balanceOf(address(this)) - initialBalanceOfUnderlying)
         ) revert BalanceMismatch();
