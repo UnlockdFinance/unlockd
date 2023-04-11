@@ -231,14 +231,19 @@ contract GenericYVaultStrategy is BaseStrategy {
    */
   function _liquidatePosition(uint256 amountNeeded) internal override returns (uint256 liquidatedAmount, uint256 loss) {
     uint256 underlyingBalance = _underlyingBalance();
-    // If underlying balance currently holded by strategy is not enough to cover
+    // If underlying balance currently held by strategy is not enough to cover
     // the requested amount, we divest from the Yearn Vault
     if (underlyingBalance < amountNeeded) {
-      uint256 amountToWithdraw = amountNeeded - underlyingBalance;
+      uint256 amountToWithdraw;
+      unchecked {
+        amountToWithdraw = amountNeeded - underlyingBalance;
+      }
       uint256 shares = _sharesForAmount(amountToWithdraw);
       uint256 withdrawn = _divest(shares);
       if (withdrawn < amountToWithdraw) {
-        loss = amountToWithdraw - withdrawn;
+        unchecked {
+          loss = amountToWithdraw - withdrawn;
+        }
       }
     }
     liquidatedAmount = amountNeeded - loss;
@@ -250,8 +255,7 @@ contract GenericYVaultStrategy is BaseStrategy {
    * liquidate all of the Strategy's positions back to the UToken.
    */
   function _liquidateAllPositions() internal override returns (uint256 amountFreed) {
-    uint256 shares = _shareBalance();
-    _divest(shares);
+    _divest(_shareBalance());
     amountFreed = _underlyingBalance();
   }
 
@@ -290,7 +294,9 @@ contract GenericYVaultStrategy is BaseStrategy {
 
     if (totalAssets >= debt) {
       // Strategy has obtained profit
-      profit = totalAssets - debt;
+      unchecked {
+        profit = totalAssets - debt;
+      }
       uint256 amountToWithdraw = profit + debtOutstanding;
 
       // Check if underlying funds held in the strategy are enough to cover withdrawal.
@@ -339,15 +345,6 @@ contract GenericYVaultStrategy is BaseStrategy {
         loss = debt - totalAssets;
       }
     }
-  }
-
-  /**
-   * @notice Transfer current yvault shares to new strategy
-   * @param newStrategy the new strategy to migrate to
-   */
-  function _prepareMigration(address newStrategy) internal override {
-    uint256 shares = _shareBalance();
-    if (shares != 0) IERC20(address(yVault)).safeTransfer(newStrategy, shares);
   }
 
   /*//////////////////////////////////////////////////////////////

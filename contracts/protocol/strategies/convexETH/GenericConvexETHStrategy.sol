@@ -15,9 +15,9 @@ import {IUniswapV2Router02} from "../../../interfaces/IUniswapV2Router02.sol";
 
 /** @title GenericConvexETHStrategy
  * @author Unlockd
- * @notice `GenericConvexETHStrategy` deposits liquidity in a Curve pool (without staking
- in the Curve gauge), and then stakes the received LP tokens into Convex's pool
- * to earn CVX on top of Curve's native rewards. CVX's rewards are staked in the Convex pool rewards contract 
+ * @notice `GenericConvexETHStrategy` is a strategy specifically designed for ETH-peggedETH pairs. It deposits
+ * liquidity in a Curve pool (without staking in the Curve gauge), and then deposits the received Curve LP tokens into Convex's pool
+ * to earn CVX on top of Curve's native rewards. CVX's LP tokens are then staked in the Convex pool rewards contract
  * to earn extra rewards.
  **/
 contract GenericConvexETHStrategy is BaseStrategy {
@@ -28,7 +28,6 @@ contract GenericConvexETHStrategy is BaseStrategy {
                         ERRORS
   //////////////////////////////////////////////////////////////*/
   error NotEnoughFundsToInvest();
-  error InvalidSlippageTolerance();
   error InvalidCoinIndex();
   error ConvexPoolShutdown();
 
@@ -47,9 +46,6 @@ contract GenericConvexETHStrategy is BaseStrategy {
   // CVX Token
   IERC20 public constant cvx = IERC20(0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B);
 
-  uint256 public constant MAX_BPS = 10_000; // 100% [BPS]
-  uint256 public constant MIN_SWAP_AMOUNT = 1e17; // 100% [BPS]
-
   /*//////////////////////////////////////////////////////////////
                           STORAGE
   //////////////////////////////////////////////////////////////*/
@@ -64,15 +60,13 @@ contract GenericConvexETHStrategy is BaseStrategy {
   // Curve
   ICurve public curvePool; // Main Curve pool for this Strategy
   ICurve public crvWethPool; // CRV-WETH pool in Curve
-  ICurve public cvxWEthPool; // CVX-WETH pool in Curve
+  ICurve public cvxWethPool; // CVX-WETH pool in Curve
 
   IReserveOracleGetter public reserveOracle;
 
   uint256 public maxSingleTrade;
 
-  uint256 public slippageTolerance; // BPS
-
-  IUniswapV2Router02 router; // Router of preference to swap extra reward tokens
+  IUniswapV2Router02 public router; // Router of preference to swap extra reward tokens
 
   /*//////////////////////////////////////////////////////////////
                           PROXY INIT LOGIC
@@ -139,7 +133,6 @@ contract GenericConvexETHStrategy is BaseStrategy {
     router = _router;
 
     maxSingleTrade = 1_000 * 1e18;
-    slippageTolerance = 30; // 0.3%
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -166,13 +159,12 @@ contract GenericConvexETHStrategy is BaseStrategy {
   }
 
   /**
-   * @notice Sets the new slippage tolerance percentage
-   * @param _slippageTolerance The new slippage tolerance percentage
+   * @notice Sets the new preferred router address
+   * @param _router The new router
    */
-  function setSlippageTolerance(uint256 _slippageTolerance) external onlyPoolAdmin {
-    if (_slippageTolerance == 0) _revert(InvalidZeroAmount.selector);
-    if (_slippageTolerance > MAX_BPS) _revert(InvalidSlippageTolerance.selector);
-    slippageTolerance = _slippageTolerance;
+  function setRouter(address _router) external onlyPoolAdmin {
+    if (_router == address(0)) _revert(InvalidZeroAddress.selector);
+    router = IUniswapV2Router02(_router);
   }
 
   function harvest() external override onlyKeepers {}
@@ -198,10 +190,8 @@ contract GenericConvexETHStrategy is BaseStrategy {
    * @return The estimated total assets in this Strategy.
    */
   function estimatedTotalAssets() public view override returns (uint256) {
-    IReserveOracleGetter oracle = reserveOracle;
-
-    uint256 cvxToEthPrice = oracle.getAssetPrice(address(cvx));
-    return _underlyingBalance(); //todo  + balanceOf(CRV) + balanceOf(CVX)
+    uint256 lp = _stakedBalance() + _earnedRewards();
+    return _underlyingBalance() + _lpValue(lp);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -230,8 +220,6 @@ contract GenericConvexETHStrategy is BaseStrategy {
     ICurve curve = curvePool;
     (uint256 ethBalance, uint256 peggedEthBalance) = curvePool.get_balances();
 
-    uint256 lpAmount = _lpForAmount(amount);
-
     // Unwrap WETH to interact with Curve
     IWETH(address(underlyingAsset)).withdraw(amount);
 
@@ -239,13 +227,13 @@ contract GenericConvexETHStrategy is BaseStrategy {
     if (ethBalance >= peggedEthBalance) {
       // Add ETH as liquidity to Curve pool
       // Curve deposit could return less LP amount due to slippage. Make sure we manage it.
-      lpReceived = curve.add_liquidity{value: amount}([amount, 0], _computeMinExpectedAmount(lpAmount));
+      lpReceived = curve.add_liquidity{value: amount}([amount, 0], 0);
     } else {
       // Add pegged ETH as liquidity to Curve pool
       // Swap ETH for pegged ETH asset.
-      uint256 peggedReceivedAmount = curve.exchange{value: amount}(0, 1, amount, amount);
+      uint256 peggedReceivedAmount = curve.exchange{value: amount}(0, 1, amount, 0);
 
-      lpReceived = curve.add_liquidity([0, peggedReceivedAmount], _computeMinExpectedAmount(peggedReceivedAmount));
+      lpReceived = curve.add_liquidity([0, peggedReceivedAmount], 0);
     }
 
     // Deposit Curve LP into Convex pool with id `pid` and immediately stake convex LP tokens into the rewards contract
@@ -253,7 +241,7 @@ contract GenericConvexETHStrategy is BaseStrategy {
 
     emit Invested(msg.sender, amount);
 
-    return _lpForAmount(lpReceived);
+    return _lpValue(lpReceived);
   }
 
   /**
@@ -261,31 +249,42 @@ contract GenericConvexETHStrategy is BaseStrategy {
    * Note that divesting from the pool could potentially cause loss, so the divested amount might actually be different from
    * the requested `amount` to divest
    * @dev care should be taken, as the `amount` parameter is *not* in terms of underlying,
-   * but of Curve's LP tokens
+   * but in terms of Curve's LP tokens
    * @return the total amount divested, in terms of underlying asset
    **/
-  function _divest(uint256 amount) internal returns (uint256) {}
+  function _divest(uint256 amount) internal returns (uint256) {
+    uint256 initialUnderlyingBalance = _underlyingBalance();
+    // Withdraw from Convex and unwrap directly to Curve LP tokens
+    convexRewardPool.withdrawAndUnwrap(amount, false);
+    ICurve curve = curvePool;
+    uint256[2] memory amountsWithdrawn = curve.remove_liquidity(amount, [uint256(0), uint256(0)]);
+    // Convert pegged ETH to ETH
+    uint256 exchangedAmount;
+    if (amountsWithdrawn[1] > 0) {
+      exchangedAmount = curve.exchange(1, 0, amountsWithdrawn[1], 0);
+    }
+
+    IWETH(address(underlyingAsset)).deposit{value: amountsWithdrawn[0] + exchangedAmount}();
+
+    return _underlyingBalance() - initialUnderlyingBalance;
+  }
 
   /**
    * @notice Claims rewards, converting them to `underlyingAsset`.
    * @dev All CRV, CVX and extra token rewards are claimed.
    **/
   function _unwindRewards() internal {
-    // Claim rewards in CRV, CVX and extra rewards. Always claim extras.
+    // Claim rewards in CRV, CVX and extra rewards.
     IConvexRewards rewardPool = convexRewardPool;
     rewardPool.getReward(address(this), true);
 
-    uint256 crvBalance = _crvBalance();
-    if (crvBalance > MIN_SWAP_AMOUNT) {
-      // Exchange CRV <> WETH
-      crvWethPool.exchange(1, O, crvBalance, _computeMinExpectedAmount(crvBalance)); //todo change for expected amount in ETH
-    }
-    uint256 cvxBalance;
-    if (cvxBalance > MIN_SWAP_AMOUNT) {
-      // Exchange CVX <> WETH
-      cvxWethPool.exchange(1, O, cvxBalance, _computeMinExpectedAmount(cvxBalance)); //todo change for expected amount in ETH
-    }
+    // Exchange CRV <> WETH
+    crvWethPool.exchange(1, 0, _crvBalance(), 0);
 
+    // Exchange CVX <> WETH
+    cvxWethPool.exchange(1, 0, _cvxBalance(), 0);
+
+    // Check if reward pools has extra rewards. If so, swap rewards for WETH
     uint256 extraRewardsLength = rewardPool.extraRewardsLength();
 
     for (uint256 i; i < extraRewardsLength; ) {
@@ -293,10 +292,13 @@ contract GenericConvexETHStrategy is BaseStrategy {
       IERC20 extraRewardToken = IERC20(extraReward.rewardToken());
       // Check if the reward token is not CRV nor CVX
       if (address(extraRewardToken) != address(crv) && address(extraRewardToken) != address(cvx)) {
+        address[] memory path = new address[](2);
+        path[0] = address(extraRewardToken);
+        path[1] = address(underlyingAsset);
         uint256[] memory amounts = router.swapExactTokensForTokens(
           extraRewardToken.balanceOf(address(this)),
-          amountOutMin, //todo update
-          [address(extraRewardToken), address(weth)],
+          0,
+          path,
           address(this),
           block.timestamp
         );
@@ -317,7 +319,11 @@ contract GenericConvexETHStrategy is BaseStrategy {
    * Also note that other implementations might use the debtOutstanding param, but not this one.
    */
   function _adjustPosition(uint256) internal override {
-    //todo
+    uint256 toInvest = _underlyingBalance();
+    if (toInvest > 0) {
+      toInvest = Math.min(maxSingleTrade, toInvest);
+      _invest(toInvest);
+    }
   }
 
   /**
@@ -334,7 +340,23 @@ contract GenericConvexETHStrategy is BaseStrategy {
    * @return loss difference between the expected amount needed to reach `amountNeeded` and the actual liquidated amount
    */
   function _liquidatePosition(uint256 amountNeeded) internal override returns (uint256 liquidatedAmount, uint256 loss) {
-    //todo
+    uint256 underlyingBalance = _underlyingBalance();
+    // If underlying balance currently held by strategy is not enough to cover
+    // the requested amount, we divest from the Yearn Vault
+    if (underlyingBalance < amountNeeded) {
+      uint256 amountToWithdraw;
+      unchecked {
+        amountToWithdraw = amountNeeded - underlyingBalance;
+      }
+      uint256 lp = _lpForAmount(amountToWithdraw);
+      uint256 withdrawn = _divest(lp);
+      if (withdrawn < amountToWithdraw) {
+        unchecked {
+          loss = amountToWithdraw - withdrawn;
+        }
+      }
+    }
+    liquidatedAmount = amountNeeded - loss;
   }
 
   /**
@@ -343,7 +365,9 @@ contract GenericConvexETHStrategy is BaseStrategy {
    * liquidate all of the Strategy's positions back to the UToken.
    */
   function _liquidateAllPositions() internal override returns (uint256 amountFreed) {
-    //todo
+    _unwindRewards();
+    _divest(_stakedBalance());
+    amountFreed = _underlyingBalance();
   }
 
   /**
@@ -373,21 +397,68 @@ contract GenericConvexETHStrategy is BaseStrategy {
   function _prepareReturn(
     uint256 debtOutstanding
   ) internal override returns (uint256 profit, uint256 loss, uint256 debtPayment) {
-    uint256 amountUnwinded = _unwindRewards();
+    _unwindRewards();
 
     uint256 underlyingBalance = _underlyingBalance();
-    uint256 lpBalance = _stakedBalance();
-    uint256 totalAssets = underlyingBalance + _lpForAmount(shares);
+
+    // not considering `_earnedRewards` to compute `totalAssets` as they have already been realized
+    uint256 totalAssets = underlyingBalance + _lpValue(_stakedBalance());
 
     uint256 debt = uToken.getStrategy(address(this)).totalDebt;
-  }
 
-  /**
-   * @notice Transfer current pool rewards to new strategy
-   * @param newStrategy the new strategy to migrate to
-   */
-  function _prepareMigration(address newStrategy) internal override {
-    //todo
+    if (totalAssets > debt) {
+      // Strategy has obtained profit
+      unchecked {
+        profit = totalAssets - debt;
+      }
+      uint256 amountToWithdraw = profit + debtOutstanding;
+      // Check if underlying funds held in the strategy are enough to cover withdrawal.
+      // If not, divest from Convex
+      if (amountToWithdraw > underlyingBalance) {
+        uint256 expectedAmountToWithdraw = Math.min(maxSingleTrade, amountToWithdraw - underlyingBalance);
+        uint256 lpToWithdraw = _lpForAmount(expectedAmountToWithdraw);
+        uint256 withdrawn = _divest(lpToWithdraw);
+
+        // Account for loss occured on withdrawal from yearn
+        if (withdrawn < expectedAmountToWithdraw) {
+          unchecked {
+            loss = expectedAmountToWithdraw - withdrawn;
+          }
+        }
+        // Overwrite underlyingBalance with the proper amount after withdrawing
+        underlyingBalance = _underlyingBalance();
+      }
+
+      // Net off profit and loss
+      if (profit >= loss) {
+        unchecked {
+          profit -= loss;
+          loss = 0;
+        }
+      } else {
+        unchecked {
+          loss -= profit;
+          profit = 0;
+        }
+      }
+
+      // `profit` + `debtOutstanding` must be <= `underlyingBalance`. Prioritise profit first
+      if (profit > underlyingBalance) {
+        // Profit is prioritised. In this case, no `debtPayment` will be reported
+        profit = underlyingBalance;
+      } else if (amountToWithdraw > underlyingBalance) {
+        // same as `profit` + `debtOutstanding` > `underlyingBalance`
+        // Keep profit amount and reduce the expected debtPayment from `debtOutstanding` to the following substraction
+        debtPayment = underlyingBalance - profit;
+      } else {
+        debtPayment = debtOutstanding;
+      }
+    } else {
+      // Strategy has incurred loss
+      unchecked {
+        loss = debt - totalAssets;
+      }
+    }
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -406,16 +477,24 @@ contract GenericConvexETHStrategy is BaseStrategy {
     return convexRewardPool.balanceOf(address(this));
   }
 
+  function _earnedRewards() internal view returns (uint256) {
+    return convexRewardPool.earned(address(this));
+  }
+
+  /**
+   * @notice Determines how many lp tokens depositor of `amount` of underlying would receive.
+   * @return returns the estimated amount of lp tokens computed in exchange for underlying `amount`
+   */
+  function _lpValue(uint256 lp) internal view returns (uint256) {
+    return lp / curvePool.get_virtual_price();
+  }
+
   /**
    * @notice Determines how many lp tokens depositor of `amount` of underlying would receive.
    * @return returns the estimated amount of lp tokens computed in exchange for underlying `amount`
    */
   function _lpForAmount(uint256 amount) internal view returns (uint256) {
     return amount * curvePool.get_virtual_price();
-  }
-
-  function _computeMinExpectedAmount(uint256 amount) internal view returns (uint256) {
-    return (amount * (MAX_BPS - slippageTolerance)) / MAX_BPS;
   }
 
   receive() external payable {}

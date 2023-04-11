@@ -140,22 +140,6 @@ abstract contract BaseStrategy is Initializable, IStrategy {
     // NOTE: Reinvest anything leftover on next `harvest`
   }
 
-  /**
-   * @notice Transfers all `underlyingAsset` from this Strategy to `_newStrategy`.
-   *  This may only be called by the UToken.
-   * @dev The new Strategy's UToken must be the same as this Strategy's UToken.
-   *  The migration process should be carefully performed to make sure all
-   * the assets are migrated to the new address, which should have never
-   * interacted with the UToken before.
-   * @param _newStrategy The Strategy to migrate to.
-   */
-  function migrate(address _newStrategy) external onlyPoolAdmin {
-    if (address(IStrategy(_newStrategy).getUToken()) != address(uToken))
-      _revert(StrategyNotManagingSameUnderlying.selector);
-    _prepareMigration(_newStrategy);
-    underlyingAsset.safeTransfer(_newStrategy, underlyingAsset.balanceOf(address(this)));
-  }
-
   /*//////////////////////////////////////////////////////////////
                           SETTERS
   //////////////////////////////////////////////////////////////*/
@@ -321,14 +305,6 @@ abstract contract BaseStrategy is Initializable, IStrategy {
       emit SetDoHealthCheck(true);
     }
   }
-
-  /**
-   * @notice Do anything necessary to prepare this Strategy for migration, such as
-   * transferring any reserve or LP tokens, CDPs, or other tokens or stores of
-   * value.
-   * @param newStrategy the new strategy to migrate to
-   */
-  function _prepareMigration(address newStrategy) internal virtual;
 
   /**
    * @notice Returns the current strategy's balance in underlying token
