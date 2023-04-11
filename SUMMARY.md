@@ -16,6 +16,7 @@
 * [WETH Gateway](docs/the-core-protocol/weth-gateway.md)
 * [Punk Gateway](docs/the-core-protocol/weth-gateway-1.md)
 * [Debt Market](the-core-protocol/debt-market.md)
+* [LockeyManager](the-core-protocol/lockeymanager.md)
 
 ## uNFT Protocol
 
