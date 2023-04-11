@@ -377,7 +377,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
       //validation of the parameters: the LTV can
       //only be lower or equal than the liquidation threshold
       //(otherwise a loan against the asset would cause instantaneous liquidation)
-      require(collateralData.ltv <= collateralData.liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
+      require(collateralData.ltv < collateralData.liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
 
       if (collateralData.liquidationThreshold != 0) {
         //liquidation bonus must be smaller than 100.00%
