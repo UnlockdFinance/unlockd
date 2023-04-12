@@ -235,6 +235,10 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
       await DRE.run("fork:deploy-reservoir-adapter", { pool: POOL_NAME });
 
       //////////////////////////////////////////////////////////////////////////
+      console.log("\n\nDeploy Strategies");
+      await DRE.run("fork:deploy-strategies", { pool: POOL_NAME });
+
+      //////////////////////////////////////////////////////////////////////////
       console.log("\n\nDeploy data provider");
       await DRE.run("fork:deploy-data-provider", {
         pool: POOL_NAME,

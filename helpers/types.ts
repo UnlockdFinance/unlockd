@@ -97,6 +97,8 @@ export enum eContractid {
   DebtMarket = "DebtMarket",
   ReservoirAdapterImpl = "ReservoirAdapterImpl",
   ReservoirAdapter = "ReservoirAdapter",
+  GenericYVaultStrategyImpl = "GenericYVaultStrategyImpl",
+  GenericYVaultStrategy = "GenericYVaultStrategy",
 }
 
 export enum ProtocolLoanState {
