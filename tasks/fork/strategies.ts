@@ -1,18 +1,24 @@
+import { ethers } from "ethers";
 import { task } from "hardhat/config";
 import { ConfigNames, getYVaultWETHAddress, loadPoolConfig } from "../../helpers/configuration";
 import { ADDRESS_ID_RESERVOIR_ADAPTER } from "../../helpers/constants";
-import { deployGenericYVaultStrategy, deployReservoirAdapter } from "../../helpers/contracts-deployments";
+import {
+  deployGenericYVaultStrategy,
+  deployReservoirAdapter,
+  deployUnlockdUpgradeableProxy,
+} from "../../helpers/contracts-deployments";
 import {
   getLendPoolAddressesProvider,
   getReservoirAdapterProxy,
   getUnlockdProtocolDataProvider,
   getUnlockdProxyAdminById,
 } from "../../helpers/contracts-getters";
-import { insertContractAddressInDb } from "../../helpers/contracts-helpers";
+import { deployContract, insertContractAddressInDb } from "../../helpers/contracts-helpers";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import { eContractid, eNetwork } from "../../helpers/types";
+import { GenericYVaultStrategy } from "../../types/GenericYVaultStrategy";
 
-task("fork:deploy-reservoir-adapter", "Deploy Reservoir Adapter contract")
+task("fork:deploy-strategies", "Deploy uToken strategies contract")
   .addFlag("verify", "Verify contracts at Etherscan")
   .setAction(async ({ verify }, DRE) => {
     await DRE.run("set-DRE");
@@ -20,6 +26,9 @@ task("fork:deploy-reservoir-adapter", "Deploy Reservoir Adapter contract")
     const network = <eNetwork>DRE.network.name;
     const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
     const addressesProvider = await getLendPoolAddressesProvider();
+    const poolAdmin = await addressesProvider.getPoolAdmin();
+    const strategyName = "Generational Wealth";
+    const strategyName32 = ethers.utils.formatBytes32String(strategyName);
 
     console.log("Deploying new GenericYVault strategy implementation...");
     const genericYVaultStrategyImpl = await deployGenericYVaultStrategy(verify);
@@ -38,17 +47,23 @@ task("fork:deploy-reservoir-adapter", "Deploy Reservoir Adapter contract")
     if (!yVaultWETHAddress) {
       throw "YVault is undefined. Check ReserveAssets configuration at config directory";
     }
+
+    console.log("Deploying new GenericYVault strategy proxy...");
     const initEncodedData = genericYVaultStrategyImpl.interface.encodeFunctionData("initialize", [
-      addressesProvider,
+      addressesProvider.address,
       uTokenAddress,
-      [await addressesProvider.getPoolAdmin()],
-      "GenericYVaultStrategy",
+      [poolAdmin],
+      strategyName32,
       yVaultWETHAddress,
     ]);
 
-    const reservoirAdapterProxy = await getReservoirAdapterProxy(
-      await addressesProvider.getAddress(ADDRESS_ID_RESERVOIR_ADAPTER)
+    const genericYVaultStrategyProxy = await deployUnlockdUpgradeableProxy(
+      eContractid.YVault,
+      proxyAdmin.address,
+      genericYVaultStrategyImpl.address,
+      initEncodedData,
+      false
     );
 
-    await insertContractAddressInDb(eContractid.ReservoirAdapter, reservoirAdapterProxy.address);
+    await insertContractAddressInDb(eContractid.YVault, genericYVaultStrategyProxy.address);
   });

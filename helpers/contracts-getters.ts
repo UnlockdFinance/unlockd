@@ -6,6 +6,7 @@ import {
   DebtMarketFactory,
   DebtTokenFactory,
   GenericLogicFactory,
+  GenericYVaultStrategyFactory,
   InterestRateFactory,
   LendPoolAddressesProviderFactory,
   LendPoolAddressesProviderRegistryFactory,
@@ -89,6 +90,14 @@ export const getLendPoolAddressesProvider = async (address?: tEthereumAddress) =
     await getDeploySigner()
   );
 };
+
+export const getYVaultWETH = async (address?: tEthereumAddress) => {
+  return await GenericYVaultStrategyFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.GenericYVaultStrategy}`).value()).address,
+    await getDeploySigner()
+  );
+};
+
 export const getUnlockdProxyAdminPool = async (address?: tEthereumAddress) => {
   return await LendPoolAddressesProviderFactory.connect(
     address || (await getDb(DRE.network.name).get(`${eContractid.UnlockdProxyAdminPool}`).value()).address,
