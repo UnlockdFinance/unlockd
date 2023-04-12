@@ -11,6 +11,7 @@ import {
   DebtMarketFactory,
   DebtTokenFactory,
   GenericLogicFactory,
+  GenericYVaultStrategyFactory,
   InterestRateFactory,
   LendPoolAddressesProviderFactory,
   LendPoolAddressesProviderRegistryFactory,
@@ -143,6 +144,12 @@ export const deployReservoirAdapter = async (verify?: boolean) => {
   const reservoirAdapterImpl = await new ReservoirAdapterFactory(await getDeploySigner()).deploy();
   await insertContractAddressInDb(eContractid.ReservoirAdapterImpl, reservoirAdapterImpl.address);
   return withSaveAndVerify(reservoirAdapterImpl, eContractid.ReservoirAdapter, [], verify);
+};
+
+export const deployGenericYVaultStrategy = async (verify?: boolean) => {
+  const genericYVaultStrategyImpl = await new GenericYVaultStrategyFactory(await getDeploySigner()).deploy();
+  await insertContractAddressInDb(eContractid.GenericYVaultStrategyImpl, genericYVaultStrategyImpl.address);
+  return withSaveAndVerify(genericYVaultStrategyImpl, eContractid.GenericYVaultStrategy, [], verify);
 };
 
 export const deployReserveLogicLibrary = async (verify?: boolean) =>
