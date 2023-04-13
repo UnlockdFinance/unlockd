@@ -27,7 +27,7 @@ task("fork:deploy-strategies", "Deploy uToken strategies contract")
     const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
     const addressesProvider = await getLendPoolAddressesProvider();
     const poolAdmin = await addressesProvider.getPoolAdmin();
-    const strategyName = "Generational Wealth";
+    const strategyName = "Generic YVault Strategy";
     const strategyName32 = ethers.utils.formatBytes32String(strategyName);
 
     console.log("Deploying new GenericYVault strategy implementation...");
