@@ -234,20 +234,20 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "GenericYVaultStrategyImpl": {
-    "address": "0x3733685E2967C4b73356F0FF6540E753dD2eFCCb"
+    "address": "0xD8878a4553dc5A827Ec30341A7abd12bc26C60C3"
   },
   "GenericYVaultStrategy": {
-    "address": "0xfbCa3dc9893D471F8f79F531f172c0Bb15c93bE3",
+    "address": "0xD8878a4553dc5A827Ec30341A7abd12bc26C60C3",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "YVault": {
     "address": "0xfbCa3dc9893D471F8f79F531f172c0Bb15c93bE3"
   },
   "GenericConvexETHStrategyImpl": {
-    "address": "0xD8878a4553dc5A827Ec30341A7abd12bc26C60C3"
+    "address": "0xb350A4c657868AAC63a294a592565eE22f22a892"
   },
   "GenericConvexETHStrategy": {
-    "address": "0xD8878a4553dc5A827Ec30341A7abd12bc26C60C3",
+    "address": "0xBa60406333a79e63036eCFF45A00B7Df5dCeDf45",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   }
 }
