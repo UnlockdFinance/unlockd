@@ -99,6 +99,8 @@ export enum eContractid {
   ReservoirAdapter = "ReservoirAdapter",
   GenericYVaultStrategyImpl = "GenericYVaultStrategyImpl",
   GenericYVaultStrategy = "GenericYVaultStrategy",
+  GenericConvexETHStrategyImpl = "GenericConvexETHStrategyImpl",
+  GenericConvexETHStrategy = "GenericConvexETHStrategy",
 }
 
 export enum ProtocolLoanState {
@@ -452,6 +454,9 @@ export interface ICommonConfiguration {
   ReserveOracle: iParamsPerNetwork<tEthereumAddress | undefined>;
   NFTOracle: iParamsPerNetwork<tEthereumAddress | undefined>;
 
+  GenericYVaultStrategy: iParamsPerNetwork<tEthereumAddress | undefined>;
+  GenericConvexETHStrategy: iParamsPerNetwork<tEthereumAddress | undefined>;
+
   PoolAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
   PoolAdminIndex: number;
   EmergencyAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
@@ -480,9 +485,15 @@ export interface ICommonConfiguration {
   OracleQuoteUnit: string;
 
   NFTXVaultFactory: iParamsPerNetwork<tEthereumAddress>;
-  SushiSwapRouter: iParamsPerNetwork<tEthereumAddress>;
   LSSVMRouter: iParamsPerNetwork<tEthereumAddress>;
   YVaultWETH: iParamsPerNetwork<tEthereumAddress>;
+  ConvexBooster: iParamsPerNetwork<tEthereumAddress>;
+  CurveETHAlETHPool: iParamsPerNetwork<tEthereumAddress>;
+  CurveCRVWETHPool: iParamsPerNetwork<tEthereumAddress>;
+  CurveCVXWETHPool: iParamsPerNetwork<tEthereumAddress>;
+  UniSwapRouter: iParamsPerNetwork<tEthereumAddress>;
+  SushiSwapRouter: iParamsPerNetwork<tEthereumAddress>;
+
   LockeyCollection: iParamsPerNetwork<tEthereumAddress>;
 
   BlurModule: iParamsPerNetwork<tEthereumAddress>;

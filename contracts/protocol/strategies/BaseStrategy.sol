@@ -212,10 +212,10 @@ abstract contract BaseStrategy is Initializable, IStrategy {
 
   /**
    *  @notice Returns the Strategy's uToken
-   *  @return the uToken
+   *  @return the address of the uToken
    */
-  function getUToken() public view override returns (IUToken) {
-    return uToken;
+  function getUToken() public view override returns (address) {
+    return address(uToken);
   }
 
   /**

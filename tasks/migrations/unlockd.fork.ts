@@ -246,7 +246,12 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
 
       //////////////////////////////////////////////////////////////////////////
       console.log("\n\nDeploy Strategies");
-      await DRE.run("fork:deploy-strategies", { pool: POOL_NAME });
+
+      console.log("\n\nDeploy Generic Yearn Vault Strategy...");
+      await DRE.run("fork:deploy-genericyvault-strategy", { pool: POOL_NAME });
+
+      console.log("\n\nDeploy Generic Convex ETH Strategy...");
+      await DRE.run("fork:deploy-genericonvexeth-strategy", { pool: POOL_NAME });
 
       //////////////////////////////////////////////////////////////////////////
 

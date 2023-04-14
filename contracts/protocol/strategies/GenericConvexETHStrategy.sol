@@ -5,14 +5,14 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
-import {BaseStrategy, IERC20, ILendPoolAddressesProvider, IStrategy, IUToken} from "../BaseStrategy.sol";
-import {IReserveOracleGetter} from "../../../interfaces/IReserveOracleGetter.sol";
-import {IConvex} from "../../../interfaces/convex/IConvex.sol";
-import {IConvexRewards} from "../../../interfaces/convex/IConvexRewards.sol";
-import {ICurve} from "../../../interfaces/curve/ICurve.sol";
-import {IWETH} from "../../../interfaces/IWETH.sol";
-import {IUniswapV2Router02} from "../../../interfaces/IUniswapV2Router02.sol";
+import {BaseStrategy, IERC20, ILendPoolAddressesProvider, IStrategy, IUToken} from "./BaseStrategy.sol";
+import {IConvex} from "../../interfaces/convex/IConvex.sol";
+import {IConvexRewards} from "../../interfaces/convex/IConvexRewards.sol";
+import {ICurve} from "../../interfaces/curve/ICurve.sol";
+import {IWETH} from "../../interfaces/IWETH.sol";
+import {IUniswapV2Router02} from "../../interfaces/IUniswapV2Router02.sol";
 
+//todo add router apprvals
 /** @title GenericConvexETHStrategy
  * @author Unlockd
  * @notice `GenericConvexETHStrategy` is a strategy specifically designed for ETH-peggedETH pairs. It deposits
@@ -62,8 +62,6 @@ contract GenericConvexETHStrategy is BaseStrategy {
   ICurve public crvWethPool; // CRV-WETH pool in Curve
   ICurve public cvxWethPool; // CVX-WETH pool in Curve
 
-  IReserveOracleGetter public reserveOracle;
-
   uint256 public maxSingleTrade;
 
   IUniswapV2Router02 public router; // Router of preference to swap extra reward tokens
@@ -83,7 +81,6 @@ contract GenericConvexETHStrategy is BaseStrategy {
     IUToken _uToken,
     address[] calldata _keepers,
     bytes32 _strategyName,
-    IReserveOracleGetter _reserveOracle,
     IConvex _convexBooster,
     uint256 _pid,
     ICurve _curvePool,
@@ -92,7 +89,6 @@ contract GenericConvexETHStrategy is BaseStrategy {
     IUniswapV2Router02 _router
   ) public initializer {
     if (
-      address(_reserveOracle) == address(0) ||
       address(_convexBooster) == address(0) ||
       address(_curvePool) == address(0) ||
       address(_crvWethPool) == address(0) ||
@@ -101,8 +97,6 @@ contract GenericConvexETHStrategy is BaseStrategy {
     ) _revert(InvalidZeroAddress.selector);
 
     __BaseStrategy_init(_provider, _uToken, _keepers, _strategyName);
-
-    reserveOracle = _reserveOracle;
 
     // Convex Init
     convexBooster = _convexBooster;
@@ -167,7 +161,54 @@ contract GenericConvexETHStrategy is BaseStrategy {
     router = IUniswapV2Router02(_router);
   }
 
-  function harvest() external override onlyKeepers {}
+  /*//////////////////////////////////////////////////////////////
+                      CORE LOGIC
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @notice Harvests the Strategy, recognizing any profits or losses and adjusting
+   *  the Strategy's position.
+   *  In the rare case the Strategy is in emergency shutdown, this will exit
+   *  the Strategy's position.
+   * @dev When `harvest()` is called, the Strategy reports to the UToken (via
+   *  `UToken.report()`), so in some cases `harvest()` must be called in order
+   *  to take in profits, to borrow newly available funds from the UToken, or
+   *  otherwise adjust its position. In other cases `harvest()` must be
+   *  called to report to the UToken on the Strategy's position, especially if
+   *  any losses have occurred.
+   */
+  function harvest() external override onlyKeepers {
+    uint256 debtOutstanding = uToken.debtOutstanding(address(this));
+
+    uint256 profit;
+    uint256 loss;
+    uint256 debtPayment;
+    if (emergencyExit) {
+      // Free up as much capital as possible
+      uint256 amountFreed = _liquidateAllPositions();
+      if (amountFreed < debtOutstanding) {
+        loss = debtOutstanding - amountFreed;
+      } else if (amountFreed > debtOutstanding) {
+        profit = amountFreed - debtOutstanding;
+      }
+      debtPayment = debtOutstanding - loss;
+    } else {
+      // Free up returns for UToken to pull
+      (profit, loss, debtPayment) = _prepareReturn(debtOutstanding);
+    }
+
+    // Allow UToken to take up to the "harvested" balance of this contract,
+    // which is the amount it has earned since the last time it reported to
+    // the UToken.
+    uint256 totalDebt = uToken.getStrategy(address(this)).totalDebt;
+    debtOutstanding = uToken.report(profit, loss, debtPayment);
+
+    // Check if free returns are left, and re-invest them
+    _adjustPosition(debtOutstanding);
+
+    _performHealthCheck(profit, loss, debtPayment, debtOutstanding, totalDebt);
+
+    emit Harvested(profit, loss, debtPayment, debtOutstanding);
+  }
 
   /*//////////////////////////////////////////////////////////////
                         VIEW
@@ -225,15 +266,15 @@ contract GenericConvexETHStrategy is BaseStrategy {
 
     uint256 lpReceived;
     if (ethBalance >= peggedEthBalance) {
-      // Add ETH as liquidity to Curve pool
-      // Curve deposit could return less LP amount due to slippage. Make sure we manage it.
-      lpReceived = curve.add_liquidity{value: amount}([amount, 0], 0);
-    } else {
       // Add pegged ETH as liquidity to Curve pool
       // Swap ETH for pegged ETH asset.
       uint256 peggedReceivedAmount = curve.exchange{value: amount}(0, 1, amount, 0);
 
       lpReceived = curve.add_liquidity([0, peggedReceivedAmount], 0);
+    } else {
+      // Add ETH as liquidity to Curve pool
+      // Curve deposit could return less LP amount due to slippage. Make sure we manage it.
+      lpReceived = curve.add_liquidity{value: amount}([amount, 0], 0);
     }
 
     // Deposit Curve LP into Convex pool with id `pid` and immediately stake convex LP tokens into the rewards contract
@@ -290,7 +331,7 @@ contract GenericConvexETHStrategy is BaseStrategy {
     for (uint256 i; i < extraRewardsLength; ) {
       IConvexRewards extraReward = IConvexRewards(rewardPool.extraRewards(i));
       IERC20 extraRewardToken = IERC20(extraReward.rewardToken());
-      // Check if the reward token is not CRV nor CVX
+      // Check if reward token is neither CRV nor CVX
       if (address(extraRewardToken) != address(crv) && address(extraRewardToken) != address(cvx)) {
         address[] memory path = new address[](2);
         path[0] = address(extraRewardToken);
