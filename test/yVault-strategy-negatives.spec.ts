@@ -92,4 +92,11 @@ makeSuite("yVault Strategy negatives", (testEnv: TestEnv) => {
     // `setMaxSingleTrade(uint256 _maxSingleTrade)`
     await expect(genericYVaultStrategy.setMaxSingleTrade(0)).to.be.revertedWith("InvalidZeroAmount");
   });
+  it("GenericYVaultStrategy Negatives: Check `_invest()` negatives", async () => {
+    const { genericYVaultStrategy } = testEnv;
+
+    await expect(genericYVaultStrategy.invest(ethers.utils.parseEther("10"))).to.be.revertedWith(
+      "NotEnoughFundsToInvest"
+    );
+  });
 });
