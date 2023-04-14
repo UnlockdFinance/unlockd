@@ -1,10 +1,12 @@
 import {
+  BoosterFactory,
   BorrowLogicFactory,
   ConfiguratorLogicFactory,
   CryptoPunksMarketFactory,
   CustomERC721Factory,
   DebtMarketFactory,
   DebtTokenFactory,
+  GenericConvexETHStrategyFactory,
   GenericLogicFactory,
   GenericYVaultStrategyFactory,
   InterestRateFactory,
@@ -91,9 +93,16 @@ export const getLendPoolAddressesProvider = async (address?: tEthereumAddress) =
   );
 };
 
-export const getYVaultWETH = async (address?: tEthereumAddress) => {
+export const getGenericYVaultStrategy = async (address?: tEthereumAddress) => {
   return await GenericYVaultStrategyFactory.connect(
     address || (await getDb(DRE.network.name).get(`${eContractid.GenericYVaultStrategy}`).value()).address,
+    await getDeploySigner()
+  );
+};
+
+export const getGenericConvexETHStrategy = async (address?: tEthereumAddress) => {
+  return await GenericConvexETHStrategyFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.GenericConvexETHStrategy}`).value()).address,
     await getDeploySigner()
   );
 };
@@ -154,7 +163,8 @@ export const getNFTOracle = async (address?: tEthereumAddress) =>
     address || (await getDb(DRE.network.name).get(`${eContractid.NFTOracle}`).value()).address,
     await getDeploySigner()
   );
-
+export const getBooster = async (address: tEthereumAddress) =>
+  await BoosterFactory.connect(address, await getDeploySigner());
 export const getLockeyManagerProxy = async (address?: tEthereumAddress) => {
   return await LockeyManagerFactory.connect(
     address || (await getDb(DRE.network.name).get(`${eContractid.LockeyManager}`).value()).address,

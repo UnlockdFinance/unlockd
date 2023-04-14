@@ -170,75 +170,6 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   }
 
   /**
-    @notice Withdraws the calling account's underlying tokens from this UToken, redeeming
-    amount `amount` of underlying.
-    See note on `setWithdrawalQueue` for further details of withdrawal
-    ordering and behavior.
-  
-   */
-  //todo: optimize
-  function withdrawReserves(uint256 amount) external onlyLendPool returns (uint256) {
-    // UToken balance is not enough to cover withdrawal. Withdrawing from strategies is required
-    if (amount > IERC20Upgradeable(_underlyingAsset).balanceOf(address(this))) {
-      uint256 len = withdrawalQueue.length;
-      uint256 totalLoss;
-      for (uint256 i; i < len; ) {
-        address strategy = withdrawalQueue[i];
-
-        // We reached the queue limit
-        if (strategy == address(0)) break;
-
-        uint256 initialBalanceOfUnderlying = IERC20Upgradeable(_underlyingAsset).balanceOf(address(this));
-        // We can finish withdrawing from strategies as we have enough funds
-        if (initialBalanceOfUnderlying >= amount) break;
-
-        uint256 amountNeeded = amount - initialBalanceOfUnderlying;
-        // Don't withdraw more than the amount loaned to strategy, so that
-        // the strategy can keep working based on the profits it has
-        // NOTE: This means the user will lose out on any profits that each
-        // strategy in the queue would return on next harvest, benefiting others
-        amountNeeded = Math.min(amountNeeded, strategies[strategy].totalDebt);
-        if (amountNeeded == 0)
-          // Nothing to withdraw from this strategy, try the next one
-          continue;
-
-        (uint256 amountWithdrawn, uint256 loss) = IStrategy(strategy).withdraw(amountNeeded);
-        // Ensure the amount withdrawn returned from the strategy is the actual balance adjustement after withdrawal
-        if (
-          amountWithdrawn != (IERC20Upgradeable(_underlyingAsset).balanceOf(address(this)) - initialBalanceOfUnderlying)
-        ) revert BalanceMismatch();
-
-        // Withdrawer incurs any losses from the withdrawal of the strategy
-        if (loss != 0) {
-          amount -= loss;
-          totalLoss += loss;
-          _reportLoss(strategy, loss);
-        }
-        // Reduce the strategy's debt by the amount withdrawn
-        // Note: This doesn't add to total gains as it's not earned by "normal means"
-        strategies[strategy].totalDebt -= amountWithdrawn;
-        totalDebt -= amountWithdrawn;
-        //todo: add params
-        emit WithdrawnFromStrategy(strategy, amountWithdrawn, loss);
-
-        unchecked {
-          ++i;
-        }
-      }
-      // We have withdrawn everything possible. Check if it is enough
-      if (amount < IERC20Upgradeable(_underlyingAsset).balanceOf(address(this))) revert NotEnoughLiquidity();
-      // Ensure max loss has not been reached
-      if (totalLoss > ((MAX_LOSS * (amount + totalLoss)) / MAX_BPS))
-        // todo here we can do a percentmul
-        revert MaxLossExceeded();
-    }
-
-    IERC20Upgradeable(_underlyingAsset).safeTransfer(msg.sender, amount);
-    emit ReservesWithdrawn(amount);
-    return amount;
-  }
-
-  /**
    * @dev Mints uTokens to the reserve treasury
    * - Only callable by the LendPool
    * @param amount The amount of tokens getting minted
@@ -337,7 +268,9 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     // NOTE: compute current locked profit and replace with sum of current and new
     uint256 lockedProfitBeforeLoss = _calculateLockedProfit() + gain;
     if (lockedProfitBeforeLoss > loss) {
-      lockedProfit = lockedProfitBeforeLoss - loss;
+      unchecked {
+        lockedProfit = lockedProfitBeforeLoss - loss;
+      }
     } else {
       lockedProfit = 0;
     }
@@ -364,6 +297,74 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   }
 
   /**
+    @notice Withdraws the calling account's underlying tokens from this UToken, redeeming
+    amount `amount` of underlying.
+    See note on `setWithdrawalQueue` for further details of withdrawal
+    ordering and behavior.
+  */
+  //todo: optimize
+  function withdrawReserves(uint256 amount) external onlyLendPool returns (uint256) {
+    // UToken balance is not enough to cover withdrawal. Withdrawing from strategies is required
+    if (amount > IERC20Upgradeable(_underlyingAsset).balanceOf(address(this))) {
+      uint256 len = withdrawalQueue.length;
+      uint256 totalLoss;
+      for (uint256 i; i < len; ) {
+        address strategy = withdrawalQueue[i];
+
+        // We reached the queue limit
+        if (strategy == address(0)) break;
+
+        uint256 initialBalanceOfUnderlying = IERC20Upgradeable(_underlyingAsset).balanceOf(address(this));
+        // We can finish withdrawing from strategies as we have enough funds
+        if (initialBalanceOfUnderlying >= amount) break;
+
+        uint256 amountNeeded = amount - initialBalanceOfUnderlying;
+        // Don't withdraw more than the amount loaned to strategy, so that
+        // the strategy can keep working based on the profits it has
+        // NOTE: This means the user will lose out on any profits that each
+        // strategy in the queue would return on next harvest, benefiting others
+        amountNeeded = Math.min(amountNeeded, strategies[strategy].totalDebt);
+        if (amountNeeded == 0)
+          // Nothing to withdraw from this strategy, try the next one
+          continue;
+
+        (uint256 amountWithdrawn, uint256 loss) = IStrategy(strategy).withdraw(amountNeeded);
+        // Ensure the amount withdrawn returned from the strategy is the actual balance adjustement after withdrawal
+        if (
+          amountWithdrawn != (IERC20Upgradeable(_underlyingAsset).balanceOf(address(this)) - initialBalanceOfUnderlying)
+        ) revert BalanceMismatch();
+
+        // Withdrawer incurs any losses from the withdrawal of the strategy
+        if (loss != 0) {
+          amount -= loss;
+          totalLoss += loss;
+          _reportLoss(strategy, loss);
+        }
+        // Reduce the strategy's debt by the amount withdrawn
+        // Note: This doesn't add to total gains as it's not earned by "normal means"
+        strategies[strategy].totalDebt -= amountWithdrawn;
+        totalDebt -= amountWithdrawn;
+        //todo: add params
+        emit WithdrawnFromStrategy(strategy, amountWithdrawn, loss);
+
+        unchecked {
+          ++i;
+        }
+      }
+      // We have withdrawn everything possible. Check if it is enough
+      if (amount < IERC20Upgradeable(_underlyingAsset).balanceOf(address(this))) revert NotEnoughLiquidity();
+      // Ensure max loss has not been reached
+      if (totalLoss > ((MAX_LOSS * (amount + totalLoss)) / MAX_BPS))
+        // todo here we can do a percentmul
+        revert MaxLossExceeded();
+    }
+
+    IERC20Upgradeable(_underlyingAsset).safeTransfer(msg.sender, amount);
+    emit ReservesWithdrawn(amount);
+    return amount;
+  }
+
+  /**
    * @notice Determines if `strategy` is past its debt limit and if any amount of tokens
    *  should be withdrawn to the UToken.
    * @param strategy The Strategy to check.
@@ -372,6 +373,113 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
 
   function debtOutstanding(address strategy) external view override returns (uint256) {
     return _debtOutstanding(strategy);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                        SETTERS
+  //////////////////////////////////////////////////////////////*/
+  function updateUTokenManagers(address[] calldata managers, bool flag) external override onlyPoolAdmin {
+    uint256 cachedLength = managers.length;
+    for (uint256 i = 0; i < cachedLength; ) {
+      require(managers[i] != address(0), Errors.INVALID_ZERO_ADDRESS);
+      _uTokenManagers[managers[i]] = flag;
+      unchecked {
+        ++i;
+      }
+    }
+    emit UTokenManagersUpdated(managers, flag);
+  }
+
+  /**
+   * @notice Add a Strategy to the UToken.
+   * @dev The Strategy will be appended to `withdrawalQueue`, call
+   * `setWithdrawalQueue` to change the order.
+   * @param strategy The address of the Strategy to add.
+   * @param strategyDebtRatio The share of the total assets in the UToken that `strategy` has access to.
+   * @param strategyMinDebtPerHarvest Lower limit on the increase of debt since last harvest
+   * @param strategyMaxDebtPerHarvest Upper limit on the increase of debt since last harvest
+   */
+  function addStrategy(
+    address strategy,
+    uint256 strategyDebtRatio,
+    uint256 strategyMinDebtPerHarvest,
+    uint256 strategyMaxDebtPerHarvest
+  ) external override onlyPoolAdmin {
+    if (withdrawalQueue[MAXIMUM_STRATEGIES - 1] == address(0)) revert MaxStrategiesReached();
+    if (strategy == address(0)) revert InvalidZeroAddress();
+    if (IStrategy(strategy).getUToken() != address(this)) revert InvalidStrategyUToken();
+    if (debtRatio + strategyDebtRatio > MAX_BPS) revert InvalidDebtRatio();
+    if (strategyMinDebtPerHarvest > strategyMaxDebtPerHarvest) revert InvalidHarvestAmounts();
+
+    strategies[strategy] = StrategyParams({
+      debtRatio: strategyDebtRatio,
+      lastReport: block.timestamp,
+      totalDebt: 0,
+      totalGain: 0,
+      totalLoss: 0,
+      minDebtPerHarvest: strategyMinDebtPerHarvest,
+      maxDebtPerHarvest: strategyMaxDebtPerHarvest,
+      active: true
+    });
+
+    emit StrategyAdded(strategy, strategyDebtRatio, strategyMinDebtPerHarvest, strategyMaxDebtPerHarvest);
+    debtRatio += strategyDebtRatio;
+    withdrawalQueue[MAXIMUM_STRATEGIES - 1] = strategy;
+
+    _organizeWithdrawalQueue();
+  }
+
+  /**
+   * @notice Revoke a Strategy, setting its debt limit to 0 and preventing any
+   * future deposits.
+   * This function should only be used in the scenario where the Strategy is
+   * being retired but no migration of the positions are possible, or in the
+   * extreme scenario that the Strategy needs to be put into "Emergency Exit"
+   * mode in order for it to exit as quickly as possible. The latter scenario
+   * could be for any reason that is considered "critical" that the Strategy
+   * exits its position as fast as possible, such as a sudden change in market
+   * conditions leading to losses, or an imminent failure in an external
+   * dependency.
+    @param strategy The strategy to revoke.
+   */
+  function revokeStrategy(address strategy) external override onlyPoolAdmin {
+    if (strategies[strategy].debtRatio == 0) revert AlreadyZero();
+    debtRatio -= strategies[strategy].debtRatio;
+    strategies[strategy].debtRatio = 0;
+    emit StrategyRevoked(strategy);
+  }
+
+  function setDepositLimit(uint256 newDepositLimit) external override onlyPoolAdmin {
+    depositLimit = newDepositLimit;
+    emit DepositLimitUpdated(newDepositLimit);
+  }
+
+  /**
+   * @notice Updates the `manageable` params for the strategy
+   * @param strategy the strategy to update
+   * @param strategyDebtRatio New quantity of assets `strategy` may manage.
+   * @param strategyMinDebtPerHarvest  Lower limit on the increase of debt since last harvest
+   * @param strategyMaxDebtPerHarvest  Upper limit on the increase of debt since last harvest
+   */
+  function updateStrategyParams(
+    address strategy,
+    uint256 strategyDebtRatio,
+    uint256 strategyMinDebtPerHarvest,
+    uint256 strategyMaxDebtPerHarvest
+  ) external override onlyPoolAdmin {
+    if (!strategies[strategy].active) revert InvalidStrategy();
+    if (strategyMinDebtPerHarvest > strategyMaxDebtPerHarvest) revert InvalidHarvestAmounts();
+
+    debtRatio -= strategies[strategy].debtRatio;
+    strategies[strategy].debtRatio = strategyDebtRatio;
+    debtRatio += strategyDebtRatio;
+
+    if (debtRatio > MAX_BPS) revert InvalidDebtRatio();
+
+    strategies[strategy].minDebtPerHarvest = strategyMinDebtPerHarvest;
+    strategies[strategy].maxDebtPerHarvest = strategyMaxDebtPerHarvest;
+
+    emit StrategyParamsUpdated(strategy, strategyDebtRatio, strategyMinDebtPerHarvest, strategyMaxDebtPerHarvest);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -474,6 +582,31 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
       return lockedProfit - ((lockedFundsRatio * lockedProfit) / DEGRADATION_COEFFICIENT);
 
     return 0;
+  }
+
+  /**
+   * @notice Reorganize `withdrawalQueue` based on premise that if there is an
+   * empty value between two actual values, then the empty value should be
+   * replaced by the later value.
+   * @dev Relative ordering of non-zero values is maintained.
+   */
+  function _organizeWithdrawalQueue() internal {
+    uint256 offset;
+    for (uint256 i; i < MAXIMUM_STRATEGIES; ) {
+      address strategy = withdrawalQueue[i];
+      if (strategy == address(0)) {
+        unchecked {
+          ++offset;
+        }
+      } else if (offset > 0) {
+        withdrawalQueue[i - offset] = strategy;
+        withdrawalQueue[i] = address(0);
+      }
+
+      unchecked {
+        ++i;
+      }
+    }
   }
 
   /**
@@ -616,18 +749,6 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   function transferUnderlyingTo(address target, uint256 amount) external override onlyLendPool returns (uint256) {
     IERC20Upgradeable(_underlyingAsset).safeTransfer(target, amount);
     return amount;
-  }
-
-  function updateUTokenManagers(address[] calldata managers, bool flag) external override onlyPoolAdmin {
-    uint256 cachedLength = managers.length;
-    for (uint256 i = 0; i < cachedLength; ) {
-      require(managers[i] != address(0), Errors.INVALID_ZERO_ADDRESS);
-      _uTokenManagers[managers[i]] = flag;
-      unchecked {
-        ++i;
-      }
-    }
-    emit UTokenManagersUpdated(managers, flag);
   }
 
   /**

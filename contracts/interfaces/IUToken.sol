@@ -30,6 +30,20 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
    **/
   error MaxLossExceeded();
 
+  error MaxStrategiesReached();
+
+  error InvalidZeroAddress();
+
+  error InvalidStrategyUToken();
+
+  error InvalidHarvestAmounts();
+
+  error AlreadyZero();
+
+  error InvalidStrategy();
+
+  error InvalidDebtRatio();
+
   /**
    * @dev Emitted when an uToken is initialized
    * @param underlyingAsset The address of the underlying asset
@@ -58,15 +72,23 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
    **/
   event UTokenManagersUpdated(address[] indexed managers, bool flag);
 
-  /**
-   * @dev Initializes the bToken
-   * @param addressProvider The address of the address provider where this bToken will be used
-   * @param treasury The address of the Unlockd treasury, receiving the fees on this bToken
-   * @param underlyingAsset The address of the underlying asset of this bToken
-   * @param uTokenDecimals The amount of token decimals
-   * @param uTokenName The name of the token
-   * @param uTokenSymbol The token symbol
-   */
+  event StrategyAdded(
+    address indexed strategy,
+    uint256 strategyDebtRatio,
+    uint256 strategyMinDebtPerHarvest,
+    uint256 strategyMaxDebtPerHarvest
+  );
+
+  event StrategyRevoked(address indexed strategy);
+
+  event DepositLimitUpdated(uint256 newDepositLimit);
+
+  event StrategyParamsUpdated(
+    address indexed strategy,
+    uint256 strategyDebtRatio,
+    uint256 strategyMinDebtPerHarvest,
+    uint256 strategyMaxDebtPerHarvest
+  );
 
   struct StrategyParams {
     uint256 debtRatio; // Relation between the amount of assets deployed to the strategy and the total amount of assets belonging to the UToken
@@ -76,8 +98,18 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
     uint256 totalLoss; // Total losses that Strategy has realized for the UToken
     uint256 minDebtPerHarvest; // Lower limit on the increase of debt since last harvest
     uint256 maxDebtPerHarvest; // Upper limit on the increase of debt since last harvest
+    bool active; // Whether the strategy is active or not
   }
 
+  /**
+   * @dev Initializes the uToken
+   * @param addressProvider The address of the address provider where this bToken will be used
+   * @param treasury The address of the Unlockd treasury, receiving the fees on this bToken
+   * @param underlyingAsset The address of the underlying asset of this bToken
+   * @param uTokenDecimals The amount of token decimals
+   * @param uTokenName The name of the token
+   * @param uTokenSymbol The token symbol
+   */
   function initialize(
     ILendPoolAddressesProvider addressProvider,
     address treasury,
@@ -188,6 +220,24 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
    * @return The amount transferred
    **/
   function transferUnderlyingTo(address user, uint256 amount) external returns (uint256);
+
+  function updateStrategyParams(
+    address strategy,
+    uint256 strategyDebtRatio,
+    uint256 strategyMinDebtPerHarvest,
+    uint256 strategyMaxDebtPerHarvest
+  ) external;
+
+  function setDepositLimit(uint256 newDepositLimit) external;
+
+  function addStrategy(
+    address strategy,
+    uint256 strategyDebtRatio,
+    uint256 strategyMinDebtPerHarvest,
+    uint256 strategyMaxDebtPerHarvest
+  ) external;
+
+  function revokeStrategy(address strategy) external;
 
   /**
    * @dev Returns the scaled balance of the user and the scaled total supply.
