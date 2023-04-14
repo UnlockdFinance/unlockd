@@ -64,7 +64,7 @@ makeSuite("yVault Strategy negatives", (testEnv: TestEnv) => {
   afterEach(async () => {
     await evmRevert(snapshotId);
   });
-  it("GenericYVaultStrategy Negatives: Check `initialize()` zero params", async () => {
+  it("GenericYVaultStrategy Negatives: Check `initialize()` zero params - yVault address", async () => {
     const { addressesProvider, uWETH, deployer } = testEnv;
 
     //@ts-ignore
@@ -98,5 +98,76 @@ makeSuite("yVault Strategy negatives", (testEnv: TestEnv) => {
     await expect(genericYVaultStrategy.invest(ethers.utils.parseEther("10"))).to.be.revertedWith(
       "NotEnoughFundsToInvest"
     );
+  });
+  it("GenericYVaultStrategy BASE Strategy Negatives: Check `initialize()` zero params - address provider", async () => {
+    const { addressesProvider, uWETH, deployer } = testEnv;
+
+    //@ts-ignore
+    const initEncodedData = genericYVaultStrategyImpl.interface.encodeFunctionData("initialize", [
+      zeroAddress(), // address provider
+      uWETH.address, // uToken
+      [deployer.address], // keeper
+      strategyName32, // strategy name
+      genericYVaultStrategyImpl.address, // yearn vault
+    ]);
+
+    await expect(
+      deployUnlockdUpgradeableProxy(
+        eContractid.GenericYVaultStrategy,
+        proxyAdmin.address,
+        genericYVaultStrategyImpl.address,
+        initEncodedData,
+        false
+      )
+    ).to.be.revertedWith("InvalidZeroAddress");
+  });
+  it("GenericYVaultStrategy BASE Strategy Negatives: Check `initialize()` zero params - uToken address", async () => {
+    const { addressesProvider, uWETH, deployer } = testEnv;
+
+    //@ts-ignore
+    const initEncodedData = genericYVaultStrategyImpl.interface.encodeFunctionData("initialize", [
+      addressesProvider.address, // address provider
+      zeroAddress(), // uToken
+      [deployer.address], // keeper
+      strategyName32, // strategy name
+      genericYVaultStrategyImpl.address, // yearn vault
+    ]);
+
+    await expect(
+      deployUnlockdUpgradeableProxy(
+        eContractid.GenericYVaultStrategy,
+        proxyAdmin.address,
+        genericYVaultStrategyImpl.address,
+        initEncodedData,
+        false
+      )
+    ).to.be.revertedWith("InvalidZeroAddress");
+  });
+  it("GenericYVaultStrategy BASE Strategy Negatives: Check `initialize()` zero params - Keepers address", async () => {
+    const { addressesProvider, uWETH, deployer } = testEnv;
+
+    //@ts-ignore
+    const initEncodedData = genericYVaultStrategyImpl.interface.encodeFunctionData("initialize", [
+      addressesProvider.address, // address provider
+      uWETH.address, // uToken
+      [zeroAddress()], // keeper
+      strategyName32, // strategy name
+      genericYVaultStrategyImpl.address, // yearn vault
+    ]);
+
+    await expect(
+      deployUnlockdUpgradeableProxy(
+        eContractid.GenericYVaultStrategy,
+        proxyAdmin.address,
+        genericYVaultStrategyImpl.address,
+        initEncodedData,
+        false
+      )
+    ).to.be.revertedWith("InvalidZeroAddress");
+  });
+  it("GenericYVaultStrategy BASE Strategy Negatives: updateKeepers zero address", async () => {
+    const { genericYVaultStrategy } = testEnv;
+
+    await expect(genericYVaultStrategy.updateKeepers([zeroAddress()], true)).to.be.revertedWith("InvalidZeroAddress");
   });
 });
