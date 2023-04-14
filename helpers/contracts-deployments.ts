@@ -10,6 +10,7 @@ import {
   CustomERC721Factory,
   DebtMarketFactory,
   DebtTokenFactory,
+  GenericConvexETHStrategyFactory,
   GenericLogicFactory,
   GenericYVaultStrategyFactory,
   InterestRateFactory,
@@ -150,6 +151,11 @@ export const deployGenericYVaultStrategy = async (verify?: boolean) => {
   const genericYVaultStrategyImpl = await new GenericYVaultStrategyFactory(await getDeploySigner()).deploy();
   await insertContractAddressInDb(eContractid.GenericYVaultStrategyImpl, genericYVaultStrategyImpl.address);
   return withSaveAndVerify(genericYVaultStrategyImpl, eContractid.GenericYVaultStrategy, [], verify);
+};
+export const deployGenericConvexETHStrategy = async (verify?: boolean) => {
+  const genericConvexETHStrategyImpl = await new GenericConvexETHStrategyFactory(await getDeploySigner()).deploy();
+  await insertContractAddressInDb(eContractid.GenericConvexETHStrategyImpl, genericConvexETHStrategyImpl.address);
+  return withSaveAndVerify(genericConvexETHStrategyImpl, eContractid.GenericConvexETHStrategy, [], verify);
 };
 
 export const deployReserveLogicLibrary = async (verify?: boolean) =>

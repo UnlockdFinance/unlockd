@@ -123,6 +123,18 @@ export const CommonsConfig: ICommonConfiguration = {
   },
   NFTOracle: {
     [eEthereumNetwork.hardhat]: "",
+    [eEthereumNetwork.localhost]: "", 
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "",
+  },
+  GenericYVaultStrategy: {
+    [eEthereumNetwork.hardhat]: "",
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "",
+  },
+  GenericConvexETHStrategy: {
+    [eEthereumNetwork.hardhat]: "",
     [eEthereumNetwork.localhost]: "",
     [eEthereumNetwork.goerli]: "",
     [eEthereumNetwork.main]: "",
@@ -204,6 +216,36 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.localhost]: "0x2cC3790f7CF280fA898E4913CA980410cF38e53b",
     [eEthereumNetwork.goerli]: "0xe01Cf5099e700c282A56E815ABd0C4948298Afae",
     [eEthereumNetwork.main]: "0xBE86f647b167567525cCAAfcd6f881F1Ee558216",
+  },
+  ConvexBooster: {
+    [eEthereumNetwork.hardhat]: "0xF403C135812408BFbE8713b5A23a04b3D48AAE31", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "0xF403C135812408BFbE8713b5A23a04b3D48AAE31",
+  },
+  CurveETHAlETHPool: {
+    [eEthereumNetwork.hardhat]: "0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e",
+  },
+  CurveCRVWETHPool: {
+    [eEthereumNetwork.hardhat]: "0x8301ae4fc9c624d1d396cbdaa1ed877821d7c511", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "0x8301ae4fc9c624d1d396cbdaa1ed877821d7c511",
+  },
+  CurveCVXWETHPool: {
+    [eEthereumNetwork.hardhat]: "0xb576491f1e6e5e62f1d8f26062ee822b40b0e0d4", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "0xb576491f1e6e5e62f1d8f26062ee822b40b0e0d4",
+  },
+  UniSwapRouter: {
+    [eEthereumNetwork.hardhat]: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
   },
   // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
   SushiSwapRouter: {
