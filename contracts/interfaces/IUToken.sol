@@ -246,6 +246,12 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   function getAvailableLiquidity() external view returns (uint256);
 
   /**
+   * @dev Returns the params of a requested strategy
+   * @return The strategy params of the requested strategy
+   **/
+  function isManager(address manager) external view returns (bool);
+
+  /**
    * @dev Returns the address of the incentives controller contract
    **/
   function getIncentivesController() external view returns (IIncentivesController);

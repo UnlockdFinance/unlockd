@@ -1,11 +1,22 @@
 const chai = require("chai");
 import { zeroAddress } from "ethereumjs-util";
+import { ethers } from "ethers";
 import { parseEther } from "ethers/lib/utils";
+import DRE from "hardhat";
+import { ConfigNames, getYVaultWETHAddress, loadPoolConfig } from "../helpers/configuration";
 import { ADDRESS_ID_YVAULT_WETH, APPROVAL_AMOUNT_LENDING_POOL, ZERO_ADDRESS } from "../helpers/constants";
-import { getMintableERC20, getUToken, getYVault } from "../helpers/contracts-getters";
+import { deployGenericYVaultStrategy, deployUnlockdUpgradeableProxy } from "../helpers/contracts-deployments";
+import {
+  getLendPoolAddressesProvider,
+  getMintableERC20,
+  getUnlockdProtocolDataProvider,
+  getUnlockdProxyAdminById,
+  getUToken,
+  getYVault,
+} from "../helpers/contracts-getters";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
-import { createRandomAddress, fundWithERC20, waitForTx } from "../helpers/misc-utils";
-import { ProtocolErrors } from "../helpers/types";
+import { createRandomAddress, fundWithERC20, notFalsyOrZeroAddress, waitForTx } from "../helpers/misc-utils";
+import { eContractid, eNetwork, ProtocolErrors } from "../helpers/types";
 import { CommonsConfig } from "../markets/unlockd/commons";
 import { approveERC20 } from "./helpers/actions";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
@@ -130,5 +141,108 @@ makeSuite("UToken", (testEnv: TestEnv) => {
     const toBalance = await uWETH.balanceOf(users[6].address);
 
     expect(toBalance.toString()).to.be.equal(amountTransfer.toString(), INVALID_TO_BALANCE_AFTER_TRANSFER);
+  });
+
+  it("UToken: Check `updateUTokenManagers()`", async () => {
+    const { users, uWETH } = testEnv;
+
+    /*//////////////////////////////////////////////////////////////
+                        NEGATIVES
+    //////////////////////////////////////////////////////////////*/
+
+    // 1. CHECK INVALID ZERO ADDRESS
+    expect(
+      uWETH.updateUTokenManagers(
+        [users[1].address, zeroAddress()], //STRATEGY ADDRESS
+        true // FLAG
+      )
+    ).to.be.revertedWith(INVALID_ZERO_ADDRESS);
+
+    /*//////////////////////////////////////////////////////////////
+                        POSITIVES
+    //////////////////////////////////////////////////////////////*/
+    // 1. SET 3 ADDRESSES AS MANAGERS
+    await uWETH.updateUTokenManagers(
+      [users[1].address, users[2].address, users[3].address], //STRATEGY ADDRESS
+      true // FLAG
+    );
+
+    expect(await uWETH.isManager(users[1].address)).to.be.eq(true);
+    expect(await uWETH.isManager(users[2].address)).to.be.eq(true);
+    expect(await uWETH.isManager(users[3].address)).to.be.eq(true);
+
+    // 2. REMOVE 2 ADDRESSES FROM BEING MANAGERS
+    await uWETH.updateUTokenManagers(
+      [users[2].address, users[3].address], //STRATEGY ADDRESS
+      false // FLAG
+    );
+    expect(await uWETH.isManager(users[1].address)).to.be.eq(true);
+    expect(await uWETH.isManager(users[2].address)).to.be.eq(false);
+    expect(await uWETH.isManager(users[3].address)).to.be.eq(false);
+  });
+
+  it.only("UToken: `addStrategy()`", async () => {
+    const { genericYVaultStrategy, uWETH, deployer } = testEnv;
+
+    /*//////////////////////////////////////////////////////////////
+                        NEGATIVES
+    //////////////////////////////////////////////////////////////*/
+
+    // 1. Force max strategy limit to be reached
+
+    // Deploy implementation
+    const network = <eNetwork>DRE.network.name;
+    const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+    const addressesProvider = await getLendPoolAddressesProvider();
+    const poolAdmin = await addressesProvider.getPoolAdmin();
+    const strategyName = "Yearn yvWETH Strategy";
+
+    let genericYVaultStrategyImpl;
+    let strategyName32;
+    let proxyAdmin;
+    strategyName32 = ethers.utils.formatBytes32String(strategyName);
+
+    console.log("Deploying new GenericYVault strategy implementation...");
+    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false);
+
+    proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
+    if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
+      throw Error("Invalid pool proxy admin in config");
+    }
+
+    const dataProvider = await getUnlockdProtocolDataProvider();
+    const allReserveTokens = await dataProvider.getAllReservesTokenDatas();
+    const uTokenAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.uTokenAddress;
+    const yVaultWETHAddress = await getYVaultWETHAddress(poolConfig);
+    if (!yVaultWETHAddress) {
+      throw "YVault is undefined. Check ReserveAssets configuration at config directory";
+    }
+
+    //@ts-ignore
+    const initEncodedData = genericYVaultStrategyImpl.interface.encodeFunctionData("initialize", [
+      addressesProvider.address, // address provider
+      uWETH.address, // uToken
+      [deployer.address], // keeper
+      strategyName32, // strategy name
+      yVaultWETHAddress, // yearn vault
+    ]);
+
+    // Deploy 20 instances of strategies
+    for (let i = 0; i < 20; i++) {
+      const proxy = await deployUnlockdUpgradeableProxy(
+        eContractid.GenericYVaultStrategy,
+        proxyAdmin.address,
+        genericYVaultStrategyImpl.address,
+        initEncodedData,
+        false
+      );
+      console.log("PROXY ADDRESS: " + proxy.address);
+      uWETH.addStrategy(
+        proxy.address, //STRATEGY ADDRESS
+        0, // DEBT RATIO
+        0, //MIN DEBT PER HARVEST
+        "115792089237316195423570985008687907853269984665640564039457584007913129639935" // MAX DEBT PER HARVEST
+      );
+    }
   });
 });

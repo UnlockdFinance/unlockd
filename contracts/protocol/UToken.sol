@@ -21,7 +21,6 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
-//todo: change strategies[strategy] to Strategy storage strategy
 /**
  * @title ERC20 UToken
  * @dev Implementation of the interest bearing token for the Unlockd protocol
@@ -39,7 +38,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   address internal _underlyingAsset;
   mapping(address => bool) internal _uTokenManagers;
 
-  uint256 public constant MAXIMUM_STRATEGIES = 5;
+  uint256 public constant MAXIMUM_STRATEGIES = 20;
   uint256 public constant MAX_BPS = 10_000; // 100% [BPS]
   uint256 public constant MAX_LOSS = 1; // Max tolerated loss on withdrawal (0.01%) [BPS]
   uint256 public constant DEGRADATION_COEFFICIENT = 10 ** 18;
@@ -81,7 +80,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   }
 
   modifier onlyStrategy() {
-    require(_uTokenManagers[_msgSender()], Errors.CALLER_NOT_UTOKEN_MANAGER);
+    require(_uTokenManagers[_msgSender()], Errors.CALLER_NOT_STRATEGY);
     _;
   }
 
@@ -344,7 +343,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
         // Note: This doesn't add to total gains as it's not earned by "normal means"
         strategies[strategy].totalDebt -= amountWithdrawn;
         totalDebt -= amountWithdrawn;
-        //todo: add params
+
         emit WithdrawnFromStrategy(strategy, amountWithdrawn, loss);
 
         unchecked {
@@ -354,9 +353,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
       // We have withdrawn everything possible. Check if it is enough
       if (amount < IERC20Upgradeable(_underlyingAsset).balanceOf(address(this))) revert NotEnoughLiquidity();
       // Ensure max loss has not been reached
-      if (totalLoss > ((MAX_LOSS * (amount + totalLoss)) / MAX_BPS))
-        // todo here we can do a percentmul
-        revert MaxLossExceeded();
+      if (totalLoss > ((MAX_LOSS * (amount + totalLoss)) / MAX_BPS)) revert MaxLossExceeded();
     }
 
     IERC20Upgradeable(_underlyingAsset).safeTransfer(msg.sender, amount);
@@ -405,7 +402,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     uint256 strategyMinDebtPerHarvest,
     uint256 strategyMaxDebtPerHarvest
   ) external override onlyPoolAdmin {
-    if (withdrawalQueue[MAXIMUM_STRATEGIES - 1] == address(0)) revert MaxStrategiesReached();
+    if (withdrawalQueue[MAXIMUM_STRATEGIES - 1] != address(0)) revert MaxStrategiesReached();
     if (strategy == address(0)) revert InvalidZeroAddress();
     if (IStrategy(strategy).getUToken() != address(this)) revert InvalidStrategyUToken();
     if (debtRatio + strategyDebtRatio > MAX_BPS) revert InvalidDebtRatio();
@@ -663,6 +660,14 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
    **/
   function getStrategy(address strategy) external view override returns (StrategyParams memory) {
     return strategies[strategy];
+  }
+
+  /**
+   * @dev Returns if the requested address is actually a manager
+   * @return Flag indicating if the requested address is manager
+   **/
+  function isManager(address manager) external view override returns (bool) {
+    return _uTokenManagers[manager];
   }
 
   /**

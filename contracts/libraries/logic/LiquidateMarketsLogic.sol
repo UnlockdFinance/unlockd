@@ -206,9 +206,6 @@ library LiquidateMarketsLogic {
     // transfer borrow amount from lend pool to uToken, repay debt
     IERC20Upgradeable(loanData.reserveAsset).safeTransfer(uToken, vars.borrowAmount);
 
-    // Deposit borrow amount to lending protocol
-    // todo IUToken(uToken).depositReserves(vars.borrowAmount);
-
     // transfer fee amount from lend pool to liquidator
     IERC20Upgradeable(loanData.reserveAsset).safeTransfer(vars.liquidator, vars.feeAmount);
 
@@ -373,9 +370,6 @@ library LiquidateMarketsLogic {
 
     // transfer borrow amount from lend pool to uToken, repay debt
     IERC20Upgradeable(loanData.reserveAsset).safeTransfer(uToken, vars.borrowAmount);
-
-    // Deposit borrow amount to lending protocol
-    // todo IUToken(uToken).depositReserves(vars.borrowAmount);
 
     // transfer fee amount from lend pool to liquidator
     IERC20Upgradeable(loanData.reserveAsset).safeTransfer(vars.liquidator, vars.feeAmount);

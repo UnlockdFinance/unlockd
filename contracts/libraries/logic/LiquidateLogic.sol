@@ -417,9 +417,6 @@ library LiquidateLogic {
     // transfer repay amount from borrower to uToken
     IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, uToken, vars.repayAmount);
 
-    // Deposit amount redeemed to lending protocol
-    //todo IUToken(uToken).depositReserves(vars.repayAmount);
-
     if (loanData.bidderAddress != address(0)) {
       // transfer (return back) last bid price amount from lend pool to bidder
       IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.bidderAddress, loanData.bidPrice);
@@ -555,9 +552,6 @@ library LiquidateLogic {
 
     // transfer borrow amount from lend pool to uToken, repay debt
     IERC20Upgradeable(loanData.reserveAsset).safeTransfer(uToken, vars.borrowAmount);
-
-    // Deposit amount from debt repaid to lending protocol
-    //todo IUToken(uToken).depositReserves(vars.borrowAmount);
 
     // transfer remain amount to borrower
     if (vars.remainAmount > 0) {
@@ -740,9 +734,6 @@ library LiquidateLogic {
 
     // transfer borrow amount from lend pool to uToken, repay debt
     IERC20Upgradeable(loanData.reserveAsset).safeTransfer(reserveData.uTokenAddress, vars.borrowAmount);
-
-    // Deposit amount from debt repaid to lending protocol
-    // todo IUToken(reserveData.uTokenAddress).depositReserves(vars.borrowAmount);
 
     vars.remainAmount = params.amount - vars.borrowAmount;
 
