@@ -18,3 +18,18 @@ Reservoir adapter aims at leveraging Reservoir's powerful infrastructure for tra
 3. Transfer the NFT to Reservoir's target module, where the NFT will be "automatically" liquidated
 4. Validate the amount liquidated matches the expected liquidation price
 5. Settle liquidation
+
+### Write methods
+
+`function liquidateReservoir(address nftAsset, address reserveAsset, bytes calldata data, uint256 expectedLiquidateAmount) external`
+
+Liquidates an unhealthy loan in reservoir.
+
+#### Call params
+
+| Name                    | Type    | Description                                                               |
+| ----------------------- | ------- | ------------------------------------------------------------------------- |
+| nftAsset                | address | The address of the NFT to be liquidated                                   |
+| reserveAsset            | address | The reserve for the liquidation                                           |
+| data                    | bytes   | The data to execute, containing the execution data for reservoir's module |
+| expectedLiquidateAmount | uint256 | The amount the NFT is expected to be exchanged for                        |

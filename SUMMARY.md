@@ -18,6 +18,7 @@
 * [Debt Market](the-core-protocol/debt-market.md)
 * [LockeyManager](the-core-protocol/lockeymanager.md)
 * [Adapters](the-core-protocol/adapters.md)
+* [Strategies](the-core-protocol/strategies.md)
 
 ## uNFT Protocol
 
