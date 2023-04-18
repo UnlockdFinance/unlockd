@@ -234,10 +234,10 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "GenericYVaultStrategyImpl": {
-    "address": "0xD8878a4553dc5A827Ec30341A7abd12bc26C60C3"
+    "address": "0x034226F4d7C94427dbDa9e09ad87A8597ECb7325"
   },
   "GenericYVaultStrategy": {
-    "address": "0xcE200eD2B119E9DaB7bc39A2FfC2a7B21DA77a69",
+    "address": "0xAF5B704dd7AfA21A4A5738e271cbeb5cc8b3C916",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "YVault": {
@@ -248,6 +248,10 @@
   },
   "GenericConvexETHStrategy": {
     "address": "0xBa60406333a79e63036eCFF45A00B7Df5dCeDf45",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
+  "MockUToken": {
+    "address": "0x24A7d384dea2e1Dea6d2fE4f04A3197b2d7a12de",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   }
 }

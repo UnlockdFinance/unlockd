@@ -52,7 +52,7 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
   //////////////////////////////////////////////////////////////*/
   /**
    * @dev Liquidates an unhealthy loan on Reservoir.
-   * @param nftAsset e
+   * @param nftAsset The address of the NFT expected to be liquidated
    * @param data The data to execute. Reservoir's API is leveraged in order to generate this `data` param.
    * . The expected encoded data is a combination of the following:
    * 1. A `safeTransferFrom` function, which the following calldata encoded:

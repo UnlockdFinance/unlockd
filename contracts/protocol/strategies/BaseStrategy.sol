@@ -90,7 +90,9 @@ abstract contract BaseStrategy is Initializable, IStrategy {
     if (address(_uToken) == address(0)) _revert(InvalidZeroAddress.selector);
     addressesProvider = _provider;
     uToken = _uToken;
+
     underlyingAsset = IERC20(_uToken.UNDERLYING_ASSET_ADDRESS());
+
     // Approve UToken
     underlyingAsset.safeApprove(address(_uToken), type(uint256).max);
 

@@ -38,7 +38,7 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
 
   error InvalidHarvestAmounts();
 
-  error AlreadyZero();
+  error StrategyDebtRatioAlreadyZero();
 
   error InvalidStrategy();
 

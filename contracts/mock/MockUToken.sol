@@ -9,7 +9,7 @@ import {IYVault} from "../interfaces/yearn/IYVault.sol";
 import {IIncentivesController} from "../interfaces/IIncentivesController.sol";
 import {IStrategy} from "../interfaces/strategies/IStrategy.sol";
 
-import {IncentivizedERC20} from "./IncentivizedERC20.sol";
+import {IncentivizedERC20} from "../protocol/IncentivizedERC20.sol";
 
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
@@ -26,7 +26,7 @@ import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
  * @dev Implementation of the interest bearing token for the Unlockd protocol
  * @author Unlockd
  */
-contract UToken is Initializable, IUToken, IncentivizedERC20 {
+contract MockUToken is Initializable, IUToken, IncentivizedERC20 {
   using WadRayMath for uint256;
   using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -87,8 +87,6 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   /*//////////////////////////////////////////////////////////////
                         INITIALIZATION
   //////////////////////////////////////////////////////////////*/
-  /// @custom:oz-upgrades-unsafe-allow constructor
-  constructor() initializer {}
 
   /**
    * @dev Initializes the uToken
@@ -103,7 +101,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     uint8 uTokenDecimals,
     string calldata uTokenName,
     string calldata uTokenSymbol
-  ) external override initializer {
+  ) external override {
     __IncentivizedERC20_init(uTokenName, uTokenSymbol, uTokenDecimals);
 
     _treasury = treasury;
@@ -404,7 +402,9 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   ) external override onlyPoolAdmin {
     if (withdrawalQueue[MAXIMUM_STRATEGIES - 1] != address(0)) revert MaxStrategiesReached();
     if (strategy == address(0)) revert InvalidZeroAddress();
-    if (address(IStrategy(strategy).getUToken()) != address(this)) revert InvalidStrategyUToken();
+
+    if (IStrategy(strategy).getUToken() != address(this)) revert InvalidStrategyUToken();
+
     if (debtRatio + strategyDebtRatio > MAX_BPS) revert InvalidDebtRatio();
     if (strategyMinDebtPerHarvest > strategyMaxDebtPerHarvest) revert InvalidHarvestAmounts();
 
@@ -443,7 +443,6 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     if (strategies[strategy].debtRatio == 0) revert StrategyDebtRatioAlreadyZero();
     debtRatio -= strategies[strategy].debtRatio;
     strategies[strategy].debtRatio = 0;
-    strategies[strategy].active = false;
     emit StrategyRevoked(strategy);
   }
 

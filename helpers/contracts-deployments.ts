@@ -30,6 +30,7 @@ import {
   MockIncentivesControllerFactory,
   MockNFTOracleFactory,
   MockReserveOracleFactory,
+  MockUTokenFactory,
   MockYVaultFactory,
   NFTOracleFactory,
   NFTXVaultFactoryV2Factory,
@@ -474,6 +475,9 @@ export const deployGenericDebtToken = async (verify?: boolean) =>
 
 export const deployGenericUTokenImpl = async (verify: boolean) =>
   withSaveAndVerify(await new UTokenFactory(await getDeploySigner()).deploy(), eContractid.UToken, [], verify);
+
+export const deployGenericMockUTokenImpl = async (verify: boolean) =>
+  withSaveAndVerify(await new MockUTokenFactory(await getDeploySigner()).deploy(), eContractid.MockUToken, [], verify);
 
 export const deployGenericUNFTImpl = async (verify: boolean) =>
   withSaveAndVerify(await new UNFTFactory(await getDeploySigner()).deploy(), eContractid.UNFT, [], verify);

@@ -19,6 +19,7 @@ export enum UnlockdPools {
 
 export enum eContractid {
   MintableERC20 = "MintableERC20",
+  MockUToken = "MockUToken",
   MintableERC721 = "MintableERC721",
   CustomERC721 = "CustomERC721",
   LendPoolAddressesProvider = "LendPoolAddressesProvider",
