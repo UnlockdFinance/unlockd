@@ -1,6 +1,6 @@
 const chai = require("chai");
 import { zeroAddress } from "ethereumjs-util";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 import DRE from "hardhat";
 import { ConfigNames, getYVaultWETHAddress, loadPoolConfig } from "../helpers/configuration";
@@ -175,8 +175,7 @@ makeSuite("UToken", (testEnv: TestEnv) => {
     let proxyAdmin;
     strategyName32 = ethers.utils.formatBytes32String(strategyName);
 
-    console.log("Deploying new GenericYVault strategy implementation...");
-    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false);
+    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false, true);
 
     proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
     if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
@@ -220,8 +219,7 @@ makeSuite("UToken", (testEnv: TestEnv) => {
     let proxyAdmin;
     strategyName32 = ethers.utils.formatBytes32String(strategyName);
 
-    console.log("Deploying new GenericYVault strategy implementation...");
-    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false);
+    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false, true);
 
     proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
     if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
@@ -232,7 +230,7 @@ makeSuite("UToken", (testEnv: TestEnv) => {
     if (!yVaultWETHAddress) {
       throw "YVault is undefined. Check ReserveAssets configuration at config directory";
     }
-    const uToken = await deployGenericMockUTokenImpl(false);
+    const uToken = await deployGenericMockUTokenImpl(false, true);
     await uToken.initialize(addressesProvider.address, createRandomAddress(), weth.address, 18, "Test", "TST");
 
     //@ts-ignore
@@ -249,7 +247,8 @@ makeSuite("UToken", (testEnv: TestEnv) => {
       proxyAdmin.address,
       genericYVaultStrategyImpl.address,
       initEncodedData,
-      false
+      false,
+      true
     );
 
     expect(
@@ -275,8 +274,7 @@ makeSuite("UToken", (testEnv: TestEnv) => {
     let proxyAdmin;
     strategyName32 = ethers.utils.formatBytes32String(strategyName);
 
-    console.log("Deploying new GenericYVault strategy implementation...");
-    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false);
+    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false, true);
 
     proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
     if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
@@ -302,7 +300,8 @@ makeSuite("UToken", (testEnv: TestEnv) => {
       proxyAdmin.address,
       genericYVaultStrategyImpl.address,
       initEncodedData,
-      false
+      false,
+      true
     );
 
     expect(
@@ -328,8 +327,7 @@ makeSuite("UToken", (testEnv: TestEnv) => {
     let proxyAdmin;
     strategyName32 = ethers.utils.formatBytes32String(strategyName);
 
-    console.log("Deploying new GenericYVault strategy implementation...");
-    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false);
+    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false, true);
 
     proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
     if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
@@ -355,7 +353,8 @@ makeSuite("UToken", (testEnv: TestEnv) => {
       proxyAdmin.address,
       genericYVaultStrategyImpl.address,
       initEncodedData,
-      false
+      false,
+      true
     );
 
     expect(
@@ -366,6 +365,148 @@ makeSuite("UToken", (testEnv: TestEnv) => {
         0 // MAX DEBT PER HARVEST
       )
     ).to.be.revertedWith("InvalidHarvestAmounts()");
+  });
+  it("UToken: `addStrategy()`- Check adding strategy values", async () => {
+    const { uWETH, deployer } = testEnv;
+
+    // Deploy implementation
+    const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+    const addressesProvider = await getLendPoolAddressesProvider();
+
+    const strategyName = "Yearn yvWETH Strategy";
+
+    let genericYVaultStrategyImpl;
+    let strategyName32;
+    let proxyAdmin;
+    strategyName32 = ethers.utils.formatBytes32String(strategyName);
+
+    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false, true);
+
+    proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
+    if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
+      throw Error("Invalid pool proxy admin in config");
+    }
+
+    const yVaultWETHAddress = await getYVaultWETHAddress(poolConfig);
+    if (!yVaultWETHAddress) {
+      throw "YVault is undefined. Check ReserveAssets configuration at config directory";
+    }
+
+    //@ts-ignore
+    let initEncodedData = genericYVaultStrategyImpl.interface.encodeFunctionData("initialize", [
+      addressesProvider.address, // address provider
+      uWETH.address, // uToken
+      [deployer.address], // keeper
+      strategyName32, // strategy name
+      yVaultWETHAddress, // yearn vault
+    ]);
+
+    const proxy = await deployUnlockdUpgradeableProxy(
+      eContractid.GenericYVaultStrategy,
+      proxyAdmin.address,
+      genericYVaultStrategyImpl.address,
+      initEncodedData,
+      false,
+      true
+    );
+
+    await uWETH.addStrategy(
+      proxy.address, // STRATEGY ADDRESS
+      5000, // 50% DEBT RATIO
+      0, //MIN DEBT PER HARVEST
+      "115792089237316195423570985008687907853269984665640564039457584007913129639935" // MAX DEBT PER HARVEST
+    );
+
+    const strategyData = await uWETH.getStrategy(proxy.address);
+    expect(strategyData.debtRatio).to.be.eq(5000);
+    expect(strategyData.active).to.be.eq(true);
+    expect(strategyData.totalDebt).to.be.eq(0);
+    expect(strategyData.totalGain).to.be.eq(0);
+    expect(strategyData.totalLoss).to.be.eq(0);
+    expect(strategyData.minDebtPerHarvest).to.be.eq(0);
+    expect(strategyData.maxDebtPerHarvest).to.be.eq(
+      "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+    );
+
+    const debtRatioUToken = await uWETH.debtRatio();
+    expect(debtRatioUToken).to.be.equal(5000);
+    const strategyWithdrawalQueueZero = await uWETH.withdrawalQueue(0);
+    const strategyWithdrawalQueueOne = await uWETH.withdrawalQueue(1);
+    // Only one strategy has been added (hence, position 0 is the added strategy, 1 is empty)
+    expect(strategyWithdrawalQueueZero).to.be.eq(proxy.address);
+    expect(strategyWithdrawalQueueOne).to.be.eq(zeroAddress());
+
+    await uWETH.revokeStrategy(proxy.address);
+    await uWETH.removeStrategyFromQueue(proxy.address);
+  });
+  it("UToken: `updateStrategyParams()`- Check updating strategy params", async () => {
+    const { uWETH, deployer } = testEnv;
+
+    // Deploy implementation
+    const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+    const addressesProvider = await getLendPoolAddressesProvider();
+
+    const strategyName = "Yearn yvWETH Strategy";
+
+    let genericYVaultStrategyImpl;
+    let strategyName32;
+    let proxyAdmin;
+    strategyName32 = ethers.utils.formatBytes32String(strategyName);
+
+    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false, true);
+
+    proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
+    if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
+      throw Error("Invalid pool proxy admin in config");
+    }
+
+    const yVaultWETHAddress = await getYVaultWETHAddress(poolConfig);
+    if (!yVaultWETHAddress) {
+      throw "YVault is undefined. Check ReserveAssets configuration at config directory";
+    }
+
+    //@ts-ignore
+    let initEncodedData = genericYVaultStrategyImpl.interface.encodeFunctionData("initialize", [
+      addressesProvider.address, // address provider
+      uWETH.address, // uToken
+      [deployer.address], // keeper
+      strategyName32, // strategy name
+      yVaultWETHAddress, // yearn vault
+    ]);
+
+    const proxy = await deployUnlockdUpgradeableProxy(
+      eContractid.GenericYVaultStrategy,
+      proxyAdmin.address,
+      genericYVaultStrategyImpl.address,
+      initEncodedData,
+      false,
+      true
+    );
+
+    await uWETH.addStrategy(
+      proxy.address, // STRATEGY ADDRESS
+      5000, // 50% DEBT RATIO
+      0, //MIN DEBT PER HARVEST
+      "115792089237316195423570985008687907853269984665640564039457584007913129639935" // MAX DEBT PER HARVEST
+    );
+
+    await uWETH.updateStrategyParams(
+      proxy.address, // STRATEGY ADDRESS
+      20, // NEW DEBT RATIO
+      10, // NEW MIN DEBT PER HARVEST
+      50 // NET MAX DEBT PER HARVEST
+    );
+    const strategyData = await uWETH.getStrategy(proxy.address);
+    expect(strategyData.debtRatio).to.be.eq(20);
+
+    expect(strategyData.minDebtPerHarvest).to.be.eq(10);
+    expect(strategyData.maxDebtPerHarvest).to.be.eq(50);
+
+    const debtRatioUToken = await uWETH.debtRatio();
+    expect(debtRatioUToken).to.be.equal(20);
+
+    await uWETH.revokeStrategy(proxy.address);
+    await uWETH.removeStrategyFromQueue(proxy.address);
   });
   it("UToken: `revokeStrategy()`- Revoke invalid strategy (ie zero debt ratio) (expect revert)", async () => {
     const { uWETH, deployer } = testEnv;
@@ -381,8 +522,7 @@ makeSuite("UToken", (testEnv: TestEnv) => {
     let proxyAdmin;
     strategyName32 = ethers.utils.formatBytes32String(strategyName);
 
-    console.log("Deploying new GenericYVault strategy implementation...");
-    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false);
+    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false, true);
 
     proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
     if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
@@ -408,7 +548,8 @@ makeSuite("UToken", (testEnv: TestEnv) => {
       proxyAdmin.address,
       genericYVaultStrategyImpl.address,
       initEncodedData,
-      false
+      false,
+      true
     );
 
     expect(
@@ -416,6 +557,72 @@ makeSuite("UToken", (testEnv: TestEnv) => {
         proxy.address //STRATEGY ADDRESS
       )
     ).to.be.revertedWith("StrategyDebtRatioAlreadyZero()");
+  });
+  it("UToken: `revokeStrategy()`- Revoke strategy ", async () => {
+    const { uWETH, deployer } = testEnv;
+
+    // Deploy implementation
+    const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+    const addressesProvider = await getLendPoolAddressesProvider();
+
+    const strategyName = "Yearn yvWETH Strategy";
+
+    let genericYVaultStrategyImpl;
+    let strategyName32;
+    let proxyAdmin;
+    strategyName32 = ethers.utils.formatBytes32String(strategyName);
+
+    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false, true);
+
+    proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
+    if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
+      throw Error("Invalid pool proxy admin in config");
+    }
+
+    const yVaultWETHAddress = await getYVaultWETHAddress(poolConfig);
+    if (!yVaultWETHAddress) {
+      throw "YVault is undefined. Check ReserveAssets configuration at config directory";
+    }
+
+    //@ts-ignore
+    let initEncodedData = genericYVaultStrategyImpl.interface.encodeFunctionData("initialize", [
+      addressesProvider.address, // address provider
+      uWETH.address, // uToken
+      [deployer.address], // keeper
+      strategyName32, // strategy name
+      yVaultWETHAddress, // yearn vault
+    ]);
+
+    const proxy = await deployUnlockdUpgradeableProxy(
+      eContractid.GenericYVaultStrategy,
+      proxyAdmin.address,
+      genericYVaultStrategyImpl.address,
+      initEncodedData,
+      false,
+      true
+    );
+
+    await uWETH.addStrategy(
+      proxy.address, // STRATEGY ADDRESS
+      5000, // 50% DEBT RATIO
+      0, //MIN DEBT PER HARVEST
+      "115792089237316195423570985008687907853269984665640564039457584007913129639935" // MAX DEBT PER HARVEST
+    );
+
+    const strategyDataPrev = await uWETH.getStrategy(proxy.address);
+    const debtRatioPrev = await uWETH.debtRatio();
+
+    await uWETH.revokeStrategy(
+      proxy.address // STRATEGY ADDRESS
+    );
+    const strategyData = await uWETH.getStrategy(proxy.address);
+    const debtRatio = await uWETH.debtRatio();
+
+    expect(debtRatio).to.be.eq(debtRatioPrev.sub(strategyDataPrev.debtRatio));
+    expect(strategyData.debtRatio).to.be.eq(0);
+    expect(strategyData.active).to.be.eq(false);
+
+    await uWETH.removeStrategyFromQueue(proxy.address);
   });
   it("UToken: `updateStrategyParams()`- update strategy params for invalid strategy (expect revert)", async () => {
     const { uWETH, deployer } = testEnv;
@@ -431,8 +638,7 @@ makeSuite("UToken", (testEnv: TestEnv) => {
     let proxyAdmin;
     strategyName32 = ethers.utils.formatBytes32String(strategyName);
 
-    console.log("Deploying new GenericYVault strategy implementation...");
-    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false);
+    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false, true);
 
     proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
     if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
@@ -458,7 +664,8 @@ makeSuite("UToken", (testEnv: TestEnv) => {
       proxyAdmin.address,
       genericYVaultStrategyImpl.address,
       initEncodedData,
-      false
+      false,
+      true
     );
 
     expect(
@@ -484,8 +691,7 @@ makeSuite("UToken", (testEnv: TestEnv) => {
     let proxyAdmin;
     strategyName32 = ethers.utils.formatBytes32String(strategyName);
 
-    console.log("Deploying new GenericYVault strategy implementation...");
-    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false);
+    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false, true);
 
     proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
     if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
@@ -511,10 +717,11 @@ makeSuite("UToken", (testEnv: TestEnv) => {
       proxyAdmin.address,
       genericYVaultStrategyImpl.address,
       initEncodedData,
-      false
+      false,
+      true
     );
     // Add strategy properly
-    await uWETH.addStrategy(proxy.address, 10000, 0, 10000000);
+    await uWETH.addStrategy(proxy.address, 100, 0, 10000000);
 
     expect(
       uWETH.updateStrategyParams(
@@ -524,6 +731,8 @@ makeSuite("UToken", (testEnv: TestEnv) => {
         0 // MAX DEBT PER HARVEST
       )
     ).to.be.revertedWith("InvalidHarvestAmounts()");
+    await uWETH.revokeStrategy(proxy.address);
+    await uWETH.removeStrategyFromQueue(proxy.address);
   });
   it("UToken: `updateStrategyParams()`- update strategy params with invalid debt ratio (expect revert)", async () => {
     const { uWETH, deployer } = testEnv;
@@ -539,8 +748,7 @@ makeSuite("UToken", (testEnv: TestEnv) => {
     let proxyAdmin;
     strategyName32 = ethers.utils.formatBytes32String(strategyName);
 
-    console.log("Deploying new GenericYVault strategy implementation...");
-    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false);
+    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false, true);
 
     proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
     if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
@@ -566,13 +774,14 @@ makeSuite("UToken", (testEnv: TestEnv) => {
       proxyAdmin.address,
       genericYVaultStrategyImpl.address,
       initEncodedData,
-      false
+      false,
+      true
     );
 
     // Add strategy properly
     await uWETH.addStrategy(
       proxy.address,
-      0, // debt ratio
+      100, // debt ratio
       0,
       10000000
     );
@@ -584,10 +793,11 @@ makeSuite("UToken", (testEnv: TestEnv) => {
         "115792089237316195423570985008687907853269984665640564039457584007913129639935" // MAX DEBT PER HARVEST
       )
     ).to.be.revertedWith("InvalidDebtRatio()");
+    await uWETH.revokeStrategy(proxy.address);
+    await uWETH.removeStrategyFromQueue(proxy.address);
   });
   it("UToken: `addStrategy()` - Force maximum strategies reached (expect revert)", async () => {
     const { uWETH, deployer } = testEnv;
-
     // Deploy implementation
     const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
     const addressesProvider = await getLendPoolAddressesProvider();
@@ -598,8 +808,7 @@ makeSuite("UToken", (testEnv: TestEnv) => {
     let proxyAdmin;
     strategyName32 = ethers.utils.formatBytes32String(strategyName);
 
-    console.log("Deploying new GenericYVault strategy implementation...");
-    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false);
+    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false, true);
 
     proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
     if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
@@ -621,19 +830,20 @@ makeSuite("UToken", (testEnv: TestEnv) => {
     ]);
 
     let strategies: string[] = [];
-    // Deploy 18 instances of strategies
-    for (let i = 0; i < 18; i++) {
+    // Deploy 20 instances of strategies
+    for (let i = 0; i < 20; i++) {
       const proxy = await deployUnlockdUpgradeableProxy(
         eContractid.GenericYVaultStrategy,
         proxyAdmin.address,
         genericYVaultStrategyImpl.address,
         initEncodedData,
-        false
+        false,
+        true
       );
       strategies.push(proxy.address);
       await uWETH.addStrategy(
         strategies[i], //STRATEGY ADDRESS
-        0, // DEBT RATIO
+        100, // DEBT RATIO
         0, //MIN DEBT PER HARVEST
         "115792089237316195423570985008687907853269984665640564039457584007913129639935" // MAX DEBT PER HARVEST
       );
@@ -644,7 +854,8 @@ makeSuite("UToken", (testEnv: TestEnv) => {
       proxyAdmin.address,
       genericYVaultStrategyImpl.address,
       initEncodedData,
-      false
+      false,
+      true
     );
 
     expect(
@@ -655,5 +866,140 @@ makeSuite("UToken", (testEnv: TestEnv) => {
         "115792089237316195423570985008687907853269984665640564039457584007913129639935" // MAX DEBT PER HARVEST
       )
     ).to.be.revertedWith("MaxStrategiesReached()");
+
+    for (let i = 0; i < 20; i++) {
+      await uWETH.revokeStrategy(strategies[i]);
+      await uWETH.removeStrategyFromQueue(strategies[i]);
+    }
+  });
+  it("UToken: Check withdrawal queue (expect revert)", async () => {
+    const { uWETH, deployer } = testEnv;
+    // Deploy implementation
+    const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+    const addressesProvider = await getLendPoolAddressesProvider();
+    const strategyName = "Yearn yvWETH Strategy";
+
+    let genericYVaultStrategyImpl;
+    let strategyName32;
+    let proxyAdmin;
+    strategyName32 = ethers.utils.formatBytes32String(strategyName);
+
+    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false, true);
+
+    proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
+    if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
+      throw Error("Invalid pool proxy admin in config");
+    }
+
+    const yVaultWETHAddress = await getYVaultWETHAddress(poolConfig);
+    if (!yVaultWETHAddress) {
+      throw "YVault is undefined. Check ReserveAssets configuration at config directory";
+    }
+
+    //@ts-ignore
+    let initEncodedData = genericYVaultStrategyImpl.interface.encodeFunctionData("initialize", [
+      addressesProvider.address, // address provider
+      uWETH.address, // uToken
+      [deployer.address], // keeper
+      strategyName32, // strategy name
+      yVaultWETHAddress, // yearn vault
+    ]);
+
+    let strategies: string[] = [];
+    // Deploy 10 instances of strategies
+    for (let i = 0; i < 10; i++) {
+      const proxy = await deployUnlockdUpgradeableProxy(
+        eContractid.GenericYVaultStrategy,
+        proxyAdmin.address,
+        genericYVaultStrategyImpl.address,
+        initEncodedData,
+        false,
+        true
+      );
+      strategies.push(proxy.address);
+      await uWETH.addStrategy(
+        strategies[i], //STRATEGY ADDRESS
+        100, // DEBT RATIO
+        0, //MIN DEBT PER HARVEST
+        "115792089237316195423570985008687907853269984665640564039457584007913129639935" // MAX DEBT PER HARVEST
+      );
+    }
+
+    for (let i = 0; i < 10; i++) {
+      const strategy = await uWETH.withdrawalQueue(i);
+      expect(strategy).to.be.equal(strategies[i]);
+    }
+    for (let i = 0; i < 20; i++) {
+      const strategy = await uWETH.withdrawalQueue(i);
+      if (strategy != zeroAddress()) await uWETH.revokeStrategy(strategy);
+    }
+
+    for (let i = 0; i < 20; i++) {
+      const strategy = await uWETH.withdrawalQueue(i);
+      if (strategy != zeroAddress()) await uWETH.removeStrategyFromQueue(strategy);
+    }
+  });
+  it("UToken: `removeStrategyFromQueue()`- Remove strategy from queue", async () => {
+    const { uWETH, deployer } = testEnv;
+
+    // Deploy implementation
+    const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+    const addressesProvider = await getLendPoolAddressesProvider();
+
+    const strategyName = "Yearn yvWETH Strategy";
+
+    let genericYVaultStrategyImpl;
+    let strategyName32;
+    let proxyAdmin;
+    strategyName32 = ethers.utils.formatBytes32String(strategyName);
+
+    genericYVaultStrategyImpl = await deployGenericYVaultStrategy(false, true);
+
+    proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
+    if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
+      throw Error("Invalid pool proxy admin in config");
+    }
+
+    const yVaultWETHAddress = await getYVaultWETHAddress(poolConfig);
+    if (!yVaultWETHAddress) {
+      throw "YVault is undefined. Check ReserveAssets configuration at config directory";
+    }
+
+    //@ts-ignore
+    let initEncodedData = genericYVaultStrategyImpl.interface.encodeFunctionData("initialize", [
+      addressesProvider.address, // address provider
+      uWETH.address, // uToken
+      [deployer.address], // keeper
+      strategyName32, // strategy name
+      yVaultWETHAddress, // yearn vault
+    ]);
+
+    for (let i = 0; i < 20; i++) {
+      const strategy = await uWETH.withdrawalQueue(0);
+      await uWETH.removeStrategyFromQueue(strategy);
+    }
+
+    let second;
+    for (let i = 0; i < 2; i++) {
+      const proxy = await deployUnlockdUpgradeableProxy(
+        eContractid.GenericYVaultStrategy,
+        proxyAdmin.address,
+        genericYVaultStrategyImpl.address,
+        initEncodedData,
+        false,
+        true
+      );
+
+      await uWETH.addStrategy(
+        proxy.address, // STRATEGY ADDRESS
+        5000, // 50% DEBT RATIO
+        0, //MIN DEBT PER HARVEST
+        "115792089237316195423570985008687907853269984665640564039457584007913129639935" // MAX DEBT PER HARVEST
+      );
+      if (i == 1) second = proxy.address;
+    }
+
+    await uWETH.removeStrategyFromQueue(await uWETH.withdrawalQueue(0));
+    expect(await uWETH.withdrawalQueue(0)).to.be.eq(second);
   });
 });

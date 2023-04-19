@@ -78,6 +78,7 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
     uint256 strategyMinDebtPerHarvest,
     uint256 strategyMaxDebtPerHarvest
   );
+  event StrategyRemoved(address indexed strategy);
 
   event StrategyRevoked(address indexed strategy);
 
@@ -236,6 +237,8 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
     uint256 strategyMinDebtPerHarvest,
     uint256 strategyMaxDebtPerHarvest
   ) external;
+
+  function removeStrategyFromQueue(address strategy) external;
 
   function revokeStrategy(address strategy) external;
 

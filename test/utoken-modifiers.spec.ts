@@ -52,6 +52,14 @@ makeSuite("UToken: Modifiers", (testEnv: TestEnv) => {
       )
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
+  it("Tries to invoke `removeStrategyFromQueue` not being the PoolAdmin", async () => {
+    const { genericYVaultStrategy, uWETH, users } = testEnv;
+    await expect(
+      uWETH.connect(users[2].signer).removeStrategyFromQueue(
+        genericYVaultStrategy.address // STRATEGY ADDRESS
+      )
+    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+  });
   it("Tries to invoke `revokeStrategy` not being the PoolAdmin", async () => {
     const { genericYVaultStrategy, uWETH, users } = testEnv;
     await expect(

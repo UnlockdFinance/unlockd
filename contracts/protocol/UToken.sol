@@ -480,6 +480,26 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     emit StrategyParamsUpdated(strategy, strategyDebtRatio, strategyMinDebtPerHarvest, strategyMaxDebtPerHarvest);
   }
 
+  /**
+   * @notice Remove `strategy` from `withdrawalQueue`.
+   * @dev We don't do this with revokeStrategy because it should still be possible to
+   * withdraw from the Strategy if it's unwinding.
+   * @param strategy The Strategy to remove.
+   */
+  function removeStrategyFromQueue(address strategy) external override onlyPoolAdmin {
+    for (uint256 i; i < MAXIMUM_STRATEGIES; ) {
+      if (withdrawalQueue[i] == strategy) {
+        withdrawalQueue[i] = address(0);
+        _organizeWithdrawalQueue();
+        emit StrategyRemoved(strategy);
+        return;
+      }
+      unchecked {
+        ++i;
+      }
+    }
+  }
+
   /*//////////////////////////////////////////////////////////////
                   INTERNAL FUNCTIONS 
   //////////////////////////////////////////////////////////////*/
@@ -650,7 +670,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   /**
    * @dev Returns the available liquidity for the UToken's reserve
    * @return The available liquidity in reserve
-   **/
+   **/ // TODO CHANGE
   function getAvailableLiquidity() public view override returns (uint256) {
     return LendingLogic.calculateYearnAvailableLiquidityInReserve(_addressProvider);
   }
