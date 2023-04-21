@@ -27,3 +27,10 @@
 ## Deployed Contracts
 
 * [LendingPool Protocol](docs/deployed-contracts/lendingpool-protocol.md)
+
+## 🤝 DEVELOPERS HELP
+
+* [Best Practices](developers-help/best-practices.md)
+* [Security and Risk Management](developers-help/security-and-risk-management.md)
+* [Github](https://github.com/UnlockdFinance/unlockd-protocol-immunefi)
+* [Bug Bounty - ACTIVE](https://immunefi.com/bounty/unlockd/)
