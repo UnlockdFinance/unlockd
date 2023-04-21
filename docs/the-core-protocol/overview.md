@@ -5,14 +5,14 @@
 ## Main contracts
 
 {% hint style="info" %}
-Both `LendPoolAddressesProvider` and `LendPoolAddressesProviderRegistry` control the upgradeability of the protocol, including asset listings and changes to protocol parameters. Unlockd holders will be in control of both, via Unlockd Protocol Governance.
+Both `LendPoolAddressesProvider` and `LendPoolAddressesProviderRegistry` control the upgradeability of the protocol, including asset listings and changes to protocol parameters. Unlockd token holders govern both contracts through the Unlockd Protocol Governance.
 {% endhint %}
 
-The main contracts in Unlockd and their purposes are:
+The primary contracts in Unlockd and their purposes are:
 
 ### LendPool
 
-The main entry point into the Unlockd Protocol. Most interactions with Unlockd will happen via the LendPool, including:
+The LendPool contract is the main entry point into the Unlockd Protocol. Most interactions with Unlockd will happen via the LendPool, including the following functions:
 
 * [deposit() ](lendpool.md#deposit)
 * [withdraw()](lendpool.md#withdraw)
@@ -25,59 +25,57 @@ The main entry point into the Unlockd Protocol. Most interactions with Unlockd w
 
 ### LendPoolAddressesProvider
 
-The main addresses register of the protocol. The latest contract addresses should be retrieved from this contract by making the appropriate calls.
+The \`LendPoolAddressesProvider\` contract serves as the main addresses register of the protocol. Developers should retrieve the latest contract addresses from this contract by making the appropriate calls.
 
 ### LendPoolAddressesProviderRegistry
 
-Contains a list of active `LendingPoolAddressProvider` addresses.
+This contract contains a list of `LendingPoolAddressProvider` addresses.
 
 ### uTokens
 
-The yield-generating, tokenised deposits used throughout the Unlockd protocol. They implement most of the standard EIP-20/ERC20 token methods with slight modifications, as well as Unlockd specific methods including:
+uTokens are the yield-generating, tokenized deposits used throughout the Unlockd protocol. They implement most of the standard EIP-20/ERC20 token methods with slight modifications, as well as Unlockd-specific methods, including:
 
-* scaledBalanceOf()
-* getScaledUserBalanceAndSupply()
-* scaledTotalSupply()
-* mintToTreasury()
-* transferUnderlyingTo()
+* `scaledBalanceOf()`
+* `getScaledUserBalanceAndSupply()`
+* `scaledTotalSupply()`
+* `mintToTreasury()`
+* `transferUnderlyingTo()`
 
 ### Debt Tokens
 
-The tokenised borrow positions used throughout the Unlockd protocol. Most of the standard EIP-20/ERC20 methods are disabled, since debt tokens are non-transferrable.
+Debt Tokens are the tokenized borrow positions used throughout the Unlockd protocol. Most standard EIP-20/ERC20 methods are disabled since debt tokens are non-transferable.
 
-For more information, see the Debt Tokens section.
+For more information, refer to the [Debt Tokens](debt-tokens.md) section.
 
 ## Supporting contracts
 
-The following contracts should generally not be interacted with directly, but are used throughout the Aave Protocol via contract calls.
+These contracts should generally not be interacted with directly but are used throughout the Unlockd Protocol via contract calls.
 
 ### LendPool Configurator
 
-Provides configuration functions for the `LendPool` contracts. It also has a number of important functions:
+The LendPool Configurator contract provides configuration functions for the `LendPool` contracts. It also has several important functions:
 
-* Activates / Deactivates reserves
-* Enables / Disables borrowing for an NFT
-* Enables / Disables using an NFT as collateral
-* Freezes / Unfreezes reserves
-* Updates a reserve's decimals
-* Updates an NFT's Loan to Value
-* Updates an NFT's liquidation threshold
-* Updates an NFT's liquidation bonus
-* Updates an NFT's redeem duration
-* Updates an NFT's auction duration
-* Updates an NFT's min bid fine
-* Updates a reserve's interest rate strategy address
-* Activates / Deactivates all functions of a LendPool in emergencies.
+* Activating / Deactivating reserves
+* Enabling / Disabling borrowing for an NFT
+* Enabling / Disabling using an NFT as collateral
+* Freezing / Unfreezing reserves
+* Updating a reserve's decimals
+* Updating an NFT's Loan to Value (LTV)
+* Updating an NFT's liquidation threshold
+* Updating an NFT's liquidation bonus
+* Updating an NFT's redeem duration
+* Updating an NFT's auction duration
+* Updating an NFT's min bid fine
+* Updating a reserve's interest rate strategy address
+* Activating / Deactivating all functions of a LendPool in emergencies
 
-For all of the above functions, relevant events are emitted to the blockchain. Anyone can monitor these changes to know when values have been modified or added/removed.
+For all the above functions, relevant events are emitted on the blockchain. Developers can monitor these events to track changes in values or when values have been added or removed.
 
 ### Interest Rate Strategy
 
-Holds the information needed to calculate and update the interest rates of specific reserves.
+The Interest Rate Strategy contract holds the information needed to calculate and update the interest rates of specific reserves. Each contract stores the optimized base curves using the corresponding parameters of each currency. There is a mathematical function that determines the interest rate of each asset pool, with the interest rate changing based on the amount of borrowed funds and the total liquidity (i.e., utilization) of the asset pool.
 
-Each contract stores the optimised base curves using the corresponding parameters of each currency. This means that there is a mathematical function which determines the interest rate of each asset pool, with the interest rate changing based on the amount of borrowed funds and the total liquidity (i.e. utilisation) of the asset pool.
-
-The parameters for the optimised base curves are:
+The parameters for the optimized base curves are:
 
 * `baseVariableBorrowRate`
 * `variableRateSlope1`
@@ -89,8 +87,8 @@ The interest rates are calculated depending on the available liquidity and the t
 
 ### Reserve Price Oracle Provider
 
-Provides reserve price data required throughout the Unlockd protocol, using Chainlink. More details on the [Reserve Oracle](reserve-oracle.md) page.
+The Reserve Price Oracle Provider contract provides reserve price data required throughout the Unlockd protocol, using Chainlink. More details can be found on the [Reserve Oracle](reserve-oracle.md) page.
 
 ### NFT Price Oracle Provider
 
-Provides NFT price data required throughout the Unlockd protocol, using Upshot. Prices are monitored externally by the Unlockd team. More details on the [NFT Oracle](nft-oracle.md) page.
+The `NFT Price Oracle Provider` contract provides NFT price data required throughout the Unlockd protocol, using Upshot. Prices are monitored externally by the Unlockd team. More details can be found on the [NFT Oracle](nft-oracle.md) page.
