@@ -1,9 +1,8 @@
 import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
-import { BigNumber as BN } from "ethers";
-import { APPROVAL_AMOUNT_LENDING_POOL, oneEther, ONE_DAY } from "../helpers/constants";
+import { oneEther, ONE_DAY } from "../helpers/constants";
 import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
-import { fundWithERC20, fundWithERC721, increaseTime, waitForTx } from "../helpers/misc-utils";
+import { fundWithERC20, fundWithERC721, increaseTime } from "../helpers/misc-utils";
 import { IConfigNftAsCollateralInput, ProtocolErrors, ProtocolLoanState } from "../helpers/types";
 import { approveERC20, setApprovalForAll, setNftAssetPrice, setNftAssetPriceForDebt } from "./helpers/actions";
 import { makeSuite } from "./helpers/make-suite";
@@ -14,10 +13,8 @@ const chai = require("chai");
 const { expect } = chai;
 
 makeSuite("LendPool: Liquidation", (testEnv) => {
-  let baycInitPrice: BN;
-
   it("WETH - Borrows WETH", async () => {
-    const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, deployer } = testEnv;
+    const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, deployer, debtMarket } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
 
@@ -71,6 +68,13 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     await pool
       .connect(borrower.signer)
       .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", borrower.address, "0");
+
+    await debtMarket
+      .connect(borrower.signer)
+      .createDebtListing(bayc.address, "101", parseEther("10"), borrower.address, 0, 0);
+
+    const debtIdBefore = await debtMarket.getDebtId(bayc.address, "101");
+    expect(debtIdBefore).to.be.not.equal(0);
 
     const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "101");
 
@@ -196,86 +200,10 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
       "Invalid liquidity APY"
     );
   });
-  it("WETH - Liquidates the borrow and cancel the debt listing", async () => {
-    const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, deployer, dataProvider, debtMarket } =
-      testEnv;
-    const borrower = users[1];
-    const liquidator = users[3];
+  it("Debt listing got cancelled after liquidation", async () => {
+    const { debtMarket, bayc } = testEnv;
 
-    //mints BAYC to borrower
-    await fundWithERC721("BAYC", borrower.address, 102);
-    //approve protocol to access borrower wallet
-    await setApprovalForAll(testEnv, borrower, "BAYC");
-
-    const price = await convertToCurrencyDecimals(deployer, weth, "50");
-
-    await configurator.setLtvManagerStatus(deployer.address, true);
-    await nftOracle.setPriceManagerStatus(configurator.address, true);
-
-    const collData: IConfigNftAsCollateralInput = {
-      asset: bayc.address,
-      nftTokenId: "102",
-      newPrice: parseEther("100"),
-      ltv: 4000,
-      liquidationThreshold: 7000,
-      redeemThreshold: 9000,
-      liquidationBonus: 500,
-      redeemDuration: 100,
-      auctionDuration: 200,
-      redeemFine: 500,
-      minBidFine: 2000,
-    };
-    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
-    //borrows
-    const nftColDataBefore = await pool.getNftCollateralData(bayc.address, 102, weth.address);
-
-    const wethPrice = await reserveOracle.getAssetPrice(weth.address);
-
-    const amountBorrow = await convertToCurrencyDecimals(
-      deployer,
-      weth,
-      new BigNumber(nftColDataBefore.availableBorrowsInETH.toString())
-        .div(wethPrice.toString())
-        .multipliedBy(0.95)
-        .toFixed(0)
-    );
-
-    await pool
-      .connect(borrower.signer)
-      .borrow(weth.address, amountBorrow.toString(), bayc.address, "102", borrower.address, "0");
-
-    await debtMarket
-      .connect(borrower.signer)
-      .createDebtListing(bayc.address, "102", parseEther("10"), borrower.address, 0, 0);
-
-    await nftOracle.setPriceManagerStatus(configurator.address, true);
-
-    const nftDebtDataBefore = await pool.getNftDebtData(bayc.address, "102");
-
-    const debAmountUnits = await convertToCurrencyUnits(deployer, weth, nftDebtDataBefore.totalDebt.toString());
-    await setNftAssetPriceForDebt(testEnv, "BAYC", 102, "WETH", debAmountUnits, "80");
-
-    const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(weth.address, bayc.address, "102");
-    const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.1).toFixed(0);
-
-    await pool.connect(liquidator.signer).auction(bayc.address, "102", auctionPrice, liquidator.address);
-    const debtIdBefore = await debtMarket.getDebtId(bayc.address, "102");
-    expect(debtIdBefore).to.be.not.equal(0);
-
-    const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "102");
-
-    // end auction duration
-    await increaseTime(nftCfgData.auctionDuration.mul(ONE_DAY).add(100).toNumber());
-    console.log("1");
-    const extraAmount = await convertToCurrencyDecimals(deployer, weth, "1");
-    console.log("2");
-    await pool.connect(borrower.signer).liquidate(bayc.address, "102", extraAmount);
-    console.log("3");
-    // check result
-    const tokenOwner = await bayc.ownerOf("102");
-    expect(tokenOwner).to.be.equal(liquidator.address, "Invalid token owner after liquidation");
-
-    const debtIdAfter = await debtMarket.getDebtId(bayc.address, "102");
+    const debtIdAfter = await debtMarket.getDebtId(bayc.address, "101");
     expect(debtIdAfter).to.be.equal(0);
   });
 
@@ -345,7 +273,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
         ProtocolErrors.VL_INVALID_HEALTH_FACTOR
       );
 
-      const tokenOwner = await bayc.ownerOf("102");
+      const tokenOwner = await bayc.ownerOf("101");
       expect(tokenOwner).to.be.equal(uBAYC.address, "Invalid token owner after auction");
     }
   });

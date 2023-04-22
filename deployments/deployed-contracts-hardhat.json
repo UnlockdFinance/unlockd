@@ -63,10 +63,11 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LendPoolImpl": {
-    "address": "0x6be4a054629ff10Af2680696A5a5Dc8C525D977F"
+    "address": "0xcEBC70fc3dA36e8719388e3Ee7527b0636c08b64"
   },
   "LendPool": {
-    "address": "0x80Fa1fA8B0CaF15CFC3961C934cFA860945d9139"
+    "address": "0xcEBC70fc3dA36e8719388e3Ee7527b0636c08b64",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LendPoolLoanImpl": {
     "address": "0x1Dc8C005cdd4a52136eDf5e7c4FC6C662E0f7E73"
@@ -96,7 +97,7 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "InterestRate": {
-    "address": "0x495DeE8247914e3176a4F9767596d15a09230aC7",
+    "address": "0x7D552cB76C1FaaABE6D3A09B71c2999c04ad03F3",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "rateStrategyWETH": {

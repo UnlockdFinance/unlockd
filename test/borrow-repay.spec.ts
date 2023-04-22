@@ -73,7 +73,7 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
   });
 
   it("User 0 deposits 100 WETH, user 1 uses NFT as collateral and borrows 1 WETH", async () => {
-    const { users, configurator, nftOracle, deployer, bayc, weth } = testEnv;
+    const { users, configurator, nftOracle, deployer, bayc, weth, debtMarket } = testEnv;
     const user0 = users[0];
     const user1 = users[1];
 
@@ -121,9 +121,12 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await borrow(testEnv, user1, "WETH", "1", "BAYC", tokenId, user1.address, "365", "success", "");
 
-    // const checkResult2 = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
-    // await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
-    // await expect(checkResult2).to.be.equal(true, "IncentivesController not called");
+    await debtMarket
+      .connect(user1.signer)
+      .createDebtListing(bayc.address, tokenId, parseEther("10"), user1.address, 0, 0);
+
+    const debtIdBefore = await debtMarket.getDebtId(bayc.address, tokenId);
+    expect(debtIdBefore).to.be.not.equal(0);
 
     cachedTokenId = tokenId;
   });
@@ -199,6 +202,15 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     // await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
     // await expect(checkResult).to.be.equal(true, "IncentivesController not called");
   });
+  it("Debt listing got cancelled after borrowing more", async () => {
+    const { debtMarket, bayc } = testEnv;
+
+    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+    const tokenId = cachedTokenId;
+
+    const debtIdAfter = await debtMarket.getDebtId(bayc.address, tokenId);
+    expect(debtIdAfter).to.be.equal(0);
+  });
 
   it("User 1 tries to borrow more than the rest of the WETH liquidity (revert expected)", async () => {
     const { users, configurator, deployer, nftOracle, bayc } = testEnv;
@@ -248,6 +260,20 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
 
     await repay(testEnv, user1, "WETH", "", "BAYC", tokenId, "0", user1, "revert", ProtocolErrors.VL_INVALID_AMOUNT);
   });
+  it("User 1 creates a new debt listing", async () => {
+    const { users, bayc, debtMarket } = testEnv;
+    const user1 = users[1];
+
+    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+    const tokenId = cachedTokenId;
+
+    await debtMarket
+      .connect(user1.signer)
+      .createDebtListing(bayc.address, tokenId, parseEther("10"), user1.address, 0, 0);
+
+    const debtIdBefore = await debtMarket.getDebtId(bayc.address, tokenId);
+    expect(debtIdBefore).to.be.not.equal(0);
+  });
 
   it("User 1 repays 0.5 WETH, enough to cover a small part of the interest", async () => {
     const { users } = testEnv;
@@ -265,6 +291,15 @@ makeSuite("LendPool: Borrow/repay test cases", (testEnv: TestEnv) => {
     // const checkResult = await testEnv.mockIncentivesController.checkHandleActionIsCalled();
     // await waitForTx(await testEnv.mockIncentivesController.resetHandleActionIsCalled());
     // await expect(checkResult).to.be.equal(true, "IncentivesController not called");
+  });
+  it("User 1 got his debt listing cancelled after partially repaying", async () => {
+    const { bayc, debtMarket } = testEnv;
+
+    await expect(cachedTokenId, "previous test case is faild").to.not.be.undefined;
+    const tokenId = cachedTokenId;
+
+    const debtIdBefore = await debtMarket.getDebtId(bayc.address, tokenId);
+    expect(debtIdBefore).to.be.equal(0);
   });
 
   it("User 1 repays all WETH borrow after one year", async () => {
