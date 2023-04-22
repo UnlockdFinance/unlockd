@@ -148,6 +148,9 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
       reserveData.variableBorrowIndex
     );
 
+    // Cancel debt listing
+    _cancelDebtListing(nftAsset, safeTransferFromDecodedData.tokenId);
+
     _updateReserveInterestRates(loanData.reserveAsset);
 
     // transfer amounts to reserve

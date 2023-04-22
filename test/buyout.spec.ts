@@ -23,7 +23,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
   });
 
   it("Borrower - Borrows WETH", async () => {
-    const { users, pool, nftOracle, weth, bayc, configurator, deployer } = testEnv;
+    const { users, pool, nftOracle, weth, bayc, configurator, deployer, debtMarket } = testEnv;
     const depositor = users[3];
     const borrower = users[4];
 
@@ -67,6 +67,13 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     await pool
       .connect(borrower.signer)
       .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", borrower.address, "0");
+
+    await debtMarket
+      .connect(borrower.signer)
+      .createDebtListing(bayc.address, "101", parseEther("10"), borrower.address, 0, 0);
+
+    const debtIdBefore = await debtMarket.getDebtId(bayc.address, "101");
+    expect(debtIdBefore).to.be.not.equal(0);
 
     const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "101");
 
@@ -173,6 +180,12 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
       ethReserveDataAfter.availableLiquidity.toString(),
       ethReserveDataAfter.availableLiquidity.add(1000).toString()
     );
+  });
+  it("Verifies if the debtMarket listing was cancelled", async () => {
+    const { bayc, debtMarket } = testEnv;
+
+    const debtIdAfter = await debtMarket.getDebtId(bayc.address, "102");
+    expect(debtIdAfter).to.be.equal(0);
   });
 
   it("Lockey Holder: Borrower - Borrows WETH", async () => {

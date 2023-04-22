@@ -1,0 +1,1312 @@
+
+> @unlockddao/unlockd-protocol@1.0.2 test:file
+> npm run compile && TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test/__setup.spec.ts ./test/${TEST_FILE}
+
+
+> @unlockddao/unlockd-protocol@1.0.2 compile
+> cross-env SKIP_LOAD=true hardhat compile
+
+Compiled 2 Solidity files successfully
+Creating Typechain artifacts in directory types for target ethers-v5
+Successfully generated Typechain artifacts!
+/home/fvenancio/Projects/unlockd/unlockd-tasks/tasks
+Creating Typechain artifacts in directory types for target ethers-v5
+Successfully generated Typechain artifacts!
+
+- Enviroment
+  - Network : hardhat
+-> Deploying test environment...
+Deployer: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15 Balance: 1000000.0 ETH
+PoolAdmin: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15 Balance: 1000000.0 ETH
+EmergencyAdmin: 0x51d25BEeef0193C96CFDA7fff9BD7411C2BdbDd3 Balance: 1000000.0 ETH
+LendPool Liquidator: 0xA2874be6Acdc314dd055f6869a2dBdF62c983436 Balance: 1000000.0 ETH
+-> Prepare mock external ERC20 Tokens, such as WETH, DAI...
+0x92777976073090bf503b88911d587d4aafa081146523afbd480574de34804d14
+0
+contracts-helpers:registerContractInJsonDb, contractId: WETHMocked address: 0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+contracts-helpers:registerContractInJsonDb, contractId: WETH address: 0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+-> Prepare mock external ERC721 NFTs, such as WPUNKS, BAYC...
+0xe746c131e5e47f0840e30b95d0cd799f4089c01da918e2ecd737970b7dff3cda
+1
+contracts-helpers:registerContractInJsonDb, contractId: CryptoPunksMarket address: 0xa05ffF82bcC0C599984b0839218DC6ee9328d1Fb deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0xbfb083b762d0a04361691359e3acec07c8f67b0825347cbf39ff9a5cd903cc48
+2
+contracts-helpers:registerContractInJsonDb, contractId: WrappedPunk address: 0x025FE4760c6f14dE878C22cEb09A3235F16dAe53 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+contracts-helpers:registerContractInJsonDb, contractId: WPUNKS address: 0x025FE4760c6f14dE878C22cEb09A3235F16dAe53 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x139a19596f4579bfba7695e7636f7ff12176387ef4cb1be180a4a7df1ca13dad
+3
+contracts-helpers:registerContractInJsonDb, contractId: MintableERC721 address: 0xb2f97A3c2E48cd368901657e31Faaa93035CE390 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+contracts-helpers:registerContractInJsonDb, contractId: BAYC address: 0xb2f97A3c2E48cd368901657e31Faaa93035CE390 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x97c79bc08ef74465c9ebd13503da3ad777eada30170632279c7590fc3e6d9951
+4
+contracts-helpers:registerContractInJsonDb, contractId: MintableERC721 address: 0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+contracts-helpers:registerContractInJsonDb, contractId: AZUKI address: 0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+MOCK NFTS:::::: {
+  WPUNKS: Contract {
+    interface: Interface {
+      fragments: [Array],
+      _abiCoder: [AbiCoder],
+      functions: [Object],
+      errors: {},
+      events: [Object],
+      structs: {},
+      deploy: [ConstructorFragment],
+      _isInterface: true
+    },
+    provider: EthersProviderWrapper {
+      _isProvider: true,
+      _events: [],
+      _emitted: [Object],
+      disableCcipRead: false,
+      formatter: [Formatter],
+      anyNetwork: false,
+      _networkPromise: [Promise],
+      _maxInternalBlockNumber: 0,
+      _lastBlockNumber: -2,
+      _maxFilterBlockRange: 10,
+      _pollingInterval: 4000,
+      _fastQueryDate: 1682097692621,
+      connection: [Object],
+      _nextId: 42,
+      _hardhatProvider: [BackwardsCompatibilityProviderAdapter],
+      _eventLoopCache: [Object],
+      _network: [Object],
+      _internalBlockNumber: [Promise],
+      _fastBlockNumber: 0,
+      _fastBlockNumberPromise: [Promise]
+    },
+    signer: SignerWithAddress {
+      _isSigner: true,
+      address: '0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15',
+      _signer: [JsonRpcSigner],
+      provider: [EthersProviderWrapper]
+    },
+    callStatic: {
+      'approve(address,uint256)': [Function (anonymous)],
+      'balanceOf(address)': [Function (anonymous)],
+      'burn(uint256)': [Function (anonymous)],
+      'getApproved(uint256)': [Function (anonymous)],
+      'isApprovedForAll(address,address)': [Function (anonymous)],
+      'mint(uint256)': [Function (anonymous)],
+      'name()': [Function (anonymous)],
+      'owner()': [Function (anonymous)],
+      'ownerOf(uint256)': [Function (anonymous)],
+      'paused()': [Function (anonymous)],
+      'proxyInfo(address)': [Function (anonymous)],
+      'punkContract()': [Function (anonymous)],
+      'registerProxy()': [Function (anonymous)],
+      'renounceOwnership()': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256,bytes)': [Function (anonymous)],
+      'setApprovalForAll(address,bool)': [Function (anonymous)],
+      'supportsInterface(bytes4)': [Function (anonymous)],
+      'symbol()': [Function (anonymous)],
+      'tokenByIndex(uint256)': [Function (anonymous)],
+      'tokenOfOwnerByIndex(address,uint256)': [Function (anonymous)],
+      'tokenURI(uint256)': [Function (anonymous)],
+      'totalSupply()': [Function (anonymous)],
+      'transferFrom(address,address,uint256)': [Function (anonymous)],
+      'transferOwnership(address)': [Function (anonymous)],
+      approve: [Function (anonymous)],
+      balanceOf: [Function (anonymous)],
+      burn: [Function (anonymous)],
+      getApproved: [Function (anonymous)],
+      isApprovedForAll: [Function (anonymous)],
+      mint: [Function (anonymous)],
+      name: [Function (anonymous)],
+      owner: [Function (anonymous)],
+      ownerOf: [Function (anonymous)],
+      paused: [Function (anonymous)],
+      proxyInfo: [Function (anonymous)],
+      punkContract: [Function (anonymous)],
+      registerProxy: [Function (anonymous)],
+      renounceOwnership: [Function (anonymous)],
+      setApprovalForAll: [Function (anonymous)],
+      supportsInterface: [Function (anonymous)],
+      symbol: [Function (anonymous)],
+      tokenByIndex: [Function (anonymous)],
+      tokenOfOwnerByIndex: [Function (anonymous)],
+      tokenURI: [Function (anonymous)],
+      totalSupply: [Function (anonymous)],
+      transferFrom: [Function (anonymous)],
+      transferOwnership: [Function (anonymous)]
+    },
+    estimateGas: {
+      'approve(address,uint256)': [Function (anonymous)],
+      'balanceOf(address)': [Function (anonymous)],
+      'burn(uint256)': [Function (anonymous)],
+      'getApproved(uint256)': [Function (anonymous)],
+      'isApprovedForAll(address,address)': [Function (anonymous)],
+      'mint(uint256)': [Function (anonymous)],
+      'name()': [Function (anonymous)],
+      'owner()': [Function (anonymous)],
+      'ownerOf(uint256)': [Function (anonymous)],
+      'paused()': [Function (anonymous)],
+      'proxyInfo(address)': [Function (anonymous)],
+      'punkContract()': [Function (anonymous)],
+      'registerProxy()': [Function (anonymous)],
+      'renounceOwnership()': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256,bytes)': [Function (anonymous)],
+      'setApprovalForAll(address,bool)': [Function (anonymous)],
+      'supportsInterface(bytes4)': [Function (anonymous)],
+      'symbol()': [Function (anonymous)],
+      'tokenByIndex(uint256)': [Function (anonymous)],
+      'tokenOfOwnerByIndex(address,uint256)': [Function (anonymous)],
+      'tokenURI(uint256)': [Function (anonymous)],
+      'totalSupply()': [Function (anonymous)],
+      'transferFrom(address,address,uint256)': [Function (anonymous)],
+      'transferOwnership(address)': [Function (anonymous)],
+      approve: [Function (anonymous)],
+      balanceOf: [Function (anonymous)],
+      burn: [Function (anonymous)],
+      getApproved: [Function (anonymous)],
+      isApprovedForAll: [Function (anonymous)],
+      mint: [Function (anonymous)],
+      name: [Function (anonymous)],
+      owner: [Function (anonymous)],
+      ownerOf: [Function (anonymous)],
+      paused: [Function (anonymous)],
+      proxyInfo: [Function (anonymous)],
+      punkContract: [Function (anonymous)],
+      registerProxy: [Function (anonymous)],
+      renounceOwnership: [Function (anonymous)],
+      setApprovalForAll: [Function (anonymous)],
+      supportsInterface: [Function (anonymous)],
+      symbol: [Function (anonymous)],
+      tokenByIndex: [Function (anonymous)],
+      tokenOfOwnerByIndex: [Function (anonymous)],
+      tokenURI: [Function (anonymous)],
+      totalSupply: [Function (anonymous)],
+      transferFrom: [Function (anonymous)],
+      transferOwnership: [Function (anonymous)]
+    },
+    functions: {
+      'approve(address,uint256)': [Function (anonymous)],
+      'balanceOf(address)': [Function (anonymous)],
+      'burn(uint256)': [Function (anonymous)],
+      'getApproved(uint256)': [Function (anonymous)],
+      'isApprovedForAll(address,address)': [Function (anonymous)],
+      'mint(uint256)': [Function (anonymous)],
+      'name()': [Function (anonymous)],
+      'owner()': [Function (anonymous)],
+      'ownerOf(uint256)': [Function (anonymous)],
+      'paused()': [Function (anonymous)],
+      'proxyInfo(address)': [Function (anonymous)],
+      'punkContract()': [Function (anonymous)],
+      'registerProxy()': [Function (anonymous)],
+      'renounceOwnership()': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256,bytes)': [Function (anonymous)],
+      'setApprovalForAll(address,bool)': [Function (anonymous)],
+      'supportsInterface(bytes4)': [Function (anonymous)],
+      'symbol()': [Function (anonymous)],
+      'tokenByIndex(uint256)': [Function (anonymous)],
+      'tokenOfOwnerByIndex(address,uint256)': [Function (anonymous)],
+      'tokenURI(uint256)': [Function (anonymous)],
+      'totalSupply()': [Function (anonymous)],
+      'transferFrom(address,address,uint256)': [Function (anonymous)],
+      'transferOwnership(address)': [Function (anonymous)],
+      approve: [Function (anonymous)],
+      balanceOf: [Function (anonymous)],
+      burn: [Function (anonymous)],
+      getApproved: [Function (anonymous)],
+      isApprovedForAll: [Function (anonymous)],
+      mint: [Function (anonymous)],
+      name: [Function (anonymous)],
+      owner: [Function (anonymous)],
+      ownerOf: [Function (anonymous)],
+      paused: [Function (anonymous)],
+      proxyInfo: [Function (anonymous)],
+      punkContract: [Function (anonymous)],
+      registerProxy: [Function (anonymous)],
+      renounceOwnership: [Function (anonymous)],
+      setApprovalForAll: [Function (anonymous)],
+      supportsInterface: [Function (anonymous)],
+      symbol: [Function (anonymous)],
+      tokenByIndex: [Function (anonymous)],
+      tokenOfOwnerByIndex: [Function (anonymous)],
+      tokenURI: [Function (anonymous)],
+      totalSupply: [Function (anonymous)],
+      transferFrom: [Function (anonymous)],
+      transferOwnership: [Function (anonymous)]
+    },
+    populateTransaction: {
+      'approve(address,uint256)': [Function (anonymous)],
+      'balanceOf(address)': [Function (anonymous)],
+      'burn(uint256)': [Function (anonymous)],
+      'getApproved(uint256)': [Function (anonymous)],
+      'isApprovedForAll(address,address)': [Function (anonymous)],
+      'mint(uint256)': [Function (anonymous)],
+      'name()': [Function (anonymous)],
+      'owner()': [Function (anonymous)],
+      'ownerOf(uint256)': [Function (anonymous)],
+      'paused()': [Function (anonymous)],
+      'proxyInfo(address)': [Function (anonymous)],
+      'punkContract()': [Function (anonymous)],
+      'registerProxy()': [Function (anonymous)],
+      'renounceOwnership()': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256,bytes)': [Function (anonymous)],
+      'setApprovalForAll(address,bool)': [Function (anonymous)],
+      'supportsInterface(bytes4)': [Function (anonymous)],
+      'symbol()': [Function (anonymous)],
+      'tokenByIndex(uint256)': [Function (anonymous)],
+      'tokenOfOwnerByIndex(address,uint256)': [Function (anonymous)],
+      'tokenURI(uint256)': [Function (anonymous)],
+      'totalSupply()': [Function (anonymous)],
+      'transferFrom(address,address,uint256)': [Function (anonymous)],
+      'transferOwnership(address)': [Function (anonymous)],
+      approve: [Function (anonymous)],
+      balanceOf: [Function (anonymous)],
+      burn: [Function (anonymous)],
+      getApproved: [Function (anonymous)],
+      isApprovedForAll: [Function (anonymous)],
+      mint: [Function (anonymous)],
+      name: [Function (anonymous)],
+      owner: [Function (anonymous)],
+      ownerOf: [Function (anonymous)],
+      paused: [Function (anonymous)],
+      proxyInfo: [Function (anonymous)],
+      punkContract: [Function (anonymous)],
+      registerProxy: [Function (anonymous)],
+      renounceOwnership: [Function (anonymous)],
+      setApprovalForAll: [Function (anonymous)],
+      supportsInterface: [Function (anonymous)],
+      symbol: [Function (anonymous)],
+      tokenByIndex: [Function (anonymous)],
+      tokenOfOwnerByIndex: [Function (anonymous)],
+      tokenURI: [Function (anonymous)],
+      totalSupply: [Function (anonymous)],
+      transferFrom: [Function (anonymous)],
+      transferOwnership: [Function (anonymous)]
+    },
+    filters: {
+      'Approval(address,address,uint256)': [Function (anonymous)],
+      'ApprovalForAll(address,address,bool)': [Function (anonymous)],
+      'OwnershipTransferred(address,address)': [Function (anonymous)],
+      'Paused(address)': [Function (anonymous)],
+      'ProxyRegistered(address,address)': [Function (anonymous)],
+      'Transfer(address,address,uint256)': [Function (anonymous)],
+      'Unpaused(address)': [Function (anonymous)],
+      Approval: [Function (anonymous)],
+      ApprovalForAll: [Function (anonymous)],
+      OwnershipTransferred: [Function (anonymous)],
+      Paused: [Function (anonymous)],
+      ProxyRegistered: [Function (anonymous)],
+      Transfer: [Function (anonymous)],
+      Unpaused: [Function (anonymous)]
+    },
+    _runningEvents: {},
+    _wrappedEmits: {},
+    address: '0x025FE4760c6f14dE878C22cEb09A3235F16dAe53',
+    resolvedAddress: Promise { '0x025FE4760c6f14dE878C22cEb09A3235F16dAe53' },
+    'approve(address,uint256)': [Function (anonymous)],
+    'balanceOf(address)': [Function (anonymous)],
+    'burn(uint256)': [Function (anonymous)],
+    'getApproved(uint256)': [Function (anonymous)],
+    'isApprovedForAll(address,address)': [Function (anonymous)],
+    'mint(uint256)': [Function (anonymous)],
+    'name()': [Function (anonymous)],
+    'owner()': [Function (anonymous)],
+    'ownerOf(uint256)': [Function (anonymous)],
+    'paused()': [Function (anonymous)],
+    'proxyInfo(address)': [Function (anonymous)],
+    'punkContract()': [Function (anonymous)],
+    'registerProxy()': [Function (anonymous)],
+    'renounceOwnership()': [Function (anonymous)],
+    'safeTransferFrom(address,address,uint256)': [Function (anonymous)],
+    'safeTransferFrom(address,address,uint256,bytes)': [Function (anonymous)],
+    'setApprovalForAll(address,bool)': [Function (anonymous)],
+    'supportsInterface(bytes4)': [Function (anonymous)],
+    'symbol()': [Function (anonymous)],
+    'tokenByIndex(uint256)': [Function (anonymous)],
+    'tokenOfOwnerByIndex(address,uint256)': [Function (anonymous)],
+    'tokenURI(uint256)': [Function (anonymous)],
+    'totalSupply()': [Function (anonymous)],
+    'transferFrom(address,address,uint256)': [Function (anonymous)],
+    'transferOwnership(address)': [Function (anonymous)],
+    approve: [Function (anonymous)],
+    balanceOf: [Function (anonymous)],
+    burn: [Function (anonymous)],
+    getApproved: [Function (anonymous)],
+    isApprovedForAll: [Function (anonymous)],
+    mint: [Function (anonymous)],
+    name: [Function (anonymous)],
+    owner: [Function (anonymous)],
+    ownerOf: [Function (anonymous)],
+    paused: [Function (anonymous)],
+    proxyInfo: [Function (anonymous)],
+    punkContract: [Function (anonymous)],
+    registerProxy: [Function (anonymous)],
+    renounceOwnership: [Function (anonymous)],
+    setApprovalForAll: [Function (anonymous)],
+    supportsInterface: [Function (anonymous)],
+    symbol: [Function (anonymous)],
+    tokenByIndex: [Function (anonymous)],
+    tokenOfOwnerByIndex: [Function (anonymous)],
+    tokenURI: [Function (anonymous)],
+    totalSupply: [Function (anonymous)],
+    transferFrom: [Function (anonymous)],
+    transferOwnership: [Function (anonymous)],
+    deployTransaction: {
+      hash: '0xbfb083b762d0a04361691359e3acec07c8f67b0825347cbf39ff9a5cd903cc48',
+      type: 2,
+      accessList: [],
+      blockHash: '0x04d51a9c60463e75eee45178812f46f0ccbef450df22b383bd2001eb0fae8293',
+      blockNumber: 3,
+      transactionIndex: 0,
+      confirmations: 1,
+      from: '0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15',
+      gasPrice: BigNumber { value: "1715990707" },
+      maxPriorityFeePerGas: BigNumber { value: "1000000000" },
+      maxFeePerGas: BigNumber { value: "2431981414" },
+      gasLimit: BigNumber { value: "1992593" },
+      to: null,
+      value: BigNumber { value: "0" },
+      nonce: 2,
+      data: '0x60806040523480156200001157600080fd5b50604051620023bb380380620023bb8339810160408190526200003491620001f7565b6040518060400160405280601381526020017f577261707065642043727970746f70756e6b7300000000000000000000000000815250604051806040016040528060068152602001655750554e4b5360d01b815250620000a36200009d620000fd60201b60201c565b62000101565b8151620000b890600190602085019062000151565b508051620000ce90600290602084019062000151565b5050600b80546001600160a01b03909316610100026001600160a81b0319909316929092179091555062000264565b3390565b600080546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b8280546200015f9062000227565b90600052602060002090601f016020900481019282620001835760008555620001ce565b82601f106200019e57805160ff1916838001178555620001ce565b82800160010185558215620001ce579182015b82811115620001ce578251825591602001919060010190620001b1565b50620001dc929150620001e0565b5090565b5b80821115620001dc5760008155600101620001e1565b60006020828403121562000209578081fd5b81516001600160a01b038116811462000220578182fd5b9392505050565b600181811c908216806200023c57607f821691505b602082108114156200025e57634e487b7160e01b600052602260045260246000fd5b50919050565b61214780620002746000396000f3fe608060405234801561001057600080fd5b50600436106101735760003560e01c806370a08231116100de578063a9c7b2c811610097578063ddd81f8211610071578063ddd81f8214610330578063e985e9c514610338578063f2fde38b14610374578063f97e48ee1461038757600080fd5b8063a9c7b2c8146102de578063b88d4fde1461030a578063c87b56dd1461031d57600080fd5b806370a0823114610284578063715018a6146102975780638da5cb5b1461029f57806395d89b41146102b0578063a0712d68146102b8578063a22cb465146102cb57600080fd5b80632f745c59116101305780632f745c591461021a57806342842e0e1461022d57806342966c68146102405780634f6ccce7146102535780635c975abb146102665780636352211e1461027157600080fd5b806301ffc9a71461017857806306fdde03146101a0578063081812fc146101b5578063095ea7b3146101e057806318160ddd146101f557806323b872dd14610207575b600080fd5b61018b610186366004611bce565b61039d565b60405190151581526020015b60405180910390f35b6101a86103c8565b6040516101979190611cb6565b6101c86101c3366004611c06565b61045a565b6040516001600160a01b039091168152602001610197565b6101f36101ee366004611b89565b6104f4565b005b6009545b604051908152602001610197565b6101f3610215366004611a43565b61060a565b6101f9610228366004611b89565b61063b565b6101f361023b366004611a43565b6106d1565b6101f361024e366004611c06565b6106ec565b6101f9610261366004611c06565b610818565b600b5460ff1661018b565b6101c861027f366004611c06565b6108b9565b6101f96102923660046119f7565b610930565b6101f36109b7565b6000546001600160a01b03166101c8565b6101a8610a1d565b6101f36102c6366004611c06565b610a2c565b6101f36102d9366004611b53565b610b6d565b6101c86102ec3660046119f7565b6001600160a01b039081166000908152600c60205260409020541690565b6101f3610318366004611a7e565b610b7c565b6101a861032b366004611c06565b610bb4565b6101f3610c8f565b61018b610346366004611a11565b6001600160a01b03918216600090815260066020908152604080832093909416825291909152205460ff1690565b6101f36103823660046119f7565b610da3565b600b5461010090046001600160a01b03166101c8565b60006001600160e01b0319821663780e9d6360e01b14806103c257506103c282610e6e565b92915050565b6060600180546103d790611ddb565b80601f016020809104026020016040519081016040528092919081815260200182805461040390611ddb565b80156104505780601f1061042557610100808354040283529160200191610450565b820191906000526020600020905b81548152906001019060200180831161043357829003601f168201915b5050505050905090565b6000818152600360205260408120546001600160a01b03166104d85760405162461bcd60e51b815260206004820152602c60248201527f4552433732313a20617070726f76656420717565727920666f72206e6f6e657860448201526b34b9ba32b73a103a37b5b2b760a11b60648201526084015b60405180910390fd5b506000908152600560205260409020546001600160a01b031690565b60006104ff826108b9565b9050806001600160a01b0316836001600160a01b0316141561056d5760405162461bcd60e51b815260206004820152602160248201527f4552433732313a20617070726f76616c20746f2063757272656e74206f776e656044820152603960f91b60648201526084016104cf565b336001600160a01b038216148061058957506105898133610346565b6105fb5760405162461bcd60e51b815260206004820152603860248201527f4552433732313a20617070726f76652063616c6c6572206973206e6f74206f7760448201527f6e6572206e6f7220617070726f76656420666f7220616c6c000000000000000060648201526084016104cf565b6106058383610ebe565b505050565b6106143382610f2c565b6106305760405162461bcd60e51b81526004016104cf90611d1b565b610605838383611023565b600061064683610930565b82106106a85760405162461bcd60e51b815260206004820152602b60248201527f455243373231456e756d657261626c653a206f776e657220696e646578206f7560448201526a74206f6620626f756e647360a81b60648201526084016104cf565b506001600160a01b03919091166000908152600760209081526040808320938352929052205490565b61060583838360405180602001604052806000815250610b7c565b600b5460ff16156107325760405162461bcd60e51b815260206004820152601060248201526f14185d5cd8589b194e881c185d5cd95960821b60448201526064016104cf565b3361073d8183610f2c565b61079f5760405162461bcd60e51b815260206004820152602d60248201527f50756e6b577261707065723a2063616c6c6572206973206e6f74206f776e657260448201526c081b9bdc88185c1c1c9bdd9959609a1b60648201526084016104cf565b6107a8826111ce565b600b546040516322dca8bb60e21b81526001600160a01b0383811660048301526024820185905261010090920490911690638b72a2ec90604401600060405180830381600087803b1580156107fc57600080fd5b505af1158015610810573d6000803e3d6000fd5b505050505050565b600061082360095490565b82106108865760405162461bcd60e51b815260206004820152602c60248201527f455243373231456e756d657261626c653a20676c6f62616c20696e646578206f60448201526b7574206f6620626f756e647360a01b60648201526084016104cf565b600982815481106108a757634e487b7160e01b600052603260045260246000fd5b90600052602060002001549050919050565b6000818152600360205260408120546001600160a01b0316806103c25760405162461bcd60e51b815260206004820152602960248201527f4552433732313a206f776e657220717565727920666f72206e6f6e657869737460448201526832b73a103a37b5b2b760b91b60648201526084016104cf565b60006001600160a01b03821661099b5760405162461bcd60e51b815260206004820152602a60248201527f4552433732313a2062616c616e636520717565727920666f7220746865207a65604482015269726f206164647265737360b01b60648201526084016104cf565b506001600160a01b031660009081526004602052604090205490565b6000546001600160a01b03163314610a115760405162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e657260448201526064016104cf565b610a1b6000611275565b565b6060600280546103d790611ddb565b600b5460ff1615610a725760405162461bcd60e51b815260206004820152601060248201526f14185d5cd8589b194e881c185d5cd95960821b60448201526064016104cf565b6000336001600160a01b038181166000908152600c60205260409081902054600b54915163a9059cbb60e01b81526101009092048316600483015260248201869052929350911690819063a9059cbb90604401602060405180830381600087803b158015610adf57600080fd5b505af1158015610af3573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610b179190611bb2565b610b635760405162461bcd60e51b815260206004820152601a60248201527f50756e6b577261707065723a207472616e73666572206661696c00000000000060448201526064016104cf565b61060582846112c5565b610b78338383611413565b5050565b610b863383610f2c565b610ba25760405162461bcd60e51b81526004016104cf90611d1b565b610bae848484846114e2565b50505050565b6000818152600360205260409020546060906001600160a01b0316610c335760405162461bcd60e51b815260206004820152602f60248201527f4552433732314d657461646174613a2055524920717565727920666f72206e6f60448201526e3732bc34b9ba32b73a103a37b5b2b760891b60648201526084016104cf565b6000610c3d611515565b90506000815111610c5d5760405180602001604052806000815250610c88565b80610c6784611535565b604051602001610c78929190611c4a565b6040516020818303038152906040525b9392505050565b336000818152600c60205260409020546001600160a01b031615610d0a5760405162461bcd60e51b815260206004820152602c60248201527f50756e6b577261707065723a2063616c6c65722068617320726567697374657260448201526b6564207468652070726f787960a01b60648201526084016104cf565b6000604051610d18906119ce565b604051809103906000f080158015610d34573d6000803e3d6000fd5b506001600160a01b038381166000818152600c602090815260409182902080546001600160a01b031916948616948517905581519283528201929092529192507f3623f8bd4da9524cfaa08c81b8194f759ca625e8d761f4cc2cea23e63d3f4b12910160405180910390a15050565b6000546001600160a01b03163314610dfd5760405162461bcd60e51b815260206004820181905260248201527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e657260448201526064016104cf565b6001600160a01b038116610e625760405162461bcd60e51b815260206004820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201526564647265737360d01b60648201526084016104cf565b610e6b81611275565b50565b60006001600160e01b031982166380ac58cd60e01b1480610e9f57506001600160e01b03198216635b5e139f60e01b145b806103c257506301ffc9a760e01b6001600160e01b03198316146103c2565b600081815260056020526040902080546001600160a01b0319166001600160a01b0384169081179091558190610ef3826108b9565b6001600160a01b03167f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b92560405160405180910390a45050565b6000818152600360205260408120546001600160a01b0316610fa55760405162461bcd60e51b815260206004820152602c60248201527f4552433732313a206f70657261746f7220717565727920666f72206e6f6e657860448201526b34b9ba32b73a103a37b5b2b760a11b60648201526084016104cf565b6000610fb0836108b9565b9050806001600160a01b0316846001600160a01b03161480610feb5750836001600160a01b0316610fe08461045a565b6001600160a01b0316145b8061101b57506001600160a01b0380821660009081526006602090815260408083209388168352929052205460ff165b949350505050565b826001600160a01b0316611036826108b9565b6001600160a01b03161461109e5760405162461bcd60e51b815260206004820152602960248201527f4552433732313a207472616e73666572206f6620746f6b656e2074686174206960448201526839903737ba1037bbb760b91b60648201526084016104cf565b6001600160a01b0382166111005760405162461bcd60e51b8152602060048201526024808201527f4552433732313a207472616e7366657220746f20746865207a65726f206164646044820152637265737360e01b60648201526084016104cf565b61110b83838361164f565b61111660008261'... 8360 more characters,
+      r: '0x6bd5722235d37ac1ca93d6eb6aa71b7edf2f7cfb8cd50d6783669f730232c502',
+      s: '0x124dc15943315ee7b2878e5477aa0bfba498aab52d8b310fd1f02a5b474e8a40',
+      v: 0,
+      creates: '0x025FE4760c6f14dE878C22cEb09A3235F16dAe53',
+      chainId: 31337,
+      wait: [Function (anonymous)]
+    }
+  },
+  BAYC: Contract {
+    interface: Interface {
+      fragments: [Array],
+      _abiCoder: [AbiCoder],
+      functions: [Object],
+      errors: {},
+      events: [Object],
+      structs: {},
+      deploy: [ConstructorFragment],
+      _isInterface: true
+    },
+    provider: EthersProviderWrapper {
+      _isProvider: true,
+      _events: [],
+      _emitted: [Object],
+      disableCcipRead: false,
+      formatter: [Formatter],
+      anyNetwork: false,
+      _networkPromise: [Promise],
+      _maxInternalBlockNumber: 0,
+      _lastBlockNumber: -2,
+      _maxFilterBlockRange: 10,
+      _pollingInterval: 4000,
+      _fastQueryDate: 1682097692621,
+      connection: [Object],
+      _nextId: 42,
+      _hardhatProvider: [BackwardsCompatibilityProviderAdapter],
+      _eventLoopCache: [Object],
+      _network: [Object],
+      _internalBlockNumber: [Promise],
+      _fastBlockNumber: 0,
+      _fastBlockNumberPromise: [Promise]
+    },
+    signer: SignerWithAddress {
+      _isSigner: true,
+      address: '0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15',
+      _signer: [JsonRpcSigner],
+      provider: [EthersProviderWrapper]
+    },
+    callStatic: {
+      'approve(address,uint256)': [Function (anonymous)],
+      'balanceOf(address)': [Function (anonymous)],
+      'baseURI()': [Function (anonymous)],
+      'getApproved(uint256)': [Function (anonymous)],
+      'isApprovedForAll(address,address)': [Function (anonymous)],
+      'mint(uint256)': [Function (anonymous)],
+      'mintCounts(address)': [Function (anonymous)],
+      'name()': [Function (anonymous)],
+      'ownerOf(uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256,bytes)': [Function (anonymous)],
+      'setApprovalForAll(address,bool)': [Function (anonymous)],
+      'setBaseURI(string)': [Function (anonymous)],
+      'supportsInterface(bytes4)': [Function (anonymous)],
+      'symbol()': [Function (anonymous)],
+      'tokenByIndex(uint256)': [Function (anonymous)],
+      'tokenOfOwnerByIndex(address,uint256)': [Function (anonymous)],
+      'tokenURI(uint256)': [Function (anonymous)],
+      'totalSupply()': [Function (anonymous)],
+      'transferFrom(address,address,uint256)': [Function (anonymous)],
+      approve: [Function (anonymous)],
+      balanceOf: [Function (anonymous)],
+      baseURI: [Function (anonymous)],
+      getApproved: [Function (anonymous)],
+      isApprovedForAll: [Function (anonymous)],
+      mint: [Function (anonymous)],
+      mintCounts: [Function (anonymous)],
+      name: [Function (anonymous)],
+      ownerOf: [Function (anonymous)],
+      setApprovalForAll: [Function (anonymous)],
+      setBaseURI: [Function (anonymous)],
+      supportsInterface: [Function (anonymous)],
+      symbol: [Function (anonymous)],
+      tokenByIndex: [Function (anonymous)],
+      tokenOfOwnerByIndex: [Function (anonymous)],
+      tokenURI: [Function (anonymous)],
+      totalSupply: [Function (anonymous)],
+      transferFrom: [Function (anonymous)]
+    },
+    estimateGas: {
+      'approve(address,uint256)': [Function (anonymous)],
+      'balanceOf(address)': [Function (anonymous)],
+      'baseURI()': [Function (anonymous)],
+      'getApproved(uint256)': [Function (anonymous)],
+      'isApprovedForAll(address,address)': [Function (anonymous)],
+      'mint(uint256)': [Function (anonymous)],
+      'mintCounts(address)': [Function (anonymous)],
+      'name()': [Function (anonymous)],
+      'ownerOf(uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256,bytes)': [Function (anonymous)],
+      'setApprovalForAll(address,bool)': [Function (anonymous)],
+      'setBaseURI(string)': [Function (anonymous)],
+      'supportsInterface(bytes4)': [Function (anonymous)],
+      'symbol()': [Function (anonymous)],
+      'tokenByIndex(uint256)': [Function (anonymous)],
+      'tokenOfOwnerByIndex(address,uint256)': [Function (anonymous)],
+      'tokenURI(uint256)': [Function (anonymous)],
+      'totalSupply()': [Function (anonymous)],
+      'transferFrom(address,address,uint256)': [Function (anonymous)],
+      approve: [Function (anonymous)],
+      balanceOf: [Function (anonymous)],
+      baseURI: [Function (anonymous)],
+      getApproved: [Function (anonymous)],
+      isApprovedForAll: [Function (anonymous)],
+      mint: [Function (anonymous)],
+      mintCounts: [Function (anonymous)],
+      name: [Function (anonymous)],
+      ownerOf: [Function (anonymous)],
+      setApprovalForAll: [Function (anonymous)],
+      setBaseURI: [Function (anonymous)],
+      supportsInterface: [Function (anonymous)],
+      symbol: [Function (anonymous)],
+      tokenByIndex: [Function (anonymous)],
+      tokenOfOwnerByIndex: [Function (anonymous)],
+      tokenURI: [Function (anonymous)],
+      totalSupply: [Function (anonymous)],
+      transferFrom: [Function (anonymous)]
+    },
+    functions: {
+      'approve(address,uint256)': [Function (anonymous)],
+      'balanceOf(address)': [Function (anonymous)],
+      'baseURI()': [Function (anonymous)],
+      'getApproved(uint256)': [Function (anonymous)],
+      'isApprovedForAll(address,address)': [Function (anonymous)],
+      'mint(uint256)': [Function (anonymous)],
+      'mintCounts(address)': [Function (anonymous)],
+      'name()': [Function (anonymous)],
+      'ownerOf(uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256,bytes)': [Function (anonymous)],
+      'setApprovalForAll(address,bool)': [Function (anonymous)],
+      'setBaseURI(string)': [Function (anonymous)],
+      'supportsInterface(bytes4)': [Function (anonymous)],
+      'symbol()': [Function (anonymous)],
+      'tokenByIndex(uint256)': [Function (anonymous)],
+      'tokenOfOwnerByIndex(address,uint256)': [Function (anonymous)],
+      'tokenURI(uint256)': [Function (anonymous)],
+      'totalSupply()': [Function (anonymous)],
+      'transferFrom(address,address,uint256)': [Function (anonymous)],
+      approve: [Function (anonymous)],
+      balanceOf: [Function (anonymous)],
+      baseURI: [Function (anonymous)],
+      getApproved: [Function (anonymous)],
+      isApprovedForAll: [Function (anonymous)],
+      mint: [Function (anonymous)],
+      mintCounts: [Function (anonymous)],
+      name: [Function (anonymous)],
+      ownerOf: [Function (anonymous)],
+      setApprovalForAll: [Function (anonymous)],
+      setBaseURI: [Function (anonymous)],
+      supportsInterface: [Function (anonymous)],
+      symbol: [Function (anonymous)],
+      tokenByIndex: [Function (anonymous)],
+      tokenOfOwnerByIndex: [Function (anonymous)],
+      tokenURI: [Function (anonymous)],
+      totalSupply: [Function (anonymous)],
+      transferFrom: [Function (anonymous)]
+    },
+    populateTransaction: {
+      'approve(address,uint256)': [Function (anonymous)],
+      'balanceOf(address)': [Function (anonymous)],
+      'baseURI()': [Function (anonymous)],
+      'getApproved(uint256)': [Function (anonymous)],
+      'isApprovedForAll(address,address)': [Function (anonymous)],
+      'mint(uint256)': [Function (anonymous)],
+      'mintCounts(address)': [Function (anonymous)],
+      'name()': [Function (anonymous)],
+      'ownerOf(uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256,bytes)': [Function (anonymous)],
+      'setApprovalForAll(address,bool)': [Function (anonymous)],
+      'setBaseURI(string)': [Function (anonymous)],
+      'supportsInterface(bytes4)': [Function (anonymous)],
+      'symbol()': [Function (anonymous)],
+      'tokenByIndex(uint256)': [Function (anonymous)],
+      'tokenOfOwnerByIndex(address,uint256)': [Function (anonymous)],
+      'tokenURI(uint256)': [Function (anonymous)],
+      'totalSupply()': [Function (anonymous)],
+      'transferFrom(address,address,uint256)': [Function (anonymous)],
+      approve: [Function (anonymous)],
+      balanceOf: [Function (anonymous)],
+      baseURI: [Function (anonymous)],
+      getApproved: [Function (anonymous)],
+      isApprovedForAll: [Function (anonymous)],
+      mint: [Function (anonymous)],
+      mintCounts: [Function (anonymous)],
+      name: [Function (anonymous)],
+      ownerOf: [Function (anonymous)],
+      setApprovalForAll: [Function (anonymous)],
+      setBaseURI: [Function (anonymous)],
+      supportsInterface: [Function (anonymous)],
+      symbol: [Function (anonymous)],
+      tokenByIndex: [Function (anonymous)],
+      tokenOfOwnerByIndex: [Function (anonymous)],
+      tokenURI: [Function (anonymous)],
+      totalSupply: [Function (anonymous)],
+      transferFrom: [Function (anonymous)]
+    },
+    filters: {
+      'Approval(address,address,uint256)': [Function (anonymous)],
+      'ApprovalForAll(address,address,bool)': [Function (anonymous)],
+      'Transfer(address,address,uint256)': [Function (anonymous)],
+      Approval: [Function (anonymous)],
+      ApprovalForAll: [Function (anonymous)],
+      Transfer: [Function (anonymous)]
+    },
+    _runningEvents: {},
+    _wrappedEmits: {},
+    address: '0xb2f97A3c2E48cd368901657e31Faaa93035CE390',
+    resolvedAddress: Promise { '0xb2f97A3c2E48cd368901657e31Faaa93035CE390' },
+    'approve(address,uint256)': [Function (anonymous)],
+    'balanceOf(address)': [Function (anonymous)],
+    'baseURI()': [Function (anonymous)],
+    'getApproved(uint256)': [Function (anonymous)],
+    'isApprovedForAll(address,address)': [Function (anonymous)],
+    'mint(uint256)': [Function (anonymous)],
+    'mintCounts(address)': [Function (anonymous)],
+    'name()': [Function (anonymous)],
+    'ownerOf(uint256)': [Function (anonymous)],
+    'safeTransferFrom(address,address,uint256)': [Function (anonymous)],
+    'safeTransferFrom(address,address,uint256,bytes)': [Function (anonymous)],
+    'setApprovalForAll(address,bool)': [Function (anonymous)],
+    'setBaseURI(string)': [Function (anonymous)],
+    'supportsInterface(bytes4)': [Function (anonymous)],
+    'symbol()': [Function (anonymous)],
+    'tokenByIndex(uint256)': [Function (anonymous)],
+    'tokenOfOwnerByIndex(address,uint256)': [Function (anonymous)],
+    'tokenURI(uint256)': [Function (anonymous)],
+    'totalSupply()': [Function (anonymous)],
+    'transferFrom(address,address,uint256)': [Function (anonymous)],
+    approve: [Function (anonymous)],
+    balanceOf: [Function (anonymous)],
+    baseURI: [Function (anonymous)],
+    getApproved: [Function (anonymous)],
+    isApprovedForAll: [Function (anonymous)],
+    mint: [Function (anonymous)],
+    mintCounts: [Function (anonymous)],
+    name: [Function (anonymous)],
+    ownerOf: [Function (anonymous)],
+    setApprovalForAll: [Function (anonymous)],
+    setBaseURI: [Function (anonymous)],
+    supportsInterface: [Function (anonymous)],
+    symbol: [Function (anonymous)],
+    tokenByIndex: [Function (anonymous)],
+    tokenOfOwnerByIndex: [Function (anonymous)],
+    tokenURI: [Function (anonymous)],
+    totalSupply: [Function (anonymous)],
+    transferFrom: [Function (anonymous)],
+    deployTransaction: {
+      hash: '0x139a19596f4579bfba7695e7636f7ff12176387ef4cb1be180a4a7df1ca13dad',
+      type: 2,
+      accessList: [],
+      blockHash: '0x308a6f067b15b61726db6d27a8b07bbfc04e059369525fdbc53f44dabe9e46a8',
+      blockNumber: 4,
+      transactionIndex: 0,
+      confirmations: 1,
+      from: '0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15',
+      gasPrice: BigNumber { value: "1655140023" },
+      maxPriorityFeePerGas: BigNumber { value: "1000000000" },
+      maxFeePerGas: BigNumber { value: "2310280046" },
+      gasLimit: BigNumber { value: "1641210" },
+      to: null,
+      value: BigNumber { value: "0" },
+      nonce: 3,
+      data: '0x60806040523480156200001157600080fd5b5060405162001dc938038062001dc9833981016040819052620000349162000221565b8151829082906200004d906000906020850190620000c8565b50805162000063906001906020840190620000c8565b50506040805180820190915260178082527f68747470733a2f2f4d696e7461626c654552433732312f0000000000000000006020909201918252620000ad9250600a9190620000c8565b5050600b80546001600160a01b0319163317905550620002db565b828054620000d69062000288565b90600052602060002090601f016020900481019282620000fa576000855562000145565b82601f106200011557805160ff191683800117855562000145565b8280016001018555821562000145579182015b828111156200014557825182559160200191906001019062000128565b506200015392915062000157565b5090565b5b8082111562000153576000815560010162000158565b600082601f8301126200017f578081fd5b81516001600160401b03808211156200019c576200019c620002c5565b604051601f8301601f19908116603f01168101908282118183101715620001c757620001c7620002c5565b81604052838152602092508683858801011115620001e3578485fd5b8491505b83821015620002065785820183015181830184015290820190620001e7565b838211156200021757848385830101525b9695505050505050565b6000806040838503121562000234578182fd5b82516001600160401b03808211156200024b578384fd5b62000259868387016200016e565b935060208501519150808211156200026f578283fd5b506200027e858286016200016e565b9150509250929050565b600181811c908216806200029d57607f821691505b60208210811415620002bf57634e487b7160e01b600052602260045260246000fd5b50919050565b634e487b7160e01b600052604160045260246000fd5b611ade80620002eb6000396000f3fe608060405234801561001057600080fd5b506004361061012c5760003560e01c806355f804b3116100ad578063a0712d6811610071578063a0712d6814610275578063a22cb46514610288578063b88d4fde1461029b578063c87b56dd146102ae578063e985e9c5146102c157600080fd5b806355f804b31461022c5780636352211e1461023f5780636c0360eb1461025257806370a082311461025a57806395d89b411461026d57600080fd5b806323b872dd116100f457806323b872dd146101c05780632f745c59146101d357806342842e0e146101e65780634f6ccce7146101f9578063532778791461020c57600080fd5b806301ffc9a71461013157806306fdde0314610159578063081812fc1461016e578063095ea7b31461019957806318160ddd146101ae575b600080fd5b61014461013f366004611790565b6102fd565b60405190151581526020015b60405180910390f35b610161610328565b60405161015091906118be565b61018161017c36600461180e565b6103ba565b6040516001600160a01b039091168152602001610150565b6101ac6101a7366004611767565b610454565b005b6008545b604051908152602001610150565b6101ac6101ce366004611679565b61056a565b6101b26101e1366004611767565b61059b565b6101ac6101f4366004611679565b610631565b6101b261020736600461180e565b61064c565b6101b261021a36600461162d565b600c6020526000908152604090205481565b6101ac61023a3660046117c8565b6106ed565b61018161024d36600461180e565b610704565b61016161077b565b6101b261026836600461162d565b610809565b610161610890565b61014461028336600461180e565b61089f565b6101ac61029636600461172d565b61098c565b6101ac6102a93660046116b4565b610997565b6101616102bc36600461180e565b6109cf565b6101446102cf366004611647565b6001600160a01b03918216600090815260056020908152604080832093909416825291909152205460ff1690565b60006001600160e01b0319821663780e9d6360e01b1480610322575061032282610aaa565b92915050565b606060008054610337906119e3565b80601f0160208091040260200160405190810160405280929190818152602001828054610363906119e3565b80156103b05780601f10610385576101008083540402835291602001916103b0565b820191906000526020600020905b81548152906001019060200180831161039357829003601f168201915b5050505050905090565b6000818152600260205260408120546001600160a01b03166104385760405162461bcd60e51b815260206004820152602c60248201527f4552433732313a20617070726f76656420717565727920666f72206e6f6e657860448201526b34b9ba32b73a103a37b5b2b760a11b60648201526084015b60405180910390fd5b506000908152600460205260409020546001600160a01b031690565b600061045f82610704565b9050806001600160a01b0316836001600160a01b031614156104cd5760405162461bcd60e51b815260206004820152602160248201527f4552433732313a20617070726f76616c20746f2063757272656e74206f776e656044820152603960f91b606482015260840161042f565b336001600160a01b03821614806104e957506104e981336102cf565b61055b5760405162461bcd60e51b815260206004820152603860248201527f4552433732313a20617070726f76652063616c6c6572206973206e6f74206f7760448201527f6e6572206e6f7220617070726f76656420666f7220616c6c0000000000000000606482015260840161042f565b6105658383610afa565b505050565b6105743382610b68565b6105905760405162461bcd60e51b815260040161042f90611923565b610565838383610c5f565b60006105a683610809565b82106106085760405162461bcd60e51b815260206004820152602b60248201527f455243373231456e756d657261626c653a206f776e657220696e646578206f7560448201526a74206f6620626f756e647360a81b606482015260840161042f565b506001600160a01b03919091166000908152600660209081526040808320938352929052205490565b61056583838360405180602001604052806000815250610997565b600061065760085490565b82106106ba5760405162461bcd60e51b815260206004820152602c60248201527f455243373231456e756d657261626c653a20676c6f62616c20696e646578206f60448201526b7574206f6620626f756e647360a01b606482015260840161042f565b600882815481106106db57634e487b7160e01b600052603260045260246000fd5b90600052602060002001549050919050565b805161070090600a906020840190611502565b5050565b6000818152600260205260408120546001600160a01b0316806103225760405162461bcd60e51b815260206004820152602960248201527f4552433732313a206f776e657220717565727920666f72206e6f6e657869737460448201526832b73a103a37b5b2b760b91b606482015260840161042f565b600a8054610788906119e3565b80601f01602080910402602001604051908101604052809291908181526020018280546107b4906119e3565b80156108015780601f106107d657610100808354040283529160200191610801565b820191906000526020600020905b8154815290600101906020018083116107e457829003601f168201915b505050505081565b60006001600160a01b0382166108745760405162461bcd60e51b815260206004820152602a60248201527f4552433732313a2062616c616e636520717565727920666f7220746865207a65604482015269726f206164647265737360b01b606482015260840161042f565b506001600160a01b031660009081526003602052604090205490565b606060018054610337906119e3565b600061271082106108e65760405162461bcd60e51b8152602060048201526011602482015270195e18d95959081b5a5b9d081b1a5b5a5d607a1b604482015260640161042f565b336000908152600c60205260408120805460019290610906908490611974565b9091555050600b546001600160a01b0316336001600160a01b03161461097a57336000908152600c60205260409020546014101561097a5760405162461bcd60e51b8152602060048201526011602482015270195e18d95959081b5a5b9d081b1a5b5a5d607a1b604482015260640161042f565b6109843383610e0a565b506001919050565b610700338383610f58565b6109a13383610b68565b6109bd5760405162461bcd60e51b815260040161042f90611923565b6109c984848484611027565b50505050565b6000818152600260205260409020546060906001600160a01b0316610a4e5760405162461bcd60e51b815260206004820152602f60248201527f4552433732314d657461646174613a2055524920717565727920666f72206e6f60448201526e3732bc34b9ba32b73a103a37b5b2b760891b606482015260840161042f565b6000610a5861105a565b90506000815111610a785760405180602001604052806000815250610aa3565b80610a8284611069565b604051602001610a93929190611852565b6040516020818303038152906040525b9392505050565b60006001600160e01b031982166380ac58cd60e01b1480610adb57506001600160e01b03198216635b5e139f60e01b145b8061032257506301ffc9a760e01b6001600160e01b0319831614610322565b600081815260046020526040902080546001600160a01b0319166001600160a01b0384169081179091558190610b2f82610704565b6001600160a01b03167f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b92560405160405180910390a45050565b6000818152600260205260408120546001600160a01b0316610be15760405162461bcd60e51b815260206004820152602c60248201527f4552433732313a206f70657261746f7220717565727920666f72206e6f6e657860448201526b34b9ba32b73a103a37b5b2b760a11b606482015260840161042f565b6000610bec83610704565b9050806001600160a01b0316846001600160a01b03161480610c275750836001600160a01b0316610c1c846103ba565b6001600160a01b0316145b80610c5757506001600160a01b0380821660009081526005602090815260408083209388168352929052205460ff165b949350505050565b826001600160a01b0316610c7282610704565b6001600160a01b031614610cda5760405162461bcd60e51b815260206004820152602960248201527f4552433732313a207472616e73666572206f6620746f6b656e2074686174206960448201526839903737ba1037bbb760b91b606482015260840161042f565b6001600160a01b038216610d3c5760405162461bcd60e51b8152602060048201526024808201527f4552433732313a207472616e7366657220746f20746865207a65726f206164646044820152637265737360e01b606482015260840161042f565b610d47838383611183565b610d52600082610afa565b6001600160a01b0383166000908152600360205260408120805460019290610d7b9084906119a0565b90915550506001600160a01b0382166000908152600360205260408120805460019290610da9908490611974565b909155505060008181526002602052604080822080546001600160a01b0319166001600160a01b0386811691821790925591518493918716917fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef91a4505050565b6001600160a01b038216610e605760405162461bcd60e51b815260206004820181905260248201527f4552433732313a206d696e7420746f20746865207a65726f2061646472657373604482015260640161042f565b6000818152600260205260409020546001600160a01b031615610ec55760405162461bcd60e51b815260206004820152601c60248201527f4552433732313a20746f6b656e20616c7265616479206d696e74656400000000604482015260640161042f565b610ed160008383611183565b6001600160a01b0382166000908152600360205260408120805460019290610efa908490611974565b909155505060008181526002602052604080822080546001600160a01b0319166001600160a01b03861690811790915590518392907fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef908290a45050565b816001600160a01b0316836001600160a01b03161415610fba5760405162461bcd60e51b815260206004820152601960248201527f4552433732313a20617070726f766520746f2063616c6c657200000000000000604482015260640161042f565b6001600160a01b03838116600081815260056020908152604080832094871680845294825291829020805460ff191686151590811790915591519182527f17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31910160405180910390a3505050565b611032848484610c5f565b61103e8484848461123b565b6109c95760405162461bcd60e51b815260040161042f906118d1565b6060600a8054610337906119e3565b60608161108d5750506040805180820190915260018152600360fc1b602082015290565b8160005b81156110b757806110a1'... 5636 more characters,
+      r: '0xbfa2c11d5729a4a90e2466097d922f799f6665a62e657df384d77053002d17b1',
+      s: '0x67cb2daa7821a23779100ffd37844c7f76e5f5322d6c9d997c459e621dd746cb',
+      v: 0,
+      creates: '0xb2f97A3c2E48cd368901657e31Faaa93035CE390',
+      chainId: 31337,
+      wait: [Function (anonymous)]
+    }
+  },
+  AZUKI: Contract {
+    interface: Interface {
+      fragments: [Array],
+      _abiCoder: [AbiCoder],
+      functions: [Object],
+      errors: {},
+      events: [Object],
+      structs: {},
+      deploy: [ConstructorFragment],
+      _isInterface: true
+    },
+    provider: EthersProviderWrapper {
+      _isProvider: true,
+      _events: [],
+      _emitted: [Object],
+      disableCcipRead: false,
+      formatter: [Formatter],
+      anyNetwork: false,
+      _networkPromise: [Promise],
+      _maxInternalBlockNumber: 0,
+      _lastBlockNumber: -2,
+      _maxFilterBlockRange: 10,
+      _pollingInterval: 4000,
+      _fastQueryDate: 1682097692621,
+      connection: [Object],
+      _nextId: 42,
+      _hardhatProvider: [BackwardsCompatibilityProviderAdapter],
+      _eventLoopCache: [Object],
+      _network: [Object],
+      _internalBlockNumber: [Promise],
+      _fastBlockNumber: 0,
+      _fastBlockNumberPromise: [Promise]
+    },
+    signer: SignerWithAddress {
+      _isSigner: true,
+      address: '0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15',
+      _signer: [JsonRpcSigner],
+      provider: [EthersProviderWrapper]
+    },
+    callStatic: {
+      'approve(address,uint256)': [Function (anonymous)],
+      'balanceOf(address)': [Function (anonymous)],
+      'baseURI()': [Function (anonymous)],
+      'getApproved(uint256)': [Function (anonymous)],
+      'isApprovedForAll(address,address)': [Function (anonymous)],
+      'mint(uint256)': [Function (anonymous)],
+      'mintCounts(address)': [Function (anonymous)],
+      'name()': [Function (anonymous)],
+      'ownerOf(uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256,bytes)': [Function (anonymous)],
+      'setApprovalForAll(address,bool)': [Function (anonymous)],
+      'setBaseURI(string)': [Function (anonymous)],
+      'supportsInterface(bytes4)': [Function (anonymous)],
+      'symbol()': [Function (anonymous)],
+      'tokenByIndex(uint256)': [Function (anonymous)],
+      'tokenOfOwnerByIndex(address,uint256)': [Function (anonymous)],
+      'tokenURI(uint256)': [Function (anonymous)],
+      'totalSupply()': [Function (anonymous)],
+      'transferFrom(address,address,uint256)': [Function (anonymous)],
+      approve: [Function (anonymous)],
+      balanceOf: [Function (anonymous)],
+      baseURI: [Function (anonymous)],
+      getApproved: [Function (anonymous)],
+      isApprovedForAll: [Function (anonymous)],
+      mint: [Function (anonymous)],
+      mintCounts: [Function (anonymous)],
+      name: [Function (anonymous)],
+      ownerOf: [Function (anonymous)],
+      setApprovalForAll: [Function (anonymous)],
+      setBaseURI: [Function (anonymous)],
+      supportsInterface: [Function (anonymous)],
+      symbol: [Function (anonymous)],
+      tokenByIndex: [Function (anonymous)],
+      tokenOfOwnerByIndex: [Function (anonymous)],
+      tokenURI: [Function (anonymous)],
+      totalSupply: [Function (anonymous)],
+      transferFrom: [Function (anonymous)]
+    },
+    estimateGas: {
+      'approve(address,uint256)': [Function (anonymous)],
+      'balanceOf(address)': [Function (anonymous)],
+      'baseURI()': [Function (anonymous)],
+      'getApproved(uint256)': [Function (anonymous)],
+      'isApprovedForAll(address,address)': [Function (anonymous)],
+      'mint(uint256)': [Function (anonymous)],
+      'mintCounts(address)': [Function (anonymous)],
+      'name()': [Function (anonymous)],
+      'ownerOf(uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256,bytes)': [Function (anonymous)],
+      'setApprovalForAll(address,bool)': [Function (anonymous)],
+      'setBaseURI(string)': [Function (anonymous)],
+      'supportsInterface(bytes4)': [Function (anonymous)],
+      'symbol()': [Function (anonymous)],
+      'tokenByIndex(uint256)': [Function (anonymous)],
+      'tokenOfOwnerByIndex(address,uint256)': [Function (anonymous)],
+      'tokenURI(uint256)': [Function (anonymous)],
+      'totalSupply()': [Function (anonymous)],
+      'transferFrom(address,address,uint256)': [Function (anonymous)],
+      approve: [Function (anonymous)],
+      balanceOf: [Function (anonymous)],
+      baseURI: [Function (anonymous)],
+      getApproved: [Function (anonymous)],
+      isApprovedForAll: [Function (anonymous)],
+      mint: [Function (anonymous)],
+      mintCounts: [Function (anonymous)],
+      name: [Function (anonymous)],
+      ownerOf: [Function (anonymous)],
+      setApprovalForAll: [Function (anonymous)],
+      setBaseURI: [Function (anonymous)],
+      supportsInterface: [Function (anonymous)],
+      symbol: [Function (anonymous)],
+      tokenByIndex: [Function (anonymous)],
+      tokenOfOwnerByIndex: [Function (anonymous)],
+      tokenURI: [Function (anonymous)],
+      totalSupply: [Function (anonymous)],
+      transferFrom: [Function (anonymous)]
+    },
+    functions: {
+      'approve(address,uint256)': [Function (anonymous)],
+      'balanceOf(address)': [Function (anonymous)],
+      'baseURI()': [Function (anonymous)],
+      'getApproved(uint256)': [Function (anonymous)],
+      'isApprovedForAll(address,address)': [Function (anonymous)],
+      'mint(uint256)': [Function (anonymous)],
+      'mintCounts(address)': [Function (anonymous)],
+      'name()': [Function (anonymous)],
+      'ownerOf(uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256,bytes)': [Function (anonymous)],
+      'setApprovalForAll(address,bool)': [Function (anonymous)],
+      'setBaseURI(string)': [Function (anonymous)],
+      'supportsInterface(bytes4)': [Function (anonymous)],
+      'symbol()': [Function (anonymous)],
+      'tokenByIndex(uint256)': [Function (anonymous)],
+      'tokenOfOwnerByIndex(address,uint256)': [Function (anonymous)],
+      'tokenURI(uint256)': [Function (anonymous)],
+      'totalSupply()': [Function (anonymous)],
+      'transferFrom(address,address,uint256)': [Function (anonymous)],
+      approve: [Function (anonymous)],
+      balanceOf: [Function (anonymous)],
+      baseURI: [Function (anonymous)],
+      getApproved: [Function (anonymous)],
+      isApprovedForAll: [Function (anonymous)],
+      mint: [Function (anonymous)],
+      mintCounts: [Function (anonymous)],
+      name: [Function (anonymous)],
+      ownerOf: [Function (anonymous)],
+      setApprovalForAll: [Function (anonymous)],
+      setBaseURI: [Function (anonymous)],
+      supportsInterface: [Function (anonymous)],
+      symbol: [Function (anonymous)],
+      tokenByIndex: [Function (anonymous)],
+      tokenOfOwnerByIndex: [Function (anonymous)],
+      tokenURI: [Function (anonymous)],
+      totalSupply: [Function (anonymous)],
+      transferFrom: [Function (anonymous)]
+    },
+    populateTransaction: {
+      'approve(address,uint256)': [Function (anonymous)],
+      'balanceOf(address)': [Function (anonymous)],
+      'baseURI()': [Function (anonymous)],
+      'getApproved(uint256)': [Function (anonymous)],
+      'isApprovedForAll(address,address)': [Function (anonymous)],
+      'mint(uint256)': [Function (anonymous)],
+      'mintCounts(address)': [Function (anonymous)],
+      'name()': [Function (anonymous)],
+      'ownerOf(uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256)': [Function (anonymous)],
+      'safeTransferFrom(address,address,uint256,bytes)': [Function (anonymous)],
+      'setApprovalForAll(address,bool)': [Function (anonymous)],
+      'setBaseURI(string)': [Function (anonymous)],
+      'supportsInterface(bytes4)': [Function (anonymous)],
+      'symbol()': [Function (anonymous)],
+      'tokenByIndex(uint256)': [Function (anonymous)],
+      'tokenOfOwnerByIndex(address,uint256)': [Function (anonymous)],
+      'tokenURI(uint256)': [Function (anonymous)],
+      'totalSupply()': [Function (anonymous)],
+      'transferFrom(address,address,uint256)': [Function (anonymous)],
+      approve: [Function (anonymous)],
+      balanceOf: [Function (anonymous)],
+      baseURI: [Function (anonymous)],
+      getApproved: [Function (anonymous)],
+      isApprovedForAll: [Function (anonymous)],
+      mint: [Function (anonymous)],
+      mintCounts: [Function (anonymous)],
+      name: [Function (anonymous)],
+      ownerOf: [Function (anonymous)],
+      setApprovalForAll: [Function (anonymous)],
+      setBaseURI: [Function (anonymous)],
+      supportsInterface: [Function (anonymous)],
+      symbol: [Function (anonymous)],
+      tokenByIndex: [Function (anonymous)],
+      tokenOfOwnerByIndex: [Function (anonymous)],
+      tokenURI: [Function (anonymous)],
+      totalSupply: [Function (anonymous)],
+      transferFrom: [Function (anonymous)]
+    },
+    filters: {
+      'Approval(address,address,uint256)': [Function (anonymous)],
+      'ApprovalForAll(address,address,bool)': [Function (anonymous)],
+      'Transfer(address,address,uint256)': [Function (anonymous)],
+      Approval: [Function (anonymous)],
+      ApprovalForAll: [Function (anonymous)],
+      Transfer: [Function (anonymous)]
+    },
+    _runningEvents: {},
+    _wrappedEmits: {},
+    address: '0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847',
+    resolvedAddress: Promise { '0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847' },
+    'approve(address,uint256)': [Function (anonymous)],
+    'balanceOf(address)': [Function (anonymous)],
+    'baseURI()': [Function (anonymous)],
+    'getApproved(uint256)': [Function (anonymous)],
+    'isApprovedForAll(address,address)': [Function (anonymous)],
+    'mint(uint256)': [Function (anonymous)],
+    'mintCounts(address)': [Function (anonymous)],
+    'name()': [Function (anonymous)],
+    'ownerOf(uint256)': [Function (anonymous)],
+    'safeTransferFrom(address,address,uint256)': [Function (anonymous)],
+    'safeTransferFrom(address,address,uint256,bytes)': [Function (anonymous)],
+    'setApprovalForAll(address,bool)': [Function (anonymous)],
+    'setBaseURI(string)': [Function (anonymous)],
+    'supportsInterface(bytes4)': [Function (anonymous)],
+    'symbol()': [Function (anonymous)],
+    'tokenByIndex(uint256)': [Function (anonymous)],
+    'tokenOfOwnerByIndex(address,uint256)': [Function (anonymous)],
+    'tokenURI(uint256)': [Function (anonymous)],
+    'totalSupply()': [Function (anonymous)],
+    'transferFrom(address,address,uint256)': [Function (anonymous)],
+    approve: [Function (anonymous)],
+    balanceOf: [Function (anonymous)],
+    baseURI: [Function (anonymous)],
+    getApproved: [Function (anonymous)],
+    isApprovedForAll: [Function (anonymous)],
+    mint: [Function (anonymous)],
+    mintCounts: [Function (anonymous)],
+    name: [Function (anonymous)],
+    ownerOf: [Function (anonymous)],
+    setApprovalForAll: [Function (anonymous)],
+    setBaseURI: [Function (anonymous)],
+    supportsInterface: [Function (anonymous)],
+    symbol: [Function (anonymous)],
+    tokenByIndex: [Function (anonymous)],
+    tokenOfOwnerByIndex: [Function (anonymous)],
+    tokenURI: [Function (anonymous)],
+    totalSupply: [Function (anonymous)],
+    transferFrom: [Function (anonymous)],
+    deployTransaction: {
+      hash: '0x97c79bc08ef74465c9ebd13503da3ad777eada30170632279c7590fc3e6d9951',
+      type: 2,
+      accessList: [],
+      blockHash: '0xd293bc9ab2d69f5dacd53a5ad100a6ce9e528f3f795c07191be6cc129898a7b1',
+      blockNumber: 5,
+      transactionIndex: 0,
+      confirmations: 1,
+      from: '0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15',
+      gasPrice: BigNumber { value: "1594838331" },
+      maxPriorityFeePerGas: BigNumber { value: "1000000000" },
+      maxFeePerGas: BigNumber { value: "2189676662" },
+      gasLimit: BigNumber { value: "1641234" },
+      to: null,
+      value: BigNumber { value: "0" },
+      nonce: 4,
+      data: '0x60806040523480156200001157600080fd5b5060405162001dc938038062001dc9833981016040819052620000349162000221565b8151829082906200004d906000906020850190620000c8565b50805162000063906001906020840190620000c8565b50506040805180820190915260178082527f68747470733a2f2f4d696e7461626c654552433732312f0000000000000000006020909201918252620000ad9250600a9190620000c8565b5050600b80546001600160a01b0319163317905550620002db565b828054620000d69062000288565b90600052602060002090601f016020900481019282620000fa576000855562000145565b82601f106200011557805160ff191683800117855562000145565b8280016001018555821562000145579182015b828111156200014557825182559160200191906001019062000128565b506200015392915062000157565b5090565b5b8082111562000153576000815560010162000158565b600082601f8301126200017f578081fd5b81516001600160401b03808211156200019c576200019c620002c5565b604051601f8301601f19908116603f01168101908282118183101715620001c757620001c7620002c5565b81604052838152602092508683858801011115620001e3578485fd5b8491505b83821015620002065785820183015181830184015290820190620001e7565b838211156200021757848385830101525b9695505050505050565b6000806040838503121562000234578182fd5b82516001600160401b03808211156200024b578384fd5b62000259868387016200016e565b935060208501519150808211156200026f578283fd5b506200027e858286016200016e565b9150509250929050565b600181811c908216806200029d57607f821691505b60208210811415620002bf57634e487b7160e01b600052602260045260246000fd5b50919050565b634e487b7160e01b600052604160045260246000fd5b611ade80620002eb6000396000f3fe608060405234801561001057600080fd5b506004361061012c5760003560e01c806355f804b3116100ad578063a0712d6811610071578063a0712d6814610275578063a22cb46514610288578063b88d4fde1461029b578063c87b56dd146102ae578063e985e9c5146102c157600080fd5b806355f804b31461022c5780636352211e1461023f5780636c0360eb1461025257806370a082311461025a57806395d89b411461026d57600080fd5b806323b872dd116100f457806323b872dd146101c05780632f745c59146101d357806342842e0e146101e65780634f6ccce7146101f9578063532778791461020c57600080fd5b806301ffc9a71461013157806306fdde0314610159578063081812fc1461016e578063095ea7b31461019957806318160ddd146101ae575b600080fd5b61014461013f366004611790565b6102fd565b60405190151581526020015b60405180910390f35b610161610328565b60405161015091906118be565b61018161017c36600461180e565b6103ba565b6040516001600160a01b039091168152602001610150565b6101ac6101a7366004611767565b610454565b005b6008545b604051908152602001610150565b6101ac6101ce366004611679565b61056a565b6101b26101e1366004611767565b61059b565b6101ac6101f4366004611679565b610631565b6101b261020736600461180e565b61064c565b6101b261021a36600461162d565b600c6020526000908152604090205481565b6101ac61023a3660046117c8565b6106ed565b61018161024d36600461180e565b610704565b61016161077b565b6101b261026836600461162d565b610809565b610161610890565b61014461028336600461180e565b61089f565b6101ac61029636600461172d565b61098c565b6101ac6102a93660046116b4565b610997565b6101616102bc36600461180e565b6109cf565b6101446102cf366004611647565b6001600160a01b03918216600090815260056020908152604080832093909416825291909152205460ff1690565b60006001600160e01b0319821663780e9d6360e01b1480610322575061032282610aaa565b92915050565b606060008054610337906119e3565b80601f0160208091040260200160405190810160405280929190818152602001828054610363906119e3565b80156103b05780601f10610385576101008083540402835291602001916103b0565b820191906000526020600020905b81548152906001019060200180831161039357829003601f168201915b5050505050905090565b6000818152600260205260408120546001600160a01b03166104385760405162461bcd60e51b815260206004820152602c60248201527f4552433732313a20617070726f76656420717565727920666f72206e6f6e657860448201526b34b9ba32b73a103a37b5b2b760a11b60648201526084015b60405180910390fd5b506000908152600460205260409020546001600160a01b031690565b600061045f82610704565b9050806001600160a01b0316836001600160a01b031614156104cd5760405162461bcd60e51b815260206004820152602160248201527f4552433732313a20617070726f76616c20746f2063757272656e74206f776e656044820152603960f91b606482015260840161042f565b336001600160a01b03821614806104e957506104e981336102cf565b61055b5760405162461bcd60e51b815260206004820152603860248201527f4552433732313a20617070726f76652063616c6c6572206973206e6f74206f7760448201527f6e6572206e6f7220617070726f76656420666f7220616c6c0000000000000000606482015260840161042f565b6105658383610afa565b505050565b6105743382610b68565b6105905760405162461bcd60e51b815260040161042f90611923565b610565838383610c5f565b60006105a683610809565b82106106085760405162461bcd60e51b815260206004820152602b60248201527f455243373231456e756d657261626c653a206f776e657220696e646578206f7560448201526a74206f6620626f756e647360a81b606482015260840161042f565b506001600160a01b03919091166000908152600660209081526040808320938352929052205490565b61056583838360405180602001604052806000815250610997565b600061065760085490565b82106106ba5760405162461bcd60e51b815260206004820152602c60248201527f455243373231456e756d657261626c653a20676c6f62616c20696e646578206f60448201526b7574206f6620626f756e647360a01b606482015260840161042f565b600882815481106106db57634e487b7160e01b600052603260045260246000fd5b90600052602060002001549050919050565b805161070090600a906020840190611502565b5050565b6000818152600260205260408120546001600160a01b0316806103225760405162461bcd60e51b815260206004820152602960248201527f4552433732313a206f776e657220717565727920666f72206e6f6e657869737460448201526832b73a103a37b5b2b760b91b606482015260840161042f565b600a8054610788906119e3565b80601f01602080910402602001604051908101604052809291908181526020018280546107b4906119e3565b80156108015780601f106107d657610100808354040283529160200191610801565b820191906000526020600020905b8154815290600101906020018083116107e457829003601f168201915b505050505081565b60006001600160a01b0382166108745760405162461bcd60e51b815260206004820152602a60248201527f4552433732313a2062616c616e636520717565727920666f7220746865207a65604482015269726f206164647265737360b01b606482015260840161042f565b506001600160a01b031660009081526003602052604090205490565b606060018054610337906119e3565b600061271082106108e65760405162461bcd60e51b8152602060048201526011602482015270195e18d95959081b5a5b9d081b1a5b5a5d607a1b604482015260640161042f565b336000908152600c60205260408120805460019290610906908490611974565b9091555050600b546001600160a01b0316336001600160a01b03161461097a57336000908152600c60205260409020546014101561097a5760405162461bcd60e51b8152602060048201526011602482015270195e18d95959081b5a5b9d081b1a5b5a5d607a1b604482015260640161042f565b6109843383610e0a565b506001919050565b610700338383610f58565b6109a13383610b68565b6109bd5760405162461bcd60e51b815260040161042f90611923565b6109c984848484611027565b50505050565b6000818152600260205260409020546060906001600160a01b0316610a4e5760405162461bcd60e51b815260206004820152602f60248201527f4552433732314d657461646174613a2055524920717565727920666f72206e6f60448201526e3732bc34b9ba32b73a103a37b5b2b760891b606482015260840161042f565b6000610a5861105a565b90506000815111610a785760405180602001604052806000815250610aa3565b80610a8284611069565b604051602001610a93929190611852565b6040516020818303038152906040525b9392505050565b60006001600160e01b031982166380ac58cd60e01b1480610adb57506001600160e01b03198216635b5e139f60e01b145b8061032257506301ffc9a760e01b6001600160e01b0319831614610322565b600081815260046020526040902080546001600160a01b0319166001600160a01b0384169081179091558190610b2f82610704565b6001600160a01b03167f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b92560405160405180910390a45050565b6000818152600260205260408120546001600160a01b0316610be15760405162461bcd60e51b815260206004820152602c60248201527f4552433732313a206f70657261746f7220717565727920666f72206e6f6e657860448201526b34b9ba32b73a103a37b5b2b760a11b606482015260840161042f565b6000610bec83610704565b9050806001600160a01b0316846001600160a01b03161480610c275750836001600160a01b0316610c1c846103ba565b6001600160a01b0316145b80610c5757506001600160a01b0380821660009081526005602090815260408083209388168352929052205460ff165b949350505050565b826001600160a01b0316610c7282610704565b6001600160a01b031614610cda5760405162461bcd60e51b815260206004820152602960248201527f4552433732313a207472616e73666572206f6620746f6b656e2074686174206960448201526839903737ba1037bbb760b91b606482015260840161042f565b6001600160a01b038216610d3c5760405162461bcd60e51b8152602060048201526024808201527f4552433732313a207472616e7366657220746f20746865207a65726f206164646044820152637265737360e01b606482015260840161042f565b610d47838383611183565b610d52600082610afa565b6001600160a01b0383166000908152600360205260408120805460019290610d7b9084906119a0565b90915550506001600160a01b0382166000908152600360205260408120805460019290610da9908490611974565b909155505060008181526002602052604080822080546001600160a01b0319166001600160a01b0386811691821790925591518493918716917fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef91a4505050565b6001600160a01b038216610e605760405162461bcd60e51b815260206004820181905260248201527f4552433732313a206d696e7420746f20746865207a65726f2061646472657373604482015260640161042f565b6000818152600260205260409020546001600160a01b031615610ec55760405162461bcd60e51b815260206004820152601c60248201527f4552433732313a20746f6b656e20616c7265616479206d696e74656400000000604482015260640161042f565b610ed160008383611183565b6001600160a01b0382166000908152600360205260408120805460019290610efa908490611974565b909155505060008181526002602052604080822080546001600160a01b0319166001600160a01b03861690811790915590518392907fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef908290a45050565b816001600160a01b0316836001600160a01b03161415610fba5760405162461bcd60e51b815260206004820152601960248201527f4552433732313a20617070726f766520746f2063616c6c657200000000000000604482015260640161042f565b6001600160a01b03838116600081815260056020908152604080832094871680845294825291829020805460ff191686151590811790915591519182527f17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31910160405180910390a3505050565b611032848484610c5f565b61103e8484848461123b565b6109c95760405162461bcd60e51b815260040161042f906118d1565b6060600a8054610337906119e3565b60608161108d5750506040805180820190915260018152600360fc1b602082015290565b8160005b81156110b757806110a1'... 5636 more characters,
+      r: '0x93f76159aab5fcd8fe0c214ebb8e8fd249a46bf9e23b0440f36d3a956bfb1f56',
+      s: '0x6c645ce1b41b993e854406cd621b71cd619db027e982bad3e7ace982d97f0d0e',
+      v: 0,
+      creates: '0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847',
+      chainId: 31337,
+      wait: [Function (anonymous)]
+    }
+  }
+}
+-> Prepare mock external IncentivesController...
+0x21cab356a9fa17d6bcdb11d37afada1462e9181ed60056e1af0a4bf577c0c96c
+6
+contracts-helpers:registerContractInJsonDb, contractId: MockIncentivesController address: 0x2F7f69a3cd22FcfFB5E0C0fB7Ae5Eb278b3919Ff deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+-> Prepare proxy admin...
+0xae1b281783fa2a71aa4e253248d8b863fd86a78a513b5058c8d182b4aa468a20
+7
+contracts-helpers:registerContractInJsonDb, contractId: UnlockdProxyAdminTest address: 0xC7F247a33C79BB0fABc3605479372D3Ba188fcbc deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+unlockdProxyAdmin: 0xC7F247a33C79BB0fABc3605479372D3Ba188fcbc
+-> Prepare mock unft registry...
+0x82a598a8b9e629a9557c1f6c5bdedea4a43651a08c6608a7e8adfd6b2f7f07f6
+8
+contracts-helpers:registerContractInJsonDb, contractId: UNFT address: 0x69D1108D37825212736aC101B445b6B57a390d13 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+contracts-helpers:insertContractAddressInDb, id: UNFTRegistryImpl address 0x8b89F971cA1A5dE1B7df7f554a3024eE84FeeB05
+0xdd4776e11b685d2b52b616e8c7fda5281b27de38d0b19df8f6080122d90b4c40
+9
+contracts-helpers:registerContractInJsonDb, contractId: UNFTRegistry address: 0x8b89F971cA1A5dE1B7df7f554a3024eE84FeeB05 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0xb53bd920e2864b55936f8b4c87bbbd0e8ce9ea7da7e31d3e1cba51698e647273
+10
+contracts-helpers:registerContractInJsonDb, contractId: UNFTRegistry address: 0x1864c9342339c36588F7f31d1079690a7003c7a2 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+-> Prepare mock unft tokens...
+createUNFT: WPUNKS 0x580551FD947b1e23127092c4887bE62D013eD17E 0x69D1108D37825212736aC101B445b6B57a390d13
+createUNFT: BAYC 0x71167D6763dd2b6012a0B80F326b2DA76f5f9D86 0x69D1108D37825212736aC101B445b6B57a390d13
+createUNFT: AZUKI 0x35d9d237e70b4B05d6c2F3ac46D7623B3A7CCE50 0x69D1108D37825212736aC101B445b6B57a390d13
+-> Prepare address provider...
+0xc3df9348cd7d4f57240959fe531013f6915a7b2016708f092bb5119ce18ba7f1
+15
+contracts-helpers:registerContractInJsonDb, contractId: LendPoolAddressesProviderRegistry address: 0x294E11ac81ED4018d5dC0cc9618Ff2890acC8977 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x44f8c3664527073e617a47b6bb5866490c359decb5c48b2a29e2115ada281c03
+16
+contracts-helpers:registerContractInJsonDb, contractId: LendPoolAddressesProvider address: 0x6B8dcBD1bb131ED184221902df1Fe21019ccD7dc deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+-> Prepare unlockd libraries...
+0x858fc75431091c91cd233adf77bc44e9c702ae7f25916287a566283ec185c045
+23
+contracts-helpers:registerContractInJsonDb, contractId: GenericLogic address: 0x82EEc0C56D8E48ae007bEb6A896B98Ade36BC51c deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x80e843972749d2dd8cae2d632de1f2dbc2dcd8390c643289b76440c752a3dd06
+24
+contracts-helpers:registerContractInJsonDb, contractId: ReserveLogic address: 0x4C8871d8f224eE3Cd12a14fF3B691a1A0dB392ec deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x72b7bd77d1e1c075e66ad00e76711c95ca880f94d341e4fcbacd64797e0a42e5
+25
+contracts-helpers:registerContractInJsonDb, contractId: NftLogic address: 0x44e12d4D37f6DDAA00c086442998B1A61365BCa9 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x6a2693f073c1f1c688fafbd37460f860f992ce2dc588195f34e49243ddf561fa
+26
+contracts-helpers:registerContractInJsonDb, contractId: ValidationLogic address: 0xF340913980c21cb9D96bE990451c5471FABBD2B9 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0xc6bcfe8cbb3612fcb32824736bfe2da48130188e49ddab4e99ff0166a2dd6dcb
+27
+contracts-helpers:registerContractInJsonDb, contractId: SupplyLogic address: 0x0A66e11653e32D082F3330Dc99687ce42Eb53121 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x3020dfb8fb180892189291a30679b105ad79379988695e7145cc9c220d54b58a
+28
+contracts-helpers:registerContractInJsonDb, contractId: BorrowLogic address: 0xD5A42dEB39C8EfbCE0f81cEb4c51500501809e89 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x3642958536141aa920d7a067b20237c461c8f5db2425e683659bf1b16e598458
+29
+contracts-helpers:registerContractInJsonDb, contractId: LiquidateLogic address: 0x4E76d6429C6f9dD22F87f10BcA800664B8Cc118b deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x27574edf00f546b0b89e274a350eadc81e04273976463199a0f0cbefc831c047
+30
+contracts-helpers:registerContractInJsonDb, contractId: LendingLogic address: 0x153a75c692b6f047974bc96e30d20546B0Bc2992 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0xb0466ef80a88596839228bc4f9844e6f07515550531eeec9e9c3a8d85dbfd072
+31
+contracts-helpers:registerContractInJsonDb, contractId: ConfiguratorLogic address: 0x17624D935b72A4d765d7A69a68E7C0725A38d5bc deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+-> Prepare lend pool...
+contracts-helpers:insertContractAddressInDb, id: LendPoolImpl address 0x7ECdCa35F3B55acE694A7DA48a759444Fe81b943
+0x8fd88d4c44b9d52b457036497f87c139b8c0c66ca3b96d6fc2159ccd65d22da4
+32
+contracts-helpers:registerContractInJsonDb, contractId: LendPool address: 0x7ECdCa35F3B55acE694A7DA48a759444Fe81b943 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+contracts-helpers:insertContractAddressInDb, id: LendPool address 0x04312C252649D74bc2445E21c5b1a4Cd962aC5A2
+-> Prepare lend pool loan...
+contracts-helpers:insertContractAddressInDb, id: LendPoolLoanImpl address 0x7dDc7b2963AC96336Ec238e816FCbc30aDB113AD
+0xeec90e4d89968c5b36bd169afb8c1d7d12f1d661f50347a5cd06cdaede3a7bac
+34
+contracts-helpers:registerContractInJsonDb, contractId: LendPoolLoan address: 0x7dDc7b2963AC96336Ec238e816FCbc30aDB113AD deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+contracts-helpers:insertContractAddressInDb, id: LendPoolLoan address 0xb896D8e12b024e485AA4a017B45ddF104281f558
+-> Prepare pool configurator...
+contracts-helpers:insertContractAddressInDb, id: LendPoolConfiguratorImpl address 0xAAF09660FafD2138fC9e5dA036D2a101A623b52F
+0x4f02413261631754faf9f3df6dc27bff8544a6cb212c3c8acb105c6271e0afe6
+36
+contracts-helpers:registerContractInJsonDb, contractId: LendPoolConfigurator address: 0xAAF09660FafD2138fC9e5dA036D2a101A623b52F deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+contracts-helpers:insertContractAddressInDb, id: LendPoolConfigurator address 0x5AaCf1d38Ba2a03888b74c49Df3013C8e5Cb108B
+-> Prepare mock reserve token aggregators...
+0xf20d0541d0cc126657de08957a603c6cd9b5c843262e1c0114eef008c3915e8c
+38
+contracts-helpers:registerContractInJsonDb, contractId: MockChainlinkOracle address: 0x6be4a054629ff10Af2680696A5a5Dc8C525D977F deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+ChainlinkMockAggregator, WETH 0x6be4a054629ff10Af2680696A5a5Dc8C525D977F 1000000000000000000 18
+0x7d334548dec2eae9b95059d74d256b7e99cec27ebbdb8cab43a474a1f4213a19
+40
+contracts-helpers:registerContractInJsonDb, contractId: MockChainlinkOracle address: 0x1Dc8C005cdd4a52136eDf5e7c4FC6C662E0f7E73 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+ChainlinkMockAggregator, DAI 0x1Dc8C005cdd4a52136eDf5e7c4FC6C662E0f7E73 233211000000000 18
+0xfba65866cd707dc821ca48a28998ab30c91e239f629863eb1b0cd685cb45ad1d
+42
+contracts-helpers:registerContractInJsonDb, contractId: MockChainlinkOracle address: 0xBb94c69258B09B351E31972aDd0951f30E7f5ed6 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+ChainlinkMockAggregator, USDC 0xBb94c69258B09B351E31972aDd0951f30E7f5ed6 234916200000000 18
+0xeb5223f6bf3f6eb563b9c0438144ee496d64f8cf00c05ebb85b4f77426af84b3
+44
+contracts-helpers:registerContractInJsonDb, contractId: MockChainlinkOracle address: 0x8286b7d42cB141E1871a3475bB8E0C3F84db0352 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+ChainlinkMockAggregator, USD 0x8286b7d42cB141E1871a3475bB8E0C3F84db0352 425107839690 8
+0x9ea86c9543163a70c3fd3c5ffef472cb60a8afb4b78eeb882542ee8e19372610
+46
+contracts-helpers:registerContractInJsonDb, contractId: MockChainlinkOracle address: 0xE2Ab82DeCBA9918885010Dd1A11a687339783116 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+-> Prepare reserve oracle...
+contracts-helpers:insertContractAddressInDb, id: ReserveOracleImpl address 0x51998F16F707a0cdd5ECE2a56c034552dF3fb855
+0xd3a360d5de6d6639f0747cb7730859234b814902e2cdca4b447533bafbf84420
+47
+contracts-helpers:registerContractInJsonDb, contractId: ReserveOracle address: 0x51998F16F707a0cdd5ECE2a56c034552dF3fb855 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+setAggregatorsInReserveOracle USD 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419 0x8286b7d42cB141E1871a3475bB8E0C3F84db0352
+setAggregatorsInReserveOracle WETH 0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104 0x6be4a054629ff10Af2680696A5a5Dc8C525D977F
+-> Prepare mock reserve oracle...
+0x9eee442fc41b0b06032c2dd255a90167eb16de0af1eae7743323ae097e6a6461
+52
+contracts-helpers:registerContractInJsonDb, contractId: MockReserveOracle address: 0x941C6c63Def537699014d15605828339475ed33c deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+-> Prepare mock NFT token aggregators...
+-> Prepare NFTX & Sushiswap Router...
+0x4d931099578f19cc63947e35be20043812605c7ad8686023d0a6c9beb6c6a9b7
+54
+contracts-helpers:registerContractInJsonDb, contractId: NFTXVaultFactory address: 0x58dA2779DC5E99C46Ef9bCfCc6ac5cEC3b69bCcD deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x81675be777173b8606c85aada966d4c738b7c82c5093e95859c9791d4dd36395
+56
+contracts-helpers:registerContractInJsonDb, contractId: UniswapV2Factory address: 0xc27F09fe69Ddd42b2d84e15eC384B5462339727A deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0xe43fb1cf7a584b93071d64e4261594da4bbbcbba09d6d3f2cf340f418cdbbcc9
+57
+contracts-helpers:registerContractInJsonDb, contractId: SushiSwapRouter address: 0x9718F7A661C0137d13EB4f0659dA5E8697075492 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+-> Prepare nft oracle...
+contracts-helpers:insertContractAddressInDb, id: NFTOracleImpl address 0x5F25714195e6Ba02cD01dB804f6222F924B9CC27
+0x65f5451dcbfe3961a3a285166e1e93aa44ed54f8345c43e66be4cc3a034238f9
+60
+contracts-helpers:registerContractInJsonDb, contractId: NFTOracle address: 0x5F25714195e6Ba02cD01dB804f6222F924B9CC27 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+addAssetsInNFTOracle WPUNKS 0x025FE4760c6f14dE878C22cEb09A3235F16dAe53
+addAssetsInNFTOracle BAYC 0xb2f97A3c2E48cd368901657e31Faaa93035CE390
+addAssetsInNFTOracle AZUKI 0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847
+setPricesInNFTOracle WPUNKS 0x025FE4760c6f14dE878C22cEb09A3235F16dAe53 66990000000000000000
+setPricesInNFTOracle BAYC 0xb2f97A3c2E48cd368901657e31Faaa93035CE390 52770000000000000000
+setPricesInNFTOracle AZUKI 0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847 6230000000000000000
+-> Prepare mock nft oracle...
+0x36809cbaaafa8e9603a67297e21d74aab67adb333cc5e92daf788fcebd3c0c5a
+517
+contracts-helpers:registerContractInJsonDb, contractId: MockNFTOracle address: 0x8F68e28a5E809873aa36b6FCf4338439d47Da54e deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+-> Prepare Reserve pool...
+-> Prepare UToken impl contract...
+Deploying UToken implementation UToken
+0x1cd79c50a07534775361e56903f303a51fbce85b0c6e912d12d580ecfde6ddbf
+519
+contracts-helpers:registerContractInJsonDb, contractId: UToken address: 0xeF8c86c51FD7478BeEb4e6bd68929B0C3CFDF43D deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x1770d079ce745e2ff9bb0a07c73e98fc9eec48bb97905e44bcb76efa53725330
+520
+contracts-helpers:registerContractInJsonDb, contractId: DebtToken address: 0xa7D673b8f76496e532585030055A3658a4384169 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+-> Prepare Reserve init and configure...
+RESERVES: WETH,[object Object]
+0x2f5233e06e55cfa5039efc19f5cadb7addec02b297a9ab23a7ed769e19234cdb
+521
+contracts-helpers:registerContractInJsonDb, contractId: InterestRate address: 0x6933ED378fECbEf1af9c4eEC453B709E5533f5de deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+contracts-helpers:rawInsertContractAddressInDb, id: rateStrategyWETH address 0x6933ED378fECbEf1af9c4eEC453B709E5533f5de
+- Reserves initialization in 1 txs
+  - Reserve ready for: WETH 0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104
+    * gasUsed 1631449
+addressesProvider: 0x6B8dcBD1bb131ED184221902df1Fe21019ccD7dc
+configuator: 0x5AaCf1d38Ba2a03888b74c49Df3013C8e5Cb108B
+- Configure Reserves
+  - Params for WETH: 3000 true
+- Configure reserves in 1 txs
+  - batchConfigReserve for: WETH
+-> Prepare NFT pools...
+-> Prepare NFT init and configure...
+- NFTs initialization in 3 txs
+  - NFT ready for: WPUNKS 0x025FE4760c6f14dE878C22cEb09A3235F16dAe53
+    * gasUsed 256916
+  - NFT ready for: BAYC 0xb2f97A3c2E48cd368901657e31Faaa93035CE390
+    * gasUsed 241580
+  - NFT ready for: AZUKI 0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847
+    * gasUsed 241580
+addressesProvider: 0x6B8dcBD1bb131ED184221902df1Fe21019ccD7dc
+configuator: 0x5AaCf1d38Ba2a03888b74c49Df3013C8e5Cb108B
+- Configure NFTs
+  - Params for WPUNKS: 4000 9000 500 24 24 500 5000 2000 10000 9999
+  - Params for BAYC: 4000 9000 500 24 24 500 5000 2000 10000 9999
+  - Params for AZUKI: 4000 9000 500 24 24 500 5000 2000 10000 9999
+- Configure NFTs in 6 txs
+  - batchConfigNft for: WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS
+  - batchConfigNft for: WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS
+  - batchConfigNft for: BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC
+  - batchConfigNft for: BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC
+  - batchConfigNft for: AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI
+  - batchConfigNft for: AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI
+-> Prepare wallet & data & ui provider...
+0x655baec298a501fcee9668b0e452ae31d7245fb2e4b2ecf5ae29794bbabca9bd
+534
+contracts-helpers:registerContractInJsonDb, contractId: WalletBalanceProvider address: 0x3705609C1f189488dF4e1752b20743774e9DCeab deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x339f8ad41be5be78de1874a5ec8477f16eec1ecb3aaea3aea653b8bfdaff25f9
+536
+contracts-helpers:registerContractInJsonDb, contractId: UnlockdProtocolDataProvider address: 0xE642823F953869c2fE07F91cAc28375d43E327ED deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x60621cb08f29b833067de02f3379d7c46edaaf20925093ae5e75dabeb50e4e1a
+538
+contracts-helpers:registerContractInJsonDb, contractId: UIPoolDataProvider address: 0xc24b883A611474F2E168d0a14524b7a613aeC92B deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+-> Prepare WETH gateway...
+contracts-helpers:insertContractAddressInDb, id: WETHGatewayImpl address 0x8185e06D29C2D792E9AEa7997E7874cE9a1d6AFe
+0xbc819fe5cdfee4301225db3511683941911e4445af94cde75cc1cd2f9ec18e30
+540
+contracts-helpers:registerContractInJsonDb, contractId: WETHGateway address: 0x8185e06D29C2D792E9AEa7997E7874cE9a1d6AFe deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x5aff80dd0f37593c12abffbf9fce54586deb4a6c989eef8732171b03d32823d0
+541
+contracts-helpers:registerContractInJsonDb, contractId: WETHGateway address: 0x16e77FB77134b351e57d4DcE699fFB4542e443E0 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+contracts-helpers:insertContractAddressInDb, id: WETHGateway address 0x16e77FB77134b351e57d4DcE699fFB4542e443E0
+-> Prepare PUNK gateway...
+contracts-helpers:insertContractAddressInDb, id: PunkGatewayImpl address 0x66D7A4EBb16F4665A3Dc235f800784735A6F90D4
+0x79da1cead70ccb813176dc18ed090def58f9e7a8bc76d2f28c2721139d1e1d8a
+544
+contracts-helpers:registerContractInJsonDb, contractId: PunkGateway address: 0x66D7A4EBb16F4665A3Dc235f800784735A6F90D4 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x72b2d8aee2e799436378e9ba969e41c036430865e9ebec111d52c5b60aa801c2
+545
+contracts-helpers:registerContractInJsonDb, contractId: PunkGateway address: 0x41EDb26B5ec76c70F61C55BbA5d653cDD6e344ea deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+
+  1) "before all" hook in "{root}"
+·---------------------------------------------------------------------|---------------------------|-------------|-----------------------------·
+|                         [90mSolc version: 0.8.4[39m                         ·  [90mOptimizer enabled: true[39m  ·  [90mRuns: 200[39m  ·  [90mBlock limit: 12450000 gas[39m  │
+······································································|···························|·············|······························
+|  [32m[1mMethods[22m[39m                                                                                                                                    │
+······································|·······························|·············|·············|·············|···············|··············
+|  [1mContract[22m                           ·  [1mMethod[22m                       ·  [32mMin[39m        ·  [32mMax[39m        ·  [32mAvg[39m        ·  [1m# calls[22m      ·  [1meur (avg)[22m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mCryptoPunksMarket[39m                  ·  allInitialOwnersAssigned     ·          -  ·          -  ·      45518  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  setAddress                   ·          -  ·          -  ·      49381  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  setEmergencyAdmin            ·          -  ·          -  ·      47355  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  setIncentivesController      ·          -  ·          -  ·      47375  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  setLendPoolConfiguratorImpl  ·          -  ·          -  ·     610449  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  setLendPoolImpl              ·          -  ·          -  ·     698762  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  setLendPoolLiquidator        ·          -  ·          -  ·      47443  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  setLendPoolLoanImpl          ·          -  ·          -  ·     659547  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  setNFTOracle                 ·          -  ·          -  ·      47421  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  setNFTXVaultFactory          ·          -  ·          -  ·      47377  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  setPoolAdmin                 ·          -  ·          -  ·      47444  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  setReserveOracle             ·          -  ·          -  ·      47354  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  setSushiSwapRouter           ·          -  ·          -  ·      47399  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  setUIDataProvider            ·          -  ·          -  ·      47295  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  setUNFTRegistry              ·          -  ·          -  ·      47376  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  setUnlockdDataProvider       ·          -  ·          -  ·      47421  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProvider[39m          ·  setWalletBalanceProvider     ·          -  ·          -  ·      47463  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolAddressesProviderRegistry[39m  ·  registerAddressesProvider    ·          -  ·          -  ·      92000  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  batchConfigNft               ·    [36m1066312[39m  ·    [31m1106112[39m  ·    1086212  ·           [90m12[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  batchConfigReserve           ·          -  ·          -  ·      68127  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  batchInitNft                 ·     [36m241580[39m  ·     [31m256916[39m  ·     246692  ·            [90m6[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  batchInitReserve             ·          -  ·          -  ·    1631449  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mLendPoolConfigurator[39m               ·  setBorrowingFlagOnReserve    ·          -  ·          -  ·      66604  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mMockChainlinkOracle[39m                ·  mockAddAnswer                ·     [36m245569[39m  ·     [31m245581[39m  ·     245572  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mMockLendPoolVersionN[39m               ·  setTimeframe                 ·          -  ·          -  ·      78100  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mMockNFTOracle[39m                      ·  initialize                   ·          -  ·          -  ·     113792  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mMockReserveOracle[39m                  ·  initialize                   ·          -  ·          -  ·      90917  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mNFTOracle[39m                          ·  addCollection                ·          -  ·          -  ·      47505  ·            [90m6[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mNFTOracle[39m                          ·  initialize                   ·          -  ·          -  ·     113770  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mNFTOracle[39m                          ·  setNFTPrice                  ·      [36m52985[39m  ·      [31m53009[39m  ·      53005  ·          [90m900[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mNFTOracle[39m                          ·  setPriceManagerStatus        ·          -  ·          -  ·      26553  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mProxyAdmin[39m                         ·  transferOwnership            ·          -  ·          -  ·      33148  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mReserveOracle[39m                      ·  addAggregator                ·      [36m75514[39m  ·      [31m92614[39m  ·      84064  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mReserveOracle[39m                      ·  initialize                   ·          -  ·          -  ·      90917  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mUNFTRegistry[39m                       ·  createUNFT                   ·     [36m725473[39m  ·     [31m742551[39m  ·     731166  ·            [90m6[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [90mWETHGateway[39m                        ·  authorizeLendPoolNFT         ·          -  ·          -  ·      99328  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+······································|·······························|·············|·············|·············|···············|··············
+|  [32m[1mDeployments[22m[39m                                                        ·                                         ·  [1m% of limit[22m   ·             │
+······································································|·············|·············|·············|···············|··············
+|  BorrowLogic                                                        ·          -  ·          -  ·    2247741  ·       [90m18.1 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  ConfiguratorLogic                                                  ·          -  ·          -  ·    1970106  ·       [90m15.8 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  CryptoPunksMarket                                                  ·          -  ·          -  ·    2378109  ·       [90m19.1 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  DebtToken                                                          ·          -  ·          -  ·    1539338  ·       [90m12.4 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  GenericLogic                                                       ·          -  ·          -  ·      84290  ·        [90m0.7 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  InterestRate                                                       ·          -  ·          -  ·     613848  ·        [90m4.9 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  LendingLogic                                                       ·          -  ·          -  ·      72217  ·        [90m0.6 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  LendPool                                                           ·          -  ·          -  ·    4969349  ·       [90m39.9 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  LendPoolAddressesProvider                                          ·          -  ·          -  ·    2978496  ·       [90m23.9 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  LendPoolAddressesProviderRegistry                                  ·          -  ·          -  ·     502283  ·          [90m4 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  LendPoolConfigurator                                               ·          -  ·          -  ·    5151963  ·       [90m41.4 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  LendPoolLoan                                                       ·          -  ·          -  ·    2787649  ·       [90m22.4 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  LiquidateLogic                                                     ·          -  ·          -  ·    4806734  ·       [90m38.6 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  MintableERC721                                                     ·    [36m1641210[39m  ·    [31m1641234[39m  ·    1641222  ·       [90m13.2 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  MockChainlinkOracle                                                ·          -  ·          -  ·     620122  ·          [90m5 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  MockIncentivesController                                           ·          -  ·          -  ·     142669  ·        [90m1.1 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  MockNFTOracle                                                      ·          -  ·          -  ·    1117249  ·          [90m9 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  MockReserveOracle                                                  ·          -  ·          -  ·    1280668  ·       [90m10.3 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  NftLogic                                                           ·          -  ·          -  ·     141022  ·        [90m1.1 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  NFTOracle                                                          ·          -  ·          -  ·    1047335  ·        [90m8.4 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  NFTXVaultFactoryV2                                                 ·          -  ·          -  ·    2013203  ·       [90m16.2 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  PunkGateway                                                        ·          -  ·          -  ·    3670731  ·       [90m29.5 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  ReserveLogic                                                       ·          -  ·          -  ·     171208  ·        [90m1.4 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  ReserveOracle                                                      ·          -  ·          -  ·    1211618  ·        [90m9.7 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  SupplyLogic                                                        ·          -  ·          -  ·    1235269  ·        [90m9.9 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  UiPoolDataProvider                                                 ·          -  ·          -  ·    3056749  ·       [90m24.6 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  UNFT                                                               ·          -  ·          -  ·    1503057  ·       [90m12.1 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  UNFTRegistry                                                       ·          -  ·          -  ·    2441516  ·       [90m19.6 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  UniswapV2Factory                                                   ·          -  ·          -  ·    2543598  ·       [90m20.4 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  UniswapV2Router02                                                  ·          -  ·          -  ·    3852659  ·       [90m30.9 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  UnlockdProtocolDataProvider                                        ·          -  ·          -  ·    3025274  ·       [90m24.3 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  UnlockdProxyAdmin                                                  ·          -  ·          -  ·     470704  ·        [90m3.8 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  UnlockdUpgradeableProxy                                            ·     [36m740476[39m  ·     [31m998847[39m  ·     828330  ·        [90m6.7 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  UToken                                                             ·          -  ·          -  ·    2873991  ·       [90m23.1 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  ValidationLogic                                                    ·          -  ·          -  ·    1573518  ·       [90m12.6 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  WalletBalanceProvider                                              ·          -  ·          -  ·    1251354  ·       [90m10.1 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  WETH9Mocked                                                        ·          -  ·          -  ·     586429  ·        [90m4.7 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  WETHGateway                                                        ·          -  ·          -  ·    3130247  ·       [90m25.1 %[39m  ·          [32m[90m-[32m[39m  │
+······································································|·············|·············|·············|···············|··············
+|  WrappedPunk                                                        ·          -  ·          -  ·    1992593  ·         [90m16 %[39m  ·          [32m[90m-[32m[39m  │
+·---------------------------------------------------------------------|-------------|-------------|-------------|---------------|-------------·
+
+  0 passing (34s)
+  1 failing
+
+  1) "before all" hook in "{root}":
+     Error: invalid address or ENS name (argument="name", value=undefined, code=INVALID_ARGUMENT, version=contracts/5.7.0)
+      at Logger.makeError (node_modules/@ethersproject/logger/src.ts/index.ts:269:28)
+      at Logger.throwError (node_modules/@ethersproject/logger/src.ts/index.ts:281:20)
+      at Logger.throwArgumentError (node_modules/@ethersproject/logger/src.ts/index.ts:285:21)
+      at /home/fvenancio/Projects/unlockd/node_modules/@ethersproject/contracts/src.ts/index.ts:123:16
+      at step (node_modules/@ethersproject/contracts/lib/index.js:48:23)
+      at Object.next (node_modules/@ethersproject/contracts/lib/index.js:29:53)
+      at fulfilled (node_modules/@ethersproject/contracts/lib/index.js:20:58)
+      at processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at runNextTicks (node:internal/process/task_queues:64:3)
+      at listOnTimeout (node:internal/timers:538:9)
+
+
+

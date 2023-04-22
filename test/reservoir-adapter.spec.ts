@@ -169,6 +169,128 @@ makeSuite("Reservoir adapter tests", (testEnv: TestEnv) => {
       );
     }
   });
+  it("ReservoirAdapter: liquidate an unhealthy NFT in Seaport v1.4 and verify the debt listing was cancelled.", async () => {
+    if (FORK_BLOCK_NUMBER == "16784435") {
+      //block number for calldata for BAYC #100
+
+      const { reservoirAdapter, bayc, pool, nftOracle, weth, deployer, users, configurator, dataProvider, debtMarket } =
+        testEnv;
+      const depositor = users[1];
+      const borrower = users[2];
+      const bidder = users[3];
+      const tokenId = "100";
+
+      /*//////////////////////////////////////////////////////////////
+                        BORROW PROCESS
+      //////////////////////////////////////////////////////////////*/
+
+      //mints WETH to the depositor
+      await fundWithERC20("WETH", depositor.address, "1000");
+      await approveERC20(testEnv, depositor, "WETH");
+
+      //deposits WETH
+      const amountDeposit = await convertToCurrencyDecimals(depositor, weth, "1000");
+
+      await pool.connect(depositor.signer).deposit(weth.address, amountDeposit, depositor.address, "0");
+
+      //mints BAYC to borrower
+      await fundWithERC721("BAYC", borrower.address, parseInt(tokenId));
+      //approve protocol to access borrower wallet
+      await setApprovalForAll(testEnv, borrower, "BAYC");
+      //allow reservoir to cancel listings
+      await debtMarket.setAuthorizedAddress(reservoirAdapter.address, true);
+
+      //borrows
+      const collData: IConfigNftAsCollateralInput = {
+        asset: bayc.address,
+        nftTokenId: tokenId,
+        newPrice: parseEther("100"), //100 ETH valuation
+        ltv: 6000,
+        liquidationThreshold: 7500,
+        redeemThreshold: 5000,
+        liquidationBonus: 500,
+        redeemDuration: 100,
+        auctionDuration: 200,
+        redeemFine: 500,
+        minBidFine: 2000,
+      };
+
+      await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
+
+      // Borrow 40 WETH
+      await pool
+        .connect(borrower.signer)
+        .borrow(weth.address, parseEther("40"), bayc.address, tokenId, borrower.address, "0");
+
+      await debtMarket
+        .connect(borrower.signer)
+        .createDebtListing(bayc.address, tokenId, parseEther("10"), borrower.address, 0, 0);
+
+      const debtIdBefore = await debtMarket.getDebtId(bayc.address, tokenId);
+      expect(debtIdBefore).to.be.not.equal(0);
+      /*//////////////////////////////////////////////////////////////
+                        LOWER HEALTH FACTOR
+      //////////////////////////////////////////////////////////////*/
+      await nftOracle.setNFTPrice(bayc.address, tokenId, parseEther("50"));
+
+      /*//////////////////////////////////////////////////////////////
+                      SETUP SEAPORT v1.4 LISTING
+      //////////////////////////////////////////////////////////////*/
+      const calldata =
+        "0xb88d4fde000000000000000000000000" +
+        reservoirAdapter.address.substring(2) +
+        "000000000000000000000000385df8cbc196f5f780367f3cdc96af072a916f7e0000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000004e4760f2a0b000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000385df8cbc196f5f780367f3cdc96af072a916f7e0000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e4267bf79700000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000001a0000000000000000000000000" +
+        reservoirAdapter.address.substring(2) +
+        "000000000000000000000000" +
+        reservoirAdapter.address.substring(2) +
+        "000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000003c00000000000000000000000000000000000000000000000000000000000000001000000000000000000000000385df8cbc196f5f780367f3cdc96af072a916f7e000000000000000000000000000000000000000000000003bd913e6c1df400000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000264800000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005705b71c9581208fbab754562447185b6895f3ac000000000000000000000000bc4ca0eda7647a8ab7c2061c2e118a18a936f13d000000000000000000000000000000000000000000000003bd913e6c1df400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000009f93623019049c76209c26517acc2af9d49c69b000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000000000000000000000000000000000000000000c1000000000000000000000000000000000000000000000000000000006407bf9c000000000000000000000000000000000000000000000000000000006409111900000000000000000000000000000000000000000000000000000000000026480000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001c9cfd9548580c9e5edffd87574fe96125ac7fd541750c44c1265e4fb92522fb2a7a5e5bd0f77641238feb100af3db4995e97d49e12076c97421a43461857a12c4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+      /*//////////////////////////////////////////////////////////////
+                      FETCH DATA BEFORE LIQUIDATION
+      //////////////////////////////////////////////////////////////*/
+      const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, tokenId);
+      const ethReserveDataBefore = await dataProvider.getReserveData(weth.address);
+      const userReserveDataBefore = await getUserData(pool, dataProvider, weth.address, borrower.address);
+
+      /*//////////////////////////////////////////////////////////////
+                      LIQUIDATE RESERVOIR
+      //////////////////////////////////////////////////////////////*/
+      await reservoirAdapter.liquidateReservoir(bayc.address, weth.address, calldata, parseEther("67.62"));
+
+      /*//////////////////////////////////////////////////////////////
+                    VALIDATE DATA AFTER LIQUIDATION
+      //////////////////////////////////////////////////////////////*/
+      const userReserveDataAfter = await getUserData(pool, dataProvider, weth.address, borrower.address);
+      const ethReserveDataAfter = await dataProvider.getReserveData(weth.address);
+      const userVariableDebtAmountBeforeTx = new BigNumber(userReserveDataBefore.scaledVariableDebt).rayMul(
+        new BigNumber(ethReserveDataAfter.variableBorrowIndex.toString())
+      );
+
+      //the liquidity index of the principal reserve needs to be bigger than the index before
+      expect(ethReserveDataAfter.liquidityIndex.toString()).to.be.bignumber.gte(
+        ethReserveDataBefore.liquidityIndex.toString(),
+        "Invalid liquidity index"
+      );
+
+      //the principal APY after a liquidation needs to be lower than the APY before
+      expect(ethReserveDataAfter.liquidityRate.toString()).to.be.bignumber.lt(
+        ethReserveDataBefore.liquidityRate.toString(),
+        "Invalid liquidity APY"
+      );
+
+      // expect debt amount to be liquidated
+      const expectedLiquidateAmount = new BigNumber(loanDataBefore.scaledAmount.toString()).rayMul(
+        new BigNumber(ethReserveDataAfter.variableBorrowIndex.toString())
+      );
+
+      expect(userReserveDataAfter.currentVariableDebt.toString()).to.be.bignumber.almostEqual(
+        userVariableDebtAmountBeforeTx.minus(expectedLiquidateAmount).toString(),
+        "Invalid user debt after liquidation"
+      );
+
+      const debtIdAfter = await debtMarket.getDebtId(bayc.address, tokenId);
+      expect(debtIdAfter).to.be.equal(0);
+    }
+  });
   it("ReservoirAdapter: liquidate an unhealthy NFT in LooksRare, cover with extra debt by treasury", async () => {
     if (FORK_BLOCK_NUMBER == "16784435") {
       const poolConfig = loadPoolConfig(ConfigNames.Unlockd);

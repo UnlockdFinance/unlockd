@@ -10,6 +10,7 @@ import {ILendPoolAddressesProvider} from "../../../interfaces/ILendPoolAddresses
 import {ILendPool} from "../../../interfaces/ILendPool.sol";
 import {ILendPoolLoan} from "../../../interfaces/ILendPoolLoan.sol";
 import {IUToken} from "../../../interfaces/IUToken.sol";
+import {IDebtMarket} from "../../../interfaces/IDebtMarket.sol";
 
 import {DataTypes} from "../../../libraries/types/DataTypes.sol";
 import {NftConfiguration} from "../../../libraries/configuration/NftConfiguration.sol";
@@ -221,6 +222,19 @@ abstract contract BaseAdapter is Initializable {
     // transfer remain amount to borrower
     if (remainAmount > 0) {
       IERC20(reserveAsset).safeTransfer(borrower, remainAmount);
+    }
+  }
+
+  /**
+   * @dev Cancels the debt listing if exist
+   * @param nftAsset The address of the NFT to be liquidated
+   * @param tokenId The tokenId of the NFT to be liquidated
+   **/
+  function _cancelDebtListing(address nftAsset, uint256 tokenId) internal {
+    // Cancel debt listing if exist
+    address debtMarket = _addressesProvider.getAddress(keccak256("DEBT_MARKET"));
+    if (IDebtMarket(debtMarket).getDebtId(nftAsset, tokenId) != 0) {
+      IDebtMarket(debtMarket).cancelDebtListing(nftAsset, tokenId);
     }
   }
 
