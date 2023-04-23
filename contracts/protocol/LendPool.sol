@@ -60,6 +60,9 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   bytes32 public constant ADDRESS_ID_PUNKS = keccak256("PUNKS");
   bytes32 public constant ADDRESS_ID_WPUNKS = keccak256("WPUNKS");
 
+  // Gap for upgradeability
+  uint256[20] private __gap;
+
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
    * Calling a `nonReentrant` function from another `nonReentrant`

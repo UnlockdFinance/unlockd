@@ -51,6 +51,9 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   mapping(address => bool) public isAuthorizedAddress;
   bool internal _paused = false;
 
+  // Gap for upgradeability
+  uint256[20] private __gap;
+
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
    * Calling a `nonReentrant` function from another `nonReentrant`

@@ -54,6 +54,9 @@ abstract contract BaseAdapter is Initializable {
 
   uint256 private _status;
 
+  // Gap for upgradeability
+  uint256[20] private __gap;
+
   /*//////////////////////////////////////////////////////////////
                           MODIFIERS
   //////////////////////////////////////////////////////////////*/

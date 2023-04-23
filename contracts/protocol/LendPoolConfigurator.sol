@@ -34,6 +34,9 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
 
   mapping(address => bool) public isLtvManager;
 
+  // Gap for upgradeability
+  uint256[20] private __gap;
+
   modifier onlyLtvManager() {
     require(isLtvManager[msg.sender], Errors.CALLER_NOT_LTV_MANAGER);
     _;

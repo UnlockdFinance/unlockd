@@ -27,6 +27,9 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
   mapping(address => mapping(address => uint256)) internal _borrowAllowances;
   mapping(address => bool) internal _debtTokenManagers;
 
+  // Gap for upgradeability
+  uint256[20] private __gap;
+
   modifier onlyLendPool() {
     require(_msgSender() == address(_getLendPool()), Errors.CT_CALLER_MUST_BE_LEND_POOL);
     _;

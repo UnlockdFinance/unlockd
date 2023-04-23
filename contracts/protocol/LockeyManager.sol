@@ -17,6 +17,9 @@ contract LockeyManager is Initializable {
   ILendPoolAddressesProvider internal _addressesProvider;
   uint256 internal _lockeyDiscountOnDebtMarket;
 
+  // Gap for upgradeability
+  uint256[20] private __gap;
+
   modifier onlyPoolAdmin() {
     require(_addressesProvider.getPoolAdmin() == msg.sender, Errors.CALLER_NOT_POOL_ADMIN);
     _;
