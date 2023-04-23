@@ -8,13 +8,11 @@ import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
 import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {IUToken} from "../interfaces/IUToken.sol";
-import {ILSSVMPair} from "../interfaces/sudoswap/ILSSVMPair.sol";
 import {INFTOracleGetter} from "../interfaces/INFTOracleGetter.sol";
 import {IReserveOracleGetter} from "../interfaces/IReserveOracleGetter.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
-import {NFTXSeller} from "../libraries/markets/NFTXSeller.sol";
 import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
 import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 

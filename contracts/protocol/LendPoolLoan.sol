@@ -9,8 +9,6 @@ import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvid
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
-import {NFTXSeller} from "../libraries/markets/NFTXSeller.sol";
-import {SudoSwapSeller} from "../libraries/markets/SudoSwapSeller.sol";
 import {IUNFTRegistry} from "../interfaces/IUNFTRegistry.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
 

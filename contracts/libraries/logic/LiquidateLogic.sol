@@ -9,7 +9,6 @@ import {IReserveOracleGetter} from "../../interfaces/IReserveOracleGetter.sol";
 import {INFTOracleGetter} from "../../interfaces/INFTOracleGetter.sol";
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
 import {ILendPool} from "../../interfaces/ILendPool.sol";
-import {ILSSVMPair} from "../../interfaces/sudoswap/ILSSVMPair.sol";
 import {ILockeyManager} from "../../interfaces/ILockeyManager.sol";
 import {IDebtMarket} from "../../interfaces/IDebtMarket.sol";
 
@@ -27,8 +26,6 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {IERC721MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721MetadataUpgradeable.sol";
-
-import {NFTXSeller} from "../markets/NFTXSeller.sol";
 
 /**
  * @title LiquidateLogic library
