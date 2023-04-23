@@ -1283,5 +1283,91 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         expect(sut).to.be.revertedWith("1011");
       });
     });
+    describe("Revert with the Debt Market Paused", function () {
+      it("Tries to set a delt bid higher than 100%", async () => {
+        const { deployer, debtMarket } = testEnv;
+
+        expect(debtMarket.connect(deployer.signer).setDeltaBidPercent(10100)).to.be.revertedWith("1018");
+      });
+      it("Set the debt market state to paused", async () => {
+        const { deployer, debtMarket } = testEnv;
+
+        waitForTx(await debtMarket.connect(deployer.signer).setPause(true));
+      });
+      it("Fail to create a listing with the market paused", async () => {
+        const { users, debtMarket, bayc } = testEnv;
+        const seller = users[4];
+        const nftAsset = bayc.address;
+        const tokenId = testEnv.tokenIdTracker++;
+
+        const blockNumber = await users[0].signer.provider!.getBlockNumber();
+        const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
+        const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
+
+        await borrowBayc(testEnv, seller, tokenId, 10);
+        await fundWithERC20("WETH", seller.address, "1000");
+
+        expect(
+          debtMarket
+            .connect(seller.signer)
+            .createDebtListing(nftAsset, tokenId, 50, seller.address, 20, auctionEndTimestamp)
+        ).to.be.revertedWith("1019");
+      });
+      it("Fail to cancel a listing with the market paused", async () => {
+        const { users, debtMarket, bayc, deployer } = testEnv;
+        const seller = users[4];
+        const nftAsset = bayc.address;
+        const tokenId = testEnv.tokenIdTracker++;
+
+        waitForTx(await debtMarket.connect(deployer.signer).setPause(false));
+        await borrowBayc(testEnv, seller, tokenId, 10);
+        await fundWithERC20("WETH", seller.address, "1000");
+
+        waitForTx(
+          await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 50, seller.address, 0, 0)
+        );
+        waitForTx(await debtMarket.connect(deployer.signer).setPause(true));
+        expect(debtMarket.connect(seller.signer).cancelDebtListing(nftAsset, tokenId)).to.be.revertedWith("1019");
+      });
+      it("Fail to do a bid on a debt listing with the market paused", async () => {
+        const { users, debtMarket, bayc, deployer } = testEnv;
+        const buyer = users[5];
+        const nftAsset = bayc.address;
+        const tokenId = testEnv.tokenIdTracker++;
+
+        await fundWithERC20("WETH", buyer.address, "1000");
+
+        expect(
+          debtMarket.connect(buyer.signer).bid(nftAsset, tokenId, parseEther("11"), buyer.address)
+        ).to.be.revertedWith("1019");
+      });
+      it("Fail to do a buy on a debt listing with the market paused", async () => {
+        const { users, debtMarket, bayc, deployer } = testEnv;
+        const buyer = users[5];
+        const nftAsset = bayc.address;
+        const tokenId = testEnv.tokenIdTracker++;
+
+        await fundWithERC20("WETH", buyer.address, "1000");
+
+        expect(
+          debtMarket.connect(buyer.signer).buy(nftAsset, tokenId, buyer.address, parseEther("11"))
+        ).to.be.revertedWith("1019");
+      });
+      it("Fail to do a claim on a debt listing with the market paused", async () => {
+        const { users, debtMarket, bayc, deployer } = testEnv;
+        const buyer = users[5];
+        const nftAsset = bayc.address;
+        const tokenId = testEnv.tokenIdTracker++;
+
+        await fundWithERC20("WETH", buyer.address, "1000");
+
+        expect(debtMarket.connect(buyer.signer).claim(nftAsset, tokenId, buyer.address)).to.be.revertedWith("1019");
+      });
+      it("Set the debt market state to unpaused", async () => {
+        const { deployer, debtMarket } = testEnv;
+
+        waitForTx(await debtMarket.connect(deployer.signer).setPause(false));
+      });
+    });
   });
 });

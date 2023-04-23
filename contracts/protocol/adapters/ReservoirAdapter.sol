@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
-import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
 import {IReservoirAdapter} from "../../interfaces/reservoir/IReservoirAdapter.sol";
 import {IDebtToken} from "../../interfaces/IDebtToken.sol";
@@ -13,6 +13,7 @@ import {DataTypes} from "../../libraries/types/DataTypes.sol";
 import {BaseAdapter} from "./abstracts/BaseAdapter.sol";
 
 contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
+  using SafeERC20 for IERC20;
   /*//////////////////////////////////////////////////////////////
                         CONSTANTS
   //////////////////////////////////////////////////////////////*/
@@ -28,10 +29,23 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
   mapping(address => bool) private _reservoirModules;
 
   /*//////////////////////////////////////////////////////////////
+                          MEMORY UPDATES
+  //////////////////////////////////////////////////////////////*/
+  address internal _rescuer;
+
+  /*//////////////////////////////////////////////////////////////
                           MODIFIERS
   //////////////////////////////////////////////////////////////*/
   modifier onlyReservoirLiquidator() {
     if (!_liquidators[msg.sender]) _revert(NotReservoirLiquidator.selector);
+    _;
+  }
+
+  /**
+   * @notice Revert if called by any account other than the rescuer.
+   */
+  modifier onlyRescuer() {
+    require(msg.sender == _rescuer, "Rescuable: caller is not the rescuer");
     _;
   }
 
@@ -272,5 +286,57 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
   function _validateExecuteData(bytes4 selector, address to, address module) internal pure {
     if (selector != EXECUTE_FUNCTION_SELECTOR) _revert(InvalidExecuteExpectedSelector.selector);
     if (to != module) _revert(InvalidReservoirModuleOnExecute.selector);
+  }
+
+  /**
+   * @notice Rescue tokens and ETH locked up in this contract.
+   * @param tokenContract ERC20 token contract address
+   * @param to        Recipient address
+   * @param amount    Amount to withdraw
+   */
+  function rescue(
+    IERC20 tokenContract,
+    address to,
+    uint256 amount,
+    bool rescueETH
+  ) external override nonReentrant onlyRescuer {
+    if (rescueETH) {
+      (bool sent, ) = to.call{value: amount}("");
+      require(sent, "Failed to send Ether");
+    } else {
+      tokenContract.safeTransfer(to, amount);
+    }
+  }
+
+  /**
+   * @notice Rescue NFTs locked up in this contract.
+   * @param nftAsset ERC721 asset contract address
+   * @param tokenId ERC721 token id
+   * @param to Recipient address
+   */
+  function rescueNFT(
+    IERC721Upgradeable nftAsset,
+    uint256 tokenId,
+    address to
+  ) external override nonReentrant onlyRescuer {
+    nftAsset.safeTransferFrom(address(this), to, tokenId);
+  }
+
+  /**
+   * @notice Assign the rescuer role to a given address.
+   * @param newRescuer New rescuer's address
+   */
+  function updateRescuer(address newRescuer) external override onlyPoolAdmin {
+    require(newRescuer != address(0), "Rescuable: new rescuer is the zero address");
+    _rescuer = newRescuer;
+    emit RescuerChanged(newRescuer);
+  }
+
+  /**
+   * @notice Returns current rescuer
+   * @return Rescuer's address
+   */
+  function rescuer() external view override returns (address) {
+    return _rescuer;
   }
 }

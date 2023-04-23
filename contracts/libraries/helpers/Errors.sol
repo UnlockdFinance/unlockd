@@ -178,4 +178,6 @@ library Errors {
   string public constant DM_BORROWED_AMOUNT_DIVERGED = "1015";
   string public constant DM_INVALID_AUTHORIZED_ADDRESS = "1016";
   string public constant DM_CALLER_NOT_THE_OWNER_OR_AUTHORIZED = "1017";
+  string public constant DM_INVALID_DELTA_BID_PERCENT = "1018";
+  string public constant DM_IS_PAUSED = "1019";
 }

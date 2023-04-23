@@ -118,6 +118,16 @@ interface IDebtMarket {
   event AuthorizedAddressChanged(address indexed authorizedAddress, bool isAuthorized);
 
   /**
+   * @dev Emitted when the pause is triggered.
+   */
+  event Paused();
+
+  /**
+   * @dev Emitted when the pause is lifted.
+   */
+  event Unpaused();
+
+  /**
    * @dev Buy a fixed price debt listing
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param tokenId The token id of the underlying NFT used as collateral
@@ -197,4 +207,15 @@ interface IDebtMarket {
    * @param newAuthorizedAddress Address to authorize
    */
   function setAuthorizedAddress(address newAuthorizedAddress, bool val) external;
+
+  /**
+   * @dev Sets the pause state
+   * @param val Pause state
+   */
+  function setPause(bool val) external;
+
+  /**
+   * @dev Returns true if the contract is paused, and false otherwise.
+   */
+  function paused() external view returns (bool);
 }
