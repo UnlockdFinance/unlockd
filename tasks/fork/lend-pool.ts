@@ -2,7 +2,6 @@ import { BytesLike } from "ethers";
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { ConfigNames, getEmergencyAdmin, loadPoolConfig } from "../../helpers/configuration";
-import { ADDRESS_ID_LSSVM_ROUTER } from "../../helpers/constants";
 import {
   deployGenericUTokenImpl,
   deployLendPool,
@@ -116,6 +115,8 @@ task("fork:deploy-lend-pool", "Deploy lend pool for full enviroment")
 
           await insertContractAddressInDb(eContractid.LendPoolConfigurator, lendPoolConfiguratorProxy.address);
           const admin = await DRE.ethers.getSigner(await getEmergencyAdmin(poolConfig));
+
+          await waitForTx(await lendPoolConfiguratorProxy.setBidDelta("10050"));
           // Pause market during deployment
           await waitForTx(await lendPoolConfiguratorProxy.connect(admin).setPoolPause(true));
         }

@@ -6,7 +6,7 @@ import { SAFETRANSFERFROM_FUNCTION_SELECTOR } from "../helpers/constants";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { createRandomAddress, evmRevert, evmSnapshot, fundWithERC20, fundWithERC721 } from "../helpers/misc-utils";
 import { ExecutionInfo, IConfigNftAsCollateralInput, ProtocolErrors } from "../helpers/types";
-import { approveERC20, setApprovalForAll } from "./helpers/actions";
+import { approveERC20, getERC20Balance, setApprovalForAll } from "./helpers/actions";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 import "./helpers/utils/math";
 
@@ -846,5 +846,34 @@ makeSuite("Reservoir adapter negatives", (testEnv: TestEnv) => {
         reservoirAdapter.liquidateReservoir(bayc.address, weth.address, calldata, parseEther("67.62"))
       ).to.be.revertedWith("InsufficientTreasuryBalance()");
     }
+  });
+  it("ReservoirAdapter: user 1 transfers 100 WETH directly to reservoir, tries to retrieve with wrong rescuer", async () => {
+    const { users, weth, reservoirAdapter, deployer } = testEnv;
+    const user1 = users[1];
+    await fundWithERC20("WETH", user1.address, "1000");
+    await weth
+      .connect(user1.signer)
+      .transfer(reservoirAdapter.address, await convertToCurrencyDecimals(user1, weth, "100"));
+    //Set new rescuer
+    await reservoirAdapter.connect(deployer.signer).updateRescuer(deployer.address);
+    expect(
+      testEnv.reservoirAdapter
+        .connect(user1.signer)
+        .rescue(weth.address, user1.address, await convertToCurrencyDecimals(user1, weth, "100"), false)
+    ).to.be.revertedWith("Rescuable: caller is not the rescuer");
+  });
+  it("ReservoirAdapter: user 1 transfers 1 BAYC directly to reservoir, tries to retrieve with wrong rescuer", async () => {
+    const { users, bayc, reservoirAdapter, deployer } = testEnv;
+    const user1 = users[1];
+
+    await fundWithERC721("BAYC", user1.address, 1318);
+
+    await bayc
+      .connect(user1.signer)
+      ["safeTransferFrom(address,address,uint256)"](user1.address, reservoirAdapter.address, "1318");
+
+    expect(
+      testEnv.reservoirAdapter.connect(user1.signer).rescueNFT(bayc.address, "1318", user1.address)
+    ).to.be.revertedWith("Rescuable: caller is not the rescuer");
   });
 });

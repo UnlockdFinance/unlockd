@@ -17,7 +17,7 @@ makeSuite("LendPool: Redeem", (testEnv) => {
   let baycInitPrice: BN;
 
   it("WETH - Borrows WETH", async () => {
-    const { users, pool, reserveOracle, weth, bayc, configurator, deployer, nftOracle } = testEnv;
+    const { users, pool, reserveOracle, weth, bayc, configurator, deployer, nftOracle, debtMarket } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
 
@@ -63,6 +63,13 @@ makeSuite("LendPool: Redeem", (testEnv) => {
     await pool
       .connect(borrower.signer)
       .borrow(weth.address, BN.from("420000000000000000"), bayc.address, "101", borrower.address, "0");
+
+    await debtMarket
+      .connect(borrower.signer)
+      .createDebtListing(bayc.address, "101", parseEther("10"), borrower.address, 0, 0);
+
+    const debtIdBefore = await debtMarket.getDebtId(bayc.address, "101");
+    expect(debtIdBefore).to.be.not.equal(0);
 
     const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "101");
 
@@ -227,6 +234,12 @@ makeSuite("LendPool: Redeem", (testEnv) => {
         .toFixed(0),
       "Invalid principal available liquidity"
     );
+  });
+  it("Verifies if the debt listing got cancelled after redeem", async () => {
+    const { debtMarket, bayc } = testEnv;
+
+    const debtIdAfter = await debtMarket.getDebtId(bayc.address, "101");
+    expect(debtIdAfter).to.be.equal(0);
   });
 
   it("WETH - Repays the borrow", async () => {

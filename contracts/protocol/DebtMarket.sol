@@ -49,6 +49,10 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   uint256 private _deltaBidPercent;
 
   mapping(address => bool) public isAuthorizedAddress;
+  bool internal _paused = false;
+
+  // Gap for upgradeability
+  uint256[20] private __gap;
 
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
@@ -111,6 +115,15 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     _;
   }
 
+  modifier whenNotPaused() {
+    _whenNotPaused();
+    _;
+  }
+
+  function _whenNotPaused() internal view {
+    require(!_paused, Errors.DM_IS_PAUSED);
+  }
+
   struct TransferLocalVars {
     address lendPoolLoanAddress;
     address lendPoolAddress;
@@ -148,7 +161,14 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     address onBehalfOf,
     uint256 startBiddingPrice,
     uint256 auctionEndTimestamp
-  ) external override nonReentrant nonDuplicatedDebt(nftAsset, tokenId) onlyOwnerOfBorrowedNft(nftAsset, tokenId) {
+  )
+    external
+    override
+    nonReentrant
+    whenNotPaused
+    nonDuplicatedDebt(nftAsset, tokenId)
+    onlyOwnerOfBorrowedNft(nftAsset, tokenId)
+  {
     CreateLocalVars memory vars;
 
     vars.isValidAuctionType = (startBiddingPrice != 0 && auctionEndTimestamp != 0);
@@ -195,7 +215,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   function cancelDebtListing(
     address nftAsset,
     uint256 tokenId
-  ) external override nonReentrant debtShouldExistGuard(nftAsset, tokenId) {
+  ) external override nonReentrant whenNotPaused debtShouldExistGuard(nftAsset, tokenId) {
     uint256 debtId = _nftToDebtIds[nftAsset][tokenId];
 
     DataTypes.DebtMarketListing storage sellDebt = _marketListings[debtId];
@@ -232,7 +252,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     uint256 tokenId,
     address onBehalfOf,
     uint256 amount
-  ) external override nonReentrant debtShouldExistGuard(nftAsset, tokenId) {
+  ) external override nonReentrant whenNotPaused debtShouldExistGuard(nftAsset, tokenId) {
     BuyLocalVars memory vars;
 
     vars.debtId = _nftToDebtIds[nftAsset][tokenId];
@@ -283,7 +303,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     uint256 tokenId,
     uint256 bidPrice,
     address onBehalfOf
-  ) external override nonReentrant debtShouldExistGuard(nftAsset, tokenId) {
+  ) external override nonReentrant whenNotPaused debtShouldExistGuard(nftAsset, tokenId) {
     BidLocalVars memory vars;
     vars.debtId = _nftToDebtIds[nftAsset][tokenId];
 
@@ -306,7 +326,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
 
     require(block.timestamp <= marketListing.auctionEndTimestamp, Errors.DM_AUCTION_ALREADY_ENDED);
 
-    if (marketListing.sellType == DataTypes.DebtMarketType.Mixed && bidPrice == vars.sellPrice) {
+    if (bidPrice == vars.sellPrice && marketListing.sellType == DataTypes.DebtMarketType.Mixed) {
       // Sell the debt
       _transferDebt(nftAsset, tokenId, onBehalfOf);
       vars.price = vars.sellPrice;
@@ -343,7 +363,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     address nftAsset,
     uint256 tokenId,
     address onBehalfOf
-  ) external override nonReentrant debtShouldExistGuard(nftAsset, tokenId) {
+  ) external override nonReentrant whenNotPaused debtShouldExistGuard(nftAsset, tokenId) {
     BidLocalVars memory vars;
     vars.debtId = _nftToDebtIds[nftAsset][tokenId];
     DataTypes.DebtMarketListing storage marketListing = _marketListings[vars.debtId];
@@ -477,6 +497,7 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
    * @inheritdoc IDebtMarket
    */
   function setDeltaBidPercent(uint256 value) external override nonReentrant onlyPoolAdmin {
+    require(value <= 10_000, Errors.DM_INVALID_DELTA_BID_PERCENT);
     _deltaBidPercent = value;
   }
 
@@ -488,6 +509,28 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     isAuthorizedAddress[newAuthorizedAddress] = val;
 
     emit AuthorizedAddressChanged(newAuthorizedAddress, val);
+  }
+
+  /**
+   * @dev Set the _pause state of the debt market
+   * @param val `true` to pause the debt market, `false` to un-pause it
+   */
+  function setPause(bool val) external override onlyPoolAdmin {
+    if (_paused != val) {
+      _paused = val;
+      if (_paused) {
+        emit Paused();
+      } else {
+        emit Unpaused();
+      }
+    }
+  }
+
+  /**
+   * @dev Returns true if the contract is paused, and false otherwise.
+   */
+  function paused() external view override returns (bool) {
+    return _paused;
   }
 
   /**

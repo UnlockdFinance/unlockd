@@ -417,8 +417,6 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     // Bid 50 ETH on loan
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(wrappedPunk.address, 0, false));
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(wrappedPunk.address, 1, false));
 
     const bidderBalanceBeforeAuction = await weth.balanceOf(bidder.address);
     await waitForTx(
@@ -563,8 +561,6 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     // Bid 50 ETH on loan
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(wrappedPunk.address, 0, false));
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(wrappedPunk.address, 1, false));
 
     await fundWithERC20("WETH", bidder.address, "100");
     await approveERC20PunkGateway(testEnv, bidder, "WETH");

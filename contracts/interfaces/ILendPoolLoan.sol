@@ -115,33 +115,6 @@ interface ILendPoolLoan {
   );
 
   /**
-   * @dev Emitted when a loan is liquidate on NFTX
-   */
-  event LoanLiquidatedNFTX(
-    uint256 indexed loanId,
-    address nftAsset,
-    uint256 nftTokenId,
-    address reserveAsset,
-    uint256 amount,
-    uint256 borrowIndex,
-    uint256 sellPrice
-  );
-
-  /**
-   * @dev Emitted when a loan is liquidate on SudoSwap
-   */
-  event LoanLiquidatedSudoSwap(
-    uint256 indexed loanId,
-    address nftAsset,
-    uint256 nftTokenId,
-    address reserveAsset,
-    uint256 amount,
-    uint256 borrowIndex,
-    uint256 sellPrice,
-    address LSSVMPair
-  );
-
-  /**
    * @dev Emitted when a loan is liquidated in an external market
    */
   event LoanLiquidatedMarket(
@@ -288,40 +261,6 @@ interface ILendPoolLoan {
     uint256 borrowAmount,
     uint256 borrowIndex
   ) external;
-
-  /**
-   * @dev Liquidate the given loan on NFTX
-   *
-   * Requirements:
-   *  - The caller must send in principal + interest
-   *  - The loan must be in state Auction
-   *
-   * @param loanId The loan getting burned
-   */
-  function liquidateLoanNFTX(
-    uint256 loanId,
-    address uNftAddress,
-    uint256 borrowAmount,
-    uint256 borrowIndex,
-    uint256 amountOutMin
-  ) external returns (uint256 sellPrice);
-
-  /**
-   * @dev Liquidate the given loan on SudoSwap
-   *
-   * Requirements:
-   *  - The caller must send in principal + interest
-   *  - The loan must be in state Auction
-   *
-   * @param loanId The loan getting burned
-   */
-  function liquidateLoanSudoSwap(
-    uint256 loanId,
-    address uNftAddress,
-    uint256 borrowAmount,
-    uint256 borrowIndex,
-    DataTypes.SudoSwapParams memory sudoswapParams
-  ) external returns (uint256 sellPrice);
 
   /**
    * @dev Liquidate the given loan on an external market

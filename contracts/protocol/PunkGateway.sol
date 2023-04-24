@@ -36,6 +36,9 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
   uint256 private constant _ENTERED = 1;
   uint256 private _status;
 
+  // Gap for upgradeability
+  uint256[20] private __gap;
+
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
    * Calling a `nonReentrant` function from another `nonReentrant`
@@ -340,24 +343,6 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     cachedPool.buyout(address(wrappedPunks), punkIndex, amount, onBehalfOf);
 
     _withdrawPunk(punkIndex, onBehalfOf);
-  }
-
-  /**
-   * @notice Liquidate punk in NFTX
-   * @param punkIndex The index of the CryptoPunk to liquidate
-   **/
-  function liquidateNFTX(uint256 punkIndex, uint256 amountOutMin) external override nonReentrant returns (uint256) {
-    require(_addressProvider.getLendPoolLiquidator() == _msgSender(), Errors.CALLER_NOT_POOL_LIQUIDATOR);
-
-    ILendPool cachedPool = _getLendPool();
-    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
-
-    uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
-    require(loanId != 0, "PunkGateway: no loan with such punkIndex");
-
-    uint256 remainAmount = cachedPool.liquidateNFTX(address(wrappedPunks), punkIndex, amountOutMin);
-
-    return (remainAmount);
   }
 
   /**

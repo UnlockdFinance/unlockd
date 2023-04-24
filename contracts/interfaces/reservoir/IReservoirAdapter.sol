@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
+
 /**
  * @title IReservoirAdapter
  * @author Unlockd
@@ -30,6 +33,8 @@ interface IReservoirAdapter {
   event ModulesUpdated(address[] indexed modules, bool flag);
 
   event LiquidatorsUpdated(address[] indexed liquidators, bool flag);
+
+  event RescuerChanged(address indexed newRescuer);
 
   struct ExecutionInfo {
     address module;
@@ -62,4 +67,12 @@ interface IReservoirAdapter {
   function updateModules(address[] calldata modules, bool flag) external;
 
   function updateLiquidators(address[] calldata liquidators, bool flag) external;
+
+  function rescue(IERC20 tokenContract, address to, uint256 amount, bool rescueETH) external;
+
+  function rescueNFT(IERC721Upgradeable nftAsset, uint256 tokenId, address to) external;
+
+  function updateRescuer(address newRescuer) external;
+
+  function rescuer() external view returns (address);
 }

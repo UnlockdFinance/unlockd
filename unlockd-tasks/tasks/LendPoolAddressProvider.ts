@@ -262,35 +262,3 @@ task("provider:setWalletBalanceProvider", "User sets the address of the Wallet B
     const tx = await Functions.LENDPOOLADDRESSPROVIDER.setWalletBalanceProvider(wallet, provider);
     console.log(tx);
   });
-
-task("provider:getNFTXVaultFactory", "User gets the NFTXVaultFactory Address").setAction(async () => {
-  const wallet = await getOwnerWallet();
-
-  const tx = await Functions.LENDPOOLADDRESSPROVIDER.getNFTXVaultFactory(wallet);
-  console.log(JSON.stringify(tx));
-});
-
-task("provider:setNFTXVaultFactory", "User sets a new NFTXVaultFactory address")
-  .addParam("nftxvaultaddress", "The NFTXVaultFactory Address")
-  .setAction(async ({ nftxvaultaddress }) => {
-    const wallet = await getOwnerWallet();
-
-    const tx = await Functions.LENDPOOLADDRESSPROVIDER.setNFTXVaultFactory(wallet, nftxvaultaddress);
-    console.log(tx);
-  });
-
-task("provider:getSushiSwapRouter", "User gets the Sushiswap router Address").setAction(async () => {
-  const wallet = await getOwnerWallet();
-
-  const tx = await Functions.LENDPOOLADDRESSPROVIDER.getSushiSwapRouter(wallet);
-  console.log(JSON.stringify(tx));
-});
-
-task("provider:setSushiSwapRouter", "User sets a new Sushiswap router address")
-  .addParam("sushiswaprouteraddress", "The Sushiswap router Address")
-  .setAction(async ({ sushiswaprouteraddress }) => {
-    const wallet = await getOwnerWallet();
-
-    const tx = await Functions.LENDPOOLADDRESSPROVIDER.setSushiSwapRouter(wallet, sushiswaprouteraddress);
-    console.log(tx);
-  });

@@ -111,11 +111,5 @@ makeSuite("LendPool: Malicious Hacker Rentrant", (testEnv) => {
     await expect(pool.connect(borrower.signer).repay(bayc.address, "101", MAX_UINT_AMOUNT)).to.be.revertedWith(
       "ReentrancyGuard: reentrant call"
     );
-
-    console.log("hacker do reentrant action: ACTION_LIQUIDATE_NFTX");
-    await maliciousHackerErc721.simulateAction(await maliciousHackerErc721.ACTION_LIQUIDATE_NFTX());
-    await expect(pool.connect(borrower.signer).repay(bayc.address, "101", MAX_UINT_AMOUNT)).to.be.revertedWith(
-      "ReentrancyGuard: reentrant call"
-    );
   });
 });

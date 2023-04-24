@@ -7,7 +7,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import RouterAbi from "../../abis/ReservoirV6_0_0.json";
 import { UPGRADE } from "../../hardhat.config";
 import { ConfigNames, getLendPoolLiquidator, loadPoolConfig } from "../../helpers/configuration";
-import { ADDRESS_ID_WETH, SUDOSWAP_PAIRS_GOERLI, SUDOSWAP_PAIRS_MAINNET } from "../../helpers/constants";
+import { ADDRESS_ID_WETH } from "../../helpers/constants";
 import {
   getCryptoPunksMarket,
   getDebtMarketProxy,
@@ -17,7 +17,6 @@ import {
   getLendPoolConfiguratorProxy,
   getLendPoolLoanProxy,
   getLockeyManagerProxy,
-  getLSSVMPair,
   getMintableERC20,
   getMintableERC721,
   getMockChainlinkOracle,
@@ -25,11 +24,9 @@ import {
   getMockNFTOracle,
   getMockReserveOracle,
   getNFTOracle,
-  getNFTXVaultFactory,
   getPunkGateway,
   getReserveOracle,
   getReservoirAdapterProxy,
-  getSushiSwapRouter,
   getUIPoolDataProvider,
   getUNFT,
   getUNFTRegistryProxy,
@@ -57,9 +54,6 @@ import {
   WrappedPunk,
 } from "../../types";
 import { DebtToken } from "../../types/DebtToken";
-import { ILSSVMPair } from "../../types/ILSSVMPair";
-import { INFTXVaultFactoryV2 } from "../../types/INFTXVaultFactoryV2";
-import { IUniswapV2Router02 } from "../../types/IUniswapV2Router02";
 import { LendPool } from "../../types/LendPool";
 import { LendPoolAddressesProvider } from "../../types/LendPoolAddressesProvider";
 import { LendPoolConfigurator } from "../../types/LendPoolConfigurator";
@@ -84,10 +78,6 @@ chai.use(solidity);
 export interface SignerWithAddress {
   signer: Signer;
   address: tEthereumAddress;
-}
-export interface LSSVMPairWithID {
-  LSSVMPair: ILSSVMPair;
-  collectionName: string;
 }
 export interface ReservoirBidKind {
   kind: string;
@@ -138,9 +128,6 @@ export interface TestEnv {
   roundIdTracker: number;
   nowTimeTracker: number;
 
-  nftxVaultFactory: INFTXVaultFactoryV2;
-  sushiSwapRouter: IUniswapV2Router02;
-  LSSVMPairs: LSSVMPairWithID[];
   lockeyManager: LockeyManager;
   debtMarket: DebtMarket;
   reservoirAdapter: ReservoirAdapter;
@@ -150,12 +137,10 @@ export interface TestEnv {
   LooksRareModule: ReservoirBidKind;
   SeaportModule: ReservoirBidKind;
   SeaportV14Module: ReservoirBidKind;
-  SudoSwapModule: ReservoirBidKind;
   X2Y2Module: ReservoirBidKind;
   ZeroExv4Module: ReservoirBidKind;
   ZoraModule: ReservoirBidKind;
   ElementModule: ReservoirBidKind;
-  NFTXModule: ReservoirBidKind;
   RaribleModule: ReservoirBidKind;
   reservoirModules: ReservoirBidKind[];
 }
@@ -182,7 +167,6 @@ const testEnv: TestEnv = {
   mockNftOracle: {} as MockNFTOracle,
   nftOracle: {} as NFTOracle,
   mockChainlinkOracle: {} as MockChainlinkOracle,
-  LSSVMPairs: [] as LSSVMPairWithID[],
   weth: {} as WETH9Mocked,
   uWETH: {} as UToken,
   dWETH: {} as DebtToken,
@@ -213,12 +197,10 @@ const testEnv: TestEnv = {
   LooksRareModule: {} as ReservoirBidKind,
   SeaportModule: {} as ReservoirBidKind,
   SeaportV14Module: {} as ReservoirBidKind,
-  SudoSwapModule: {} as ReservoirBidKind,
   X2Y2Module: {} as ReservoirBidKind,
   ZeroExv4Module: {} as ReservoirBidKind,
   ZoraModule: {} as ReservoirBidKind,
   ElementModule: {} as ReservoirBidKind,
-  NFTXModule: {} as ReservoirBidKind,
   RaribleModule: {} as ReservoirBidKind,
   reservoirModules: [] as ReservoirBidKind[],
 } as TestEnv;
@@ -353,20 +335,6 @@ export async function initializeMakeSuite(network?: string) {
   testEnv.roundIdTracker = 1;
   testEnv.nowTimeTracker = Number(await getNowTimeInSeconds());
 
-  const sudoSwapPairsForAsset = process.env.FORK == "goerli" ? SUDOSWAP_PAIRS_GOERLI : SUDOSWAP_PAIRS_MAINNET;
-
-  for (const [key] of Object.entries(sudoSwapPairsForAsset)) {
-    const pairsForAsset = sudoSwapPairsForAsset[key];
-
-    pairsForAsset.map(async (pair) => {
-      let pairWithID: LSSVMPairWithID = {} as LSSVMPairWithID;
-      pairWithID.collectionName = key;
-      pairWithID.LSSVMPair = await getLSSVMPair(pair);
-
-      testEnv.LSSVMPairs.push(pairWithID);
-    });
-  }
-
   testEnv.lockeyManager = await getLockeyManagerProxy();
   testEnv.reservoirAdapter = await getReservoirAdapterProxy();
 
@@ -407,11 +375,6 @@ export async function initializeMakeSuite(network?: string) {
     };
     testEnv.reservoirModules.push(testEnv.SeaportV14Module);
   }
-  const sudoswapModule = getParamPerNetwork(poolConfig.SudoSwapModule, network as eEthereumNetwork);
-  if (sudoswapModule) {
-    testEnv.SudoSwapModule = { kind: "sudoswap", contract: new Contract(sudoswapModule, RouterAbi, deployer.signer) };
-    testEnv.reservoirModules.push(testEnv.SudoSwapModule);
-  }
   const x2y2Module = getParamPerNetwork(poolConfig.X2Y2Module, network as eEthereumNetwork);
   if (x2y2Module) {
     testEnv.X2Y2Module = { kind: "x2y2", contract: new Contract(x2y2Module, RouterAbi, deployer.signer) };
@@ -431,11 +394,6 @@ export async function initializeMakeSuite(network?: string) {
   if (elementModule) {
     testEnv.ElementModule = { kind: "element", contract: new Contract(elementModule, RouterAbi, deployer.signer) };
     testEnv.reservoirModules.push(testEnv.ElementModule);
-  }
-  const NFTXModule = getParamPerNetwork(poolConfig.NFTXModule, network as eEthereumNetwork);
-  if (NFTXModule) {
-    testEnv.NFTXModule = { kind: "nftx", contract: new Contract(NFTXModule, RouterAbi, deployer.signer) };
-    testEnv.reservoirModules.push(testEnv.NFTXModule);
   }
   const raribleModule = getParamPerNetwork(poolConfig.RaribleModule, network as eEthereumNetwork);
   if (raribleModule) {

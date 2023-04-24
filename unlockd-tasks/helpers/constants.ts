@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 import { Contract } from "ethers";
-//NFTX
 import unftRegistryArtifact from "../../artifacts/contracts/interfaces/IUNFTRegistry.sol/IUNFTRegistry.json";
 import protocolDataProviderArtifact from "../../artifacts/contracts/misc/UnlockdProtocolDataProvider.sol/UnlockdProtocolDataProvider.json";
 //Mock imports
