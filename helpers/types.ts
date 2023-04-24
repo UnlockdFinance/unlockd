@@ -82,11 +82,6 @@ export enum eContractid {
   TimelockControllerFast = "TimelockControllerFast",
   TimelockControllerSlow = "TimelockControllerSlow",
   RepayAndTransferHelper = "RepayAndTransferHelper",
-  NFTXVaultFactory = "NFTXVaultFactory",
-  UniswapV2Factory = "UniswapV2Factory",
-  SushiSwapRouter = "SushiSwapRouter",
-  NFTXHelper = "NFTXHelper",
-  LSSVMPPair = "LSSVMPair",
   YVault = "YVault",
   MockYVault = "MockYVault",
   MockYVaultImpl = "MockYVaultImpl",
@@ -476,9 +471,6 @@ export interface ICommonConfiguration {
   OracleQuoteCurrency: string;
   OracleQuoteUnit: string;
 
-  NFTXVaultFactory: iParamsPerNetwork<tEthereumAddress>;
-  SushiSwapRouter: iParamsPerNetwork<tEthereumAddress>;
-  LSSVMRouter: iParamsPerNetwork<tEthereumAddress>;
   YVaultWETH: iParamsPerNetwork<tEthereumAddress>;
   LockeyCollection: iParamsPerNetwork<tEthereumAddress>;
 
@@ -487,12 +479,10 @@ export interface ICommonConfiguration {
   LooksRareModule: iParamsPerNetwork<tEthereumAddress>;
   SeaportModule: iParamsPerNetwork<tEthereumAddress>;
   SeaportV14Module: iParamsPerNetwork<tEthereumAddress>;
-  SudoSwapModule: iParamsPerNetwork<tEthereumAddress>;
   X2Y2Module: iParamsPerNetwork<tEthereumAddress>;
   ZeroExv4Module: iParamsPerNetwork<tEthereumAddress>;
   ZoraModule: iParamsPerNetwork<tEthereumAddress>;
   ElementModule: iParamsPerNetwork<tEthereumAddress>;
-  NFTXModule: iParamsPerNetwork<tEthereumAddress>;
   RaribleModule: iParamsPerNetwork<tEthereumAddress>;
 }
 

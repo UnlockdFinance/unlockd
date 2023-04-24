@@ -644,6 +644,15 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   }
 
   /**
+   * @dev sets the bidDelta percentage - debt compounded + fees.
+   * @param bidDelta the amount to charge to the user
+   **/
+  function setBidDelta(uint256 bidDelta) external onlyPoolAdmin {
+    ILendPool cachedPool = _getLendPool();
+    cachedPool.setBidDelta(bidDelta);
+  }
+
+  /**
    * @dev pauses or unpauses all the actions of the protocol, including uToken transfers
    * @param val true if protocol needs to be paused, false otherwise
    **/

@@ -20,16 +20,6 @@ task("configurator:setConfigFee", "Set the config fee for the User to pay when T
     console.log(tx);
   });
 
-task("configurator:setAllowToSellNFTX", "Enables or disables a collection from being allowed to be liquidated in NFTX")
-  .addParam("nftaddress", "NFT address")
-  .addParam("val", "A boolean, true to enable ; false to disable")
-  .setAction(async ({ nftaddress, val }) => {
-    const wallet = await getOwnerWallet();
-
-    const tx = await Functions.LENDPOOLCONFIGURATOR.setAllowToSellNFTX(wallet, nftaddress, val);
-    console.log(tx);
-  });
-
 task("configurator:setBorrowingFlagOnReserve", "Sets the borrowing flag in a specific reserve")
   .addParam("asset", "Reserve addresses")
   .addParam("flag", "A boolean, true to enable ; false to disable")

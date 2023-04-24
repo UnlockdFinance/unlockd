@@ -153,9 +153,6 @@ library Errors {
   string public constant LPAPR_PROVIDER_NOT_REGISTERED = "760"; // 'Provider is not registered'
   string public constant LPAPR_INVALID_ADDRESSES_PROVIDER_ID = "761";
 
-  //NFTXHelper
-  string public constant NFTX_INVALID_VAULTS_LENGTH = "800";
-
   //NFTOracleErrors
   string public constant NFTO_INVALID_PRICEM_ADDRESS = "900";
 

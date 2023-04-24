@@ -170,22 +170,6 @@ interface ILendPool {
   );
 
   /**
-   * @dev Emitted when a borrower's loan is liquidated on NFTX.
-   * @param reserve The address of the underlying asset of the reserve
-   * @param repayAmount The amount of reserve repaid by the liquidator
-   * @param remainAmount The amount of reserve received by the borrower
-   * @param loanId The loan ID of the NFT loans
-   **/
-  event LiquidateNFTX(
-    address indexed reserve,
-    uint256 repayAmount,
-    uint256 remainAmount,
-    address indexed nftAsset,
-    uint256 nftTokenId,
-    address indexed borrower,
-    uint256 loanId
-  );
-  /**
    * @dev Emitted when an NFT configuration is triggered.
    * @param user The NFT holder
    * @param nftAsset The NFT collection address
@@ -550,6 +534,17 @@ interface ILendPool {
    **/
 
   function getAddressesProvider() external view returns (ILendPoolAddressesProvider);
+
+  /**
+   * @dev sets the bidDelta percentage - debt compounded + fees.
+   * @param bidDelta the amount to charge to the user
+   **/
+  function setBidDelta(uint256 bidDelta) external;
+
+  /**
+   * @dev Returns the bidDelta percentage - debt compounded + fees.
+   **/
+  function getBidDelta() external view returns (uint256);
 
   /**
    * @dev Initializes a reserve, activating it, assigning an uToken and nft loan and an

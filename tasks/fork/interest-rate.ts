@@ -11,9 +11,6 @@ import {
   getDeploySigner,
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
-  getNFTXVaultFactory,
-  getSushiSwapRouter,
-  getUnlockdProtocolDataProvider,
 } from "../../helpers/contracts-getters";
 import { getParamPerNetwork, rawInsertContractAddressInDb } from "../../helpers/contracts-helpers";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";

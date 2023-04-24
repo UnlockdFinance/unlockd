@@ -21,7 +21,6 @@ contract MaliciousHackerERC721 is IERC721Receiver {
   uint256 public constant ACTION_REPAY = 4;
   uint256 public constant ACTION_AUCTION = 5;
   uint256 public constant ACTION_REDEEM = 6;
-  uint256 public constant ACTION_LIQUIDATE_NFTX = 7;
 
   constructor(address pool_) {
     _pool = ILendPool(pool_);

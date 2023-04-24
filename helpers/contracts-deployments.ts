@@ -30,7 +30,6 @@ import {
   MockReserveOracleFactory,
   MockYVaultFactory,
   NFTOracleFactory,
-  NFTXVaultFactoryV2Factory,
   PunkGatewayFactory,
   RepayAndTransferHelperFactory,
   ReserveLogicFactory,
@@ -43,8 +42,6 @@ import {
   UiPoolDataProviderFactory,
   UNFTFactory,
   UNFTRegistryFactory,
-  UniswapV2FactoryFactory,
-  UniswapV2Router02Factory,
   UnlockdCollectorFactory,
   UnlockdProtocolDataProviderFactory,
   UnlockdProxyAdminFactory,
@@ -175,17 +172,6 @@ export const deployGenericLogic = async (verify?: boolean) => {
   );
 };
 
-export const deployNFTXHelperLibrary = async (verify?: boolean) => {
-  const nftxHelperArtifact = await readArtifact(eContractid.NFTXHelper);
-  const linkedNFTXHelperByteCode = linkBytecode(nftxHelperArtifact, {});
-
-  const nftxHelperFactory = await DRE.ethers.getContractFactory(nftxHelperArtifact.abi, linkedNFTXHelperByteCode);
-
-  const nftxHelper = await (await nftxHelperFactory.connect(await getDeploySigner()).deploy()).deployed();
-
-  return withSaveAndVerify(nftxHelper, eContractid.NFTXHelper, [], verify);
-};
-
 export const deployValidationLogic = async (reserveLogic: Contract, genericLogic: Contract, verify?: boolean) => {
   const validationLogicArtifact = await readArtifact(eContractid.ValidationLogic);
 
@@ -271,10 +257,6 @@ export const deployLendPoolLibraries = async (verify?: boolean) => {
   const borrowLogic = await deployBorrowLogicLibrary(verify);
   const liquidateLogic = await deployLiquidateLogicLibrary(verify);
   const lendingLogic = await deployLendingLogicLibrary(verify);
-};
-
-export const deployLendPoolLoanLibraries = async (verify?: boolean) => {
-  const nftxHelper = await deployNFTXHelperLibrary(verify);
 };
 
 export const getLendPoolLibraries = async (verify?: boolean): Promise<LendPoolLibraryAddresses> => {
@@ -694,42 +676,6 @@ export const deployRepayAndTransferHelper = async (addressesProvider: string, ve
     verify
   );
 
-export const deployNFTXVaultFactory = async (verify?: boolean) => {
-  const deployer = await getDeploySigner();
-  const deployerAddress = await deployer.getAddress();
-
-  return withSaveAndVerify(
-    await new NFTXVaultFactoryV2Factory(deployer).deploy(deployerAddress),
-    eContractid.NFTXVaultFactory,
-    [deployerAddress],
-    verify
-  );
-};
-
-const deployUniswapV2Factory = async (verify?: boolean) => {
-  const deployer = await getDeploySigner();
-  const deployerAddress = await deployer.getAddress();
-
-  return withSaveAndVerify(
-    await new UniswapV2FactoryFactory(deployer).deploy(deployerAddress),
-    eContractid.UniswapV2Factory,
-    [deployerAddress],
-    verify
-  );
-};
-
-export const deploySushiSwapRouter = async (verify?: boolean) => {
-  const deployer = await getDeploySigner();
-
-  const uniswapV2Factory = await deployUniswapV2Factory();
-
-  return withSaveAndVerify(
-    await new UniswapV2Router02Factory(deployer).deploy(uniswapV2Factory.address, ZERO_ADDRESS),
-    eContractid.SushiSwapRouter,
-    [uniswapV2Factory.address, ZERO_ADDRESS],
-    verify
-  );
-};
 export const deployMockYVault = async (verify?: boolean) => {
   const mockYVaultImpl = await new MockYVaultFactory(await getDeploySigner()).deploy();
   await insertContractAddressInDb(eContractid.MockYVaultImpl, mockYVaultImpl.address);

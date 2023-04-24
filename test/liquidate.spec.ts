@@ -26,6 +26,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     const amountDeposit = await convertToCurrencyDecimals(deployer, weth, "1000");
 
     await pool.connect(depositor.signer).deposit(weth.address, amountDeposit, depositor.address, "0");
+    await configurator.setBidDelta("10050");
 
     //mints BAYC to borrower
     await fundWithERC721("BAYC", borrower.address, 101);
@@ -359,7 +360,6 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
 
       const auctionPrice = new BigNumber(auctionDataBefore.bidPrice.toString()).multipliedBy(1.2).toFixed(0);
 
-      // remove  supporting liquidations on sudoswap / NFTX for auction price purposes
       await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
 
       await pool.connect(liquidator4.signer).auction(bayc.address, "102", auctionPrice, liquidator4.address);

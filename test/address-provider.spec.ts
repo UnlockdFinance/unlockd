@@ -1,11 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "ethers";
-import {
-  ADDRESS_ID_LSSVM_ROUTER,
-  ADDRESS_ID_PUNK_GATEWAY,
-  ADDRESS_ID_WETH,
-  ADDRESS_ID_WETH_GATEWAY,
-} from "../helpers/constants";
+import { ADDRESS_ID_PUNK_GATEWAY, ADDRESS_ID_WETH, ADDRESS_ID_WETH_GATEWAY } from "../helpers/constants";
 import { deployLendPool } from "../helpers/contracts-deployments";
 import { createRandomAddress, waitForTx } from "../helpers/misc-utils";
 import { ProtocolErrors } from "../helpers/types";
@@ -138,16 +133,6 @@ makeSuite("LendPoolAddressesProvider", (testEnv: TestEnv) => {
       (await addressesProvider.getAddress(ADDRESS_ID_PUNK_GATEWAY)).toLowerCase()
     );
 
-    // ADDRESS_ID_LSSVM_ROUTER
-    await waitForTx(
-      await addressesProvider
-        .connect(currentAddressesProviderOwner.signer)
-        .setAddress(ADDRESS_ID_LSSVM_ROUTER, mockNonProxiedAddress3)
-    );
-
-    await expect(mockNonProxiedAddress3.toLowerCase()).to.be.equal(
-      (await addressesProvider.getAddress(ADDRESS_ID_LSSVM_ROUTER)).toLowerCase()
-    );
     // ADDRESS_ID_WETH
     await waitForTx(
       await addressesProvider

@@ -181,7 +181,7 @@ library LiquidateLogic {
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();
 
-    (vars.borrowAmount, vars.thresholdPrice, vars.liquidatePrice) = GenericLogic.calculateLoanLiquidatePrice(
+    (vars.borrowAmount, vars.thresholdPrice, ) = GenericLogic.calculateLoanLiquidatePrice(
       vars.loanId,
       loanData.reserveAsset,
       reserveData,
@@ -198,8 +198,11 @@ library LiquidateLogic {
       // loan's accumulated debt must exceed threshold (heath factor below 1.0)
       require(vars.borrowAmount > vars.thresholdPrice, Errors.LP_BORROW_NOT_EXCEED_LIQUIDATION_THRESHOLD);
 
-      // bid price must greater than liquidate price
-      require(params.bidPrice >= vars.borrowAmount, Errors.LPL_BID_PRICE_LESS_THAN_DEBT_PRICE);
+      // bid price must greater than borrow amount + delta (predicted compounded debt || fees)
+      require(
+        params.bidPrice >= vars.borrowAmount.percentMul(params.bidDelta),
+        Errors.LPL_BID_PRICE_LESS_THAN_DEBT_PRICE
+      );
 
       // bid price must greater than biggest between borrow and markets price, as well as a timestamp configuration fee
       require(

@@ -16,7 +16,13 @@ import {
   increaseTime,
 } from "../helpers/misc-utils";
 import { ExecutionInfo, IConfigNftAsCollateralInput } from "../helpers/types";
-import { approveERC20, approveERC20Adapter, setApprovalForAll } from "./helpers/actions";
+import {
+  approveERC20,
+  approveERC20Adapter,
+  getERC20Balance,
+  setApprovalForAll,
+  setPoolRescuer,
+} from "./helpers/actions";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 import { getUserData } from "./helpers/utils/helpers";
 
@@ -418,45 +424,45 @@ makeSuite("Reservoir adapter tests", (testEnv: TestEnv) => {
       );
     }
   });
-  it("User 1 transfers 100 WETH directly to pool, and rescuer returns funds", async () => {
-    const { users, pool, weth } = testEnv;
-    const rescuer = users[0];
+  it("User 1 transfers 100 WETH directly to reservoir, and rescuer returns funds", async () => {
+    const { users, weth, reservoirAdapter, deployer } = testEnv;
+    const rescuer = deployer;
     const user1 = users[1];
 
     await fundWithERC20("WETH", user1.address, "1000");
     const initialBalance = await getERC20Balance(testEnv, user1, "WETH");
-    console.log(initialBalance);
 
-    await weth.connect(user1.signer).transfer(pool.address, await convertToCurrencyDecimals(user1, weth, "100"));
+    await weth
+      .connect(user1.signer)
+      .transfer(reservoirAdapter.address, await convertToCurrencyDecimals(user1, weth, "100"));
     //Set new rescuer
-    await setPoolRescuer(testEnv, rescuer);
+    await reservoirAdapter.connect(rescuer.signer).updateRescuer(rescuer.address);
 
-    await testEnv.pool
+    await testEnv.reservoirAdapter
       .connect(rescuer.signer)
       .rescue(weth.address, user1.address, await convertToCurrencyDecimals(rescuer, weth, "100"), false);
-
-    //await rescue(testEnv, rescuer, user1, "DAI", "100", false);
 
     const finalBalance = await getERC20Balance(testEnv, user1, "WETH");
 
     expect(initialBalance).to.be.equal(finalBalance, "Tokens not rescued properly");
   });
-  it("Prevents a random user from rescuing tokens ", async () => {
-    const { users, pool, weth } = testEnv;
-    const fakeRescuer = users[0];
-    const realRescuer = users[1];
-    const recipient = users[2];
+  it("ReservoirAdapter: user 1 transfers 1 BAYC directly to reservoir, rescuer returns it", async () => {
+    const { users, bayc, reservoirAdapter, deployer } = testEnv;
+    const rescuer = deployer;
+    const user1 = users[1];
 
-    await fundWithERC20("WETH", fakeRescuer.address, "1000");
-    const initialBalance = await getERC20Balance(testEnv, fakeRescuer, "WETH");
-    console.log(initialBalance);
+    await fundWithERC721("BAYC", user1.address, 1318);
+    const initialBalance = await bayc.balanceOf(user1.address);
 
     //Set new rescuer
-    await setPoolRescuer(testEnv, realRescuer);
-    await expect(
-      testEnv.pool
-        .connect(fakeRescuer.signer)
-        .rescue(weth.address, fakeRescuer.address, await convertToCurrencyDecimals(realRescuer, weth, "100"), false)
-    ).to.be.revertedWith("Rescuable: caller is not the rescuer");
+    await reservoirAdapter.connect(rescuer.signer).updateRescuer(rescuer.address);
+
+    await bayc
+      .connect(user1.signer)
+      ["safeTransferFrom(address,address,uint256)"](user1.address, reservoirAdapter.address, "1318");
+
+    await testEnv.reservoirAdapter.connect(rescuer.signer).rescueNFT(bayc.address, "1318", user1.address);
+
+    expect(await bayc.balanceOf(user1.address)).to.be.equal(initialBalance, "Balance should be the same");
   });
 });

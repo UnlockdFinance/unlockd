@@ -83,65 +83,12 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
       ProtocolErrors.LP_NFT_IS_NOT_USED_AS_COLLATERAL
     );
   });
-  /* Can not deactive Reserve or NFT when liquidity is not zero
-  it("User 2 auction on a non-active NFT", async () => {
-    const { configurator, bayc, pool, users } = testEnv;
-    const user2 = users[2];
-
-    await configurator.deactivateNft(bayc.address);
-
-    await expect(pool.connect(user2.signer).auction(bayc.address, "101", "0", user2.address)).to.be.revertedWith(
-      ProtocolErrors.VL_NO_ACTIVE_NFT
-    );
-
-    await configurator.activateNft(bayc.address);
-  });
-
-  it("User 2 liquidate on a non-active NFT", async () => {
-    const { configurator, bayc, pool, users } = testEnv;
-    const user2 = users[2];
-
-    await configurator.deactivateNft(bayc.address);
-
-    await expect(pool.connect(user2.signer).liquidate(bayc.address, "101", "0")).to.be.revertedWith(
-      ProtocolErrors.VL_NO_ACTIVE_NFT
-    );
-
-    await configurator.activateNft(bayc.address);
-  });
-
-  it("User 2 auction on a non-active Reserve", async () => {
-    const { configurator, weth, uWETH, bayc, pool, users } = testEnv;
-    const user2 = users[2];
-
-    await configurator.deactivateReserve(weth.address);
-
-    await expect(
-      pool.connect(user2.signer).auction(bayc.address, '101', '0', user2.address)
-    ).to.be.revertedWith(ProtocolErrors.VL_NO_ACTIVE_RESERVE);
-
-    await configurator.activateReserve(weth.address);
-  });
-
-  it("User 2 liquidate on a non-active Reserve", async () => {
-    const { configurator, weth, uWETH, bayc, pool, users } = testEnv;
-    const user2 = users[2];
-
-    await configurator.deactivateReserve(weth.address);
-
-    await expect(
-      pool.connect(user2.signer).liquidate(bayc.address, '101', '0')
-    ).to.be.revertedWith(ProtocolErrors.VL_NO_ACTIVE_RESERVE);
-
-    await configurator.activateReserve(weth.address);
-  });*/
 
   it("User 2 auction on a loan health factor above 1", async () => {
     const { bayc, pool, users, configurator, deployer, weth, dataProvider } = testEnv;
     const user2 = users[2];
 
     const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(weth.address, bayc.address, "101");
-    // NFT not supporting liquidations on sudoswap / NFTX
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
     await expect(
@@ -167,12 +114,10 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     const { bayc, pool, users, configurator, deployer, weth, dataProvider } = testEnv;
     const user2 = users[2];
 
-    // NFT not supporting liquidations on sudoswap / NFTX
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
 
     const nftDebtData = await pool.getNftDebtData(bayc.address, "101");
-    const auctionPriceFail = new BigNumber(nftDebtData.totalDebt.toString()).multipliedBy(0.9).toFixed(0);
 
     await expect(
       pool.connect(user2.signer).auction(bayc.address, "101", nftDebtData.totalDebt, user2.address)
@@ -209,7 +154,6 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     const user2 = users[2];
 
     const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(weth.address, bayc.address, "101");
-    // NFT not supporting liquidations on sudoswap / NFTX
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
     const auctionPriceOk = new BigNumber(liquidatePrice.toString()).multipliedBy(1.5).toFixed(0);
@@ -222,7 +166,6 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
 
     const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(weth.address, bayc.address, "101");
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.2).toFixed(0);
-    // NFT not supporting liquidations on sudoswap / NFTX
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
     await expect(
@@ -323,7 +266,6 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     const user3 = users[3];
     const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(weth.address, bayc.address, "101");
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(2.0).toFixed(0);
-    // NFT not supporting liquidations on sudoswap / NFTX
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
     await expect(
@@ -337,7 +279,6 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
 
     const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(weth.address, bayc.address, "101");
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(2.0).toFixed(0);
-    // NFT not supporting liquidations on sudoswap / NFTX
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
     //Current bid is from user 2, thus, it should revert

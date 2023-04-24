@@ -315,7 +315,8 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
         nftTokenId: nftTokenId,
         bidPrice: bidPrice,
         onBehalfOf: onBehalfOf,
-        auctionDurationConfigFee: _auctionDurationConfigFee
+        auctionDurationConfigFee: _auctionDurationConfigFee,
+        bidDelta: _bidDelta
       })
     );
   }
@@ -837,6 +838,21 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    **/
   function getAuctionDurationConfigFee() public view override returns (uint256) {
     return _auctionDurationConfigFee;
+  }
+
+  /**
+   * @dev sets the bidDelta percentage - debt compounded + fees.
+   * @param bidDelta the amount to charge to the user
+   **/
+  function setBidDelta(uint256 bidDelta) external override onlyLendPoolConfigurator {
+    _bidDelta = bidDelta;
+  }
+
+  /**
+   * @dev Returns the bidDelta percentage - debt compounded + fees.
+   **/
+  function getBidDelta() public view override returns (uint256) {
+    return _bidDelta;
   }
 
   /**

@@ -115,33 +115,6 @@ interface ILendPoolLoan {
   );
 
   /**
-   * @dev Emitted when a loan is liquidate on NFTX
-   */
-  event LoanLiquidatedNFTX(
-    uint256 indexed loanId,
-    address nftAsset,
-    uint256 nftTokenId,
-    address reserveAsset,
-    uint256 amount,
-    uint256 borrowIndex,
-    uint256 sellPrice
-  );
-
-  /**
-   * @dev Emitted when a loan is liquidate on SudoSwap
-   */
-  event LoanLiquidatedSudoSwap(
-    uint256 indexed loanId,
-    address nftAsset,
-    uint256 nftTokenId,
-    address reserveAsset,
-    uint256 amount,
-    uint256 borrowIndex,
-    uint256 sellPrice,
-    address LSSVMPair
-  );
-
-  /**
    * @dev Emitted when a loan is liquidated in an external market
    */
   event LoanLiquidatedMarket(
