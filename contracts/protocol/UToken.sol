@@ -32,9 +32,6 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   address internal _underlyingAsset;
   mapping(address => bool) internal _uTokenManagers;
 
-  // Gap for upgradeability
-  uint256[20] private __gap;
-
   modifier onlyLendPool() {
     require(_msgSender() == address(_getLendPool()), Errors.CT_CALLER_MUST_BE_LEND_POOL);
     _;

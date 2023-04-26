@@ -34,9 +34,6 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   mapping(address => mapping(address => uint256)) private _userNftCollateral;
   mapping(address => bool) private _marketAdapters;
 
-  // Gap for upgradeability
-  uint256[20] private __gap;
-
   /**
    * @dev Only lending pool can call functions marked by this modifier
    **/

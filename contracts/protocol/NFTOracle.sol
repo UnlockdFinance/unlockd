@@ -51,9 +51,6 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
 
   mapping(address => bool) public isPriceManager;
 
-  // Gap for upgradeability
-  uint256[20] private __gap;
-
   modifier onlyPriceManager() {
     require(isPriceManager[msg.sender], Errors.CALLER_NOT_PRICE_MANAGER);
     _;

@@ -27,9 +27,6 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
   uint256 private constant _ENTERED = 1;
   uint256 private _status;
 
-  // Gap for upgradeability
-  uint256[20] private __gap;
-
   struct GuardVars {
     ILendPoolLoan cachedPoolLoan;
     uint256 loanId;

@@ -19,9 +19,6 @@ contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext
 
   address public weth;
 
-  // Gap for upgradeability
-  uint256[20] private __gap;
-
   function initialize(address _weth) public initializer {
     __Ownable_init();
     weth = _weth;
