@@ -11,16 +11,27 @@ interface ICurve is IERC20 {
   // N_COINS = 2
   function add_liquidity(uint256[2] calldata amounts, uint256 min_mint_amount) external payable returns (uint256);
 
-  // N_COINS = 2
-  function remove_liquidity(uint256 _amount, uint256[2] calldata amounts) external returns (uint256[2] memory);
+  function remove_liquidity_one_coin(uint256 _burn_amount, int128 i, uint256 min_received) external returns (uint256);
+
+  function remove_liquidity(uint256 _burn_amount, uint256[2] memory _min_amounts) external returns (uint256[2] memory);
 
   // Perform an exchange between two coins
   function exchange(
-    // CRV-ETH and CVX-ETH
+    // ETH-ALETH
     int128 i,
     int128 j,
     uint256 _dx,
     uint256 _min_dy
+  ) external payable returns (uint256);
+
+  // Perform an exchange between two coins
+  function exchange(
+    // CRV-ETH and CVX-ETH
+    uint256 i,
+    uint256 j,
+    uint256 _dx,
+    uint256 _min_dy,
+    bool use_eth
   ) external payable returns (uint256);
 
   function balances(uint256) external view returns (uint256);

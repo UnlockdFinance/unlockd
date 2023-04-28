@@ -123,7 +123,7 @@ makeSuite("UToken", (testEnv: TestEnv) => {
     expect(toBalance.toString()).to.be.equal(amountTransfer.toString(), INVALID_TO_BALANCE_AFTER_TRANSFER);
   });
 
-  it("UToken: `updateUTokenManagers()`", async () => {
+  it("UToken: `updateUTokenManagers()` - Correctly update UToken managers", async () => {
     const { users, uWETH } = testEnv;
 
     /*//////////////////////////////////////////////////////////////
@@ -160,7 +160,17 @@ makeSuite("UToken", (testEnv: TestEnv) => {
     expect(await uWETH.isManager(users[2].address)).to.be.eq(false);
     expect(await uWETH.isManager(users[3].address)).to.be.eq(false);
   });
+  it("UToken: `setEmergencyShutdown() - Correctly set UToken in emergency shutdown and unset later`", async () => {
+    const { uWETH } = testEnv;
 
+    await uWETH.setEmergencyShutdown(true);
+    let isEmergencyShutdown = await uWETH.emergencyShutdown();
+    expect(isEmergencyShutdown).to.be.eq(true);
+
+    await uWETH.setEmergencyShutdown(false);
+    isEmergencyShutdown = await uWETH.emergencyShutdown();
+    expect(isEmergencyShutdown).to.be.eq(false);
+  });
   it("UToken: `addStrategy()`- Add zero address as strategy (expect revert)", async () => {
     const { uWETH, deployer } = testEnv;
 
@@ -1001,5 +1011,16 @@ makeSuite("UToken", (testEnv: TestEnv) => {
 
     await uWETH.removeStrategyFromQueue(await uWETH.withdrawalQueue(0));
     expect(await uWETH.withdrawalQueue(0)).to.be.eq(second);
+  });
+  it("UToken: `setEmergencyShutdown()` - Set emergency shutdown mode", async () => {
+    const { uWETH } = testEnv;
+
+    await uWETH.setEmergencyShutdown(true);
+
+    expect(await uWETH.emergencyShutdown()).to.be.eq(true);
+
+    await uWETH.setEmergencyShutdown(false);
+
+    expect(await uWETH.emergencyShutdown()).to.be.eq(false);
   });
 });

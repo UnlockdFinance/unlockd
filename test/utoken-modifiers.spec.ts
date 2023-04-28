@@ -13,7 +13,7 @@ makeSuite("UToken: Modifiers", (testEnv: TestEnv) => {
 
   it("Tries to invoke burn not being the Pool", async () => {
     const { deployer, uWETH } = testEnv;
-    await expect(uWETH.burn(deployer.address, deployer.address, "1", "1")).to.be.revertedWith(
+    await expect(uWETH.burn(deployer.address, deployer.address, "1", "1", "1")).to.be.revertedWith(
       CT_CALLER_MUST_BE_LEND_POOL
     );
   });
@@ -52,6 +52,10 @@ makeSuite("UToken: Modifiers", (testEnv: TestEnv) => {
       )
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
   });
+  it("Tries to invoke `setEmergencyShutdown` not being the PoolAdmin", async () => {
+    const { uWETH, users } = testEnv;
+    await expect(uWETH.connect(users[2].signer).setEmergencyShutdown(false)).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+  });
   it("Tries to invoke `removeStrategyFromQueue` not being the PoolAdmin", async () => {
     const { genericYVaultStrategy, uWETH, users } = testEnv;
     await expect(
@@ -75,6 +79,22 @@ makeSuite("UToken: Modifiers", (testEnv: TestEnv) => {
         10 // NEW DEPOSIT LIMIT
       )
     ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+  });
+  it("Tries to invoke `setMaxLoss` not being the PoolAdmin", async () => {
+    const { uWETH, users } = testEnv;
+    await expect(
+      uWETH.connect(users[2].signer).setMaxLoss(
+        10 // NEW MAX LOSS
+      )
+    ).to.be.revertedWith(CALLER_NOT_POOL_ADMIN);
+  });
+  it("Tries to invoke `setMaxLoss` with a wrong value", async () => {
+    const { uWETH } = testEnv;
+    await expect(
+      uWETH.setMaxLoss(
+        10001 // NEW MAX LOSS
+      )
+    ).to.be.revertedWith("InvalidMaxLoss");
   });
   it("Tries to invoke `updateStrategyParams` not being the PoolAdmin", async () => {
     const { genericYVaultStrategy, uWETH, users } = testEnv;

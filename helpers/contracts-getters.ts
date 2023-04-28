@@ -1,4 +1,5 @@
 import {
+  BaseRewardPoolFactory,
   BoosterFactory,
   BorrowLogicFactory,
   ConfiguratorLogicFactory,
@@ -45,6 +46,7 @@ import {
   WETHGatewayFactory,
   WrappedPunkFactory,
 } from "../types";
+import { ICurveFactory } from "../types/ICurveFactory";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { IERC721DetailedFactory } from "../types/IERC721DetailedFactory";
 import { ILSSVMPairFactory } from "../types/ILSSVMPairFactory";
@@ -165,6 +167,10 @@ export const getNFTOracle = async (address?: tEthereumAddress) =>
   );
 export const getBooster = async (address: tEthereumAddress) =>
   await BoosterFactory.connect(address, await getDeploySigner());
+
+export const getRewardPool = async (address: tEthereumAddress) =>
+  await BaseRewardPoolFactory.connect(address, await getDeploySigner());
+
 export const getLockeyManagerProxy = async (address?: tEthereumAddress) => {
   return await LockeyManagerFactory.connect(
     address || (await getDb(DRE.network.name).get(`${eContractid.LockeyManager}`).value()).address,
@@ -541,7 +547,8 @@ export const getLSSVMPair = async (address?: tEthereumAddress) =>
   );
 export const getYVault = async (address: tEthereumAddress) =>
   await IYVaultFactory.connect(address, await getDeploySigner());
-
+export const getCRVVault = async (address: tEthereumAddress) =>
+  await ICurveFactory.connect(address, await getDeploySigner());
 export const getMockYVault = async (address?: tEthereumAddress) =>
   await MockYVaultFactory.connect(
     address || (await getDb(DRE.network.name).get(`${eContractid.MockYVault}`).value()).address,

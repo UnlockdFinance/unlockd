@@ -40,7 +40,6 @@ contract MockUToken is Initializable, IUToken, IncentivizedERC20 {
 
   uint256 public constant MAXIMUM_STRATEGIES = 20;
   uint256 public constant MAX_BPS = 10_000; // 100% [BPS]
-  uint256 public constant MAX_LOSS = 1; // Max tolerated loss on withdrawal (0.01%) [BPS]
   uint256 public constant DEGRADATION_COEFFICIENT = 10 ** 18;
   // Strategies
   mapping(address => StrategyParams) public strategies;
@@ -58,7 +57,9 @@ contract MockUToken is Initializable, IUToken, IncentivizedERC20 {
   uint256 public lockedProfit;
   // Rate per block of degradation. DEGRADATION_COEFFICIENT is 100% per block
   uint256 public lockedProfitDegradation;
-
+  // Max tolerated loss on withdrawal (in BPS)
+  uint256 public maxLossOnWithdrawal;
+  // Emergency Shutdown
   bool public emergencyShutdown;
 
   /*//////////////////////////////////////////////////////////////
@@ -120,28 +121,31 @@ contract MockUToken is Initializable, IUToken, IncentivizedERC20 {
   /*//////////////////////////////////////////////////////////////
                     MINT/BURN LOGIC
   //////////////////////////////////////////////////////////////*/
+
   /**
    * @dev Burns uTokens from `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
    * - Only callable by the LendPool, as extra state updates there need to be managed
    * @param user The owner of the uTokens, getting them burned
    * @param receiverOfUnderlying The address that will receive the underlying
-   * @param amount The amount being burned
+   * @param amountToBurn The amount being burned
+   * @param amountToTransfer The amount to transfer to user
    * @param index The new liquidity index of the reserve
    **/
   function burn(
     address user,
     address receiverOfUnderlying,
-    uint256 amount,
+    uint256 amountToBurn,
+    uint256 amountToTransfer,
     uint256 index
   ) external override onlyLendPool {
-    uint256 amountScaled = amount.rayDiv(index);
+    uint256 amountScaled = amountToBurn.rayDiv(index);
 
     require(amountScaled != 0, Errors.CT_INVALID_BURN_AMOUNT);
     _burn(user, amountScaled);
 
-    IERC20Upgradeable(_underlyingAsset).safeTransfer(receiverOfUnderlying, amount);
+    IERC20Upgradeable(_underlyingAsset).safeTransfer(receiverOfUnderlying, amountToTransfer);
 
-    emit Burn(user, receiverOfUnderlying, amount, index);
+    emit Burn(user, receiverOfUnderlying, amountToBurn, index);
   }
 
   /**
@@ -261,17 +265,6 @@ contract MockUToken is Initializable, IUToken, IncentivizedERC20 {
       IERC20Upgradeable(_underlyingAsset).safeTransferFrom(msg.sender, address(this), totalAvailable - availableCredit);
     // else don't do anything (it is balanced)
 
-    // Profit is locked and gradually released per block
-    // NOTE: compute current locked profit and replace with sum of current and new
-    uint256 lockedProfitBeforeLoss = _calculateLockedProfit() + gain;
-    if (lockedProfitBeforeLoss > loss) {
-      unchecked {
-        lockedProfit = lockedProfitBeforeLoss - loss;
-      }
-    } else {
-      lockedProfit = 0;
-    }
-
     // Update reporting time
     strategies[msg.sender].lastReport = block.timestamp;
     lastReport = block.timestamp;
@@ -300,7 +293,7 @@ contract MockUToken is Initializable, IUToken, IncentivizedERC20 {
     ordering and behavior.
   */
   //todo: optimize
-  function withdrawReserves(uint256 amount) external onlyLendPool returns (uint256) {
+  function withdrawReserves(uint256 amount) external override onlyLendPool returns (uint256) {
     // UToken balance is not enough to cover withdrawal. Withdrawing from strategies is required
     if (amount > IERC20Upgradeable(_underlyingAsset).balanceOf(address(this))) {
       uint256 len = withdrawalQueue.length;
@@ -326,6 +319,7 @@ contract MockUToken is Initializable, IUToken, IncentivizedERC20 {
           continue;
 
         (uint256 amountWithdrawn, uint256 loss) = IStrategy(strategy).withdraw(amountNeeded);
+
         // Ensure the amount withdrawn returned from the strategy is the actual balance adjustement after withdrawal
         if (
           amountWithdrawn != (IERC20Upgradeable(_underlyingAsset).balanceOf(address(this)) - initialBalanceOfUnderlying)
@@ -351,7 +345,7 @@ contract MockUToken is Initializable, IUToken, IncentivizedERC20 {
       // We have withdrawn everything possible. Check if it is enough
       if (amount < IERC20Upgradeable(_underlyingAsset).balanceOf(address(this))) revert NotEnoughLiquidity();
       // Ensure max loss has not been reached
-      if (totalLoss > ((MAX_LOSS * (amount + totalLoss)) / MAX_BPS)) revert MaxLossExceeded();
+      if (totalLoss > ((maxLossOnWithdrawal * (amount + totalLoss)) / MAX_BPS)) revert MaxLossExceeded();
     }
 
     IERC20Upgradeable(_underlyingAsset).safeTransfer(msg.sender, amount);
@@ -447,6 +441,15 @@ contract MockUToken is Initializable, IUToken, IncentivizedERC20 {
   }
 
   /**
+   * @notice Sets the vault in emergency shutdown mode
+   * @param _emergencyShutdown The new emergency shutdown value
+   */
+  function setEmergencyShutdown(bool _emergencyShutdown) external override onlyPoolAdmin {
+    emergencyShutdown = _emergencyShutdown;
+    emit EmergencyShutdownUpdated(_emergencyShutdown, block.timestamp);
+  }
+
+  /**
    * @notice Revoke a Strategy, setting its debt limit to 0 and preventing any
    * future deposits.
    * This function should only be used in the scenario where the Strategy is
@@ -497,6 +500,16 @@ contract MockUToken is Initializable, IUToken, IncentivizedERC20 {
     strategies[strategy].maxDebtPerHarvest = strategyMaxDebtPerHarvest;
 
     emit StrategyParamsUpdated(strategy, strategyDebtRatio, strategyMinDebtPerHarvest, strategyMaxDebtPerHarvest);
+  }
+
+  /**
+   * @notice Sets the maximum allowed loss value (in BPS) for withdrawals
+   * @param maxLoss The new max loss value
+   */
+  function setMaxLoss(uint256 maxLoss) external override onlyPoolAdmin {
+    if (maxLoss > MAX_BPS) revert InvalidMaxLoss();
+    maxLossOnWithdrawal = maxLoss;
+    emit MaxLossUpdated(maxLoss);
   }
 
   /*//////////////////////////////////////////////////////////////

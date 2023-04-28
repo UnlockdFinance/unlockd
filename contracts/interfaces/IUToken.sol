@@ -44,6 +44,8 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
 
   error InvalidDebtRatio();
 
+  error InvalidMaxLoss();
+
   /**
    * @dev Emitted when an uToken is initialized
    * @param underlyingAsset The address of the underlying asset
@@ -90,6 +92,10 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
     uint256 strategyMinDebtPerHarvest,
     uint256 strategyMaxDebtPerHarvest
   );
+
+  event EmergencyShutdownUpdated(bool indexed newEmergencyShutdown, uint256 indexed timestamp);
+
+  event MaxLossUpdated(uint256 newMaxLoss);
 
   struct StrategyParams {
     uint256 debtRatio; // Relation between the amount of assets deployed to the strategy and the total amount of assets belonging to the UToken
@@ -201,10 +207,16 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
    * @dev Burns uTokens from `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
    * @param user The owner of the uTokens, getting them burned
    * @param receiverOfUnderlying The address that will receive the underlying
-   * @param amount The amount being burned
+   * @param amountToBurn The amount being burned
    * @param index The new liquidity index of the reserve
    **/
-  function burn(address user, address receiverOfUnderlying, uint256 amount, uint256 index) external;
+  function burn(
+    address user,
+    address receiverOfUnderlying,
+    uint256 amountToBurn,
+    uint256 amountToTransfer,
+    uint256 index
+  ) external;
 
   /**
    * @dev Mints uTokens to the reserve treasury
@@ -221,6 +233,8 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
    * @return The amount transferred
    **/
   function transferUnderlyingTo(address user, uint256 amount) external returns (uint256);
+
+  function withdrawReserves(uint256 amount) external returns (uint256);
 
   function updateStrategyParams(
     address strategy,
@@ -242,11 +256,19 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
 
   function revokeStrategy(address strategy) external;
 
+  function setEmergencyShutdown(bool _emergencyShutdown) external;
+
   /**
    * @dev Returns the scaled balance of the user and the scaled total supply.
    * @return The available liquidity in reserve
    **/
   function getAvailableLiquidity() external view returns (uint256);
+
+  /**
+   * @notice Sets the maximum allowed loss value (in BPS) for withdrawals
+   * @param maxLoss The new max loss value
+   */
+  function setMaxLoss(uint256 maxLoss) external;
 
   /**
    * @dev Returns the params of a requested strategy

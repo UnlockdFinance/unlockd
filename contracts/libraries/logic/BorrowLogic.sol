@@ -195,13 +195,15 @@ library BorrowLogic {
     // update interest rate according latest borrow amount (utilizaton)
     reserveData.updateInterestRates(params.asset, uToken, 0, params.amount);
 
+    uint256 amountToTransfer = IUToken(uToken).withdrawReserves(params.amount);
+
     // Transfer underlying to user
-    IUToken(uToken).transferUnderlyingTo(vars.initiator, params.amount);
+    IUToken(uToken).transferUnderlyingTo(vars.initiator, amountToTransfer);
 
     emit Borrow(
       vars.initiator,
       params.asset,
-      params.amount,
+      amountToTransfer,
       params.nftAsset,
       params.nftTokenId,
       params.onBehalfOf,

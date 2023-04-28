@@ -27,7 +27,8 @@ import {
   waitForTx,
 } from "../../helpers/misc-utils";
 import { eEthereumNetwork, eNetwork, IConfigNftAsCollateralInput, tEthereumAddress } from "../../helpers/types";
-import { ERC20 } from "../../types";
+import { ERC20, MintableERC20 } from "../../types";
+import type { IYVault } from "../../types/IYVault";
 import { UToken } from "../../types/UToken";
 import { SignerWithAddress, TestEnv } from "./make-suite";
 import {
@@ -57,6 +58,7 @@ import {
   getReserveAddressFromSymbol,
   getReserveData,
   getUserData,
+  shareValue,
 } from "./utils/helpers";
 import { LoanData, ReserveData, UserReserveData } from "./utils/interfaces";
 
@@ -738,6 +740,15 @@ const getDataBeforeAction = async (
     userData,
     uTokenInstance,
   };
+};
+
+export const getYVaultLockedValueInUnderlying = async (
+  vault: IYVault,
+  erc20YVault: MintableERC20,
+  strategy: string
+) => {
+  let shares = await erc20YVault.balanceOf(strategy);
+  return await shareValue(shares, vault);
 };
 
 export const getTxCostAndTimestamp = async (tx: ContractReceipt) => {

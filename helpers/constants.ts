@@ -68,6 +68,13 @@ export const SUDOSWAP_PAIRS_MAINNET = {
   AZUKI: [SUDOSWAP_AZUKI_PAIR_MAINNET_1, SUDOSWAP_AZUKI_PAIR_MAINNET_2],
 };
 
+export const CURVE_TRI_POOL = "0xbebc44782c7db0a1a60cb6fe97d0b483032ff1c7";
+export const CRV = "0xD533a949740bb3306d119CC777fa900bA034cd52";
+export const CRV_HOLDER = "0xD533a949740bb3306d119CC777fa900bA034cd52";
+export const CVX = "0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b";
+export const ALETH = "0x0100546F2cD4C9D97f798fFC9755E47865FF7Ee6";
+export const CVX_HOLDER = "0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b";
+
 // ----------------
 // ADDRESS IDS IN PROVIDER
 // ----------------

@@ -99,13 +99,10 @@ contract GenericYVaultStrategy is BaseStrategy {
     // Allow UToken to take up to the "harvested" balance of this contract,
     // which is the amount it has earned since the last time it reported to
     // the UToken.
-    uint256 totalDebt = uToken.getStrategy(address(this)).totalDebt;
     debtOutstanding = uToken.report(profit, loss, debtPayment);
 
     // Check if free returns are left, and re-invest them
     _adjustPosition(debtOutstanding);
-
-    _performHealthCheck(profit, loss, debtPayment, debtOutstanding, totalDebt);
 
     emit Harvested(profit, loss, debtPayment, debtOutstanding);
   }
@@ -180,8 +177,8 @@ contract GenericYVaultStrategy is BaseStrategy {
     }
 
     uint256 shares = vault.deposit(amount);
-
     depositedAmount = _shareValue(shares);
+
     emit Invested(msg.sender, amount);
   }
 
@@ -291,7 +288,6 @@ contract GenericYVaultStrategy is BaseStrategy {
     uint256 totalAssets = underlyingBalance + _shareValue(shares);
 
     uint256 debt = uToken.getStrategy(address(this)).totalDebt;
-
     if (totalAssets >= debt) {
       // Strategy has obtained profit
       unchecked {
@@ -305,7 +301,6 @@ contract GenericYVaultStrategy is BaseStrategy {
         uint256 expectedAmountToWithdraw = Math.min(maxSingleTrade, amountToWithdraw - underlyingBalance);
         uint256 sharesToWithdraw = _sharesForAmount(expectedAmountToWithdraw);
         uint256 withdrawn = _divest(sharesToWithdraw);
-
         // Account for loss occured on withdrawal from yearn
         if (withdrawn < expectedAmountToWithdraw) {
           unchecked {
@@ -328,13 +323,14 @@ contract GenericYVaultStrategy is BaseStrategy {
           profit = 0;
         }
       }
+
       // `profit` + `debtOutstanding` must be <= `underlyingBalance`. Prioritise profit first
       if (profit > underlyingBalance) {
         // Profit is prioritised. In this case, no `debtPayment` will be reported
         profit = underlyingBalance;
       } else if (amountToWithdraw > underlyingBalance) {
         // same as `profit` + `debtOutstanding` > `underlyingBalance`
-        // Keep profit amount and reduce the expected debtPayment from `debtOutstanding` to the following substraction
+        // Extract debt payment from divested amount
         debtPayment = underlyingBalance - profit;
       } else {
         debtPayment = debtOutstanding;
@@ -369,7 +365,7 @@ contract GenericYVaultStrategy is BaseStrategy {
    */
   function _sharesForAmount(uint256 amount) internal view returns (uint256) {
     uint256 freeFunds = _freeFunds();
-    if (freeFunds != 0) return (amount * yVault.totalSupply()) / freeFunds;
+    if (freeFunds != 0) return ((amount * yVault.totalSupply()) / freeFunds);
 
     return 0;
   }

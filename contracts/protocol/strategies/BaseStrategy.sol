@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
-
+// TODO REVIEW ALL MODIFIERS IN UTOKEN, BASESTRATEGY AND SPEECIFIC STRATEGIES
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -8,7 +8,6 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {IUToken} from "../../interfaces/IUToken.sol";
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
 import {IStrategy} from "../../interfaces/strategies/IStrategy.sol";
-import {IHealthCheck} from "../../interfaces/strategies/IHealthCheck.sol";
 
 /** @title BaseStrategy
  * @author Forked and adapted from https://github.com/yearn/yearn-vaults/blob/master/contracts/BaseStrategy.sol
@@ -27,9 +26,6 @@ abstract contract BaseStrategy is Initializable, IStrategy {
   IERC20 public underlyingAsset;
   mapping(address => bool) public keepers;
 
-  // health checks
-  bool public doHealthCheck;
-  address public healthCheck;
   bool public emergencyExit;
 
   // Name of the strategy
@@ -124,6 +120,8 @@ abstract contract BaseStrategy is Initializable, IStrategy {
    *  otherwise adjust its position. In other cases `harvest()` must be
    *  called to report to the UToken on the Strategy's position, especially if
    *  any losses have occurred.
+   * It is important to highlight that this method is only allowede to be executed
+   * highlightedby keepers
    */
   function harvest() external virtual;
 
@@ -163,21 +161,12 @@ abstract contract BaseStrategy is Initializable, IStrategy {
   }
 
   /**
-   * @dev Sets healthcheck contract address
-   * @param _healthCheck the new healthcheck contract
-   **/
-  function setHealthCheck(address _healthCheck) external onlyPoolAdmin {
-    healthCheck = _healthCheck;
-    emit SetHealthCheck(_healthCheck);
-  }
-
-  /**
-   * @dev Sets boolean to handle whether healthcheck should be executed or not
-   * @param _doHealthCheck the new `doHealthCheck` status
-   **/
-  function setDoHealthCheck(bool _doHealthCheck) external onlyPoolAdmin {
-    doHealthCheck = _doHealthCheck;
-    emit SetDoHealthCheck(_doHealthCheck);
+   * @notice Sets the vault in emergency exit mode
+   * @param _emergencyExit The new emergency exit value
+   */
+  function setEmergencyExit(bool _emergencyExit) external override onlyPoolAdmin {
+    emergencyExit = _emergencyExit;
+    emit StrategyEmergencyExitUpdated(address(this), _emergencyExit);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -290,23 +279,6 @@ abstract contract BaseStrategy is Initializable, IStrategy {
   function _prepareReturn(
     uint256 debtOutstanding
   ) internal virtual returns (uint256 profit, uint256 loss, uint256 debtPayment);
-
-  function _performHealthCheck(
-    uint256 profit,
-    uint256 loss,
-    uint256 debtPayment,
-    uint256 debtOutstanding,
-    uint256 totalDebt
-  ) internal {
-    // call healthCheck contract
-    if (doHealthCheck && healthCheck != address(0)) {
-      if (!IHealthCheck(healthCheck).check(profit, loss, debtPayment, debtOutstanding, totalDebt))
-        _revert(HealthCheckFailed.selector);
-    } else {
-      doHealthCheck = true;
-      emit SetDoHealthCheck(true);
-    }
-  }
 
   /**
    * @notice Returns the current strategy's balance in underlying token

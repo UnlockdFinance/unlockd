@@ -13,7 +13,7 @@ import {
   getUniswapRouter,
   loadPoolConfig,
 } from "../helpers/configuration";
-import { SAFETRANSFERFROM_FUNCTION_SELECTOR } from "../helpers/constants";
+import { CURVE_TRI_POOL, SAFETRANSFERFROM_FUNCTION_SELECTOR } from "../helpers/constants";
 import { deployGenericConvexETHStrategy, deployUnlockdUpgradeableProxy } from "../helpers/contracts-deployments";
 import {
   getBooster,
@@ -21,13 +21,14 @@ import {
   getUnlockdProtocolDataProvider,
   getUnlockdProxyAdminById,
 } from "../helpers/contracts-getters";
-import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
+import { convertToCurrencyDecimals, getEthersSignerByAddress } from "../helpers/contracts-helpers";
 import {
   createRandomAddress,
   evmRevert,
   evmSnapshot,
   fundWithERC20,
   fundWithERC721,
+  fundWithETH,
   impersonateAccountsHardhat,
   notFalsyOrZeroAddress,
   stopImpersonateAccountsHardhat,
@@ -49,6 +50,7 @@ makeSuite("Convex ETH Strategy negatives", (testEnv: TestEnv) => {
   let uniswapRouterAddress;
   let strategyName32;
   let proxyAdmin;
+  let triPool;
 
   before(async () => {
     const { reservoirAdapter, configurator, deployer, nftOracle, loan, reservoirModules, dWETH } = testEnv;
@@ -95,6 +97,8 @@ makeSuite("Convex ETH Strategy negatives", (testEnv: TestEnv) => {
     if (!uniswapRouterAddress) {
       throw "Uniswap router is undefined. Check UniSwapRouter configuration at config directory";
     }
+
+    triPool = CURVE_TRI_POOL;
   });
   beforeEach(async () => {
     snapshotId = await evmSnapshot();
@@ -238,12 +242,13 @@ makeSuite("Convex ETH Strategy negatives", (testEnv: TestEnv) => {
     // Shut down Convex pool
     const booster: Booster = await getBooster(convexBoosterAddress);
     const poolManager = await booster.poolManager();
+    const poolManagerSigner = await getEthersSignerByAddress(poolManager);
     await (DRE as HardhatRuntimeEnvironment).network.provider.request({
       method: "hardhat_impersonateAccount",
       params: [poolManager],
     });
-
-    await booster.shutdownPool(49);
+    await fundWithETH(poolManager, "10");
+    await booster.connect(poolManagerSigner).shutdownPool(49);
 
     await (DRE as HardhatRuntimeEnvironment).network.provider.request({
       method: "hardhat_stopImpersonatingAccount",
@@ -274,6 +279,34 @@ makeSuite("Convex ETH Strategy negatives", (testEnv: TestEnv) => {
         false
       )
     ).to.be.revertedWith("ConvexPoolShutdown");
+  });
+  it("GenericConvexETHStrategy Negatives: Check `initialize()`: token 0 different from ETH", async () => {
+    const { addressesProvider, uWETH, deployer } = testEnv;
+
+    // Convex Booster zero address
+    //@ts-ignore
+    let initEncodedData = genericConvexETHStrategyImpl.interface.encodeFunctionData("initialize", [
+      addressesProvider.address, // address provider
+      uWETH.address, // uToken
+      [deployer.address], // keeper
+      strategyName32, // strategy name
+      convexBoosterAddress, // convex booster
+      49, // pool ID,
+      triPool, // curve pool
+      curveCRVWETHPoolAddress, // CRV<>WETH curve pool
+      curveCVXWETHPoolAddress, // CVX<>WETH curve pool
+      uniswapRouterAddress, // router
+    ]);
+
+    await expect(
+      deployUnlockdUpgradeableProxy(
+        eContractid.GenericConvexETHStrategy,
+        proxyAdmin.address,
+        genericConvexETHStrategyImpl.address,
+        initEncodedData,
+        false
+      )
+    ).to.be.revertedWith("InvalidCoinIndex");
   });
 
   it("GenericConvexETHStrategy Negatives: Check `setMaxSingleTrade()` negatives", async () => {

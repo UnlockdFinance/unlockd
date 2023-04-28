@@ -40,7 +40,6 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
 
   uint256 public constant MAXIMUM_STRATEGIES = 20;
   uint256 public constant MAX_BPS = 10_000; // 100% [BPS]
-  uint256 public constant MAX_LOSS = 1; // Max tolerated loss on withdrawal (0.01%) [BPS]
   uint256 public constant DEGRADATION_COEFFICIENT = 10 ** 18;
   // Strategies
   mapping(address => StrategyParams) public strategies;
@@ -54,11 +53,9 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   uint256 public totalDebt;
   // block.timestamp of last report
   uint256 public lastReport;
-  // How much profit is locked and cant be withdrawn
-  uint256 public lockedProfit;
-  // Rate per block of degradation. DEGRADATION_COEFFICIENT is 100% per block
-  uint256 public lockedProfitDegradation;
-
+  // Max tolerated loss on withdrawal (in BPS)
+  uint256 public maxLossOnWithdrawal;
+  // Emergency Shutdown
   bool public emergencyShutdown;
 
   /*//////////////////////////////////////////////////////////////
@@ -78,9 +75,9 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     require(_uTokenManagers[_msgSender()], Errors.CALLER_NOT_UTOKEN_MANAGER);
     _;
   }
-
+  //todo test this modifier
   modifier onlyStrategy() {
-    require(_uTokenManagers[_msgSender()], Errors.CALLER_NOT_STRATEGY);
+    require(strategies[_msgSender()].active, Errors.CALLER_NOT_STRATEGY);
     _;
   }
 
@@ -111,6 +108,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
 
     _addressProvider = addressProvider;
 
+    maxLossOnWithdrawal = 10; // initially set to 0.1%
     emit Initialized(
       underlyingAsset,
       _addressProvider.getLendPool(),
@@ -127,23 +125,25 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
    * - Only callable by the LendPool, as extra state updates there need to be managed
    * @param user The owner of the uTokens, getting them burned
    * @param receiverOfUnderlying The address that will receive the underlying
-   * @param amount The amount being burned
+   * @param amountToBurn The amount being burned
+   * @param amountToTransfer The amount to transfer to user
    * @param index The new liquidity index of the reserve
    **/
   function burn(
     address user,
     address receiverOfUnderlying,
-    uint256 amount,
+    uint256 amountToBurn,
+    uint256 amountToTransfer,
     uint256 index
   ) external override onlyLendPool {
-    uint256 amountScaled = amount.rayDiv(index);
+    uint256 amountScaled = amountToBurn.rayDiv(index);
 
     require(amountScaled != 0, Errors.CT_INVALID_BURN_AMOUNT);
     _burn(user, amountScaled);
 
-    IERC20Upgradeable(_underlyingAsset).safeTransfer(receiverOfUnderlying, amount);
+    IERC20Upgradeable(_underlyingAsset).safeTransfer(receiverOfUnderlying, amountToTransfer);
 
-    emit Burn(user, receiverOfUnderlying, amount, index);
+    emit Burn(user, receiverOfUnderlying, amountToBurn, index);
   }
 
   /**
@@ -192,6 +192,14 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   }
 
   /*//////////////////////////////////////////////////////////////
+                        MIGRATION 
+  //////////////////////////////////////////////////////////////*/
+  function migrateFunds() external onlyPoolAdmin {
+    address yVaultWETH = _addressProvider.getAddress(keccak256("YVAULT_WETH"));
+    IYVault(yVaultWETH).withdraw(IERC20Upgradeable(yVaultWETH).balanceOf(address(this)));
+  }
+
+  /*//////////////////////////////////////////////////////////////
                     STRATEGIES LOGIC
   //////////////////////////////////////////////////////////////*/
 
@@ -231,6 +239,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
 
     // Report takes up to the outstanding debt if the current debt payment exceeds it
     uint256 strategyDebt = _debtOutstanding(msg.sender);
+
     uint256 debtPayment = Math.min(strategyDebt, _debtPayment);
 
     // Adjust debts debt considering the current report's debt payment
@@ -252,26 +261,18 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     // and the debt needed to be paid off (if any)
     // NOTE: This is just used to adjust the balance of tokens between the Strategy and
     // the UToken based on the Strategy's debt limit (as well as the UToken's).
-    // gain -> 10 ETH + debtPayment -> 5  ETH      totalAvailable  -> 15 ETH
-    // availableCredit -> 30 ETH
-    uint256 totalAvailable = gain + debtPayment;
-    if (availableCredit > totalAvailable)
+    uint256 totalAvailableFromStrategy = gain + debtPayment;
+    if (availableCredit > totalAvailableFromStrategy) {
       // Credit surplus, give to Strategy
-      IERC20Upgradeable(_underlyingAsset).safeTransfer(msg.sender, availableCredit - totalAvailable);
-    else if (totalAvailable > availableCredit)
+      IERC20Upgradeable(_underlyingAsset).safeTransfer(msg.sender, availableCredit - totalAvailableFromStrategy);
+    } else if (totalAvailableFromStrategy > availableCredit) {
       // Credit deficit, take from Strategy
-      IERC20Upgradeable(_underlyingAsset).safeTransferFrom(msg.sender, address(this), totalAvailable - availableCredit);
-    // else don't do anything (it is balanced)
-
-    // Profit is locked and gradually released per block
-    // NOTE: compute current locked profit and replace with sum of current and new
-    uint256 lockedProfitBeforeLoss = _calculateLockedProfit() + gain;
-    if (lockedProfitBeforeLoss > loss) {
-      unchecked {
-        lockedProfit = lockedProfitBeforeLoss - loss;
-      }
-    } else {
-      lockedProfit = 0;
+      IERC20Upgradeable(_underlyingAsset).safeTransferFrom(
+        msg.sender,
+        address(this),
+        totalAvailableFromStrategy - availableCredit
+      );
+      // else don't do anything (it is balanced)
     }
 
     // Update reporting time
@@ -300,9 +301,10 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     amount `amount` of underlying.
     See note on `setWithdrawalQueue` for further details of withdrawal
     ordering and behavior.
+    @dev Always make sure to call this function if `amount` is greater than the UToken's underlying balance
   */
   //todo: optimize
-  function withdrawReserves(uint256 amount) external onlyLendPool returns (uint256) {
+  function withdrawReserves(uint256 amount) external override onlyLendPool returns (uint256) {
     // UToken balance is not enough to cover withdrawal. Withdrawing from strategies is required
     if (amount > IERC20Upgradeable(_underlyingAsset).balanceOf(address(this))) {
       uint256 len = withdrawalQueue.length;
@@ -318,6 +320,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
         if (initialBalanceOfUnderlying >= amount) break;
 
         uint256 amountNeeded = amount - initialBalanceOfUnderlying;
+
         // Don't withdraw more than the amount loaned to strategy, so that
         // the strategy can keep working based on the profits it has
         // NOTE: This means the user will lose out on any profits that each
@@ -328,6 +331,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
           continue;
 
         (uint256 amountWithdrawn, uint256 loss) = IStrategy(strategy).withdraw(amountNeeded);
+
         // Ensure the amount withdrawn returned from the strategy is the actual balance adjustement after withdrawal
         if (
           amountWithdrawn != (IERC20Upgradeable(_underlyingAsset).balanceOf(address(this)) - initialBalanceOfUnderlying)
@@ -353,11 +357,11 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
       // We have withdrawn everything possible. Check if it is enough
       if (amount < IERC20Upgradeable(_underlyingAsset).balanceOf(address(this))) revert NotEnoughLiquidity();
       // Ensure max loss has not been reached
-      if (totalLoss > ((MAX_LOSS * (amount + totalLoss)) / MAX_BPS)) revert MaxLossExceeded();
+      if (totalLoss > ((maxLossOnWithdrawal * (amount + totalLoss)) / MAX_BPS)) revert MaxLossExceeded();
+
+      emit ReservesWithdrawn(amount);
     }
 
-    IERC20Upgradeable(_underlyingAsset).safeTransfer(msg.sender, amount);
-    emit ReservesWithdrawn(amount);
     return amount;
   }
 
@@ -500,6 +504,25 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     }
   }
 
+  /**
+   * @notice Sets the vault in emergency shutdown mode
+   * @param _emergencyShutdown The new emergency shutdown value
+   */
+  function setEmergencyShutdown(bool _emergencyShutdown) external override onlyPoolAdmin {
+    emergencyShutdown = _emergencyShutdown;
+    emit EmergencyShutdownUpdated(_emergencyShutdown, block.timestamp);
+  }
+
+  /**
+   * @notice Sets the maximum allowed loss value (in BPS) for withdrawals
+   * @param maxLoss The new max loss value
+   */
+  function setMaxLoss(uint256 maxLoss) external override onlyPoolAdmin {
+    if (maxLoss > MAX_BPS) revert InvalidMaxLoss();
+    maxLossOnWithdrawal = maxLoss;
+    emit MaxLossUpdated(maxLoss);
+  }
+
   /*//////////////////////////////////////////////////////////////
                   INTERNAL FUNCTIONS 
   //////////////////////////////////////////////////////////////*/
@@ -507,6 +530,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   function _reportLoss(address strategy, uint256 loss) internal {
     // It is not possible for the strategy to lose more than the amount lent. Verify this assumption
     uint256 _totalDebt = strategies[strategy].totalDebt;
+
     if (loss > _totalDebt) revert LossHigherThanStrategyTotalDebt();
     // If UToken actually has deployed capital to **any** strategy, adjust the debt ratios for both the UToken
     // and the reporting strategy
@@ -516,13 +540,14 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
         (loss * debtRatio) / totalDebt,
         strategies[strategy].debtRatio
       );
+
       strategies[strategy].debtRatio -= ratioAdjustment;
       debtRatio -= ratioAdjustment;
     }
 
     // Adjust loss parameters
     strategies[strategy].totalLoss += loss;
-    strategies[strategy].totalDebt = totalDebt - loss;
+    strategies[strategy].totalDebt = _totalDebt - loss;
     totalDebt -= loss;
   }
 
@@ -538,9 +563,8 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     if (debtRatio == 0) return strategyTotalDebt;
 
     uint256 strategyDebtLimit = _computeDebtLimit(strategies[strategy].debtRatio, _totalAssets());
-
     if (emergencyShutdown) {
-      // Strategy's debt is returned when in emergency shutdown
+      // Strategy's total debt is returned when in emergency shutdown
       return strategyTotalDebt;
     } else if (strategyTotalDebt <= strategyDebtLimit) {
       // No debt outstanding in case the current strategy debt has not reached its debt limit
@@ -565,6 +589,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     uint256 totalAssets = _totalAssets();
     uint256 uTokenDebtLimit = _computeDebtLimit(debtRatio, totalAssets);
     uint256 strategyDebtLimit = _computeDebtLimit(strategies[strategy].debtRatio, totalAssets);
+
     // Check if strategy or UToken debt have exceeded their own maximum debt limit
     if (strategies[strategy].totalDebt > strategyDebtLimit || totalDebt > uTokenDebtLimit) return 0;
 
@@ -588,18 +613,9 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     return Math.min(availableCredit, strategies[strategy].maxDebtPerHarvest);
   }
 
-  // todo comment
+  // todo comment andchange to pure
   function _computeDebtLimit(uint256 debtRatio_, uint256 totalAssets_) internal pure returns (uint256) {
     return (totalAssets_ * debtRatio_) / MAX_BPS;
-  }
-
-  // todo comment
-  function _calculateLockedProfit() internal view returns (uint256) {
-    uint256 lockedFundsRatio = (block.timestamp - lastReport) * lockedProfitDegradation;
-    if (lockedFundsRatio < DEGRADATION_COEFFICIENT)
-      return lockedProfit - ((lockedFundsRatio * lockedProfit) / DEGRADATION_COEFFICIENT);
-
-    return 0;
   }
 
   /**
@@ -668,11 +684,12 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   }
 
   /**
-   * @dev Returns the available liquidity for the UToken's reserve
+   * @notice Returns the available liquidity for the UToken's reserve
+   * @dev does not consider the current gains by the strategues still not realized
    * @return The available liquidity in reserve
-   **/ // TODO CHANGE
+   */
   function getAvailableLiquidity() public view override returns (uint256) {
-    return LendingLogic.calculateYearnAvailableLiquidityInReserve(_addressProvider);
+    return _totalAssets();
   }
 
   /**

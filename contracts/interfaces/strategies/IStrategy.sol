@@ -13,7 +13,8 @@ interface IStrategy {
   event SetDoHealthCheck(bool doHealthCheck);
   event SetHealthCheck(address indexed healthCheck);
   event Harvested(uint256 indexed profit, uint256 indexed loss, uint256 indexed debtPayment, uint256 debtOutstanding);
-  event KeepersUpdated(address[] indexed _keepers, bool flag);
+  event KeepersUpdated(address[] indexed _keepers, bool indexed flag);
+  event StrategyEmergencyExitUpdated(address indexed strategy, bool indexed emergencyExitStatus);
 
   function updateKeepers(address[] calldata _keepers, bool flag) external;
 
@@ -22,4 +23,6 @@ interface IStrategy {
   function withdraw(uint256 _amountNeeded) external returns (uint256, uint256);
 
   function getUToken() external view returns (address);
+
+  function setEmergencyExit(bool _emergencyExit) external;
 }

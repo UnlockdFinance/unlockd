@@ -20,4 +20,6 @@ interface IYVault {
   function deposit(uint256) external returns (uint256);
 
   function withdraw(uint256) external returns (uint256);
+
+  function withdrawalQueue(uint256) external returns (address);
 }

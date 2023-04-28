@@ -229,11 +229,11 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.goerli]: "",
     [eEthereumNetwork.main]: "0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e",
   },
-  CurveCRVWETHPool: {
-    [eEthereumNetwork.hardhat]: "0x8301ae4fc9c624d1d396cbdaa1ed877821d7c511", //mainnet address for forking tests
+  CurveCRVWETHPool: { 
+    [eEthereumNetwork.hardhat]: "0x8301AE4fc9c624d1D396cbDAa1ed877821D7C511", //mainnet address for forking tests
     [eEthereumNetwork.localhost]: "",
     [eEthereumNetwork.goerli]: "",
-    [eEthereumNetwork.main]: "0x8301ae4fc9c624d1d396cbdaa1ed877821d7c511",
+    [eEthereumNetwork.main]: "0x8301AE4fc9c624d1D396cbDAa1ed877821D7C511",
   },
   CurveCVXWETHPool: {
     [eEthereumNetwork.hardhat]: "0xb576491f1e6e5e62f1d8f26062ee822b40b0e0d4", //mainnet address for forking tests
