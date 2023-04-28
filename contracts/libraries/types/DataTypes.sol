@@ -150,6 +150,7 @@ library DataTypes {
     uint256 bidPrice;
     address onBehalfOf;
     uint256 auctionDurationConfigFee;
+    uint256 bidDelta;
   }
 
   struct ExecuteRedeemParams {
@@ -183,10 +184,6 @@ library DataTypes {
     uint256 amountOutMin;
   }
 
-  struct SudoSwapParams {
-    address LSSVMPair;
-    uint256 amountOutMinSudoswap;
-  }
   struct ExecuteLendPoolStates {
     uint256 pauseStartTime;
     uint256 pauseDurationTime;

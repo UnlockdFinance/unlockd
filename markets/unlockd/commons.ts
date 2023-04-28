@@ -211,12 +211,6 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.main]: "0xf40a2617170af5d8079D7a476F6475b2106328D4",
   },
   // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
-  NFTXVaultFactory: {
-    [eEthereumNetwork.hardhat]: "0xBE86f647b167567525cCAAfcd6f881F1Ee558216", //mainnet address for forking tests
-    [eEthereumNetwork.localhost]: "0x2cC3790f7CF280fA898E4913CA980410cF38e53b",
-    [eEthereumNetwork.goerli]: "0xe01Cf5099e700c282A56E815ABd0C4948298Afae",
-    [eEthereumNetwork.main]: "0xBE86f647b167567525cCAAfcd6f881F1Ee558216",
-  },
   ConvexBooster: {
     [eEthereumNetwork.hardhat]: "0xF403C135812408BFbE8713b5A23a04b3D48AAE31", //mainnet address for forking tests
     [eEthereumNetwork.localhost]: "",
@@ -255,13 +249,6 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.main]: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
   },
   // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
-  LSSVMRouter: {
-    [eEthereumNetwork.hardhat]: "0x2b2e8cda09bba9660dca5cb6233787738ad68329", //mainnet address for forking tests
-    [eEthereumNetwork.localhost]: "",
-    [eEthereumNetwork.goerli]: "0x25b4EfC43c9dCAe134233CD577fFca7CfAd6748F",
-    [eEthereumNetwork.main]: "0x2b2e8cda09bba9660dca5cb6233787738ad68329",
-  },
-  // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
   YVaultWETH: {
     [eEthereumNetwork.hardhat]: "0xa258C4606Ca8206D8aA700cE2143D7db854D168c", //mainnet address for forking tests
     [eEthereumNetwork.localhost]: "",
@@ -272,7 +259,7 @@ export const CommonsConfig: ICommonConfiguration = {
   LockeyCollection: {
     [eEthereumNetwork.hardhat]: "0x9a29a9DBC70eA932637216A2BF9EbE7E60023798", //mainnet address for forking tests
     [eEthereumNetwork.localhost]: "",
-    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.goerli]: "0x2a7938b4f5fCb2df8763a1aCda19D96fe1556E91",
     [eEthereumNetwork.main]: "0x9a29a9DBC70eA932637216A2BF9EbE7E60023798",
   },
   BlurModule: {
@@ -305,12 +292,6 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.goerli]: "0x9ec973b9471fd632aee6d67e0c74855d115bdbad",
     [eEthereumNetwork.main]: "0xfb3f14829f15b1303d6ca677e3fae5a558e064d1", //,
   },
-  SudoSwapModule: {
-    [eEthereumNetwork.hardhat]: "0x79abbfdf20fc6dd0c51693bf9a481f7351a70fd2", //mainnet address for forking tests
-    [eEthereumNetwork.localhost]: "",
-    [eEthereumNetwork.goerli]: "",
-    [eEthereumNetwork.main]: "0x79abbfdf20fc6dd0c51693bf9a481f7351a70fd2",
-  },
   X2Y2Module: {
     [eEthereumNetwork.hardhat]: "0x613d3c588f6b8f89302b463f8f19f7241b2857e2", //mainnet address for forking tests
     [eEthereumNetwork.localhost]: "",
@@ -334,12 +315,6 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.localhost]: "",
     [eEthereumNetwork.goerli]: "",
     [eEthereumNetwork.main]: "0xef82b43719dd13ba33ef7d93e6f0d1f690eea5b2",
-  },
-  NFTXModule: {
-    [eEthereumNetwork.hardhat]: "0x27eb35119dda39df73db6681019edc4c16311acc", //mainnet address for forking tests
-    [eEthereumNetwork.localhost]: "",
-    [eEthereumNetwork.goerli]: "",
-    [eEthereumNetwork.main]: "0x27eb35119dda39df73db6681019edc4c16311acc",
   },
   RaribleModule: {
     [eEthereumNetwork.hardhat]: "0xa29d7914cd525dea9afad0dceec6f49404476486", //mainnet address for forking tests

@@ -65,12 +65,6 @@ interface IPunkGateway {
   function buyout(uint256 punkIndex, uint256 amount, address onBehalfOf) external;
 
   /**
-   * @notice liquidate a unhealth punk loan on NFTX
-   * @param punkIndex The index of the CryptoPunk used as collateral
-   **/
-  function liquidateNFTX(uint256 punkIndex, uint256 amountOutMin) external returns (uint256);
-
-  /**
    * @dev Allows users to borrow a specific `amount` of the reserve underlying asset, provided that the borrower
    * already deposited enough collateral
    * - E.g. User borrows 100 ETH, receiving the 100 ETH in his wallet

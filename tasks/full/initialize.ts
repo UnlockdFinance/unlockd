@@ -83,16 +83,19 @@ task("full:initialize-gateway", "Initialize gateway configuration.")
       const network = <eNetwork>localBRE.network.name;
       const poolConfig = loadPoolConfig(pool);
 
+      console.log("Banana 1");
       const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
       if (!reserveAssets) {
         throw "Reserve assets is undefined. Check ReserveAssets configuration at config directory";
       }
 
+      console.log("Banana 2");
       const nftsAssets = getParamPerNetwork(poolConfig.NftsAssets, network);
       if (!nftsAssets) {
         throw "NFT assets is undefined. Check NftsAssets configuration at config directory";
       }
 
+      console.log("Banana 3");
       const wethGateway = await getWETHGateway();
       const nftAddresses: string[] = [];
       for (const [assetSymbol, assetAddress] of Object.entries(nftsAssets) as [string, string][]) {
@@ -101,6 +104,7 @@ task("full:initialize-gateway", "Initialize gateway configuration.")
       console.log("WETHGateway: authorizeLendPoolNFT:", nftAddresses);
       await waitForTx(await wethGateway.authorizeLendPoolNFT(nftAddresses));
 
+      console.log("Banana 4");
       const punkGateway = await getPunkGateway();
       const reserveAddresses: string[] = [];
       for (const [assetSymbol, assetAddress] of Object.entries(reserveAssets) as [string, string][]) {

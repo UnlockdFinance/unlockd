@@ -128,6 +128,7 @@ export const getYVaultWETHAddress = async (config: ICommonConfiguration): Promis
   const currentNetwork = DRE.network.name;
   return getParamPerNetwork(config.YVaultWETH, <eNetwork>currentNetwork);
 };
+
 export const getConvexBooster = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
   const currentNetwork = DRE.network.name;
   return getParamPerNetwork(config.ConvexBooster, <eNetwork>currentNetwork);
@@ -151,11 +152,6 @@ export const getUniswapRouter = async (config: ICommonConfiguration): Promise<tE
 export const getSushiswapRouter = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
   const currentNetwork = DRE.network.name;
   return getParamPerNetwork(config.SushiSwapRouter, <eNetwork>currentNetwork);
-};
-
-export const getLSSVMRouter = async (config: ICommonConfiguration): Promise<tEthereumAddress> => {
-  const currentNetwork = DRE.network.name;
-  return getParamPerNetwork(config.LSSVMRouter, <eNetwork>currentNetwork);
 };
 
 export const getWrappedNativeTokenAddress = async (config: ICommonConfiguration) => {

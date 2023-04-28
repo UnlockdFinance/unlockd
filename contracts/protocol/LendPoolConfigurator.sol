@@ -377,7 +377,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
       //validation of the parameters: the LTV can
       //only be lower or equal than the liquidation threshold
       //(otherwise a loan against the asset would cause instantaneous liquidation)
-      require(collateralData.ltv <= collateralData.liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
+      require(collateralData.ltv < collateralData.liquidationThreshold, Errors.LPC_INVALID_CONFIGURATION);
 
       if (collateralData.liquidationThreshold != 0) {
         //liquidation bonus must be smaller than 100.00%
@@ -623,18 +623,6 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   }
 
   /**
-   * @dev Allows and address to be sold on NFTX
-   * @param nftAsset the address of the NFT
-   * @param marketId the id of the market
-   * @param val `true` if it is supported, `false`otherwise
-   **/
-  function setIsMarketSupported(address nftAsset, uint8 marketId, bool val) external onlyLtvManager {
-    require(nftAsset != address(0), Errors.INVALID_ZERO_ADDRESS);
-    ILendPool cachedPool = _getLendPool();
-    cachedPool.setIsMarketSupported(nftAsset, marketId, val);
-  }
-
-  /**
    * @dev Sets configFee amount to be charged for ConfigureNFTAsColleteral
    * @param configFee the fee amount
    **/
@@ -650,6 +638,15 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function setAuctionDurationConfigFee(uint256 auctionDurationConfigFee) external onlyLtvManager {
     ILendPool cachedPool = _getLendPool();
     cachedPool.setAuctionDurationConfigFee(auctionDurationConfigFee);
+  }
+
+  /**
+   * @dev sets the bidDelta percentage - debt compounded + fees.
+   * @param bidDelta the amount to charge to the user
+   **/
+  function setBidDelta(uint256 bidDelta) external onlyPoolAdmin {
+    ILendPool cachedPool = _getLendPool();
+    cachedPool.setBidDelta(bidDelta);
   }
 
   /**

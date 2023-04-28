@@ -53,66 +53,66 @@ task("unlockd:mainnet", "Deploy full enviroment")
     console.log("\n\nMigration started");
 
     ////////////////////////////////////////////////////////////////////////
-    // console.log("\n\nDeploy proxy admin");
-    // await DRE.run("full:deploy-proxy-admin", { pool: POOL_NAME, verify: true });
+    console.log("\n\nDeploy proxy admin");
+    await DRE.run("full:deploy-proxy-admin", { pool: POOL_NAME, verify: true });
+
+    ////////////////////////////////////////////////////////////////////////
+    console.log("\n\nDeploy address provider");
+    await DRE.run("full:deploy-address-provider", { pool: POOL_NAME, skipRegistry: false, verify: true });
 
     //////////////////////////////////////////////////////////////////////////
-    // console.log("\n\nDeploy address provider");
-    // await DRE.run("full:deploy-address-provider", { pool: POOL_NAME, skipRegistry: false, verify: true });
+    console.log("\n\nDeploy Incentives Controller");
+    await DRE.run("full:deploy-incentives-controller", { verify: true });
 
-    // //////////////////////////////////////////////////////////////////////////
-    // console.log("\n\nDeploy Incentives Controller");
-    // await DRE.run("full:deploy-incentives-controller", { verify: true });
-
-    // //////////////////////////////////////////////////////////////////////////
-    // console.log("\n\nDeploy UNFT Registry");
-    // await DRE.run("full:deploy-unft-registry", { pool: POOL_NAME, verify, createunfts: true });
+    //////////////////////////////////////////////////////////////////////////
+    console.log("\n\nDeploy UNFT Registry");
+    await DRE.run("full:deploy-unft-registry", { pool: POOL_NAME, verify, createunfts: true });
 
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy Lockey Holders");
     await DRE.run("full:deploy-lockey-holders", { pool: POOL_NAME });
 
-    // //////////////////////////////////////////////////////////////////////////
-
     //////////////////////////////////////////////////////////////////////////
-    // console.log("\n\nDeploy lend pool");
-    // await DRE.run("full:deploy-lend-pool", { pool: POOL_NAME, verify: true });
 
-    // console.log("\n\nUpgrade UToken...");
-    // await DRE.run("full:upgrade-utoken", { pool: POOL_NAME, verify: true });
+    ////////////////////////////////////////////////////////////////////////
+    console.log("\n\nDeploy lend pool");
+    await DRE.run("full:deploy-lend-pool", { pool: POOL_NAME, verify: true });
 
-    // console.log("\n\nDeploy reserve oracle");
-    // await DRE.run("full:deploy-oracle-reserve", { pool: POOL_NAME, skipOracle: false, verify: true });
+    console.log("\n\nUpgrade UToken...");
+    await DRE.run("full:upgrade-utoken", { pool: POOL_NAME, verify: true });
+
+    console.log("\n\nDeploy reserve oracle");
+    await DRE.run("full:deploy-oracle-reserve", { pool: POOL_NAME, skipOracle: false, verify: true });
 
     console.log("\n\nDeploy nft oracle");
     await DRE.run("full:deploy-oracle-nft", { pool: POOL_NAME, skipOracle: false, verify: true });
 
-    // ////////////////////////////////////////////////////////////////////////
-    // console.log("\n\nInitialize lend pool");
-    // await DRE.run("full:initialize-lend-pool", { pool: POOL_NAME, verify: true });
+    ////////////////////////////////////////////////////////////////////////
+    console.log("\n\nInitialize lend pool");
+    await DRE.run("full:initialize-lend-pool", { pool: POOL_NAME, verify: true });
 
-    // //////////////////////////////////////////////////////////////////////////
-    // console.log("\n\nDeploy WETH Gateway");
-    // await DRE.run("full:deploy-weth-gateway", { pool: POOL_NAME, verify: true });
+    //////////////////////////////////////////////////////////////////////////
+    console.log("\n\nDeploy WETH Gateway");
+    await DRE.run("full:deploy-weth-gateway", { pool: POOL_NAME, verify: true });
 
-    // console.log("\n\nDeploy PUNK Gateway"); // MUST AFTER WETH GATEWAY
-    // await DRE.run("full:deploy-punk-gateway", { pool: POOL_NAME, verify: true });
-
-    // // // //////////////////////////////////////////////////////////////////////////
-    // console.log("\n\nInitialize gateway");
-    // await DRE.run("full:initialize-gateway", { pool: POOL_NAME, verify: true });
+    console.log("\n\nDeploy PUNK Gateway"); // MUST AFTER WETH GATEWAY
+    await DRE.run("full:deploy-punk-gateway", { pool: POOL_NAME, verify: true });
 
     // // //////////////////////////////////////////////////////////////////////////
-    // console.log("\n\nDeploy data provider");
-    // await DRE.run("full:deploy-data-provider", {
-    //   pool: POOL_NAME,
-    //   wallet: true,
-    //   ui: true,
-    //   protocol: true,
-    //   verify: verify,
-    // });
+    console.log("\n\nInitialize gateway");
+    await DRE.run("full:initialize-gateway", { pool: POOL_NAME, verify: true });
 
-    /* if (verify) {
+    // //////////////////////////////////////////////////////////////////////////
+    console.log("\n\nDeploy data provider");
+    await DRE.run("full:deploy-data-provider", {
+      pool: POOL_NAME,
+      wallet: true,
+      ui: true,
+      protocol: true,
+      verify: verify,
+    });
+
+    if (verify) {
       printContracts();
 
       console.log("\n\nVeryfing general contracts");
@@ -123,7 +123,7 @@ task("unlockd:mainnet", "Deploy full enviroment")
 
       console.log("\n\nVeryfing nfts contracts");
       await DRE.run("verify:nfts", { pool: POOL_NAME });
-    } */
+    }
 
     console.log("\n\nFinished migrations");
     printContracts();

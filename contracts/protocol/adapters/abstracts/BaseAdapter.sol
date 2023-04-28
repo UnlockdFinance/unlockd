@@ -10,6 +10,7 @@ import {ILendPoolAddressesProvider} from "../../../interfaces/ILendPoolAddresses
 import {ILendPool} from "../../../interfaces/ILendPool.sol";
 import {ILendPoolLoan} from "../../../interfaces/ILendPoolLoan.sol";
 import {IUToken} from "../../../interfaces/IUToken.sol";
+import {IDebtMarket} from "../../../interfaces/IDebtMarket.sol";
 
 import {DataTypes} from "../../../libraries/types/DataTypes.sol";
 import {NftConfiguration} from "../../../libraries/configuration/NftConfiguration.sol";
@@ -53,6 +54,9 @@ abstract contract BaseAdapter is Initializable {
 
   uint256 private _status;
 
+  // Gap for upgradeability
+  uint256[20] private __gap;
+
   /*//////////////////////////////////////////////////////////////
                           MODIFIERS
   //////////////////////////////////////////////////////////////*/
@@ -71,6 +75,9 @@ abstract contract BaseAdapter is Initializable {
     _status = _NOT_ENTERED;
   }
 
+  /**
+   * @dev Only poolAdmin can call functions restricted by this modifier.
+   */
   modifier onlyPoolAdmin() {
     if (msg.sender != _addressesProvider.getPoolAdmin()) _revert(CallerNotPoolAdmin.selector);
     _;
@@ -79,6 +86,8 @@ abstract contract BaseAdapter is Initializable {
   /*//////////////////////////////////////////////////////////////
                           INITIALIZATION
   //////////////////////////////////////////////////////////////*/
+  /// @custom:oz -upgrades -unsafe -allow constructor
+  constructor() initializer {}
 
   /**
    * @notice Initialize a new Adapter.
@@ -213,6 +222,19 @@ abstract contract BaseAdapter is Initializable {
     // transfer remain amount to borrower
     if (remainAmount > 0) {
       IERC20(reserveAsset).safeTransfer(borrower, remainAmount);
+    }
+  }
+
+  /**
+   * @dev Cancels the debt listing if exist
+   * @param nftAsset The address of the NFT to be liquidated
+   * @param tokenId The tokenId of the NFT to be liquidated
+   **/
+  function _cancelDebtListing(address nftAsset, uint256 tokenId) internal {
+    // Cancel debt listing if exist
+    address debtMarket = _addressesProvider.getAddress(keccak256("DEBT_MARKET"));
+    if (IDebtMarket(debtMarket).getDebtId(nftAsset, tokenId) != 0) {
+      IDebtMarket(debtMarket).cancelDebtListing(nftAsset, tokenId);
     }
   }
 

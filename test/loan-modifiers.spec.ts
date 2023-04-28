@@ -48,19 +48,13 @@ makeSuite("LendPoolLoan: Modifiers", (testEnv: TestEnv) => {
     );
   });
 
-  it("Tries to invoke liquidateLoanNFTX not being the Pool", async () => {
-    const { deployer, bayc, uBAYC, uWETH, loan } = testEnv;
-    await expect(loan.liquidateLoanNFTX("1", uBAYC.address, "1", "0", 0)).to.be.revertedWith(
-      CT_CALLER_MUST_BE_LEND_POOL
-    );
-  });
-
   it("Tries to invoke liquidateLoanMarket not being the Adapter", async () => {
     const { uBAYC, loan } = testEnv;
     await expect(loan.liquidateLoanMarket("1", uBAYC.address, "1", 0)).to.be.revertedWith(
       LPL_CALLER_MUST_BE_MARKET_ADAPTER
     );
   });
+
   it("Tries to invoke updateMarketAdapters not being the pool admin", async () => {
     const { uBAYC, loan, users } = testEnv;
     await expect(loan.connect(users[2].signer).updateMarketAdapters([uBAYC.address], false)).to.be.revertedWith(

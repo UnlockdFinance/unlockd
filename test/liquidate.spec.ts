@@ -1,9 +1,8 @@
 import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
-import { BigNumber as BN } from "ethers";
-import { APPROVAL_AMOUNT_LENDING_POOL, oneEther, ONE_DAY } from "../helpers/constants";
+import { oneEther, ONE_DAY } from "../helpers/constants";
 import { convertToCurrencyDecimals, convertToCurrencyUnits } from "../helpers/contracts-helpers";
-import { fundWithERC20, fundWithERC721, increaseTime, waitForTx } from "../helpers/misc-utils";
+import { fundWithERC20, fundWithERC721, increaseTime } from "../helpers/misc-utils";
 import { IConfigNftAsCollateralInput, ProtocolErrors, ProtocolLoanState } from "../helpers/types";
 import { approveERC20, setApprovalForAll, setNftAssetPrice, setNftAssetPriceForDebt } from "./helpers/actions";
 import { makeSuite } from "./helpers/make-suite";
@@ -14,10 +13,8 @@ const chai = require("chai");
 const { expect } = chai;
 
 makeSuite("LendPool: Liquidation", (testEnv) => {
-  let baycInitPrice: BN;
-
   it("WETH - Borrows WETH", async () => {
-    const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, deployer } = testEnv;
+    const { users, pool, nftOracle, reserveOracle, weth, bayc, configurator, deployer, debtMarket } = testEnv;
     const depositor = users[0];
     const borrower = users[1];
 
@@ -29,6 +26,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     const amountDeposit = await convertToCurrencyDecimals(deployer, weth, "1000");
 
     await pool.connect(depositor.signer).deposit(weth.address, amountDeposit, depositor.address, "0");
+    await configurator.setBidDelta("10050");
 
     //mints BAYC to borrower
     await fundWithERC721("BAYC", borrower.address, 101);
@@ -71,6 +69,13 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     await pool
       .connect(borrower.signer)
       .borrow(weth.address, amountBorrow.toString(), bayc.address, "101", borrower.address, "0");
+
+    await debtMarket
+      .connect(borrower.signer)
+      .createDebtListing(bayc.address, "101", parseEther("10"), borrower.address, 0, 0);
+
+    const debtIdBefore = await debtMarket.getDebtId(bayc.address, "101");
+    expect(debtIdBefore).to.be.not.equal(0);
 
     const nftDebtDataAfter = await pool.getNftDebtData(bayc.address, "101");
 
@@ -119,8 +124,6 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
     const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(1.1).toFixed(0);
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
 
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
     await pool.connect(liquidator.signer).auction(bayc.address, "101", auctionPrice, liquidator.address);
 
     // check result
@@ -198,6 +201,12 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
       "Invalid liquidity APY"
     );
   });
+  it("Debt listing got cancelled after liquidation", async () => {
+    const { debtMarket, bayc } = testEnv;
+
+    const debtIdAfter = await debtMarket.getDebtId(bayc.address, "101");
+    expect(debtIdAfter).to.be.equal(0);
+  });
 
   it("USDC - Borrows USDC", async () => {
     const { users, pool, reserveOracle, usdc, bayc, uBAYC, configurator, nftOracle, deployer } = testEnv;
@@ -265,7 +274,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
         ProtocolErrors.VL_INVALID_HEALTH_FACTOR
       );
 
-      const tokenOwner = await bayc.ownerOf("102");
+      const tokenOwner = await bayc.ownerOf("101");
       expect(tokenOwner).to.be.equal(uBAYC.address, "Invalid token owner after auction");
     }
   });
@@ -311,8 +320,6 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
 
       await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
 
-      await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
-      await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
       await pool.connect(liquidator.signer).auction(bayc.address, "102", auctionPrice, liquidator.address);
 
       // check result
@@ -353,11 +360,7 @@ makeSuite("LendPool: Liquidation", (testEnv) => {
 
       const auctionPrice = new BigNumber(auctionDataBefore.bidPrice.toString()).multipliedBy(1.2).toFixed(0);
 
-      // remove  supporting liquidations on sudoswap / NFTX for auction price purposes
       await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
-
-      await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
-      await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
 
       await pool.connect(liquidator4.signer).auction(bayc.address, "102", auctionPrice, liquidator4.address);
 

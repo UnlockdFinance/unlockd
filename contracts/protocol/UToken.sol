@@ -61,6 +61,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   /*//////////////////////////////////////////////////////////////
                       MODIFIERS
   //////////////////////////////////////////////////////////////*/
+
   modifier onlyLendPool() {
     require(_msgSender() == address(_getLendPool()), Errors.CT_CALLER_MUST_BE_LEND_POOL);
     _;

@@ -145,14 +145,6 @@ const getReserveNormalizedVariableDebt = async (wallet: Wallet, nftAddress: stri
 const getReservesList = async (wallet: Wallet) => {
   return Contracts.lendPool.connect(wallet).getReservesList();
 };
-const liquidateNFTX = async (wallet: Wallet, nftAddress: string, tokenId: number) => {
-  const gas = await Contracts.lendPool.connect(wallet).estimateGas.liquidateNFTX(nftAddress, tokenId, 0);
-
-  const strGas = gas.toString();
-  const gasPrice = Math.round(parseInt(strGas) * 1.1);
-  console.log(gasPrice);
-  return Contracts.lendPool.connect(wallet).liquidateNFTX(nftAddress, tokenId, 0, { gasLimit: gasPrice.toFixed(0) });
-};
 //#endregion
 
 //#region WETHGateway
@@ -358,22 +350,6 @@ const setProtocolDataProvider = async (wallet: Wallet, protocolDataProviderAddre
 const getProtocolDataProvider = async (wallet: Wallet) => {
   return Contracts.lendPoolAddressesProvider.connect(wallet).getUnlockdDataProvider();
 };
-
-const getNFTXVaultFactory = async (wallet: Wallet) => {
-  return Contracts.lendPoolAddressesProvider.connect(wallet).getNFTXVaultFactory();
-};
-
-const setNFTXVaultFactory = async (wallet: Wallet, address: string) => {
-  return Contracts.lendPoolAddressesProvider.connect(wallet).setNFTXVaultFactory(address);
-};
-
-const getSushiSwapRouter = async (wallet: Wallet) => {
-  return Contracts.lendPoolAddressesProvider.connect(wallet).getSushiSwapRouter();
-};
-
-const setSushiSwapRouter = async (wallet: Wallet, address: string) => {
-  return Contracts.lendPoolAddressesProvider.connect(wallet).setSushiSwapRouter(address);
-};
 //#endregion
 
 //#region Interest Rates
@@ -396,28 +372,12 @@ const getUNFTAddresses = async (wallet: Wallet, nftAddress: string) => {
 };
 //#endregion
 
-//#region NFTXVault
-const mintNFTX = async (wallet: Wallet, token: Contract, tokenIds: string[], amounts: string[]) => {
-  return token.connect(wallet).mint(tokenIds, amounts);
-};
-//#endregion
-
-//#region LendPoolConfigurator for any doubts in the parameters
-// check the LendPoolConfigurator.sol or ILendPoolconfigurator.sol
-const setIsMarketSupported = async (wallet: Wallet, nftAddresses: string, marketId: string, val: boolean) => {
-  return Contracts.lendPoolConfigurator.connect(wallet).setIsMarketSupported(nftAddresses, marketId, val);
-};
-
 const setTimeframe = async (wallet: Wallet, newTimeframe: string) => {
   return Contracts.lendPoolConfigurator.connect(wallet).setTimeframe(newTimeframe);
 };
 
 const setConfigFee = async (wallet: Wallet, configFee: BigNumber) => {
   return Contracts.lendPoolConfigurator.connect(wallet).setConfigFee(configFee);
-};
-
-const setAllowToSellNFTX = async (wallet: Wallet, nftAddress: string, val: boolean) => {
-  return Contracts.lendPoolConfigurator.connect(wallet).setAllowToSellNFTX(nftAddress, val);
 };
 
 const setBorrowingFlagOnReserve = async (wallet: Wallet, asset: string, flag: boolean) => {
@@ -574,7 +534,6 @@ export const Functions = {
     getConfigFee: getConfigFee,
     getTimeframe: getTimeframe,
     getNftConfigByTokenId: getNftConfigByTokenId,
-    liquidateNFTX: liquidateNFTX,
     getReserveConfiguration: getReserveConfiguration,
     getNftConfiguration: getNftConfiguration,
     getNftData: getNftData,
@@ -630,10 +589,6 @@ export const Functions = {
     getLendPoolLiquidator: getLendPoolLiquidator,
     setProtocolDataProvider: setProtocolDataProvider,
     getProtocolDataProvider: getProtocolDataProvider,
-    getNFTXVaultFactory: getNFTXVaultFactory,
-    setNFTXVaultFactory: setNFTXVaultFactory,
-    getSushiSwapRouter: getSushiSwapRouter,
-    setSushiSwapRouter: setSushiSwapRouter,
     getPoolAdmin: getPoolAdmin,
     setPoolAdmin: setPoolAdmin,
     getEmergencyAdmin: getEmergencyAdmin,
@@ -664,7 +619,6 @@ export const Functions = {
     getUNFTAddresses: getUNFTAddresses,
   },
   LENDPOOLCONFIGURATOR: {
-    setIsMarketSupported: setIsMarketSupported,
     setConfigFee: setConfigFee,
     setTimeframe: setTimeframe,
     setActiveFlagOnNft: setActiveFlagOnNft,
@@ -685,9 +639,5 @@ export const Functions = {
     setPoolPause: setPoolPause,
     setLtvManagerStatus: setLtvManagerStatus,
     getTokenImplementation: getTokenImplementation,
-    setAllowToSellNFTX: setAllowToSellNFTX,
-  },
-  NFTXVAULT: {
-    mintNFTX: mintNFTX,
   },
 };

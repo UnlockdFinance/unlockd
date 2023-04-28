@@ -1188,6 +1188,418 @@ export const liquidateNFTX = async (
   }
 };
 
+export const repay = async (
+  testEnv: TestEnv,
+  user: SignerWithAddress,
+  reserveSymbol: string,
+  sendValue: string,
+  nftSymbol: string,
+  nftTokenId: string,
+  amount: string,
+  onBehalfOf: SignerWithAddress,
+  expectedResult: string,
+  revertMessage?: string
+) => {
+  const { pool, dataProvider } = testEnv;
+
+  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+  const network = <eNetwork>DRE.network.name;
+
+  const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
+  const reserve = new Contract(reserveAssets[reserveSymbol], reserveSymbol == "WETH" ? weth : erc20Artifact.abi);
+
+  const nftsAssets = getParamPerNetwork(poolConfig.NftsAssets, network);
+  const nftAsset = new Contract(nftsAssets[nftSymbol], erc721Artifact.abi);
+
+  const {
+    reserveData: reserveDataBefore,
+    userData: userDataBefore,
+    loanData: loanDataBefore,
+  } = await getContractsDataWithLoan(reserve.address, onBehalfOf.address, nftAsset.address, nftTokenId, "0", testEnv);
+
+  let amountToRepay = "0";
+
+  if (amount !== "-1") {
+    amountToRepay = (await convertToCurrencyDecimals(user, reserve, amount)).toString();
+  } else {
+    amountToRepay = MAX_UINT_AMOUNT;
+  }
+  amountToRepay = "0x" + new BigNumber(amountToRepay).toString(16);
+
+  const txOptions: any = {};
+
+  if (sendValue) {
+    const valueToSend = await convertToCurrencyDecimals(user, reserve, sendValue);
+    txOptions.value = "0x" + new BigNumber(valueToSend.toString()).toString(16);
+  }
+
+  if (expectedResult === "success") {
+    const txResult = await waitForTx(
+      await pool.connect(user.signer).repay(nftAsset.address, nftTokenId, amountToRepay, txOptions)
+    );
+
+    const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
+
+    const {
+      reserveData: reserveDataAfter,
+      userData: userDataAfter,
+      loanData: loanDataAfter,
+      timestamp,
+    } = await getContractsDataWithLoan(
+      reserve.address,
+      onBehalfOf.address,
+      nftAsset.address,
+      nftTokenId,
+      loanDataBefore.loanId.toString(),
+      testEnv
+    );
+
+    const expectedReserveData = calcExpectedReserveDataAfterRepay(
+      amountToRepay,
+      reserveDataAfter.availableLiquidity,
+      reserveDataAfter.totalLiquidity,
+      reserveDataBefore,
+      userDataBefore,
+      txTimestamp,
+      timestamp
+    );
+
+    const expectedUserData = calcExpectedUserDataAfterRepay(
+      amountToRepay,
+      reserveDataBefore,
+      expectedReserveData,
+      userDataBefore,
+      user.address,
+      onBehalfOf.address,
+      txTimestamp,
+      timestamp
+    );
+
+    const expectedLoanData = calcExpectedLoanDataAfterRepay(
+      amountToRepay,
+      reserveDataBefore,
+      expectedReserveData,
+      loanDataBefore,
+      loanDataAfter,
+      user.address,
+      onBehalfOf.address,
+      txTimestamp,
+      timestamp
+    );
+    //console.log("repay", "actual", loanDataAfter, "expected", expectedLoanData);
+    expectedReserveData.totalLiquidity = reserveDataAfter.totalLiquidity;
+    expectedReserveData.availableLiquidity = reserveDataAfter.availableLiquidity;
+    expectedReserveData.utilizationRate = reserveDataAfter.utilizationRate;
+    expectedReserveData.liquidityRate = reserveDataAfter.liquidityRate;
+    expectedReserveData.variableBorrowRate = reserveDataAfter.variableBorrowRate;
+    expectedReserveData.totalVariableDebt = reserveDataAfter.totalVariableDebt;
+
+    expectedUserData.totalLiquidity = userDataAfter.totalLiquidity;
+    expectedUserData.availableLiquidity = userDataAfter.availableLiquidity;
+    expectedUserData.utilizationRate = userDataAfter.utilizationRate;
+    expectedUserData.liquidityRate = userDataAfter.liquidityRate;
+    expectedUserData.variableBorrowRate = userDataAfter.variableBorrowRate;
+
+    expectEqual(reserveDataAfter, expectedReserveData);
+    expectEqual(userDataAfter, expectedUserData);
+    expectEqual(loanDataAfter, expectedLoanData);
+  } else if (expectedResult === "revert") {
+    await expect(pool.connect(user.signer).repay(nftAsset.address, nftTokenId, amountToRepay, txOptions), revertMessage)
+      .to.be.reverted;
+  }
+};
+
+export const auction = async (
+  testEnv: TestEnv,
+  user: SignerWithAddress,
+  nftSymbol: string,
+  nftTokenId: string,
+  price: string,
+  onBehalfOf: SignerWithAddress,
+  isFirstTime: boolean,
+  expectedResult: string,
+  revertMessage?: string
+) => {
+  const { pool, dataProvider } = testEnv;
+
+  const nftAsset = await getNftAddressFromSymbol(nftSymbol);
+
+  const { reserveAsset, borrower } = await getLoanData(pool, dataProvider, nftAsset, nftTokenId, "0");
+  const token = await getMintableERC20(reserveAsset);
+
+  const {
+    reserveData: reserveDataBefore,
+    userData: userDataBefore,
+    loanData: loanDataBefore,
+  } = await getContractsDataWithLoan(reserveAsset, borrower, nftAsset, nftTokenId, "0", testEnv, user.address);
+
+  let amountToAuction = (await convertToCurrencyDecimals(user, token, price)).toString();
+
+  amountToAuction = "0x" + new BigNumber(amountToAuction).toString(16);
+
+  if (isFirstTime && expectedResult === "success") {
+    const txResult = await waitForTx(
+      await pool.connect(user.signer).auction(nftAsset, nftTokenId, amountToAuction, onBehalfOf.address)
+    );
+
+    const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
+  } else if (expectedResult === "success") {
+    const txResult = await waitForTx(
+      await pool.connect(user.signer).auction(nftAsset, nftTokenId, amountToAuction, onBehalfOf.address)
+    );
+
+    const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
+
+    const {
+      reserveData: reserveDataAfter,
+      userData: userDataAfter,
+      loanData: loanDataAfter,
+      timestamp,
+    } = await getContractsDataWithLoan(
+      reserveAsset,
+      borrower,
+      nftAsset,
+      nftTokenId,
+      loanDataBefore.loanId.toString(),
+      testEnv,
+      user.address
+    );
+
+    const expectedReserveData = calcExpectedReserveDataAfterAuction(
+      amountToAuction,
+      reserveDataAfter.availableLiquidity,
+      reserveDataAfter.totalLiquidity,
+      reserveDataBefore,
+      userDataBefore,
+      loanDataBefore,
+      txTimestamp,
+      timestamp
+    );
+
+    const expectedUserData = calcExpectedUserDataAfterAuction(
+      reserveDataBefore,
+      expectedReserveData,
+      userDataBefore,
+      loanDataBefore,
+      user.address,
+      onBehalfOf.address,
+      amountToAuction,
+      txTimestamp,
+      timestamp
+    );
+
+    const expectedLoanData = calcExpectedLoanDataAfterAuction(
+      amountToAuction,
+      reserveDataBefore,
+      expectedReserveData,
+      loanDataBefore,
+      loanDataAfter,
+      user.address,
+      onBehalfOf.address,
+      txTimestamp,
+      timestamp
+    );
+
+    expectedReserveData.totalLiquidity = reserveDataAfter.totalLiquidity;
+    expectedReserveData.availableLiquidity = reserveDataAfter.availableLiquidity;
+    expectedReserveData.utilizationRate = reserveDataAfter.utilizationRate;
+    expectedReserveData.liquidityRate = reserveDataAfter.liquidityRate;
+    expectedReserveData.variableBorrowRate = reserveDataAfter.variableBorrowRate;
+    expectedReserveData.totalVariableDebt = reserveDataAfter.totalVariableDebt;
+
+    expectedUserData.totalLiquidity = userDataAfter.totalLiquidity;
+    expectedUserData.availableLiquidity = userDataAfter.availableLiquidity;
+    expectedUserData.utilizationRate = userDataAfter.utilizationRate;
+    expectedUserData.liquidityRate = userDataAfter.liquidityRate;
+    expectedUserData.variableBorrowRate = userDataAfter.variableBorrowRate;
+
+    expectEqual(reserveDataAfter, expectedReserveData);
+    expectEqual(userDataAfter, expectedUserData);
+    expectEqual(loanDataAfter, expectedLoanData);
+  } else if (expectedResult === "revert") {
+    await expect(
+      pool.connect(user.signer).auction(nftAsset, nftTokenId, amountToAuction, onBehalfOf.address),
+      revertMessage
+    ).to.be.reverted;
+  }
+};
+
+export const redeem = async (
+  testEnv: TestEnv,
+  user: SignerWithAddress,
+  nftSymbol: string,
+  nftTokenId: string,
+  amount: string,
+  expectedResult: string,
+  revertMessage?: string
+) => {
+  const { pool, dataProvider } = testEnv;
+
+  const nftAsset = await getNftAddressFromSymbol(nftSymbol);
+
+  const { reserveAsset, borrower } = await getLoanData(pool, dataProvider, nftAsset, nftTokenId, "0");
+  const token = await getMintableERC20(reserveAsset);
+
+  const {
+    reserveData: reserveDataBefore,
+    userData: userDataBefore,
+    loanData: loanDataBefore,
+  } = await getContractsDataWithLoan(reserveAsset, borrower, nftAsset, nftTokenId, "0", testEnv, user.address);
+
+  let amountToRedeem = "0";
+
+  if (amount !== "-1") {
+    amountToRedeem = (await convertToCurrencyDecimals(user, token, amount)).toString();
+  } else {
+    amountToRedeem = loanDataBefore.currentAmount.multipliedBy(0.51).toFixed(0); //50% Debt
+  }
+  amountToRedeem = "0x" + new BigNumber(amountToRedeem).toString(16);
+
+  const bidFineAmount = loanDataBefore.bidBorrowAmount.multipliedBy(1.1).toFixed(0);
+
+  if (expectedResult === "success") {
+    const txResult = await waitForTx(
+      await pool.connect(user.signer).redeem(nftAsset, nftTokenId, amountToRedeem, bidFineAmount)
+    );
+
+    const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
+
+    const {
+      reserveData: reserveDataAfter,
+      userData: userDataAfter,
+      loanData: loanDataAfter,
+      timestamp,
+    } = await getContractsDataWithLoan(
+      reserveAsset,
+      borrower,
+      nftAsset,
+      nftTokenId,
+      loanDataBefore.loanId.toString(),
+      testEnv,
+      user.address
+    );
+
+    const expectedReserveData = calcExpectedReserveDataAfterRedeem(
+      amountToRedeem,
+      reserveDataAfter.availableLiquidity,
+      reserveDataAfter.totalLiquidity,
+      reserveDataBefore,
+      userDataBefore,
+      loanDataBefore,
+      txTimestamp,
+      timestamp
+    );
+
+    const expectedUserData = calcExpectedUserDataAfterRedeem(
+      reserveDataBefore,
+      expectedReserveData,
+      userDataBefore,
+      loanDataBefore,
+      user.address,
+      amountToRedeem,
+      txTimestamp,
+      timestamp
+    );
+
+    const expectedLoanData = calcExpectedLoanDataAfterRedeem(
+      amountToRedeem,
+      reserveDataBefore,
+      expectedReserveData,
+      loanDataBefore,
+      loanDataAfter,
+      user.address,
+      txTimestamp,
+      timestamp
+    );
+
+    expectEqual(reserveDataAfter, expectedReserveData);
+    expectEqual(userDataAfter, expectedUserData);
+    expectEqual(loanDataAfter, expectedLoanData);
+  } else if (expectedResult === "revert") {
+    await expect(pool.connect(user.signer).redeem(nftAsset, nftTokenId, amountToRedeem, bidFineAmount), revertMessage)
+      .to.be.reverted;
+  }
+};
+
+export const liquidate = async (
+  testEnv: TestEnv,
+  user: SignerWithAddress,
+  nftSymbol: string,
+  nftTokenId: string,
+  amount: string,
+  expectedResult: string,
+  revertMessage?: string
+) => {
+  const { pool, dataProvider } = testEnv;
+
+  const nftAsset = await getNftAddressFromSymbol(nftSymbol);
+
+  const { reserveAsset, borrower } = await getLoanData(pool, dataProvider, nftAsset, nftTokenId, "0");
+
+  const {
+    reserveData: reserveDataBefore,
+    userData: userDataBefore,
+    loanData: loanDataBefore,
+  } = await getContractsDataWithLoan(reserveAsset, borrower, nftAsset, nftTokenId, "0", testEnv, user.address);
+
+  if (expectedResult === "success") {
+    const txResult = await waitForTx(await pool.connect(user.signer).liquidate(nftAsset, nftTokenId, amount));
+
+    const { txCost, txTimestamp } = await getTxCostAndTimestamp(txResult);
+
+    const {
+      reserveData: reserveDataAfter,
+      userData: userDataAfter,
+      loanData: loanDataAfter,
+      timestamp,
+    } = await getContractsDataWithLoan(
+      reserveAsset,
+      borrower,
+      nftAsset,
+      nftTokenId,
+      loanDataBefore.loanId.toString(),
+      testEnv,
+      user.address
+    );
+
+    const expectedReserveData = calcExpectedReserveDataAfterLiquidate(
+      reserveDataBefore,
+      reserveDataAfter.availableLiquidity,
+      reserveDataAfter.totalLiquidity,
+      userDataBefore,
+      loanDataBefore,
+      txTimestamp,
+      timestamp
+    );
+
+    const expectedUserData = calcExpectedUserDataAfterLiquidate(
+      reserveDataBefore,
+      expectedReserveData,
+      userDataBefore,
+      loanDataBefore,
+      user.address,
+      txTimestamp,
+      timestamp
+    );
+
+    const expectedLoanData = calcExpectedLoanDataAfterLiquidate(
+      reserveDataBefore,
+      expectedReserveData,
+      loanDataBefore,
+      loanDataAfter,
+      user.address,
+      txTimestamp,
+      timestamp
+    );
+
+    expectEqual(reserveDataAfter, expectedReserveData);
+    expectEqual(userDataAfter, expectedUserData);
+    expectEqual(loanDataAfter, expectedLoanData);
+  } else if (expectedResult === "revert") {
+    await expect(pool.connect(user.signer).liquidate(nftAsset, nftTokenId, amount), revertMessage).to.be.reverted;
+  }
+};
+
 const expectEqual = (
   actual: UserReserveData | ReserveData | LoanData,
   expected: UserReserveData | ReserveData | LoanData

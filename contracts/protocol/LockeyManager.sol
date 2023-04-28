@@ -22,6 +22,8 @@ contract LockeyManager is Initializable {
     _;
   }
 
+  constructor() initializer {}
+
   /**
    * @dev Initializes the LockeyManager contract replacing the constructor
    * @param provider The address of the LendPoolAddressesProvider
