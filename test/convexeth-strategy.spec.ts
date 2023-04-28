@@ -680,7 +680,7 @@ makeSuite("Convex ETH Strategy", (testEnv: TestEnv) => {
     // Check `estimatedTotalAssets()` to be greater than the previous estimated total assets
     expect(estimatedTotalAssetsAfterHarvest).to.be.gt(estimatedTotalAssetsInStrategy);
   });
-  it.only("ConvexETHStrategy: 1% debt ratio flow (incur loss in second harvest + obtain gain in third harvest)", async () => {
+  it("ConvexETHStrategy: 1% debt ratio flow (incur loss in second harvest + obtain gain in third harvest)", async () => {
     const { genericConvexETHStrategy, uWETH, weth } = testEnv;
 
     // Add strategy from scratch
@@ -868,7 +868,7 @@ makeSuite("Convex ETH Strategy", (testEnv: TestEnv) => {
     // Strategy total gain to be the higher as the previous total gain
     expect(strategyData.totalGain).to.be.gt(previousStrategyData.totalGain);
   });
-  it.only("ConvexETHStrategy: 40% debt ratio flow (incur loss in second harvest + obtain gain in third harvest)", async () => {
+  it("ConvexETHStrategy: 40% debt ratio flow (incur loss in second harvest + obtain gain in third harvest)", async () => {
     const { genericConvexETHStrategy, uWETH, weth } = testEnv;
 
     // Add strategy from scratch
@@ -1056,7 +1056,7 @@ makeSuite("Convex ETH Strategy", (testEnv: TestEnv) => {
     // Strategy total gain to be the higher as the previous total gain
     expect(strategyData.totalGain).to.be.gt(previousStrategyData.totalGain);
   });
-  it.only("ConvexETHStrategy: 100% debt ratio flow (incur loss in second harvest + obtain gain in third harvest)", async () => {
+  it("ConvexETHStrategy: 100% debt ratio flow (incur loss in second harvest + obtain gain in third harvest)", async () => {
     const { genericConvexETHStrategy, uWETH, weth } = testEnv;
 
     // Add strategy from scratch
