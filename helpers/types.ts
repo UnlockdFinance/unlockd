@@ -19,6 +19,7 @@ export enum UnlockdPools {
 
 export enum eContractid {
   MintableERC20 = "MintableERC20",
+  MockUToken = "MockUToken",
   MintableERC721 = "MintableERC721",
   CustomERC721 = "CustomERC721",
   LendPoolAddressesProvider = "LendPoolAddressesProvider",
@@ -91,6 +92,10 @@ export enum eContractid {
   DebtMarket = "DebtMarket",
   ReservoirAdapterImpl = "ReservoirAdapterImpl",
   ReservoirAdapter = "ReservoirAdapter",
+  GenericYVaultStrategyImpl = "GenericYVaultStrategyImpl",
+  GenericYVaultStrategy = "GenericYVaultStrategy",
+  GenericConvexETHStrategyImpl = "GenericConvexETHStrategyImpl",
+  GenericConvexETHStrategy = "GenericConvexETHStrategy",
 }
 
 export enum ProtocolLoanState {
@@ -120,6 +125,7 @@ export enum ProtocolErrors {
   CALLER_NOT_LTV_MANAGER = "107",
   CALLER_NOT_PRICE_MANAGER = "108",
   CALLER_NOT_UTOKEN_MANAGER = "109",
+  CALLER_NOT_STRATEGY = "110",
 
   //math library erros
   MATH_MULTIPLICATION_OVERFLOW = "200",
@@ -444,6 +450,9 @@ export interface ICommonConfiguration {
   ReserveOracle: iParamsPerNetwork<tEthereumAddress | undefined>;
   NFTOracle: iParamsPerNetwork<tEthereumAddress | undefined>;
 
+  GenericYVaultStrategy: iParamsPerNetwork<tEthereumAddress | undefined>;
+  GenericConvexETHStrategy: iParamsPerNetwork<tEthereumAddress | undefined>;
+
   PoolAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
   PoolAdminIndex: number;
   EmergencyAdmin: iParamsPerNetwork<tEthereumAddress | undefined>;
@@ -472,6 +481,13 @@ export interface ICommonConfiguration {
   OracleQuoteUnit: string;
 
   YVaultWETH: iParamsPerNetwork<tEthereumAddress>;
+  ConvexBooster: iParamsPerNetwork<tEthereumAddress>;
+  CurveETHAlETHPool: iParamsPerNetwork<tEthereumAddress>;
+  CurveCRVWETHPool: iParamsPerNetwork<tEthereumAddress>;
+  CurveCVXWETHPool: iParamsPerNetwork<tEthereumAddress>;
+  UniSwapRouter: iParamsPerNetwork<tEthereumAddress>;
+  SushiSwapRouter: iParamsPerNetwork<tEthereumAddress>;
+
   LockeyCollection: iParamsPerNetwork<tEthereumAddress>;
 
   BlurModule: iParamsPerNetwork<tEthereumAddress>;

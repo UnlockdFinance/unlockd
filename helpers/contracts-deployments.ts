@@ -10,7 +10,9 @@ import {
   CustomERC721Factory,
   DebtMarketFactory,
   DebtTokenFactory,
+  GenericConvexETHStrategyFactory,
   GenericLogicFactory,
+  GenericYVaultStrategyFactory,
   InterestRateFactory,
   LendPoolAddressesProviderFactory,
   LendPoolAddressesProviderRegistryFactory,
@@ -28,6 +30,7 @@ import {
   MockIncentivesControllerFactory,
   MockNFTOracleFactory,
   MockReserveOracleFactory,
+  MockUTokenFactory,
   MockYVaultFactory,
   NFTOracleFactory,
   PunkGatewayFactory,
@@ -140,6 +143,21 @@ export const deployReservoirAdapter = async (verify?: boolean) => {
   const reservoirAdapterImpl = await new ReservoirAdapterFactory(await getDeploySigner()).deploy();
   await insertContractAddressInDb(eContractid.ReservoirAdapterImpl, reservoirAdapterImpl.address);
   return withSaveAndVerify(reservoirAdapterImpl, eContractid.ReservoirAdapter, [], verify);
+};
+
+export const deployGenericYVaultStrategy = async (verify?: boolean, avoidPrint?: boolean) => {
+  const genericYVaultStrategyImpl = await new GenericYVaultStrategyFactory(await getDeploySigner()).deploy();
+  await insertContractAddressInDb(eContractid.GenericYVaultStrategyImpl, genericYVaultStrategyImpl.address, avoidPrint);
+  return withSaveAndVerify(genericYVaultStrategyImpl, eContractid.GenericYVaultStrategy, [], verify, avoidPrint);
+};
+export const deployGenericConvexETHStrategy = async (verify?: boolean, avoidPrint?: boolean) => {
+  const genericConvexETHStrategyImpl = await new GenericConvexETHStrategyFactory(await getDeploySigner()).deploy();
+  await insertContractAddressInDb(
+    eContractid.GenericConvexETHStrategyImpl,
+    genericConvexETHStrategyImpl.address,
+    avoidPrint
+  );
+  return withSaveAndVerify(genericConvexETHStrategyImpl, eContractid.GenericConvexETHStrategy, [], verify, avoidPrint);
 };
 
 export const deployReserveLogicLibrary = async (verify?: boolean) =>
@@ -425,6 +443,15 @@ export const deployGenericDebtToken = async (verify?: boolean) =>
 export const deployGenericUTokenImpl = async (verify: boolean) =>
   withSaveAndVerify(await new UTokenFactory(await getDeploySigner()).deploy(), eContractid.UToken, [], verify);
 
+export const deployGenericMockUTokenImpl = async (verify: boolean, avoidPrint?: boolean) =>
+  withSaveAndVerify(
+    await new MockUTokenFactory(await getDeploySigner()).deploy(),
+    eContractid.MockUToken,
+    [],
+    verify,
+    avoidPrint
+  );
+
 export const deployGenericUNFTImpl = async (verify: boolean) =>
   withSaveAndVerify(await new UNFTFactory(await getDeploySigner()).deploy(), eContractid.UNFT, [], verify);
 
@@ -628,13 +655,15 @@ export const deployUnlockdUpgradeableProxy = async (
   admin: tEthereumAddress,
   logic: tEthereumAddress,
   data: BytesLike,
-  verify?: boolean
+  verify?: boolean,
+  avoidPrint?: boolean
 ) =>
   withSaveAndVerify(
     await new UnlockdUpgradeableProxyFactory(await getDeploySigner()).deploy(logic, admin, data),
     id,
     [logic, admin, DRE.ethers.utils.hexlify(data)],
-    verify
+    verify,
+    avoidPrint
   );
 
 export const deployUnlockdProxyAdmin = async (id: string, verify?: boolean) =>

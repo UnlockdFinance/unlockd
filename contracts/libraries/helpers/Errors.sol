@@ -25,6 +25,7 @@ library Errors {
   string public constant CALLER_NOT_LTV_MANAGER = "107";
   string public constant CALLER_NOT_PRICE_MANAGER = "108";
   string public constant CALLER_NOT_UTOKEN_MANAGER = "109";
+  string public constant CALLER_NOT_STRATEGY = "110";
 
   //math library errors
   string public constant MATH_MULTIPLICATION_OVERFLOW = "200";

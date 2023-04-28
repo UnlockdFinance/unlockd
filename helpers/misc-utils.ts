@@ -1,6 +1,6 @@
 import { formatEther, parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
-import { isZeroAddress } from "ethereumjs-util";
+import { isZeroAddress, zeroAddress } from "ethereumjs-util";
 import { Contract, ContractTransaction, Signer, Wallet } from "ethers";
 import { isAddress } from "ethers/lib/utils";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
@@ -174,20 +174,10 @@ export const stopImpersonateAccountsHardhat = async (accounts: string[]) => {
   }
 };
 
-export const fundSignersWithETH = async (impersonatedSigner: Signer, signers: Signer[], amount: string) => {
-  if (process.env.TENDERLY === "true") {
-    return;
-  }
-  // eslint-disable-next-line no-restricted-syntax
-  for (const signer of signers) {
-    const addr = await signer.getAddress();
-    console.log("Funding address ", addr, "with ", amount, "ETH");
-    // eslint-disable-next-line no-await-in-loop
-    await impersonatedSigner.sendTransaction({
-      to: addr,
-      value: parseEther(amount),
-    });
-  }
+export const fundWithETH = async (address: string, amount: string) => {
+  // Selfdestruct the mock, pointing to token owner address
+  const selfdestructContract = await new SelfdestructTransferFactory(await getDeploySigner()).deploy();
+  await waitForTx(await selfdestructContract.destroyAndTransfer(address, { value: parseEther(amount) }));
 };
 
 export const fundWithERC20 = async (tokenSymbol: string, receiver: string, amount: string) => {
@@ -225,6 +215,38 @@ export const fundWithERC20 = async (tokenSymbol: string, receiver: string, amoun
   await (DRE as HardhatRuntimeEnvironment).network.provider.request({
     method: "hardhat_stopImpersonatingAccount",
     params: [await doner.getAddress()],
+  });
+};
+export const removeBalanceERC20 = async (tokenSymbol: string, doner: string, amount: string, tokenAddress?: string) => {
+  await fundWithETH(doner, "100");
+  const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
+  const network = <eNetwork>DRE.network.name;
+  const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
+
+  let token = new Contract(
+    reserveAssets[tokenSymbol] ?? tokenAddress,
+    tokenSymbol == "WETH" ? weth : erc20Artifact.abi
+  );
+
+  const donerSigner = await getEthersSignerByAddress(doner);
+
+  await (DRE as HardhatRuntimeEnvironment).network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [await donerSigner.getAddress()],
+  });
+
+  const donerSignerWithAddress: SignerWithAddress = {
+    address: await donerSigner.getAddress(),
+    signer: donerSigner,
+  };
+
+  const amountToTransfer = await convertToCurrencyDecimals(donerSignerWithAddress, token, amount);
+  const tx = await token.connect(donerSigner).transfer(createRandomAddress(), amountToTransfer);
+  await tx.wait();
+
+  await (DRE as HardhatRuntimeEnvironment).network.provider.request({
+    method: "hardhat_stopImpersonatingAccount",
+    params: [await donerSigner.getAddress()],
   });
 };
 export const fundWithERC721 = async (tokenSymbol: string, receiver: string, tokenId: number) => {

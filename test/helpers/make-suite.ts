@@ -12,6 +12,8 @@ import {
   getCryptoPunksMarket,
   getDebtMarketProxy,
   getDebtToken,
+  getGenericConvexETHStrategy,
+  getGenericYVaultStrategy,
   getLendPool,
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
@@ -43,6 +45,8 @@ import { eEthereumNetwork, tEthereumAddress } from "../../helpers/types";
 import {
   CryptoPunksMarket,
   DebtMarket,
+  GenericConvexETHStrategy,
+  GenericYVaultStrategy,
   LendPoolLoan,
   LockeyManager,
   MockIncentivesController,
@@ -143,6 +147,8 @@ export interface TestEnv {
   ElementModule: ReservoirBidKind;
   RaribleModule: ReservoirBidKind;
   reservoirModules: ReservoirBidKind[];
+  genericYVaultStrategy: GenericYVaultStrategy;
+  genericConvexETHStrategy: GenericConvexETHStrategy;
 }
 
 let buidlerevmSnapshotId = "0x1";
@@ -203,6 +209,8 @@ const testEnv: TestEnv = {
   ElementModule: {} as ReservoirBidKind,
   RaribleModule: {} as ReservoirBidKind,
   reservoirModules: [] as ReservoirBidKind[],
+  genericYVaultStrategy: {} as GenericYVaultStrategy,
+  genericConvexETHStrategy: {} as GenericConvexETHStrategy,
 } as TestEnv;
 
 export async function initializeMakeSuite(network?: string) {

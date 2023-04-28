@@ -63,6 +63,7 @@ library ValidationLogic {
 
     // Case where there is not enough liquidity to cover user's withdrawal
     uint256 availableLiquidity = IUToken(uToken).getAvailableLiquidity();
+
     require(amount <= availableLiquidity, Errors.LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY);
   }
 
