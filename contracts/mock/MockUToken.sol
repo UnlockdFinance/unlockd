@@ -292,7 +292,6 @@ contract MockUToken is Initializable, IUToken, IncentivizedERC20 {
     See note on `setWithdrawalQueue` for further details of withdrawal
     ordering and behavior.
   */
-  //todo: optimize
   function withdrawReserves(uint256 amount) external override onlyLendPool returns (uint256) {
     // UToken balance is not enough to cover withdrawal. Withdrawing from strategies is required
     if (amount > IERC20Upgradeable(_underlyingAsset).balanceOf(address(this))) {
@@ -515,7 +514,7 @@ contract MockUToken is Initializable, IUToken, IncentivizedERC20 {
   /*//////////////////////////////////////////////////////////////
                   INTERNAL FUNCTIONS 
   //////////////////////////////////////////////////////////////*/
-  // todo optimize this function + natspec
+
   function _reportLoss(address strategy, uint256 loss) internal {
     // It is not possible for the strategy to lose more than the amount lent. Verify this assumption
     uint256 _totalDebt = strategies[strategy].totalDebt;
@@ -523,11 +522,7 @@ contract MockUToken is Initializable, IUToken, IncentivizedERC20 {
     // If UToken actually has deployed capital to **any** strategy, adjust the debt ratios for both the UToken
     // and the reporting strategy
     if (debtRatio != 0) {
-      uint256 ratioAdjustment = Math.min(
-        // todo check for loss of precision
-        (loss * debtRatio) / totalDebt,
-        strategies[strategy].debtRatio
-      );
+      uint256 ratioAdjustment = Math.min((loss * debtRatio) / totalDebt, strategies[strategy].debtRatio);
       strategies[strategy].debtRatio -= ratioAdjustment;
       debtRatio -= ratioAdjustment;
     }
@@ -571,7 +566,6 @@ contract MockUToken is Initializable, IUToken, IncentivizedERC20 {
    * @param strategy The Strategy to check. Defaults to caller.
    * @return The quantity of underlying tokens available for the Strategy to draw on.
    */
-  // todo optimize function
   function _computeAvailableCredit(address strategy) internal view returns (uint256) {
     if (emergencyShutdown) return 0;
     uint256 totalAssets = _totalAssets();
@@ -600,12 +594,10 @@ contract MockUToken is Initializable, IUToken, IncentivizedERC20 {
     return Math.min(availableCredit, strategies[strategy].maxDebtPerHarvest);
   }
 
-  // todo comment
   function _computeDebtLimit(uint256 debtRatio_, uint256 totalAssets_) internal pure returns (uint256) {
     return (totalAssets_ * debtRatio_) / MAX_BPS;
   }
 
-  // todo comment
   function _calculateLockedProfit() internal view returns (uint256) {
     uint256 lockedFundsRatio = (block.timestamp - lastReport) * lockedProfitDegradation;
     if (lockedFundsRatio < DEGRADATION_COEFFICIENT)
