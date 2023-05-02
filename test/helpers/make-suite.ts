@@ -342,6 +342,8 @@ export async function initializeMakeSuite(network?: string) {
 
   testEnv.roundIdTracker = 1;
   testEnv.nowTimeTracker = Number(await getNowTimeInSeconds());
+  testEnv.genericYVaultStrategy = await getGenericYVaultStrategy();
+  testEnv.genericConvexETHStrategy = await getGenericConvexETHStrategy();
 
   testEnv.lockeyManager = await getLockeyManagerProxy();
   testEnv.reservoirAdapter = await getReservoirAdapterProxy();
