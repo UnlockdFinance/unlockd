@@ -324,7 +324,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         expect(oldLoan.borrower).equals(seller.address, "Invalid previous loan debtor");
         expect(loan.borrower).equals(buyer.address, "Invalid new loan debtor");
       });
-      it("Repaying cancel the debt listing", async () => {
+      it("Repaying cancel the debt listing #1", async () => {
         const { users, debtMarket, bayc, pool, wethGateway } = testEnv;
         const seller = users[4];
         const nftAsset = bayc.address;
@@ -516,12 +516,12 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const debt = await debtMarket.getDebt(debtId);
         expect(debt.state).equals(3, "Invalid debt offer state");
       });
-      it("Repaying cancel the debt listing", async () => {
+      it("Repaying cancel the debt listing #2", async () => {
         const { users, debtMarket, bayc, pool, wethGateway } = testEnv;
         const seller = users[4];
         const nftAsset = bayc.address;
         const tokenId = testEnv.tokenIdTracker++;
-
+        console.log("Borrow...");
         await borrowBayc(testEnv, seller, tokenId, 10);
 
         const blockNumber = await users[0].signer.provider!.getBlockNumber();
@@ -533,11 +533,13 @@ makeSuite("Buy and sell the debts", (testEnv) => {
             .connect(seller.signer)
             .createDebtListing(nftAsset, tokenId, 0, seller.address, 50, auctionEndTimestamp)
         );
+
         await waitForTx(
           await wethGateway
             .connect(seller.signer)
             .repayETH(nftAsset, tokenId, ethers.utils.parseEther("10.1"), { value: ethers.utils.parseEther("10.1") })
         );
+
         expect(await debtMarket.getDebtId(nftAsset, tokenId)).equals(0, "Id not resetted");
       });
     });
@@ -960,7 +962,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const debtId = await debtMarket.getDebtId(bayc.address, tokenId);
         expect(debtId).to.be.equal(0);
       });
-      it("Repaying cancel the debt listing", async () => {
+      it("Repaying cancel the debt listing #3", async () => {
         const { users, debtMarket, bayc, pool, wethGateway } = testEnv;
         const seller = users[4];
         const nftAsset = bayc.address;

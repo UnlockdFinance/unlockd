@@ -76,7 +76,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     require(_uTokenManagers[_msgSender()], Errors.CALLER_NOT_UTOKEN_MANAGER);
     _;
   }
-  //todo test this modifier
+
   modifier onlyStrategy() {
     require(strategies[_msgSender()].active, Errors.CALLER_NOT_STRATEGY);
     _;
@@ -304,7 +304,6 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     ordering and behavior.
     @dev Always make sure to call this function if `amount` is greater than the UToken's underlying balance
   */
-  //todo: optimize
   function withdrawReserves(uint256 amount) external override onlyLendPool returns (uint256) {
     // UToken balance is not enough to cover withdrawal. Withdrawing from strategies is required
     if (amount > IERC20Upgradeable(_underlyingAsset).balanceOf(address(this))) {
@@ -527,7 +526,11 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   /*//////////////////////////////////////////////////////////////
                   INTERNAL FUNCTIONS 
   //////////////////////////////////////////////////////////////*/
-  // todo optimize this function + natspec
+  /**
+   * @notice Reports the loss, adjusting debt parameters accordingly
+   * @param strategy the strategy reporting the loss
+   * @param loss the amount of loss to report
+   */
   function _reportLoss(address strategy, uint256 loss) internal {
     // It is not possible for the strategy to lose more than the amount lent. Verify this assumption
     uint256 _totalDebt = strategies[strategy].totalDebt;
@@ -536,11 +539,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     // If UToken actually has deployed capital to **any** strategy, adjust the debt ratios for both the UToken
     // and the reporting strategy
     if (debtRatio != 0) {
-      uint256 ratioAdjustment = Math.min(
-        // todo check for loss of precision
-        (loss * debtRatio) / totalDebt,
-        strategies[strategy].debtRatio
-      );
+      uint256 ratioAdjustment = Math.min((loss * debtRatio) / totalDebt, strategies[strategy].debtRatio);
 
       strategies[strategy].debtRatio -= ratioAdjustment;
       debtRatio -= ratioAdjustment;
@@ -584,19 +583,21 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
    * @param strategy The Strategy to check. Defaults to caller.
    * @return The quantity of underlying tokens available for the Strategy to draw on.
    */
-  // todo optimize function
   function _computeAvailableCredit(address strategy) internal view returns (uint256) {
     if (emergencyShutdown) return 0;
+
+    StrategyParams memory strat = strategies[strategy];
+    uint256 uTokenTotalDebt = totalDebt;
     uint256 totalAssets = _totalAssets();
     uint256 uTokenDebtLimit = _computeDebtLimit(debtRatio, totalAssets);
-    uint256 strategyDebtLimit = _computeDebtLimit(strategies[strategy].debtRatio, totalAssets);
+    uint256 strategyDebtLimit = _computeDebtLimit(strat.debtRatio, totalAssets);
 
     // Check if strategy or UToken debt have exceeded their own maximum debt limit
-    if (strategies[strategy].totalDebt > strategyDebtLimit || totalDebt > uTokenDebtLimit) return 0;
+    if (strat.totalDebt > strategyDebtLimit || uTokenTotalDebt > uTokenDebtLimit) return 0;
 
-    uint256 availableCredit = strategyDebtLimit - strategies[strategy].totalDebt;
+    uint256 availableCredit = strategyDebtLimit - strat.totalDebt;
     // Adjust by global debt limit
-    availableCredit = Math.min(availableCredit, uTokenDebtLimit - totalDebt);
+    availableCredit = Math.min(availableCredit, uTokenDebtLimit - uTokenTotalDebt);
 
     // Can only borrow up to what the contract has in reserve. It is discouraged
     // to loan up to 100% of current deposited funds
@@ -607,14 +608,18 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     // Min debt per harvest can be used to ensure that if a strategy has a minimum
     // amount of capital needed to purchase a position, it's not given capital
     // it can't make use of yet.
-    if (availableCredit < strategies[strategy].minDebtPerHarvest) return 0;
+    if (availableCredit < strat.minDebtPerHarvest) return 0;
 
     // Max debt per harvest is used to make sure each harvest isn't bigger than what
     // it is authorized.
-    return Math.min(availableCredit, strategies[strategy].maxDebtPerHarvest);
+    return Math.min(availableCredit, strat.maxDebtPerHarvest);
   }
 
-  // todo comment andchange to pure
+  /**
+   * @notice Calculates a debt limit given an amount of assets and a debt ratio
+   * @param debtRatio_ the debt ratio
+   * @param totalAssets_ the total assets to use as reference to compute the limit
+   */
   function _computeDebtLimit(uint256 debtRatio_, uint256 totalAssets_) internal pure returns (uint256) {
     return (totalAssets_ * debtRatio_) / MAX_BPS;
   }
