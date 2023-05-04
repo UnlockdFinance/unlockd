@@ -44,7 +44,7 @@ abstract contract BaseAdapter is Initializable {
   uint256 private constant _ENTERED = 2;
 
   /*//////////////////////////////////////////////////////////////
-                          GENERAL VARS
+                          STORAGE
   //////////////////////////////////////////////////////////////*/
   ILendPoolAddressesProvider internal _addressesProvider;
 
@@ -218,9 +218,6 @@ abstract contract BaseAdapter is Initializable {
 
     // transfer borrow amount from adapter to uToken, repay debt
     IERC20(reserveAsset).safeTransfer(uToken, borrowAmount);
-
-    // Deposit amount from debt repaid to lending protocol
-    IUToken(uToken).depositReserves(borrowAmount);
 
     // transfer remain amount to borrower
     if (remainAmount > 0) {

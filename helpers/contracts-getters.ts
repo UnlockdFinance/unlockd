@@ -1,11 +1,15 @@
 import {
+  BaseRewardPoolFactory,
+  BoosterFactory,
   BorrowLogicFactory,
   ConfiguratorLogicFactory,
   CryptoPunksMarketFactory,
   CustomERC721Factory,
   DebtMarketFactory,
   DebtTokenFactory,
+  GenericConvexETHStrategyFactory,
   GenericLogicFactory,
+  GenericYVaultStrategyFactory,
   InterestRateFactory,
   LendPoolAddressesProviderFactory,
   LendPoolAddressesProviderRegistryFactory,
@@ -42,6 +46,7 @@ import {
   WETHGatewayFactory,
   WrappedPunkFactory,
 } from "../types";
+import { ICurveFactory } from "../types/ICurveFactory";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { IERC721DetailedFactory } from "../types/IERC721DetailedFactory";
 import { IYVaultFactory } from "../types/IYVaultFactory";
@@ -85,6 +90,21 @@ export const getLendPoolAddressesProvider = async (address?: tEthereumAddress) =
     await getDeploySigner()
   );
 };
+
+export const getGenericYVaultStrategy = async (address?: tEthereumAddress) => {
+  return await GenericYVaultStrategyFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.GenericYVaultStrategy}`).value()).address,
+    await getDeploySigner()
+  );
+};
+
+export const getGenericConvexETHStrategy = async (address?: tEthereumAddress) => {
+  return await GenericConvexETHStrategyFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.GenericConvexETHStrategy}`).value()).address,
+    await getDeploySigner()
+  );
+};
+
 export const getUnlockdProxyAdminPool = async (address?: tEthereumAddress) => {
   return await LendPoolAddressesProviderFactory.connect(
     address || (await getDb(DRE.network.name).get(`${eContractid.UnlockdProxyAdminPool}`).value()).address,
@@ -141,6 +161,11 @@ export const getNFTOracle = async (address?: tEthereumAddress) =>
     address || (await getDb(DRE.network.name).get(`${eContractid.NFTOracle}`).value()).address,
     await getDeploySigner()
   );
+export const getBooster = async (address: tEthereumAddress) =>
+  await BoosterFactory.connect(address, await getDeploySigner());
+
+export const getRewardPool = async (address: tEthereumAddress) =>
+  await BaseRewardPoolFactory.connect(address, await getDeploySigner());
 
 export const getLockeyManagerProxy = async (address?: tEthereumAddress) => {
   return await LockeyManagerFactory.connect(
@@ -498,7 +523,8 @@ export const getUnlockdCollectorImpl = async (address?: tEthereumAddress) =>
 
 export const getYVault = async (address: tEthereumAddress) =>
   await IYVaultFactory.connect(address, await getDeploySigner());
-
+export const getCRVVault = async (address: tEthereumAddress) =>
+  await ICurveFactory.connect(address, await getDeploySigner());
 export const getMockYVault = async (address?: tEthereumAddress) =>
   await MockYVaultFactory.connect(
     address || (await getDb(DRE.network.name).get(`${eContractid.MockYVault}`).value()).address,

@@ -27,7 +27,8 @@ import {
   waitForTx,
 } from "../../helpers/misc-utils";
 import { eEthereumNetwork, eNetwork, IConfigNftAsCollateralInput, tEthereumAddress } from "../../helpers/types";
-import { ERC20 } from "../../types";
+import { ERC20, MintableERC20 } from "../../types";
+import type { IYVault } from "../../types/IYVault";
 import { UToken } from "../../types/UToken";
 import { SignerWithAddress, TestEnv } from "./make-suite";
 import {
@@ -57,6 +58,7 @@ import {
   getReserveAddressFromSymbol,
   getReserveData,
   getUserData,
+  shareValue,
 } from "./utils/helpers";
 import { LoanData, ReserveData, UserReserveData } from "./utils/interfaces";
 
@@ -701,7 +703,6 @@ export const borrow = async (
     ).to.be.revertedWith(revertMessage!);
   }
 };
-
 export const repay = async (
   testEnv: TestEnv,
   user: SignerWithAddress,
@@ -818,11 +819,10 @@ export const repay = async (
     expectEqual(userDataAfter, expectedUserData);
     expectEqual(loanDataAfter, expectedLoanData);
   } else if (expectedResult === "revert") {
-    await expect(pool.connect(user.signer).repay(nftAsset.address, nftTokenId, amountToRepay, txOptions), revertMessage)
-      .to.be.reverted;
+    await expect(pool.connect(user.signer).repay(nftAsset, nftTokenId, amountToRepay, txOptions), revertMessage).to.be
+      .reverted;
   }
 };
-
 export const auction = async (
   testEnv: TestEnv,
   user: SignerWithAddress,
@@ -839,7 +839,6 @@ export const auction = async (
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
 
   const { reserveAsset, borrower } = await getLoanData(pool, dataProvider, nftAsset, nftTokenId, "0");
-  const token = await getMintableERC20(reserveAsset);
 
   const {
     reserveData: reserveDataBefore,
@@ -847,7 +846,7 @@ export const auction = async (
     loanData: loanDataBefore,
   } = await getContractsDataWithLoan(reserveAsset, borrower, nftAsset, nftTokenId, "0", testEnv, user.address);
 
-  let amountToAuction = (await convertToCurrencyDecimals(user, token, price)).toString();
+  let amountToAuction = (await convertToCurrencyDecimals(reserveAsset, price)).toString();
 
   amountToAuction = "0x" + new BigNumber(amountToAuction).toString(16);
 
@@ -937,7 +936,6 @@ export const auction = async (
     ).to.be.reverted;
   }
 };
-
 export const redeem = async (
   testEnv: TestEnv,
   user: SignerWithAddress,
@@ -952,7 +950,6 @@ export const redeem = async (
   const nftAsset = await getNftAddressFromSymbol(nftSymbol);
 
   const { reserveAsset, borrower } = await getLoanData(pool, dataProvider, nftAsset, nftTokenId, "0");
-  const token = await getMintableERC20(reserveAsset);
 
   const {
     reserveData: reserveDataBefore,
@@ -963,7 +960,7 @@ export const redeem = async (
   let amountToRedeem = "0";
 
   if (amount !== "-1") {
-    amountToRedeem = (await convertToCurrencyDecimals(user, token, amount)).toString();
+    amountToRedeem = (await convertToCurrencyDecimals(reserveAsset, amount)).toString();
   } else {
     amountToRedeem = loanDataBefore.currentAmount.multipliedBy(0.51).toFixed(0); //50% Debt
   }
@@ -1150,6 +1147,15 @@ const getDataBeforeAction = async (
     userData,
     uTokenInstance,
   };
+};
+
+export const getYVaultLockedValueInUnderlying = async (
+  vault: IYVault,
+  erc20YVault: MintableERC20,
+  strategy: string
+) => {
+  let shares = await erc20YVault.balanceOf(strategy);
+  return await shareValue(shares, vault);
 };
 
 export const getTxCostAndTimestamp = async (tx: ContractReceipt) => {

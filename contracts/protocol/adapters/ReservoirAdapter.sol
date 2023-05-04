@@ -237,8 +237,8 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
   function _decodeSafeTransferFromData(
     bytes calldata _data
   ) internal pure returns (SafeTransferFromDecodedData memory safeTransferFromDecodedData) {
-    //solhint-disable-next-line no-inline-assembly
     bytes4 selector;
+    //solhint-disable-next-line no-inline-assembly
     assembly {
       selector := calldataload(_data.offset)
     }

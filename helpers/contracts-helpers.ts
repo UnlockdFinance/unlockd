@@ -28,10 +28,15 @@ import {
 export type MockTokenMap = { [symbol: string]: MintableERC20 };
 export type MockNftMap = { [symbol: string]: MintableERC721 };
 
-export const registerContractInJsonDb = async (contractId: string, contractInstance: Contract) => {
+export const registerContractInJsonDb = async (
+  contractId: string,
+  contractInstance: Contract,
+  avoidPrint?: boolean
+) => {
   const currentNetwork = DRE.network.name;
   const FORK = process.env.FORK;
-  if (FORK || (currentNetwork !== "hardhat" && !currentNetwork.includes("coverage"))) {
+
+  if ((FORK || (currentNetwork !== "hardhat" && !currentNetwork.includes("coverage"))) && !avoidPrint) {
     console.log(`*** ${contractId} ***\n`);
     console.log(`Network: ${currentNetwork}`);
     console.log(`tx: ${contractInstance.deployTransaction.hash}`);
@@ -49,20 +54,20 @@ export const registerContractInJsonDb = async (contractId: string, contractInsta
       deployer: contractInstance.deployTransaction.from,
     })
     .write();
-
-  console.log(
-    "contracts-helpers:registerContractInJsonDb,",
-    "contractId:",
-    contractId,
-    "address:",
-    contractInstance.address,
-    "deployer",
-    contractInstance.deployTransaction.from
-  );
+  if (!avoidPrint)
+    console.log(
+      "contracts-helpers:registerContractInJsonDb,",
+      "contractId:",
+      contractId,
+      "address:",
+      contractInstance.address,
+      "deployer",
+      contractInstance.deployTransaction.from
+    );
 };
 
-export const insertContractAddressInDb = async (id: eContractid, address: tEthereumAddress) => {
-  console.log("contracts-helpers:insertContractAddressInDb,", "id:", id, "address", address);
+export const insertContractAddressInDb = async (id: eContractid, address: tEthereumAddress, avoidPrint?: boolean) => {
+  if (!avoidPrint) console.log("contracts-helpers:insertContractAddressInDb,", "id:", id, "address", address);
   await getDb(DRE.network.name)
     .set(`${id}`, {
       address,
@@ -132,13 +137,11 @@ export const withSaveAndVerify = async <ContractType extends Contract>(
   instance: ContractType,
   id: string,
   args: (string | string[])[],
-  verify?: boolean
+  verify?: boolean,
+  avoidPrint?: boolean
 ): Promise<ContractType> => {
-  //console.log('contracts-helpers:withSaveAndVerify,','id',id)
-  console.log(instance.deployTransaction.hash);
-  console.log(instance.deployTransaction.nonce);
   await waitForTx(instance.deployTransaction);
-  await registerContractInJsonDb(id, instance);
+  await registerContractInJsonDb(id, instance, avoidPrint);
   if (verify) {
     await verifyContract(id, instance, args);
   }

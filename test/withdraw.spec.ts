@@ -94,11 +94,11 @@ makeSuite("LendPool: Withdraw", (testEnv: TestEnv) => {
     await withdraw(testEnv, user0, "WETH", "0.5", "success", "");
   });
 
-  it("User 0 tries to withdraw remaining half of the deposited WETH (expect revert due to not enough liquidity)", async () => {
+  it("User 0 tries to withdraw a huge amount of WETH (expect revert due to not enough liquidity)", async () => {
     const { users } = testEnv;
     const user0 = users[0];
     if (!UPGRADE)
-      await withdraw(testEnv, user0, "WETH", "0.5", "revert", ProtocolErrors.LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY);
+      await withdraw(testEnv, user0, "WETH", "1000", "revert", ProtocolErrors.LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY);
   });
 
   it("User 0 tries to withdraw remaining half of the deposited WETH ", async () => {
