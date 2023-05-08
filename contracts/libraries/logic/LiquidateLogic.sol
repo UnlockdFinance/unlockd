@@ -479,7 +479,7 @@ library LiquidateLogic {
       loanData.bidStartTimestamp +
       vars.extraAuctionDuration +
       (nftConfig.getAuctionDuration() * 1 minutes);
-    require(block.timestamp > vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_NOT_END);
+    require(block.timestamp > vars.auctionEndTimestamp + 20 minutes, Errors.LPL_CLAIM_HASNT_STARTED_YET);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();

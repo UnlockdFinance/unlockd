@@ -81,11 +81,10 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LendPoolImpl": {
-    "address": "0xeb41CCbEbBea13868BA4733A50Ceb655cFC0CE96"
+    "address": "0x58B6e24b2a462Ef81e154515Ab7adc804512325c"
   },
   "LendPool": {
-    "address": "0xeb41CCbEbBea13868BA4733A50Ceb655cFC0CE96",
-    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+    "address": "0x80Fa1fA8B0CaF15CFC3961C934cFA860945d9139"
   },
   "LendPoolLoanImpl": {
     "address": "0x5c769753F192449c3c6AeC7BF2145928eb261699"
@@ -140,7 +139,7 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "InterestRate": {
-    "address": "0xe912fDdd0e088305797339923bc9C047179B4Dd3",
+    "address": "0x2bDc03E97c90C269099931986078fb9e353a65C6",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "rateStrategyWETH": {
@@ -179,17 +178,17 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "GenericYVaultStrategyImpl": {
-    "address": "0xe912fDdd0e088305797339923bc9C047179B4Dd3"
+    "address": "0xF07191639A5ca3d5D28206429Df3E3adCc020b3f"
   },
   "GenericYVaultStrategy": {
-    "address": "0xe912fDdd0e088305797339923bc9C047179B4Dd3",
+    "address": "0xA9f3bc8329C2Bba825D49937b25054c0FFFb7256",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "GenericConvexETHStrategyImpl": {
-    "address": "0xe912fDdd0e088305797339923bc9C047179B4Dd3"
+    "address": "0xD4aE8cED94f843e559f125e6CE0c65E8A7dAa035"
   },
   "GenericConvexETHStrategy": {
-    "address": "0xe912fDdd0e088305797339923bc9C047179B4Dd3",
+    "address": "0x3733685E2967C4b73356F0FF6540E753dD2eFCCb",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "MockUToken": {

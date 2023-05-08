@@ -89,6 +89,7 @@ library Errors {
   string public constant LP_CALLER_NOT_DEBT_TOKEN_MANAGER = "430";
 
   //lend pool loan errors
+  string public constant LPL_CLAIM_HASNT_STARTED_YET = "479";
   string public constant LPL_INVALID_LOAN_STATE = "480";
   string public constant LPL_INVALID_LOAN_AMOUNT = "481";
   string public constant LPL_INVALID_TAKEN_AMOUNT = "482";

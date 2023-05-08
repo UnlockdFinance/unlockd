@@ -1,7 +1,7 @@
 import { parseEther } from "@ethersproject/units";
 import BigNumber from "bignumber.js";
 import { BigNumber as BN } from "ethers";
-import { APPROVAL_AMOUNT_LENDING_POOL, ONE_DAY } from "../helpers/constants";
+import { APPROVAL_AMOUNT_LENDING_POOL, ONE_DAY, TWO_DAYS } from "../helpers/constants";
 import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
 import { advanceTimeAndBlock, fundWithERC20, fundWithERC721, increaseTime, waitForTx } from "../helpers/misc-utils";
 import { IConfigNftAsCollateralInput, ProtocolErrors } from "../helpers/types";
@@ -178,7 +178,7 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     const user2 = users[2];
 
     await expect(pool.connect(user2.signer).liquidate(bayc.address, "101", "0")).to.be.revertedWith(
-      ProtocolErrors.LPL_BID_AUCTION_DURATION_NOT_END
+      ProtocolErrors.LPL_CLAIM_HASNT_STARTED_YET
     );
   });
 
@@ -285,5 +285,89 @@ makeSuite("LendPool: Liquidation negative test cases", (testEnv) => {
     await expect(
       pool.connect(user2.signer).auction(bayc.address, "101", auctionPrice, user2.address)
     ).to.be.revertedWith(ProtocolErrors.LP_CONSECUTIVE_BIDS_NOT_ALLOWED);
+  });
+
+  it("Auction ends and the user tries to claim before the 20m pass.", async () => {
+    const { weth, bayc, pool, users, configurator, deployer, nftOracle, dataProvider } = testEnv;
+    const user0 = users[0];
+    const user1 = users[1];
+    const user2 = users[2];
+    const user3 = users[3];
+
+    // user 0 mint and deposit 100 WETH
+    await fundWithERC20("WETH", user0.address, "100");
+    await approveERC20(testEnv, user0, "WETH");
+
+    const amountDeposit = await convertToCurrencyDecimals(deployer, weth, "100");
+    await pool.connect(user0.signer).deposit(weth.address, amountDeposit, user0.address, "0");
+
+    // user 1 mint NFT and borrow 10 WETH
+    await fundWithERC20("WETH", user1.address, "10");
+    await approveERC20(testEnv, user1, "WETH");
+
+    await fundWithERC721("BAYC", user1.address, 103);
+    await setApprovalForAll(testEnv, user1, "BAYC");
+
+    await configurator.setLtvManagerStatus(deployer.address, true);
+    await nftOracle.setPriceManagerStatus(bayc.address, true);
+
+    const collData: IConfigNftAsCollateralInput = {
+      asset: bayc.address,
+      nftTokenId: "103",
+      newPrice: BN.from("700000000000000000"), //0.7 eth valuation
+      ltv: 6000,
+      liquidationThreshold: 7500,
+      redeemThreshold: 5000,
+      liquidationBonus: 500,
+      redeemDuration: 47,
+      auctionDuration: 48,
+      redeemFine: 500,
+      minBidFine: 2000,
+    };
+    await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
+
+    await pool
+      .connect(user1.signer)
+      .borrow(weth.address, BN.from("420000000000000000"), bayc.address, "103", user1.address, "0");
+
+    // user 2 mint 100 WETH
+    await fundWithERC20("WETH", user2.address, "100");
+    await approveERC20(testEnv, user2, "WETH");
+
+    const poolLoanData = await pool.getNftDebtData(bayc.address, "103");
+    const baycPrice = new BigNumber(poolLoanData.totalDebt.toString())
+      .percentMul(new BigNumber(5000)) // 50%
+      .toFixed(0);
+    await advanceTimeAndBlock(100);
+    await nftOracle.setPriceManagerStatus(configurator.address, true);
+    await nftOracle.setNFTPrice(bayc.address, 103, baycPrice);
+    await advanceTimeAndBlock(200);
+    await nftOracle.setNFTPrice(bayc.address, 103, baycPrice);
+
+    const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(weth.address, bayc.address, "103");
+    await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
+    await configurator.connect(deployer.signer).setTimeframe(360000);
+    const auctionPrice = new BigNumber(liquidatePrice.toString()).multipliedBy(3).toFixed(0);
+    await waitForTx(await pool.connect(user2.signer).auction(bayc.address, "103", auctionPrice, user2.address));
+
+    const nftCfgData = await dataProvider.getNftConfigurationDataByTokenId(bayc.address, "103");
+    const deltaDuration = nftCfgData.auctionDuration;
+    console.log(deltaDuration);
+    // We need to be sure the auction Ended - Expecting to revert bidding again.
+    // after we need to be sure we can't claim before the 20m pass.
+    await increaseTime(deltaDuration.mul(60).toNumber());
+
+    // user 3 mint 100 WETH
+    await fundWithERC20("WETH", user3.address, "100");
+    await approveERC20(testEnv, user3, "WETH");
+
+    const auctionPriceOk = new BigNumber(liquidatePrice.toString()).multipliedBy(4).toFixed(0);
+    await expect(
+      pool.connect(user3.signer).auction(bayc.address, "103", auctionPriceOk, user3.address)
+    ).to.be.revertedWith(ProtocolErrors.LPL_BID_AUCTION_DURATION_HAS_END);
+
+    await expect(pool.connect(user2.signer).liquidate(bayc.address, "103", auctionPriceOk)).to.be.revertedWith(
+      ProtocolErrors.LPL_CLAIM_HASNT_STARTED_YET
+    );
   });
 });
