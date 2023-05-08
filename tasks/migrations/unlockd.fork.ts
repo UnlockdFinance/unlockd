@@ -152,12 +152,7 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
       console.log("\n\nDeploy Lockey Holders");
       await DRE.run("fork:deploy-lockey-holders", { pool: POOL_NAME });
       //////////////////////////////////////////////////////////////////////////
-      console.log("\n\nDeploy Debt Market");
-      await DRE.run("fork:deploy-debt-market", {});
 
-      //////////////////////////////////////////////////////////////////////////
-
-      //////////////////////////////////////////////////////////////////////////
       console.log("\n\nDeploy lend pool");
       await DRE.run("fork:deploy-lend-pool", {
         pool: POOL_NAME,
@@ -175,6 +170,13 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
       await waitForTx(await lendPoolConfiguratorProxy.connect(emergencyAdminSigner).setPoolPause(false));
 
       await waitForTx(await lendPoolConfiguratorProxy.connect(poolAdminSigner).setTimeframe(3600000));
+
+      //////////////////////////////////////////////////////////////////////////
+
+      console.log("\n\nDeploy Debt Market");
+      await DRE.run("fork:deploy-debt-market", {});
+
+      //////////////////////////////////////////////////////////////////////////
 
       if (testupgrade && upgradeInterestRate) {
         await DRE.run("fork:deploy-interest-rate", {
@@ -229,6 +231,10 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
       }
 
       //////////////////////////////////////////////////////////////////////////
+      console.log("\n\nDeploy Reservoir Adapter");
+      await DRE.run("fork:deploy-reservoir-adapter", { pool: POOL_NAME });
+
+      //////////////////////////////////////////////////////////////////////////
       console.log("\n\nDeploy data provider");
       await DRE.run("fork:deploy-data-provider", {
         pool: POOL_NAME,
@@ -237,6 +243,17 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
         ui: upgradeUiDataProvider,
         protocol: upgradeProtocolDataProvider,
       });
+
+      //////////////////////////////////////////////////////////////////////////
+      console.log("\n\nDeploy Strategies");
+
+      console.log("\n\nDeploy Generic Yearn Vault Strategy...");
+      await DRE.run("fork:deploy-genericyvault-strategy", { pool: POOL_NAME });
+
+      console.log("\n\nDeploy Generic Convex ETH Strategy...");
+      await DRE.run("fork:deploy-genericonvexeth-strategy", { pool: POOL_NAME });
+
+      //////////////////////////////////////////////////////////////////////////
 
       console.log("\n\nFinished migrations");
       printContracts(testupgrade ? "main" : "");

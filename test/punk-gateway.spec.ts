@@ -362,6 +362,7 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
       redeemFine: 500,
       minBidFine: 2000,
     };
+
     await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     // borrow first eth
@@ -385,8 +386,6 @@ makeSuite("PunkGateway", (testEnv: TestEnv) => {
 
     // borrow more eth
     await waitForTx(await punkGateway.connect(user.signer).borrowETH(borrowSize2, punkIndex, user.address, "0"));
-
-    console.log("AVAILABLE LIQUIDITY AFTER SECOND BORROW: " + (await uWETH.getAvailableLiquidity()).toString());
 
     // Check debt
     const loanDataAfterBorrow = await dataProvider.getLoanDataByCollateral(wrappedPunk.address, punkIndex);

@@ -1,3 +1,4 @@
+import { Provider } from "@ethersproject/abstract-provider";
 import BigNumber from "bignumber.js";
 import {
   getDebtToken,
@@ -15,10 +16,11 @@ import type { IYVault } from "../../../types/IYVault";
 
 import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
+import hre from "hardhat";
+import { ICurve } from "../../../types/ICurve";
 import { LendPool } from "../../../types/LendPool";
 import { UnlockdProtocolDataProvider } from "../../../types/UnlockdProtocolDataProvider";
 import { LoanData, NftData, ReserveData, UserReserveData } from "./interfaces";
-
 export const getReserveData = async (
   helper: UnlockdProtocolDataProvider,
   reserve: tEthereumAddress
@@ -202,3 +204,62 @@ const calculateLockedProfit = async (yVault: IYVault): Promise<BN> => {
   }
   return BN.from(0);
 };
+
+export const shareValue = async (shares: BN, yVault: IYVault): Promise<BN> => {
+  const vaultTotalSupply = await yVault.totalSupply();
+  if (vaultTotalSupply.eq(0)) return shares;
+  return shares.mul(await freeFunds(yVault)).div(vaultTotalSupply);
+};
+export const lpValue = async (lp: BN, curvePool: ICurve): Promise<BN> => {
+  return lp.mul(await curvePool.get_virtual_price()).div(parseEther("1"));
+};
+
+export const computeAvailableCredit = async (
+  totalAssets: BN,
+  debtRatio: BN,
+  strategyDebtRatio: BN,
+  strategyTotalDebt: BN,
+  totalDebt: BN,
+  balance: BN,
+  minDebtPerHarvest: BN,
+  maxDebtPerHarvest: BN
+): Promise<BN> => {
+  let uTokenDebtLimit = await computeDebtLimit(debtRatio, totalAssets);
+  let strategyDebtLimit = await computeDebtLimit(strategyDebtRatio, totalAssets);
+
+  // Check if strategy or UToken debt have exceeded their own maximum debt limit
+  if (strategyTotalDebt.gt(strategyDebtLimit) || totalDebt.gt(uTokenDebtLimit)) return BN.from(0);
+
+  let availableCredit = strategyDebtLimit.sub(strategyTotalDebt);
+
+  // Adjust by global debt limit
+  availableCredit = availableCredit.lt(uTokenDebtLimit.sub(totalDebt))
+    ? availableCredit
+    : uTokenDebtLimit.sub(totalDebt);
+
+  // Can only borrow up to what the contract has in reserve. It is discouraged
+  // to loan up to 100% of current deposited funds
+  availableCredit = availableCredit.lt(balance) ? availableCredit : balance;
+
+  // Adjust by min and max borrow limits per harvest
+
+  // Min debt per harvest can be used to ensure that if a strategy has a minimum
+  // amount of capital needed to purchase a position, it's not given capital
+  // it can't make use of yet.
+  if (availableCredit.lt(minDebtPerHarvest)) return BN.from(0);
+
+  // Max debt per harvest is used to make sure each harvest isn't bigger than what
+  // it is authorized.
+  return availableCredit.lt(maxDebtPerHarvest) ? availableCredit : maxDebtPerHarvest;
+};
+
+const computeDebtLimit = async (debtRatio: BN, totalAssets: BN) => {
+  return debtRatio.mul(totalAssets).div(10000);
+};
+const freeFunds = async (yVault: IYVault): Promise<BN> => {
+  return (await yVault.totalAssets()).sub(await calculateLockedProfit(yVault));
+};
+
+export const getCurrentTimestamp = async (provider: Provider) => provider.getBlock("latest").then((b) => b.timestamp);
+
+export const getChainId = () => hre.network.config.chainId;

@@ -48,8 +48,9 @@ task(`full:deploy-punk-gateway`, `Deploys the PunkGateway contract`)
     const wpunk = await getWrappedPunkTokenAddress(poolConfig, punk);
     console.log("WPUNKS.address", wpunk);
 
-    // this contract is not support upgrade, just deploy new contract
+    // this contract is does not support upgrade, just deploy new contract
     const punkGateWayImpl = await deployPunkGateway(verify);
+    console.log(punkGateWayImpl.address);
     console.log(addressesProvider.address, wethGateWay.address, punk, wpunk);
     const initEncodedData = punkGateWayImpl.interface.encodeFunctionData("initialize", [
       addressesProvider.address,
@@ -77,6 +78,7 @@ task(`full:deploy-punk-gateway`, `Deploys the PunkGateway contract`)
       punkGateWay = await getPunkGateway(punkGatewayProxy.address);
     } else {
       console.log("Deploying new PunkGateway proxy & implementation...");
+
       const punkGatewayProxy = await deployUnlockdUpgradeableProxy(
         eContractid.PunkGateway,
         proxyAdmin.address,

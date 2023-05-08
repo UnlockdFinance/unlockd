@@ -337,54 +337,6 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   /**
    * @inheritdoc ILendPoolAddressesProvider
    */
-  function getNFTXVaultFactory() external view override returns (address) {
-    return getAddress(NFTX_VAULT_FACTORY);
-  }
-
-  /**
-   * @inheritdoc ILendPoolAddressesProvider
-   */
-  function setNFTXVaultFactory(address factory) external override onlyOwner {
-    require(factory != address(0), Errors.INVALID_ZERO_ADDRESS);
-    _addresses[NFTX_VAULT_FACTORY] = factory;
-    emit NFTXVaultFactoryUpdated(factory);
-  }
-
-  /**
-   * @inheritdoc ILendPoolAddressesProvider
-   */
-  function getLSSVMRouter() external view override returns (address) {
-    return getAddress(LSSVM_ROUTER);
-  }
-
-  /**
-   * @inheritdoc ILendPoolAddressesProvider
-   */
-  function setLSSVMRouter(address router) external override onlyOwner {
-    require(router != address(0), Errors.INVALID_ZERO_ADDRESS);
-    _addresses[LSSVM_ROUTER] = router;
-    emit LSSVMRouterUpdated(router);
-  }
-
-  /**
-   * @inheritdoc ILendPoolAddressesProvider
-   */
-  function getSushiSwapRouter() external view override returns (address) {
-    return getAddress(SUSHI_SWAP_ROUTER);
-  }
-
-  /**
-   * @inheritdoc ILendPoolAddressesProvider
-   */
-  function setSushiSwapRouter(address router) external override onlyOwner {
-    require(router != address(0), Errors.INVALID_ZERO_ADDRESS);
-    _addresses[SUSHI_SWAP_ROUTER] = router;
-    emit SushiSwapRouterUpdated(router);
-  }
-
-  /**
-   * @inheritdoc ILendPoolAddressesProvider
-   */
   function getLendPoolLiquidator() external view override returns (address) {
     return getAddress(LEND_POOL_LIQUIDATOR);
   }

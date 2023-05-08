@@ -32,12 +32,9 @@ task("unlockd:dev", "Deploy development enviroment")
     await localBRE.run("dev:deploy-mock-unft-tokens", { verify, pool: POOL_NAME });
 
     //////////////////////////////////////////////////////////////////////////
-    // Deploy IncentivesController, sushiswaprouter and nftxVault
+    // Deploy IncentivesController
     console.log("\n\nDeploy incentives controller");
     await localBRE.run("dev:deploy-incentives-controller", { verify, pool: POOL_NAME });
-
-    console.log("\n\nDeploy sushiswap router and NFTXVault");
-    await localBRE.run("dev:deploy-sushiswap-nftxvault-controller", { verify, pool: POOL_NAME });
 
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy proxy admin");

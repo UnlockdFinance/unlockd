@@ -5,7 +5,6 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 import {INFTOracle} from "../interfaces/INFTOracle.sol";
-import {IUniswapV2Router02} from "../interfaces/IUniswapV2Router02.sol";
 import {BlockContext} from "../utils/BlockContext.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 

@@ -17,7 +17,9 @@ interface IYVault {
 
   function lockedProfit() external view returns (uint256);
 
-  function deposit(uint256) external;
+  function deposit(uint256) external returns (uint256);
 
   function withdraw(uint256) external returns (uint256);
+
+  function withdrawalQueue(uint256) external returns (address);
 }

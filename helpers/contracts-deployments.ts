@@ -10,7 +10,9 @@ import {
   CustomERC721Factory,
   DebtMarketFactory,
   DebtTokenFactory,
+  GenericConvexETHStrategyFactory,
   GenericLogicFactory,
+  GenericYVaultStrategyFactory,
   InterestRateFactory,
   LendPoolAddressesProviderFactory,
   LendPoolAddressesProviderRegistryFactory,
@@ -28,13 +30,14 @@ import {
   MockIncentivesControllerFactory,
   MockNFTOracleFactory,
   MockReserveOracleFactory,
+  MockUTokenFactory,
   MockYVaultFactory,
   NFTOracleFactory,
-  NFTXVaultFactoryV2Factory,
   PunkGatewayFactory,
   RepayAndTransferHelperFactory,
   ReserveLogicFactory,
   ReserveOracleFactory,
+  ReservoirAdapterFactory,
   //NftLogicFactory,
   SelfdestructTransferFactory,
   SupplyLogicFactory,
@@ -42,8 +45,6 @@ import {
   UiPoolDataProviderFactory,
   UNFTFactory,
   UNFTRegistryFactory,
-  UniswapV2FactoryFactory,
-  UniswapV2Router02Factory,
   UnlockdCollectorFactory,
   UnlockdProtocolDataProviderFactory,
   UnlockdProxyAdminFactory,
@@ -138,6 +139,27 @@ export const deployDebtMarket = async (verify?: boolean) => {
   return withSaveAndVerify(DebtMarketImpl, eContractid.DebtMarket, [], verify);
 };
 
+export const deployReservoirAdapter = async (verify?: boolean) => {
+  const reservoirAdapterImpl = await new ReservoirAdapterFactory(await getDeploySigner()).deploy();
+  await insertContractAddressInDb(eContractid.ReservoirAdapterImpl, reservoirAdapterImpl.address);
+  return withSaveAndVerify(reservoirAdapterImpl, eContractid.ReservoirAdapter, [], verify);
+};
+
+export const deployGenericYVaultStrategy = async (verify?: boolean, avoidPrint?: boolean) => {
+  const genericYVaultStrategyImpl = await new GenericYVaultStrategyFactory(await getDeploySigner()).deploy();
+  await insertContractAddressInDb(eContractid.GenericYVaultStrategyImpl, genericYVaultStrategyImpl.address, avoidPrint);
+  return withSaveAndVerify(genericYVaultStrategyImpl, eContractid.GenericYVaultStrategy, [], verify, avoidPrint);
+};
+export const deployGenericConvexETHStrategy = async (verify?: boolean, avoidPrint?: boolean) => {
+  const genericConvexETHStrategyImpl = await new GenericConvexETHStrategyFactory(await getDeploySigner()).deploy();
+  await insertContractAddressInDb(
+    eContractid.GenericConvexETHStrategyImpl,
+    genericConvexETHStrategyImpl.address,
+    avoidPrint
+  );
+  return withSaveAndVerify(genericConvexETHStrategyImpl, eContractid.GenericConvexETHStrategy, [], verify, avoidPrint);
+};
+
 export const deployReserveLogicLibrary = async (verify?: boolean) =>
   withSaveAndVerify(
     await new ReserveLogicFactory(await getDeploySigner()).deploy(),
@@ -166,17 +188,6 @@ export const deployGenericLogic = async (verify?: boolean) => {
     [],
     verify
   );
-};
-
-export const deployNFTXHelperLibrary = async (verify?: boolean) => {
-  const nftxHelperArtifact = await readArtifact(eContractid.NFTXHelper);
-  const linkedNFTXHelperByteCode = linkBytecode(nftxHelperArtifact, {});
-
-  const nftxHelperFactory = await DRE.ethers.getContractFactory(nftxHelperArtifact.abi, linkedNFTXHelperByteCode);
-
-  const nftxHelper = await (await nftxHelperFactory.connect(await getDeploySigner()).deploy()).deployed();
-
-  return withSaveAndVerify(nftxHelper, eContractid.NFTXHelper, [], verify);
 };
 
 export const deployValidationLogic = async (reserveLogic: Contract, genericLogic: Contract, verify?: boolean) => {
@@ -238,22 +249,6 @@ export const deployLiquidateLogicLibrary = async (verify?: boolean) => {
   );
 };
 
-export const deployLiquidateMarketsLogicLibrary = async (verify?: boolean) => {
-  const liquidateMarketsLogicArtifact = await readArtifact(eContractid.LiquidateMarketsLogic);
-  const linkedLiquidateMarketsLogicByteCode = linkBytecode(liquidateMarketsLogicArtifact, {});
-
-  const liquidateMarketsLogicFactory = await DRE.ethers.getContractFactory(
-    liquidateMarketsLogicArtifact.abi,
-    linkedLiquidateMarketsLogicByteCode
-  );
-
-  const liquidateMarketsLogic = await (
-    await liquidateMarketsLogicFactory.connect(await getDeploySigner()).deploy()
-  ).deployed();
-
-  return withSaveAndVerify(liquidateMarketsLogic, eContractid.LiquidateMarketsLogic, [], verify);
-};
-
 export const deployLendingLogicLibrary = async (verify?: boolean) => {
   const lendingLogicArtifact = await readArtifact(eContractid.LendingLogic);
   const linkedLendingLogicByteCode = linkBytecode(lendingLogicArtifact, {});
@@ -279,12 +274,7 @@ export const deployLendPoolLibraries = async (verify?: boolean) => {
   const supplyLogic = await deploySupplyLogicLibrary(verify);
   const borrowLogic = await deployBorrowLogicLibrary(verify);
   const liquidateLogic = await deployLiquidateLogicLibrary(verify);
-  const liquidateMarketsLogic = await deployLiquidateMarketsLogicLibrary(verify);
   const lendingLogic = await deployLendingLogicLibrary(verify);
-};
-
-export const deployLendPoolLoanLibraries = async (verify?: boolean) => {
-  const nftxHelper = await deployNFTXHelperLibrary(verify);
 };
 
 export const getLendPoolLibraries = async (verify?: boolean): Promise<LendPoolLibraryAddresses> => {
@@ -295,7 +285,6 @@ export const getLendPoolLibraries = async (verify?: boolean): Promise<LendPoolLi
   const supplyLogicAddress = await getContractAddressInDb(eContractid.SupplyLogic);
   const borrowLogicAddress = await getContractAddressInDb(eContractid.BorrowLogic);
   const liquidateLogicAddress = await getContractAddressInDb(eContractid.LiquidateLogic);
-  const liquidateMarketsLogicAddress = await getContractAddressInDb(eContractid.LiquidateMarketsLogic);
   const lendingLogicAddress = await getContractAddressInDb(eContractid.LendingLogic);
 
   // Hardcoded solidity placeholders, if any library changes path this will fail.
@@ -317,7 +306,6 @@ export const getLendPoolLibraries = async (verify?: boolean): Promise<LendPoolLi
     [PLACEHOLDER_SUPPLY_LOGIC]: supplyLogicAddress,
     [PLACEHOLDER_BORROW_LOGIC]: borrowLogicAddress,
     [PLACEHOLDER_LIQUIDATE_LOGIC]: liquidateLogicAddress,
-    [PLACEHOLDER_LIQUIDATE_MARKETS_LOGIC]: liquidateMarketsLogicAddress,
     //[PLACEHOLDER_LENDING_LOGIC]: lendingLogicAddress,
   };
 };
@@ -454,6 +442,15 @@ export const deployGenericDebtToken = async (verify?: boolean) =>
 
 export const deployGenericUTokenImpl = async (verify: boolean) =>
   withSaveAndVerify(await new UTokenFactory(await getDeploySigner()).deploy(), eContractid.UToken, [], verify);
+
+export const deployGenericMockUTokenImpl = async (verify: boolean, avoidPrint?: boolean) =>
+  withSaveAndVerify(
+    await new MockUTokenFactory(await getDeploySigner()).deploy(),
+    eContractid.MockUToken,
+    [],
+    verify,
+    avoidPrint
+  );
 
 export const deployGenericUNFTImpl = async (verify: boolean) =>
   withSaveAndVerify(await new UNFTFactory(await getDeploySigner()).deploy(), eContractid.UNFT, [], verify);
@@ -658,13 +655,15 @@ export const deployUnlockdUpgradeableProxy = async (
   admin: tEthereumAddress,
   logic: tEthereumAddress,
   data: BytesLike,
-  verify?: boolean
+  verify?: boolean,
+  avoidPrint?: boolean
 ) =>
   withSaveAndVerify(
     await new UnlockdUpgradeableProxyFactory(await getDeploySigner()).deploy(logic, admin, data),
     id,
     [logic, admin, DRE.ethers.utils.hexlify(data)],
-    verify
+    verify,
+    avoidPrint
   );
 
 export const deployUnlockdProxyAdmin = async (id: string, verify?: boolean) =>
@@ -706,42 +705,6 @@ export const deployRepayAndTransferHelper = async (addressesProvider: string, ve
     verify
   );
 
-export const deployNFTXVaultFactory = async (verify?: boolean) => {
-  const deployer = await getDeploySigner();
-  const deployerAddress = await deployer.getAddress();
-
-  return withSaveAndVerify(
-    await new NFTXVaultFactoryV2Factory(deployer).deploy(deployerAddress),
-    eContractid.NFTXVaultFactory,
-    [deployerAddress],
-    verify
-  );
-};
-
-const deployUniswapV2Factory = async (verify?: boolean) => {
-  const deployer = await getDeploySigner();
-  const deployerAddress = await deployer.getAddress();
-
-  return withSaveAndVerify(
-    await new UniswapV2FactoryFactory(deployer).deploy(deployerAddress),
-    eContractid.UniswapV2Factory,
-    [deployerAddress],
-    verify
-  );
-};
-
-export const deploySushiSwapRouter = async (verify?: boolean) => {
-  const deployer = await getDeploySigner();
-
-  const uniswapV2Factory = await deployUniswapV2Factory();
-
-  return withSaveAndVerify(
-    await new UniswapV2Router02Factory(deployer).deploy(uniswapV2Factory.address, ZERO_ADDRESS),
-    eContractid.SushiSwapRouter,
-    [uniswapV2Factory.address, ZERO_ADDRESS],
-    verify
-  );
-};
 export const deployMockYVault = async (verify?: boolean) => {
   const mockYVaultImpl = await new MockYVaultFactory(await getDeploySigner()).deploy();
   await insertContractAddressInDb(eContractid.MockYVaultImpl, mockYVaultImpl.address);

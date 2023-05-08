@@ -71,15 +71,15 @@ library SupplyLogic {
 
     IUToken(uToken).mint(params.onBehalfOf, params.amount, reserve.liquidityIndex);
 
-    // Deposit amount to external lending protocol
-    IUToken(uToken).depositReserves(params.amount);
-
     emit Deposit(params.initiator, params.asset, params.amount, params.onBehalfOf, params.referralCode);
   }
 
   /**
    * @notice Implements the withdraw feature. Through `withdraw()`, users withdraw assets from the protocol.
    * @dev Emits the `Withdraw()` event.
+   * Notice there is no need to compute difference between underlying and `amount`
+   * when withdrawing from strategies due to the fact that this is already handled inside
+   * `withdrawReserves()`.
    * @param reservesData The state of all the reserves
    * @param params The additional parameters needed to execute the withdraw function
    */
@@ -96,25 +96,24 @@ library SupplyLogic {
 
     uint256 userBalance = IUToken(uToken).balanceOf(params.initiator);
 
-    uint256 amountToWithdraw = params.amount;
+    uint256 amountToBurn = params.amount;
 
     if (params.amount == type(uint256).max) {
-      amountToWithdraw = userBalance;
+      amountToBurn = userBalance;
     }
 
-    ValidationLogic.validateWithdraw(reserve, amountToWithdraw, userBalance, uToken);
+    ValidationLogic.validateWithdraw(reserve, amountToBurn, userBalance, uToken);
 
     reserve.updateState();
 
-    reserve.updateInterestRates(params.asset, uToken, 0, amountToWithdraw);
+    reserve.updateInterestRates(params.asset, uToken, 0, amountToBurn);
 
-    // Withdraw amount from external lending protocol
-    IUToken(uToken).withdrawReserves(amountToWithdraw);
+    uint256 amountToTransfer = IUToken(uToken).withdrawReserves(amountToBurn);
 
-    IUToken(uToken).burn(params.initiator, params.to, amountToWithdraw, reserve.liquidityIndex);
+    IUToken(uToken).burn(params.initiator, params.to, amountToBurn, amountToTransfer, reserve.liquidityIndex);
 
-    emit Withdraw(params.initiator, params.asset, amountToWithdraw, params.to);
+    emit Withdraw(params.initiator, params.asset, amountToBurn, params.to);
 
-    return amountToWithdraw;
+    return amountToTransfer;
   }
 }

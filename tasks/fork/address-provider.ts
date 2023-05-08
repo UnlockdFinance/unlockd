@@ -7,12 +7,7 @@ import {
   loadPoolConfig,
 } from "../../helpers/configuration";
 import { deployLendPoolAddressesProvider } from "../../helpers/contracts-deployments";
-import {
-  getDeploySigner,
-  getNFTXVaultFactory,
-  getSushiSwapRouter,
-  getUnlockdProtocolDataProvider,
-} from "../../helpers/contracts-getters";
+import { getDeploySigner } from "../../helpers/contracts-getters";
 import { getParamPerNetwork } from "../../helpers/contracts-helpers";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";
 import { eNetwork } from "../../helpers/types";
@@ -41,36 +36,14 @@ task("fork:deploy-address-provider", "Deploy address provider for full enviromen
         deployRegistry: !notFalsyOrZeroAddress(providerRegistryAddress),
       });
     }
-    const sushiSwapRouterAddress = getParamPerNetwork(poolConfig.SushiSwapRouter, <eNetwork>DRE.network.name);
-    if (sushiSwapRouterAddress == undefined || !notFalsyOrZeroAddress(sushiSwapRouterAddress)) {
-      throw Error("Invalid SushiSwap Router address in pool config");
-    }
-
-    const nftxVaultFactoryAddress = getParamPerNetwork(poolConfig.NFTXVaultFactory, <eNetwork>DRE.network.name);
-
-    if (nftxVaultFactoryAddress == undefined || !notFalsyOrZeroAddress(nftxVaultFactoryAddress)) {
-      throw Error("Invalid NFTX Vault Factory address in pool config");
-    }
-
-    const LSSVMRouterAddress = getParamPerNetwork(poolConfig.LSSVMRouter, <eNetwork>DRE.network.name);
-    console.log("LSSVM ROUTER ADDRESS: " + LSSVMRouterAddress);
-    if (LSSVMRouterAddress == undefined || !notFalsyOrZeroAddress(LSSVMRouterAddress)) {
-      throw Error("Invalid LSVVM Router address in pool config");
-    }
 
     // Set pool admins
     await waitForTx(await addressesProvider.setPoolAdmin(await getGenesisPoolAdmin(poolConfig)));
     await waitForTx(await addressesProvider.setEmergencyAdmin(await getEmergencyAdmin(poolConfig)));
     await waitForTx(await addressesProvider.setLendPoolLiquidator(await getLendPoolLiquidator(poolConfig)));
     console.log("LIQUIDATOR addrs", await addressesProvider.getLendPoolLiquidator());
-    await waitForTx(await addressesProvider.setSushiSwapRouter(sushiSwapRouterAddress));
-    await waitForTx(await addressesProvider.setNFTXVaultFactory(nftxVaultFactoryAddress));
-    await waitForTx(await addressesProvider.setLSSVMRouter(LSSVMRouterAddress));
 
     console.log("Pool Admin", await addressesProvider.getPoolAdmin());
     console.log("Emergency Admin", await addressesProvider.getEmergencyAdmin());
     console.log("LendPool Liquidator", await addressesProvider.getLendPoolLiquidator());
-
-    console.log("SushiSwap Router", await addressesProvider.getSushiSwapRouter());
-    console.log("NFTXVault Factory", await addressesProvider.getNFTXVaultFactory());
   });

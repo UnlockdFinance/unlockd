@@ -9,8 +9,6 @@ import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvid
 import {Errors} from "../libraries/helpers/Errors.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {WadRayMath} from "../libraries/math/WadRayMath.sol";
-import {NFTXSeller} from "../libraries/markets/NFTXSeller.sol";
-import {SudoSwapSeller} from "../libraries/markets/SudoSwapSeller.sol";
 import {IUNFTRegistry} from "../interfaces/IUNFTRegistry.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
 
@@ -34,6 +32,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   mapping(address => mapping(uint256 => uint256)) private _nftToLoanIds;
   mapping(address => uint256) private _nftTotalCollateral;
   mapping(address => mapping(address => uint256)) private _userNftCollateral;
+  mapping(address => bool) private _marketAdapters;
 
   /**
    * @dev Only lending pool can call functions marked by this modifier
@@ -44,6 +43,21 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   }
   modifier onlyDebtMarket() {
     require(_msgSender() == _addressesProvider.getAddress(DEBT_MARKET), Errors.CT_CALLER_MUST_BE_DEBT_MARKET);
+    _;
+  }
+
+  /**
+   * @dev Only adapter of external markets can call functions marked by this modifier
+   **/
+  modifier onlyMarketAdapter() {
+    require(_marketAdapters[_msgSender()], Errors.LPL_CALLER_MUST_BE_MARKET_ADAPTER);
+    _;
+  }
+  /**
+   * @dev Only pool admin can call functions marked by this modifier
+   **/
+  modifier onlyPoolAdmin() {
+    require(_msgSender() == _addressesProvider.getPoolAdmin(), Errors.CALLER_NOT_POOL_ADMIN);
     _;
   }
 
@@ -362,75 +376,17 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   /**
    * @inheritdoc ILendPoolLoan
    */
-  function liquidateLoanNFTX(
+  function liquidateLoanMarket(
     uint256 loanId,
     address uNftAddress,
     uint256 borrowAmount,
-    uint256 borrowIndex,
-    uint256 amountOutMin
-  ) external override onlyLendPool returns (uint256 sellPrice) {
-    // Must use storage to change state
+    uint256 borrowIndex
+  ) external override onlyMarketAdapter {
     DataTypes.LoanData storage loan = _loans[loanId];
 
     // Ensure valid loan state
     require(loan.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
 
-    // state changes and cleanup
-    // NOTE: these must be performed before assets are released to prevent reentrance
-    _loans[loanId].state = DataTypes.LoanState.Defaulted;
-
-    _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
-
-    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
-    _userNftCollateral[loan.borrower][loan.nftAsset] -= 1;
-
-    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALID_NFT_AMOUNT);
-    _nftTotalCollateral[loan.nftAsset] -= 1;
-
-    // burn uNFT and sell underlying NFT on NFTX
-    IUNFT(uNftAddress).burn(loan.nftTokenId);
-
-    require(IERC721Upgradeable(loan.nftAsset).ownerOf(loan.nftTokenId) == address(this), "Invalid Call");
-
-    // Sell NFT on NFTX
-    sellPrice = NFTXSeller.sellNFTX(
-      _addressesProvider,
-      loan.nftAsset,
-      loan.nftTokenId,
-      loan.reserveAsset,
-      amountOutMin
-    );
-
-    emit LoanLiquidatedNFTX(
-      loanId,
-      loan.nftAsset,
-      loan.nftTokenId,
-      loan.reserveAsset,
-      borrowAmount,
-      borrowIndex,
-      sellPrice
-    );
-  }
-
-  /**
-   * @inheritdoc ILendPoolLoan
-   */
-  function liquidateLoanSudoSwap(
-    uint256 loanId,
-    address uNftAddress,
-    uint256 borrowAmount,
-    uint256 borrowIndex,
-    DataTypes.SudoSwapParams memory sudoswapParams
-  ) external override onlyLendPool returns (uint256 sellPrice) {
-    // Must use storage to change state
-
-    DataTypes.LoanData storage loan = _loans[loanId];
-
-    // Ensure valid loan state
-    require(loan.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
-
-    // state changes and cleanup
-    // NOTE: these must be performed before assets are released to prevent reentrance
     loan.state = DataTypes.LoanState.Defaulted;
 
     _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
@@ -441,30 +397,24 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALID_NFT_AMOUNT);
     _nftTotalCollateral[loan.nftAsset] -= 1;
 
-    // burn uNFT and sell underlying NFT on SudoSwap
+    // burn uNFT
     IUNFT(uNftAddress).burn(loan.nftTokenId);
 
-    require(IERC721Upgradeable(loan.nftAsset).ownerOf(loan.nftTokenId) == address(this), "Invalid Call");
+    //transfer to sender
+    IERC721Upgradeable(loan.nftAsset).safeTransferFrom(address(this), _msgSender(), loan.nftTokenId);
 
-    // Sell NFT on SudoSwap
-    sellPrice = SudoSwapSeller.sellSudoSwap(
-      _addressesProvider,
-      loan.nftAsset,
-      loan.nftTokenId,
-      sudoswapParams.LSSVMPair,
-      sudoswapParams.amountOutMinSudoswap
-    );
+    emit LoanLiquidatedMarket(loanId, loan.nftAsset, loan.nftTokenId, loan.reserveAsset, borrowAmount, borrowIndex);
+  }
 
-    emit LoanLiquidatedSudoSwap(
-      loanId,
-      loan.nftAsset,
-      loan.nftTokenId,
-      loan.reserveAsset,
-      borrowAmount,
-      borrowIndex,
-      sellPrice,
-      sudoswapParams.LSSVMPair
-    );
+  function updateMarketAdapters(address[] calldata adapters, bool flag) external override onlyPoolAdmin {
+    uint256 cachedLength = adapters.length;
+    for (uint256 i = 0; i < cachedLength; ) {
+      require(adapters[i] != address(0), Errors.INVALID_ZERO_ADDRESS);
+      _marketAdapters[adapters[i]] = flag;
+      unchecked {
+        ++i;
+      }
+    }
   }
 
   function onERC721Received(address, address, uint256, bytes memory) external pure override returns (bytes4) {

@@ -115,30 +115,15 @@ interface ILendPoolLoan {
   );
 
   /**
-   * @dev Emitted when a loan is liquidate on NFTX
+   * @dev Emitted when a loan is liquidated in an external market
    */
-  event LoanLiquidatedNFTX(
+  event LoanLiquidatedMarket(
     uint256 indexed loanId,
     address nftAsset,
     uint256 nftTokenId,
     address reserveAsset,
     uint256 amount,
-    uint256 borrowIndex,
-    uint256 sellPrice
-  );
-
-  /**
-   * @dev Emitted when a loan is liquidate on SudoSwap
-   */
-  event LoanLiquidatedSudoSwap(
-    uint256 indexed loanId,
-    address nftAsset,
-    uint256 nftTokenId,
-    address reserveAsset,
-    uint256 amount,
-    uint256 borrowIndex,
-    uint256 sellPrice,
-    address LSSVMPair
+    uint256 borrowIndex
   );
 
   function initNft(address nftAsset, address uNftAddress) external;
@@ -278,38 +263,21 @@ interface ILendPoolLoan {
   ) external;
 
   /**
-   * @dev Liquidate the given loan on NFTX
-   *
-   * Requirements:
-   *  - The caller must send in principal + interest
-   *  - The loan must be in state Auction
-   *
+   * @dev Liquidate the given loan on an external market
    * @param loanId The loan getting burned
+   * @param uNftAddress The address of the underlying uNft
+   * @param borrowAmount Amount borrowed in the loan
+   * @param borrowIndex The reserve index
    */
-  function liquidateLoanNFTX(
-    uint256 loanId,
-    address uNftAddress,
-    uint256 borrowAmount,
-    uint256 borrowIndex,
-    uint256 amountOutMin
-  ) external returns (uint256 sellPrice);
+  function liquidateLoanMarket(uint256 loanId, address uNftAddress, uint256 borrowAmount, uint256 borrowIndex) external;
 
   /**
-   * @dev Liquidate the given loan on SudoSwap
-   *
-   * Requirements:
-   *  - The caller must send in principal + interest
-   *  - The loan must be in state Auction
-   *
-   * @param loanId The loan getting burned
+   * @dev Updates the `_marketAdapters` mapping, setting the params to
+   * valid/unvalid adapters through the `flag` parameter
+   * @param adapters The adapters addresses to be updated
+   * @param flag `true` to set addresses as valid adapters, `false` otherwise
    */
-  function liquidateLoanSudoSwap(
-    uint256 loanId,
-    address uNftAddress,
-    uint256 borrowAmount,
-    uint256 borrowIndex,
-    DataTypes.SudoSwapParams memory sudoswapParams
-  ) external returns (uint256 sellPrice);
+  function updateMarketAdapters(address[] calldata adapters, bool flag) external;
 
   /**
    *  @dev returns the borrower of a specific loan

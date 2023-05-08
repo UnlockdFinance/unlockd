@@ -24,6 +24,8 @@ library Errors {
   string public constant INVALID_ZERO_ADDRESS = "106";
   string public constant CALLER_NOT_LTV_MANAGER = "107";
   string public constant CALLER_NOT_PRICE_MANAGER = "108";
+  string public constant CALLER_NOT_UTOKEN_MANAGER = "109";
+  string public constant CALLER_NOT_STRATEGY = "110";
 
   //math library errors
   string public constant MATH_MULTIPLICATION_OVERFLOW = "200";
@@ -84,13 +86,15 @@ library Errors {
   string public constant LP_INVALID_SAFE_HEALTH_FACTOR = "427";
   string public constant LP_AMOUNT_LESS_THAN_DEBT = "428";
   string public constant LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE = "429";
+  string public constant LP_CALLER_NOT_DEBT_TOKEN_MANAGER = "430";
 
   //lend pool loan errors
+  string public constant LPL_CLAIM_HASNT_STARTED_YET = "479";
   string public constant LPL_INVALID_LOAN_STATE = "480";
   string public constant LPL_INVALID_LOAN_AMOUNT = "481";
   string public constant LPL_INVALID_TAKEN_AMOUNT = "482";
   string public constant LPL_AMOUNT_OVERFLOW = "483";
-  string public constant LPL_BID_PRICE_LESS_THAN_LIQUIDATION_PRICE = "484";
+  string public constant LPL_BID_PRICE_LESS_THAN_DEBT_PRICE = "484";
   string public constant LPL_BID_PRICE_LESS_THAN_HIGHEST_PRICE = "485";
   string public constant LPL_BID_REDEEM_DURATION_HAS_END = "486";
   string public constant LPL_BID_USER_NOT_SAME = "487";
@@ -105,6 +109,7 @@ library Errors {
   string public constant LPL_BID_NOT_BUYOUT_PRICE = "496";
   string public constant LPL_BUYOUT_DURATION_HAS_END = "497";
   string public constant LPL_BUYOUT_PRICE_LESS_THAN_BORROW = "498";
+  string public constant LPL_CALLER_MUST_BE_MARKET_ADAPTER = "499";
 
   //common token errors
   string public constant CT_CALLER_MUST_BE_LEND_POOL = "500"; // 'The caller of this function must be a lending pool'
@@ -150,9 +155,6 @@ library Errors {
   string public constant LPAPR_PROVIDER_NOT_REGISTERED = "760"; // 'Provider is not registered'
   string public constant LPAPR_INVALID_ADDRESSES_PROVIDER_ID = "761";
 
-  //NFTXHelper
-  string public constant NFTX_INVALID_VAULTS_LENGTH = "800";
-
   //NFTOracleErrors
   string public constant NFTO_INVALID_PRICEM_ADDRESS = "900";
 
@@ -173,4 +175,8 @@ library Errors {
   string public constant DM_AMOUNT_DIFFERENT_FROM_SELL_PRICE = "1013";
   string public constant DM_BID_PRICE_LESS_THAN_MIN_BID_PRICE = "1014";
   string public constant DM_BORROWED_AMOUNT_DIVERGED = "1015";
+  string public constant DM_INVALID_AUTHORIZED_ADDRESS = "1016";
+  string public constant DM_CALLER_NOT_THE_OWNER_OR_AUTHORIZED = "1017";
+  string public constant DM_INVALID_DELTA_BID_PERCENT = "1018";
+  string public constant DM_IS_PAUSED = "1019";
 }

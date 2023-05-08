@@ -9,8 +9,8 @@ import {IReserveOracleGetter} from "../../interfaces/IReserveOracleGetter.sol";
 import {INFTOracleGetter} from "../../interfaces/INFTOracleGetter.sol";
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
 import {ILendPool} from "../../interfaces/ILendPool.sol";
-import {ILSSVMPair} from "../../interfaces/sudoswap/ILSSVMPair.sol";
 import {ILockeyManager} from "../../interfaces/ILockeyManager.sol";
+import {IDebtMarket} from "../../interfaces/IDebtMarket.sol";
 
 import {ReserveLogic} from "./ReserveLogic.sol";
 import {GenericLogic} from "./GenericLogic.sol";
@@ -26,8 +26,6 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
 import {IERC721MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/IERC721MetadataUpgradeable.sol";
-
-import {NFTXSeller} from "../markets/NFTXSeller.sol";
 
 /**
  * @title LiquidateLogic library
@@ -152,8 +150,6 @@ library LiquidateLogic {
     mapping(address => DataTypes.ReserveData) storage reservesData,
     mapping(address => DataTypes.NftData) storage nftsData,
     mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    mapping(address => mapping(uint8 => bool)) storage isMarketSupported,
-    mapping(address => address[2]) storage sudoswapPairs,
     DataTypes.ExecuteLendPoolStates memory poolStates,
     DataTypes.ExecuteAuctionParams memory params
   ) external {
@@ -185,7 +181,7 @@ library LiquidateLogic {
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();
 
-    (vars.borrowAmount, vars.thresholdPrice, vars.liquidatePrice) = GenericLogic.calculateLoanLiquidatePrice(
+    (vars.borrowAmount, vars.thresholdPrice, ) = GenericLogic.calculateLoanLiquidatePrice(
       vars.loanId,
       loanData.reserveAsset,
       reserveData,
@@ -197,46 +193,20 @@ library LiquidateLogic {
       vars.nftOracle
     );
 
-    uint256 maxPrice = vars.borrowAmount;
-
-    // Check if collection is supported by NFTX market
-    if (isMarketSupported[loanData.nftAsset][0]) {
-      uint256 priceNFTX = NFTXSeller.getNFTXPrice(
-        addressesProvider,
-        loanData.nftAsset,
-        loanData.nftTokenId,
-        loanData.reserveAsset
-      );
-      if (priceNFTX > maxPrice) {
-        maxPrice = priceNFTX;
-      }
-    }
-
-    // Check if collection is supported by SudoSwap market
-    if (isMarketSupported[loanData.nftAsset][1]) {
-      address[2] memory pairs = sudoswapPairs[loanData.nftAsset];
-      for (uint256 i = 0; i < 2; ) {
-        (, uint256 newSpotPrice, , , ) = ILSSVMPair(pairs[i]).getBuyNFTQuote(1);
-        if (newSpotPrice > maxPrice) {
-          maxPrice = newSpotPrice;
-        }
-        unchecked {
-          ++i;
-        }
-      }
-    }
-
     // first time bid need to burn debt tokens and transfer reserve to uTokens
     if (loanData.state == DataTypes.LoanState.Active) {
       // loan's accumulated debt must exceed threshold (heath factor below 1.0)
       require(vars.borrowAmount > vars.thresholdPrice, Errors.LP_BORROW_NOT_EXCEED_LIQUIDATION_THRESHOLD);
 
-      // bid price must greater than liquidate price
-      require(params.bidPrice >= vars.liquidatePrice, Errors.LPL_BID_PRICE_LESS_THAN_LIQUIDATION_PRICE);
+      // bid price must greater than borrow amount + delta (predicted compounded debt || fees)
+      require(
+        params.bidPrice >= vars.borrowAmount.percentMul(params.bidDelta),
+        Errors.LPL_BID_PRICE_LESS_THAN_DEBT_PRICE
+      );
 
       // bid price must greater than biggest between borrow and markets price, as well as a timestamp configuration fee
       require(
-        params.bidPrice >= (maxPrice + params.auctionDurationConfigFee),
+        params.bidPrice >= (vars.borrowAmount + params.auctionDurationConfigFee),
         Errors.LPL_BID_PRICE_LESS_THAN_MIN_BID_REQUIRED
       );
     } else {
@@ -294,6 +264,8 @@ library LiquidateLogic {
     address poolLoan;
     address reserveOracle;
     address nftOracle;
+    address uToken;
+    address debtMarket;
     uint256 loanId;
     uint256 borrowAmount;
     uint256 repayAmount;
@@ -409,16 +381,19 @@ library LiquidateLogic {
 
     IDebtToken(reserveData.debtTokenAddress).burn(loanData.borrower, vars.repayAmount, reserveData.variableBorrowIndex);
 
-    address uToken = reserveData.uTokenAddress;
+    // Cancel debt listing if exist
+    vars.debtMarket = addressesProvider.getAddress(keccak256("DEBT_MARKET"));
+    if (IDebtMarket(vars.debtMarket).getDebtId(loanData.nftAsset, loanData.nftTokenId) != 0) {
+      IDebtMarket(vars.debtMarket).cancelDebtListing(loanData.nftAsset, loanData.nftTokenId);
+    }
+
+    vars.uToken = reserveData.uTokenAddress;
 
     // update interest rate according latest borrow amount (utilizaton)
-    reserveData.updateInterestRates(loanData.reserveAsset, uToken, vars.repayAmount, 0);
+    reserveData.updateInterestRates(loanData.reserveAsset, vars.uToken, vars.repayAmount, 0);
 
     // transfer repay amount from borrower to uToken
-    IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, uToken, vars.repayAmount);
-
-    // Deposit amount redeemed to lending protocol
-    IUToken(uToken).depositReserves(vars.repayAmount);
+    IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, vars.uToken, vars.repayAmount);
 
     if (loanData.bidderAddress != address(0)) {
       // transfer (return back) last bid price amount from lend pool to bidder
@@ -451,6 +426,8 @@ library LiquidateLogic {
     address poolLoan;
     address reserveOracle;
     address nftOracle;
+    address uToken;
+    address debtMarket;
     uint256 loanId;
     uint256 borrowAmount;
     uint256 extraDebtAmount;
@@ -502,7 +479,7 @@ library LiquidateLogic {
       loanData.bidStartTimestamp +
       vars.extraAuctionDuration +
       (nftConfig.getAuctionDuration() * 1 minutes);
-    require(block.timestamp > vars.auctionEndTimestamp, Errors.LPL_BID_AUCTION_DURATION_NOT_END);
+    require(block.timestamp > vars.auctionEndTimestamp + 20 minutes, Errors.LPL_CLAIM_HASNT_STARTED_YET);
 
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();
@@ -543,10 +520,16 @@ library LiquidateLogic {
       reserveData.variableBorrowIndex
     );
 
-    address uToken = reserveData.uTokenAddress;
+    // Cancel debt listing if exist
+    vars.debtMarket = addressesProvider.getAddress(keccak256("DEBT_MARKET"));
+    if (IDebtMarket(vars.debtMarket).getDebtId(loanData.nftAsset, loanData.nftTokenId) != 0) {
+      IDebtMarket(vars.debtMarket).cancelDebtListing(loanData.nftAsset, loanData.nftTokenId);
+    }
+
+    vars.uToken = reserveData.uTokenAddress;
 
     // update interest rate according latest borrow amount (utilizaton)
-    reserveData.updateInterestRates(loanData.reserveAsset, uToken, vars.borrowAmount, 0);
+    reserveData.updateInterestRates(loanData.reserveAsset, vars.uToken, vars.borrowAmount, 0);
 
     // transfer extra borrow amount from liquidator to lend pool
     if (vars.extraDebtAmount > 0) {
@@ -554,10 +537,7 @@ library LiquidateLogic {
     }
 
     // transfer borrow amount from lend pool to uToken, repay debt
-    IERC20Upgradeable(loanData.reserveAsset).safeTransfer(uToken, vars.borrowAmount);
-
-    // Deposit amount from debt repaid to lending protocol
-    IUToken(uToken).depositReserves(vars.borrowAmount);
+    IERC20Upgradeable(loanData.reserveAsset).safeTransfer(vars.uToken, vars.borrowAmount);
 
     // transfer remain amount to borrower
     if (vars.remainAmount > 0) {
@@ -578,7 +558,7 @@ library LiquidateLogic {
     if (!success)
       IERC721Upgradeable(loanData.nftAsset).safeTransferFrom(
         address(this),
-        IUToken(uToken).RESERVE_TREASURY_ADDRESS(),
+        IUToken(vars.uToken).RESERVE_TREASURY_ADDRESS(),
         params.nftTokenId
       );
 
@@ -602,6 +582,7 @@ library LiquidateLogic {
     address poolLoan;
     address reserveOracle;
     address nftOracle;
+    address debtMarket;
     uint256 loanId;
     uint256 borrowAmount;
     uint256 remainAmount;
@@ -732,6 +713,12 @@ library LiquidateLogic {
       reserveData.variableBorrowIndex
     );
 
+    // Cancel debt listing if exist
+    vars.debtMarket = addressesProvider.getAddress(keccak256("DEBT_MARKET"));
+    if (IDebtMarket(vars.debtMarket).getDebtId(loanData.nftAsset, loanData.nftTokenId) != 0) {
+      IDebtMarket(vars.debtMarket).cancelDebtListing(loanData.nftAsset, loanData.nftTokenId);
+    }
+
     // update interest rate according latest borrow amount (utilizaton)
     reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.borrowAmount, 0);
 
@@ -740,9 +727,6 @@ library LiquidateLogic {
 
     // transfer borrow amount from lend pool to uToken, repay debt
     IERC20Upgradeable(loanData.reserveAsset).safeTransfer(reserveData.uTokenAddress, vars.borrowAmount);
-
-    // Deposit amount from debt repaid to lending protocol
-    IUToken(reserveData.uTokenAddress).depositReserves(vars.borrowAmount);
 
     vars.remainAmount = params.amount - vars.borrowAmount;
 

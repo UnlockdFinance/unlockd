@@ -195,16 +195,15 @@ library BorrowLogic {
     // update interest rate according latest borrow amount (utilizaton)
     reserveData.updateInterestRates(params.asset, uToken, 0, params.amount);
 
-    // Withdraw amount from external lending protocol
-    uint256 value = IUToken(uToken).withdrawReserves(params.amount);
+    uint256 amountToTransfer = IUToken(uToken).withdrawReserves(params.amount);
 
     // Transfer underlying to user
-    IUToken(uToken).transferUnderlyingTo(vars.initiator, value);
+    IUToken(uToken).transferUnderlyingTo(vars.initiator, amountToTransfer);
 
     emit Borrow(
       vars.initiator,
       params.asset,
-      value,
+      amountToTransfer,
       params.nftAsset,
       params.nftTokenId,
       params.onBehalfOf,
@@ -283,6 +282,13 @@ library BorrowLogic {
       vars.repayAmount = params.amount;
     }
 
+    // Cancel debt listing if exist
+    address debtMarket = addressesProvider.getAddress(keccak256("DEBT_MARKET"));
+    uint256 debtId = IDebtMarket(debtMarket).getDebtId(params.nftAsset, params.nftTokenId);
+    if (debtId != 0) {
+      IDebtMarket(debtMarket).cancelDebtListing(params.nftAsset, params.nftTokenId);
+    }
+
     if (vars.isUpdate) {
       ILendPoolLoan(vars.poolLoan).updateLoan(
         vars.initiator,
@@ -310,9 +316,6 @@ library BorrowLogic {
 
     // transfer repay amount to uToken
     IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, uToken, vars.repayAmount);
-
-    // Deposit amount repaid to external lending protocol
-    IUToken(uToken).depositReserves(vars.repayAmount);
 
     // transfer erc721 to borrower
     if (!vars.isUpdate) {

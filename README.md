@@ -170,7 +170,6 @@ npx hardhat lendpool:deposit --amount 100000000000000000 --reservename WETH --to
 | lendpool:redeem | Redeems a specific amount from an auctioned NFT and pays a bid fine  |
 | lendpool:auction | Places a bid for an unhealthy position in the protocol  |
 | lendpool:liquidate | Liquidates an unhealthy position, transferring the NFT to the liquidator |
-| lendpool:liquidateNFTX | Liquidates an unhealthy position in NFTX market |
 
 </details>
 

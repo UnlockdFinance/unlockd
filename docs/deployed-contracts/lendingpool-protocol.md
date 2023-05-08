@@ -17,5 +17,4 @@ The address deployed.
 | PunkGateway                 | 0x453cB8E81bE4Ea13d685e70B02B073c3E58Cd256 |
 | UnlockdProtocolDataProvider | 0xb5DB7e58d1c9B8761205483bfb7Fa8114f601e10 |
 | UIPoolDataProvider          | 0x54A1D3439F6eE252C8D75dDA0a622158E5C15238 |
-| NFTXVaultFactory            | 0xe01Cf5099e700c282A56E815ABd0C4948298Afae |
 | SushiSwapRouter             | 0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506 |

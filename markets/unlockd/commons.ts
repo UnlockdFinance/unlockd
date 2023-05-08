@@ -53,14 +53,14 @@ export const CommonsConfig: ICommonConfiguration = {
   ProxyAdminPool: {
     [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: undefined,
-    [eEthereumNetwork.goerli]: '0x8CBfc7F0f4Fd5D4221335f471aEC44B822f56660',
-    [eEthereumNetwork.main]: '0xb7493E15Af772c14c7cE3180Ff388925e6593c6b',
+    [eEthereumNetwork.goerli]: "0x8CBfc7F0f4Fd5D4221335f471aEC44B822f56660",
+    [eEthereumNetwork.main]: "0xb7493E15Af772c14c7cE3180Ff388925e6593c6b",
   },
   ProxyAdminFund: {
     [eEthereumNetwork.hardhat]: undefined,
     [eEthereumNetwork.localhost]: undefined,
-    [eEthereumNetwork.goerli]: '0xA9d67F1b0f46cc0588ED20AA071aB50b9A2D38f8',
-    [eEthereumNetwork.main]: '0x38a97DE7216b54FCc83A918CF5dB1Bb0447913a4',
+    [eEthereumNetwork.goerli]: "0xA9d67F1b0f46cc0588ED20AA071aB50b9A2D38f8",
+    [eEthereumNetwork.main]: "0x38a97DE7216b54FCc83A918CF5dB1Bb0447913a4",
   },
 
   // If PoolAdmin/emergencyAdmin is set, will take priority over PoolAdminIndex/emergencyAdminIndex
@@ -77,15 +77,15 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.goerli]: "0x6050DAb083016FE89a64A7aAb13aEF05E730c94b",
     [eEthereumNetwork.main]: "0x653f5769e08FB9cd6c4faC48Bad8a1B64B7Cf85d",
   },
-  EmergencyAdminIndex: 1,
-  LendPoolLiquidator: { 
+  EmergencyAdminIndex: 2,
+  LendPoolLiquidator: {
     [eEthereumNetwork.hardhat]: "0xA2874be6Acdc314dd055f6869a2dBdF62c983436",
     [eEthereumNetwork.localhost]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",
     [eEthereumNetwork.goerli]: "0xD90d48680Ed26e873e9461f286EC95AD603abE7a",
     [eEthereumNetwork.main]: "0xA296478f65BCDA4153343c8D1f24D768110D6e16",
   },
   LendPoolLiquidatorIndex: 3,
-  LtvManager: { 
+  LtvManager: {
     // The wallet address that will be set as loan to value Manager
     [eEthereumNetwork.hardhat]: "0x392b30d9c3ac1ef8dac7dfc394311fb9e5554c53",
     [eEthereumNetwork.localhost]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",
@@ -114,7 +114,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.goerli]: "0x67539d650922Af9D2c611251ac9749f167e51Ac0",
     [eEthereumNetwork.main]: "0x67539d650922Af9D2c611251ac9749f167e51Ac0",
   },
- 
+
   ReserveOracle: {
     [eEthereumNetwork.hardhat]: "", /// LEND POOL ADDRESS PROVIDER REGISTRY
     [eEthereumNetwork.localhost]: "",
@@ -122,6 +122,18 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.main]: "",
   },
   NFTOracle: {
+    [eEthereumNetwork.hardhat]: "",
+    [eEthereumNetwork.localhost]: "", 
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "",
+  },
+  GenericYVaultStrategy: {
+    [eEthereumNetwork.hardhat]: "",
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "",
+  },
+  GenericConvexETHStrategy: {
     [eEthereumNetwork.hardhat]: "",
     [eEthereumNetwork.localhost]: "",
     [eEthereumNetwork.goerli]: "",
@@ -178,16 +190,16 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.localhost]: "0xb2f97A3c2E48cd368901657e31Faaa93035CE390",
     [eEthereumNetwork.goerli]: "0x3aFE908110e5c5275Bc96a9e42DB1B322590bDa4",
     [eEthereumNetwork.main]: "0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb",
-  }, 
+  },
   WrappedPunkToken: {
-    [eEthereumNetwork.hardhat]: "0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6",  //mainnet
+    [eEthereumNetwork.hardhat]: "0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6", //mainnet
     [eEthereumNetwork.localhost]: "0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847",
-    [eEthereumNetwork.goerli]: "0xC28f63b132e3cEcD44d32AE7505A8E756B7C41bf",
+    [eEthereumNetwork.goerli]: "0x97F1f0E9A8F55Bf1Da9392332a0C44cE52E83E38",
     [eEthereumNetwork.main]: "0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6",
   },
 
   ReserveFactorTreasuryAddress: {
-    [eEthereumNetwork.hardhat]: "0xb37c26638305f8b3d9c4c316f46caf9bdea8a47b", 
+    [eEthereumNetwork.hardhat]: "0xb37c26638305f8b3d9c4c316f46caf9bdea8a47b",
     [eEthereumNetwork.localhost]: "0x5b69e6884c70f42819fb35bf3c25578ee11aaa15",
     [eEthereumNetwork.goerli]: "0x99f9870D36711f30C93a6614f179AaFf047Ec3f2",
     [eEthereumNetwork.main]: "0xc9B7b4dc9FB5CA759f7a8c0E8416FA303BEd389D",
@@ -197,13 +209,37 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.localhost]: "0xF9107B537482fE7cE75a6646BEad2A97BFA4eB0E",
     [eEthereumNetwork.goerli]: "0x876252A90E1CfEF75b40E235629a2E67BC7E68A8",
     [eEthereumNetwork.main]: "0xf40a2617170af5d8079D7a476F6475b2106328D4",
-  }, 
+  },
   // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
-  NFTXVaultFactory: {
-    [eEthereumNetwork.hardhat]: "0xBE86f647b167567525cCAAfcd6f881F1Ee558216", //mainnet address for forking tests
-    [eEthereumNetwork.localhost]: "0x2cC3790f7CF280fA898E4913CA980410cF38e53b",
-    [eEthereumNetwork.goerli]: "0xe01Cf5099e700c282A56E815ABd0C4948298Afae",
-    [eEthereumNetwork.main]: "0xBE86f647b167567525cCAAfcd6f881F1Ee558216",
+  ConvexBooster: {
+    [eEthereumNetwork.hardhat]: "0xF403C135812408BFbE8713b5A23a04b3D48AAE31", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "0xF403C135812408BFbE8713b5A23a04b3D48AAE31",
+  },
+  CurveETHAlETHPool: {
+    [eEthereumNetwork.hardhat]: "0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e",
+  },
+  CurveCRVWETHPool: { 
+    [eEthereumNetwork.hardhat]: "0x8301AE4fc9c624d1D396cbDAa1ed877821D7C511", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "0x8301AE4fc9c624d1D396cbDAa1ed877821D7C511",
+  },
+  CurveCVXWETHPool: {
+    [eEthereumNetwork.hardhat]: "0xb576491f1e6e5e62f1d8f26062ee822b40b0e0d4", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "0xb576491f1e6e5e62f1d8f26062ee822b40b0e0d4",
+  },
+  UniSwapRouter: {
+    [eEthereumNetwork.hardhat]: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
   },
   // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
   SushiSwapRouter: {
@@ -213,24 +249,77 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.main]: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
   },
   // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
-  LSSVMRouter: {
-    [eEthereumNetwork.hardhat]: "0x2b2e8cda09bba9660dca5cb6233787738ad68329", //mainnet address for forking tests
-    [eEthereumNetwork.localhost]: "",
-    [eEthereumNetwork.goerli]: "0x25b4EfC43c9dCAe134233CD577fFca7CfAd6748F",
-    [eEthereumNetwork.main]: "0x2b2e8cda09bba9660dca5cb6233787738ad68329",
-  },
-  // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
-  YVaultWETH: { 
+  YVaultWETH: {
     [eEthereumNetwork.hardhat]: "0xa258C4606Ca8206D8aA700cE2143D7db854D168c", //mainnet address for forking tests
     [eEthereumNetwork.localhost]: "",
     [eEthereumNetwork.goerli]: "",
     [eEthereumNetwork.main]: "0xa258C4606Ca8206D8aA700cE2143D7db854D168c",
   },
   // DO NOT CHANGE THIS ADDRESSES, THEY'RE THE REAL PROTOCOL CONTRACT ADDRESSES
-  LockeyCollection: { 
+  LockeyCollection: {
     [eEthereumNetwork.hardhat]: "0x9a29a9DBC70eA932637216A2BF9EbE7E60023798", //mainnet address for forking tests
     [eEthereumNetwork.localhost]: "",
-    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.goerli]: "0x2a7938b4f5fCb2df8763a1aCda19D96fe1556E91",
     [eEthereumNetwork.main]: "0x9a29a9DBC70eA932637216A2BF9EbE7E60023798",
-  } 
+  },
+  BlurModule: {
+    [eEthereumNetwork.hardhat]: "0xb1096516fc33bb64a77158b10f155846e74bd7fa", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "0xb1096516fc33bb64a77158b10f155846e74bd7fa",
+  },
+  FoundationModule: {
+    [eEthereumNetwork.hardhat]: "0x5c8a351d4ff680203e05af56cb9d748898c7b39a", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "0x5c8a351d4ff680203e05af56cb9d748898c7b39a",
+  },
+  LooksRareModule: {
+    [eEthereumNetwork.hardhat]: "0x385df8cbc196f5f780367f3cdc96af072a916f7e", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "0x532486bb46581b032134159c1d31962cdab1e6a7",
+    [eEthereumNetwork.main]: "0x385df8cbc196f5f780367f3cdc96af072a916f7e",
+  },
+  SeaportModule: {
+    [eEthereumNetwork.hardhat]: "0x20794ef7693441799a3f38fcc22a12b3e04b9572", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "0x04c3af2cad3d1c037930184161ec24ba3a631129",
+    [eEthereumNetwork.main]: "0x20794ef7693441799a3f38fcc22a12b3e04b9572",
+  },
+  SeaportV14Module: {
+    [eEthereumNetwork.hardhat]: "0xfb3f14829f15b1303d6ca677e3fae5a558e064d1", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "0x9ec973b9471fd632aee6d67e0c74855d115bdbad",
+    [eEthereumNetwork.main]: "0xfb3f14829f15b1303d6ca677e3fae5a558e064d1", //,
+  },
+  X2Y2Module: {
+    [eEthereumNetwork.hardhat]: "0x613d3c588f6b8f89302b463f8f19f7241b2857e2", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "0x6a789513b2e555f9d3539bf9a053a57d2bfca426",
+    [eEthereumNetwork.main]: "0x613d3c588f6b8f89302b463f8f19f7241b2857e2",
+  },
+  ZeroExv4Module: {
+    [eEthereumNetwork.hardhat]: "0x8162beec776442afd262b672730bb5d0d8af16a1", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "0x29fcac61d9b2a3c55f3e1149d0278126c31abe74",
+    [eEthereumNetwork.main]: "0x8162beec776442afd262b672730bb5d0d8af16a1",
+  },
+  ZoraModule: {
+    [eEthereumNetwork.hardhat]: "0x982b49de82a3ea5b8c42895482d9dd9bfefadf82", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "0x982b49de82a3ea5b8c42895482d9dd9bfefadf82",
+  },
+  ElementModule: {
+    [eEthereumNetwork.hardhat]: "0xef82b43719dd13ba33ef7d93e6f0d1f690eea5b2", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "0xef82b43719dd13ba33ef7d93e6f0d1f690eea5b2",
+  },
+  RaribleModule: {
+    [eEthereumNetwork.hardhat]: "0xa29d7914cd525dea9afad0dceec6f49404476486", //mainnet address for forking tests
+    [eEthereumNetwork.localhost]: "",
+    [eEthereumNetwork.goerli]: "",
+    [eEthereumNetwork.main]: "0xa29d7914cd525dea9afad0dceec6f49404476486",
+  }
 };
