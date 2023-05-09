@@ -40,7 +40,7 @@ export const buildAccountsConfig = (): AccountsConfig => {
 };
 
 export const NETWORKS_DEFAULT_GAS: iParamsPerNetwork<number> = {
-  [eEthereumNetwork.goerli]: 200 * GWEI,
+  [eEthereumNetwork.goerli]: 250 * GWEI,
   [eEthereumNetwork.main]: 65 * GWEI,
   [eEthereumNetwork.hardhat]: 65 * GWEI,
   [eEthereumNetwork.localhost]: 65 * GWEI,
