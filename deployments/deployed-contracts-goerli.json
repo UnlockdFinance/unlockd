@@ -116,7 +116,7 @@
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "DebtToken": {
-    "address": "0x19Ec9832c8C2336D43357615E1A5cbd7dFCe8510",
+    "address": "0xB5Aa844414A0656aFCEd8DC52E67bD9B9C906127",
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "MockChainlinkOracle": {
