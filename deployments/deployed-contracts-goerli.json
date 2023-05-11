@@ -195,7 +195,7 @@
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "CustomERC721": {
-    "address": "0xF33e2981Eb844Fb690bC92A8dd18E071398ad6Cb",
+    "address": "0xe51A6D8a8766e0a95e1Db5f856f0e5352afAa87E",
     "deployer": "0x3800107a25762D789c6dD36DeDa01aFef7d5E94F"
   },
   "LiquidateMarketsLogic": {
