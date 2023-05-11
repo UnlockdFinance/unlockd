@@ -39,7 +39,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   mapping(address => bool) internal _uTokenManagers;
 
   uint256 public constant MAXIMUM_STRATEGIES = 20;
-  uint256 public constant MAX_BPS = 10_000; // 100% [BPS]
+  uint256 public constant MAX_BPS = 10_000;
   uint256 public constant DEGRADATION_COEFFICIENT = 10 ** 18;
   // Strategies
   mapping(address => StrategyParams) public strategies;

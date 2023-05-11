@@ -448,20 +448,26 @@ before(async () => {
   const FORK = process.env.FORK;
 
   if (FORK) {
-    if (UPGRADE) setUpgradeDb();
-    await rawBRE.run("unlockd:fork", {
-      testupgrade: UPGRADE ? true : false,
-      testskipRegistry: false,
-      skipOracle: UPGRADE ? true : false,
-      upgradeLendPool: UPGRADE ? true : false,
-      upgradeLendPoolLoan: UPGRADE ? true : false,
-      upgradeLendPoolConfigurator: UPGRADE ? true : false,
-      upgradeUToken: UPGRADE ? true : false,
-      upgradeWallet: UPGRADE ? false : true,
-      upgradeProtocolDataProvider: UPGRADE ? true : true,
-      upgradeUiDataProvider: UPGRADE ? false : true,
-      upgradeInterestRate: UPGRADE ? true : false,
-    });
+    if (UPGRADE) {
+      setUpgradeDb();
+      await rawBRE.run("unlockd:upgrade", {
+        verify: true,
+      });
+    } else {
+      await rawBRE.run("unlockd:fork", {
+        testupgrade: UPGRADE ? true : false,
+        testskipRegistry: false,
+        skipOracle: UPGRADE ? true : false,
+        upgradeLendPool: UPGRADE ? true : false,
+        upgradeLendPoolLoan: UPGRADE ? true : false,
+        upgradeLendPoolConfigurator: UPGRADE ? true : false,
+        upgradeUToken: UPGRADE ? true : false,
+        upgradeWallet: UPGRADE ? false : true,
+        upgradeProtocolDataProvider: UPGRADE ? true : true,
+        upgradeUiDataProvider: UPGRADE ? false : true,
+        upgradeInterestRate: UPGRADE ? true : false,
+      });
+    }
   } else {
     console.log("-> Deploying test environment...");
     await buildTestEnv(deployer, secondaryWallet);
