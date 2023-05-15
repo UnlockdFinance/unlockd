@@ -224,5 +224,11 @@
   },
   "DebtMarket": {
     "address": "0xe741118986159Dd90A2Ad41EB061294c476C8592"
+  },
+  "ReservoirAdapterImpl": {
+    "address": "0xfE74BfCf477B7997d7e2F5976e1E491e815a9095"
+  },
+  "ReservoirAdapter": {
+    "address": "0x9ce779360666C6CB73436d1E1637Fe9561428ABC"
   }
 }
