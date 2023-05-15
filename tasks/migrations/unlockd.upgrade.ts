@@ -119,23 +119,9 @@ task("unlockd:upgrade", "Deploy upgrade for Unlockd strategies").setAction(
     //////////////////////////////////////////////////////////////////////////
 
     console.log("\n\nDeploy Debt Market");
-    await DRE.run("fork:deploy-debt-market", {});
+    await DRE.run("upgrade:deploy-debt-market", { verify: verify });
 
     //////////////////////////////////////////////////////////////////////////
-
-    if (testupgrade && upgradeInterestRate) {
-      await DRE.run("fork:deploy-interest-rate", {
-        pool: POOL_NAME,
-        testupgrade: testupgrade,
-      });
-    }
-
-    console.log("\n\nDeploy reserve oracle");
-    await DRE.run("fork:deploy-oracle-reserve", {
-      pool: POOL_NAME,
-      skiporacle: skipOracle,
-      testupgrade: testupgrade,
-    });
 
     console.log("-> Deploy mock reserve oracle...");
     const mockReserveOracleImpl = await deployMockReserveOracle([], false);
@@ -143,9 +129,6 @@ task("unlockd:upgrade", "Deploy upgrade for Unlockd strategies").setAction(
 
     console.log("-> Deploy mock ChainLink oracle...");
     await deployMockChainlinkOracle("18", false); // Dummy aggregator for test
-
-    console.log("\n\nDeploy nft oracle");
-    await DRE.run("fork:deploy-oracle-nft", { pool: POOL_NAME, skipOracle: skipOracle, testupgrade: testupgrade });
 
     console.log("-> Prepare mock nft oracle...");
 
@@ -157,29 +140,21 @@ task("unlockd:upgrade", "Deploy upgrade for Unlockd strategies").setAction(
 
     ////////////////////////////////////////////////////////////////////////
 
-    console.log("\n\nInitialize lend pool");
-    await DRE.run("fork:initialize-lend-pool", { pool: POOL_NAME, testupgrade: testupgrade });
-
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy WETH Gateway");
-    await DRE.run("fork:deploy-weth-gateway", { pool: POOL_NAME, testupgrade: testupgrade });
+    await DRE.run("upgrade:deploy-weth-gateway", { pool: POOL_NAME, verify: verify });
 
     console.log("\n\nDeploy PUNK Gateway"); // MUST AFTER WETH GATEWAY
-    await DRE.run("fork:deploy-punk-gateway", { pool: POOL_NAME, testupgrade: testupgrade });
-
-    // //////////////////////////////////////////////////////////////////////////
-    if (!testupgrade) {
-      console.log("\n\nInitialize gateway");
-      await DRE.run("fork:initialize-gateway", { pool: POOL_NAME, verify: false });
-    }
+    await DRE.run("upgrade:deploy-punk-gateway", { pool: POOL_NAME, verify: verify });
 
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy Reservoir Adapter");
-    await DRE.run("fork:deploy-reservoir-adapter", { pool: POOL_NAME });
+    await DRE.run("upgrade:deploy-reservoir-adapter", { pool: POOL_NAME, verify: verify });
 
     //////////////////////////////////////////////////////////////////////////
     console.log("\n\nDeploy data provider");
-    await DRE.run("fork:deploy-data-provider", {
+    await DRE.run("upgrade:deploy-data-provider", {
+      verify: verify,
       pool: POOL_NAME,
       testupgrade: testupgrade,
       wallet: upgradeWallet,
@@ -191,10 +166,10 @@ task("unlockd:upgrade", "Deploy upgrade for Unlockd strategies").setAction(
     console.log("\n\nDeploy Strategies");
 
     console.log("\n\nDeploy Generic Yearn Vault Strategy...");
-    await DRE.run("fork:deploy-genericyvault-strategy", { pool: POOL_NAME });
+    await DRE.run("upgrade:deploy-genericyvault-strategy", { pool: POOL_NAME });
 
     console.log("\n\nDeploy Generic Convex ETH Strategy...");
-    await DRE.run("fork:deploy-genericonvexeth-strategy", { pool: POOL_NAME });
+    await DRE.run("upgrade:deploy-genericonvexeth-strategy", { pool: POOL_NAME });
 
     //////////////////////////////////////////////////////////////////////////
 

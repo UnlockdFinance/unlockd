@@ -132,7 +132,7 @@ abstract contract BaseAdapter is Initializable {
 
     // Loan checks
     loanData = cachedPoolLoan.getLoan(loanId);
-    if (loanData.state != DataTypes.LoanState.Active) _revert(InvalidLoanState.selector);
+    if (loanData.state != DataTypes.LoanState.Active) _revert(InvalidLoanState.selector); //TODO: allow autcion status
 
     // Additional check for individual asset
     nftConfigByTokenId = cachedPool.getNftConfigByTokenId(nftAsset, tokenId);

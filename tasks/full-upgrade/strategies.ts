@@ -99,7 +99,7 @@ task("upgrade:deploy-genericyvault-strategy", "Deploy Unlockd Generic Yearn Vaul
     }
   });
 task(
-  "fork:deploy-genericonvexeth-strategy",
+  "upgrade:deploy-genericonvexeth-strategy",
   "Deploy Unlockd Generic Convex ETH strategy. Change pool and PID for custom ETH-peggedETH strategy"
 )
   .addFlag("verify", "Verify contracts at Etherscan")

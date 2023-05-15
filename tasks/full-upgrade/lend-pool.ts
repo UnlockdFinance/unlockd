@@ -3,6 +3,7 @@ import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { ConfigNames, getEmergencyAdmin, loadPoolConfig } from "../../helpers/configuration";
 import {
+  deployGenericDebtToken,
   deployGenericUTokenImpl,
   deployLendPool,
   deployLendPoolConfigurator,
@@ -38,6 +39,7 @@ task("upgrade:upgrade-lend-pool", "Deploy lend pool for full enviroment")
 
       //////////////////////////////////////////////////////////////////////////
       console.log("Deploying new libraries implementation...");
+      console.log("VERIFY?", verify);
       await deployUnlockdLibraries(verify);
 
       // Reuse/deploy lend pool implementation
@@ -84,7 +86,8 @@ task("upgrade:upgrade-lend-pool", "Deploy lend pool for full enviroment")
       ////////////////////////////////////////////////////////////////////////
 
       console.log("Deploying new generic UToken implementation...");
-      const genericUTokenImpl = await deployGenericUTokenImpl(false);
+      const genericUTokenImpl = await deployGenericUTokenImpl(verify);
+
       const reserveAssets = getParamPerNetwork(poolConfig.ReserveAssets, network);
       const reserveAddresses: string[] = [];
       for (const [assetSymbol, assetAddress] of Object.entries(reserveAssets) as [string, string][]) {
@@ -106,10 +109,25 @@ task("upgrade:upgrade-lend-pool", "Deploy lend pool for full enviroment")
       }
       console.log("Upgrading UTokens with implementation ", genericUTokenImpl.address);
       await lendPoolConfiguratorProxy.updateUToken(updateUTokenInputParams);
-      // TODO REVIEW DEBT TOKEN DEPLOYMENT
-      // Generic UToken & DebtToken Implementation in Pool
 
-      await deployUTokenImplementations(pool, poolConfig.ReservesConfig, false);
+      console.log("Deploying new generic Debt Token implementation...");
+      const genericDebtTokenImpl = await deployGenericDebtToken(verify);
+
+      const updateDebtTokenInputParams: {
+        asset: string;
+        implementation: string;
+        encodedCallData: BytesLike;
+      }[] = [];
+      for (let i = 0; i < reserveAddresses.length; i++) {
+        updateDebtTokenInputParams.push({
+          asset: reserveAddresses[i],
+          implementation: genericDebtTokenImpl.address,
+          encodedCallData: [],
+        });
+      }
+
+      console.log("Upgrading DebtToken with implementation ", genericDebtTokenImpl.address);
+      await lendPoolConfiguratorProxy.updateDebtToken(updateDebtTokenInputParams);
     } catch (error) {
       console.log(error);
     }

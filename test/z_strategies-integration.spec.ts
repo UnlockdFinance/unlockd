@@ -544,7 +544,7 @@ makeSuite("Strategies integration", (testEnv: TestEnv) => {
     /*//////////////////////////////////////////////////////////////
       PHASE 3: Borrower tries to borrow 50 ETH (there is NOT enough funds in UToken, withdrawal ONLY from Yearn Strategy expected)
     //////////////////////////////////////////////////////////////*/
-
+    await uWETH.setMaxLoss("1000"); // Set max loss at 10%
     const tokenIdNum = testEnv.tokenIdTracker++;
     const tokenId = tokenIdNum.toString();
     await fundWithERC721("BAYC", borrower.address, tokenIdNum);
@@ -606,13 +606,13 @@ makeSuite("Strategies integration", (testEnv: TestEnv) => {
     let uTokenPreviousTotalDebt = await uWETH.totalDebt();
     let uTokenPreviousTotalDebtRatio = await uWETH.debtRatio();
 
-    await uWETH.setMaxLoss("1000"); // Set max loss at 10%
     await fundWithERC20("WETH", borrower.address, "10");
     await approveERC20(testEnv, borrower, "WETH");
 
     borrowerBalanceBefore = await weth.balanceOf(borrower.address);
     let owningAmount = await dataProvider.getLoanDataByCollateral(bayc.address, tokenId);
     let uTokenReserveBalanceBefore = await weth.balanceOf(uWETH.address);
+
     await pool.connect(borrower.signer).repay(bayc.address, tokenId, parseEther("10000000000"));
 
     let borrowerBalanceAfter = await weth.balanceOf(borrower.address);

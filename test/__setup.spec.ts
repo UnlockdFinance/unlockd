@@ -451,7 +451,7 @@ before(async () => {
     if (UPGRADE) {
       setUpgradeDb();
       await rawBRE.run("unlockd:upgrade", {
-        verify: true,
+        verify: false,
       });
     } else {
       await rawBRE.run("unlockd:fork", {

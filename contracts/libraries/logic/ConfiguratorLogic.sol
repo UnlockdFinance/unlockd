@@ -157,7 +157,7 @@ library ConfiguratorLogic {
   }
 
   /**
-   * @notice Updates the debt token
+   * @notice Updates the debt token x
    * @dev Emits the `DebtTokenUpgraded()` event.
    * @param cachedPool The lend pool
    * @param input The data to initialize the debt token

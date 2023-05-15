@@ -195,9 +195,9 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   /*//////////////////////////////////////////////////////////////
                         MIGRATION 
   //////////////////////////////////////////////////////////////*/
-  function migrateFunds() external onlyPoolAdmin {
+  function migrateFunds(uint256 shareAmount) external onlyPoolAdmin {
     address yVaultWETH = _addressProvider.getAddress(keccak256("YVAULT_WETH"));
-    IYVault(yVaultWETH).withdraw(IERC20Upgradeable(yVaultWETH).balanceOf(address(this)));
+    IYVault(yVaultWETH).withdraw(shareAmount);
   }
 
   /*//////////////////////////////////////////////////////////////

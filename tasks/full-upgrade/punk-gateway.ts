@@ -23,77 +23,76 @@ import { PunkGateway, UnlockdUpgradeableProxy } from "../../types";
 
 task(`upgrade:deploy-punk-gateway`, `Deploys the PunkGateway contract`)
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
-  .addFlag("testUpgrade", "Test upgradeability")
-  .setAction(async ({ testupgrade, pool }, DRE) => {
+  .addFlag("verify", `Verify or not`)
+  .setAction(async ({ verify, pool }, DRE) => {
     await DRE.run("set-DRE");
-    if (!testupgrade) {
-      if (!DRE.network.config.chainId) {
-        throw new Error("INVALID_CHAIN_ID");
-      }
 
-      const poolConfig = loadPoolConfig(pool);
-      const addressesProvider = await getLendPoolAddressesProvider();
-
-      const proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
-      if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
-        throw Error("Invalid pool proxy admin in config");
-      }
-      const proxyAdminOwnerAddress = await proxyAdmin.owner();
-      const proxyAdminOwnerSigner = DRE.ethers.provider.getSigner(proxyAdminOwnerAddress);
-
-      const wethGateWay = await getWETHGateway();
-      console.log("wethGateWay.address", wethGateWay.address);
-      const punk = await (await getCryptoPunksMarket()).address;
-
-      console.log("CryptoPunksMarket.address", punk);
-
-      const wpunk = await (await getWrappedPunk()).address;
-      console.log("WPUNKS.address", wpunk);
-
-      // this contract is not support upgrade, just deploy new contract
-      const punkGateWayImpl = await deployPunkGateway(false);
-      const initEncodedData = punkGateWayImpl.interface.encodeFunctionData("initialize", [
-        addressesProvider.address,
-        wethGateWay.address,
-        punk,
-        wpunk,
-      ]);
-
-      let punkGateWay: PunkGateway;
-      let punkGatewayProxy: UnlockdUpgradeableProxy;
-
-      const punkGatewayAddress = undefined; //await addressesProvider.getAddress(ADDRESS_ID_PUNK_GATEWAY);
-
-      if (punkGatewayAddress != undefined && notFalsyOrZeroAddress(punkGatewayAddress)) {
-        console.log("Upgrading exist PunkGateway proxy to new implementation...");
-
-        await insertContractAddressInDb(eContractid.PunkGateway, punkGatewayAddress);
-        punkGatewayProxy = await getUnlockdUpgradeableProxy(punkGatewayAddress);
-
-        // only proxy admin can do upgrading
-        await waitForTx(
-          await proxyAdmin.connect(proxyAdminOwnerSigner).upgrade(punkGatewayProxy.address, punkGateWayImpl.address)
-        );
-
-        punkGateWay = await getPunkGateway(punkGatewayProxy.address);
-      } else {
-        console.log("Deploying new PunkGateway proxy & implementation...");
-        const punkGatewayProxy = await deployUnlockdUpgradeableProxy(
-          eContractid.PunkGateway,
-          proxyAdmin.address,
-          punkGateWayImpl.address,
-          initEncodedData,
-          false
-        );
-
-        punkGateWay = await getPunkGateway(punkGatewayProxy.address);
-      }
-
-      await waitForTx(await addressesProvider.setAddress(ADDRESS_ID_PUNK_GATEWAY, punkGateWay.address));
+    if (!DRE.network.config.chainId) {
+      throw new Error("INVALID_CHAIN_ID");
     }
+
+    const poolConfig = loadPoolConfig(pool);
+    const addressesProvider = await getLendPoolAddressesProvider();
+
+    const proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
+    if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
+      throw Error("Invalid pool proxy admin in config");
+    }
+    const proxyAdminOwnerAddress = await proxyAdmin.owner();
+    const proxyAdminOwnerSigner = DRE.ethers.provider.getSigner(proxyAdminOwnerAddress);
+
+    const wethGateWay = await getWETHGateway();
+    console.log("wethGateWay.address", wethGateWay.address);
+    const punk = await (await getCryptoPunksMarket()).address;
+
+    console.log("CryptoPunksMarket.address", punk);
+
+    const wpunk = await (await getWrappedPunk()).address;
+    console.log("WPUNKS.address", wpunk);
+
+    // this contract is not support upgrade, just deploy new contract
+    const punkGateWayImpl = await deployPunkGateway(verify);
+    const initEncodedData = punkGateWayImpl.interface.encodeFunctionData("initialize", [
+      addressesProvider.address,
+      wethGateWay.address,
+      punk,
+      wpunk,
+    ]);
+
+    let punkGateWay: PunkGateway;
+    let punkGatewayProxy: UnlockdUpgradeableProxy;
+
+    const punkGatewayAddress = await addressesProvider.getAddress(ADDRESS_ID_PUNK_GATEWAY);
+
+    if (punkGatewayAddress != undefined && notFalsyOrZeroAddress(punkGatewayAddress)) {
+      console.log("Upgrading exist PunkGateway proxy to new implementation...");
+
+      await insertContractAddressInDb(eContractid.PunkGateway, punkGatewayAddress);
+      punkGatewayProxy = await getUnlockdUpgradeableProxy(punkGatewayAddress);
+
+      // only proxy admin can do upgrading
+      await waitForTx(
+        await proxyAdmin.connect(proxyAdminOwnerSigner).upgrade(punkGatewayProxy.address, punkGateWayImpl.address)
+      );
+
+      punkGateWay = await getPunkGateway(punkGatewayProxy.address);
+    } else {
+      console.log("Deploying new PunkGateway proxy & implementation...");
+      const punkGatewayProxy = await deployUnlockdUpgradeableProxy(
+        eContractid.PunkGateway,
+        proxyAdmin.address,
+        punkGateWayImpl.address,
+        initEncodedData,
+        false
+      );
+
+      punkGateWay = await getPunkGateway(punkGatewayProxy.address);
+    }
+
+    await waitForTx(await addressesProvider.setAddress(ADDRESS_ID_PUNK_GATEWAY, punkGateWay.address));
   });
 
-task("fork:punkgateway-authorize-caller-whitelist", "Initialize gateway configuration.")
+task("upgrade:punkgateway-authorize-caller-whitelist", "Initialize gateway configuration.")
   .addParam("pool", `Pool name to retrieve configuration, supported: ${Object.values(ConfigNames)}`)
   .addParam("caller", "Address of whitelist")
   .addParam("flag", "Flag of whitelist, 0-1")
