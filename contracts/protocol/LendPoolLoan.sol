@@ -384,17 +384,21 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   ) external override onlyMarketAdapter {
     DataTypes.LoanData storage loan = _loans[loanId];
 
-    // Ensure valid loan state
-    require(loan.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
+    // Ensure valid loan state for market liquidation
+    require(
+      loan.state == DataTypes.LoanState.Active || loan.state == DataTypes.LoanState.Auction,
+      Errors.LPL_INVALID_LOAN_STATE
+    );
+    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
+
+    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALID_NFT_AMOUNT);
 
     loan.state = DataTypes.LoanState.Defaulted;
 
     _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
 
-    require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
     _userNftCollateral[loan.borrower][loan.nftAsset] -= 1;
 
-    require(_nftTotalCollateral[loan.nftAsset] >= 1, Errors.LP_INVALID_NFT_AMOUNT);
     _nftTotalCollateral[loan.nftAsset] -= 1;
 
     // burn uNFT

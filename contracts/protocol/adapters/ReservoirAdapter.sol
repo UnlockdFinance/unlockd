@@ -124,6 +124,8 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
 
     _validateLoanHealthFactor(nftAsset, safeTransferFromDecodedData.tokenId);
 
+    (, , , , uint256 bidFine) = _lendPool.getNftAuctionData(nftAsset, safeTransferFromDecodedData.tokenId);
+
     SettlementData memory settlementData;
 
     // Clean loan state in LendPoolLoan and receive underlying NFT
@@ -136,9 +138,10 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
     settlementData.balanceBeforeLiquidation = IERC20(loanData.reserveAsset).balanceOf(address(this));
 
     // safeTransfer NFT to Reservoir Module. Trigger `onERC721Received` hook initiating the sell
-    (bool success, ) = nftAsset.call(data);
-    if (!success) _revert(LowLevelSafeTransferFromFailed.selector);
-
+    {
+      (bool success, ) = nftAsset.call(data);
+      if (!success) _revert(LowLevelSafeTransferFromFailed.selector);
+    }
     // check if liquidated amount is correct regarding the expected liquidation amount
     settlementData.liquidatedAmount =
       IERC20(loanData.reserveAsset).balanceOf(address(this)) -
@@ -148,11 +151,14 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
 
     // Liquidated amount can not cover borrow amount
     if (settlementData.liquidatedAmount < settlementData.borrowAmount) {
-      settlementData.extraDebtAmount = settlementData.borrowAmount - settlementData.liquidatedAmount;
-    }
-    // Liquidated amount exceeds borrow amount
-    if (settlementData.liquidatedAmount > settlementData.borrowAmount) {
-      settlementData.remainAmount = settlementData.liquidatedAmount - settlementData.borrowAmount;
+      unchecked {
+        settlementData.extraDebtAmount = settlementData.borrowAmount - settlementData.liquidatedAmount;
+      }
+    } else {
+      // Liquidated amount exceeds borrow amount
+      unchecked {
+        settlementData.remainAmount = settlementData.liquidatedAmount - settlementData.borrowAmount;
+      }
     }
 
     // Burn debt
@@ -169,12 +175,12 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
 
     // transfer amounts to reserve
     _settleLiquidation(
-      loanData.reserveAsset,
+      loanData,
       reserveData.uTokenAddress,
-      loanData.borrower,
       settlementData.borrowAmount,
       settlementData.extraDebtAmount,
-      settlementData.remainAmount
+      settlementData.remainAmount,
+      bidFine
     );
 
     emit LiquidatedReservoir(
