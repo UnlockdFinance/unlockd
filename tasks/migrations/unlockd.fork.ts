@@ -10,6 +10,7 @@ import {
   loadPoolConfig,
 } from "../../helpers/configuration";
 import {
+  ADDRESS_ID_WETH,
   FUNDED_ACCOUNTS_GOERLI,
   FUNDED_ACCOUNTS_MAINNET,
   FUNDED_ACCOUNT_GOERLI,
@@ -29,6 +30,7 @@ import {
   getDeploySigner,
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
+  getNFTOracle,
 } from "../../helpers/contracts-getters";
 import {
   getEthersSignerByAddress,
@@ -117,141 +119,148 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
 
       ////////////////////////////////////////////////////////////////////////
 
-      if (!testupgrade) {
-        console.log("\n\nDeploy Punks Market and Wrapped Punk");
-        const cryptoPunksMarket = await deployCryptoPunksMarket([], false);
-        const wpunk = await deployWrappedPunk([cryptoPunksMarket.address]);
-        await waitForTx(await cryptoPunksMarket.allInitialOwnersAssigned());
-      }
+      // if (!testupgrade) {
+      //   console.log("\n\nDeploy Punks Market and Wrapped Punk");
 
-      ////////////////////////////////////////////////////////////////////////
-      if (!testupgrade) {
-        console.log("\n\nDeploy proxy admin");
-        await DRE.run("fork:deploy-proxy-admin", { pool: POOL_NAME });
-      }
-      //////////////////////////////////////////////////////////////////////////
-      if (!testupgrade) {
-        console.log("\n\nDeploy address provider");
-        await DRE.run("fork:deploy-address-provider", {
-          pool: POOL_NAME,
-          skipRegistry: skipRegistry,
-        });
-      }
-      const addressesProvider = await getLendPoolAddressesProvider();
+      //   const cryptoPunksMarket = await deployCryptoPunksMarket([], false);
 
-      //////////////////////////////////////////////////////////////////////////
-      if (!testupgrade) {
-        console.log("\n\nDeploy Incentives Controller");
-        await DRE.run("fork:deploy-incentives-controller", { testupgrade: testupgrade });
-      }
-      //////////////////////////////////////////////////////////////////////////
-      console.log("\n\nDeploy UNFT Registry");
-      await DRE.run("fork:deploy-unft-registry", { pool: POOL_NAME, testupgrade: testupgrade, createunfts: true });
+      //   const wpunk = await deployWrappedPunk([cryptoPunksMarket.address]);
 
-      //////////////////////////////////////////////////////////////////////////
-      console.log("\n\nDeploy Lockey Holders");
-      await DRE.run("fork:deploy-lockey-holders", { pool: POOL_NAME });
-      //////////////////////////////////////////////////////////////////////////
+      //   await waitForTx(await cryptoPunksMarket.allInitialOwnersAssigned());
+      // }
 
-      console.log("\n\nDeploy lend pool");
-      await DRE.run("fork:deploy-lend-pool", {
-        pool: POOL_NAME,
-        testupgrade: testupgrade,
-        upgradeLendPool: upgradeLendPool,
-        upgradeLendPoolConfigurator: upgradeLendPoolConfigurator,
-        upgradeLendPoolLoan: upgradeLendPoolLoan,
-        upgradeUToken: upgradeUToken,
-      });
-
-      // Unpause lendpool after safe pause on deployment
-      const lendPoolConfiguratorProxy = await getLendPoolConfiguratorProxy(
-        await addressesProvider.getLendPoolConfigurator()
-      );
-      await waitForTx(await lendPoolConfiguratorProxy.connect(emergencyAdminSigner).setPoolPause(false));
-
-      await waitForTx(await lendPoolConfiguratorProxy.connect(poolAdminSigner).setTimeframe(3600000));
-
-      //////////////////////////////////////////////////////////////////////////
-
-      console.log("\n\nDeploy Debt Market");
-      await DRE.run("fork:deploy-debt-market", {});
-
-      //////////////////////////////////////////////////////////////////////////
-
-      if (testupgrade && upgradeInterestRate) {
-        await DRE.run("fork:deploy-interest-rate", {
-          pool: POOL_NAME,
-          testupgrade: testupgrade,
-        });
-      }
-
-      console.log("\n\nDeploy reserve oracle");
-      await DRE.run("fork:deploy-oracle-reserve", {
-        pool: POOL_NAME,
-        skiporacle: skipOracle,
-        testupgrade: testupgrade,
-      });
-
-      console.log("-> Deploy mock reserve oracle...");
-      const mockReserveOracleImpl = await deployMockReserveOracle([], false);
-      await waitForTx(await mockReserveOracleImpl.initialize(FORK === "goerli" ? WETH_GOERLI : WETH_MAINNET));
-
-      console.log("-> Deploy mock ChainLink oracle...");
-      await deployMockChainlinkOracle("18", false); // Dummy aggregator for test
-
-      console.log("\n\nDeploy nft oracle");
-      await DRE.run("fork:deploy-oracle-nft", { pool: POOL_NAME, skipOracle: skipOracle, testupgrade: testupgrade });
-
-      console.log("-> Prepare mock nft oracle...");
-
-      const lendPoolConfigurator = await getLendPoolConfiguratorProxy(
-        await addressesProvider.getLendPoolConfigurator()
-      );
-      const mockNftOracleImpl = await deployMockNFTOracle(false);
-      await waitForTx(
-        await mockNftOracleImpl.initialize(await addressesProvider.getPoolAdmin(), lendPoolConfigurator.address)
-      );
-
-      ////////////////////////////////////////////////////////////////////////
-
-      console.log("\n\nInitialize lend pool");
-      await DRE.run("fork:initialize-lend-pool", { pool: POOL_NAME, testupgrade: testupgrade });
-
-      //////////////////////////////////////////////////////////////////////////
-      console.log("\n\nDeploy WETH Gateway");
-      await DRE.run("fork:deploy-weth-gateway", { pool: POOL_NAME, testupgrade: testupgrade });
-
-      console.log("\n\nDeploy PUNK Gateway"); // MUST AFTER WETH GATEWAY
-      await DRE.run("fork:deploy-punk-gateway", { pool: POOL_NAME, testupgrade: testupgrade });
+      // ////////////////////////////////////////////////////////////////////////
+      // if (!testupgrade) {
+      //   console.log("\n\nDeploy proxy admin");
+      //   await DRE.run("fork:deploy-proxy-admin", { pool: POOL_NAME });
+      // }
+      // //////////////////////////////////////////////////////////////////////////
+      // if (!testupgrade) {
+      //   console.log("\n\nDeploy address provider");
+      //   await DRE.run("fork:deploy-address-provider", {
+      //     pool: POOL_NAME,
+      //     skipRegistry: skipRegistry,
+      //   });
+      // }
+      // const addressesProvider = await getLendPoolAddressesProvider();
 
       // //////////////////////////////////////////////////////////////////////////
-      if (!testupgrade) {
-        console.log("\n\nInitialize gateway");
-        await DRE.run("fork:initialize-gateway", { pool: POOL_NAME, verify: false });
-      }
+      // if (!testupgrade) {
+      //   console.log("\n\nDeploy Incentives Controller");
+      //   await DRE.run("fork:deploy-incentives-controller", { testupgrade: testupgrade });
+      // }
+      // //////////////////////////////////////////////////////////////////////////
+      // console.log("\n\nDeploy UNFT Registry");
+      // await DRE.run("fork:deploy-unft-registry", { pool: POOL_NAME, testupgrade: testupgrade, createunfts: true });
+
+      // //////////////////////////////////////////////////////////////////////////
+      // console.log("\n\nDeploy Lockey Holders");
+      // await DRE.run("fork:deploy-lockey-holders", { pool: POOL_NAME });
+      // //////////////////////////////////////////////////////////////////////////
+
+      // console.log("\n\nDeploy lend pool");
+      // await DRE.run("fork:deploy-lend-pool", {
+      //   pool: POOL_NAME,
+      //   testupgrade: testupgrade,
+      //   upgradeLendPool: upgradeLendPool,
+      //   upgradeLendPoolConfigurator: upgradeLendPoolConfigurator,
+      //   upgradeLendPoolLoan: upgradeLendPoolLoan,
+      //   upgradeUToken: upgradeUToken,
+      // });
+
+      // // Unpause lendpool after safe pause on deployment
+      // const lendPoolConfiguratorProxy = await getLendPoolConfiguratorProxy(
+      //   await addressesProvider.getLendPoolConfigurator()
+      // );
+      // await waitForTx(await lendPoolConfiguratorProxy.connect(emergencyAdminSigner).setPoolPause(false));
+
+      // await waitForTx(await lendPoolConfiguratorProxy.connect(poolAdminSigner).setTimeframe(3600000));
+
+      // //////////////////////////////////////////////////////////////////////////
+
+      // console.log("\n\nDeploy Debt Market");
+      // await DRE.run("fork:deploy-debt-market", {});
+
+      // //////////////////////////////////////////////////////////////////////////
+
+      // if (testupgrade && upgradeInterestRate) {
+      //   await DRE.run("fork:deploy-interest-rate", {
+      //     pool: POOL_NAME,
+      //     testupgrade: testupgrade,
+      //   });
+      // }
+
+      // console.log("\n\nDeploy reserve oracle");
+      // await DRE.run("fork:deploy-oracle-reserve", {
+      //   pool: POOL_NAME,
+      //   skiporacle: skipOracle,
+      //   testupgrade: testupgrade,
+      // });
+
+      // console.log("-> Deploy mock reserve oracle...");
+      // const mockReserveOracleImpl = await deployMockReserveOracle([], false);
+      // await waitForTx(await mockReserveOracleImpl.initialize(FORK === "goerli" ? WETH_GOERLI : WETH_MAINNET));
+
+      // console.log("-> Deploy mock ChainLink oracle...");
+      // await deployMockChainlinkOracle("18", false); // Dummy aggregator for test
+
+      // console.log("\n\nDeploy nft oracle");
+      // await DRE.run("fork:deploy-oracle-nft", { pool: POOL_NAME, skipOracle: skipOracle, testupgrade: testupgrade });
+
+      // console.log("-> Prepare mock nft oracle...");
+
+      // const lendPoolConfigurator = await getLendPoolConfiguratorProxy(
+      //   await addressesProvider.getLendPoolConfigurator()
+      // );
+      // const mockNftOracleImpl = await deployMockNFTOracle(false);
+      // await waitForTx(
+      //   await mockNftOracleImpl.initialize(await addressesProvider.getPoolAdmin(), lendPoolConfigurator.address)
+      // );
+
+      ////////////////////////////////////////////////////////////////////////
+
+      const configurator = await getLendPoolConfiguratorProxy();
+      const nftOracle = await getNFTOracle();
+      console.log(await configurator.isLtvManager("0xD90d48680Ed26e873e9461f286EC95AD603abE7a"));
+
+      //   console.log("\n\nInitialize lend pool");
+      //  // await DRE.run("fork:initialize-lend-pool", { pool: POOL_NAME, testupgrade: testupgrade });
+
+      //   //////////////////////////////////////////////////////////////////////////
+      //   console.log("\n\nDeploy WETH Gateway");
+      //   await DRE.run("fork:deploy-weth-gateway", { pool: POOL_NAME, testupgrade: testupgrade });
+
+      //   console.log("\n\nDeploy PUNK Gateway"); // MUST AFTER WETH GATEWAY
+      //   await DRE.run("fork:deploy-punk-gateway", { pool: POOL_NAME, testupgrade: testupgrade });
+
+      //   // //////////////////////////////////////////////////////////////////////////
+      //   if (!testupgrade) {
+      //     console.log("\n\nInitialize gateway");
+      //     await DRE.run("fork:initialize-gateway", { pool: POOL_NAME, verify: false });
+      //   }
+
+      //   //////////////////////////////////////////////////////////////////////////
+      //   console.log("\n\nDeploy Reservoir Adapter");
+      //   await DRE.run("fork:deploy-reservoir-adapter", { pool: POOL_NAME });
+
+      //   //////////////////////////////////////////////////////////////////////////
+      //   console.log("\n\nDeploy data provider");
+      //   await DRE.run("fork:deploy-data-provider", {
+      //     pool: POOL_NAME,
+      //     testupgrade: testupgrade,
+      //     wallet: upgradeWallet,
+      //     ui: upgradeUiDataProvider,
+      //     protocol: upgradeProtocolDataProvider,
+      //   });
 
       //////////////////////////////////////////////////////////////////////////
-      console.log("\n\nDeploy Reservoir Adapter");
-      await DRE.run("fork:deploy-reservoir-adapter", { pool: POOL_NAME });
+      //console.log("\n\nDeploy Strategies");
 
-      //////////////////////////////////////////////////////////////////////////
-      console.log("\n\nDeploy data provider");
-      await DRE.run("fork:deploy-data-provider", {
-        pool: POOL_NAME,
-        testupgrade: testupgrade,
-        wallet: upgradeWallet,
-        ui: upgradeUiDataProvider,
-        protocol: upgradeProtocolDataProvider,
-      });
+      // console.log("\n\nDeploy Generic Yearn Vault Strategy...");
+      // await DRE.run("fork:deploy-genericyvault-strategy", { pool: POOL_NAME });
 
-      //////////////////////////////////////////////////////////////////////////
-      console.log("\n\nDeploy Strategies");
-
-      console.log("\n\nDeploy Generic Yearn Vault Strategy...");
-      await DRE.run("fork:deploy-genericyvault-strategy", { pool: POOL_NAME });
-
-      console.log("\n\nDeploy Generic Convex ETH Strategy...");
-      await DRE.run("fork:deploy-genericonvexeth-strategy", { pool: POOL_NAME });
+      // console.log("\n\nDeploy Generic Convex ETH Strategy...");
+      // await DRE.run("fork:deploy-genericonvexeth-strategy", { pool: POOL_NAME });
 
       //////////////////////////////////////////////////////////////////////////
 

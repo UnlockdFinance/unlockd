@@ -73,8 +73,8 @@ task("fork:initialize-lend-pool", "Initialize lend pool configuration.")
           throw "NFT assets is undefined. Check NftsAssets configuration at config directory";
         }
         nftsAssets["WPUNKS"] = await (await getWrappedPunk()).address;
-        await initNftsByHelper(poolConfig.NftsConfig, nftsAssets, admin, pool, false);
-        await configureNftsByHelper(poolConfig.NftsConfig, nftsAssets, admin);
+        //await initNftsByHelper(poolConfig.NftsConfig, nftsAssets, admin, pool, false);
+        //await configureNftsByHelper(poolConfig.NftsConfig, nftsAssets, admin);
       }
     } catch (err) {
       console.error(err);
