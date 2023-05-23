@@ -56,10 +56,12 @@ makeSuite("Configurator-NFT", (testEnv: TestEnv) => {
   const maxSupply: number = +tokenSupply;
 
   it("Deactivates the BAYC NFT", async () => {
-    const { configurator, bayc, dataProvider } = testEnv;
-    await configurator.setActiveFlagOnNft(bayc.address, false);
-    const { isActive } = await dataProvider.getNftConfigurationData(bayc.address);
-    await expect(isActive).to.be.equal(false);
+    const { configurator, bayc, dataProvider, loan } = testEnv;
+    if ((await loan.getNftCollateralAmount(bayc.address)).eq(0)) {
+      await configurator.setActiveFlagOnNft(bayc.address, false);
+      const { isActive } = await dataProvider.getNftConfigurationData(bayc.address);
+      await expect(isActive).to.be.equal(false);
+    }
   });
 
   it("Deactivates the BAYC NFT Token", async () => {

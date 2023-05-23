@@ -6,7 +6,7 @@ import { Contract, Signer } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import RouterAbi from "../../abis/ReservoirV6_0_0.json";
 import { UPGRADE } from "../../hardhat.config";
-import { ConfigNames, getLendPoolLiquidator, loadPoolConfig } from "../../helpers/configuration";
+import { ConfigNames, getLendPoolLiquidator, getYVaultWETHAddress, loadPoolConfig } from "../../helpers/configuration";
 import { ADDRESS_ID_WETH } from "../../helpers/constants";
 import {
   getCryptoPunksMarket,
@@ -302,7 +302,6 @@ export async function initializeMakeSuite(network?: string) {
   if (dUsdcAddress) testEnv.dUsdc = await getDebtToken(dUsdcAddress);
   if (dWethAddress) testEnv.dWETH = await getDebtToken(dWethAddress);
 
-  if (UPGRADE) await testEnv.uWETH.sweepUToken();
   testEnv.wethGateway = await getWETHGateway();
 
   // NFT Tokens

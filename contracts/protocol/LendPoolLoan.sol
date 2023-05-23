@@ -23,7 +23,6 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   using CountersUpgradeable for CountersUpgradeable.Counter;
 
   ILendPoolAddressesProvider private _addressesProvider;
-  bytes32 public constant DEBT_MARKET = keccak256("DEBT_MARKET");
 
   CountersUpgradeable.Counter private _loanIdTracker;
   mapping(uint256 => DataTypes.LoanData) private _loans;
@@ -33,6 +32,8 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   mapping(address => uint256) private _nftTotalCollateral;
   mapping(address => mapping(address => uint256)) private _userNftCollateral;
   mapping(address => bool) private _marketAdapters;
+
+  bytes32 public constant DEBT_MARKET = keccak256("DEBT_MARKET");
 
   /**
    * @dev Only lending pool can call functions marked by this modifier

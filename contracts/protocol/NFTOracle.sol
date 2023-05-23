@@ -9,9 +9,6 @@ import {BlockContext} from "../utils/BlockContext.sol";
 import {Errors} from "../libraries/helpers/Errors.sol";
 
 contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
-  /// @dev When calling getPrice() of a non-minted tokenId it returns '0', shouldn't this revert with an error?
-  /// @notice The whenNotPaused modifier is not being used!
-  /// @notice INFTOracle.sol is not being used, it is redundant and it hasn't an implementation
   /**
    * @dev Emitted when a collection is added to the oracle
    * @param collection The added collection

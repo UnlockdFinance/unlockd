@@ -132,6 +132,7 @@ abstract contract BaseAdapter is Initializable {
 
     // Loan checks
     loanData = cachedPoolLoan.getLoan(loanId);
+
     if (loanData.state != DataTypes.LoanState.Active && loanData.state != DataTypes.LoanState.Auction)
       _revert(InvalidLoanState.selector);
 

@@ -181,7 +181,7 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
     await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
     await configurator.setTimeframe(3600);
-
+    console.log("Borrow...");
     // Borrow with NFT
     await borrow(testEnv, user, "WETH", "1", "BAYC", tokenId, user.address, "365", "success", "");
 
@@ -199,9 +199,9 @@ makeSuite("WETHGateway", (testEnv: TestEnv) => {
       })
     );
     expect(await getDebtBalance()).to.be.lt(debtBalance);
-
+    //todo mirar error aqui
     await advanceTimeAndBlock(100);
-
+    console.log("Repay...");
     // Full Repay WETH loan with native ETH
     await waitForTx(
       await wethGateway.connect(user.signer).repayETH(bayc.address, tokenId, MAX_UINT_AMOUNT, {

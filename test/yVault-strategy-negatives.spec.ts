@@ -1,10 +1,12 @@
 import { zeroAddress } from "ethereumjs-util";
 import { ethers } from "ethers";
 import DRE from "hardhat";
+import { UPGRADE } from "../hardhat.config";
 import { ConfigNames, getYVaultWETHAddress, loadPoolConfig } from "../helpers/configuration";
 import { deployGenericYVaultStrategy, deployUnlockdUpgradeableProxy } from "../helpers/contracts-deployments";
 import {
   getLendPoolAddressesProvider,
+  getMintableERC20,
   getUnlockdProtocolDataProvider,
   getUnlockdProxyAdminById,
 } from "../helpers/contracts-getters";
@@ -22,7 +24,7 @@ makeSuite("yVault Strategy negatives", (testEnv: TestEnv) => {
   let proxyAdmin;
 
   before(async () => {
-    const { reservoirAdapter, configurator, deployer, nftOracle, loan, reservoirModules, dWETH } = testEnv;
+    const { uWETH, configurator, deployer, nftOracle, loan, reservoirModules, dWETH } = testEnv;
     const network = <eNetwork>DRE.network.name;
     const poolConfig = loadPoolConfig(ConfigNames.Unlockd);
     const addressesProvider = await getLendPoolAddressesProvider();
@@ -45,6 +47,8 @@ makeSuite("yVault Strategy negatives", (testEnv: TestEnv) => {
     if (!yVaultWETHAddress) {
       throw "YVault is undefined. Check ReserveAssets configuration at config directory";
     }
+    const yVault = await getMintableERC20(await getYVaultWETHAddress(poolConfig));
+    if (UPGRADE) await uWETH.migrateFunds(await yVault.balanceOf(uWETH.address!));
   });
   beforeEach(async () => {
     snapshotId = await evmSnapshot();

@@ -39,7 +39,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   mapping(address => bool) internal _uTokenManagers;
 
   uint256 public constant MAXIMUM_STRATEGIES = 20;
-  uint256 public constant MAX_BPS = 10_000; // 100% [BPS]
+  uint256 public constant MAX_BPS = 10_000;
   uint256 public constant DEGRADATION_COEFFICIENT = 10 ** 18;
   // Strategies
   mapping(address => StrategyParams) public strategies;
@@ -195,9 +195,9 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   /*//////////////////////////////////////////////////////////////
                         MIGRATION 
   //////////////////////////////////////////////////////////////*/
-  function migrateFunds() external onlyPoolAdmin {
+  function migrateFunds(uint256 shareAmount) external onlyPoolAdmin {
     address yVaultWETH = _addressProvider.getAddress(keccak256("YVAULT_WETH"));
-    IYVault(yVaultWETH).withdraw(IERC20Upgradeable(yVaultWETH).balanceOf(address(this)));
+    IYVault(yVaultWETH).withdraw(shareAmount);
   }
 
   /*//////////////////////////////////////////////////////////////

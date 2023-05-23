@@ -22,7 +22,6 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
 
   ILendPoolAddressesProvider internal _addressProvider;
   address internal _underlyingAsset;
-  bytes32 public constant DEBT_MARKET = keccak256("DEBT_MARKET");
 
   mapping(address => mapping(address => uint256)) internal _borrowAllowances;
   mapping(address => bool) internal _debtTokenManagers;
