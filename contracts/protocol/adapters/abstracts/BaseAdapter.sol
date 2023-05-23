@@ -132,7 +132,8 @@ abstract contract BaseAdapter is Initializable {
 
     // Loan checks
     loanData = cachedPoolLoan.getLoan(loanId);
-    if (loanData.state != DataTypes.LoanState.Active) _revert(InvalidLoanState.selector);
+    if (loanData.state != DataTypes.LoanState.Active && loanData.state != DataTypes.LoanState.Auction)
+      _revert(InvalidLoanState.selector);
 
     // Additional check for individual asset
     nftConfigByTokenId = cachedPool.getNftConfigByTokenId(nftAsset, tokenId);
@@ -215,7 +216,6 @@ abstract contract BaseAdapter is Initializable {
         _revert(InsufficientTreasuryBalance.selector);
 
       IERC20(loanData.reserveAsset).safeTransferFrom(treasury, uToken, extraDebtAmount);
-      return;
     } else {
       // Debt recovered by liquidation.
       // Transfer borrow amount from adapter to uToken, repay debt
@@ -235,7 +235,6 @@ abstract contract BaseAdapter is Initializable {
       unchecked {
         remainAmount -= bidFine;
       }
-
       // Transfer remaining amount to borrower
       IERC20(loanData.reserveAsset).safeTransfer(loanData.borrower, remainAmount);
     } else {

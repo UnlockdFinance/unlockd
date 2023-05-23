@@ -1,9 +1,15 @@
 import { expect } from "chai";
+import { parseEther } from "ethers/lib/utils";
 import { ProtocolErrors } from "../helpers/types";
 import { makeSuite, TestEnv } from "./helpers/make-suite";
 
 makeSuite("LendPoolLoan: Modifiers", (testEnv: TestEnv) => {
-  const { CT_CALLER_MUST_BE_LEND_POOL, LPL_CALLER_MUST_BE_MARKET_ADAPTER, CALLER_NOT_POOL_ADMIN } = ProtocolErrors;
+  const {
+    CT_CALLER_MUST_BE_LEND_POOL,
+    LPL_CALLER_MUST_BE_MARKET_ADAPTER,
+    CALLER_NOT_POOL_ADMIN,
+    LP_CALLER_NOT_RESERVOIR_ADAPTER,
+  } = ProtocolErrors;
 
   it("Tries to invoke initNft not being the Pool", async () => {
     const { deployer, bayc, uBAYC, uWETH, loan } = testEnv;
@@ -60,5 +66,12 @@ makeSuite("LendPoolLoan: Modifiers", (testEnv: TestEnv) => {
     await expect(loan.connect(users[2].signer).updateMarketAdapters([uBAYC.address], false)).to.be.revertedWith(
       CALLER_NOT_POOL_ADMIN
     );
+  });
+
+  it("Tries to invoke transferBidAmount not being the reservoir adapter", async () => {
+    const { pool, users, weth } = testEnv;
+    await expect(
+      pool.connect(users[2].signer).transferBidAmount(weth.address, users[0].address, parseEther("10"))
+    ).to.be.revertedWith(LP_CALLER_NOT_RESERVOIR_ADAPTER);
   });
 });

@@ -81,10 +81,11 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LendPoolImpl": {
-    "address": "0x58B6e24b2a462Ef81e154515Ab7adc804512325c"
+    "address": "0xeb41CCbEbBea13868BA4733A50Ceb655cFC0CE96"
   },
   "LendPool": {
-    "address": "0x80Fa1fA8B0CaF15CFC3961C934cFA860945d9139"
+    "address": "0xeb41CCbEbBea13868BA4733A50Ceb655cFC0CE96",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "LendPoolLoanImpl": {
     "address": "0x5c769753F192449c3c6AeC7BF2145928eb261699"
@@ -139,7 +140,7 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "InterestRate": {
-    "address": "0x2bDc03E97c90C269099931986078fb9e353a65C6",
+    "address": "0xe912fDdd0e088305797339923bc9C047179B4Dd3",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "rateStrategyWETH": {
@@ -178,17 +179,17 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "GenericYVaultStrategyImpl": {
-    "address": "0xF07191639A5ca3d5D28206429Df3E3adCc020b3f"
+    "address": "0xe912fDdd0e088305797339923bc9C047179B4Dd3"
   },
   "GenericYVaultStrategy": {
-    "address": "0xA9f3bc8329C2Bba825D49937b25054c0FFFb7256",
+    "address": "0xe912fDdd0e088305797339923bc9C047179B4Dd3",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "GenericConvexETHStrategyImpl": {
-    "address": "0xD4aE8cED94f843e559f125e6CE0c65E8A7dAa035"
+    "address": "0xe912fDdd0e088305797339923bc9C047179B4Dd3"
   },
   "GenericConvexETHStrategy": {
-    "address": "0x3733685E2967C4b73356F0FF6540E753dD2eFCCb",
+    "address": "0xe912fDdd0e088305797339923bc9C047179B4Dd3",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "MockUToken": {
@@ -205,6 +206,34 @@
   },
   "MockYVault": {
     "address": "0xeb41CCbEbBea13868BA4733A50Ceb655cFC0CE96",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
+  "WETHMocked": {
+    "address": "0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
+  "WETH": {
+    "address": "0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
+  "WPUNKS": {
+    "address": "0x025FE4760c6f14dE878C22cEb09A3235F16dAe53",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
+  "MintableERC721": {
+    "address": "0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
+  "BAYC": {
+    "address": "0xb2f97A3c2E48cd368901657e31Faaa93035CE390",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
+  "AZUKI": {
+    "address": "0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847",
+    "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
+  },
+  "UnlockdProxyAdminTest": {
+    "address": "0xC7F247a33C79BB0fABc3605479372D3Ba188fcbc",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   }
 }

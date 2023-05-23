@@ -136,7 +136,10 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   }
 
   modifier onlyReservoirAdapter() {
-    require(msg.sender == _addressesProvider.getAddress(ADDRESS_ID_RESERVOIR_ADAPTER));
+    require(
+      msg.sender == _addressesProvider.getAddress(ADDRESS_ID_RESERVOIR_ADAPTER),
+      Errors.LP_CALLER_NOT_RESERVOIR_ADAPTER
+    );
     _;
   }
 

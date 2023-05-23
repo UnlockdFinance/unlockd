@@ -142,6 +142,7 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
       (bool success, ) = nftAsset.call(data);
       if (!success) _revert(LowLevelSafeTransferFromFailed.selector);
     }
+
     // check if liquidated amount is correct regarding the expected liquidation amount
     settlementData.liquidatedAmount =
       IERC20(loanData.reserveAsset).balanceOf(address(this)) -
