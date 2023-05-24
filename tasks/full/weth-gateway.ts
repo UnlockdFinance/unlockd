@@ -27,10 +27,12 @@ task(`full:deploy-weth-gateway`, `Deploys the WETHGateway contract`)
     const addressesProvider = await getLendPoolAddressesProvider();
 
     const proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
+    console.log(proxyAdmin.address);
     if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
       throw Error("Invalid pool proxy admin in config");
     }
     const proxyAdminOwnerAddress = await proxyAdmin.owner();
+    console.log(proxyAdminOwnerAddress);
     const proxyAdminOwnerSigner = DRE.ethers.provider.getSigner(proxyAdminOwnerAddress);
 
     const weth = await getWrappedNativeTokenAddress(poolConfig);

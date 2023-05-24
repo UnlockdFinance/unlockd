@@ -33,10 +33,12 @@ task(`full:deploy-punk-gateway`, `Deploys the PunkGateway contract`)
     const addressesProvider = await getLendPoolAddressesProvider();
 
     const proxyAdmin = await getUnlockdProxyAdminById(eContractid.UnlockdProxyAdminPool);
+    console.log(proxyAdmin.address);
     if (proxyAdmin == undefined || !notFalsyOrZeroAddress(proxyAdmin.address)) {
       throw Error("Invalid pool proxy admin in config");
     }
     const proxyAdminOwnerAddress = await proxyAdmin.owner();
+    console.log(proxyAdminOwnerAddress);
     const proxyAdminOwnerSigner = DRE.ethers.provider.getSigner(proxyAdminOwnerAddress);
 
     const wethGateWay = await getWETHGateway();
@@ -62,7 +64,8 @@ task(`full:deploy-punk-gateway`, `Deploys the PunkGateway contract`)
     let punkGateWay: PunkGateway;
     let punkGatewayProxy: UnlockdUpgradeableProxy;
 
-    const punkGatewayAddress = undefined; //await addressesProvider.getAddress(ADDRESS_ID_PUNK_GATEWAY);
+    const punkGatewayAddress = undefined;
+    //const punkGatewayAddress = await addressesProvider.getAddress(ADDRESS_ID_PUNK_GATEWAY); // undefined
 
     if (punkGatewayAddress != undefined && notFalsyOrZeroAddress(punkGatewayAddress)) {
       console.log("Upgrading exist PunkGateway proxy to new implementation...");

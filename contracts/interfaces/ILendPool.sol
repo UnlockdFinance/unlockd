@@ -365,6 +365,8 @@ interface ILendPool {
     uint256 balanceToBefore
   ) external view;
 
+  function transferBidAmount(address reserveAsset, address bidder, uint256 bidAmount) external;
+
   /**
    * @dev Returns the configuration of the reserve
    * @param asset The address of the underlying asset of the reserve

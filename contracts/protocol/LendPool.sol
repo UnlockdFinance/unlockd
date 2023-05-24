@@ -59,6 +59,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   bytes32 public constant ADDRESS_ID_PUNK_GATEWAY = keccak256("PUNK_GATEWAY");
   bytes32 public constant ADDRESS_ID_PUNKS = keccak256("PUNKS");
   bytes32 public constant ADDRESS_ID_WPUNKS = keccak256("WPUNKS");
+  bytes32 public constant ADDRESS_ID_RESERVOIR_ADAPTER = keccak256("RESERVOIR_ADAPTER");
 
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
@@ -131,6 +132,14 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
       data = _nfts[_addressesProvider.getAddress(ADDRESS_ID_WPUNKS)];
     }
     require(data.uNftAddress != address(0), Errors.LP_COLLECTION_NOT_SUPPORTED);
+    _;
+  }
+
+  modifier onlyReservoirAdapter() {
+    require(
+      msg.sender == _addressesProvider.getAddress(ADDRESS_ID_RESERVOIR_ADAPTER),
+      Errors.LP_CALLER_NOT_RESERVOIR_ADAPTER
+    );
     _;
   }
 
@@ -416,6 +425,14 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     require(_configFee == msg.value, Errors.LP_MSG_VALUE_DIFFERENT_FROM_CONFIG_FEE);
 
     emit ValuationApproved(_msgSender(), nftAsset, nftTokenId);
+  }
+
+  function transferBidAmount(
+    address reserveAsset,
+    address bidder,
+    uint256 bidAmount
+  ) external override onlyReservoirAdapter {
+    IERC20(reserveAsset).safeTransfer(bidder, bidAmount);
   }
 
   function onERC721Received(address, address, uint256, bytes memory) external pure override returns (bytes4) {

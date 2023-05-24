@@ -132,7 +132,9 @@ abstract contract BaseAdapter is Initializable {
 
     // Loan checks
     loanData = cachedPoolLoan.getLoan(loanId);
-    if (loanData.state != DataTypes.LoanState.Active) _revert(InvalidLoanState.selector); //TODO: allow autcion status
+
+    if (loanData.state != DataTypes.LoanState.Active && loanData.state != DataTypes.LoanState.Auction)
+      _revert(InvalidLoanState.selector);
 
     // Additional check for individual asset
     nftConfigByTokenId = cachedPool.getNftConfigByTokenId(nftAsset, tokenId);
@@ -194,34 +196,51 @@ abstract contract BaseAdapter is Initializable {
 
   /**
    * @dev Performs the transfers of value to the corresponding recipients
-   * @param reserveAsset The address of the loan reserve asset
-   * @param uToken The address of the uToken corresponding to the reserve
-   * @param borrower The borrower address
+   * @param loanData The data from the specific loan
    * @param borrowAmount The amount borrowed in the loan
    * @param extraDebtAmount The amount generated when liquidation amount cannot cover borrow amount
    * @param remainAmount Difference between the liquidation amount and the borrow amount
+   * @param bidFine The loan bid fine
    **/
   function _settleLiquidation(
-    address reserveAsset,
+    DataTypes.LoanData memory loanData,
     address uToken,
-    address borrower,
     uint256 borrowAmount,
     uint256 extraDebtAmount,
-    uint256 remainAmount
+    uint256 remainAmount,
+    uint256 bidFine
   ) internal {
-    if (extraDebtAmount > 0) {
+    if (extraDebtAmount != 0) {
+      // Debt not recovered. Pay extra debt to utoken
       address treasury = IUToken(uToken).RESERVE_TREASURY_ADDRESS();
-      if (IERC20(reserveAsset).balanceOf(treasury) < extraDebtAmount) _revert(InsufficientTreasuryBalance.selector);
+      if (IERC20(loanData.reserveAsset).balanceOf(treasury) < extraDebtAmount)
+        _revert(InsufficientTreasuryBalance.selector);
 
-      IERC20(reserveAsset).safeTransferFrom(treasury, address(this), extraDebtAmount);
+      IERC20(loanData.reserveAsset).safeTransferFrom(treasury, uToken, extraDebtAmount);
+    } else {
+      // Debt recovered by liquidation.
+      // Transfer borrow amount from adapter to uToken, repay debt
+      IERC20(loanData.reserveAsset).safeTransfer(uToken, borrowAmount);
     }
 
-    // transfer borrow amount from adapter to uToken, repay debt
-    IERC20(reserveAsset).safeTransfer(uToken, borrowAmount);
+    if (loanData.bidderAddress != address(0)) {
+      // Transfer bid amount to the loan bidder
+      _lendPool.transferBidAmount(loanData.reserveAsset, loanData.bidderAddress, loanData.bidPrice);
+    }
 
-    // transfer remain amount to borrower
-    if (remainAmount > 0) {
-      IERC20(reserveAsset).safeTransfer(borrower, remainAmount);
+    if (remainAmount > bidFine) {
+      // already considering  case where remaining amount is 0
+      // Remain amount can cover bid fine.
+      // Transfer bid fine to first bidder
+      IERC20(loanData.reserveAsset).safeTransfer(loanData.firstBidderAddress, bidFine);
+      unchecked {
+        remainAmount -= bidFine;
+      }
+      // Transfer remaining amount to borrower
+      IERC20(loanData.reserveAsset).safeTransfer(loanData.borrower, remainAmount);
+    } else {
+      // Remain amount can not cover bid fine. Transfer the remaining amount to first bidder
+      IERC20(loanData.reserveAsset).safeTransfer(loanData.firstBidderAddress, remainAmount);
     }
   }
 
