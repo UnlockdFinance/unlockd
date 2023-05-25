@@ -14,6 +14,8 @@ import {DataTypes} from "../types/DataTypes.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title ReserveLogic library
  * @author Unlockd
@@ -62,7 +64,8 @@ library ReserveLogic {
     uint256 cumulated = MathUtils.calculateLinearInterest(reserve.currentLiquidityRate, timestamp).rayMul(
       reserve.liquidityIndex
     );
-
+    console.log("CUMULATED");
+    console.log(cumulated);
     return cumulated;
   }
 

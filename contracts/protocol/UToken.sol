@@ -265,9 +265,11 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     uint256 totalAvailableFromStrategy = gain + debtPayment;
     if (availableCredit > totalAvailableFromStrategy) {
       // Credit surplus, give to Strategy
+
       IERC20Upgradeable(_underlyingAsset).safeTransfer(msg.sender, availableCredit - totalAvailableFromStrategy);
     } else if (totalAvailableFromStrategy > availableCredit) {
       // Credit deficit, take from Strategy
+
       IERC20Upgradeable(_underlyingAsset).safeTransferFrom(
         msg.sender,
         address(this),

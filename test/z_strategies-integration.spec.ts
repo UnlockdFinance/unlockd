@@ -1132,4 +1132,169 @@ makeSuite("Strategies integration", (testEnv: TestEnv) => {
     );
     // #endregion
   });
+  it.only("(FLOW 7) - (1). Depositor deposits 100 WETH. (2). Harvest takes place in both strategies. (3) Gains are made by strategies. (4) Harvest takes place again. (5) Depositor tries to withdraw all liquidity", async () => {
+    const { users, weth, uWETH, genericConvexETHStrategy, genericYVaultStrategy, pool, bayc, configurator, deployer } =
+      testEnv;
+    console.log("Initial UToken Available Liquidity: ", await uWETH.getAvailableLiquidity());
+    console.log("Initial Liquidity Index: ", (await pool.getReserveData(weth.address)).liquidityIndex.toString());
+    const depositor = users[1];
+    const borrower = users[2];
+    // #region - PHASE 0: Setup strategies
+    /*//////////////////////////////////////////////////////////////
+                  PHASE 0: Setup strategies
+    //////////////////////////////////////////////////////////////*/
+    // Add Yearn Strategy (30% debt ratio)
+    await uWETH.addStrategy(
+      genericYVaultStrategy.address, // STRATEGY
+      3000, // DEBT RATIO
+      0, // MIN DEBT PER HARVEST
+      "115792089237316195423570985008687907853269984665640564039457584007913129639935" // MAX DEBT PER HARVEST
+    );
+
+    // Add Convex Strategy (50% debt ratio)
+    await uWETH.addStrategy(
+      genericConvexETHStrategy.address, // STRATEGY
+      5000, // DEBT RATIO
+      0, // MIN DEBT PER HARVEST
+      "115792089237316195423570985008687907853269984665640564039457584007913129639935" // MAX DEBT PER HARVEST
+    );
+    // #endregion
+
+    // #region - PHASE 1: Depositor deposits 100 ETH
+    /*//////////////////////////////////////////////////////////////
+                  PHASE 1: Depositor deposits 100 ETH
+    //////////////////////////////////////////////////////////////*/
+
+    await fundWithERC20("WETH", depositor.address, "100");
+    await approveERC20(testEnv, depositor, "WETH");
+
+    await pool.connect(depositor.signer).deposit(weth.address, parseEther("100"), depositor.address, 0);
+
+    // Expect user utoken balance to be 100
+    expect(await uWETH.balanceOf(depositor.address)).to.be.eq(parseEther("100"));
+    // #endregion
+
+    // #region - PHASE 2: Harvest takes place in both strategies
+    /*//////////////////////////////////////////////////////////////
+                  PHASE 2: Harvest takes place in both strategies
+    //////////////////////////////////////////////////////////////*/
+    let initialUTokenBalance = await weth.balanceOf(uWETH.address);
+    // HARVEST both yearn and convex
+    await genericYVaultStrategy.harvest();
+    await genericConvexETHStrategy.harvest();
+
+    let genericYVaultStrategyDataAfterHarvest = await uWETH.getStrategy(genericYVaultStrategy.address);
+    let genericConvexETHStrategyDataAfterHarvest = await uWETH.getStrategy(genericConvexETHStrategy.address);
+
+    // Expect UToken debt ratio to be 80%
+    expect(await uWETH.debtRatio()).to.be.eq(8000);
+    // Expect yearn strategy debt ratio to be 30%
+    expect(genericYVaultStrategyDataAfterHarvest.debtRatio).to.be.eq(3000);
+    // Expect yearn strategy debt ratio to be 50%
+    expect(genericConvexETHStrategyDataAfterHarvest.debtRatio).to.be.eq(5000);
+    // Expect utoken total debt to be 80% of initial funds
+    expect(await uWETH.totalDebt()).to.be.eq(
+      BigNumber.from(new BN(initialUTokenBalance.toString()).percentMul(new BN(8000)).toString())
+    );
+    // Expect yearn strategy total debt to be 30% of initial funds
+    expect(genericYVaultStrategyDataAfterHarvest.totalDebt).to.be.eq(
+      BigNumber.from(new BN(initialUTokenBalance.toString()).percentMul(new BN(3000)).toString())
+    );
+    // Expect convex strategy total debt to be 50% of initial funds
+    expect(genericConvexETHStrategyDataAfterHarvest.totalDebt).to.be.eq(
+      BigNumber.from(new BN(initialUTokenBalance.toString()).percentMul(new BN(5000)).toString())
+    );
+
+    console.log("UToken Available Liquidity After Deposit: ", await uWETH.getAvailableLiquidity());
+    console.log("Liquidity Index After Deposit: ", (await pool.getReserveData(weth.address)).liquidityIndex.toString());
+    // #endregion
+
+    // #region - PHASE 3: Gains are made by strategies
+    await advanceTimeAndBlock(2592000); // 30 days
+
+    // Mock gains on Yearn Vault
+    await fundWithERC20("WETH", await genericYVaultStrategy.yVault(), "100");
+
+    // MOCK CRV GAINS
+    let crvHolder = await getEthersSignerByAddress(CRV_HOLDER);
+    await (DRE as HardhatRuntimeEnvironment).network.provider.request({
+      method: "hardhat_impersonateAccount",
+      params: [CRV_HOLDER],
+    });
+
+    await fundWithETH(CRV_HOLDER, "10");
+
+    await crv.connect(crvHolder).transfer(genericConvexETHStrategy.address, parseEther("10"));
+
+    // MOCK CVX GAINS
+    let cvxHolder = await getEthersSignerByAddress(CVX_HOLDER);
+    await (DRE as HardhatRuntimeEnvironment).network.provider.request({
+      method: "hardhat_impersonateAccount",
+      params: [CVX_HOLDER],
+    });
+
+    await fundWithETH(CVX_HOLDER, "10");
+
+    await cvx.connect(cvxHolder).transfer(genericConvexETHStrategy.address, parseEther("10"));
+    // #endregion
+
+    // #region - PHASE 4: Harvest takes place again in both strategies
+    /*//////////////////////////////////////////////////////////////
+                  PHASE 4: Harvest takes place again in both strategies
+    //////////////////////////////////////////////////////////////*/
+    initialUTokenBalance = await weth.balanceOf(uWETH.address);
+    console.log("VALUE HELD IN UTOKEN before: ", (await weth.balanceOf(uWETH.address)).toString());
+    // HARVEST both yearn and convex
+    console.log("YEARN");
+    await genericYVaultStrategy.harvest();
+    console.log("CVX");
+    await genericConvexETHStrategy.harvest();
+
+    genericYVaultStrategyDataAfterHarvest = await uWETH.getStrategy(genericYVaultStrategy.address);
+    genericConvexETHStrategyDataAfterHarvest = await uWETH.getStrategy(genericConvexETHStrategy.address);
+
+    console.log("---HARVEST DATA---");
+    console.log("$$$$$ YEARN STRATEGY $$$$$$ ");
+    const yearnStrategyData = await uWETH.getStrategy(genericYVaultStrategy.address);
+    console.log(yearnStrategyData.totalGain.toString());
+    console.log("Value held in yearn strategy:", await weth.balanceOf(genericYVaultStrategy.address));
+    console.log("$$$$$ CONVEX STRATEGY $$$$$$ ");
+    const convexStrategyData = await uWETH.getStrategy(genericConvexETHStrategy.address);
+    console.log(convexStrategyData.totalGain.toString());
+    console.log("Value held in convex strategy:", await weth.balanceOf(genericConvexETHStrategy.address));
+
+    console.log("VALUE HELD IN UTOKEN: ", (await weth.balanceOf(uWETH.address)).toString());
+    // #endregion
+
+    // #region - PHASE 5: Depositor tries to withdraw all liquidity
+    /*//////////////////////////////////////////////////////////////
+              PHASE 5: Depositor tries to withdraw all liquidity
+    //////////////////////////////////////////////////////////////*/
+    await advanceTimeAndBlock(60 * 60 * 24 * 2); //two days
+    await uWETH.setMaxLoss(9000);
+    console.log("AVAILABLE LIQUIDITY BEFORE: ", await uWETH.getAvailableLiquidity());
+    console.log("USER WETH BALANCE BEFORE: ", (await weth.balanceOf(depositor.address)).toString());
+    console.log("USER uWETH BALANCE BEFORE: ", (await uWETH.balanceOf(depositor.address)).toString());
+    console.log("UToken Available Liquidity before Withdraw: ", await uWETH.getAvailableLiquidity());
+    console.log(
+      "Liquidity Index before Withdraw: ",
+      (await pool.getReserveData(weth.address)).liquidityIndex.toString()
+    );
+
+    await pool
+      .connect(depositor.signer)
+      .withdraw(
+        weth.address,
+        "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        depositor.address
+      );
+    console.log("USER WETH BALANCE after: ", (await weth.balanceOf(depositor.address)).toString());
+    console.log("USER uWETH BALANCE after: ", (await uWETH.balanceOf(depositor.address)).toString());
+
+    console.log("UToken Available Liquidity After Withdraw: ", await uWETH.getAvailableLiquidity());
+    console.log(
+      "Liquidity Index After Withdraw: ",
+      (await pool.getReserveData(weth.address)).liquidityIndex.toString()
+    );
+  });
 });
