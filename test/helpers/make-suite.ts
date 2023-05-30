@@ -9,6 +9,7 @@ import { ConfigNames, getLendPoolLiquidator, loadPoolConfig } from "../../helper
 import { ADDRESS_ID_WETH, SUDOSWAP_PAIRS_GOERLI, SUDOSWAP_PAIRS_MAINNET } from "../../helpers/constants";
 import {
   getCryptoPunksMarket,
+  getDebtToken,
   getLendPool,
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
@@ -40,6 +41,7 @@ import { DRE, evmRevert, evmSnapshot, getNowTimeInSeconds } from "../../helpers/
 import { tEthereumAddress } from "../../helpers/types";
 import {
   CryptoPunksMarket,
+  DebtToken,
   LendPoolLoan,
   MockIncentivesController,
   PunkGateway,
@@ -99,6 +101,7 @@ export interface TestEnv {
   mockIncentivesController: MockIncentivesController;
   weth: WETH9Mocked;
   uWETH: UToken;
+  debtWETH: DebtToken;
   dai: MintableERC20;
   uDai: UToken;
   usdc: MintableERC20;
@@ -152,6 +155,7 @@ const testEnv: TestEnv = {
   LSSVMPairs: [] as LSSVMPairWithID[],
   weth: {} as WETH9Mocked,
   uWETH: {} as UToken,
+  debtWETH: {} as DebtToken,
   dai: {} as MintableERC20,
   uDai: {} as UToken,
   usdc: {} as MintableERC20,
@@ -220,6 +224,7 @@ export async function initializeMakeSuite(network?: string) {
   const uDaiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.uTokenAddress;
   const uUsdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.uTokenAddress;
   const uWEthAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.uTokenAddress;
+  const debtWethAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "WETH")?.debtTokenAddress;
 
   const daiAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "DAI")?.tokenAddress;
   const usdcAddress = allReserveTokens.find((tokenData) => tokenData.tokenSymbol === "USDC")?.tokenAddress;
@@ -254,6 +259,9 @@ export async function initializeMakeSuite(network?: string) {
   if (uUsdcAddress) testEnv.uUsdc = await getUToken(uUsdcAddress);
 
   if (uWEthAddress) testEnv.uWETH = await getUToken(uWEthAddress);
+
+  if (debtWethAddress) testEnv.debtWETH = await getDebtToken(debtWethAddress);
+
   if (UPGRADE) await testEnv.uWETH.sweepUToken();
   testEnv.wethGateway = await getWETHGateway();
 

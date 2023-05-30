@@ -254,7 +254,6 @@ library ReserveLogic {
 
     //debt accrued is the sum of the current debt minus the sum of the debt at the last update
     vars.totalDebtAccrued = vars.currentVariableDebt - (vars.previousVariableDebt);
-
     vars.amountToMint = vars.totalDebtAccrued.percentMul(vars.reserveFactor);
 
     if (vars.amountToMint != 0) {

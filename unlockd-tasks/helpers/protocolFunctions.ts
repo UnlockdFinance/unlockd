@@ -182,7 +182,7 @@ const borrowETH = async (
 
   return Contracts.wethGateway
     .connect(wallet)
-    .borrowETH(amount, nftAddress, tokenId, onBehalfOf, 0, nftConfigFee, { gasLimit: gasPrice.toFixed(0) });
+    .borrowETH(amount, nftAddress, tokenId, onBehalfOf, 0, nftConfigFee, { gasMultiplier: 1.5 });
 };
 //#endregion
 

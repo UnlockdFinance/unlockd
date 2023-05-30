@@ -5,6 +5,7 @@ import {ILendPoolAddressesProvider} from "../interfaces/ILendPoolAddressesProvid
 import {ILendPoolConfigurator} from "../interfaces/ILendPoolConfigurator.sol";
 import {ILendPool} from "../interfaces/ILendPool.sol";
 import {IUToken} from "../interfaces/IUToken.sol";
+import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {IYVault} from "../interfaces/yearn/IYVault.sol";
 import {IIncentivesController} from "../interfaces/IIncentivesController.sol";
 import {IncentivizedERC20} from "./IncentivizedERC20.sol";
@@ -82,9 +83,10 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     address user,
     address receiverOfUnderlying,
     uint256 amount,
+    uint256 burnAmount,
     uint256 index
   ) external override onlyLendPool {
-    uint256 amountScaled = amount.rayDiv(index);
+    uint256 amountScaled = burnAmount.rayDiv(index);
 
     require(amountScaled != 0, Errors.CT_INVALID_BURN_AMOUNT);
     _burn(user, amountScaled);
@@ -206,6 +208,16 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
    **/
   function getScaledUserBalanceAndSupply(address user) external view override returns (uint256, uint256) {
     return (super.balanceOf(user), super.totalSupply());
+  }
+
+  /**
+   * @dev Returns the price a UToken is worth regarding the underlying asset held by it
+   * @param debtToken The address of the corresponding debt token
+   * @return The price of a single UToken
+   **/
+  function pricePerUToken(address debtToken) public view override returns (uint256) {
+    return
+      ((getAvailableLiquidity() + IDebtToken(debtToken).scaledTotalSupply()) * 10 ** decimals()) / scaledTotalSupply();
   }
 
   /**

@@ -104,6 +104,10 @@ library SupplyLogic {
 
     ValidationLogic.validateWithdraw(reserve, amountToWithdraw, userBalance, uToken);
 
+    uint256 burnAmount = amountToWithdraw;
+
+    //amountToWithdraw = amountToWithdraw * IUToken(uToken).pricePerUToken(reserve.debtTokenAddress) / (10**IUToken(uToken).decimals());
+
     reserve.updateState();
 
     reserve.updateInterestRates(params.asset, uToken, 0, amountToWithdraw);
@@ -111,7 +115,7 @@ library SupplyLogic {
     // Withdraw amount from external lending protocol
     IUToken(uToken).withdrawReserves(amountToWithdraw);
 
-    IUToken(uToken).burn(params.initiator, params.to, amountToWithdraw, reserve.liquidityIndex);
+    IUToken(uToken).burn(params.initiator, params.to, amountToWithdraw, burnAmount, reserve.liquidityIndex);
 
     emit Withdraw(params.initiator, params.asset, amountToWithdraw, params.to);
 

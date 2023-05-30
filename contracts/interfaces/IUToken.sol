@@ -96,13 +96,20 @@ interface IUToken is IScaledBalanceToken, IERC20Upgradeable, IERC20MetadataUpgra
   function sweepUToken() external;
 
   /**
+   * @dev Returns the price a UToken is worth regarding the underlying asset held by it
+   * @param debtToken The address of the corresponding debt token
+   * @return The price of a single UToken
+   **/
+  function pricePerUToken(address debtToken) external view returns (uint256);
+
+  /**
    * @dev Burns uTokens from `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
    * @param user The owner of the uTokens, getting them burned
    * @param receiverOfUnderlying The address that will receive the underlying
    * @param amount The amount being burned
    * @param index The new liquidity index of the reserve
    **/
-  function burn(address user, address receiverOfUnderlying, uint256 amount, uint256 index) external;
+  function burn(address user, address receiverOfUnderlying, uint256 amount, uint256 burnAmount, uint256 index) external;
 
   /**
    * @dev Mints uTokens to the reserve treasury
