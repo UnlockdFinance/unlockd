@@ -44,7 +44,8 @@ contract LendPoolStorage {
   uint256 internal _auctionDurationConfigFee;
   address internal _rescuer;
   uint256 internal _safeHealthFactor;
+  uint256 internal _bidDelta;
 
   // For upgradable, add one new variable above, minus 1 at here
-  uint256[50] private __gap;
+  uint256[49] private __gap;
 }

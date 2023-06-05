@@ -22,6 +22,9 @@ contract LockeyManager is Initializable {
     _;
   }
 
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() initializer {}
+
   /**
    * @dev Initializes the LockeyManager contract replacing the constructor
    * @param provider The address of the LendPoolAddressesProvider

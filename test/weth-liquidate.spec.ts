@@ -142,8 +142,6 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
 
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
 
     await waitForTx(
       await wethGateway
@@ -254,8 +252,6 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     const liquidateAmountSend = liquidatePrice.add(liquidatePrice.mul(5).div(100));
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
     await waitForTx(
       await wethGateway
         .connect(liquidator.signer)
@@ -375,8 +371,6 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     // Bid 50 ETH on loan
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
 
     const bidderBalanceBeforeAuction = await weth.balanceOf(bidder.address);
 
@@ -502,8 +496,6 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     // Bid 50 ETH on loan
     await configurator.connect(deployer.signer).setLtvManagerStatus(deployer.address, true);
     await configurator.connect(deployer.signer).setTimeframe(360000);
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 0, false));
-    await waitForTx(await configurator.connect(deployer.signer).setIsMarketSupported(bayc.address, 1, false));
 
     const bidderBalanceBeforeAuction = await weth.balanceOf(bidder.address);
 

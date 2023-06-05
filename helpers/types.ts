@@ -32,7 +32,6 @@ export enum eContractid {
   SupplyLogic = "SupplyLogic",
   BorrowLogic = "BorrowLogic",
   LiquidateLogic = "LiquidateLogic",
-  LiquidateMarketsLogic = "LiquidateMarketsLogic",
   LendingLogic = "LendingLogic",
   ConfiguratorLogic = "ConfiguratorLogic",
   LendPool = "LendPool",
@@ -83,11 +82,6 @@ export enum eContractid {
   TimelockControllerFast = "TimelockControllerFast",
   TimelockControllerSlow = "TimelockControllerSlow",
   RepayAndTransferHelper = "RepayAndTransferHelper",
-  NFTXVaultFactory = "NFTXVaultFactory",
-  UniswapV2Factory = "UniswapV2Factory",
-  SushiSwapRouter = "SushiSwapRouter",
-  NFTXHelper = "NFTXHelper",
-  LSSVMPPair = "LSSVMPair",
   YVault = "YVault",
   MockYVault = "MockYVault",
   MockYVaultImpl = "MockYVaultImpl",
@@ -187,11 +181,12 @@ export enum ProtocolErrors {
   LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE = "429",
 
   //lend pool loan errors
+  LPL_CLAIM_HASNT_STARTED_YET = "479",
   LPL_INVALID_LOAN_STATE = "480",
   LPL_INVALID_LOAN_AMOUNT = "481",
   LPL_INVALID_TAKEN_AMOUNT = "482",
   LPL_AMOUNT_OVERFLOW = "483",
-  LPL_BID_PRICE_LESS_THAN_LIQUIDATION_PRICE = "484",
+  LPL_BID_PRICE_LESS_THAN_DEBT_PRICE = "484",
   LPL_BID_PRICE_LESS_THAN_HIGHEST_PRICE = "485",
   LPL_BID_REDEEM_DURATION_HAS_END = "486",
   LPL_BID_USER_NOT_SAME = "487",
@@ -477,9 +472,6 @@ export interface ICommonConfiguration {
   OracleQuoteCurrency: string;
   OracleQuoteUnit: string;
 
-  NFTXVaultFactory: iParamsPerNetwork<tEthereumAddress>;
-  SushiSwapRouter: iParamsPerNetwork<tEthereumAddress>;
-  LSSVMRouter: iParamsPerNetwork<tEthereumAddress>;
   YVaultWETH: iParamsPerNetwork<tEthereumAddress>;
   LockeyCollection: iParamsPerNetwork<tEthereumAddress>;
 
@@ -488,12 +480,10 @@ export interface ICommonConfiguration {
   LooksRareModule: iParamsPerNetwork<tEthereumAddress>;
   SeaportModule: iParamsPerNetwork<tEthereumAddress>;
   SeaportV14Module: iParamsPerNetwork<tEthereumAddress>;
-  SudoSwapModule: iParamsPerNetwork<tEthereumAddress>;
   X2Y2Module: iParamsPerNetwork<tEthereumAddress>;
   ZeroExv4Module: iParamsPerNetwork<tEthereumAddress>;
   ZoraModule: iParamsPerNetwork<tEthereumAddress>;
   ElementModule: iParamsPerNetwork<tEthereumAddress>;
-  NFTXModule: iParamsPerNetwork<tEthereumAddress>;
   RaribleModule: iParamsPerNetwork<tEthereumAddress>;
 }
 

@@ -180,9 +180,42 @@ interface IDebtMarket {
   ) external;
 
   /**
+   * @dev Emited when a new address is authorized to cancel debt listings
+   * @param authorizedAddress Address to authorize
+   */
+  event AuthorizedAddressChanged(address indexed authorizedAddress, bool isAuthorized);
+
+  /**
+   * @dev Emitted when the pause is triggered.
+   */
+  event Paused();
+
+  /**
+   * @dev Emitted when the pause is lifted.
+   */
+  event Unpaused();
+
+  /**
    * @dev Close a debt listing position
    * @param nftAsset The address of the underlying NFT used as collateral
    * @param tokenId The token id of the underlying NFT used as collateral
    */
   function cancelDebtListing(address nftAsset, uint256 tokenId) external;
+
+  /**
+   * @dev Sets the authorized address to cancel the debt listing
+   * @param newAuthorizedAddress Address to authorize
+   */
+  function setAuthorizedAddress(address newAuthorizedAddress, bool val) external;
+
+  /**
+   * @dev Sets the pause state
+   * @param val Pause state
+   */
+  function setPause(bool val) external;
+
+  /**
+   * @dev Returns true if the contract is paused, and false otherwise.
+   */
+  function paused() external view returns (bool);
 }

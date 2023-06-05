@@ -15,7 +15,6 @@ import {ValidationLogic} from "../libraries/logic/ValidationLogic.sol";
 import {SupplyLogic} from "../libraries/logic/SupplyLogic.sol";
 import {BorrowLogic} from "../libraries/logic/BorrowLogic.sol";
 import {LiquidateLogic} from "../libraries/logic/LiquidateLogic.sol";
-import {LiquidateMarketsLogic} from "../libraries/logic/LiquidateMarketsLogic.sol";
 
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
@@ -306,8 +305,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
       _reserves,
       _nfts,
       _nftConfig,
-      _isMarketSupported,
-      _sudoswapPairs,
       _buildLendPoolVars(),
       DataTypes.ExecuteAuctionParams({
         initiator: _msgSender(),
@@ -315,7 +312,8 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
         nftTokenId: nftTokenId,
         bidPrice: bidPrice,
         onBehalfOf: onBehalfOf,
-        auctionDurationConfigFee: _auctionDurationConfigFee
+        auctionDurationConfigFee: _auctionDurationConfigFee,
+        bidDelta: _bidDelta
       })
     );
   }
@@ -408,61 +406,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
           nftTokenId: nftTokenId,
           amount: amount
         })
-      );
-  }
-
-  /**
-   * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The collateral asset is sold on NFTX
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param nftTokenId The token ID of the underlying NFT used as collateral
-   **/
-  function liquidateNFTX(
-    address nftAsset,
-    uint256 nftTokenId,
-    uint256 amountOutMin
-  ) external override nonReentrant onlyLendPoolLiquidatorOrGateway whenNotPaused returns (uint256) {
-    return
-      LiquidateMarketsLogic.executeLiquidateNFTX(
-        _addressesProvider,
-        _reserves,
-        _nfts,
-        _nftConfig,
-        DataTypes.ExecuteLiquidateMarketsParams({
-          nftAsset: nftAsset,
-          nftTokenId: nftTokenId,
-          liquidateFeePercentage: _liquidateFeePercentage,
-          amountOutMin: amountOutMin
-        })
-      );
-  }
-
-  /**
-   * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The collateral asset is sold on SudoSwap
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param nftTokenId The token ID of the underlying NFT used as collateral
-   **/
-  function liquidateSudoSwap(
-    address nftAsset,
-    uint256 nftTokenId,
-    uint256 amountOutMin,
-    address LSSVMPair,
-    uint256 amountOutMinSudoswap
-  ) external override nonReentrant onlyLendPoolLiquidatorOrGateway whenNotPaused returns (uint256) {
-    return
-      LiquidateMarketsLogic.executeLiquidateSudoSwap(
-        _addressesProvider,
-        _reserves,
-        _nfts,
-        _nftConfig,
-        DataTypes.ExecuteLiquidateMarketsParams({
-          nftAsset: nftAsset,
-          nftTokenId: nftTokenId,
-          liquidateFeePercentage: _liquidateFeePercentage,
-          amountOutMin: amountOutMin
-        }),
-        DataTypes.SudoSwapParams({LSSVMPair: LSSVMPair, amountOutMinSudoswap: amountOutMinSudoswap})
       );
   }
 
@@ -865,22 +808,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   }
 
   /**
-   * @dev Allows and address to be sold on NFTX
-   * @param nftAsset the address of the NFT
-   **/
-  function setIsMarketSupported(address nftAsset, uint8 market, bool val) external override onlyLendPoolConfigurator {
-    require(nftAsset != address(0), Errors.INVALID_ZERO_ADDRESS);
-    _isMarketSupported[nftAsset][market] = val;
-  }
-
-  /**
-   * @dev Returns the max timeframe between NFT config triggers and borrows
-   **/
-  function getIsMarketSupported(address nftAsset, uint8 market) external view override returns (bool) {
-    return _isMarketSupported[nftAsset][market];
-  }
-
-  /**
    * @dev Sets configFee amount to be charged for ConfigureNFTAsColleteral
    * @param configFee the number of seconds for the timeframe
    **/
@@ -908,6 +835,21 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    **/
   function getAuctionDurationConfigFee() public view override returns (uint256) {
     return _auctionDurationConfigFee;
+  }
+
+  /**
+   * @dev sets the bidDelta percentage - debt compounded + fees.
+   * @param bidDelta the amount to charge to the user
+   **/
+  function setBidDelta(uint256 bidDelta) external override onlyLendPoolConfigurator {
+    _bidDelta = bidDelta;
+  }
+
+  /**
+   * @dev Returns the bidDelta percentage - debt compounded + fees.
+   **/
+  function getBidDelta() public view override returns (uint256) {
+    return _bidDelta;
   }
 
   /**

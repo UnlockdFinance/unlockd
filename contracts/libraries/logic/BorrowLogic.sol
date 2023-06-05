@@ -283,6 +283,13 @@ library BorrowLogic {
       vars.repayAmount = params.amount;
     }
 
+    // Cancel debt listing if exist
+    address debtMarket = addressesProvider.getAddress(keccak256("DEBT_MARKET"));
+    uint256 debtId = IDebtMarket(debtMarket).getDebtId(params.nftAsset, params.nftTokenId);
+    if (debtId != 0) {
+      IDebtMarket(debtMarket).cancelDebtListing(params.nftAsset, params.nftTokenId);
+    }
+
     if (vars.isUpdate) {
       ILendPoolLoan(vars.poolLoan).updateLoan(
         vars.initiator,

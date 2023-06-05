@@ -16,6 +16,7 @@ task("fork:deploy-debt-market", "Deploy the debt market contract")
     const debtMarketImpl = await deployDebtMarket(verify);
 
     const addressesProvider = await getLendPoolAddressesProvider();
+    const lendPool = await addressesProvider.getLendPool();
 
     console.log("Setting Debt Market implementation with address:", debtMarketImpl.address);
     await waitForTx(await addressesProvider.setAddressAsProxy(ADDRESS_ID_DEBT_MARKET, debtMarketImpl.address, []));
@@ -24,4 +25,7 @@ task("fork:deploy-debt-market", "Deploy the debt market contract")
     await insertContractAddressInDb(eContractid.DebtMarket, proxy.address);
 
     await waitForTx(await addressesProvider.setAddress(ADDRESS_ID_DEBT_MARKET, proxy.address));
+
+    console.log("Adding LendPool as authorized address for Debt Market...");
+    await waitForTx(await proxy.setAuthorizedAddress(lendPool, true));
   });
