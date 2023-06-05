@@ -181,7 +181,7 @@ library LiquidateLogic {
     // update state MUST BEFORE get borrow amount which is depent on latest borrow index
     reserveData.updateState();
 
-    (vars.borrowAmount, vars.thresholdPrice) = GenericLogic.calculateLoanLiquidatePrice(
+    (vars.borrowAmount, vars.thresholdPrice, ) = GenericLogic.calculateLoanLiquidatePrice(
       vars.loanId,
       loanData.reserveAsset,
       reserveData,
