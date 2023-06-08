@@ -15,11 +15,25 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
  * @notice Implements the calculation of the interest rates depending on the reserve state
  * @dev The model of interest rate is based on 2 slopes, one before the `OPTIMAL_UTILIZATION_RATE`
  * point of utilization and another from that one to 100%
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  **/
 contract InterestRate is IInterestRate {
   using WadRayMath for uint256;
   using PercentageMath for uint256;
+
+  /*//////////////////////////////////////////////////////////////
+                          Structs
+  //////////////////////////////////////////////////////////////*/
+  struct CalcInterestRatesLocalVars {
+    uint256 totalDebt;
+    uint256 currentVariableBorrowRate;
+    uint256 currentLiquidityRate;
+    uint256 utilizationRate;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          CONSTANTS
+  //////////////////////////////////////////////////////////////*/
 
   ILendPoolAddressesProvider public immutable addressesProvider;
 
@@ -46,6 +60,9 @@ contract InterestRate is IInterestRate {
   // Slope of the variable interest curve when utilization rate > OPTIMAL_UTILIZATION_RATE. Expressed in ray
   uint256 internal immutable _variableRateSlope2;
 
+  /*//////////////////////////////////////////////////////////////
+                          INITIALIZERS
+  //////////////////////////////////////////////////////////////*/
   constructor(
     ILendPoolAddressesProvider provider,
     uint256 optimalUtilizationRate_,
@@ -60,6 +77,35 @@ contract InterestRate is IInterestRate {
     _variableRateSlope1 = variableRateSlope1_;
     _variableRateSlope2 = variableRateSlope2_;
   }
+
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
+
+  /**
+   * @dev Calculates the overall borrow rate as the weighted average between the total variable debt and total stable debt
+   * @param totalVariableDebt The total borrowed from the reserve at a variable rate
+   * @param currentVariableBorrowRate The current variable borrow rate of the reserve
+   * @return The weighted averaged borrow rate
+   **/
+  function _getOverallBorrowRate(
+    uint256 totalVariableDebt,
+    uint256 currentVariableBorrowRate
+  ) internal pure returns (uint256) {
+    uint256 totalDebt = totalVariableDebt;
+
+    if (totalDebt == 0) return 0;
+
+    uint256 weightedVariableRate = totalVariableDebt.wadToRay().rayMul(currentVariableBorrowRate);
+
+    uint256 overallBorrowRate = weightedVariableRate.rayDiv(totalDebt.wadToRay());
+
+    return overallBorrowRate;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          GETTERS
+  //////////////////////////////////////////////////////////////*/
 
   function variableRateSlope1() external view returns (uint256) {
     return _variableRateSlope1;
@@ -111,13 +157,6 @@ contract InterestRate is IInterestRate {
     return calculateInterestRates(reserve, availableLiquidity, totalVariableDebt, reserveFactor);
   }
 
-  struct CalcInterestRatesLocalVars {
-    uint256 totalDebt;
-    uint256 currentVariableBorrowRate;
-    uint256 currentLiquidityRate;
-    uint256 utilizationRate;
-  }
-
   /**
    * @dev Calculates the interest rates depending on the reserve's state and configurations.
    * NOTE This function is kept for compatibility with the previous DefaultInterestRateStrategy interface.
@@ -164,26 +203,5 @@ contract InterestRate is IInterestRate {
       .percentMul(PercentageMath.PERCENTAGE_FACTOR - (reserveFactor));
 
     return (vars.currentLiquidityRate, vars.currentVariableBorrowRate);
-  }
-
-  /**
-   * @dev Calculates the overall borrow rate as the weighted average between the total variable debt and total stable debt
-   * @param totalVariableDebt The total borrowed from the reserve at a variable rate
-   * @param currentVariableBorrowRate The current variable borrow rate of the reserve
-   * @return The weighted averaged borrow rate
-   **/
-  function _getOverallBorrowRate(
-    uint256 totalVariableDebt,
-    uint256 currentVariableBorrowRate
-  ) internal pure returns (uint256) {
-    uint256 totalDebt = totalVariableDebt;
-
-    if (totalDebt == 0) return 0;
-
-    uint256 weightedVariableRate = totalVariableDebt.wadToRay().rayMul(currentVariableBorrowRate);
-
-    uint256 overallBorrowRate = weightedVariableRate.rayDiv(totalDebt.wadToRay());
-
-    return overallBorrowRate;
   }
 }

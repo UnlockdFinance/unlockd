@@ -12,6 +12,9 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   /// @dev When calling getPrice() of a non-minted tokenId it returns '0', shouldn't this revert with an error?
   /// @notice The whenNotPaused modifier is not being used!
   /// @notice INFTOracle.sol is not being used, it is redundant and it hasn't an implementation
+  /*//////////////////////////////////////////////////////////////
+                        EVENTS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Emitted when a collection is added to the oracle
    * @param collection The added collection
@@ -34,14 +37,18 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
    * @param paused the new pause status
    **/
   event CollectionPaused(bool indexed paused);
-
+  /*//////////////////////////////////////////////////////////////
+                        ERRORS
+  //////////////////////////////////////////////////////////////*/
   error NotAdmin();
   error NonExistingCollection(address collection);
   error AlreadyExistingCollection();
   error NFTPaused();
   error ArraysLengthInconsistent();
   error PriceIsZero();
-
+  /*//////////////////////////////////////////////////////////////
+                      GENERAL VARIABLES
+  //////////////////////////////////////////////////////////////*/
   //Map collection address to token ID. Then map token ID with token price
   mapping(address => mapping(uint256 => uint256)) public nftPrices;
   //Keeps track of collections currently supported by the protocol
@@ -50,7 +57,9 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   mapping(address => bool) public collectionPaused;
 
   mapping(address => bool) public isPriceManager;
-
+  /*//////////////////////////////////////////////////////////////
+                        MODIFIERS
+  //////////////////////////////////////////////////////////////*/
   modifier onlyPriceManager() {
     require(isPriceManager[msg.sender], Errors.CALLER_NOT_PRICE_MANAGER);
     _;
@@ -73,6 +82,9 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     _;
   }
 
+  /*//////////////////////////////////////////////////////////////
+                        INITIALIZERS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Function is invoked by the proxy contract when the NFTOracle contract is added to the
    * LendPoolAddressesProvider of the market.
@@ -85,30 +97,9 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     isPriceManager[_lendPoolConfigurator] = true;
   }
 
-  /**
-   * @dev checks whether the NFT oracle is paused
-   * @param _contract The NFTOracle address
-   **/
-  function _whenNotPaused(address _contract) internal view {
-    bool _paused = collectionPaused[_contract];
-    if (_paused) revert NFTPaused();
-  }
-
-  /**
-  @dev adds multiple collections to the oracle
-  @param _collections the array NFT collections to add
-   */
-  function setCollections(address[] calldata _collections) external onlyOwner {
-    uint256 collectionsLength = _collections.length;
-
-    for (uint256 i = 0; i != collectionsLength; ) {
-      _addCollection(_collections[i]);
-      unchecked {
-        ++i;
-      }
-    }
-  }
-
+  /*//////////////////////////////////////////////////////////////
+                        MAIN LOGIC
+  //////////////////////////////////////////////////////////////*/
   /**
   @dev adds a collection to the oracle
   @param _collection the NFT collection to add
@@ -117,6 +108,17 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     _addCollection(_collection);
   }
 
+  /**
+  @dev removes a collection from the oracle
+  @param _collection the NFT collection to remove
+   */
+  function removeCollection(address _collection) external onlyOwner {
+    _removeCollection(_collection);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                        INTERNALS
+  //////////////////////////////////////////////////////////////*/
   /**
   @dev adds a collection to the oracle
   @param _collection the NFT collection to add
@@ -130,42 +132,18 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   @dev removes a collection from the oracle
   @param _collection the NFT collection to remove
    */
-  function removeCollection(address _collection) external onlyOwner {
-    _removeCollection(_collection);
-  }
-
-  /**
-  @dev removes a collection from the oracle
-  @param _collection the NFT collection to remove
-   */
   function _removeCollection(address _collection) internal onlyExistingCollection(_collection) {
     delete collections[_collection];
     emit CollectionRemoved(_collection);
   }
 
   /**
-   * @inheritdoc INFTOracle
-   */
-  function setNFTPrice(address _collection, uint256 _tokenId, uint256 _price) external override onlyPriceManager {
-    _setNFTPrice(_collection, _tokenId, _price);
-  }
-
-  /**
-   * @inheritdoc INFTOracle
-   */
-  function setMultipleNFTPrices(
-    address[] calldata _collections,
-    uint256[] calldata _tokenIds,
-    uint256[] calldata _prices
-  ) external override onlyPriceManager {
-    uint256 collectionsLength = _collections.length;
-    if (collectionsLength != _tokenIds.length || collectionsLength != _prices.length) revert ArraysLengthInconsistent();
-    for (uint256 i = 0; i != collectionsLength; ) {
-      _setNFTPrice(_collections[i], _tokenIds[i], _prices[i]);
-      unchecked {
-        ++i;
-      }
-    }
+   * @dev checks whether the NFT oracle is paused
+   * @param _contract The NFTOracle address
+   **/
+  function _whenNotPaused(address _contract) internal view {
+    bool _paused = collectionPaused[_contract];
+    if (_paused) revert NFTPaused();
   }
 
   /**
@@ -184,6 +162,37 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
     emit NFTPriceAdded(_collection, _tokenId, _price);
   }
 
+  /*//////////////////////////////////////////////////////////////
+                        GETTERS & SETTERS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @inheritdoc INFTOracle
+   */
+  function setPause(address _collection, bool paused) external override onlyOwner onlyExistingCollection(_collection) {
+    collectionPaused[_collection] = paused;
+    emit CollectionPaused(paused);
+  }
+
+  function setPriceManagerStatus(address newPriceManager, bool val) external onlyOwner {
+    require(newPriceManager != address(0), Errors.NFTO_INVALID_PRICEM_ADDRESS);
+    isPriceManager[newPriceManager] = val;
+  }
+
+  /**
+  @dev adds multiple collections to the oracle
+  @param _collections the array NFT collections to add
+   */
+  function setCollections(address[] calldata _collections) external onlyOwner {
+    uint256 collectionsLength = _collections.length;
+
+    for (uint256 i = 0; i != collectionsLength; ) {
+      _addCollection(_collections[i]);
+      unchecked {
+        ++i;
+      }
+    }
+  }
+
   /**
    * @inheritdoc INFTOracle
    */
@@ -193,6 +202,13 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   ) external view override onlyExistingCollection(_collection) returns (uint256) {
     if (nftPrices[_collection][_tokenId] == 0) revert PriceIsZero();
     return nftPrices[_collection][_tokenId];
+  }
+
+  /**
+   * @inheritdoc INFTOracle
+   */
+  function setNFTPrice(address _collection, uint256 _tokenId, uint256 _price) external override onlyPriceManager {
+    _setNFTPrice(_collection, _tokenId, _price);
   }
 
   /**
@@ -220,13 +236,18 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   /**
    * @inheritdoc INFTOracle
    */
-  function setPause(address _collection, bool paused) external override onlyOwner onlyExistingCollection(_collection) {
-    collectionPaused[_collection] = paused;
-    emit CollectionPaused(paused);
-  }
-
-  function setPriceManagerStatus(address newPriceManager, bool val) external onlyOwner {
-    require(newPriceManager != address(0), Errors.NFTO_INVALID_PRICEM_ADDRESS);
-    isPriceManager[newPriceManager] = val;
+  function setMultipleNFTPrices(
+    address[] calldata _collections,
+    uint256[] calldata _tokenIds,
+    uint256[] calldata _prices
+  ) external override onlyPriceManager {
+    uint256 collectionsLength = _collections.length;
+    if (collectionsLength != _tokenIds.length || collectionsLength != _prices.length) revert ArraysLengthInconsistent();
+    for (uint256 i = 0; i != collectionsLength; ) {
+      _setNFTPrice(_collections[i], _tokenIds[i], _prices[i]);
+      unchecked {
+        ++i;
+      }
+    }
   }
 }

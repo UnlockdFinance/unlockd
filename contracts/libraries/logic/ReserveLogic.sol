@@ -16,7 +16,7 @@ import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ER
 
 /**
  * @title ReserveLogic library
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  * @notice Implements the logic to update the reserves state
  */
 library ReserveLogic {

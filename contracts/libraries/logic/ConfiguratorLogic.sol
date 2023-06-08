@@ -18,7 +18,7 @@ import {Errors} from "../../libraries/helpers/Errors.sol";
 
 /**
  * @title ConfiguratorLogic library
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  * @notice Implements the logic to configuration feature
  */
 library ConfiguratorLogic {

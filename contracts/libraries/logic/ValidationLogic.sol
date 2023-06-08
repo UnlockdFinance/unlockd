@@ -19,7 +19,7 @@ import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ER
 
 /**
  * @title ValidationLogic library
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  * @notice Implements functions to validate the different actions of the protocol
  */
 library ValidationLogic {

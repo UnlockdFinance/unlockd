@@ -13,15 +13,23 @@ import {Errors} from "../libraries/helpers/Errors.sol";
  * @notice Defines the error messages emitted by the different contracts of the Unlockd protocol
  */
 contract LockeyManager is Initializable {
+  /*//////////////////////////////////////////////////////////////
+                        GENERAL VARIABLES
+  //////////////////////////////////////////////////////////////*/
   uint256 internal _lockeyDiscount;
   ILendPoolAddressesProvider internal _addressesProvider;
   uint256 internal _lockeyDiscountOnDebtMarket;
-
+  /*//////////////////////////////////////////////////////////////
+                          MODIFIERS
+  //////////////////////////////////////////////////////////////*/
   modifier onlyPoolAdmin() {
     require(_addressesProvider.getPoolAdmin() == msg.sender, Errors.CALLER_NOT_POOL_ADMIN);
     _;
   }
 
+  /*//////////////////////////////////////////////////////////////
+                        INITIALIZERS
+  //////////////////////////////////////////////////////////////*/
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() initializer {}
 
@@ -34,6 +42,9 @@ contract LockeyManager is Initializable {
     _addressesProvider = provider;
   }
 
+  /*//////////////////////////////////////////////////////////////
+                        GETTERS & SETTERS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Sets the discountPercentage an allowed percentage for lockey holders
    * @param discountPercentage percentage allowed to deduct

@@ -6,7 +6,7 @@ pragma solidity 0.8.4;
  * @dev Main registry of addresses part of or connected to the protocol, including permissioned roles
  * - Acting also as factory of proxies and admin of those, so with right to change its implementations
  * - Owned by the Unlockd Governance
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  **/
 interface ILendPoolAddressesProvider {
   event MarketIdSet(string newMarketId);

@@ -29,7 +29,7 @@ import {IERC721MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/to
 
 /**
  * @title LiquidateLogic library
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  * @notice Implements the logic to liquidate feature
  */
 library LiquidateLogic {

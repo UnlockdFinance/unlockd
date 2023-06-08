@@ -10,7 +10,7 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
  * @title UnlockdCollector
  * @notice Stores all the UNLOCKD kept for incentives, just giving approval to the different
  * systems that will pull UNLOCKD funds for their specific use case
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  **/
 contract UnlockdCollector is Initializable, OwnableUpgradeable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -28,11 +28,7 @@ contract UnlockdCollector is Initializable, OwnableUpgradeable {
    * @param recipient the address to be approved
    * @param amount the amount to approve
    */
-  function approve(
-    IERC20Upgradeable token,
-    address recipient,
-    uint256 amount
-  ) external onlyOwner {
+  function approve(IERC20Upgradeable token, address recipient, uint256 amount) external onlyOwner {
     token.safeApprove(recipient, amount);
   }
 
@@ -42,11 +38,7 @@ contract UnlockdCollector is Initializable, OwnableUpgradeable {
    * @param recipient the address to transfer the tokens to
    * @param amount the amount to transfer
    */
-  function transfer(
-    IERC20Upgradeable token,
-    address recipient,
-    uint256 amount
-  ) external onlyOwner {
+  function transfer(IERC20Upgradeable token, address recipient, uint256 amount) external onlyOwner {
     token.safeTransfer(recipient, amount);
   }
 }

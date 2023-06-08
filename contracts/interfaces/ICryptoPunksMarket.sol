@@ -3,7 +3,7 @@ pragma solidity 0.8.4;
 
 /**
  * @title IDebtToken
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  * @notice Defines the basic interface for a debt token.
  **/
 interface ICryptoPunksMarket {

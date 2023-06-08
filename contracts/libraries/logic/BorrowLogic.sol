@@ -27,7 +27,7 @@ import {ValidationLogic} from "./ValidationLogic.sol";
 
 /**
  * @title BorrowLogic library
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  * @notice Implements the logic to borrow feature
  */
 library BorrowLogic {

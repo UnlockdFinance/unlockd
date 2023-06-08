@@ -22,6 +22,9 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   using WadRayMath for uint256;
   using CountersUpgradeable for CountersUpgradeable.Counter;
 
+  /*//////////////////////////////////////////////////////////////
+                        GENERAL VARIABLES
+  //////////////////////////////////////////////////////////////*/
   ILendPoolAddressesProvider private _addressesProvider;
   bytes32 public constant DEBT_MARKET = keccak256("DEBT_MARKET");
 
@@ -34,6 +37,9 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   mapping(address => mapping(address => uint256)) private _userNftCollateral;
   mapping(address => bool) private _marketAdapters;
 
+  /*//////////////////////////////////////////////////////////////
+                        MODIFIERS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Only lending pool can call functions marked by this modifier
    **/
@@ -61,6 +67,9 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     _;
   }
 
+  /*//////////////////////////////////////////////////////////////
+                        INITIALIZERS
+  //////////////////////////////////////////////////////////////*/
   // called once by the factory at time of deployment
   function initialize(ILendPoolAddressesProvider provider) external initializer {
     require(address(provider) != address(0), Errors.INVALID_ZERO_ADDRESS);
@@ -75,6 +84,16 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     emit Initialized(address(_getLendPool()));
   }
 
+  /*//////////////////////////////////////////////////////////////
+                    Fallback and Receive Functions
+  //////////////////////////////////////////////////////////////*/
+  function onERC721Received(address, address, uint256, bytes memory) external pure override returns (bytes4) {
+    return IERC721ReceiverUpgradeable.onERC721Received.selector;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                        MAIN LOGIC
+  //////////////////////////////////////////////////////////////*/
   function initNft(address nftAsset, address uNftAddress) external override onlyLendPool {
     IERC721Upgradeable(nftAsset).setApprovalForAll(uNftAddress, true);
   }
@@ -417,10 +436,44 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     }
   }
 
-  function onERC721Received(address, address, uint256, bytes memory) external pure override returns (bytes4) {
-    return IERC721ReceiverUpgradeable.onERC721Received.selector;
+  /**
+   * @inheritdoc ILendPoolLoan
+   */
+  function reMintUNFT(
+    address nftAsset,
+    uint256 tokenId,
+    address oldOnBehalfOf,
+    address newOnBehalfOf
+  ) external override onlyDebtMarket {
+    DataTypes.NftData memory nftData = ILendPool(_addressesProvider.getLendPool()).getNftData(nftAsset);
+
+    require(_userNftCollateral[oldOnBehalfOf][nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
+
+    _userNftCollateral[oldOnBehalfOf][nftAsset] -= 1;
+    _userNftCollateral[newOnBehalfOf][nftAsset] += 1;
+
+    uint256 loanId = _nftToLoanIds[nftAsset][tokenId];
+
+    DataTypes.LoanData storage loan = _loans[loanId];
+    loan.borrower = newOnBehalfOf;
+
+    IUNFT(nftData.uNftAddress).burn(tokenId);
+    IUNFT(nftData.uNftAddress).mint(newOnBehalfOf, tokenId);
   }
 
+  /*//////////////////////////////////////////////////////////////
+                        INTERNALS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @dev returns the LendPool address
+   */
+  function _getLendPool() internal view returns (ILendPool) {
+    return ILendPool(_addressesProvider.getLendPool());
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                        GETTERS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @inheritdoc ILendPoolLoan
    */
@@ -495,41 +548,9 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   }
 
   /**
-   * @dev returns the LendPool address
-   */
-  function _getLendPool() internal view returns (ILendPool) {
-    return ILendPool(_addressesProvider.getLendPool());
-  }
-
-  /**
    * @inheritdoc ILendPoolLoan
    */
   function getLoanIdTracker() external view override returns (CountersUpgradeable.Counter memory) {
     return _loanIdTracker;
-  }
-
-  /**
-   * @inheritdoc ILendPoolLoan
-   */
-  function reMintUNFT(
-    address nftAsset,
-    uint256 tokenId,
-    address oldOnBehalfOf,
-    address newOnBehalfOf
-  ) external override onlyDebtMarket {
-    DataTypes.NftData memory nftData = ILendPool(_addressesProvider.getLendPool()).getNftData(nftAsset);
-
-    require(_userNftCollateral[oldOnBehalfOf][nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
-
-    _userNftCollateral[oldOnBehalfOf][nftAsset] -= 1;
-    _userNftCollateral[newOnBehalfOf][nftAsset] += 1;
-
-    uint256 loanId = _nftToLoanIds[nftAsset][tokenId];
-
-    DataTypes.LoanData storage loan = _loans[loanId];
-    loan.borrower = newOnBehalfOf;
-
-    IUNFT(nftData.uNftAddress).burn(tokenId);
-    IUNFT(nftData.uNftAddress).mint(newOnBehalfOf, tokenId);
   }
 }

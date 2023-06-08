@@ -11,12 +11,41 @@ import {ILendPoolAddressesProviderRegistry} from "../interfaces/ILendPoolAddress
  * - Used for indexing purposes of Unlockd protocol's markets
  * - The id assigned to a LendPoolAddressesProvider refers to the market it is connected with,
  *   for example with `1` for the Unlockd main market and `2` for the next created
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  **/
 contract LendPoolAddressesProviderRegistry is Ownable, ILendPoolAddressesProviderRegistry {
+  /*//////////////////////////////////////////////////////////////
+                        GENERAL VARIABLES
+  //////////////////////////////////////////////////////////////*/
   mapping(address => uint256) private _addressesProviders;
   address[] private _addressesProvidersList;
 
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @dev Adds provider to addresses provider list
+   * @param provider The provider address to be added
+   */
+  function _addToAddressesProvidersList(address provider) internal {
+    uint256 providersCount = _addressesProvidersList.length;
+
+    for (uint256 i = 0; i < providersCount; ) {
+      if (_addressesProvidersList[i] == provider) {
+        return;
+      }
+
+      unchecked {
+        ++i;
+      }
+    }
+
+    _addressesProvidersList.push(provider);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                        GETTERS & SETTERS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Returns the list of registered addresses provider
    * @return The list of addresses provider, potentially containing address(0) elements
@@ -70,25 +99,5 @@ contract LendPoolAddressesProviderRegistry is Ownable, ILendPoolAddressesProvide
    */
   function getAddressesProviderIdByAddress(address addressesProvider) external view override returns (uint256) {
     return _addressesProviders[addressesProvider];
-  }
-
-  /**
-   * @dev Adds provider to addresses provider list
-   * @param provider The provider address to be added
-   */
-  function _addToAddressesProvidersList(address provider) internal {
-    uint256 providersCount = _addressesProvidersList.length;
-
-    for (uint256 i = 0; i < providersCount; ) {
-      if (_addressesProvidersList[i] == provider) {
-        return;
-      }
-
-      unchecked {
-        ++i;
-      }
-    }
-
-    _addressesProvidersList.push(provider);
   }
 }

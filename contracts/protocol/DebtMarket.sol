@@ -35,6 +35,46 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   using ReserveLogic for DataTypes.ReserveData;
   using PercentageMath for uint256;
 
+  /*//////////////////////////////////////////////////////////////
+                          Structs
+  //////////////////////////////////////////////////////////////*/
+
+  struct TransferLocalVars {
+    address lendPoolLoanAddress;
+    address lendPoolAddress;
+    uint256 loanId;
+    address buyer;
+    uint256 debtId;
+    uint256 borrowAmount;
+  }
+
+  struct BuyLocalVars {
+    uint256 debtId;
+    address lendPoolLoanAddress;
+    uint256 loanId;
+    uint256 price;
+  }
+
+  struct CreateLocalVars {
+    uint256 debtId;
+    bool isValidAuctionType;
+    bool isValidFixedPriceType;
+  }
+
+  struct BidLocalVars {
+    address previousBidder;
+    address lendPoolLoanAddress;
+    uint256 loanId;
+    uint256 previousBidPrice;
+    uint256 borrowAmount;
+    uint256 debtId;
+    uint256 price;
+    uint256 sellPrice;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          GENERAL VARS
+  //////////////////////////////////////////////////////////////*/
   ILendPoolAddressesProvider internal _addressesProvider;
 
   CountersUpgradeable.Counter private _debtIdTracker;
@@ -48,10 +88,16 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   uint256 private _status;
   uint256 private _deltaBidPercent;
 
+  /*//////////////////////////////////////////////////////////////
+                          MEMORY UPDATES
+  //////////////////////////////////////////////////////////////*/
   mapping(address => bool) public isAuthorizedAddress;
 
   bool internal _paused = false;
 
+  /*//////////////////////////////////////////////////////////////
+                          MODIFIERS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
    * Calling a `nonReentrant` function from another `nonReentrant`
@@ -118,36 +164,25 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     _;
   }
 
+  /*//////////////////////////////////////////////////////////////
+                          MODIFIER FUNCTIONS
+  //////////////////////////////////////////////////////////////*/
   function _whenNotPaused() internal view {
     require(!_paused, Errors.DM_IS_PAUSED);
   }
 
-  struct TransferLocalVars {
-    address lendPoolLoanAddress;
-    address lendPoolAddress;
-    uint256 loanId;
-    address buyer;
-    uint256 debtId;
-    uint256 borrowAmount;
-  }
-
-  struct BuyLocalVars {
-    uint256 debtId;
-    address lendPoolLoanAddress;
-    uint256 loanId;
-    uint256 price;
-  }
-
-  struct CreateLocalVars {
-    uint256 debtId;
-    bool isValidAuctionType;
-    bool isValidFixedPriceType;
-  }
+  /*//////////////////////////////////////////////////////////////
+                          INITIALIZATION
+  //////////////////////////////////////////////////////////////*/
 
   function initialize(ILendPoolAddressesProvider addressesProvider) external initializer {
     _addressesProvider = addressesProvider;
     _deltaBidPercent = PercentageMath.ONE_PERCENT;
   }
+
+  /*//////////////////////////////////////////////////////////////
+                          MAIN LOGIC
+  //////////////////////////////////////////////////////////////*/
 
   /**
    * @inheritdoc IDebtMarket
@@ -283,17 +318,6 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     emit DebtSold(loanData.borrower, onBehalfOf, vars.debtId);
   }
 
-  struct BidLocalVars {
-    address previousBidder;
-    address lendPoolLoanAddress;
-    uint256 loanId;
-    uint256 previousBidPrice;
-    uint256 borrowAmount;
-    uint256 debtId;
-    uint256 price;
-    uint256 sellPrice;
-  }
-
   /**
    * @inheritdoc IDebtMarket
    */
@@ -385,6 +409,9 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     emit DebtClaimed(marketListing.debtor, onBehalfOf, vars.debtId);
   }
 
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
   function _createDebt(address nftAsset, uint256 tokenId, uint256 sellPrice, address onBehalfOf) internal {
     require(onBehalfOf != address(0), Errors.VL_INVALID_ONBEHALFOF_ADDRESS);
 
@@ -491,6 +518,10 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     }
     return price;
   }
+
+  /*//////////////////////////////////////////////////////////////
+                          GETTERS & SETTERS
+  //////////////////////////////////////////////////////////////*/
 
   /**
    * @inheritdoc IDebtMarket

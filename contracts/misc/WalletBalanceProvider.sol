@@ -15,7 +15,7 @@ import {DataTypes} from "../libraries/types/DataTypes.sol";
 
 /**
  * @title WalletBalanceProvider contract
- * @author Unlockd, influenced by https://github.com/wbobeirne/eth-balance-checker/blob/master/contracts/BalanceChecker.sol
+ * @author BendDao; Forked and edited by Unlockd, influenced by https://github.com/wbobeirne/eth-balance-checker/blob/master/contracts/BalanceChecker.sol
  * @notice Implements a logic of getting multiple tokens balance for one user address
  * @dev NOTE: THIS CONTRACT IS NOT USED WITHIN THE UNLOCKD PROTOCOL. It's an accessory contract used to reduce the number of calls
  * towards the blockchain from the Unlockd backend.
@@ -50,11 +50,10 @@ contract WalletBalanceProvider {
    * @param tokens The list of tokens
    * @return And array with the concatenation of, for each user, his/her balances
    **/
-  function batchBalanceOfReserve(address[] calldata users, address[] calldata tokens)
-    external
-    view
-    returns (uint256[] memory)
-  {
+  function batchBalanceOfReserve(
+    address[] calldata users,
+    address[] calldata tokens
+  ) external view returns (uint256[] memory) {
     uint256 usersLength = users.length;
     uint256 tokensLength = tokens.length;
 
@@ -79,11 +78,10 @@ contract WalletBalanceProvider {
   /**
     @dev provides balances of user wallet for all reserves available on the pool
     */
-  function getUserReservesBalances(address provider, address user)
-    external
-    view
-    returns (address[] memory, uint256[] memory)
-  {
+  function getUserReservesBalances(
+    address provider,
+    address user
+  ) external view returns (address[] memory, uint256[] memory) {
     ILendPool pool = ILendPool(ILendPoolAddressesProvider(provider).getLendPool());
     address[] memory reserves = pool.getReservesList();
     uint256 reservesLength = reserves.length;
@@ -138,11 +136,10 @@ contract WalletBalanceProvider {
    * @param tokens The list of tokens
    * @return And array with the concatenation of, for each user, his/her balances
    **/
-  function batchBalanceOfNft(address[] calldata users, address[] calldata tokens)
-    external
-    view
-    returns (uint256[] memory)
-  {
+  function batchBalanceOfNft(
+    address[] calldata users,
+    address[] calldata tokens
+  ) external view returns (uint256[] memory) {
     uint256 usersLength = users.length;
     uint256 tokensLength = tokens.length;
     uint256[] memory balances = new uint256[](usersLength * tokensLength);
@@ -166,11 +163,10 @@ contract WalletBalanceProvider {
   /**
     @dev provides balances of user wallet for all nfts available on the pool
     */
-  function getUserNftsBalances(address provider, address user)
-    external
-    view
-    returns (address[] memory, uint256[] memory)
-  {
+  function getUserNftsBalances(
+    address provider,
+    address user
+  ) external view returns (address[] memory, uint256[] memory) {
     ILendPool pool = ILendPool(ILendPoolAddressesProvider(provider).getLendPool());
 
     address[] memory nfts = pool.getNftsList();
@@ -248,11 +244,7 @@ contract WalletBalanceProvider {
             return tokenIds;
           }
         }
-      } catch Error(
-        string memory /*reason*/
-      ) {} catch (
-        bytes memory /*lowLevelData*/
-      ) {}
+      } catch Error(string memory /*reason*/) {} catch (bytes memory /*lowLevelData*/) {}
     }
 
     return tokenIds;

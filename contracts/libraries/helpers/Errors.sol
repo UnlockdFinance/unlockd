@@ -3,7 +3,7 @@ pragma solidity 0.8.4;
 
 /**
  * @title Errors library
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  * @notice Defines the error messages emitted by the different contracts of the Unlockd protocol
  */
 library Errors {

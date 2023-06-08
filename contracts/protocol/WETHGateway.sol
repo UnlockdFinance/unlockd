@@ -17,6 +17,17 @@ import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {EmergencyTokenRecoveryUpgradeable} from "./EmergencyTokenRecoveryUpgradeable.sol";
 
 contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRecoveryUpgradeable {
+  /*//////////////////////////////////////////////////////////////
+                          Structs
+  //////////////////////////////////////////////////////////////*/
+  struct GuardVars {
+    ILendPoolLoan cachedPoolLoan;
+    uint256 loanId;
+    DataTypes.LoanData loan;
+  }
+  /*//////////////////////////////////////////////////////////////
+                        GENERAL VARIABLES
+  //////////////////////////////////////////////////////////////*/
   ILendPoolAddressesProvider internal _addressProvider;
 
   IWETH internal WETH;
@@ -26,12 +37,9 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
   uint256 private constant _NOT_ENTERED = 0;
   uint256 private constant _ENTERED = 1;
   uint256 private _status;
-
-  struct GuardVars {
-    ILendPoolLoan cachedPoolLoan;
-    uint256 loanId;
-    DataTypes.LoanData loan;
-  }
+  /*//////////////////////////////////////////////////////////////
+                          MODIFIERS
+  //////////////////////////////////////////////////////////////*/
   modifier loanReserveShouldBeWETH(address nftAsset, uint256 tokenId) {
     GuardVars memory vars;
     vars.cachedPoolLoan = _getLendPoolLoan();
@@ -65,6 +73,9 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     _status = _NOT_ENTERED;
   }
 
+  /*//////////////////////////////////////////////////////////////
+                          INITIALIZERS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Sets the WETH address and the LendPoolAddressesProvider address. Infinite approves lend pool.
    * @param weth Address of the Wrapped Ether contract
@@ -80,20 +91,26 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     WETH.approve(address(_getLendPool()), type(uint256).max);
   }
 
+  /*//////////////////////////////////////////////////////////////
+                    Fallback and Receive Functions
+  //////////////////////////////////////////////////////////////*/
   /**
-   * @notice returns the LendPool address
+   * @dev Only WETH contract is allowed to transfer ETH here. Prevent other addresses to send Ether to this contract.
    */
-  function _getLendPool() internal view returns (ILendPool) {
-    return ILendPool(_addressProvider.getLendPool());
+  receive() external payable {
+    require(msg.sender == address(WETH), "Receive not allowed");
   }
 
   /**
-   * @notice returns the LendPoolLoan address
+   * @dev Revert fallback calls
    */
-  function _getLendPoolLoan() internal view returns (ILendPoolLoan) {
-    return ILendPoolLoan(_addressProvider.getLendPoolLoan());
+  fallback() external payable {
+    revert("Fallback not allowed");
   }
 
+  /*//////////////////////////////////////////////////////////////
+                          MAIN LOGIC
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev approves the lendpool for the given NFT assets
    * @param nftAssets the array of nft assets
@@ -123,25 +140,6 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
         ++i;
       }
     }
-  }
-
-  /**
-   * @dev checks if caller is whitelisted
-   * @param caller the caller to check
-   */
-  function isCallerInWhitelist(address caller) external view returns (bool) {
-    return _callerWhitelists[caller];
-  }
-
-  /**
-   * @dev checks if caller's approved address is valid
-   * @param onBehalfOf the address to check approval of the caller
-   */
-  function _checkValidCallerAndOnBehalfOf(address onBehalfOf) internal view {
-    require(
-      (onBehalfOf == _msgSender()) || (_callerWhitelists[_msgSender()] == true),
-      Errors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST
-    );
   }
 
   /**
@@ -219,35 +217,6 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     }
 
     return (repayAmount, repayAll);
-  }
-
-  /**
-   * @dev repays a borrow on the WETH reserve, for the specified amount (or for the whole amount, if uint256(-1) is specified).
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param nftTokenId The token ID of the underlying NFT used as collateral
-   * @param amount the amount to repay, or uint256(-1) if the user wants to repay everything
-   * @param accAmount the accumulated amount
-   */
-  function _repayETH(
-    address nftAsset,
-    uint256 nftTokenId,
-    uint256 amount,
-    uint256 accAmount
-  ) internal loanReserveShouldBeWETH(nftAsset, nftTokenId) returns (uint256, bool) {
-    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
-    uint256 loanId = cachedPoolLoan.getCollateralLoanId(nftAsset, nftTokenId);
-    (, uint256 repayDebtAmount) = cachedPoolLoan.getLoanReserveBorrowAmount(loanId);
-
-    if (amount < repayDebtAmount) {
-      repayDebtAmount = amount;
-    }
-
-    require(msg.value >= (accAmount + repayDebtAmount), "msg.value is less than repay amount");
-
-    WETH.deposit{value: repayDebtAmount}();
-    (uint256 paybackAmount, bool burn) = _getLendPool().repay(nftAsset, nftTokenId, amount);
-
-    return (paybackAmount, burn);
   }
 
   function auctionETH(
@@ -372,6 +341,38 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     cachedPool.buyout(nftAsset, nftTokenId, msg.value, onBehalfOf);
   }
 
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @dev repays a borrow on the WETH reserve, for the specified amount (or for the whole amount, if uint256(-1) is specified).
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   * @param amount the amount to repay, or uint256(-1) if the user wants to repay everything
+   * @param accAmount the accumulated amount
+   */
+  function _repayETH(
+    address nftAsset,
+    uint256 nftTokenId,
+    uint256 amount,
+    uint256 accAmount
+  ) internal loanReserveShouldBeWETH(nftAsset, nftTokenId) returns (uint256, bool) {
+    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
+    uint256 loanId = cachedPoolLoan.getCollateralLoanId(nftAsset, nftTokenId);
+    (, uint256 repayDebtAmount) = cachedPoolLoan.getLoanReserveBorrowAmount(loanId);
+
+    if (amount < repayDebtAmount) {
+      repayDebtAmount = amount;
+    }
+
+    require(msg.value >= (accAmount + repayDebtAmount), "msg.value is less than repay amount");
+
+    WETH.deposit{value: repayDebtAmount}();
+    (uint256 paybackAmount, bool burn) = _getLendPool().repay(nftAsset, nftTokenId, amount);
+
+    return (paybackAmount, burn);
+  }
+
   /**
    * @dev transfer ETH to an address, revert if it fails.
    * @param to recipient of the transfer
@@ -383,23 +384,45 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
   }
 
   /**
+   * @notice returns the LendPool address
+   */
+  function _getLendPool() internal view returns (ILendPool) {
+    return ILendPool(_addressProvider.getLendPool());
+  }
+
+  /**
+   * @notice returns the LendPoolLoan address
+   */
+  function _getLendPoolLoan() internal view returns (ILendPoolLoan) {
+    return ILendPoolLoan(_addressProvider.getLendPoolLoan());
+  }
+
+  /**
+   * @dev checks if caller's approved address is valid
+   * @param onBehalfOf the address to check approval of the caller
+   */
+  function _checkValidCallerAndOnBehalfOf(address onBehalfOf) internal view {
+    require(
+      (onBehalfOf == _msgSender()) || (_callerWhitelists[_msgSender()] == true),
+      Errors.CALLER_NOT_ONBEHALFOF_OR_IN_WHITELIST
+    );
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                        GETTERS & SETTERS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @dev checks if caller is whitelisted
+   * @param caller the caller to check
+   */
+  function isCallerInWhitelist(address caller) external view returns (bool) {
+    return _callerWhitelists[caller];
+  }
+
+  /**
    * @dev Get WETH address used by WETHGateway
    */
   function getWETHAddress() external view returns (address) {
     return address(WETH);
-  }
-
-  /**
-   * @dev Only WETH contract is allowed to transfer ETH here. Prevent other addresses to send Ether to this contract.
-   */
-  receive() external payable {
-    require(msg.sender == address(WETH), "Receive not allowed");
-  }
-
-  /**
-   * @dev Revert fallback calls
-   */
-  fallback() external payable {
-    revert("Fallback not allowed");
   }
 }

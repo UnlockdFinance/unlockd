@@ -21,17 +21,21 @@ import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ER
 /**
  * @title ERC20 UToken
  * @dev Implementation of the interest bearing token for the Unlockd protocol
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  */
 contract UToken is Initializable, IUToken, IncentivizedERC20 {
   using WadRayMath for uint256;
   using SafeERC20Upgradeable for IERC20Upgradeable;
-
+  /*//////////////////////////////////////////////////////////////
+                        GENERAL VARIABLES
+  //////////////////////////////////////////////////////////////*/
   ILendPoolAddressesProvider internal _addressProvider;
   address internal _treasury;
   address internal _underlyingAsset;
   mapping(address => bool) internal _uTokenManagers;
-
+  /*//////////////////////////////////////////////////////////////
+                          MODIFIERS
+  //////////////////////////////////////////////////////////////*/
   modifier onlyLendPool() {
     require(_msgSender() == address(_getLendPool()), Errors.CT_CALLER_MUST_BE_LEND_POOL);
     _;
@@ -47,6 +51,9 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     _;
   }
 
+  /*//////////////////////////////////////////////////////////////
+                          INITIALIZERS
+  //////////////////////////////////////////////////////////////*/
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() initializer {}
 
@@ -79,6 +86,9 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     );
   }
 
+  /*//////////////////////////////////////////////////////////////
+                        MAIN LOGIC
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Burns uTokens from `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
    * - Only callable by the LendPool, as extra state updates there need to be managed
@@ -188,6 +198,91 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   }
 
   /**
+   * @dev Transfers the underlying asset to `target`. Used by the LendPool to transfer
+   * assets in borrow() and withdraw()
+   * @param target The recipient of the uTokens
+   * @param amount The amount getting transferred
+   * @return The amount transferred
+   **/
+  function transferUnderlyingTo(address target, uint256 amount) external override onlyLendPool returns (uint256) {
+    IERC20Upgradeable(_underlyingAsset).safeTransfer(target, amount);
+    return amount;
+  }
+
+  function updateUTokenManagers(address[] calldata managers, bool flag) external override onlyPoolAdmin {
+    uint256 cachedLength = managers.length;
+    for (uint256 i = 0; i < cachedLength; ) {
+      require(managers[i] != address(0), Errors.INVALID_ZERO_ADDRESS);
+      _uTokenManagers[managers[i]] = flag;
+      unchecked {
+        ++i;
+      }
+    }
+    emit UTokenManagersUpdated(managers, flag);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @dev Transfers the uTokens between two users. Validates the transfer
+   * (ie checks for valid HF after the transfer) if required
+   * @param from The source address
+   * @param to The destination address
+   * @param amount The amount getting transferred
+   * @param validate `true` if the transfer needs to be validated
+   **/
+  function _transfer(address from, address to, uint256 amount, bool validate) internal {
+    address underlyingAsset = _underlyingAsset;
+    ILendPool pool = _getLendPool();
+
+    uint256 index = pool.getReserveNormalizedIncome(underlyingAsset);
+
+    uint256 fromBalanceBefore = super.balanceOf(from).rayMul(index);
+    uint256 toBalanceBefore = super.balanceOf(to).rayMul(index);
+
+    super._transfer(from, to, amount.rayDiv(index));
+
+    if (validate) {
+      pool.finalizeTransfer(underlyingAsset, from, to, amount, fromBalanceBefore, toBalanceBefore);
+    }
+
+    emit BalanceTransfer(from, to, amount, index);
+  }
+
+  /**
+   * @dev Overrides the parent _transfer to force validated transfer() and transferFrom()
+   * @param from The source address
+   * @param to The destination address
+   * @param amount The amount getting transferred
+   **/
+  function _transfer(address from, address to, uint256 amount) internal override {
+    _transfer(from, to, amount, true);
+  }
+
+  /**
+   * @dev For internal usage in the logic of the parent contract IncentivizedERC20
+   **/
+  function _getIncentivesController() internal view override returns (IIncentivesController) {
+    return IIncentivesController(_addressProvider.getIncentivesController());
+  }
+
+  function _getUnderlyingAssetAddress() internal view override returns (address) {
+    return _underlyingAsset;
+  }
+
+  function _getLendPool() internal view returns (ILendPool) {
+    return ILendPool(_addressProvider.getLendPool());
+  }
+
+  function _getLendPoolConfigurator() internal view returns (ILendPoolConfigurator) {
+    return ILendPoolConfigurator(_addressProvider.getLendPoolConfigurator());
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                      GETTERS & SETTERS
+  //////////////////////////////////////////////////////////////*/
+  /**
    * @dev Calculates the balance of the user: principal balance + interest generated by the principal
    * @param user The user whose balance is calculated
    * @return The balance of the user
@@ -251,6 +346,13 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   }
 
   /**
+   * @dev Returns the address of the Unlockd treasury, receiving the fees on this uToken
+   **/
+  function RESERVE_TREASURY_ADDRESS() public view override returns (address) {
+    return _treasury;
+  }
+
+  /**
    * @dev Sets new treasury to the specified UToken
    * @param treasury the new treasury address
    **/
@@ -258,13 +360,6 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     require(treasury != address(0), Errors.INVALID_ZERO_ADDRESS);
     _treasury = treasury;
     emit TreasuryAddressUpdated(treasury);
-  }
-
-  /**
-   * @dev Returns the address of the Unlockd treasury, receiving the fees on this uToken
-   **/
-  function RESERVE_TREASURY_ADDRESS() public view override returns (address) {
-    return _treasury;
   }
 
   /**
@@ -282,88 +377,9 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   }
 
   /**
-   * @dev For internal usage in the logic of the parent contract IncentivizedERC20
-   **/
-  function _getIncentivesController() internal view override returns (IIncentivesController) {
-    return IIncentivesController(_addressProvider.getIncentivesController());
-  }
-
-  function _getUnderlyingAssetAddress() internal view override returns (address) {
-    return _underlyingAsset;
-  }
-
-  /**
    * @dev Returns the address of the incentives controller contract
    **/
   function getIncentivesController() external view override returns (IIncentivesController) {
     return _getIncentivesController();
-  }
-
-  /**
-   * @dev Transfers the underlying asset to `target`. Used by the LendPool to transfer
-   * assets in borrow() and withdraw()
-   * @param target The recipient of the uTokens
-   * @param amount The amount getting transferred
-   * @return The amount transferred
-   **/
-  function transferUnderlyingTo(address target, uint256 amount) external override onlyLendPool returns (uint256) {
-    IERC20Upgradeable(_underlyingAsset).safeTransfer(target, amount);
-    return amount;
-  }
-
-  function updateUTokenManagers(address[] calldata managers, bool flag) external override onlyPoolAdmin {
-    uint256 cachedLength = managers.length;
-    for (uint256 i = 0; i < cachedLength; ) {
-      require(managers[i] != address(0), Errors.INVALID_ZERO_ADDRESS);
-      _uTokenManagers[managers[i]] = flag;
-      unchecked {
-        ++i;
-      }
-    }
-    emit UTokenManagersUpdated(managers, flag);
-  }
-
-  function _getLendPool() internal view returns (ILendPool) {
-    return ILendPool(_addressProvider.getLendPool());
-  }
-
-  function _getLendPoolConfigurator() internal view returns (ILendPoolConfigurator) {
-    return ILendPoolConfigurator(_addressProvider.getLendPoolConfigurator());
-  }
-
-  /**
-   * @dev Transfers the uTokens between two users. Validates the transfer
-   * (ie checks for valid HF after the transfer) if required
-   * @param from The source address
-   * @param to The destination address
-   * @param amount The amount getting transferred
-   * @param validate `true` if the transfer needs to be validated
-   **/
-  function _transfer(address from, address to, uint256 amount, bool validate) internal {
-    address underlyingAsset = _underlyingAsset;
-    ILendPool pool = _getLendPool();
-
-    uint256 index = pool.getReserveNormalizedIncome(underlyingAsset);
-
-    uint256 fromBalanceBefore = super.balanceOf(from).rayMul(index);
-    uint256 toBalanceBefore = super.balanceOf(to).rayMul(index);
-
-    super._transfer(from, to, amount.rayDiv(index));
-
-    if (validate) {
-      pool.finalizeTransfer(underlyingAsset, from, to, amount, fromBalanceBefore, toBalanceBefore);
-    }
-
-    emit BalanceTransfer(from, to, amount, index);
-  }
-
-  /**
-   * @dev Overrides the parent _transfer to force validated transfer() and transferFrom()
-   * @param from The source address
-   * @param to The destination address
-   * @param amount The amount getting transferred
-   **/
-  function _transfer(address from, address to, uint256 amount) internal override {
-    _transfer(from, to, amount, true);
   }
 }

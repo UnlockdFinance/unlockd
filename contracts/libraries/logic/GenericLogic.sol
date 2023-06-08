@@ -14,7 +14,7 @@ import {ReserveLogic} from "./ReserveLogic.sol";
 
 /**
  * @title GenericLogic library
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  * @notice Implements protocol-level logic to calculate and validate the state of a user
  */
 library GenericLogic {

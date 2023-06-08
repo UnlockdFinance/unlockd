@@ -6,7 +6,7 @@ import {DataTypes} from "../types/DataTypes.sol";
 
 /**
  * @title ReserveConfiguration library
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  * @notice Implements the bitmap logic to handle the reserve configuration
  */
 library ReserveConfiguration {
@@ -215,16 +215,7 @@ library ReserveConfiguration {
    * @param self The reserve configuration
    * @return The state flags representing active, frozen, borrowing enabled, stableRateBorrowing enabled
    **/
-  function getFlags(DataTypes.ReserveConfigurationMap storage self)
-    internal
-    view
-    returns (
-      bool,
-      bool,
-      bool,
-      bool
-    )
-  {
+  function getFlags(DataTypes.ReserveConfigurationMap storage self) internal view returns (bool, bool, bool, bool) {
     uint256 dataLocal = self.data;
 
     return (
@@ -240,17 +231,9 @@ library ReserveConfiguration {
    * @param self The reserve configuration
    * @return The state params representing ltv, liquidation threshold, liquidation bonus, the reserve decimals
    **/
-  function getParams(DataTypes.ReserveConfigurationMap storage self)
-    internal
-    view
-    returns (
-      uint256,
-      uint256,
-      uint256,
-      uint256,
-      uint256
-    )
-  {
+  function getParams(
+    DataTypes.ReserveConfigurationMap storage self
+  ) internal view returns (uint256, uint256, uint256, uint256, uint256) {
     uint256 dataLocal = self.data;
 
     return (
@@ -267,17 +250,9 @@ library ReserveConfiguration {
    * @param self The reserve configuration
    * @return The state params representing ltv, liquidation threshold, liquidation bonus, the reserve decimals
    **/
-  function getParamsMemory(DataTypes.ReserveConfigurationMap memory self)
-    internal
-    pure
-    returns (
-      uint256,
-      uint256,
-      uint256,
-      uint256,
-      uint256
-    )
-  {
+  function getParamsMemory(
+    DataTypes.ReserveConfigurationMap memory self
+  ) internal pure returns (uint256, uint256, uint256, uint256, uint256) {
     return (
       self.data & ~LTV_MASK,
       (self.data & ~LIQUIDATION_THRESHOLD_MASK) >> LIQUIDATION_THRESHOLD_START_BIT_POSITION,
@@ -292,16 +267,9 @@ library ReserveConfiguration {
    * @param self The reserve configuration
    * @return The state flags representing active, frozen, borrowing enabled, stableRateBorrowing enabled
    **/
-  function getFlagsMemory(DataTypes.ReserveConfigurationMap memory self)
-    internal
-    pure
-    returns (
-      bool,
-      bool,
-      bool,
-      bool
-    )
-  {
+  function getFlagsMemory(
+    DataTypes.ReserveConfigurationMap memory self
+  ) internal pure returns (bool, bool, bool, bool) {
     return (
       (self.data & ~ACTIVE_MASK) != 0,
       (self.data & ~FROZEN_MASK) != 0,

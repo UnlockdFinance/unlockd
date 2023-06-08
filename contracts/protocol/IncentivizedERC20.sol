@@ -12,23 +12,28 @@ import {IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/tok
 /**
  * @title IncentivizedERC20
  * @notice Add Incentivized Logic to ERC20 implementation
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  **/
 abstract contract IncentivizedERC20 is Initializable, IERC20MetadataUpgradeable, ERC20Upgradeable {
+  /*//////////////////////////////////////////////////////////////
+                          GENERAL VARS
+  //////////////////////////////////////////////////////////////*/
   uint8 private _customDecimals;
 
+  uint256[45] private __gap;
+
+  /*//////////////////////////////////////////////////////////////
+                          INITIALIZERS
+  //////////////////////////////////////////////////////////////*/
   function __IncentivizedERC20_init(string memory name_, string memory symbol_, uint8 decimals_) internal initializer {
     __ERC20_init(name_, symbol_);
 
     _customDecimals = decimals_;
   }
 
-  /**
-   * @dev Returns the decimals of the token.
-   */
-  function decimals() public view virtual override(ERC20Upgradeable, IERC20MetadataUpgradeable) returns (uint8) {
-    return _customDecimals;
-  }
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
 
   /**
    * @return Abstract function implemented by the child uToken/debtToken.
@@ -75,5 +80,13 @@ abstract contract IncentivizedERC20 is Initializable, IERC20MetadataUpgradeable,
     }
   }
 
-  uint256[45] private __gap;
+  /*//////////////////////////////////////////////////////////////
+                          GETTERS & SETTERS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @dev Returns the decimals of the token.
+   */
+  function decimals() public view virtual override(ERC20Upgradeable, IERC20MetadataUpgradeable) returns (uint8) {
+    return _customDecimals;
+  }
 }

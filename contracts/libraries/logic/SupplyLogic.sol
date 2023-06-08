@@ -14,7 +14,7 @@ import {ValidationLogic} from "./ValidationLogic.sol";
 
 /**
  * @title SupplyLogic library
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  * @notice Implements the logic to supply feature
  */
 library SupplyLogic {
