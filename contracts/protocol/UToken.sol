@@ -31,6 +31,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
   address internal _treasury;
   address internal _underlyingAsset;
   mapping(address => bool) internal _uTokenManagers;
+
   modifier onlyLendPool() {
     require(_msgSender() == address(_getLendPool()), Errors.CT_CALLER_MUST_BE_LEND_POOL);
     _;
@@ -45,6 +46,9 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
     require(_uTokenManagers[_msgSender()], Errors.CALLER_NOT_UTOKEN_MANAGER);
     _;
   }
+
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() initializer {}
 
   /**
    * @dev Initializes the uToken

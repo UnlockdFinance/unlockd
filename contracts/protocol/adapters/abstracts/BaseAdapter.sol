@@ -91,6 +91,9 @@ abstract contract BaseAdapter is Initializable {
                           INITIALIZATION
   //////////////////////////////////////////////////////////////*/
 
+  /// @custom:oz -upgrades -unsafe -allow constructor
+  constructor() initializer {}
+
   /**
    * @notice Initialize a new Adapter.
    * @param provider The address of the LendPoolAddressesProvider.

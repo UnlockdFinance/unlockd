@@ -144,7 +144,7 @@
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "InterestRate": {
-    "address": "0x2bDc03E97c90C269099931986078fb9e353a65C6",
+    "address": "0x4491422C0545fc4000C247E6B6B47D4Ba30B8519",
     "deployer": "0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15"
   },
   "rateStrategyWETH": {

@@ -47,7 +47,9 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   uint256 private constant _ENTERED = 1;
   uint256 private _status;
   uint256 private _deltaBidPercent;
+
   mapping(address => bool) public isAuthorizedAddress;
+
   bool internal _paused = false;
 
   /**
