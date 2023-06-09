@@ -24,7 +24,9 @@ import {Errors} from "../../libraries/helpers/Errors.sol";
 library ConfiguratorLogic {
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
   using NftConfiguration for DataTypes.NftConfigurationMap;
-
+  /*//////////////////////////////////////////////////////////////
+                          EVENTS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Emitted when a reserve is initialized.
    * @param asset The address of the underlying asset of the reserve
@@ -62,6 +64,9 @@ library ConfiguratorLogic {
    **/
   event DebtTokenUpgraded(address indexed asset, address indexed proxy, address indexed implementation);
 
+  /*//////////////////////////////////////////////////////////////
+                        MAIN LOGIC
+  //////////////////////////////////////////////////////////////*/
   /**
    * @notice Initializes a reserve
    * @dev Emits the `ReserveInitialized()` event.
@@ -170,15 +175,9 @@ library ConfiguratorLogic {
     emit DebtTokenUpgraded(input.asset, reserveData.debtTokenAddress, input.implementation);
   }
 
-  /**
-   * @notice Gets the token implementation contract
-   * @param proxyAddress The proxy contract to fetch the implementation from
-   */
-  function getTokenImplementation(address proxyAddress) external view returns (address) {
-    UnlockdUpgradeableProxy proxy = UnlockdUpgradeableProxy(payable(proxyAddress));
-    return proxy.getImplementation();
-  }
-
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @notice Initializes the proxy contract
    * @param implementation The proxy contract
@@ -208,5 +207,17 @@ library ConfiguratorLogic {
     } else {
       proxy.upgradeTo(implementation);
     }
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                      GETTERS & SETTERS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @notice Gets the token implementation contract
+   * @param proxyAddress The proxy contract to fetch the implementation from
+   */
+  function getTokenImplementation(address proxyAddress) external view returns (address) {
+    UnlockdUpgradeableProxy proxy = UnlockdUpgradeableProxy(payable(proxyAddress));
+    return proxy.getImplementation();
   }
 }

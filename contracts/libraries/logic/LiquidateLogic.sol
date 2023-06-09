@@ -38,7 +38,9 @@ library LiquidateLogic {
   using ReserveLogic for DataTypes.ReserveData;
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
   using NftConfiguration for DataTypes.NftConfigurationMap;
-
+  /*//////////////////////////////////////////////////////////////
+                          EVENTS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Emitted when a borrower's loan is auctioned.
    * @param user The address of the user initiating the auction
@@ -122,7 +124,9 @@ library LiquidateLogic {
     address onBehalfOf,
     uint256 indexed loanId
   );
-
+  /*//////////////////////////////////////////////////////////////
+                          Structs
+  //////////////////////////////////////////////////////////////*/
   struct AuctionLocalVars {
     address loanAddress;
     address reserveOracle;
@@ -137,6 +141,60 @@ library LiquidateLogic {
     uint256 extraAuctionDuration;
   }
 
+  struct RedeemLocalVars {
+    address initiator;
+    address poolLoan;
+    address reserveOracle;
+    address nftOracle;
+    address uToken;
+    address debtMarket;
+    uint256 loanId;
+    uint256 borrowAmount;
+    uint256 repayAmount;
+    uint256 minRepayAmount;
+    uint256 maxRepayAmount;
+    uint256 bidFine;
+    uint256 redeemEndTimestamp;
+    uint256 minBidFinePct;
+    uint256 minBidFine;
+    uint256 extraRedeemDuration;
+    uint256 liquidationThreshold;
+  }
+
+  struct LiquidateLocalVars {
+    address initiator;
+    address poolLoan;
+    address reserveOracle;
+    address nftOracle;
+    address uToken;
+    address debtMarket;
+    uint256 loanId;
+    uint256 borrowAmount;
+    uint256 extraDebtAmount;
+    uint256 remainAmount;
+    uint256 auctionEndTimestamp;
+    uint256 extraAuctionDuration;
+  }
+
+  struct BuyoutLocalVars {
+    address initiator;
+    address onBehalfOf;
+    address poolLoan;
+    address reserveOracle;
+    address nftOracle;
+    address debtMarket;
+    uint256 loanId;
+    uint256 borrowAmount;
+    uint256 remainAmount;
+    uint256 bidFine;
+    uint256 nftPrice;
+    address lockeysCollection;
+    address lockeyManagerAddress;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          MAIN LOGIC
+  //////////////////////////////////////////////////////////////*/
   /**
    * @notice Implements the auction feature. Through `auction()`, users auction assets in the protocol.
    * @dev Emits the `Auction()` event.
@@ -257,26 +315,6 @@ library LiquidateLogic {
       loanData.borrower,
       vars.loanId
     );
-  }
-
-  struct RedeemLocalVars {
-    address initiator;
-    address poolLoan;
-    address reserveOracle;
-    address nftOracle;
-    address uToken;
-    address debtMarket;
-    uint256 loanId;
-    uint256 borrowAmount;
-    uint256 repayAmount;
-    uint256 minRepayAmount;
-    uint256 maxRepayAmount;
-    uint256 bidFine;
-    uint256 redeemEndTimestamp;
-    uint256 minBidFinePct;
-    uint256 minBidFine;
-    uint256 extraRedeemDuration;
-    uint256 liquidationThreshold;
   }
 
   /**
@@ -424,21 +462,6 @@ library LiquidateLogic {
     return (vars.repayAmount + vars.bidFine);
   }
 
-  struct LiquidateLocalVars {
-    address initiator;
-    address poolLoan;
-    address reserveOracle;
-    address nftOracle;
-    address uToken;
-    address debtMarket;
-    uint256 loanId;
-    uint256 borrowAmount;
-    uint256 extraDebtAmount;
-    uint256 remainAmount;
-    uint256 auctionEndTimestamp;
-    uint256 extraAuctionDuration;
-  }
-
   /**
    * @notice Implements the liquidate feature. Through `liquidate()`, users liquidate assets in the protocol.
    * @dev Emits the `Liquidate()` event.
@@ -580,22 +603,6 @@ library LiquidateLogic {
     );
 
     return (vars.extraDebtAmount);
-  }
-
-  struct BuyoutLocalVars {
-    address initiator;
-    address onBehalfOf;
-    address poolLoan;
-    address reserveOracle;
-    address nftOracle;
-    address debtMarket;
-    uint256 loanId;
-    uint256 borrowAmount;
-    uint256 remainAmount;
-    uint256 bidFine;
-    uint256 nftPrice;
-    address lockeysCollection;
-    address lockeyManagerAddress;
   }
 
   /**

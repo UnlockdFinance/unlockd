@@ -35,7 +35,9 @@ library BorrowLogic {
   using PercentageMath for uint256;
   using SafeERC20Upgradeable for IERC20Upgradeable;
   using ReserveLogic for DataTypes.ReserveData;
-
+  /*//////////////////////////////////////////////////////////////
+                          EVENTS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Emitted on borrow() when loan needs to be opened
    * @param user The address of the user initiating the borrow(), receiving the funds
@@ -77,7 +79,9 @@ library BorrowLogic {
     address indexed borrower,
     uint256 loanId
   );
-
+  /*//////////////////////////////////////////////////////////////
+                          Structs
+  //////////////////////////////////////////////////////////////*/
   struct ExecuteBorrowLocalVars {
     address initiator;
     uint256 ltv;
@@ -90,6 +94,19 @@ library BorrowLogic {
     uint256 totalSupply;
   }
 
+  struct RepayLocalVars {
+    address initiator;
+    address poolLoan;
+    address onBehalfOf;
+    uint256 loanId;
+    bool isUpdate;
+    uint256 borrowAmount;
+    uint256 repayAmount;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          MAIN LOGIC
+  //////////////////////////////////////////////////////////////*/
   /**
    * @notice Implements the borrow feature. Through `borrow()`, users borrow assets from the protocol.
    * @dev Emits the `Borrow()` event.
@@ -108,6 +125,26 @@ library BorrowLogic {
     _borrow(addressesProvider, reservesData, nftsData, nftsConfig, params);
   }
 
+  /**
+   * @notice Implements the repay feature. Through `repay()`, users repay assets to the protocol.
+   * @dev Emits the `Repay()` event.
+   * @param reservesData The state of all the reserves
+   * @param nftsData The state of nfts
+   * @param params The additional parameters needed to execute the repay function
+   */
+  function executeRepay(
+    ILendPoolAddressesProvider addressesProvider,
+    mapping(address => DataTypes.ReserveData) storage reservesData,
+    mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
+    DataTypes.ExecuteRepayParams memory params
+  ) external returns (uint256, bool) {
+    return _repay(addressesProvider, reservesData, nftsData, nftsConfig, params);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @notice Implements the borrow feature. Through `_borrow()`, users borrow assets from the protocol.
    * @dev Emits the `Borrow()` event.
@@ -212,33 +249,6 @@ library BorrowLogic {
       vars.loanId,
       params.referralCode
     );
-  }
-
-  struct RepayLocalVars {
-    address initiator;
-    address poolLoan;
-    address onBehalfOf;
-    uint256 loanId;
-    bool isUpdate;
-    uint256 borrowAmount;
-    uint256 repayAmount;
-  }
-
-  /**
-   * @notice Implements the repay feature. Through `repay()`, users repay assets to the protocol.
-   * @dev Emits the `Repay()` event.
-   * @param reservesData The state of all the reserves
-   * @param nftsData The state of nfts
-   * @param params The additional parameters needed to execute the repay function
-   */
-  function executeRepay(
-    ILendPoolAddressesProvider addressesProvider,
-    mapping(address => DataTypes.ReserveData) storage reservesData,
-    mapping(address => DataTypes.NftData) storage nftsData,
-    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    DataTypes.ExecuteRepayParams memory params
-  ) external returns (uint256, bool) {
-    return _repay(addressesProvider, reservesData, nftsData, nftsConfig, params);
   }
 
   /**
