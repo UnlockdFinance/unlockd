@@ -56,17 +56,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   using NftConfiguration for DataTypes.NftConfigurationMap;
 
   /*//////////////////////////////////////////////////////////////
-                          STRUCTS
-  //////////////////////////////////////////////////////////////*/
-  struct GetLiquidationPriceLocalVars {
-    address poolLoan;
-    uint256 loanId;
-    uint256 thresholdPrice;
-    uint256 liquidatePrice;
-    uint256 paybackAmount;
-    uint256 remainAmount;
-  }
-  /*//////////////////////////////////////////////////////////////
                           CONSTANT VARIABLES
   //////////////////////////////////////////////////////////////*/
   bytes32 public constant ADDRESS_ID_WETH_GATEWAY = keccak256("WETH_GATEWAY");
@@ -852,7 +841,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   function getReservesList() external view override returns (address[] memory) {
     address[] memory _activeReserves = new address[](_reservesCount);
 
-    for (uint256 i = 0; i != _reservesCount; ) {
+    for (uint256 i; i != _reservesCount; ) {
       _activeReserves[i] = _reservesList[i];
       unchecked {
         ++i;
@@ -866,10 +855,10 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    **/
   function getNftsList() external view override returns (address[] memory) {
     address[] memory _activeNfts = new address[](_nftsCount);
-    for (uint256 i = 0; i != _nftsCount; ) {
+    for (uint256 i; i != _nftsCount; ) {
       _activeNfts[i] = _nftsList[i];
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
     return _activeNfts;

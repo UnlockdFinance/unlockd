@@ -51,7 +51,7 @@ contract UnlockdProtocolDataProvider {
     address[] memory reserves = pool.getReservesList();
     uint256 reservesLength = reserves.length;
     ReserveTokenData[] memory reservesTokens = new ReserveTokenData[](reservesLength);
-    for (uint256 i = 0; i < reservesLength; ) {
+    for (uint256 i; i < reservesLength; ) {
       DataTypes.ReserveData memory reserveData = pool.getReserveData(reserves[i]);
       reservesTokens[i] = ReserveTokenData({
         tokenSymbol: IERC20Detailed(reserves[i]).symbol(),
@@ -95,7 +95,7 @@ contract UnlockdProtocolDataProvider {
     address[] memory nfts = pool.getNftsList();
     uint256 nftsLength = nfts.length;
     NftTokenData[] memory nftTokens = new NftTokenData[](nftsLength);
-    for (uint256 i = 0; i < nftsLength; ) {
+    for (uint256 i; i < nftsLength; ) {
       DataTypes.NftData memory nftData = pool.getNftData(nfts[i]);
       nftTokens[i] = NftTokenData({
         nftSymbol: IERC721Detailed(nfts[i]).symbol(),
@@ -105,7 +105,7 @@ contract UnlockdProtocolDataProvider {
       });
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
     return nftTokens;

@@ -117,11 +117,11 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function batchInitReserve(ConfigTypes.InitReserveInput[] calldata input) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     uint256 inputLength = input.length;
-    for (uint256 i = 0; i < inputLength; ) {
+    for (uint256 i; i < inputLength; ) {
       ConfiguratorLogic.executeInitReserve(_addressesProvider, cachedPool, input[i]);
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
   }
@@ -133,7 +133,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function batchConfigReserve(ConfigReserveInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     uint256 inputLength = inputs.length;
-    for (uint256 i = 0; i < inputLength; ) {
+    for (uint256 i; i < inputLength; ) {
       DataTypes.ReserveConfigurationMap memory currentConfig = cachedPool.getReserveConfiguration(inputs[i].asset);
 
       currentConfig.setReserveFactor(inputs[i].reserveFactor);
@@ -143,7 +143,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
       emit ReserveFactorChanged(inputs[i].asset, inputs[i].reserveFactor);
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
   }
@@ -156,11 +156,11 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
     ILendPool cachedPool = _getLendPool();
     IUNFTRegistry cachedRegistry = _getUNFTRegistry();
     uint256 inputLength = input.length;
-    for (uint256 i = 0; i < inputLength; ) {
+    for (uint256 i; i < inputLength; ) {
       ConfiguratorLogic.executeInitNft(cachedPool, cachedRegistry, input[i]);
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
   }
@@ -173,7 +173,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function batchConfigNft(ConfigNftInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     uint256 inputsLength = inputs.length;
-    for (uint256 i = 0; i < inputsLength; ) {
+    for (uint256 i; i < inputsLength; ) {
       DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(
         inputs[i].asset,
         inputs[i].tokenId
@@ -231,7 +231,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
       emit NftMaxSupplyAndTokenIdChanged(inputs[i].asset, inputs[i].maxSupply, inputs[i].maxTokenId);
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
   }
@@ -243,11 +243,11 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function updateUToken(ConfigTypes.UpdateUTokenInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     uint256 inputLength = inputs.length;
-    for (uint256 i = 0; i < inputLength; ) {
+    for (uint256 i; i < inputLength; ) {
       ConfiguratorLogic.executeUpdateUToken(cachedPool, inputs[i]);
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
   }
@@ -259,11 +259,11 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function updateDebtToken(ConfigTypes.UpdateDebtTokenInput[] calldata inputs) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     uint256 inputLength = inputs.length;
-    for (uint256 i = 0; i < inputLength; ) {
+    for (uint256 i; i < inputLength; ) {
       ConfiguratorLogic.executeUpdateDebtToken(cachedPool, inputs[i]);
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
   }
@@ -468,12 +468,12 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   function setReserveInterestRateAddress(address[] calldata assets, address rateAddress) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     uint256 assetsLength = assets.length;
-    for (uint256 i = 0; i < assetsLength; ) {
+    for (uint256 i; i < assetsLength; ) {
       cachedPool.setReserveInterestRateAddress(assets[i], rateAddress);
       emit ReserveInterestRateChanged(assets[i], rateAddress);
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
   }
@@ -516,7 +516,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
 
     ILendPool cachedPool = _getLendPool();
 
-    for (uint256 i = 0; i < assetsLength; ) {
+    for (uint256 i; i < assetsLength; ) {
       DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(assets[i], tokenIds[i]);
 
       currentConfig.setActive(flag);
@@ -529,7 +529,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
       }
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
   }
@@ -564,7 +564,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   ) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     uint256 assetsLength = assets.length;
-    for (uint256 i = 0; i < assetsLength; ) {
+    for (uint256 i; i < assetsLength; ) {
       DataTypes.NftConfigurationMap memory currentConfig = cachedPool.getNftConfigByTokenId(assets[i], tokenIds[i]);
 
       currentConfig.setFrozen(flag);
@@ -577,7 +577,7 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
       }
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
   }
@@ -629,13 +629,13 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   ) external onlyPoolAdmin {
     ILendPool cachedPool = _getLendPool();
     uint256 assetsLength = assets.length;
-    for (uint256 i = 0; i < assetsLength; ) {
+    for (uint256 i; i < assetsLength; ) {
       cachedPool.setNftMaxSupplyAndTokenId(assets[i], maxSupply, maxTokenId);
 
       emit NftMaxSupplyAndTokenIdChanged(assets[i], maxSupply, maxTokenId);
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
   }

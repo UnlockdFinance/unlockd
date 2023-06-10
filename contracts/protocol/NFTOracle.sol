@@ -185,7 +185,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   function setCollections(address[] calldata _collections) external onlyOwner {
     uint256 collectionsLength = _collections.length;
 
-    for (uint256 i = 0; i != collectionsLength; ) {
+    for (uint256 i; i != collectionsLength; ) {
       _addCollection(_collections[i]);
       unchecked {
         ++i;
@@ -223,10 +223,10 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
 
     uint256[] memory _nftPrices = new uint256[](collectionsLength);
 
-    for (uint256 i = 0; i != collectionsLength; ) {
+    for (uint256 i; i != collectionsLength; ) {
       _nftPrices[i] = this.getNFTPrice(_collections[i], _tokenIds[i]);
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
 
@@ -243,10 +243,10 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   ) external override onlyPriceManager {
     uint256 collectionsLength = _collections.length;
     if (collectionsLength != _tokenIds.length || collectionsLength != _prices.length) revert ArraysLengthInconsistent();
-    for (uint256 i = 0; i != collectionsLength; ) {
+    for (uint256 i; i != collectionsLength; ) {
       _setNFTPrice(_collections[i], _tokenIds[i], _prices[i]);
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
   }

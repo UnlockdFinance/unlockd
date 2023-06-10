@@ -59,8 +59,8 @@ contract WalletBalanceProvider {
 
     uint256[] memory balances = new uint256[](usersLength * tokensLength);
 
-    for (uint256 i = 0; i < usersLength; ) {
-      for (uint256 j = 0; j < tokensLength; ) {
+    for (uint256 i; i < usersLength; ) {
+      for (uint256 j; j < tokensLength; ) {
         balances[i * tokensLength + j] = balanceOfReserve(users[i], tokens[j]);
         unchecked {
           ++j;
@@ -86,24 +86,24 @@ contract WalletBalanceProvider {
     address[] memory reserves = pool.getReservesList();
     uint256 reservesLength = reserves.length;
     address[] memory reservesWithEth = new address[](reservesLength + 1);
-    for (uint256 i = 0; i < reservesLength; ) {
+    for (uint256 i; i < reservesLength; ) {
       reservesWithEth[i] = reserves[i];
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
     reservesWithEth[reservesLength] = MOCK_ETH_ADDRESS;
 
     uint256[] memory balances = new uint256[](reservesWithEth.length);
 
-    for (uint256 j = 0; j < reservesLength; ) {
+    for (uint256 j; j < reservesLength; ) {
       DataTypes.ReserveConfigurationMap memory configuration = pool.getReserveConfiguration(reservesWithEth[j]);
 
       (bool isActive, , , ) = configuration.getFlagsMemory();
 
       if (!isActive) {
-        balances[j] = 0;
+        delete balances[j];
         continue;
       }
       balances[j] = balanceOfReserve(user, reservesWithEth[j]);
@@ -144,8 +144,8 @@ contract WalletBalanceProvider {
     uint256 tokensLength = tokens.length;
     uint256[] memory balances = new uint256[](usersLength * tokensLength);
 
-    for (uint256 i = 0; i < usersLength; ) {
-      for (uint256 j = 0; j < tokensLength; ) {
+    for (uint256 i; i < usersLength; ) {
+      for (uint256 j; j < tokensLength; ) {
         balances[i * tokensLength + j] = balanceOfNft(users[i], tokens[j]);
         unchecked {
           ++j;
@@ -153,7 +153,7 @@ contract WalletBalanceProvider {
       }
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
 
@@ -173,17 +173,7 @@ contract WalletBalanceProvider {
     uint256 nftsLength = nfts.length;
     uint256[] memory balances = new uint256[](nftsLength);
 
-    for (uint256 j = 0; j < nftsLength; ) {
-      /*
-      DataTypes.NftConfigurationMap memory configuration = pool.getNftConfiguration(nfts[j]);
-
-      (bool isActive, ) = configuration.getFlagsMemory();
-
-      if (!isActive) {
-        balances[j] = 0;
-        continue;
-      }
-      */
+    for (uint256 j; j < nftsLength; ) {
       balances[j] = balanceOfNft(user, nfts[j]);
 
       unchecked {
@@ -205,8 +195,12 @@ contract WalletBalanceProvider {
     uint256 tokenBalances = IERC721Enumerable(token).balanceOf(owner);
 
     uint256[] memory tokenIds = new uint256[](tokenBalances);
-    for (uint256 index = 0; index < tokenBalances; index++) {
+    for (uint256 index; index < tokenBalances; ) {
       tokenIds[index] = IERC721Enumerable(token).tokenOfOwnerByIndex(owner, index);
+
+      unchecked {
+        index = index + 1;
+      }
     }
 
     return tokenIds;
@@ -232,9 +226,9 @@ contract WalletBalanceProvider {
     uint256 tokenBalances = IERC721(token).balanceOf(owner);
 
     uint256[] memory tokenIds = new uint256[](tokenBalances);
-    uint256 pos = 0;
+    uint256 pos;
     uint256 maxTokenId = start + count;
-    for (uint256 tokenId = 0; tokenId < maxTokenId; tokenId++) {
+    for (uint256 tokenId; tokenId < maxTokenId; ) {
       try IERC721(token).ownerOf(tokenId) returns (address tokenOwner) {
         if (tokenOwner == owner) {
           tokenIds[pos] = tokenId;
@@ -245,6 +239,10 @@ contract WalletBalanceProvider {
           }
         }
       } catch Error(string memory /*reason*/) {} catch (bytes memory /*lowLevelData*/) {}
+
+      unchecked {
+        tokenId = tokenId + 1;
+      }
     }
 
     return tokenIds;
@@ -270,9 +268,9 @@ contract WalletBalanceProvider {
     uint256 punkBalances = IPunks(punkContract).balanceOf(owner);
 
     uint256[] memory punkIndexs = new uint256[](punkBalances);
-    uint256 pos = 0;
+    uint256 pos;
     uint256 maxIndex = start + count;
-    for (uint256 punkIndex = 0; punkIndex < maxIndex; punkIndex++) {
+    for (uint256 punkIndex; punkIndex < maxIndex; ) {
       address ownerAddress = IPunks(punkContract).punkIndexToAddress(punkIndex);
       if (ownerAddress != owner) {
         continue;
@@ -283,6 +281,10 @@ contract WalletBalanceProvider {
       //avoid useless loop scan
       if (pos == punkBalances) {
         return punkIndexs;
+      }
+
+      unchecked {
+        punkIndex = punkIndex + 1;
       }
     }
 

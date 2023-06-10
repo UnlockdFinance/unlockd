@@ -84,7 +84,7 @@ contract CryptoPunksMarket is Ownable {
 
   function setInitialOwners(address[] calldata addresses, uint256[] calldata indices) public onlyOwner {
     uint256 n = addresses.length;
-    for (uint256 i = 0; i < n; ) {
+    for (uint256 i; i < n; ) {
       setInitialOwner(addresses[i], indices[i]);
 
       unchecked {

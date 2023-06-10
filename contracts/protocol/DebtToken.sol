@@ -111,7 +111,7 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
 
   function updateTokenManagers(address[] calldata debtTokenManagers, bool flag) external override onlyPoolAdmin {
     uint256 cachedLength = debtTokenManagers.length;
-    for (uint256 i = 0; i < cachedLength; ) {
+    for (uint256 i; i < cachedLength; ) {
       require(debtTokenManagers[i] != address(0), Errors.INVALID_ZERO_ADDRESS);
       _debtTokenManagers[debtTokenManagers[i]] = flag;
       unchecked {

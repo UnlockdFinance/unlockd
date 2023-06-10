@@ -30,7 +30,7 @@ contract LendPoolAddressesProviderRegistry is Ownable, ILendPoolAddressesProvide
   function _addToAddressesProvidersList(address provider) internal {
     uint256 providersCount = _addressesProvidersList.length;
 
-    for (uint256 i = 0; i < providersCount; ) {
+    for (uint256 i; i < providersCount; ) {
       if (_addressesProvidersList[i] == provider) {
         return;
       }
@@ -57,13 +57,13 @@ contract LendPoolAddressesProviderRegistry is Ownable, ILendPoolAddressesProvide
 
     address[] memory activeProviders = new address[](maxLength);
 
-    for (uint256 i = 0; i < maxLength; ) {
+    for (uint256 i; i < maxLength; ) {
       if (_addressesProviders[addressesProvidersList[i]] > 0) {
         activeProviders[i] = addressesProvidersList[i];
       }
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
 

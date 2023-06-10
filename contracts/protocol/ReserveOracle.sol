@@ -54,7 +54,7 @@ contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext
     delete priceFeedMap[_priceFeedKey];
 
     uint256 length = priceFeedKeys.length;
-    for (uint256 i = 0; i < length; ) {
+    for (uint256 i; i < length; ) {
       if (priceFeedKeys[i] == _priceFeedKey) {
         // if the removal item is the last one, just `pop`
         if (i != length - 1) {
@@ -125,11 +125,11 @@ contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext
   function setAggregators(address[] calldata _priceFeedKeys, address[] calldata _aggregators) external onlyOwner {
     uint256 priceFeedKeysLength = _priceFeedKeys.length;
     require(priceFeedKeysLength == _aggregators.length, "ReserveOracle: INCONSISTENT_PARAMS_LENGTH");
-    for (uint256 i = 0; i < priceFeedKeysLength; ) {
+    for (uint256 i; i < priceFeedKeysLength; ) {
       _addAggregator(_priceFeedKeys[i], _aggregators[i]);
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
   }
@@ -227,13 +227,13 @@ contract ReserveOracle is IReserveOracleGetter, OwnableUpgradeable, BlockContext
    **/
   function isExistedKey(address _priceFeedKey) private view returns (bool) {
     uint256 length = priceFeedKeys.length;
-    for (uint256 i = 0; i < length; ) {
+    for (uint256 i; i < length; ) {
       if (priceFeedKeys[i] == _priceFeedKey) {
         return true;
       }
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
     return false;

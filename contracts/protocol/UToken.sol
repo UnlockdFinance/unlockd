@@ -211,7 +211,7 @@ contract UToken is Initializable, IUToken, IncentivizedERC20 {
 
   function updateUTokenManagers(address[] calldata managers, bool flag) external override onlyPoolAdmin {
     uint256 cachedLength = managers.length;
-    for (uint256 i = 0; i < cachedLength; ) {
+    for (uint256 i; i < cachedLength; ) {
       require(managers[i] != address(0), Errors.INVALID_ZERO_ADDRESS);
       _uTokenManagers[managers[i]] = flag;
       unchecked {

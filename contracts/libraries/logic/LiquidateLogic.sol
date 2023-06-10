@@ -756,7 +756,7 @@ library LiquidateLogic {
       } else if (vars.remainAmount > 0) {
         // Remaining amount can not cover the bid fine, but it is greater than 0
         IERC20Upgradeable(loanData.reserveAsset).safeTransfer(loanData.firstBidderAddress, vars.remainAmount);
-        vars.remainAmount = 0;
+        delete vars.remainAmount;
       }
     }
 

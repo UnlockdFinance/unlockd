@@ -96,12 +96,10 @@ contract UNFTRegistry is IUNFTRegistry, Initializable, OwnableUpgradeable {
   /**
    * @inheritdoc IUNFTRegistry
    */
-  function createUNFTWithImpl(address nftAsset, address uNftImpl)
-    external
-    override
-    onlyOwner
-    returns (address uNftProxy)
-  {
+  function createUNFTWithImpl(
+    address nftAsset,
+    address uNftImpl
+  ) external override onlyOwner returns (address uNftProxy) {
     _requireAddressIsERC721(nftAsset);
     require(uNftImpl != address(0), "UNFTR: implement is zero address");
     require(uNftProxys[nftAsset] == address(0), "UNFTR: asset exist");
@@ -139,9 +137,10 @@ contract UNFTRegistry is IUNFTRegistry, Initializable, OwnableUpgradeable {
    * @inheritdoc IUNFTRegistry
    */
   function addCustomeSymbols(address[] memory nftAssets_, string[] memory symbols_) external override onlyOwner {
-    require(nftAssets_.length == symbols_.length, "UNFTR: inconsistent parameters");
+    uint256 length = nftAssets_.length;
+    require(length == symbols_.length, "UNFTR: inconsistent parameters");
 
-    for (uint256 i = 0; i < nftAssets_.length; ) {
+    for (uint256 i; i < length; ) {
       customSymbols[nftAssets_[i]] = symbols_[i];
 
       unchecked {

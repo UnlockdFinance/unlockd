@@ -161,7 +161,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     // Ensure valid loan state
     require(loan.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
 
-    uint256 amountScaled = 0;
+    uint256 amountScaled;
 
     if (amountAdded > 0) {
       amountScaled = amountAdded.rayDiv(borrowIndex);
@@ -210,7 +210,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     // NOTE: these must be performed before assets are released to prevent reentrance
     _loans[loanId].state = DataTypes.LoanState.Repaid;
 
-    _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
+    delete _nftToLoanIds[loan.nftAsset][loan.nftTokenId];
 
     require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
     _userNftCollateral[loan.borrower][loan.nftAsset] -= 1;
@@ -292,7 +292,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     _loans[loanId].state = DataTypes.LoanState.Defaulted;
     _loans[loanId].bidBorrowAmount = borrowAmount;
 
-    _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
+    delete _nftToLoanIds[loan.nftAsset][loan.nftTokenId];
 
     require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
     _userNftCollateral[loan.borrower][loan.nftAsset] -= 1;
@@ -368,7 +368,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
     _loans[loanId].state = DataTypes.LoanState.Defaulted;
     _loans[loanId].bidBorrowAmount = borrowAmount;
 
-    _nftToLoanIds[loan.nftAsset][loan.nftTokenId] = 0;
+    delete _nftToLoanIds[loan.nftAsset][loan.nftTokenId];
 
     require(_userNftCollateral[loan.borrower][loan.nftAsset] >= 1, Errors.LP_INVALID_USER_NFT_AMOUNT);
     _userNftCollateral[loan.borrower][loan.nftAsset] -= 1;
@@ -427,7 +427,7 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
 
   function updateMarketAdapters(address[] calldata adapters, bool flag) external override onlyPoolAdmin {
     uint256 cachedLength = adapters.length;
-    for (uint256 i = 0; i < cachedLength; ) {
+    for (uint256 i; i < cachedLength; ) {
       require(adapters[i] != address(0), Errors.INVALID_ZERO_ADDRESS);
       _marketAdapters[adapters[i]] = flag;
       unchecked {

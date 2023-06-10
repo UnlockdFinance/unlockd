@@ -199,7 +199,7 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
    **/
   function updateModules(address[] calldata modules, bool flag) external override onlyPoolAdmin {
     uint256 cachedLength = modules.length;
-    for (uint256 i = 0; i < cachedLength; ) {
+    for (uint256 i; i < cachedLength; ) {
       if (modules[i] == address(0)) _revert(InvalidZeroAddress.selector);
       _reservoirModules[modules[i]] = flag;
       unchecked {
@@ -216,11 +216,11 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
    **/
   function updateLiquidators(address[] calldata liquidators, bool flag) external override onlyPoolAdmin {
     uint256 cachedLength = liquidators.length;
-    for (uint256 i = 0; i < cachedLength; ) {
+    for (uint256 i; i < cachedLength; ) {
       if (liquidators[i] == address(0)) _revert(InvalidZeroAddress.selector);
       _liquidators[liquidators[i]] = flag;
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
     emit LiquidatorsUpdated(liquidators, flag);

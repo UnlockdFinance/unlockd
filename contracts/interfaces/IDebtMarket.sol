@@ -5,6 +5,9 @@ import {DataTypes} from "../libraries/types/DataTypes.sol";
 import {CountersUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 
 interface IDebtMarket {
+  /*//////////////////////////////////////////////////////////////
+                          EVENTS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Emitted on initialization to share location of dependent notes
    * @param pool The address of the associated lend pool
@@ -112,74 +115,6 @@ interface IDebtMarket {
   event DebtClaimed(address indexed from, address indexed to, uint256 indexed debtId);
 
   /**
-   * @dev Buy a fixed price debt listing
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param tokenId The token id of the underlying NFT used as collateral
-   * @param onBehalfOf Address of the user who will receive
-   * @param amount Amount in wei
-   */
-  function buy(address nftAsset, uint256 tokenId, address onBehalfOf, uint256 amount) external;
-
-  /**
-   * @dev Bid an auction
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param tokenId The token id of the underlying NFT used as collateral
-   * @param bidPrice Amount in wei
-   * @param onBehalfOf Address of the user who will receive
-   */
-  function bid(address nftAsset, uint256 tokenId, uint256 bidPrice, address onBehalfOf) external;
-
-  /**
-   * @dev Claim a finished auction
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param tokenId The token id of the underlying NFT used as collateral
-   * @param onBehalfOf Address of the user who will receive
-   */
-  function claim(address nftAsset, uint256 tokenId, address onBehalfOf) external;
-
-  /**
-   * @dev Return Debt identifier
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param tokenId The token id of the underlying NFT used as collateral
-   */
-  function getDebtId(address nftAsset, uint256 tokenId) external view returns (uint256);
-
-  /**
-   * @dev Return a Debt listing position
-   * @param debtId The debt listing identifier
-   */
-  function getDebt(uint256 debtId) external view returns (DataTypes.DebtMarketListing memory sellDebt);
-
-  /**
-   * @dev Return a last debt id identifier
-   */
-  function getDebtIdTracker() external view returns (CountersUpgradeable.Counter memory);
-
-  /**
-   * @dev Update the percentage value between 2 bids
-   * @param value delta bid percentage
-   */
-  function setDeltaBidPercent(uint256 value) external;
-
-  /**
-   * @dev Create a debt listing position as a auction
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param tokenId The token id of the underlying NFT used as collateral
-   * @param sellPrice Price to sell in wei,  min bid
-   * @param onBehalfOf Address of the user who will receive
-   * @param startBiddingPrice Price for the initial bid
-   * @param auctionEndTimestamp When the auction will be finished
-   */
-  function createDebtListing(
-    address nftAsset,
-    uint256 tokenId,
-    uint256 sellPrice,
-    address onBehalfOf,
-    uint256 startBiddingPrice,
-    uint256 auctionEndTimestamp
-  ) external;
-
-  /**
    * @dev Emited when a new address is authorized to cancel debt listings
    * @param authorizedAddress Address to authorize
    */
@@ -195,27 +130,40 @@ interface IDebtMarket {
    */
   event Unpaused();
 
-  /**
-   * @dev Close a debt listing position
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param tokenId The token id of the underlying NFT used as collateral
-   */
+  /*//////////////////////////////////////////////////////////////
+                        MAIN LOGIC
+  //////////////////////////////////////////////////////////////*/
+  function createDebtListing(
+    address nftAsset,
+    uint256 tokenId,
+    uint256 sellPrice,
+    address onBehalfOf,
+    uint256 startBiddingPrice,
+    uint256 auctionEndTimestamp
+  ) external;
+
   function cancelDebtListing(address nftAsset, uint256 tokenId) external;
 
-  /**
-   * @dev Sets the authorized address to cancel the debt listing
-   * @param newAuthorizedAddress Address to authorize
-   */
+  function buy(address nftAsset, uint256 tokenId, address onBehalfOf, uint256 amount) external;
+
+  function bid(address nftAsset, uint256 tokenId, uint256 bidPrice, address onBehalfOf) external;
+
+  function claim(address nftAsset, uint256 tokenId, address onBehalfOf) external;
+
+  /*//////////////////////////////////////////////////////////////
+                         GETTERS & SETTERS
+  //////////////////////////////////////////////////////////////*/
+  function getDebtId(address nftAsset, uint256 tokenId) external view returns (uint256);
+
+  function getDebt(uint256 debtId) external view returns (DataTypes.DebtMarketListing memory sellDebt);
+
+  function getDebtIdTracker() external view returns (CountersUpgradeable.Counter memory);
+
+  function setDeltaBidPercent(uint256 value) external;
+
   function setAuthorizedAddress(address newAuthorizedAddress, bool val) external;
 
-  /**
-   * @dev Sets the pause state
-   * @param val Pause state
-   */
-  function setPause(bool val) external;
-
-  /**
-   * @dev Returns true if the contract is paused, and false otherwise.
-   */
   function paused() external view returns (bool);
+
+  function setPause(bool val) external;
 }

@@ -39,6 +39,15 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
                           Structs
   //////////////////////////////////////////////////////////////*/
 
+  /**
+   * @notice Struct containing local variables for the transferDebt function.
+   * @param lendPoolLoanAddress The address of the lend pool loan contract
+   * @param lendPoolAddress The address of the lend pool contract
+   * @param loanId The ID of the loan
+   * @param buyer The address of the buyer
+   * @param debtId The ID of the debt
+   * @param borrowAmount The amount of debt to be transferred
+   */
   struct TransferLocalVars {
     address lendPoolLoanAddress;
     address lendPoolAddress;
@@ -48,6 +57,13 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     uint256 borrowAmount;
   }
 
+  /**
+   * @notice Struct containing local variables for the buy function.
+   * @param debtId The ID of the debt
+   * @param lendPoolLoanAddress The address of the lend pool loan contract
+   * @param loanId The ID of the loan
+   * @param price The price at which the debt is bought
+   */
   struct BuyLocalVars {
     uint256 debtId;
     address lendPoolLoanAddress;
@@ -55,12 +71,29 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
     uint256 price;
   }
 
+  /**
+   * @notice Struct containing local variables for the createDebtListing function.
+   * @param debtId The ID of the debt
+   * @param isValidAuctionType Flag indicating if the auction type is valid
+   * @param isValidFixedPriceType Flag indicating if the fixed price type is valid
+   */
   struct CreateLocalVars {
     uint256 debtId;
     bool isValidAuctionType;
     bool isValidFixedPriceType;
   }
 
+  /**
+   * @notice Struct containing local variables for the bid function.
+   * @param previousBidder The address of the previous bidder
+   * @param lendPoolLoanAddress The address of the lend pool loan contract
+   * @param loanId The ID of the loan
+   * @param previousBidPrice The price of the previous bid
+   * @param borrowAmount The amount of debt to be transferred
+   * @param debtId The ID of the debt
+   * @param price The price of the bid
+   * @param sellPrice The selling price of the debt
+   */
   struct BidLocalVars {
     address previousBidder;
     address lendPoolLoanAddress;
@@ -185,7 +218,19 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   //////////////////////////////////////////////////////////////*/
 
   /**
-   * @inheritdoc IDebtMarket
+   * @dev Allows the user that has a borrow position at Unlockd to sell it
+   * he will create a debt listing with a fixed price or auction.
+   * Fixed Price means that the position will be Sold at the price that the user set
+   * Auction means that the position will be sold to the highest bidder
+   * Take into consideration that the ETH asked will go to the user directly
+   * and that the buyer will receive the uNFT and the debt position
+   * in order to have it he will have to repay the debt.
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param tokenId The token id of the underlying NFT used as collateral
+   * @param sellPrice Price to sell in wei,  min bid
+   * @param onBehalfOf Address of the user who will receive
+   * @param startBiddingPrice Price for the initial bid
+   * @param auctionEndTimestamp When the auction will be finished
    */
   function createDebtListing(
     address nftAsset,
@@ -243,7 +288,11 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   }
 
   /**
-   * @inheritdoc IDebtMarket
+   * @dev Close a debt listing position if there's one. Also if the user that
+   * created a debt listing tries to interact with the protocol, the debt listing
+   * will get canceled automatically: Borrow, Repay or if HF goes below 1.
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param tokenId The token id of the underlying NFT used as collateral
    */
   function cancelDebtListing(
     address nftAsset,
@@ -279,7 +328,11 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   }
 
   /**
-   * @inheritdoc IDebtMarket
+   * @dev Executes the buyout of a debt listing with a fixed price
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param tokenId The token id of the underlying NFT used as collateral
+   * @param onBehalfOf Address of the user who will receive
+   * @param amount Amount in wei
    */
   function buy(
     address nftAsset,
@@ -319,7 +372,11 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   }
 
   /**
-   * @inheritdoc IDebtMarket
+   * @dev If the debt listing is an auction, the user can place a bid
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param tokenId The token id of the underlying NFT used as collateral
+   * @param bidPrice Amount in wei
+   * @param onBehalfOf Address of the user who will receive
    */
   function bid(
     address nftAsset,
@@ -380,7 +437,10 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   }
 
   /**
-   * @inheritdoc IDebtMarket
+   * @dev When an auction finished the buyer can claim the debt position
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param tokenId The token id of the underlying NFT used as collateral
+   * @param onBehalfOf Address of the user who will receive
    */
   function claim(
     address nftAsset,
@@ -522,28 +582,40 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   /*//////////////////////////////////////////////////////////////
                           GETTERS & SETTERS
   //////////////////////////////////////////////////////////////*/
-
   /**
-   * @inheritdoc IDebtMarket
+   * @dev Return Debt identifier
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param tokenId The token id of the underlying NFT used as collateral
    */
-  function setDeltaBidPercent(uint256 value) external override nonReentrant onlyPoolAdmin {
-    require(value <= 10_000, Errors.DM_INVALID_DELTA_BID_PERCENT);
-    _deltaBidPercent = value;
+  function getDebtId(address nftAsset, uint256 tokenId) external view override returns (uint256) {
+    return _nftToDebtIds[nftAsset][tokenId];
   }
 
   /**
-   * @inheritdoc IDebtMarket
+   * @dev Return a Debt listing position
+   * @param debtId The debt listing identifier
    */
-  function setAuthorizedAddress(address newAuthorizedAddress, bool val) external override onlyPoolAdmin {
-    require(newAuthorizedAddress != address(0), Errors.DM_INVALID_AUTHORIZED_ADDRESS);
-    isAuthorizedAddress[newAuthorizedAddress] = val;
-
-    emit AuthorizedAddressChanged(newAuthorizedAddress, val);
+  function getDebt(uint256 debtId) external view override returns (DataTypes.DebtMarketListing memory sellDebt) {
+    return _marketListings[debtId];
   }
 
   /**
-   * @dev Set the _pause state of the debt market
-   * @param val `true` to pause the debt market, `false` to un-pause it
+   * @dev Return a last debt id identifier
+   */
+  function getDebtIdTracker() external view override returns (CountersUpgradeable.Counter memory) {
+    return _debtIdTracker;
+  }
+
+  /**
+   * @dev Returns true if the contract is paused, and false otherwise.
+   */
+  function paused() external view override returns (bool) {
+    return _paused;
+  }
+
+  /**
+   * @dev Sets the pause state
+   * @param val Pause state
    */
   function setPause(bool val) external override onlyPoolAdmin {
     if (_paused != val) {
@@ -557,30 +629,22 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   }
 
   /**
-   * @dev Returns true if the contract is paused, and false otherwise.
+   * @dev Update the percentage value between 2 bids
+   * @param value delta bid percentage
    */
-  function paused() external view override returns (bool) {
-    return _paused;
+  function setDeltaBidPercent(uint256 value) external override nonReentrant onlyPoolAdmin {
+    require(value <= 10_000, Errors.DM_INVALID_DELTA_BID_PERCENT);
+    _deltaBidPercent = value;
   }
 
   /**
-   * @inheritdoc IDebtMarket
+   * @dev Sets the authorized address to cancel the debt listing
+   * @param newAuthorizedAddress Address to authorize
    */
-  function getDebtId(address nftAsset, uint256 tokenId) external view override returns (uint256) {
-    return _nftToDebtIds[nftAsset][tokenId];
-  }
+  function setAuthorizedAddress(address newAuthorizedAddress, bool val) external override onlyPoolAdmin {
+    require(newAuthorizedAddress != address(0), Errors.DM_INVALID_AUTHORIZED_ADDRESS);
+    isAuthorizedAddress[newAuthorizedAddress] = val;
 
-  /**
-   * @inheritdoc IDebtMarket
-   */
-  function getDebt(uint256 debtId) external view override returns (DataTypes.DebtMarketListing memory sellDebt) {
-    return _marketListings[debtId];
-  }
-
-  /**
-   * @inheritdoc IDebtMarket
-   */
-  function getDebtIdTracker() external view override returns (CountersUpgradeable.Counter memory) {
-    return _debtIdTracker;
+    emit AuthorizedAddressChanged(newAuthorizedAddress, val);
   }
 }

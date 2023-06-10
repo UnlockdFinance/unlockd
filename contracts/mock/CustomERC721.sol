@@ -34,11 +34,11 @@ contract CustomERC721 is ERC721Enumerable {
     if (to == address(0)) revert ZeroAddress();
     if (_currTokenId + amount >= MAX_SUPPLY) revert MaxSupplyReached();
 
-    for (uint256 i = 0; i < amount; ) {
+    for (uint256 i; i < amount; ) {
       _mint(to, _currTokenId);
       unchecked {
         ++i;
-        ++_currTokenId;
+        _currTokenId = _currTokenId + 1;
       }
     }
     return true;

@@ -20,6 +20,12 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
   /*//////////////////////////////////////////////////////////////
                           Structs
   //////////////////////////////////////////////////////////////*/
+  /**
+   * @notice Struct containing local variables for the Guard modifier.
+   * @param cachedPoolLoan The cached instance of the lend pool loan contract.
+   * @param loanId The ID of the loan.
+   * @param loan The loan data.
+   */
   struct GuardVars {
     ILendPoolLoan cachedPoolLoan;
     uint256 loanId;
@@ -117,7 +123,7 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
    */
   function authorizeLendPoolNFT(address[] calldata nftAssets) external nonReentrant onlyOwner {
     uint256 nftAssetsLength = nftAssets.length;
-    for (uint256 i = 0; i < nftAssetsLength; ) {
+    for (uint256 i; i < nftAssetsLength; ) {
       IERC721Upgradeable(nftAssets[i]).setApprovalForAll(address(_getLendPool()), true);
 
       unchecked {
@@ -133,11 +139,11 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
    */
   function authorizeCallerWhitelist(address[] calldata callers, bool flag) external nonReentrant onlyOwner {
     uint256 callerLength = callers.length;
-    for (uint256 i = 0; i < callerLength; ) {
+    for (uint256 i; i < callerLength; ) {
       _callerWhitelists[callers[i]] = flag;
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
   }
