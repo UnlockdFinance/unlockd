@@ -40,5 +40,6 @@ jobs:
       - name: Test
         run: npm run test
         env: 
-          FORK: mainnet
+          FORK: main
+          FORK_BLOCK_NUMBER: 16784435
           RPC_ENDPOINT: https://eth-mainnet.g.alchemy.com/v2/y4KsllNNT0Wcjb9hVb3NwpJFqh8k185q
