@@ -58,6 +58,10 @@ contract LendPoolConfigurator is Initializable, ILendPoolConfigurator {
   /*//////////////////////////////////////////////////////////////
                         INITIALIZERS
   //////////////////////////////////////////////////////////////*/
+
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() initializer {}
+
   /**
    * @dev Function is invoked by the proxy contract when the LendPoolConfigurator contract is added to the
    * LendPoolAddressesProvider of the market.

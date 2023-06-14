@@ -31,10 +31,15 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
   //////////////////////////////////////////////////////////////*/
   ILendPoolAddressesProvider internal _addressProvider;
   address internal _underlyingAsset;
-  bytes32 public constant DEBT_MARKET = keccak256("DEBT_MARKET");
 
   mapping(address => mapping(address => uint256)) internal _borrowAllowances;
+
   mapping(address => bool) internal _debtTokenManagers;
+
+  /*//////////////////////////////////////////////////////////////
+                          CONSTANTS
+  //////////////////////////////////////////////////////////////*/
+  bytes32 public constant DEBT_MARKET = keccak256("DEBT_MARKET");
 
   /*//////////////////////////////////////////////////////////////
                           MODIFIERS
@@ -63,6 +68,10 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
   /*//////////////////////////////////////////////////////////////
                           INITIALIZERS
   //////////////////////////////////////////////////////////////*/
+
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() initializer {}
+
   /**
    * @dev Initializes the debt token.
    * @param addressProvider The address of the lend pool

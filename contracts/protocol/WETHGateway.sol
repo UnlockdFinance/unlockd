@@ -82,6 +82,10 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
   /*//////////////////////////////////////////////////////////////
                           INITIALIZERS
   //////////////////////////////////////////////////////////////*/
+
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() initializer {}
+
   /**
    * @dev Sets the WETH address and the LendPoolAddressesProvider address. Infinite approves lend pool.
    * @param weth Address of the Wrapped Ether contract

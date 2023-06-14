@@ -26,7 +26,6 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
                         GENERAL VARIABLES
   //////////////////////////////////////////////////////////////*/
   ILendPoolAddressesProvider private _addressesProvider;
-  bytes32 public constant DEBT_MARKET = keccak256("DEBT_MARKET");
 
   CountersUpgradeable.Counter private _loanIdTracker;
   mapping(uint256 => DataTypes.LoanData) private _loans;
@@ -36,6 +35,11 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   mapping(address => uint256) private _nftTotalCollateral;
   mapping(address => mapping(address => uint256)) private _userNftCollateral;
   mapping(address => bool) private _marketAdapters;
+
+  /*//////////////////////////////////////////////////////////////
+                        CONSTANTS
+  //////////////////////////////////////////////////////////////*/
+  bytes32 public constant DEBT_MARKET = keccak256("DEBT_MARKET");
 
   /*//////////////////////////////////////////////////////////////
                         MODIFIERS
@@ -70,6 +74,9 @@ contract LendPoolLoan is Initializable, ILendPoolLoan, ContextUpgradeable, IERC7
   /*//////////////////////////////////////////////////////////////
                         INITIALIZERS
   //////////////////////////////////////////////////////////////*/
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() initializer {}
+
   // called once by the factory at time of deployment
   function initialize(ILendPoolAddressesProvider provider) external initializer {
     require(address(provider) != address(0), Errors.INVALID_ZERO_ADDRESS);
