@@ -28,7 +28,9 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       const network = <eNetwork>DRE.network.name;
       const poolConfig = loadPoolConfig(pool);
       const addressesProvider = await getLendPoolAddressesProvider();
-
+      if (addressesProvider == undefined || !notFalsyOrZeroAddress(addressesProvider.address)) {
+        throw Error("Invalid Addresses Provider in deployed contracts");
+      }
       //////////////////////////////////////////////////////////////////////////
       let unftRegistryAddress = getParamPerNetwork(poolConfig.UNFTRegistry, network);
 
@@ -54,6 +56,7 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       }
       console.log("Setting IncentivesController to address provider...");
       await waitForTx(await addressesProvider.setIncentivesController(incentivesControllerAddress));
+
 
       //////////////////////////////////////////////////////////////////////////
       console.log("Deploying new libraries implementation...");
@@ -98,12 +101,14 @@ task("full:deploy-lend-pool", "Deploy lend pool for full enviroment")
       await waitForTx(await lendPoolConfiguratorProxy.setBidDelta("10050"));
       await insertContractAddressInDb(eContractid.LendPoolConfigurator, lendPoolConfiguratorProxy.address);
 
+
       //   ////////////////////////////////////////////////////////////////////////
       //   const admin = await DRE.ethers.getSigner(await getEmergencyAdmin(poolConfig));
       //   // Pause market during deployment
       //   // await waitForTx(await lendPoolConfiguratorProxy.connect(admin).setPoolPause(true));
       //   // Generic UToken & DebtToken Implementation in Pool
       //   await deployUTokenImplementations(pool, poolConfig.ReservesConfig, verify);
+
     } catch (error) {
       console.log(error);
     }
