@@ -25,8 +25,8 @@ export const rateStrategyStableThree: IInterestRateStrategyParams = {
   name: "rateStrategyStableThree",
   optimalUtilizationRate: new BigNumber(0.9).multipliedBy(oneRay).toFixed(),
   baseVariableBorrowRate: new BigNumber(0.03).multipliedBy(oneRay).toFixed(),
-  variableRateSlope1:     new BigNumber(0.04).multipliedBy(oneRay).toFixed(),
-  variableRateSlope2:     new BigNumber(0.60).multipliedBy(oneRay).toFixed(),
+  variableRateSlope1: new BigNumber(0.04).multipliedBy(oneRay).toFixed(),
+  variableRateSlope2: new BigNumber(0.60).multipliedBy(oneRay).toFixed(),
 }
 
 // WETH
@@ -34,6 +34,6 @@ export const rateStrategyWETH: IInterestRateStrategyParams = {
   name: "rateStrategyWETH",
   optimalUtilizationRate: new BigNumber(0.8).multipliedBy(oneRay).toFixed(),
   baseVariableBorrowRate: new BigNumber(0.2).multipliedBy(oneRay).toFixed(),
-  variableRateSlope1:     new BigNumber(0.16).multipliedBy(oneRay).toFixed(),
-  variableRateSlope2:     new BigNumber(2).multipliedBy(oneRay).toFixed(),
+  variableRateSlope1: new BigNumber(0.16).multipliedBy(oneRay).toFixed(),
+  variableRateSlope2: new BigNumber(2).multipliedBy(oneRay).toFixed(),
 }

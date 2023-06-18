@@ -8,7 +8,7 @@ import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesPro
 import {IReserveOracleGetter} from "../../interfaces/IReserveOracleGetter.sol";
 import {INFTOracleGetter} from "../../interfaces/INFTOracleGetter.sol";
 import {ILendPoolLoan} from "../../interfaces/ILendPoolLoan.sol";
-
+import {IDebtMarket} from "../../interfaces/IDebtMarket.sol";
 import {ReserveConfiguration} from "../configuration/ReserveConfiguration.sol";
 import {MathUtils} from "../math/MathUtils.sol";
 import {WadRayMath} from "../math/WadRayMath.sol";
@@ -27,7 +27,7 @@ import {ValidationLogic} from "./ValidationLogic.sol";
 
 /**
  * @title BorrowLogic library
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  * @notice Implements the logic to borrow feature
  */
 library BorrowLogic {
@@ -35,7 +35,9 @@ library BorrowLogic {
   using PercentageMath for uint256;
   using SafeERC20Upgradeable for IERC20Upgradeable;
   using ReserveLogic for DataTypes.ReserveData;
-
+  /*//////////////////////////////////////////////////////////////
+                          EVENTS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Emitted on borrow() when loan needs to be opened
    * @param user The address of the user initiating the borrow(), receiving the funds
@@ -77,7 +79,9 @@ library BorrowLogic {
     address indexed borrower,
     uint256 loanId
   );
-
+  /*//////////////////////////////////////////////////////////////
+                          Structs
+  //////////////////////////////////////////////////////////////*/
   struct ExecuteBorrowLocalVars {
     address initiator;
     uint256 ltv;
@@ -90,6 +94,19 @@ library BorrowLogic {
     uint256 totalSupply;
   }
 
+  struct RepayLocalVars {
+    address initiator;
+    address poolLoan;
+    address onBehalfOf;
+    uint256 loanId;
+    bool isUpdate;
+    uint256 borrowAmount;
+    uint256 repayAmount;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          MAIN LOGIC
+  //////////////////////////////////////////////////////////////*/
   /**
    * @notice Implements the borrow feature. Through `borrow()`, users borrow assets from the protocol.
    * @dev Emits the `Borrow()` event.
@@ -108,6 +125,26 @@ library BorrowLogic {
     _borrow(addressesProvider, reservesData, nftsData, nftsConfig, params);
   }
 
+  /**
+   * @notice Implements the repay feature. Through `repay()`, users repay assets to the protocol.
+   * @dev Emits the `Repay()` event.
+   * @param reservesData The state of all the reserves
+   * @param nftsData The state of nfts
+   * @param params The additional parameters needed to execute the repay function
+   */
+  function executeRepay(
+    ILendPoolAddressesProvider addressesProvider,
+    mapping(address => DataTypes.ReserveData) storage reservesData,
+    mapping(address => DataTypes.NftData) storage nftsData,
+    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
+    DataTypes.ExecuteRepayParams memory params
+  ) external returns (uint256, bool) {
+    return _repay(addressesProvider, reservesData, nftsData, nftsConfig, params);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @notice Implements the borrow feature. Through `_borrow()`, users borrow assets from the protocol.
    * @dev Emits the `Borrow()` event.
@@ -138,11 +175,10 @@ library BorrowLogic {
     vars.reserveOracle = addressesProvider.getReserveOracle();
     vars.nftOracle = addressesProvider.getNFTOracle();
     vars.loanAddress = addressesProvider.getLendPoolLoan();
+    address debtMarket = addressesProvider.getAddress(keccak256("DEBT_MARKET"));
 
     vars.loanId = ILendPoolLoan(vars.loanAddress).getCollateralLoanId(params.nftAsset, params.nftTokenId);
-    vars.totalSupply = IERC721EnumerableUpgradeable(params.nftAsset).totalSupply();
-    require(vars.totalSupply <= nftData.maxSupply, Errors.LP_NFT_SUPPLY_NUM_EXCEED_MAX_LIMIT);
-    require(params.nftTokenId <= nftData.maxTokenId, Errors.LP_NFT_TOKEN_ID_EXCEED_MAX_LIMIT);
+
     ValidationLogic.validateBorrow(
       params,
       reserveData,
@@ -179,6 +215,11 @@ library BorrowLogic {
         0,
         reserveData.variableBorrowIndex
       );
+
+      uint256 debtId = IDebtMarket(debtMarket).getDebtId(params.nftAsset, params.nftTokenId);
+      if (debtId != 0) {
+        IDebtMarket(debtMarket).cancelDebtListing(params.nftAsset, params.nftTokenId);
+      }
     }
 
     IDebtToken(reserveData.debtTokenAddress).mint(
@@ -208,33 +249,6 @@ library BorrowLogic {
       vars.loanId,
       params.referralCode
     );
-  }
-
-  struct RepayLocalVars {
-    address initiator;
-    address poolLoan;
-    address onBehalfOf;
-    uint256 loanId;
-    bool isUpdate;
-    uint256 borrowAmount;
-    uint256 repayAmount;
-  }
-
-  /**
-   * @notice Implements the repay feature. Through `repay()`, users repay assets to the protocol.
-   * @dev Emits the `Repay()` event.
-   * @param reservesData The state of all the reserves
-   * @param nftsData The state of nfts
-   * @param params The additional parameters needed to execute the repay function
-   */
-  function executeRepay(
-    ILendPoolAddressesProvider addressesProvider,
-    mapping(address => DataTypes.ReserveData) storage reservesData,
-    mapping(address => DataTypes.NftData) storage nftsData,
-    mapping(address => mapping(uint256 => DataTypes.NftConfigurationMap)) storage nftsConfig,
-    DataTypes.ExecuteRepayParams memory params
-  ) external returns (uint256, bool) {
-    return _repay(addressesProvider, reservesData, nftsData, nftsConfig, params);
   }
 
   /**
@@ -277,6 +291,13 @@ library BorrowLogic {
     if (params.amount < vars.repayAmount) {
       vars.isUpdate = true;
       vars.repayAmount = params.amount;
+    }
+
+    // Cancel debt listing if exist
+    address debtMarket = addressesProvider.getAddress(keccak256("DEBT_MARKET"));
+    uint256 debtId = IDebtMarket(debtMarket).getDebtId(params.nftAsset, params.nftTokenId);
+    if (debtId != 0) {
+      IDebtMarket(debtMarket).cancelDebtListing(params.nftAsset, params.nftTokenId);
     }
 
     if (vars.isUpdate) {

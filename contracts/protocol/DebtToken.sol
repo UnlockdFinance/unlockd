@@ -15,15 +15,35 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 /**
  * @title DebtToken
  * @notice Implements a debt token to track the borrowing positions of users
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  **/
 contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
   using WadRayMath for uint256;
 
+  /*//////////////////////////////////////////////////////////////
+                          EVENTS
+  //////////////////////////////////////////////////////////////*/
+
+  event BorrowAllowanceDelegated(address indexed fromUser, address indexed toUser, address asset, uint256 amount);
+
+  /*//////////////////////////////////////////////////////////////
+                          GENERAL VARS
+  //////////////////////////////////////////////////////////////*/
   ILendPoolAddressesProvider internal _addressProvider;
   address internal _underlyingAsset;
 
   mapping(address => mapping(address => uint256)) internal _borrowAllowances;
+
+  mapping(address => bool) internal _debtTokenManagers;
+
+  /*//////////////////////////////////////////////////////////////
+                          CONSTANTS
+  //////////////////////////////////////////////////////////////*/
+  bytes32 public constant DEBT_MARKET = keccak256("DEBT_MARKET");
+
+  /*//////////////////////////////////////////////////////////////
+                          MODIFIERS
+  //////////////////////////////////////////////////////////////*/
 
   modifier onlyLendPool() {
     require(_msgSender() == address(_getLendPool()), Errors.CT_CALLER_MUST_BE_LEND_POOL);
@@ -35,7 +55,22 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
     _;
   }
 
-  event BorrowAllowanceDelegated(address indexed fromUser, address indexed toUser, address asset, uint256 amount);
+  modifier onlyPoolAdmin() {
+    require(_msgSender() == _addressProvider.getPoolAdmin(), "Caller not pool admin");
+    _;
+  }
+
+  modifier onlyDebtTokenManager() {
+    require(_debtTokenManagers[_msgSender()], Errors.LP_CALLER_NOT_DEBT_TOKEN_MANAGER);
+    _;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          INITIALIZERS
+  //////////////////////////////////////////////////////////////*/
+
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() initializer {}
 
   /**
    * @dev Initializes the debt token.
@@ -68,6 +103,34 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
     );
   }
 
+  /*//////////////////////////////////////////////////////////////
+                          MAIN LOGIC
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @dev delegates borrowing power to a user on the specific debt token
+   * @param delegatee the address receiving the delegated borrowing power
+   * @param amount the maximum amount being delegated. Delegation will still
+   * respect the liquidation constraints (even if delegated, a delegatee cannot
+   * force a delegator HF to go below 1)
+   **/
+  function approveDelegation(address delegatee, uint256 amount) external override {
+    _borrowAllowances[_msgSender()][delegatee] = amount;
+    emit BorrowAllowanceDelegated(_msgSender(), delegatee, _getUnderlyingAssetAddress(), amount);
+  }
+
+  function updateTokenManagers(address[] calldata debtTokenManagers, bool flag) external override onlyPoolAdmin {
+    uint256 cachedLength = debtTokenManagers.length;
+    for (uint256 i; i < cachedLength; ) {
+      require(debtTokenManagers[i] != address(0), Errors.INVALID_ZERO_ADDRESS);
+      _debtTokenManagers[debtTokenManagers[i]] = flag;
+      unchecked {
+        ++i;
+      }
+    }
+
+    emit TokenManagersUpdated(debtTokenManagers, flag);
+  }
+
   /**
    * @dev Mints debt token to the `user` address
    * -  Only callable by the LendPool
@@ -81,7 +144,7 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
     address onBehalfOf,
     uint256 amount,
     uint256 index
-  ) external override onlyLendPool returns (bool) {
+  ) external override onlyDebtTokenManager returns (bool) {
     if (initiator != onBehalfOf) {
       _decreaseBorrowAllowance(onBehalfOf, initiator, amount);
     }
@@ -107,7 +170,7 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
    * @param amount The amount getting burned
    * @param index The variable debt index of the reserve
    **/
-  function burn(address user, uint256 amount, uint256 index) external override onlyLendPool {
+  function burn(address user, uint256 amount, uint256 index) external override onlyDebtTokenManager {
     uint256 amountScaled = amount.rayDiv(index);
     require(amountScaled != 0, Errors.CT_INVALID_BURN_AMOUNT);
 
@@ -116,6 +179,71 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
     emit Transfer(user, address(0), amount);
     emit Burn(user, amount, index);
   }
+
+  /**
+   * @dev Being non transferrable, the debt token does not implement any of the
+   * standard ERC20 functions for transfer and allowance.
+   **/
+  function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
+    recipient;
+    amount;
+    revert("TRANSFER_NOT_SUPPORTED");
+  }
+
+  function allowance(address owner, address spender) public view virtual override returns (uint256) {
+    owner;
+    spender;
+    revert("ALLOWANCE_NOT_SUPPORTED");
+  }
+
+  function approve(address spender, uint256 amount) public virtual override returns (bool) {
+    spender;
+    amount;
+    revert("APPROVAL_NOT_SUPPORTED");
+  }
+
+  function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
+    sender;
+    recipient;
+    amount;
+    revert("TRANSFER_NOT_SUPPORTED");
+  }
+
+  function increaseAllowance(address spender, uint256 addedValue) public virtual override returns (bool) {
+    spender;
+    addedValue;
+    revert("ALLOWANCE_NOT_SUPPORTED");
+  }
+
+  function decreaseAllowance(address spender, uint256 subtractedValue) public virtual override returns (bool) {
+    spender;
+    subtractedValue;
+    revert("ALLOWANCE_NOT_SUPPORTED");
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
+
+  function _getIncentivesController() internal view override returns (IIncentivesController) {
+    return IIncentivesController(_addressProvider.getIncentivesController());
+  }
+
+  function _getUnderlyingAssetAddress() internal view override returns (address) {
+    return _underlyingAsset;
+  }
+
+  function _getLendPool() internal view returns (ILendPool) {
+    return ILendPool(_addressProvider.getLendPool());
+  }
+
+  function _getLendPoolConfigurator() internal view returns (ILendPoolConfigurator) {
+    return ILendPoolConfigurator(_addressProvider.getLendPoolConfigurator());
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          GETTERS & SETTERS
+  //////////////////////////////////////////////////////////////*/
 
   /**
    * @dev Calculates the accumulated debt balance of the user
@@ -186,75 +314,6 @@ contract DebtToken is Initializable, IDebtToken, IncentivizedERC20 {
    **/
   function POOL() public view returns (ILendPool) {
     return _getLendPool();
-  }
-
-  function _getIncentivesController() internal view override returns (IIncentivesController) {
-    return IIncentivesController(_addressProvider.getIncentivesController());
-  }
-
-  function _getUnderlyingAssetAddress() internal view override returns (address) {
-    return _underlyingAsset;
-  }
-
-  function _getLendPool() internal view returns (ILendPool) {
-    return ILendPool(_addressProvider.getLendPool());
-  }
-
-  function _getLendPoolConfigurator() internal view returns (ILendPoolConfigurator) {
-    return ILendPoolConfigurator(_addressProvider.getLendPoolConfigurator());
-  }
-
-  /**
-   * @dev Being non transferrable, the debt token does not implement any of the
-   * standard ERC20 functions for transfer and allowance.
-   **/
-  function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
-    recipient;
-    amount;
-    revert("TRANSFER_NOT_SUPPORTED");
-  }
-
-  function allowance(address owner, address spender) public view virtual override returns (uint256) {
-    owner;
-    spender;
-    revert("ALLOWANCE_NOT_SUPPORTED");
-  }
-
-  function approve(address spender, uint256 amount) public virtual override returns (bool) {
-    spender;
-    amount;
-    revert("APPROVAL_NOT_SUPPORTED");
-  }
-
-  function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
-    sender;
-    recipient;
-    amount;
-    revert("TRANSFER_NOT_SUPPORTED");
-  }
-
-  function increaseAllowance(address spender, uint256 addedValue) public virtual override returns (bool) {
-    spender;
-    addedValue;
-    revert("ALLOWANCE_NOT_SUPPORTED");
-  }
-
-  function decreaseAllowance(address spender, uint256 subtractedValue) public virtual override returns (bool) {
-    spender;
-    subtractedValue;
-    revert("ALLOWANCE_NOT_SUPPORTED");
-  }
-
-  /**
-   * @dev delegates borrowing power to a user on the specific debt token
-   * @param delegatee the address receiving the delegated borrowing power
-   * @param amount the maximum amount being delegated. Delegation will still
-   * respect the liquidation constraints (even if delegated, a delegatee cannot
-   * force a delegator HF to go below 1)
-   **/
-  function approveDelegation(address delegatee, uint256 amount) external override {
-    _borrowAllowances[_msgSender()][delegatee] = amount;
-    emit BorrowAllowanceDelegated(_msgSender(), delegatee, _getUnderlyingAssetAddress(), amount);
   }
 
   /**

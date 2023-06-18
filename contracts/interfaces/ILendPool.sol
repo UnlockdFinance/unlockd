@@ -10,6 +10,9 @@ import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC7
 import {DataTypes} from "../libraries/types/DataTypes.sol";
 
 interface ILendPool {
+  /*//////////////////////////////////////////////////////////////
+                          EVENTS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Emitted when _rescuer is modified in the LendPool
    * @param newRescuer The address of the new rescuer
@@ -146,21 +149,29 @@ interface ILendPool {
   );
 
   /**
-   * @dev Emitted when a borrower's loan is liquidated on NFTX.
+   * @dev Emitted when an NFT is purchased via Buyout.
+   * @param user The address of the user initiating the Buyout
    * @param reserve The address of the underlying asset of the reserve
-   * @param repayAmount The amount of reserve repaid by the liquidator
-   * @param remainAmount The amount of reserve received by the borrower
+   * @param buyoutAmount The amount of reserve paid by the buyer
+   * @param borrowAmount The loan borrowed amount
+   * @param nftAsset The amount of reserve received by the borrower
+   * @param nftTokenId The token id of the underlying NFT used as collateral
+   * @param borrower The loan borrower address
+   * @param onBehalfOf The receiver of the underlying NFT
    * @param loanId The loan ID of the NFT loans
    **/
-  event LiquidateNFTX(
+  event Buyout(
+    address user,
     address indexed reserve,
-    uint256 repayAmount,
-    uint256 remainAmount,
+    uint256 buyoutAmount,
+    uint256 borrowAmount,
     address indexed nftAsset,
     uint256 nftTokenId,
-    address indexed borrower,
-    uint256 loanId
+    address borrower,
+    address onBehalfOf,
+    uint256 indexed loanId
   );
+
   /**
    * @dev Emitted when an NFT configuration is triggered.
    * @param user The NFT holder
@@ -227,6 +238,41 @@ interface ILendPool {
   */
   event SafeHealthFactorUpdated(uint256 indexed newSafeHealthFactor);
 
+  /*//////////////////////////////////////////////////////////////
+                          RESCUERS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @notice Returns current rescuer
+   * @return Rescuer's address
+   */
+  function rescuer() external view returns (address);
+
+  /**
+   * @notice Assigns the rescuer role to a given address.
+   * @param newRescuer New rescuer's address
+   */
+  function updateRescuer(address newRescuer) external;
+
+  /**
+   * @notice Rescue tokens or ETH locked up in this contract.
+   * @param tokenContract ERC20 token contract address
+   * @param to        Recipient address
+   * @param amount    Amount to withdraw
+   * @param rescueETH bool to know if we want to rescue ETH or other token
+   */
+  function rescue(IERC20 tokenContract, address to, uint256 amount, bool rescueETH) external;
+
+  /**
+   * @notice Rescue NFTs locked up in this contract.
+   * @param nftAsset ERC721 asset contract address
+   * @param tokenId ERC721 token id
+   * @param to Recipient address
+   */
+  function rescueNFT(IERC721Upgradeable nftAsset, uint256 tokenId, address to) external;
+
+  /*//////////////////////////////////////////////////////////////
+                        MAIN LOGIC
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying uTokens.
    * - E.g. User deposits 100 USDC and gets in return 100 uusdc
@@ -300,6 +346,18 @@ interface ILendPool {
   function auction(address nftAsset, uint256 nftTokenId, uint256 bidPrice, address onBehalfOf) external;
 
   /**
+   * @dev Function to buyout a non-healthy position collateral-wise
+   * - The bidder want to buy collateral asset of the user getting liquidated
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   * @param buyoutAmount The buyout price of the underlying NFT
+   * @param onBehalfOf Address of the user who will get the underlying NFT, same as msg.sender if the user
+   *   wants to receive them on his own wallet, or a different address if the beneficiary of NFT
+   *   is a different wallet
+   **/
+  function buyout(address nftAsset, uint256 nftTokenId, uint256 buyoutAmount, address onBehalfOf) external;
+
+  /**
    * @notice Redeem a NFT loan which state is in Auction
    * - E.g. User repays 100 USDC, burning loan and receives collateral asset
    * @param nftAsset The address of the underlying NFT used as collateral
@@ -317,28 +375,6 @@ interface ILendPool {
    * @param nftTokenId The token ID of the underlying NFT used as collateral
    **/
   function liquidate(address nftAsset, uint256 nftTokenId, uint256 amount) external returns (uint256);
-
-  /**
-   * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The collateral asset is sold on NFTX & Sushiswap
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param nftTokenId The token ID of the underlying NFT used as collateral
-   **/
-  function liquidateNFTX(address nftAsset, uint256 nftTokenId, uint256 amountOutMin) external returns (uint256);
-
-  /**
-   * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The collateral asset is sold on NFTX & Sushiswap
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param nftTokenId The token ID of the underlying NFT used as collateral
-   **/
-  function liquidateSudoSwap(
-    address nftAsset,
-    uint256 nftTokenId,
-    uint256 amountOutMin,
-    address LSSVMPair,
-    uint256 amountOutMinSudoswap
-  ) external returns (uint256);
 
   /**
    * @dev Approves valuation of an NFT for a user
@@ -368,29 +404,37 @@ interface ILendPool {
   ) external view;
 
   /**
-   * @dev Returns the configuration of the reserve
+   * @dev Initializes a reserve, activating it, assigning an uToken and nft loan and an
+   * interest rate strategy
+   * - Only callable by the LendPoolConfigurator contract
    * @param asset The address of the underlying asset of the reserve
-   * @return The configuration of the reserve
+   * @param uTokenAddress The address of the uToken that will be assigned to the reserve
+   * @param debtTokenAddress The address of the debtToken that will be assigned to the reserve
+   * @param interestRateAddress The address of the interest rate strategy contract
    **/
-  function getReserveConfiguration(address asset) external view returns (DataTypes.ReserveConfigurationMap memory);
-
-  /**
-   * @dev Returns the configuration of the NFT
-   * @param asset The address of the asset of the NFT
-   * @return The configuration of the NFT
-   **/
-  function getNftConfiguration(address asset) external view returns (DataTypes.NftConfigurationMap memory);
-
-  /**
-   * @dev Returns the configuration of the NFT
-   * @param asset The address of the asset of the NFT
-   * @param tokenId the Token Id of the NFT
-   * @return The configuration of the NFT
-   **/
-  function getNftConfigByTokenId(
+  function initReserve(
     address asset,
-    uint256 tokenId
-  ) external view returns (DataTypes.NftConfigurationMap memory);
+    address uTokenAddress,
+    address debtTokenAddress,
+    address interestRateAddress
+  ) external;
+
+  /**
+   * @dev Initializes a nft, activating it, assigning nft loan and an
+   * interest rate strategy
+   * - Only callable by the LendPoolConfigurator contract
+   * @param asset The address of the underlying asset of the nft
+   **/
+  function initNft(address asset, address uNftAddress) external;
+
+  /*//////////////////////////////////////////////////////////////
+                        GETTERS & SETTERS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @dev Returns the cached LendPoolAddressesProvider connected to this contract
+   **/
+
+  function getAddressesProvider() external view returns (ILendPoolAddressesProvider);
 
   /**
    * @dev Returns the normalized income normalized income of the reserve
@@ -511,73 +555,16 @@ interface ILendPool {
     returns (uint256 loanId, address bidderAddress, uint256 bidPrice, uint256 bidBorrowAmount, uint256 bidFine);
 
   /**
-   * @dev Returns the state and configuration of the nft
-   * @param nftAsset The address of the underlying asset of the nft
-   * @param nftAsset The token ID of the asset
-   **/
-  function getNftLiquidatePrice(
-    address nftAsset,
-    uint256 nftTokenId
-  ) external view returns (uint256 liquidatePrice, uint256 paybackAmount);
-
-  /**
    * @dev Returns the list of nft addresses in the protocol
    **/
   function getNftsList() external view returns (address[] memory);
 
   /**
-   * @dev Set the _pause state of a reserve
-   * - Only callable by the LendPool contract
-   * @param val `true` to pause the reserve, `false` to un-pause it
-   */
-  function setPause(bool val) external;
-
-  function setPausedTime(uint256 startTime, uint256 durationTime) external;
-
-  /**
-   * @dev Returns if the LendPool is paused
-   */
-  function paused() external view returns (bool);
-
-  function getPausedTime() external view returns (uint256, uint256);
-
-  /**
-   * @dev Returns the cached LendPoolAddressesProvider connected to this contract
-   **/
-
-  function getAddressesProvider() external view returns (ILendPoolAddressesProvider);
-
-  /**
-   * @dev Initializes a reserve, activating it, assigning an uToken and nft loan and an
-   * interest rate strategy
-   * - Only callable by the LendPoolConfigurator contract
+   * @dev Returns the configuration of the reserve
    * @param asset The address of the underlying asset of the reserve
-   * @param uTokenAddress The address of the uToken that will be assigned to the reserve
-   * @param debtTokenAddress The address of the debtToken that will be assigned to the reserve
-   * @param interestRateAddress The address of the interest rate strategy contract
+   * @return The configuration of the reserve
    **/
-  function initReserve(
-    address asset,
-    address uTokenAddress,
-    address debtTokenAddress,
-    address interestRateAddress
-  ) external;
-
-  /**
-   * @dev Initializes a nft, activating it, assigning nft loan and an
-   * interest rate strategy
-   * - Only callable by the LendPoolConfigurator contract
-   * @param asset The address of the underlying asset of the nft
-   **/
-  function initNft(address asset, address uNftAddress) external;
-
-  /**
-   * @dev Updates the address of the interest rate strategy contract
-   * - Only callable by the LendPoolConfigurator contract
-   * @param asset The address of the underlying asset of the reserve
-   * @param rateAddress The address of the interest rate strategy contract
-   **/
-  function setReserveInterestRateAddress(address asset, address rateAddress) external;
+  function getReserveConfiguration(address asset) external view returns (DataTypes.ReserveConfigurationMap memory);
 
   /**
    * @dev Sets the configuration bitmap of the reserve as a whole
@@ -588,12 +575,30 @@ interface ILendPool {
   function setReserveConfiguration(address asset, uint256 configuration) external;
 
   /**
+   * @dev Returns the configuration of the NFT
+   * @param asset The address of the asset of the NFT
+   * @return The configuration of the NFT
+   **/
+  function getNftConfiguration(address asset) external view returns (DataTypes.NftConfigurationMap memory);
+
+  /**
    * @dev Sets the configuration bitmap of the NFT as a whole
    * - Only callable by the LendPoolConfigurator contract
    * @param asset The address of the asset of the NFT
    * @param configuration The new configuration bitmap
    **/
   function setNftConfiguration(address asset, uint256 configuration) external;
+
+  /**
+   * @dev Returns the configuration of the NFT
+   * @param asset The address of the asset of the NFT
+   * @param tokenId the Token Id of the NFT
+   * @return The configuration of the NFT
+   **/
+  function getNftConfigByTokenId(
+    address asset,
+    uint256 tokenId
+  ) external view returns (DataTypes.NftConfigurationMap memory);
 
   /**
    * @dev Sets the configuration bitmap of the NFT as a whole
@@ -605,59 +610,44 @@ interface ILendPool {
   function setNftConfigByTokenId(address asset, uint256 nftTokenId, uint256 configuration) external;
 
   /**
-   * @dev Sets the max supply and token ID for a given asset
-   * @param asset The address to set the data
-   * @param maxSupply The max supply value
-   * @param maxTokenId The max token ID value
-   **/
-  function setNftMaxSupplyAndTokenId(address asset, uint256 maxSupply, uint256 maxTokenId) external;
-
-  /**
-   * @dev Sets the max number of reserves in the protocol
-   * @param val the value to set the max number of reserves
-   **/
-  function setMaxNumberOfReserves(uint256 val) external;
-
-  /**
-   * @dev Sets the max number of NFTs in the protocol
-   * @param val the value to set the max number of NFTs
-   **/
-  function setMaxNumberOfNfts(uint256 val) external;
-
-  /**
-   * @notice Assigns the rescuer role to a given address.
-   * @param newRescuer New rescuer's address
+   * @dev Returns if the LendPool is paused
    */
-  function updateRescuer(address newRescuer) external;
+  function paused() external view returns (bool);
 
   /**
-   * @notice Update the safe health factor value for redeems
-   * @param newSafeHealthFactor New safe health factor value
+   * @dev Set the _pause state of a reserve
+   * - Only callable by the LendPool contract
+   * @param val `true` to pause the reserve, `false` to un-pause it
    */
-  function updateSafeHealthFactor(uint256 newSafeHealthFactor) external;
+  function setPause(bool val) external;
 
   /**
-   * @notice Rescue tokens or ETH locked up in this contract.
-   * @param tokenContract ERC20 token contract address
-   * @param to        Recipient address
-   * @param amount    Amount to withdraw
-   * @param rescueETH bool to know if we want to rescue ETH or other token
+   * @dev Returns the _pause time of a reserve
    */
-  function rescue(IERC20 tokenContract, address to, uint256 amount, bool rescueETH) external;
+  function getPausedTime() external view returns (uint256, uint256);
 
   /**
-   * @notice Rescue NFTs locked up in this contract.
-   * @param nftAsset ERC721 asset contract address
-   * @param tokenId ERC721 token id
-   * @param to Recipient address
+   * @dev Set the _pause state of the auctions
+   * @param startTime when it will start to pause
+   * @param durationTime how long it will pause
    */
-  function rescueNFT(IERC721Upgradeable nftAsset, uint256 tokenId, address to) external;
+  function setPausedTime(uint256 startTime, uint256 durationTime) external;
 
   /**
-   * @dev Sets the fee percentage for liquidations
-   * @param percentage the fee percentage to be set
+   * @dev Returns the bidDelta percentage - debt compounded + fees.
    **/
-  function setLiquidateFeePercentage(uint256 percentage) external;
+  function getBidDelta() external view returns (uint256);
+
+  /**
+   * @dev sets the bidDelta percentage - debt compounded + fees.
+   * @param bidDelta the amount to charge to the user
+   **/
+  function setBidDelta(uint256 bidDelta) external;
+
+  /**
+   * @dev Returns the max timeframe between NFT config triggers and borrows
+   **/
+  function getTimeframe() external view returns (uint256);
 
   /**
    * @dev Sets the max timeframe between NFT config triggers and borrows
@@ -666,17 +656,20 @@ interface ILendPool {
   function setTimeframe(uint256 timeframe) external;
 
   /**
-   * @dev Adds and address to be allowed to sell on NFTX
-   * @param nftAsset the nft address of the NFT to sell
-   * @param val if true is allowed to sell if false is not
+   * @dev Returns the configFee amount
    **/
-  function setIsMarketSupported(address nftAsset, uint8 market, bool val) external;
+  function getConfigFee() external view returns (uint256);
 
   /**
    * @dev sets the fee for configuringNFTAsCollateral
    * @param configFee the amount to charge to the user
    **/
   function setConfigFee(uint256 configFee) external;
+
+  /**
+   * @dev Returns the auctionDurationConfigFee amount
+   **/
+  function getAuctionDurationConfigFee() external view returns (uint256);
 
   /**
    * @dev sets the fee to be charged on first bid on nft
@@ -690,20 +683,10 @@ interface ILendPool {
   function getMaxNumberOfReserves() external view returns (uint256);
 
   /**
-   * @dev Returns the maximum number of nfts supported to be listed in this LendPool
-   */
-  function getMaxNumberOfNfts() external view returns (uint256);
-
-  /**
-   * @dev Returns the fee percentage for liquidations
+   * @dev Sets the max number of reserves in the protocol
+   * @param val the value to set the max number of reserves
    **/
-  function getLiquidateFeePercentage() external view returns (uint256);
-
-  /**
-   * @notice Returns current rescuer
-   * @return Rescuer's address
-   */
-  function rescuer() external view returns (address);
+  function setMaxNumberOfReserves(uint256 val) external;
 
   /**
    * @notice Returns current safe health factor
@@ -712,22 +695,58 @@ interface ILendPool {
   function getSafeHealthFactor() external view returns (uint256);
 
   /**
-   * @dev Returns the max timeframe between NFT config triggers and borrows
-   **/
-  function getTimeframe() external view returns (uint256);
-
-  /**
-   * @dev Returns the configFee amount
-   **/
-  function getConfigFee() external view returns (uint256);
-
-  /**
-   * @dev Returns the auctionDurationConfigFee amount
-   **/
-  function getAuctionDurationConfigFee() external view returns (uint256);
-
-  /**
-   * @dev Returns if the address is allowed to sell or not on NFTX
+   * @notice Update the safe health factor value for redeems
+   * @param newSafeHealthFactor New safe health factor value
    */
-  function getIsMarketSupported(address nftAsset, uint8 market) external view returns (bool);
+  function updateSafeHealthFactor(uint256 newSafeHealthFactor) external;
+
+  /**
+   * @dev Returns the maximum number of nfts supported to be listed in this LendPool
+   */
+  function getMaxNumberOfNfts() external view returns (uint256);
+
+  /**
+   * @dev Sets the max number of NFTs in the protocol
+   * @param val the value to set the max number of NFTs
+   **/
+  function setMaxNumberOfNfts(uint256 val) external;
+
+  /**
+   * @dev Returns the fee percentage for liquidations
+   **/
+  function getLiquidateFeePercentage() external view returns (uint256);
+
+  /**
+   * @dev Sets the fee percentage for liquidations
+   * @param percentage the fee percentage to be set
+   **/
+  function setLiquidateFeePercentage(uint256 percentage) external;
+
+  /**
+   * @dev Updates the address of the interest rate strategy contract
+   * - Only callable by the LendPoolConfigurator contract
+   * @param asset The address of the underlying asset of the reserve
+   * @param rateAddress The address of the interest rate strategy contract
+   **/
+  function setReserveInterestRateAddress(address asset, address rateAddress) external;
+
+  /**
+   * @dev Sets the max supply and token ID for a given asset
+   * @param asset The address to set the data
+   * @param maxSupply The max supply value
+   * @param maxTokenId The max token ID value
+   **/
+  function setNftMaxSupplyAndTokenId(address asset, uint256 maxSupply, uint256 maxTokenId) external;
+
+  /**
+   * @dev Updates the liquidity cumulative index and the variable borrow index.
+   * @param reserve the reserve object
+   **/
+  function updateReserveState(address reserve) external;
+
+  /**
+   * @dev Updates the reserve current stable borrow rate, the current variable borrow rate and the current liquidity rate
+   * @param reserve The address of the reserve to be updated
+   **/
+  function updateReserveInterestRates(address reserve) external;
 }

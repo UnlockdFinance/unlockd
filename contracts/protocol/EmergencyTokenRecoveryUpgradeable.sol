@@ -10,14 +10,24 @@ import {IPunks} from "../interfaces/IPunks.sol";
 /**
  * @title EmergencyTokenRecovery
  * @notice Add Emergency Recovery Logic to contract implementation
- * @author Unlockd
+   ; Forked and edited by Unlockd
  **/
 abstract contract EmergencyTokenRecoveryUpgradeable is OwnableUpgradeable {
+  /*//////////////////////////////////////////////////////////////
+                          EVENTS
+  //////////////////////////////////////////////////////////////*/
   event EmergencyEtherTransfer(address indexed to, uint256 amount);
 
+  /*//////////////////////////////////////////////////////////////
+                          INITIALIZERS
+  //////////////////////////////////////////////////////////////*/
   function __EmergencyTokenRecovery_init() internal onlyInitializing {
     __Ownable_init();
   }
+
+  /*//////////////////////////////////////////////////////////////
+                          MAIN LOGIC
+  //////////////////////////////////////////////////////////////*/
 
   /**
    * @dev transfer ERC20 from the utility contract, for ERC20 recovery in case of stuck tokens due
@@ -26,11 +36,7 @@ abstract contract EmergencyTokenRecoveryUpgradeable is OwnableUpgradeable {
    * @param to recipient of the transfer
    * @param amount amount to send
    */
-  function emergencyERC20Transfer(
-    address token,
-    address to,
-    uint256 amount
-  ) external onlyOwner {
+  function emergencyERC20Transfer(address token, address to, uint256 amount) external onlyOwner {
     IERC20Upgradeable(token).transfer(to, amount);
   }
 
@@ -41,11 +47,7 @@ abstract contract EmergencyTokenRecoveryUpgradeable is OwnableUpgradeable {
    * @param to recipient of the transfer
    * @param id token id to send
    */
-  function emergencyERC721Transfer(
-    address token,
-    address to,
-    uint256 id
-  ) external onlyOwner {
+  function emergencyERC721Transfer(address token, address to, uint256 id) external onlyOwner {
     IERC721Upgradeable(token).safeTransferFrom(address(this), to, id);
   }
 
@@ -55,11 +57,7 @@ abstract contract EmergencyTokenRecoveryUpgradeable is OwnableUpgradeable {
    * @param to recipient of the transfer
    * @param index punk index to send
    */
-  function emergencyPunksTransfer(
-    address punks,
-    address to,
-    uint256 index
-  ) external onlyOwner {
+  function emergencyPunksTransfer(address punks, address to, uint256 index) external onlyOwner {
     IPunks(punks).transferPunk(to, index);
   }
 

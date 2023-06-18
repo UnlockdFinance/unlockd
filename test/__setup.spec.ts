@@ -30,11 +30,8 @@ import {
   deployMockNFTOracle,
   deployMockReserveOracle,
   deployNFTOracle,
-  deployNFTXVaultFactory,
   deployPunkGateway,
   deployReserveOracle,
-  deploySelfdestructTransferMock,
-  deploySushiSwapRouter,
   deployUiPoolDataProvider,
   deployUNFTRegistry,
   deployUnlockdLibraries,
@@ -48,30 +45,20 @@ import {
 import {
   getCryptoPunksMarket,
   getDeploySigner,
-  getEmergencyAdminSigner,
   getLendPool,
   getLendPoolConfiguratorProxy,
-  getLendPoolLiquidatorSigner,
   getLendPoolLoanProxy,
-  getLtvManagerSigner,
-  getPoolAdminSigner,
   getPunkGateway,
   getSecondSigner,
   getUNFTRegistryProxy,
   getWETHGateway,
   getWrappedPunk,
 } from "../helpers/contracts-getters";
-import {
-  getEthersSignerByAddress,
-  getEthersSigners,
-  getParamPerNetwork,
-  insertContractAddressInDb,
-} from "../helpers/contracts-helpers";
+import { getEthersSignerByAddress, getEthersSigners, insertContractAddressInDb } from "../helpers/contracts-helpers";
 import {
   configureNftsByHelper,
   configureReservesByHelper,
   initNftsByHelper,
-  initNFTXByHelper,
   initReservesByHelper,
 } from "../helpers/init-helpers";
 import {
@@ -325,14 +312,6 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   );
 
   //////////////////////////////////////////////////////////////////////////////
-  console.log("-> Prepare NFTX & Sushiswap Router...");
-
-  const nftxVaultFactory = await deployNFTXVaultFactory();
-  await waitForTx(await addressesProvider.setNFTXVaultFactory(nftxVaultFactory.address));
-
-  const sushiSwapRouter = await deploySushiSwapRouter();
-  await waitForTx(await addressesProvider.setSushiSwapRouter(sushiSwapRouter.address));
-
   const lendpoolConfigurator = await addressesProvider.getLendPoolConfigurator();
   await waitForTx(await lendPoolConfiguratorProxy.setTimeframe(3600000));
 
@@ -458,8 +437,6 @@ const buildTestEnv = async (deployer: Signer, secondaryWallet: Signer) => {
   await insertContractAddressInDb(eContractid.PunkGateway, punkGateway.address);
 
   await waitForTx(await wethGateway.authorizeCallerWhitelist([punkGateway.address], true));
-
-  await initNFTXByHelper();
 
   console.timeEnd("setup");
 };

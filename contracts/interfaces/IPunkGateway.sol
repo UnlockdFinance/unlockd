@@ -35,7 +35,7 @@ interface IPunkGateway {
 
   /**
    * @notice auction a unhealth punk loan with ERC20 reserve
-   * @param punkIndex The index of the CryptoPunk used as collteral
+   * @param punkIndex The index of the CryptoPunk used as collateral
    * @param bidPrice The bid price
    **/
   function auction(uint256 punkIndex, uint256 bidPrice, address onBehalfOf) external;
@@ -50,15 +50,19 @@ interface IPunkGateway {
 
   /**
    * @notice liquidate a unhealth punk loan with ERC20 reserve
-   * @param punkIndex The index of the CryptoPunk used as collteral
+   * @param punkIndex The index of the CryptoPunk used as collateral
    **/
   function liquidate(uint256 punkIndex, uint256 amount) external returns (uint256);
 
   /**
-   * @notice liquidate a unhealth punk loan on NFTX
+   * @notice Executes the buyout for an NFT with a non-healthy position collateral-wise
    * @param punkIndex The index of the CryptoPunk used as collateral
+   * @param amount The amount to send for the buyout
+   * @param onBehalfOf The address that will receive the NFT, same as msg.sender if the user
+   *   wants to receive them on his own wallet, or a different address if the beneficiary of the NFT
+   *   is a different wallet
    **/
-  function liquidateNFTX(uint256 punkIndex, uint256 amountOutMin) external returns (uint256);
+  function buyout(uint256 punkIndex, uint256 amount, address onBehalfOf) external;
 
   /**
    * @dev Allows users to borrow a specific `amount` of the reserve underlying asset, provided that the borrower
@@ -105,4 +109,27 @@ interface IPunkGateway {
    * @param punkIndex The index of the CryptoPunk to repay
    **/
   function liquidateETH(uint256 punkIndex) external payable returns (uint256);
+
+  /**
+   * @notice buy a debt punk loan with native ETH
+   * @param punkIndex The index of the CryptoPunk to repay
+   **/
+  function buyDebtPunkETH(uint256 punkIndex, address onBehalfOf) external payable;
+
+  /**
+   * @notice buy a debt punk loan
+   * @param punkIndex The index of the CryptoPunk to repay
+   * @param onBehalfOf Address of the user who will receive the CryptoPunk. Should be the address of the user itself
+   * calling the function if he wants to get collateral
+   **/
+  function buyDebtPunk(uint256 punkIndex, address onBehalfOf, uint256 amount) external;
+
+  /**
+   * @notice Executes the buyout for an NFT with a non-healthy position collateral-wise with native ETH
+   * @param punkIndex The index of the CryptoPunk used as collateral
+   * @param onBehalfOf The address that will receive the NFT, same as msg.sender if the user
+   *   wants to receive them on his own wallet, or a different address if the beneficiary of the NFT
+   *   is a different wallet
+   **/
+  function buyoutETH(uint256 punkIndex, address onBehalfOf) external payable;
 }

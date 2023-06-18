@@ -6,14 +6,11 @@ import {
   getLendPoolLiquidator,
   loadPoolConfig,
 } from "../../helpers/configuration";
-import { deployLendPoolAddressesProvider, deployRateStrategy } from "../../helpers/contracts-deployments";
+import { deployRateStrategy } from "../../helpers/contracts-deployments";
 import {
   getDeploySigner,
   getLendPoolAddressesProvider,
   getLendPoolConfiguratorProxy,
-  getNFTXVaultFactory,
-  getSushiSwapRouter,
-  getUnlockdProtocolDataProvider,
 } from "../../helpers/contracts-getters";
 import { getParamPerNetwork, rawInsertContractAddressInDb } from "../../helpers/contracts-helpers";
 import { notFalsyOrZeroAddress, waitForTx } from "../../helpers/misc-utils";

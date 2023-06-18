@@ -201,22 +201,6 @@ task("lendpool:liquidate", "Liquidates an NFT that has been auctioned")
     await tx.wait();
     console.log(tx);
   });
-
-// Get Nft Reserve data
-task("lendpool:liquidateNFTX", "Liquidates the NFT on NFTX Vault")
-  .addParam("nftaddress", "The asset address")
-  .addParam("tokenid", "The tokenId of the asset")
-  .addParam("reserve", "The reserve Name ex: WETH")
-  .setAction(async ({ nftaddress, tokenid, reserve }) => {
-    const wallet = await getOwnerWallet();
-    const amount = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
-    const tokenContract = MockContracts[reserve];
-    await Functions.RESERVES.approve(wallet, tokenContract, Contracts.lendPool.address, amount);
-    console.log("approved");
-    const tx = await Functions.LENDPOOL.liquidateNFTX(wallet, nftaddress, tokenid);
-    await tx.wait();
-    console.log(tx);
-  });
 //Repay loan
 task("lendpool:repay", "Repays a loan")
   .addParam("nftaddress", "NFT address")

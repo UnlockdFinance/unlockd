@@ -15,11 +15,17 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
  * @dev Main registry of addresses part of or connected to the protocol, including permissioned roles
  * - Acting also as factory of proxies and admin of those, so with right to change its implementations
  * - Owned by the Unlockd Governance
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  **/
 contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
+  /*//////////////////////////////////////////////////////////////
+                        GENERAL VARIABLES
+  //////////////////////////////////////////////////////////////*/
   string private _marketId;
   mapping(bytes32 => address) private _addresses;
+  /*//////////////////////////////////////////////////////////////
+                        CONSTANT VARIABLES
+  //////////////////////////////////////////////////////////////*/
   bytes32 private constant LEND_POOL = "LEND_POOL";
   bytes32 private constant LEND_POOL_CONFIGURATOR = "LEND_POOL_CONFIGURATOR";
   bytes32 private constant POOL_ADMIN = "POOL_ADMIN";
@@ -37,10 +43,56 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   bytes32 private constant SUSHI_SWAP_ROUTER = "SUSHI_SWAP_ROUTER";
   bytes32 private constant LSSVM_ROUTER = "LSSVM_ROUTER";
 
+  /*//////////////////////////////////////////////////////////////
+                        INITIALIZERS
+  //////////////////////////////////////////////////////////////*/
   constructor(string memory marketId) {
     _setMarketId(marketId);
   }
 
+  /*//////////////////////////////////////////////////////////////
+                        INTERNALS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @dev Internal function to update the implementation of a specific proxied component of the protocol
+   * - If there is no proxy registered in the given `id`, it creates the proxy setting `newAdress`
+   *   as implementation and calls the initialize() function on the proxy
+   * - If there is already a proxy registered, it just updates the implementation to `newAddress` and
+   *   calls the encoded method function via upgradeToAndCall() in the proxy
+   * @param id The id of the proxy to be updated
+   * @param newAddress The address of the new implementation
+   **/
+  function _updateImpl(bytes32 id, address newAddress) internal {
+    address payable proxyAddress = payable(_addresses[id]);
+
+    if (proxyAddress == address(0)) {
+      bytes memory params = abi.encodeWithSignature("initialize(address)", address(this));
+
+      // create proxy, then init proxy & implementation
+      UnlockdUpgradeableProxy proxy = new UnlockdUpgradeableProxy(newAddress, address(this), params);
+
+      _addresses[id] = address(proxy);
+      emit ProxyCreated(id, address(proxy));
+    } else {
+      // upgrade implementation
+      UnlockdUpgradeableProxy proxy = UnlockdUpgradeableProxy(proxyAddress);
+
+      proxy.upgradeTo(newAddress);
+    }
+  }
+
+  /**
+   * @dev Allows to set the market which this LendPoolAddressesProvider represents
+   * @param marketId The market id
+   */
+  function _setMarketId(string memory marketId) internal {
+    _marketId = marketId;
+    emit MarketIdSet(marketId);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                        GETTERS & SETTERS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Returns the id of the Unlockd market to which this contracts points to
    * @return The market id
@@ -336,54 +388,6 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   /**
    * @inheritdoc ILendPoolAddressesProvider
    */
-  function getNFTXVaultFactory() external view override returns (address) {
-    return getAddress(NFTX_VAULT_FACTORY);
-  }
-
-  /**
-   * @inheritdoc ILendPoolAddressesProvider
-   */
-  function setNFTXVaultFactory(address factory) external override onlyOwner {
-    require(factory != address(0), Errors.INVALID_ZERO_ADDRESS);
-    _addresses[NFTX_VAULT_FACTORY] = factory;
-    emit NFTXVaultFactoryUpdated(factory);
-  }
-
-  /**
-   * @inheritdoc ILendPoolAddressesProvider
-   */
-  function getLSSVMRouter() external view override returns (address) {
-    return getAddress(LSSVM_ROUTER);
-  }
-
-  /**
-   * @inheritdoc ILendPoolAddressesProvider
-   */
-  function setLSSVMRouter(address router) external override onlyOwner {
-    require(router != address(0), Errors.INVALID_ZERO_ADDRESS);
-    _addresses[LSSVM_ROUTER] = router;
-    emit LSSVMRouterUpdated(router);
-  }
-
-  /**
-   * @inheritdoc ILendPoolAddressesProvider
-   */
-  function getSushiSwapRouter() external view override returns (address) {
-    return getAddress(SUSHI_SWAP_ROUTER);
-  }
-
-  /**
-   * @inheritdoc ILendPoolAddressesProvider
-   */
-  function setSushiSwapRouter(address router) external override onlyOwner {
-    require(router != address(0), Errors.INVALID_ZERO_ADDRESS);
-    _addresses[SUSHI_SWAP_ROUTER] = router;
-    emit SushiSwapRouterUpdated(router);
-  }
-
-  /**
-   * @inheritdoc ILendPoolAddressesProvider
-   */
   function getLendPoolLiquidator() external view override returns (address) {
     return getAddress(LEND_POOL_LIQUIDATOR);
   }
@@ -404,42 +408,5 @@ contract LendPoolAddressesProvider is Ownable, ILendPoolAddressesProvider {
   function getImplementation(address proxyAddress) external view onlyOwner returns (address) {
     UnlockdUpgradeableProxy proxy = UnlockdUpgradeableProxy(payable(proxyAddress));
     return proxy.getImplementation();
-  }
-
-  /**
-   * @dev Internal function to update the implementation of a specific proxied component of the protocol
-   * - If there is no proxy registered in the given `id`, it creates the proxy setting `newAdress`
-   *   as implementation and calls the initialize() function on the proxy
-   * - If there is already a proxy registered, it just updates the implementation to `newAddress` and
-   *   calls the encoded method function via upgradeToAndCall() in the proxy
-   * @param id The id of the proxy to be updated
-   * @param newAddress The address of the new implementation
-   **/
-  function _updateImpl(bytes32 id, address newAddress) internal {
-    address payable proxyAddress = payable(_addresses[id]);
-
-    if (proxyAddress == address(0)) {
-      bytes memory params = abi.encodeWithSignature("initialize(address)", address(this));
-
-      // create proxy, then init proxy & implementation
-      UnlockdUpgradeableProxy proxy = new UnlockdUpgradeableProxy(newAddress, address(this), params);
-
-      _addresses[id] = address(proxy);
-      emit ProxyCreated(id, address(proxy));
-    } else {
-      // upgrade implementation
-      UnlockdUpgradeableProxy proxy = UnlockdUpgradeableProxy(proxyAddress);
-
-      proxy.upgradeTo(newAddress);
-    }
-  }
-
-  /**
-   * @dev Allows to set the market which this LendPoolAddressesProvider represents
-   * @param marketId The market id
-   */
-  function _setMarketId(string memory marketId) internal {
-    _marketId = marketId;
-    emit MarketIdSet(marketId);
   }
 }

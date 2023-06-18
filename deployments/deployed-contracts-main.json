@@ -109,7 +109,7 @@
   },
   "PunkGatewayImpl": {
     "address": "0xf49c6c3A753643eF9a31A1cfBD1d38e364A1637c"
-  },
+  }, 
   "PunkGateway": {
     "address": "0x2540b104310EFa795DE0a9247Ba3942b71385251",
     "deployer": "0x67539d650922Af9D2c611251ac9749f167e51Ac0"

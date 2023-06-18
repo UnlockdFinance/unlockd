@@ -14,13 +14,15 @@ import {ValidationLogic} from "./ValidationLogic.sol";
 
 /**
  * @title SupplyLogic library
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  * @notice Implements the logic to supply feature
  */
 library SupplyLogic {
   using SafeERC20Upgradeable for IERC20Upgradeable;
   using ReserveLogic for DataTypes.ReserveData;
-
+  /*//////////////////////////////////////////////////////////////
+                          EVENTS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Emitted on deposit()
    * @param user The address initiating the deposit
@@ -46,6 +48,9 @@ library SupplyLogic {
    **/
   event Withdraw(address indexed user, address indexed reserve, uint256 amount, address indexed to);
 
+  /*//////////////////////////////////////////////////////////////
+                          MAIN LOGIC
+  //////////////////////////////////////////////////////////////*/
   /**
    * @notice Implements the supply feature. Through `deposit()`, users deposit assets to the protocol.
    * @dev Emits the `Deposit()` event.

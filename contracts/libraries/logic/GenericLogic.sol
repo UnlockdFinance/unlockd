@@ -14,7 +14,7 @@ import {ReserveLogic} from "./ReserveLogic.sol";
 
 /**
  * @title GenericLogic library
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  * @notice Implements protocol-level logic to calculate and validate the state of a user
  */
 library GenericLogic {
@@ -23,9 +23,13 @@ library GenericLogic {
   using PercentageMath for uint256;
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
   using NftConfiguration for DataTypes.NftConfigurationMap;
-
+  /*//////////////////////////////////////////////////////////////
+                        GENERAL VARIABLES
+  //////////////////////////////////////////////////////////////*/
   uint256 public constant HEALTH_FACTOR_LIQUIDATION_THRESHOLD = 1 ether;
-
+  /*//////////////////////////////////////////////////////////////
+                          Structs
+  //////////////////////////////////////////////////////////////*/
   struct CalculateLoanDataVars {
     uint256 reserveUnitPrice;
     uint256 reserveUnit;
@@ -43,6 +47,32 @@ library GenericLogic {
     uint256 minRedeemValue;
   }
 
+  struct CalcLiquidatePriceLocalVars {
+    uint256 ltv;
+    uint256 liquidationThreshold;
+    uint256 liquidationBonus;
+    uint256 nftPriceInETH;
+    uint256 nftPriceInReserve;
+    uint256 reserveDecimals;
+    uint256 reservePriceInETH;
+    uint256 thresholdPrice;
+    uint256 liquidatePrice;
+    uint256 borrowAmount;
+  }
+
+  struct CalcLoanBidFineLocalVars {
+    uint256 reserveDecimals;
+    uint256 reservePriceInETH;
+    uint256 baseBidFineInReserve;
+    uint256 minBidFinePct;
+    uint256 minBidFineInReserve;
+    uint256 bidFineInReserve;
+    uint256 debtAmount;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Calculates the nft loan data.
    * this includes the total collateral/borrow balances in Reserve,
@@ -251,19 +281,6 @@ library GenericLogic {
     return availableBorrows;
   }
 
-  struct CalcLiquidatePriceLocalVars {
-    uint256 ltv;
-    uint256 liquidationThreshold;
-    uint256 liquidationBonus;
-    uint256 nftPriceInETH;
-    uint256 nftPriceInReserve;
-    uint256 reserveDecimals;
-    uint256 reservePriceInETH;
-    uint256 thresholdPrice;
-    uint256 liquidatePrice;
-    uint256 borrowAmount;
-  }
-
   /**
    * @dev Calculates the loan liquidation price
    * @param loanId the loan Id
@@ -316,16 +333,6 @@ library GenericLogic {
     vars.liquidatePrice = vars.nftPriceInReserve.percentMul(PercentageMath.PERCENTAGE_FACTOR - vars.liquidationBonus);
 
     return (vars.borrowAmount, vars.thresholdPrice, vars.liquidatePrice);
-  }
-
-  struct CalcLoanBidFineLocalVars {
-    uint256 reserveDecimals;
-    uint256 reservePriceInETH;
-    uint256 baseBidFineInReserve;
-    uint256 minBidFinePct;
-    uint256 minBidFineInReserve;
-    uint256 bidFineInReserve;
-    uint256 debtAmount;
   }
 
   function calculateLoanBidFine(

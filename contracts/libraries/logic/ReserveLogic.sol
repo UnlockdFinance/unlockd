@@ -16,14 +16,18 @@ import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ER
 
 /**
  * @title ReserveLogic library
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  * @notice Implements the logic to update the reserves state
  */
 library ReserveLogic {
   using WadRayMath for uint256;
   using PercentageMath for uint256;
   using SafeERC20Upgradeable for IERC20Upgradeable;
-
+  using ReserveLogic for DataTypes.ReserveData;
+  using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
+  /*//////////////////////////////////////////////////////////////
+                          EVENTS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Emitted when the state of a reserve is updated
    * @param asset The address of the underlying asset of the reserve
@@ -39,56 +43,52 @@ library ReserveLogic {
     uint256 liquidityIndex,
     uint256 variableBorrowIndex
   );
-
-  using ReserveLogic for DataTypes.ReserveData;
-  using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
-
-  /**
-   * @dev Returns the ongoing normalized income for the reserve
-   * A value of 1e27 means there is no income. As time passes, the income is accrued
-   * A value of 2*1e27 means for each unit of asset one unit of income has been accrued
-   * @param reserve The reserve object
-   * @return the normalized income. expressed in ray
-   **/
-  function getNormalizedIncome(DataTypes.ReserveData storage reserve) internal view returns (uint256) {
-    uint40 timestamp = reserve.lastUpdateTimestamp;
-
-    //solium-disable-next-line
-    if (timestamp == uint40(block.timestamp)) {
-      //if the index was updated in the same block, no need to perform any calculation
-      return reserve.liquidityIndex;
-    }
-
-    uint256 cumulated = MathUtils.calculateLinearInterest(reserve.currentLiquidityRate, timestamp).rayMul(
-      reserve.liquidityIndex
-    );
-
-    return cumulated;
+  /*//////////////////////////////////////////////////////////////
+                          STRUCTS
+  //////////////////////////////////////////////////////////////*/
+  struct UpdateInterestRatesLocalVars {
+    uint256 availableLiquidity;
+    uint256 newLiquidityRate;
+    uint256 newVariableRate;
+    uint256 totalVariableDebt;
   }
 
-  /**
-   * @dev Returns the ongoing normalized variable debt for the reserve
-   * A value of 1e27 means there is no debt. As time passes, the income is accrued
-   * A value of 2*1e27 means that for each unit of debt, one unit worth of interest has been accumulated
-   * @param reserve The reserve object
-   * @return The normalized variable debt. expressed in ray
-   **/
-  function getNormalizedDebt(DataTypes.ReserveData storage reserve) internal view returns (uint256) {
-    uint40 timestamp = reserve.lastUpdateTimestamp;
-
-    //solium-disable-next-line
-    if (timestamp == uint40(block.timestamp)) {
-      //if the index was updated in the same block, no need to perform any calculation
-      return reserve.variableBorrowIndex;
-    }
-
-    uint256 cumulated = MathUtils.calculateCompoundedInterest(reserve.currentVariableBorrowRate, timestamp).rayMul(
-      reserve.variableBorrowIndex
-    );
-
-    return cumulated;
+  struct MintToTreasuryLocalVars {
+    uint256 currentVariableDebt;
+    uint256 previousVariableDebt;
+    uint256 totalDebtAccrued;
+    uint256 amountToMint;
+    uint256 reserveFactor;
   }
 
+  /*//////////////////////////////////////////////////////////////
+                          MAIN LOGIC
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @dev Initializes a reserve
+   * @param reserve The reserve object
+   * @param uTokenAddress The address of the overlying uToken contract
+   * @param debtTokenAddress The address of the overlying debtToken contract
+   * @param interestRateAddress The address of the interest rate strategy contract
+   **/
+  function init(
+    DataTypes.ReserveData storage reserve,
+    address uTokenAddress,
+    address debtTokenAddress,
+    address interestRateAddress
+  ) external {
+    require(reserve.uTokenAddress == address(0), Errors.RL_RESERVE_ALREADY_INITIALIZED);
+
+    reserve.liquidityIndex = uint128(WadRayMath.ray());
+    reserve.variableBorrowIndex = uint128(WadRayMath.ray());
+    reserve.uTokenAddress = uTokenAddress;
+    reserve.debtTokenAddress = debtTokenAddress;
+    reserve.interestRateAddress = interestRateAddress;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Updates the liquidity cumulative index and the variable borrow index.
    * @param reserve the reserve object
@@ -139,35 +139,6 @@ library ReserveLogic {
   }
 
   /**
-   * @dev Initializes a reserve
-   * @param reserve The reserve object
-   * @param uTokenAddress The address of the overlying uToken contract
-   * @param debtTokenAddress The address of the overlying debtToken contract
-   * @param interestRateAddress The address of the interest rate strategy contract
-   **/
-  function init(
-    DataTypes.ReserveData storage reserve,
-    address uTokenAddress,
-    address debtTokenAddress,
-    address interestRateAddress
-  ) external {
-    require(reserve.uTokenAddress == address(0), Errors.RL_RESERVE_ALREADY_INITIALIZED);
-
-    reserve.liquidityIndex = uint128(WadRayMath.ray());
-    reserve.variableBorrowIndex = uint128(WadRayMath.ray());
-    reserve.uTokenAddress = uTokenAddress;
-    reserve.debtTokenAddress = debtTokenAddress;
-    reserve.interestRateAddress = interestRateAddress;
-  }
-
-  struct UpdateInterestRatesLocalVars {
-    uint256 availableLiquidity;
-    uint256 newLiquidityRate;
-    uint256 newVariableRate;
-    uint256 totalVariableDebt;
-  }
-
-  /**
    * @dev Updates the reserve current stable borrow rate, the current variable borrow rate and the current liquidity rate
    * @param reserve The address of the reserve to be updated
    * @param liquidityAdded The amount of liquidity added to the protocol (deposit or repay) in the previous action
@@ -210,14 +181,6 @@ library ReserveLogic {
       reserve.liquidityIndex,
       reserve.variableBorrowIndex
     );
-  }
-
-  struct MintToTreasuryLocalVars {
-    uint256 currentVariableDebt;
-    uint256 previousVariableDebt;
-    uint256 totalDebtAccrued;
-    uint256 amountToMint;
-    uint256 reserveFactor;
   }
 
   /**
@@ -305,5 +268,54 @@ library ReserveLogic {
     //solium-disable-next-line
     reserve.lastUpdateTimestamp = uint40(block.timestamp);
     return (newLiquidityIndex, newVariableBorrowIndex);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                        INTERNAL GETTERS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @dev Returns the ongoing normalized income for the reserve
+   * A value of 1e27 means there is no income. As time passes, the income is accrued
+   * A value of 2*1e27 means for each unit of asset one unit of income has been accrued
+   * @param reserve The reserve object
+   * @return the normalized income. expressed in ray
+   **/
+  function getNormalizedIncome(DataTypes.ReserveData storage reserve) internal view returns (uint256) {
+    uint40 timestamp = reserve.lastUpdateTimestamp;
+
+    //solium-disable-next-line
+    if (timestamp == uint40(block.timestamp)) {
+      //if the index was updated in the same block, no need to perform any calculation
+      return reserve.liquidityIndex;
+    }
+
+    uint256 cumulated = MathUtils.calculateLinearInterest(reserve.currentLiquidityRate, timestamp).rayMul(
+      reserve.liquidityIndex
+    );
+
+    return cumulated;
+  }
+
+  /**
+   * @dev Returns the ongoing normalized variable debt for the reserve
+   * A value of 1e27 means there is no debt. As time passes, the income is accrued
+   * A value of 2*1e27 means that for each unit of debt, one unit worth of interest has been accumulated
+   * @param reserve The reserve object
+   * @return The normalized variable debt. expressed in ray
+   **/
+  function getNormalizedDebt(DataTypes.ReserveData storage reserve) internal view returns (uint256) {
+    uint40 timestamp = reserve.lastUpdateTimestamp;
+
+    //solium-disable-next-line
+    if (timestamp == uint40(block.timestamp)) {
+      //if the index was updated in the same block, no need to perform any calculation
+      return reserve.variableBorrowIndex;
+    }
+
+    uint256 cumulated = MathUtils.calculateCompoundedInterest(reserve.currentVariableBorrowRate, timestamp).rayMul(
+      reserve.variableBorrowIndex
+    );
+
+    return cumulated;
   }
 }

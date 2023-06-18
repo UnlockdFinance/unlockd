@@ -15,7 +15,6 @@ import {ValidationLogic} from "../libraries/logic/ValidationLogic.sol";
 import {SupplyLogic} from "../libraries/logic/SupplyLogic.sol";
 import {BorrowLogic} from "../libraries/logic/BorrowLogic.sol";
 import {LiquidateLogic} from "../libraries/logic/LiquidateLogic.sol";
-import {LiquidateMarketsLogic} from "../libraries/logic/LiquidateMarketsLogic.sol";
 
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
@@ -45,7 +44,7 @@ import {ContextUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Cont
  * - To be covered by a proxy contract, owned by the LendPoolAddressesProvider of the specific market
  * - All admin functions are callable by the LendPoolConfigurator contract defined also in the
  *   LendPoolAddressesProvider
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  **/
 // !!! For Upgradable: DO NOT ADJUST Inheritance Order !!!
 contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721ReceiverUpgradeable, LendPoolStorage {
@@ -56,11 +55,17 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
   using NftConfiguration for DataTypes.NftConfigurationMap;
 
+  /*//////////////////////////////////////////////////////////////
+                          CONSTANT VARIABLES
+  //////////////////////////////////////////////////////////////*/
   bytes32 public constant ADDRESS_ID_WETH_GATEWAY = keccak256("WETH_GATEWAY");
   bytes32 public constant ADDRESS_ID_PUNK_GATEWAY = keccak256("PUNK_GATEWAY");
   bytes32 public constant ADDRESS_ID_PUNKS = keccak256("PUNKS");
   bytes32 public constant ADDRESS_ID_WPUNKS = keccak256("WPUNKS");
 
+  /*//////////////////////////////////////////////////////////////
+                          MODIFIERS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Prevents a contract from calling itself, directly or indirectly.
    * Calling a `nonReentrant` function from another `nonReentrant`
@@ -135,10 +140,9 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     _;
   }
 
-  function _whenNotPaused() internal view {
-    require(!_paused, Errors.LP_IS_PAUSED);
-  }
-
+  /*//////////////////////////////////////////////////////////////
+                          MODIFIER FUNCTIONS
+  //////////////////////////////////////////////////////////////*/
   function _onlyLendPoolConfigurator() internal view {
     require(_addressesProvider.getLendPoolConfigurator() == _msgSender(), Errors.LP_CALLER_NOT_LEND_POOL_CONFIGURATOR);
   }
@@ -151,6 +155,17 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
       Errors.LP_CALLER_NOT_LEND_POOL_LIQUIDATOR_NOR_GATEWAY
     );
   }
+
+  function _whenNotPaused() internal view {
+    require(!_paused, Errors.LP_IS_PAUSED);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          INITIALIZERS
+  //////////////////////////////////////////////////////////////*/
+
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() initializer {}
 
   /**
    * @dev Function is invoked by the proxy contract when the LendPool contract is added to the
@@ -168,6 +183,144 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     _addressesProvider = provider;
   }
 
+  /*//////////////////////////////////////////////////////////////
+                    Fallback and Receive Functions
+  //////////////////////////////////////////////////////////////*/
+  function onERC721Received(address, address, uint256, bytes memory) external pure override returns (bytes4) {
+    return IERC721ReceiverUpgradeable.onERC721Received.selector;
+  }
+
+  receive() external payable {}
+
+  /*//////////////////////////////////////////////////////////////
+                          RESCUERS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @notice Rescue tokens and ETH locked up in this contract.
+   * @param tokenContract ERC20 token contract address
+   * @param to        Recipient address
+   * @param amount    Amount to withdraw
+   */
+  function rescue(
+    IERC20 tokenContract,
+    address to,
+    uint256 amount,
+    bool rescueETH
+  ) external override nonReentrant onlyRescuer {
+    if (rescueETH) {
+      (bool sent, ) = to.call{value: amount}("");
+      require(sent, "Failed to send Ether");
+    } else {
+      tokenContract.safeTransfer(to, amount);
+    }
+  }
+
+  /**
+   * @notice Rescue NFTs locked up in this contract.
+   * @param nftAsset ERC721 asset contract address
+   * @param tokenId ERC721 token id
+   * @param to Recipient address
+   */
+  function rescueNFT(
+    IERC721Upgradeable nftAsset,
+    uint256 tokenId,
+    address to
+  ) external override nonReentrant onlyRescuer {
+    nftAsset.safeTransferFrom(address(this), to, tokenId);
+  }
+
+  /**
+   * @notice Assign the rescuer role to a given address.
+   * @param newRescuer New rescuer's address
+   */
+  function updateRescuer(address newRescuer) external override onlyLendPoolConfigurator {
+    require(newRescuer != address(0), "Rescuable: new rescuer is the zero address");
+    _rescuer = newRescuer;
+    emit RescuerChanged(newRescuer);
+  }
+
+  /**
+   * @notice Returns current rescuer
+   * @return Rescuer's address
+   */
+  function rescuer() external view override returns (address) {
+    return _rescuer;
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                  RESERVES INITIALIZERS & UPDATERS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @dev Initializes a reserve, activating it, assigning an uToken and nft loan and an
+   * interest rate strategy
+   * - Only callable by the LendPoolConfigurator contract
+   * @param asset The address of the underlying asset of the reserve
+   * @param uTokenAddress The address of the uToken that will be assigned to the reserve
+   * @param debtTokenAddress The address of the debtToken that will be assigned to the reserve
+   * @param interestRateAddress The address of the interest rate strategy contract
+   **/
+  function initReserve(
+    address asset,
+    address uTokenAddress,
+    address debtTokenAddress,
+    address interestRateAddress
+  ) external override onlyLendPoolConfigurator {
+    require(AddressUpgradeable.isContract(asset), Errors.LP_NOT_CONTRACT);
+    require(
+      uTokenAddress != address(0) && debtTokenAddress != address(0) && interestRateAddress != address(0),
+      Errors.INVALID_ZERO_ADDRESS
+    );
+    _reserves[asset].init(uTokenAddress, debtTokenAddress, interestRateAddress);
+    _addReserveToList(asset);
+  }
+
+  /**
+   * @dev Initializes a nft, activating it, assigning nft loan and an
+   * interest rate strategy
+   * - Only callable by the LendPoolConfigurator contract
+   * @param asset The address of the underlying asset of the nft
+   * @param uNftAddress the address of the UNFT regarding the chosen asset
+   **/
+  function initNft(address asset, address uNftAddress) external override onlyLendPoolConfigurator {
+    require(AddressUpgradeable.isContract(asset), Errors.LP_NOT_CONTRACT);
+    require(uNftAddress != address(0), Errors.INVALID_ZERO_ADDRESS);
+    _nfts[asset].init(uNftAddress);
+    _addNftToList(asset);
+
+    require(_addressesProvider.getLendPoolLoan() != address(0), Errors.LPC_INVALIED_LOAN_ADDRESS);
+    IERC721Upgradeable(asset).setApprovalForAll(_addressesProvider.getLendPoolLoan(), true);
+
+    ILendPoolLoan(_addressesProvider.getLendPoolLoan()).initNft(asset, uNftAddress);
+  }
+
+  /**
+   * @dev Updates the liquidity cumulative index and the variable borrow index.
+   * @param reserve the reserve object
+   **/
+  function updateReserveState(address reserve) external override {
+    DataTypes.ReserveData storage reserveData = _reserves[reserve];
+    require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
+    require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
+
+    reserveData.updateState();
+  }
+
+  /**
+   * @dev Updates the reserve current stable borrow rate, the current variable borrow rate and the current liquidity rate
+   * @param reserve The address of the reserve to be updated
+   **/
+  function updateReserveInterestRates(address reserve) external override {
+    DataTypes.ReserveData storage reserveData = _reserves[reserve];
+    address uTokenAddress = reserveData.uTokenAddress;
+    require(uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
+    require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
+
+    reserveData.updateInterestRates(reserve, uTokenAddress, 0, 0);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          MAIN LOGIC
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Deposits an `amount` of underlying asset into the reserve, receiving in return overlying uTokens.
    * - E.g. User deposits 100 USDC and gets in return 100 uusdc
@@ -306,8 +459,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
       _reserves,
       _nfts,
       _nftConfig,
-      _isMarketSupported,
-      _sudoswapPairs,
       _buildLendPoolVars(),
       DataTypes.ExecuteAuctionParams({
         initiator: _msgSender(),
@@ -315,7 +466,39 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
         nftTokenId: nftTokenId,
         bidPrice: bidPrice,
         onBehalfOf: onBehalfOf,
-        auctionDurationConfigFee: _auctionDurationConfigFee
+        auctionDurationConfigFee: _auctionDurationConfigFee,
+        bidDelta: _bidDelta
+      })
+    );
+  }
+
+  /**
+   * @dev Function to buyout a non-healthy position collateral-wise
+   * - The bidder want to buy collateral asset of the user getting liquidated
+   * @param nftAsset The address of the underlying NFT used as collateral
+   * @param nftTokenId The token ID of the underlying NFT used as collateral
+   * @param buyoutAmount The buyout price of the underlying NFT
+   * @param onBehalfOf Address of the user who will get the underlying NFT, same as msg.sender if the user
+   *   wants to receive them on his own wallet, or a different address if the beneficiary of NFT
+   *   is a different wallet
+   **/
+  function buyout(
+    address nftAsset,
+    uint256 nftTokenId,
+    uint256 buyoutAmount,
+    address onBehalfOf
+  ) external override nonReentrant whenNotPaused {
+    LiquidateLogic.executeBuyout(
+      _addressesProvider,
+      _reserves,
+      _nfts,
+      _nftConfig,
+      DataTypes.ExecuteBuyoutParams({
+        initiator: _msgSender(),
+        nftAsset: nftAsset,
+        nftTokenId: nftTokenId,
+        amount: buyoutAmount,
+        onBehalfOf: onBehalfOf
       })
     );
   }
@@ -380,61 +563,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
       );
   }
 
-  /**
-   * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The collateral asset is sold on NFTX
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param nftTokenId The token ID of the underlying NFT used as collateral
-   **/
-  function liquidateNFTX(
-    address nftAsset,
-    uint256 nftTokenId,
-    uint256 amountOutMin
-  ) external override nonReentrant onlyLendPoolLiquidatorOrGateway whenNotPaused returns (uint256) {
-    return
-      LiquidateMarketsLogic.executeLiquidateNFTX(
-        _addressesProvider,
-        _reserves,
-        _nfts,
-        _nftConfig,
-        DataTypes.ExecuteLiquidateMarketsParams({
-          nftAsset: nftAsset,
-          nftTokenId: nftTokenId,
-          liquidateFeePercentage: _liquidateFeePercentage,
-          amountOutMin: amountOutMin
-        })
-      );
-  }
-
-  /**
-   * @dev Function to liquidate a non-healthy position collateral-wise
-   * - The collateral asset is sold on SudoSwap
-   * @param nftAsset The address of the underlying NFT used as collateral
-   * @param nftTokenId The token ID of the underlying NFT used as collateral
-   **/
-  function liquidateSudoSwap(
-    address nftAsset,
-    uint256 nftTokenId,
-    uint256 amountOutMin,
-    address LSSVMPair,
-    uint256 amountOutMinSudoswap
-  ) external override nonReentrant onlyLendPoolLiquidatorOrGateway whenNotPaused returns (uint256) {
-    return
-      LiquidateMarketsLogic.executeLiquidateSudoSwap(
-        _addressesProvider,
-        _reserves,
-        _nfts,
-        _nftConfig,
-        DataTypes.ExecuteLiquidateMarketsParams({
-          nftAsset: nftAsset,
-          nftTokenId: nftTokenId,
-          liquidateFeePercentage: _liquidateFeePercentage,
-          amountOutMin: amountOutMin
-        }),
-        DataTypes.SudoSwapParams({LSSVMPair: LSSVMPair, amountOutMinSudoswap: amountOutMinSudoswap})
-      );
-  }
-
   function approveValuation(
     address nftAsset,
     uint256 nftTokenId
@@ -444,35 +572,51 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     emit ValuationApproved(_msgSender(), nftAsset, nftTokenId);
   }
 
-  function onERC721Received(address, address, uint256, bytes memory) external pure override returns (bytes4) {
-    return IERC721ReceiverUpgradeable.onERC721Received.selector;
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
+  function _addReserveToList(address asset) internal {
+    uint256 reservesCount = _reservesCount;
+
+    require(reservesCount < _maxNumberOfReserves, Errors.LP_NO_MORE_RESERVES_ALLOWED);
+
+    bool reserveAlreadyAdded = _reserves[asset].id != 0 || _reservesList[0] == asset;
+
+    if (!reserveAlreadyAdded) {
+      _reserves[asset].id = uint8(reservesCount);
+      _reservesList[reservesCount] = asset;
+
+      _reservesCount = reservesCount + 1;
+    }
   }
 
+  function _addNftToList(address asset) internal {
+    uint256 nftsCount = _nftsCount;
+
+    require(nftsCount < _maxNumberOfNfts, Errors.LP_NO_MORE_NFTS_ALLOWED);
+
+    bool nftAlreadyAdded = _nfts[asset].id != 0 || _nftsList[0] == asset;
+
+    if (!nftAlreadyAdded) {
+      _nfts[asset].id = uint8(nftsCount);
+      _nftsList[nftsCount] = asset;
+
+      _nftsCount = nftsCount + 1;
+    }
+  }
+
+  function _buildLendPoolVars() internal view returns (DataTypes.ExecuteLendPoolStates memory) {
+    return DataTypes.ExecuteLendPoolStates({pauseStartTime: _pauseStartTime, pauseDurationTime: _pauseDurationTime});
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                    GETTERS & SETTERS
+  //////////////////////////////////////////////////////////////*/
   /**
-   * @dev Returns the configuration of the reserve
-   * @param asset The address of the underlying asset of the reserve
-   * @return The configuration of the reserve
+   * @dev Returns the cached LendPoolAddressesProvider connected to this contract
    **/
-  function getReserveConfiguration(
-    address asset
-  ) external view override returns (DataTypes.ReserveConfigurationMap memory) {
-    return _reserves[asset].configuration;
-  }
-
-  /**
-   * @dev Returns the configuration of the NFT
-   * @param asset The address of the asset of the NFT
-   * @return The configuration of the NFT
-   **/
-  function getNftConfiguration(address asset) external view override returns (DataTypes.NftConfigurationMap memory) {
-    return _nfts[asset].configuration;
-  }
-
-  function getNftConfigByTokenId(
-    address asset,
-    uint256 nftTokenId
-  ) external view override returns (DataTypes.NftConfigurationMap memory) {
-    return _nftConfig[asset][nftTokenId];
+  function getAddressesProvider() external view override returns (ILendPoolAddressesProvider) {
+    return _addressesProvider;
   }
 
   /**
@@ -498,7 +642,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    * @param asset The address of the underlying asset of the reserve
    * @return The state of the reserve
    **/
-  function getReserveData(address asset) external view override returns (DataTypes.ReserveData memory) {
+  function getReserveData(address asset) public view override returns (DataTypes.ReserveData memory) {
     return _reserves[asset];
   }
 
@@ -623,13 +767,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
       _addressesProvider.getNFTOracle()
     );
 
-    (, totalDebt) = GenericLogic.calculateNftDebtData(
-      reserveAsset,
-      reserveData,
-      _addressesProvider.getLendPoolLoan(),
-      loanId,
-      _addressesProvider.getReserveOracle()
-    );
+    (, totalDebt) = ILendPoolLoan(_addressesProvider.getLendPoolLoan()).getLoanReserveBorrowAmount(loanId);
 
     availableBorrows = GenericLogic.calculateAvailableBorrows(totalCollateral, totalDebt, ltv);
 
@@ -681,56 +819,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     }
   }
 
-  struct GetLiquidationPriceLocalVars {
-    address poolLoan;
-    uint256 loanId;
-    uint256 thresholdPrice;
-    uint256 liquidatePrice;
-    uint256 paybackAmount;
-    uint256 remainAmount;
-  }
-
-  /**
-   * @dev Returns the state and configuration of the nft
-   * @param nftAsset The address of the underlying asset of the nft
-   * @param nftTokenId The token ID of the asset
-   **/
-  function getNftLiquidatePrice(
-    address nftAsset,
-    uint256 nftTokenId
-  ) external view override returns (uint256 liquidatePrice, uint256 paybackAmount) {
-    GetLiquidationPriceLocalVars memory vars;
-
-    vars.poolLoan = _addressesProvider.getLendPoolLoan();
-    vars.loanId = ILendPoolLoan(vars.poolLoan).getCollateralLoanId(nftAsset, nftTokenId);
-    if (vars.loanId == 0) {
-      return (0, 0);
-    }
-
-    DataTypes.LoanData memory loanData = ILendPoolLoan(vars.poolLoan).getLoan(vars.loanId);
-
-    DataTypes.ReserveData storage reserveData = _reserves[loanData.reserveAsset];
-    DataTypes.NftConfigurationMap storage nftConfig = _nftConfig[nftAsset][nftTokenId];
-
-    (vars.paybackAmount, vars.thresholdPrice, vars.liquidatePrice) = GenericLogic.calculateLoanLiquidatePrice(
-      vars.loanId,
-      loanData.reserveAsset,
-      reserveData,
-      loanData.nftAsset,
-      loanData.nftTokenId,
-      nftConfig,
-      vars.poolLoan,
-      _addressesProvider.getReserveOracle(),
-      _addressesProvider.getNFTOracle()
-    );
-
-    if (vars.liquidatePrice < vars.paybackAmount) {
-      vars.liquidatePrice = vars.paybackAmount;
-    }
-
-    return (vars.liquidatePrice, vars.paybackAmount);
-  }
-
   /**
    * @dev Validates and finalizes an uToken transfer
    * - Only callable by the overlying uToken of the `asset`
@@ -757,7 +845,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   function getReservesList() external view override returns (address[] memory) {
     address[] memory _activeReserves = new address[](_reservesCount);
 
-    for (uint256 i = 0; i != _reservesCount; ) {
+    for (uint256 i; i != _reservesCount; ) {
       _activeReserves[i] = _reservesList[i];
       unchecked {
         ++i;
@@ -771,13 +859,85 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
    **/
   function getNftsList() external view override returns (address[] memory) {
     address[] memory _activeNfts = new address[](_nftsCount);
-    for (uint256 i = 0; i != _nftsCount; ) {
+    for (uint256 i; i != _nftsCount; ) {
       _activeNfts[i] = _nftsList[i];
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
     return _activeNfts;
+  }
+
+  /**
+   * @dev Returns the configuration of the reserve
+   * @param asset The address of the underlying asset of the reserve
+   * @return The configuration of the reserve
+   **/
+  function getReserveConfiguration(
+    address asset
+  ) external view override returns (DataTypes.ReserveConfigurationMap memory) {
+    return _reserves[asset].configuration;
+  }
+
+  /**
+   * @dev Sets the configuration bitmap of the reserve as a whole
+   * - Only callable by the LendPoolConfigurator contract
+   * @param asset The address of the underlying asset of the reserve
+   * @param configuration The new configuration bitmap
+   **/
+  function setReserveConfiguration(address asset, uint256 configuration) external override onlyLendPoolConfigurator {
+    _reserves[asset].configuration.data = configuration;
+    emit ReserveConfigurationChanged(asset, configuration);
+  }
+
+  /**
+   * @dev Returns the configuration of the NFT
+   * @param asset The address of the asset of the NFT
+   * @return The configuration of the NFT
+   **/
+  function getNftConfiguration(address asset) external view override returns (DataTypes.NftConfigurationMap memory) {
+    return _nfts[asset].configuration;
+  }
+
+  /**
+   * @dev Sets the configuration bitmap of the NFT as a whole
+   * - Only callable by the LendPoolConfigurator contract
+   * @param asset The address of the asset of the NFT
+   * @param configuration The new configuration bitmap
+   **/
+  function setNftConfiguration(address asset, uint256 configuration) external override onlyLendPoolConfigurator {
+    _nfts[asset].configuration.data = configuration;
+    emit NftConfigurationChanged(asset, configuration);
+  }
+
+  function getNftConfigByTokenId(
+    address asset,
+    uint256 nftTokenId
+  ) external view override returns (DataTypes.NftConfigurationMap memory) {
+    return _nftConfig[asset][nftTokenId];
+  }
+
+  /**
+   * @dev Sets the configuration bitmap of the NFT as a whole
+   * - Only callable by the LendPoolConfigurator contract
+   * @param asset The address of the asset of the NFT
+   * @param nftTokenId the tokenId of the asset
+   * @param configuration The new configuration bitmap
+   **/
+  function setNftConfigByTokenId(
+    address asset,
+    uint256 nftTokenId,
+    uint256 configuration
+  ) external override onlyLendPoolConfigurator {
+    _nftConfig[asset][nftTokenId].data = configuration;
+    emit NftConfigurationByIdChanged(asset, nftTokenId, configuration);
+  }
+
+  /**
+   * @dev Returns if the LendPool is paused
+   */
+  function paused() external view override returns (bool) {
+    return _paused;
   }
 
   /**
@@ -798,13 +958,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     }
   }
 
-  /**
-   * @dev Returns if the LendPool is paused
-   */
-  function paused() external view override returns (bool) {
-    return _paused;
-  }
-
   function setPausedTime(uint256 startTime, uint256 durationTime) external override onlyLendPoolConfigurator {
     _pauseStartTime = startTime;
     _pauseDurationTime = durationTime;
@@ -813,13 +966,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
 
   function getPausedTime() external view override returns (uint256, uint256) {
     return (_pauseStartTime, _pauseDurationTime);
-  }
-
-  /**
-   * @dev Returns the cached LendPoolAddressesProvider connected to this contract
-   **/
-  function getAddressesProvider() external view override returns (ILendPoolAddressesProvider) {
-    return _addressesProvider;
   }
 
   /**
@@ -881,22 +1027,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   }
 
   /**
-   * @dev Allows and address to be sold on NFTX
-   * @param nftAsset the address of the NFT
-   **/
-  function setIsMarketSupported(address nftAsset, uint8 market, bool val) external override onlyLendPoolConfigurator {
-    require(nftAsset != address(0), Errors.INVALID_ZERO_ADDRESS);
-    _isMarketSupported[nftAsset][market] = val;
-  }
-
-  /**
-   * @dev Returns the max timeframe between NFT config triggers and borrows
-   **/
-  function getIsMarketSupported(address nftAsset, uint8 market) external view override returns (bool) {
-    return _isMarketSupported[nftAsset][market];
-  }
-
-  /**
    * @dev Sets configFee amount to be charged for ConfigureNFTAsColleteral
    * @param configFee the number of seconds for the timeframe
    **/
@@ -927,166 +1057,18 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   }
 
   /**
-   * @dev Initializes a reserve, activating it, assigning an uToken and nft loan and an
-   * interest rate strategy
-   * - Only callable by the LendPoolConfigurator contract
-   * @param asset The address of the underlying asset of the reserve
-   * @param uTokenAddress The address of the uToken that will be assigned to the reserve
-   * @param debtTokenAddress The address of the debtToken that will be assigned to the reserve
-   * @param interestRateAddress The address of the interest rate strategy contract
+   * @dev sets the bidDelta percentage - debt compounded + fees.
+   * @param bidDelta the amount to charge to the user
    **/
-  function initReserve(
-    address asset,
-    address uTokenAddress,
-    address debtTokenAddress,
-    address interestRateAddress
-  ) external override onlyLendPoolConfigurator {
-    require(AddressUpgradeable.isContract(asset), Errors.LP_NOT_CONTRACT);
-    require(
-      uTokenAddress != address(0) && debtTokenAddress != address(0) && interestRateAddress != address(0),
-      Errors.INVALID_ZERO_ADDRESS
-    );
-    _reserves[asset].init(uTokenAddress, debtTokenAddress, interestRateAddress);
-    _addReserveToList(asset);
+  function setBidDelta(uint256 bidDelta) external override onlyLendPoolConfigurator {
+    _bidDelta = bidDelta;
   }
 
   /**
-   * @dev Initializes a nft, activating it, assigning nft loan and an
-   * interest rate strategy
-   * - Only callable by the LendPoolConfigurator contract
-   * @param asset The address of the underlying asset of the nft
-   * @param uNftAddress the address of the UNFT regarding the chosen asset
+   * @dev Returns the bidDelta percentage - debt compounded + fees.
    **/
-  function initNft(address asset, address uNftAddress) external override onlyLendPoolConfigurator {
-    require(AddressUpgradeable.isContract(asset), Errors.LP_NOT_CONTRACT);
-    require(uNftAddress != address(0), Errors.INVALID_ZERO_ADDRESS);
-    _nfts[asset].init(uNftAddress);
-    _addNftToList(asset);
-
-    require(_addressesProvider.getLendPoolLoan() != address(0), Errors.LPC_INVALIED_LOAN_ADDRESS);
-    IERC721Upgradeable(asset).setApprovalForAll(_addressesProvider.getLendPoolLoan(), true);
-
-    ILendPoolLoan(_addressesProvider.getLendPoolLoan()).initNft(asset, uNftAddress);
-  }
-
-  /**
-   * @dev Updates the address of the interest rate strategy contract
-   * - Only callable by the LendPoolConfigurator contract
-   * @param asset The address of the underlying asset of the reserve
-   * @param rateAddress The address of the interest rate strategy contract
-   **/
-  function setReserveInterestRateAddress(
-    address asset,
-    address rateAddress
-  ) external override onlyLendPoolConfigurator {
-    require(asset != address(0) && rateAddress != address(0), Errors.INVALID_ZERO_ADDRESS);
-    _reserves[asset].interestRateAddress = rateAddress;
-    emit ReserveInterestRateAddressChanged(asset, rateAddress);
-  }
-
-  /**
-   * @dev Sets the configuration bitmap of the reserve as a whole
-   * - Only callable by the LendPoolConfigurator contract
-   * @param asset The address of the underlying asset of the reserve
-   * @param configuration The new configuration bitmap
-   **/
-  function setReserveConfiguration(address asset, uint256 configuration) external override onlyLendPoolConfigurator {
-    _reserves[asset].configuration.data = configuration;
-    emit ReserveConfigurationChanged(asset, configuration);
-  }
-
-  /**
-   * @dev Sets the configuration bitmap of the NFT as a whole
-   * - Only callable by the LendPoolConfigurator contract
-   * @param asset The address of the asset of the NFT
-   * @param configuration The new configuration bitmap
-   **/
-  function setNftConfiguration(address asset, uint256 configuration) external override onlyLendPoolConfigurator {
-    _nfts[asset].configuration.data = configuration;
-    emit NftConfigurationChanged(asset, configuration);
-  }
-
-  /**
-   * @dev Sets the configuration bitmap of the NFT as a whole
-   * - Only callable by the LendPoolConfigurator contract
-   * @param asset The address of the asset of the NFT
-   * @param nftTokenId the tokenId of the asset
-   * @param configuration The new configuration bitmap
-   **/
-  function setNftConfigByTokenId(
-    address asset,
-    uint256 nftTokenId,
-    uint256 configuration
-  ) external override onlyLendPoolConfigurator {
-    _nftConfig[asset][nftTokenId].data = configuration;
-    emit NftConfigurationByIdChanged(asset, nftTokenId, configuration);
-  }
-
-  /**
-   * @dev Sets the max supply and token ID for a given asset
-   * @param asset The address to set the data
-   * @param maxSupply The max supply value
-   * @param maxTokenId The max token ID value
-   **/
-  function setNftMaxSupplyAndTokenId(
-    address asset,
-    uint256 maxSupply,
-    uint256 maxTokenId
-  ) external override onlyLendPoolConfigurator {
-    _nfts[asset].maxSupply = maxSupply;
-    _nfts[asset].maxTokenId = maxTokenId;
-  }
-
-  /**
-   * @notice Rescue tokens and ETH locked up in this contract.
-   * @param tokenContract ERC20 token contract address
-   * @param to        Recipient address
-   * @param amount    Amount to withdraw
-   */
-  function rescue(
-    IERC20 tokenContract,
-    address to,
-    uint256 amount,
-    bool rescueETH
-  ) external override nonReentrant onlyRescuer {
-    if (rescueETH) {
-      (bool sent, ) = to.call{value: amount}("");
-      require(sent, "Failed to send Ether");
-    } else {
-      tokenContract.safeTransfer(to, amount);
-    }
-  }
-
-  /**
-   * @notice Rescue NFTs locked up in this contract.
-   * @param nftAsset ERC721 asset contract address
-   * @param tokenId ERC721 token id
-   * @param to Recipient address
-   */
-  function rescueNFT(
-    IERC721Upgradeable nftAsset,
-    uint256 tokenId,
-    address to
-  ) external override nonReentrant onlyRescuer {
-    nftAsset.safeTransferFrom(address(this), to, tokenId);
-  }
-
-  /**
-   * @notice Assign the rescuer role to a given address.
-   * @param newRescuer New rescuer's address
-   */
-  function updateRescuer(address newRescuer) external override onlyLendPoolConfigurator {
-    require(newRescuer != address(0), "Rescuable: new rescuer is the zero address");
-    _rescuer = newRescuer;
-    emit RescuerChanged(newRescuer);
-  }
-
-  /**
-   * @notice Returns current rescuer
-   * @return Rescuer's address
-   */
-  function rescuer() external view override returns (address) {
-    return _rescuer;
+  function getBidDelta() public view override returns (uint256) {
+    return _bidDelta;
   }
 
   /**
@@ -1107,39 +1089,33 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     return _safeHealthFactor;
   }
 
-  function _addReserveToList(address asset) internal {
-    uint256 reservesCount = _reservesCount;
-
-    require(reservesCount < _maxNumberOfReserves, Errors.LP_NO_MORE_RESERVES_ALLOWED);
-
-    bool reserveAlreadyAdded = _reserves[asset].id != 0 || _reservesList[0] == asset;
-
-    if (!reserveAlreadyAdded) {
-      _reserves[asset].id = uint8(reservesCount);
-      _reservesList[reservesCount] = asset;
-
-      _reservesCount = reservesCount + 1;
-    }
+  /**
+   * @dev Updates the address of the interest rate strategy contract
+   * - Only callable by the LendPoolConfigurator contract
+   * @param asset The address of the underlying asset of the reserve
+   * @param rateAddress The address of the interest rate strategy contract
+   **/
+  function setReserveInterestRateAddress(
+    address asset,
+    address rateAddress
+  ) external override onlyLendPoolConfigurator {
+    require(asset != address(0) && rateAddress != address(0), Errors.INVALID_ZERO_ADDRESS);
+    _reserves[asset].interestRateAddress = rateAddress;
+    emit ReserveInterestRateAddressChanged(asset, rateAddress);
   }
 
-  function _addNftToList(address asset) internal {
-    uint256 nftsCount = _nftsCount;
-
-    require(nftsCount < _maxNumberOfNfts, Errors.LP_NO_MORE_NFTS_ALLOWED);
-
-    bool nftAlreadyAdded = _nfts[asset].id != 0 || _nftsList[0] == asset;
-
-    if (!nftAlreadyAdded) {
-      _nfts[asset].id = uint8(nftsCount);
-      _nftsList[nftsCount] = asset;
-
-      _nftsCount = nftsCount + 1;
-    }
+  /**
+   * @dev Sets the max supply and token ID for a given asset
+   * @param asset The address to set the data
+   * @param maxSupply The max supply value
+   * @param maxTokenId The max token ID value
+   **/
+  function setNftMaxSupplyAndTokenId(
+    address asset,
+    uint256 maxSupply,
+    uint256 maxTokenId
+  ) external override onlyLendPoolConfigurator {
+    _nfts[asset].maxSupply = maxSupply;
+    _nfts[asset].maxTokenId = maxTokenId;
   }
-
-  function _buildLendPoolVars() internal view returns (DataTypes.ExecuteLendPoolStates memory) {
-    return DataTypes.ExecuteLendPoolStates({pauseStartTime: _pauseStartTime, pauseDurationTime: _pauseDurationTime});
-  }
-
-  receive() external payable {}
 }

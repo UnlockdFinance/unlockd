@@ -6,7 +6,7 @@ pragma solidity 0.8.4;
  * @dev Main registry of addresses part of or connected to the protocol, including permissioned roles
  * - Acting also as factory of proxies and admin of those, so with right to change its implementations
  * - Owned by the Unlockd Governance
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  **/
 interface ILendPoolAddressesProvider {
   event MarketIdSet(string newMarketId);
@@ -24,9 +24,6 @@ interface ILendPoolAddressesProvider {
   event UIDataProviderUpdated(address indexed newAddress);
   event UnlockdDataProviderUpdated(address indexed newAddress);
   event WalletBalanceProviderUpdated(address indexed newAddress);
-  event NFTXVaultFactoryUpdated(address indexed newAddress);
-  event SushiSwapRouterUpdated(address indexed newAddress);
-  event LSSVMRouterUpdated(address indexed newAddress);
   event LendPoolLiquidatorUpdated(address indexed newAddress);
   event LtvManagerUpdated(address indexed newAddress);
 
@@ -215,36 +212,6 @@ interface ILendPoolAddressesProvider {
    * @param provider the WalletBalanceProvider address
    **/
   function setWalletBalanceProvider(address provider) external;
-
-  function getNFTXVaultFactory() external view returns (address);
-
-  /**
-   * @dev sets the address of the NFTXVault Factory contract
-   * @param factory the NFTXVault Factory address
-   **/
-  function setNFTXVaultFactory(address factory) external;
-
-  /**
-   * @dev returns the address of the SushiSwap router contract
-   **/
-  function getSushiSwapRouter() external view returns (address);
-
-  /**
-   * @dev sets the address of the LSSVM router contract
-   * @param router the LSSVM router address
-   **/
-  function setSushiSwapRouter(address router) external;
-
-  /**
-   * @dev returns the address of the LSSVM router contract
-   **/
-  function getLSSVMRouter() external view returns (address);
-
-  /**
-   * @dev sets the address of the LSSVM router contract
-   * @param router the SushiSwap router address
-   **/
-  function setLSSVMRouter(address router) external;
 
   /**
    * @dev returns the address of the LendPool liquidator contract

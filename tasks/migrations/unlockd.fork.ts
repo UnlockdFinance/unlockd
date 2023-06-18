@@ -149,6 +149,8 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
       await DRE.run("fork:deploy-unft-registry", { pool: POOL_NAME, testupgrade: testupgrade, createunfts: true });
 
       //////////////////////////////////////////////////////////////////////////
+      console.log("\n\nDeploy Lockey Holders");
+      await DRE.run("fork:deploy-lockey-holders", { pool: POOL_NAME });
 
       //////////////////////////////////////////////////////////////////////////
       console.log("\n\nDeploy lend pool");
@@ -168,6 +170,12 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
       await waitForTx(await lendPoolConfiguratorProxy.connect(emergencyAdminSigner).setPoolPause(false));
 
       await waitForTx(await lendPoolConfiguratorProxy.connect(poolAdminSigner).setTimeframe(3600000));
+
+      //////////////////////////////////////////////////////////////////////////
+      console.log("\n\nDeploy Debt Market");
+      await DRE.run("fork:deploy-debt-market", {});
+
+      //////////////////////////////////////////////////////////////////////////
 
       if (testupgrade && upgradeInterestRate) {
         await DRE.run("fork:deploy-interest-rate", {
@@ -220,6 +228,10 @@ task("unlockd:fork", "Deploy a mock enviroment for forking networks")
         console.log("\n\nInitialize gateway");
         await DRE.run("fork:initialize-gateway", { pool: POOL_NAME, verify: false });
       }
+
+      //////////////////////////////////////////////////////////////////////////
+      console.log("\n\nDeploy Reservoir Adapter");
+      await DRE.run("fork:deploy-reservoir-adapter", { pool: POOL_NAME });
 
       //////////////////////////////////////////////////////////////////////////
       console.log("\n\nDeploy data provider");

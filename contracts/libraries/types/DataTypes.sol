@@ -150,6 +150,7 @@ library DataTypes {
     uint256 bidPrice;
     address onBehalfOf;
     uint256 auctionDurationConfigFee;
+    uint256 bidDelta;
   }
 
   struct ExecuteRedeemParams {
@@ -168,6 +169,14 @@ library DataTypes {
     uint256 amount;
   }
 
+  struct ExecuteBuyoutParams {
+    address initiator;
+    address nftAsset;
+    uint256 nftTokenId;
+    uint256 amount;
+    address onBehalfOf;
+  }
+
   struct ExecuteLiquidateMarketsParams {
     address nftAsset;
     uint256 nftTokenId;
@@ -175,10 +184,6 @@ library DataTypes {
     uint256 amountOutMin;
   }
 
-  struct SudoSwapParams {
-    address LSSVMPair;
-    uint256 amountOutMinSudoswap;
-  }
   struct ExecuteLendPoolStates {
     uint256 pauseStartTime;
     uint256 pauseDurationTime;
@@ -187,5 +192,37 @@ library DataTypes {
   struct ExecuteYearnParams {
     address underlyingAsset;
     uint256 amount;
+  }
+
+  enum DebtMarketType {
+    FixedPrice, //0
+    Auction, //1
+    Mixed //2
+  }
+
+  enum DebtMarketState {
+    //No bids
+    New,
+    //Exist bids
+    Active,
+    //Is sold
+    Sold,
+    Canceled
+  }
+
+  struct DebtMarketListing {
+    uint256 debtId;
+    address debtor;
+    address nftAsset;
+    uint256 tokenId;
+    DebtMarketType sellType;
+    DebtMarketState state;
+    uint256 sellPrice;
+    address reserveAsset;
+    uint256 scaledAmount;
+    address bidderAddress;
+    uint256 bidPrice;
+    uint256 auctionEndTimestamp;
+    uint256 startBiddingPrice;
   }
 }

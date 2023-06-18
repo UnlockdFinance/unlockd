@@ -19,7 +19,7 @@ import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ER
 
 /**
  * @title ValidationLogic library
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  * @notice Implements functions to validate the different actions of the protocol
  */
 library ValidationLogic {
@@ -29,7 +29,30 @@ library ValidationLogic {
   using SafeERC20Upgradeable for IERC20Upgradeable;
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
   using NftConfiguration for DataTypes.NftConfigurationMap;
+  /*//////////////////////////////////////////////////////////////
+                          STRUCTS
+  //////////////////////////////////////////////////////////////*/
+  struct ValidateBorrowLocalVars {
+    uint256 currentLtv;
+    uint256 currentLiquidationThreshold;
+    uint256 amountOfCollateralNeeded;
+    uint256 userCollateralBalance;
+    uint256 userBorrowBalance;
+    uint256 availableLiquidity;
+    uint256 healthFactor;
+    bool isActive;
+    bool isFrozen;
+    bool borrowingEnabled;
+    bool stableRateBorrowingEnabled;
+    bool nftIsActive;
+    bool nftIsFrozen;
+    address loanReserveAsset;
+    address loanBorrower;
+  }
 
+  /*//////////////////////////////////////////////////////////////
+                          MAIN LOGIC
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Validates a deposit action
    * @param reserve The reserve object on which the user is depositing
@@ -64,24 +87,6 @@ library ValidationLogic {
     // Case where there is not enough liquidity to cover user's withdrawal
     uint256 availableLiquidity = IUToken(uToken).getAvailableLiquidity();
     require(amount <= availableLiquidity, Errors.LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY);
-  }
-
-  struct ValidateBorrowLocalVars {
-    uint256 currentLtv;
-    uint256 currentLiquidationThreshold;
-    uint256 amountOfCollateralNeeded;
-    uint256 userCollateralBalance;
-    uint256 userBorrowBalance;
-    uint256 availableLiquidity;
-    uint256 healthFactor;
-    bool isActive;
-    bool isFrozen;
-    bool borrowingEnabled;
-    bool stableRateBorrowingEnabled;
-    bool nftIsActive;
-    bool nftIsFrozen;
-    address loanReserveAsset;
-    address loanBorrower;
   }
 
   /**
@@ -148,7 +153,7 @@ library ValidationLogic {
       nftOracle
     );
 
-    require(vars.userCollateralBalance > 0, Errors.VL_COLLATERAL_BALANCE_IS_0);
+    require(vars.userCollateralBalance != 0, Errors.VL_COLLATERAL_BALANCE_IS_0);
     require(
       vars.healthFactor > GenericLogic.HEALTH_FACTOR_LIQUIDATION_THRESHOLD,
       Errors.VL_HEALTH_FACTOR_LOWER_THAN_LIQUIDATION_THRESHOLD
@@ -195,6 +200,38 @@ library ValidationLogic {
   }
 
   /**
+   * @dev Validates a redeem action
+   * @param reserveData The reserve state
+   * @param nftData The nft state
+   */
+  function validateRedeem(
+    DataTypes.ReserveData storage reserveData,
+    DataTypes.NftData storage nftData,
+    DataTypes.NftConfigurationMap storage nftConfig,
+    DataTypes.LoanData memory loanData,
+    uint256 amount
+  ) external view {
+    require(nftData.uNftAddress != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
+    require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
+
+    require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
+
+    require(nftData.configuration.getActive(), Errors.VL_NO_ACTIVE_NFT);
+
+    /**
+     * @dev additional check for individual asset
+     */
+    require(nftConfig.getActive(), Errors.VL_NO_ACTIVE_NFT);
+
+    require(loanData.state == DataTypes.LoanState.Auction, Errors.LPL_INVALID_LOAN_STATE);
+
+    require(amount > 0, Errors.VL_INVALID_AMOUNT);
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
+  /**
    * @dev Validates the auction action
    * @param reserveData The reserve data of the principal
    * @param nftData The nft data of the underlying nft
@@ -228,17 +265,17 @@ library ValidationLogic {
   }
 
   /**
-   * @dev Validates a redeem action
-   * @param reserveData The reserve state
-   * @param nftData The nft state
-   */
-  function validateRedeem(
+   * @dev Validates the liquidation action
+   * @param reserveData The reserve data of the principal
+   * @param nftData The data of the underlying NFT
+   * @param loanData The loan data of the underlying NFT
+   **/
+  function validateBuyout(
     DataTypes.ReserveData storage reserveData,
     DataTypes.NftData storage nftData,
     DataTypes.NftConfigurationMap storage nftConfig,
-    DataTypes.LoanData memory loanData,
-    uint256 amount
-  ) external view {
+    DataTypes.LoanData memory loanData
+  ) internal view {
     require(nftData.uNftAddress != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
     require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
 
@@ -251,9 +288,10 @@ library ValidationLogic {
      */
     require(nftConfig.getActive(), Errors.VL_NO_ACTIVE_NFT);
 
-    require(loanData.state == DataTypes.LoanState.Auction, Errors.LPL_INVALID_LOAN_STATE);
-
-    require(amount > 0, Errors.VL_INVALID_AMOUNT);
+    require(
+      loanData.state == DataTypes.LoanState.Active || loanData.state == DataTypes.LoanState.Auction,
+      Errors.LPL_INVALID_LOAN_STATE
+    );
   }
 
   /**
@@ -281,37 +319,6 @@ library ValidationLogic {
     require(nftConfig.getActive(), Errors.VL_NO_ACTIVE_NFT);
 
     require(loanData.state == DataTypes.LoanState.Auction, Errors.LPL_INVALID_LOAN_STATE);
-  }
-
-  /**
-   * @dev Validates the liquidation NFTX action
-   * @param reserveData The reserve data of the principal
-   * @param nftData The data of the underlying NFT
-   * @param loanData The loan data of the underlying NFT
-   **/
-  function validateLiquidateMarkets(
-    DataTypes.ReserveData storage reserveData,
-    DataTypes.NftData storage nftData,
-    DataTypes.NftConfigurationMap storage nftConfig,
-    DataTypes.LoanData memory loanData
-  ) internal view {
-    require(nftData.uNftAddress != address(0), Errors.LPC_INVALID_UNFT_ADDRESS);
-    require(reserveData.uTokenAddress != address(0), Errors.VL_INVALID_RESERVE_ADDRESS);
-
-    require(reserveData.configuration.getActive(), Errors.VL_NO_ACTIVE_RESERVE);
-
-    require(nftData.configuration.getActive(), Errors.VL_NO_ACTIVE_NFT);
-
-    /**
-     * @dev additional check for individual asset
-     */
-    require(nftConfig.getActive(), Errors.VL_NO_ACTIVE_NFT);
-
-    /**
-     * @dev Loan requires to be in `Active` state. The Markets liquidate process is triggered if there has not been any auction
-     * and the auction time has passed. In that case, loan is not in `Auction` nor `Defaulted`,  and needs to be liquidated in a third-party market.
-     */
-    require(loanData.state == DataTypes.LoanState.Active, Errors.LPL_INVALID_LOAN_STATE);
   }
 
   /**

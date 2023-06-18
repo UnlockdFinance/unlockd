@@ -3,6 +3,7 @@ import {
   ConfiguratorLogicFactory,
   CryptoPunksMarketFactory,
   CustomERC721Factory,
+  DebtMarketFactory,
   DebtTokenFactory,
   GenericLogicFactory,
   InterestRateFactory,
@@ -12,6 +13,7 @@ import {
   LendPoolFactory,
   LendPoolLoanFactory,
   LiquidateLogicFactory,
+  LockeyManagerFactory,
   MintableERC20Factory,
   MintableERC721Factory,
   MockChainlinkOracleFactory,
@@ -23,6 +25,7 @@ import {
   PunkGatewayFactory,
   ReserveLogicFactory,
   ReserveOracleFactory,
+  ReservoirAdapterFactory,
   //NftLogicFactory,
   SelfdestructTransferFactory,
   SupplyLogicFactory,
@@ -41,10 +44,6 @@ import {
 } from "../types";
 import { IERC20DetailedFactory } from "../types/IERC20DetailedFactory";
 import { IERC721DetailedFactory } from "../types/IERC721DetailedFactory";
-import { ILSSVMPairFactory } from "../types/ILSSVMPairFactory";
-import { INFTXVaultFactory } from "../types/INFTXVaultFactory";
-import { INFTXVaultFactoryV2Factory } from "../types/INFTXVaultFactoryV2Factory";
-import { IUniswapV2Router02Factory } from "../types/IUniswapV2Router02Factory";
 import { IYVaultFactory } from "../types/IYVaultFactory";
 import { getEthersSigners, MockNftMap, MockTokenMap } from "./contracts-helpers";
 import { DRE, getDb, omit } from "./misc-utils";
@@ -142,6 +141,27 @@ export const getNFTOracle = async (address?: tEthereumAddress) =>
     address || (await getDb(DRE.network.name).get(`${eContractid.NFTOracle}`).value()).address,
     await getDeploySigner()
   );
+
+export const getLockeyManagerProxy = async (address?: tEthereumAddress) => {
+  return await LockeyManagerFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.LockeyManager}`).value()).address,
+    await getDeploySigner()
+  );
+};
+
+export const getDebtMarketProxy = async (address?: tEthereumAddress) => {
+  return await DebtMarketFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.DebtMarket}`).value()).address,
+    await getDeploySigner()
+  );
+};
+
+export const getReservoirAdapterProxy = async (address?: tEthereumAddress) => {
+  return await ReservoirAdapterFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.ReservoirAdapter}`).value()).address,
+    await getDeploySigner()
+  );
+};
 
 // export const getMockNFT = async (address?: tEthereumAddress) =>
 //   await MockNFTOracleFactory.connect(
@@ -476,28 +496,11 @@ export const getUnlockdCollectorImpl = async (address?: tEthereumAddress) =>
     await getDeploySigner()
   );
 
-export const getNFTXVaultFactory = async (address?: tEthereumAddress) =>
-  await INFTXVaultFactoryV2Factory.connect(
-    address || (await getDb(DRE.network.name).get(`${eContractid.NFTXVaultFactory}`).value()).address,
-    await getDeploySigner()
-  );
-
-export const getNFTXVault = async (address: tEthereumAddress) =>
-  await INFTXVaultFactory.connect(address, await getDeploySigner());
-
-export const getSushiSwapRouter = async (address?: tEthereumAddress) =>
-  await IUniswapV2Router02Factory.connect(
-    address || (await getDb(DRE.network.name).get(`${eContractid.SushiSwapRouter}`).value()).address,
-    await getDeploySigner()
-  );
-
-export const getLSSVMPair = async (address?: tEthereumAddress) =>
-  await ILSSVMPairFactory.connect(
-    address || (await getDb(DRE.network.name).get(`${eContractid.LSSVMPPair}`).value()).address,
-    await getDeploySigner()
-  );
 export const getYVault = async (address: tEthereumAddress) =>
   await IYVaultFactory.connect(address, await getDeploySigner());
 
-export const getMockYVault = async (address: tEthereumAddress) =>
-  await MockYVaultFactory.connect(address, await getDeploySigner());
+export const getMockYVault = async (address?: tEthereumAddress) =>
+  await MockYVaultFactory.connect(
+    address || (await getDb(DRE.network.name).get(`${eContractid.MockYVault}`).value()).address,
+    await getDeploySigner()
+  );

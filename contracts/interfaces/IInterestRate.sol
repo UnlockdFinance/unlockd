@@ -4,7 +4,7 @@ pragma solidity 0.8.4;
 /**
  * @title IInterestRate interface
  * @dev Interface for the calculation of the interest rates
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  */
 interface IInterestRate {
   /**

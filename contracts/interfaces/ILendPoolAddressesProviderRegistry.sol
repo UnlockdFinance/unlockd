@@ -7,7 +7,7 @@ pragma solidity 0.8.4;
  * - Used for indexing purposes of Unlockd protocol's markets
  * - The id assigned to a LendPoolAddressesProvider refers to the market it is connected with,
  *   for example with `1` for the Unlockd main market and `2` for the next created
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  **/
 interface ILendPoolAddressesProviderRegistry {
   event AddressesProviderRegistered(address indexed newAddress);

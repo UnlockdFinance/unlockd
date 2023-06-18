@@ -84,7 +84,7 @@ contract CryptoPunksMarket is Ownable {
 
   function setInitialOwners(address[] calldata addresses, uint256[] calldata indices) public onlyOwner {
     uint256 n = addresses.length;
-    for (uint256 i = 0; i < n; ) {
+    for (uint256 i; i < n; ) {
       setInitialOwner(addresses[i], indices[i]);
 
       unchecked {
@@ -159,11 +159,7 @@ contract CryptoPunksMarket is Ownable {
     emit PunkOffered(punkIndex, minSalePriceInWei, address(0));
   }
 
-  function offerPunkForSaleToAddress(
-    uint256 punkIndex,
-    uint256 minSalePriceInWei,
-    address toAddress
-  ) public {
+  function offerPunkForSaleToAddress(uint256 punkIndex, uint256 minSalePriceInWei, address toAddress) public {
     require(allPunksAssigned, "CryptoPunksMarket: not allPunksAssigned");
     require(punkIndexToAddress[punkIndex] == msg.sender, "CryptoPunksMarket: not owner");
     require(punkIndex < 10000, "CryptoPunksMarket: punkIndex overflow");

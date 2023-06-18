@@ -8,14 +8,18 @@ import {ILendPool} from "../interfaces/ILendPool.sol";
 import {ILendPoolLoan} from "../interfaces/ILendPoolLoan.sol";
 import {IDebtToken} from "../interfaces/IDebtToken.sol";
 import {IUToken} from "../interfaces/IUToken.sol";
+import {INFTOracleGetter} from "../interfaces/INFTOracleGetter.sol";
+import {IReserveOracleGetter} from "../interfaces/IReserveOracleGetter.sol";
 import {ReserveConfiguration} from "../libraries/configuration/ReserveConfiguration.sol";
 import {NftConfiguration} from "../libraries/configuration/NftConfiguration.sol";
 import {DataTypes} from "../libraries/types/DataTypes.sol";
-import {NFTXSeller} from "../libraries/markets/NFTXSeller.sol";
+import {GenericLogic} from "../libraries/logic/GenericLogic.sol";
+import {PercentageMath} from "../libraries/math/PercentageMath.sol";
 
 contract UnlockdProtocolDataProvider {
   using ReserveConfiguration for DataTypes.ReserveConfigurationMap;
   using NftConfiguration for DataTypes.NftConfigurationMap;
+  using PercentageMath for uint256;
 
   struct ReserveTokenData {
     string tokenSymbol;
@@ -47,7 +51,7 @@ contract UnlockdProtocolDataProvider {
     address[] memory reserves = pool.getReservesList();
     uint256 reservesLength = reserves.length;
     ReserveTokenData[] memory reservesTokens = new ReserveTokenData[](reservesLength);
-    for (uint256 i = 0; i < reservesLength; ) {
+    for (uint256 i; i < reservesLength; ) {
       DataTypes.ReserveData memory reserveData = pool.getReserveData(reserves[i]);
       reservesTokens[i] = ReserveTokenData({
         tokenSymbol: IERC20Detailed(reserves[i]).symbol(),
@@ -91,7 +95,7 @@ contract UnlockdProtocolDataProvider {
     address[] memory nfts = pool.getNftsList();
     uint256 nftsLength = nfts.length;
     NftTokenData[] memory nftTokens = new NftTokenData[](nftsLength);
-    for (uint256 i = 0; i < nftsLength; ) {
+    for (uint256 i; i < nftsLength; ) {
       DataTypes.NftData memory nftData = pool.getNftData(nfts[i]);
       nftTokens[i] = NftTokenData({
         nftSymbol: IERC721Detailed(nfts[i]).symbol(),
@@ -101,7 +105,7 @@ contract UnlockdProtocolDataProvider {
       });
 
       unchecked {
-        ++i;
+        i = i + 1;
       }
     }
     return nftTokens;
@@ -323,13 +327,67 @@ contract UnlockdProtocolDataProvider {
     loanData.bidBorrowAmount = loan.bidBorrowAmount;
   }
 
-  /* CAUTION: Price uint is ETH based (WEI, 18 decimals) */
+  function getStartingBidPrice(address nftAsset, uint256 tokenId) external view returns (uint256 liqPrice) {
+    ILendPool iLendPool = ILendPool(ADDRESSES_PROVIDER.getLendPool());
+    (, , , uint256 borrowAmount, , ) = iLendPool.getNftDebtData(nftAsset, tokenId);
+
+    liqPrice = borrowAmount;
+  }
+
+  struct GetLiquidationPriceLocalVars {
+    address poolLoan;
+    uint256 loanId;
+    uint256 thresholdPrice;
+    uint256 liquidatePrice;
+    uint256 paybackAmount;
+    uint256 remainAmount;
+    uint256 ltv;
+    uint256 liquidationThreshold;
+    uint256 liquidationBonus;
+    uint256 nftPriceInETH;
+    uint256 nftPriceInReserve;
+    uint256 reserveDecimals;
+    uint256 reservePriceInETH;
+    uint256 borrowAmount;
+  }
+
   /**
-  @dev returns the NFT price for a given NFT valued by NFTX
-  @param asset the NFT collection
-  @param tokenId the NFT token Id
-   */
-  function getNFTXPrice(address asset, uint256 tokenId, address reserveAsset) external view returns (uint256) {
-    return NFTXSeller.getNFTXPrice(ADDRESSES_PROVIDER, asset, tokenId, reserveAsset);
+   * @dev Returns the state and configuration of the nft
+   * @param nftAsset The address of the underlying asset of the nft
+   * @param nftTokenId The token ID of the asset
+   **/
+  function getNftLiquidatePrice(
+    address reserveAsset,
+    address nftAsset,
+    uint256 nftTokenId
+  ) external view returns (uint256 liquidatePrice, uint256 paybackAmount) {
+    GetLiquidationPriceLocalVars memory vars;
+    ILendPoolLoan lendPoolLoan = ILendPoolLoan(ADDRESSES_PROVIDER.getLendPoolLoan());
+
+    vars.loanId = lendPoolLoan.getCollateralLoanId(nftAsset, nftTokenId);
+    if (vars.loanId == 0) {
+      return (0, 0);
+    }
+
+    (, vars.borrowAmount) = lendPoolLoan.getLoanReserveBorrowAmount(vars.loanId);
+
+    (, , , , vars.ltv, vars.liquidationThreshold, vars.liquidationBonus) = ILendPool(ADDRESSES_PROVIDER.getLendPool())
+      .getNftCollateralData(nftAsset, nftTokenId, reserveAsset);
+
+    vars.nftPriceInETH = INFTOracleGetter(ADDRESSES_PROVIDER.getNFTOracle()).getNFTPrice(nftAsset, nftTokenId);
+    vars.reservePriceInETH = IReserveOracleGetter(ADDRESSES_PROVIDER.getReserveOracle()).getAssetPrice(reserveAsset);
+
+    vars.reserveDecimals = IERC20Detailed(reserveAsset).decimals();
+    vars.nftPriceInReserve = ((10 ** vars.reserveDecimals) * vars.nftPriceInETH) / vars.reservePriceInETH; //Get Decimals
+
+    vars.thresholdPrice = vars.nftPriceInReserve.percentMul(vars.liquidationThreshold);
+
+    vars.liquidatePrice = vars.nftPriceInReserve.percentMul(1e4 - vars.liquidationBonus);
+
+    if (vars.liquidatePrice < vars.paybackAmount) {
+      vars.liquidatePrice = vars.paybackAmount;
+    }
+
+    return (vars.liquidatePrice, vars.paybackAmount);
   }
 }

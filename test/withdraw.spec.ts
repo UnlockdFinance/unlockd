@@ -81,7 +81,7 @@ makeSuite("LendPool: Withdraw", (testEnv: TestEnv) => {
     const { users } = testEnv;
     const user0 = users[0];
 
-    await fundWithERC20("WETH", user0.address, "1");
+    await fundWithERC20("WETH", user0.address, "2");
     await approveERC20(testEnv, user0, "WETH");
 
     await deposit(testEnv, user0, "", "WETH", "1", user0.address, "success", "");
@@ -98,7 +98,7 @@ makeSuite("LendPool: Withdraw", (testEnv: TestEnv) => {
     const { users } = testEnv;
     const user0 = users[0];
     if (!UPGRADE)
-      await withdraw(testEnv, user0, "WETH", "-1", "revert", ProtocolErrors.LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY);
+      await withdraw(testEnv, user0, "WETH", "0.5", "revert", ProtocolErrors.LP_RESERVES_WITHOUT_ENOUGH_LIQUIDITY);
   });
 
   it("User 0 tries to withdraw remaining half of the deposited WETH ", async () => {

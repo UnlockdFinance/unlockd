@@ -32,7 +32,6 @@ export enum eContractid {
   SupplyLogic = "SupplyLogic",
   BorrowLogic = "BorrowLogic",
   LiquidateLogic = "LiquidateLogic",
-  LiquidateMarketsLogic = "LiquidateMarketsLogic",
   LendingLogic = "LendingLogic",
   ConfiguratorLogic = "ConfiguratorLogic",
   LendPool = "LendPool",
@@ -83,14 +82,15 @@ export enum eContractid {
   TimelockControllerFast = "TimelockControllerFast",
   TimelockControllerSlow = "TimelockControllerSlow",
   RepayAndTransferHelper = "RepayAndTransferHelper",
-  NFTXVaultFactory = "NFTXVaultFactory",
-  UniswapV2Factory = "UniswapV2Factory",
-  SushiSwapRouter = "SushiSwapRouter",
-  NFTXHelper = "NFTXHelper",
-  LSSVMPPair = "LSSVMPair",
   YVault = "YVault",
   MockYVault = "MockYVault",
   MockYVaultImpl = "MockYVaultImpl",
+  LockeyManagerImpl = "LockeyManagerImpl",
+  LockeyManager = "LockeyManager",
+  DebtMarketImpl = "DebtMarketImpl",
+  DebtMarket = "DebtMarket",
+  ReservoirAdapterImpl = "ReservoirAdapterImpl",
+  ReservoirAdapter = "ReservoirAdapter",
 }
 
 export enum ProtocolLoanState {
@@ -119,6 +119,7 @@ export enum ProtocolErrors {
   INVALID_ZERO_ADDRESS = "106",
   CALLER_NOT_LTV_MANAGER = "107",
   CALLER_NOT_PRICE_MANAGER = "108",
+  CALLER_NOT_UTOKEN_MANAGER = "109",
 
   //math library erros
   MATH_MULTIPLICATION_OVERFLOW = "200",
@@ -176,12 +177,16 @@ export enum ProtocolErrors {
   LP_COLLECTION_NOT_SUPPORTED = "425",
   LP_MSG_VALUE_DIFFERENT_FROM_CONFIG_FEE = "426",
   LP_INVALID_SAFE_HEALTH_FACTOR = "427",
+  LP_AMOUNT_LESS_THAN_DEBT = "428",
+  LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE = "429",
+
   //lend pool loan errors
+  LPL_CLAIM_HASNT_STARTED_YET = "479",
   LPL_INVALID_LOAN_STATE = "480",
   LPL_INVALID_LOAN_AMOUNT = "481",
   LPL_INVALID_TAKEN_AMOUNT = "482",
   LPL_AMOUNT_OVERFLOW = "483",
-  LPL_BID_PRICE_LESS_THAN_LIQUIDATION_PRICE = "484",
+  LPL_BID_PRICE_LESS_THAN_DEBT_PRICE = "484",
   LPL_BID_PRICE_LESS_THAN_HIGHEST_PRICE = "485",
   LPL_BID_REDEEM_DURATION_HAS_END = "486",
   LPL_BID_USER_NOT_SAME = "487",
@@ -193,6 +198,8 @@ export enum ProtocolErrors {
   LPL_AMOUNT_LESS_THAN_BID_FINE = "493",
   LPL_BID_INVALID_BID_FINE = "494",
   LPL_BID_PRICE_LESS_THAN_MIN_BID_REQUIRED = "495",
+  LPL_BID_NOT_BUYOUT_PRICE = "496",
+  LPL_CALLER_MUST_BE_MARKET_ADAPTER = "499",
   //common token errors
   CT_CALLER_MUST_BE_LEND_POOL = "500", // 'The caller of this function must be a lending pool'
   CT_INVALID_MINT_AMOUNT = "501", //invalid amount to mint
@@ -286,9 +293,9 @@ export interface iNftCommon<T> {
 export interface iNftBase<T> {
   WPUNKS: T;
   BAYC: T;
-  DOODLE: T;
   AZUKI: T;
-  /* COOL: T;
+  /*DOODLE: T;
+   COOL: T;
   MEEBITS: T;
   MAYC: T;
   WOW: T;
@@ -306,9 +313,9 @@ export type iNftAggregatorBase<T> = iNftBase<T>;
 export enum NftContractId {
   WPUNKS = "WPUNKS",
   BAYC = "BAYC",
-  DOODLE = "DOODLE",
   AZUKI = "AZUKI",
-  /* COOL = "COOL",
+  /*DOODLE = "DOODLE",
+   COOL = "COOL",
   MEEBITS = "MEEBITS",
   MAYC = "MAYC",
   WOW = "WOW",
@@ -465,10 +472,19 @@ export interface ICommonConfiguration {
   OracleQuoteCurrency: string;
   OracleQuoteUnit: string;
 
-  NFTXVaultFactory: iParamsPerNetwork<tEthereumAddress>;
-  SushiSwapRouter: iParamsPerNetwork<tEthereumAddress>;
-  LSSVMRouter: iParamsPerNetwork<tEthereumAddress>;
   YVaultWETH: iParamsPerNetwork<tEthereumAddress>;
+  LockeyCollection: iParamsPerNetwork<tEthereumAddress>;
+
+  BlurModule: iParamsPerNetwork<tEthereumAddress>;
+  FoundationModule: iParamsPerNetwork<tEthereumAddress>;
+  LooksRareModule: iParamsPerNetwork<tEthereumAddress>;
+  SeaportModule: iParamsPerNetwork<tEthereumAddress>;
+  SeaportV14Module: iParamsPerNetwork<tEthereumAddress>;
+  X2Y2Module: iParamsPerNetwork<tEthereumAddress>;
+  ZeroExv4Module: iParamsPerNetwork<tEthereumAddress>;
+  ZoraModule: iParamsPerNetwork<tEthereumAddress>;
+  ElementModule: iParamsPerNetwork<tEthereumAddress>;
+  RaribleModule: iParamsPerNetwork<tEthereumAddress>;
 }
 
 export interface IUnlockdConfiguration extends ICommonConfiguration {
@@ -481,3 +497,9 @@ export interface ITokenAddress {
 }
 
 export type PoolConfiguration = ICommonConfiguration | IUnlockdConfiguration;
+
+export type ExecutionInfo = {
+  module: string;
+  data: string;
+  value: BigNumber;
+};

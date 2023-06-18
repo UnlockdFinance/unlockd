@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import { utils } from "ethers";
-
+require("dotenv").config();
 // ----------------
 // MATH
 // ----------------
@@ -17,6 +17,7 @@ export const oneRay = new BigNumber(Math.pow(10, 27));
 export const MAX_UINT_AMOUNT = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
 export const ONE_YEAR = "31536000";
 export const ONE_DAY = "86400";
+export const TWO_DAYS = "172800";
 export const ONE_HOUR = "3600";
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 export const ONE_ADDRESS = "0x0000000000000000000000000000000000000001";
@@ -41,11 +42,6 @@ export const FUNDED_ACCOUNT_GOERLI_DAI = "0x75e186bd5b2605afa400beb6d45a2e9f2d9d
 export const FUNDED_ACCOUNT_MAINNET_USDC = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
 export const FUNDED_ACCOUNT_GOERLI_USDC = "0xddcf5659162d1e9430b84dfebceefdf3abc1b6c1";
 
-export const SUDOSWAP_AZUKI_PAIR_MAINNET_1 = "0x63e48552798d84376b294b83726095d53178a814";
-export const SUDOSWAP_AZUKI_PAIR_MAINNET_2 = "0x16f71d593bc6446a16ef84551cf8d76ff5973db1";
-export const SUDOSWAP_BAYC_PAIR_GOERLI_1 = "0x8ff50Ed214E05119e5E1F63f0836744772A807F7";
-export const SUDOSWAP_BAYC_PAIR_GOERLI_2 = "0x8ff50Ed214E05119e5E1F63f0836744772A807F7";
-
 export const FUNDED_ACCOUNTS_GOERLI = {
   ETH: FUNDED_ACCOUNT_GOERLI,
   WETH: FUNDED_ACCOUNT_GOERLI_WETH,
@@ -60,24 +56,19 @@ export const FUNDED_ACCOUNTS_MAINNET = {
   USDC: FUNDED_ACCOUNT_MAINNET_USDC,
 };
 
-export const SUDOSWAP_PAIRS_GOERLI = {
-  BAYC: [SUDOSWAP_BAYC_PAIR_GOERLI_1],
-};
-
-export const SUDOSWAP_PAIRS_MAINNET = {
-  AZUKI: [SUDOSWAP_AZUKI_PAIR_MAINNET_1, SUDOSWAP_AZUKI_PAIR_MAINNET_2],
-};
-
 // ----------------
 // ADDRESS IDS IN PROVIDER
 // ----------------
 export const ADDRESS_ID_WETH_GATEWAY = utils.keccak256(utils.toUtf8Bytes("WETH_GATEWAY"));
 export const ADDRESS_ID_PUNK_GATEWAY = utils.keccak256(utils.toUtf8Bytes("PUNK_GATEWAY"));
-export const ADDRESS_ID_LSSVM_ROUTER = utils.keccak256(utils.toUtf8Bytes("LSSVM_ROUTER"));
 export const ADDRESS_ID_WETH = utils.keccak256(utils.toUtf8Bytes("WETH"));
 export const ADDRESS_ID_PUNKS = utils.keccak256(utils.toUtf8Bytes("PUNKS"));
 export const ADDRESS_ID_WPUNKS = utils.keccak256(utils.toUtf8Bytes("WPUNKS"));
 export const ADDRESS_ID_YVAULT_WETH = utils.keccak256(utils.toUtf8Bytes("YVAULT_WETH"));
+export const ADDRESS_ID_LOCKEY_COLLECTION = utils.keccak256(utils.toUtf8Bytes("LOCKEY_COLLECTION"));
+export const ADDRESS_ID_LOCKEY_MANAGER = utils.keccak256(utils.toUtf8Bytes("LOCKEY_MANAGER"));
+export const ADDRESS_ID_DEBT_MARKET = utils.keccak256(utils.toUtf8Bytes("DEBT_MARKET"));
+export const ADDRESS_ID_RESERVOIR_ADAPTER = utils.keccak256(utils.toUtf8Bytes("RESERVOIR_ADAPTER"));
 
 //Price source: https://data.chain.link/ethereum/mainnet/stablecoins
 export const MOCK_RESERVE_AGGREGATORS_PRICES = {
@@ -95,10 +86,10 @@ export const MOCK_NFT_AGGREGATORS_PRICES = {
   DOODLE: oneEther.multipliedBy("2.69").toFixed(),
   COOL: oneEther.multipliedBy("6.66").toFixed(),
   MEEBITS: oneEther.multipliedBy("2.88").toFixed(),
-  AZUKI: oneEther.multipliedBy("6.23").toFixed(),
+  MAYC: oneEther.multipliedBy("6.23").toFixed(),
   WOW: oneEther.multipliedBy("7.77").toFixed(),
   CLONEX: oneEther.multipliedBy("11.95").toFixed(),
-  AZUKI: oneEther.multipliedBy("10.50").toFixed(),
+  AZUKI: oneEther.multipliedBy("6.23").toFixed(),
   KONGZ: oneEther.multipliedBy("7.90").toFixed(),
   LAND: oneEther.multipliedBy("2.16").toFixed(),
 };
@@ -109,7 +100,7 @@ export const MOCK_NFT_AGGREGATORS_MAXSUPPLY = {
   DOODLE: "150", //9999
   COOL: "150", //9999
   MEEBITS: "150", //20000
-  AZUKI: "150", //19422
+  MAYC: "150", //19422
   WOW: "150", //5555
   CLONEX: "150", //19310
   AZUKI: "150", //10000
@@ -123,10 +114,16 @@ export const MOCK_NFT_BASE_URIS = {
   DOODLE: "ipfs://QmPMc4tcBsMqLRuCQtPmPe84bpSjrC3Ky7t3JWuHXYB4aS/",
   COOL: "https://api.coolcatsnft.com/cat/",
   MEEBITS: "https://meebits.larvalabs.com/meebit/1",
-  AZUKI: "https://boredapeyachtclub.com/api/mutants/",
+  MAYC: "https://boredapeyachtclub.com/api/mutants/",
   WOW: "https://wow-prod-nftribe.s3.eu-west-2.amazonaws.com/t/",
   CLONEX: "https://clonex-assets.rtfkt.com/",
   AZUKI: "https://ikzttp.mypinata.cloud/ipfs/QmQFkLSQysj94s5GvTHPyzTxrawwtjgiiYS2TBLgrvw8CW/",
   KONGZ: "https://kongz.herokuapp.com/api/metadata/",
   LAND: "https://market.decentraland.org/contracts/0xf87e31492faf9a91b02ee0deaad50d51d56d5d4d/tokens/",
 };
+export const SAFETRANSFERFROM_FUNCTION_SELECTOR = "0xb88d4fde";
+export const EXECUTE_FUNCTION_SELECTOR = "0x760f2a0b";
+
+export const RESERVOIR_API_BIDS_BASE_URL = "https://api.reservoir.tools/orders/bids/v5";
+export const RESERVOIR_API_KEY = process.env.RESERVOIR_API_KEY;
+export const RESERVOIR_API_KEY_GOERLI = process.env.RESERVOIR_API_KEY_GOERLI;

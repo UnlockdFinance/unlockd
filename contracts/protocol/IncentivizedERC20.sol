@@ -12,27 +12,26 @@ import {IERC20MetadataUpgradeable} from "@openzeppelin/contracts-upgradeable/tok
 /**
  * @title IncentivizedERC20
  * @notice Add Incentivized Logic to ERC20 implementation
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  **/
 abstract contract IncentivizedERC20 is Initializable, IERC20MetadataUpgradeable, ERC20Upgradeable {
+  /*//////////////////////////////////////////////////////////////
+                          GENERAL VARS
+  //////////////////////////////////////////////////////////////*/
   uint8 private _customDecimals;
 
-  function __IncentivizedERC20_init(
-    string memory name_,
-    string memory symbol_,
-    uint8 decimals_
-  ) internal initializer {
+  /*//////////////////////////////////////////////////////////////
+                          INITIALIZERS
+  //////////////////////////////////////////////////////////////*/
+  function __IncentivizedERC20_init(string memory name_, string memory symbol_, uint8 decimals_) internal initializer {
     __ERC20_init(name_, symbol_);
 
     _customDecimals = decimals_;
   }
 
-  /**
-   * @dev Returns the decimals of the token.
-   */
-  function decimals() public view virtual override(ERC20Upgradeable, IERC20MetadataUpgradeable) returns (uint8) {
-    return _customDecimals;
-  }
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
 
   /**
    * @return Abstract function implemented by the child uToken/debtToken.
@@ -42,11 +41,7 @@ abstract contract IncentivizedERC20 is Initializable, IERC20MetadataUpgradeable,
 
   function _getUnderlyingAssetAddress() internal view virtual returns (address);
 
-  function _transfer(
-    address sender,
-    address recipient,
-    uint256 amount
-  ) internal virtual override {
+  function _transfer(address sender, address recipient, uint256 amount) internal virtual override {
     uint256 oldSenderBalance = super.balanceOf(sender);
     uint256 oldRecipientBalance = super.balanceOf(recipient);
 
@@ -81,6 +76,16 @@ abstract contract IncentivizedERC20 is Initializable, IERC20MetadataUpgradeable,
     if (address(_getIncentivesController()) != address(0)) {
       _getIncentivesController().handleAction(account, oldTotalSupply, oldAccountBalance);
     }
+  }
+
+  /*//////////////////////////////////////////////////////////////
+                          GETTERS & SETTERS
+  //////////////////////////////////////////////////////////////*/
+  /**
+   * @dev Returns the decimals of the token.
+   */
+  function decimals() public view virtual override(ERC20Upgradeable, IERC20MetadataUpgradeable) returns (uint8) {
+    return _customDecimals;
   }
 
   uint256[45] private __gap;

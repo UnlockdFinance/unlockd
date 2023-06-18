@@ -13,7 +13,9 @@ import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ER
 library LendingLogic {
   using SafeERC20Upgradeable for IERC20Upgradeable;
   using WadRayMath for uint256;
-
+  /*//////////////////////////////////////////////////////////////
+                          EVENTS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @dev Emitted on executeDepositYearn()
    * @param underlyingAsset The UToken's underlying asset deposited
@@ -29,6 +31,9 @@ library LendingLogic {
    **/
   event WithdrawYearn(address indexed underlyingAsset, uint256 indexed amount, address yVault);
 
+  /*//////////////////////////////////////////////////////////////
+                          INTERNALS
+  //////////////////////////////////////////////////////////////*/
   /**
    * @notice Implements the yearn vault deposit feature. Through `executeDepositYearn()`, users supplied assets are deposited into a YVault.
    * @dev Emits the `DepositYearn()` event.

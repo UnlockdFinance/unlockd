@@ -3,7 +3,7 @@ pragma solidity 0.8.4;
 
 /**
  * @title Errors library
- * @author Unlockd
+ * @author BendDao; Forked and edited by Unlockd
  * @notice Defines the error messages emitted by the different contracts of the Unlockd protocol
  */
 library Errors {
@@ -24,6 +24,7 @@ library Errors {
   string public constant INVALID_ZERO_ADDRESS = "106";
   string public constant CALLER_NOT_LTV_MANAGER = "107";
   string public constant CALLER_NOT_PRICE_MANAGER = "108";
+  string public constant CALLER_NOT_UTOKEN_MANAGER = "109";
 
   //math library errors
   string public constant MATH_MULTIPLICATION_OVERFLOW = "200";
@@ -82,13 +83,17 @@ library Errors {
   string public constant LP_COLLECTION_NOT_SUPPORTED = "425";
   string public constant LP_MSG_VALUE_DIFFERENT_FROM_CONFIG_FEE = "426";
   string public constant LP_INVALID_SAFE_HEALTH_FACTOR = "427";
+  string public constant LP_AMOUNT_LESS_THAN_DEBT = "428";
+  string public constant LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE = "429";
+  string public constant LP_CALLER_NOT_DEBT_TOKEN_MANAGER = "430";
 
   //lend pool loan errors
+  string public constant LPL_CLAIM_HASNT_STARTED_YET = "479";
   string public constant LPL_INVALID_LOAN_STATE = "480";
   string public constant LPL_INVALID_LOAN_AMOUNT = "481";
   string public constant LPL_INVALID_TAKEN_AMOUNT = "482";
   string public constant LPL_AMOUNT_OVERFLOW = "483";
-  string public constant LPL_BID_PRICE_LESS_THAN_LIQUIDATION_PRICE = "484";
+  string public constant LPL_BID_PRICE_LESS_THAN_DEBT_PRICE = "484";
   string public constant LPL_BID_PRICE_LESS_THAN_HIGHEST_PRICE = "485";
   string public constant LPL_BID_REDEEM_DURATION_HAS_END = "486";
   string public constant LPL_BID_USER_NOT_SAME = "487";
@@ -100,12 +105,17 @@ library Errors {
   string public constant LPL_AMOUNT_LESS_THAN_BID_FINE = "493";
   string public constant LPL_INVALID_BID_FINE = "494";
   string public constant LPL_BID_PRICE_LESS_THAN_MIN_BID_REQUIRED = "495";
+  string public constant LPL_BID_NOT_BUYOUT_PRICE = "496";
+  string public constant LPL_BUYOUT_DURATION_HAS_END = "497";
+  string public constant LPL_BUYOUT_PRICE_LESS_THAN_BORROW = "498";
+  string public constant LPL_CALLER_MUST_BE_MARKET_ADAPTER = "499";
 
   //common token errors
   string public constant CT_CALLER_MUST_BE_LEND_POOL = "500"; // 'The caller of this function must be a lending pool'
   string public constant CT_INVALID_MINT_AMOUNT = "501"; //invalid amount to mint
   string public constant CT_INVALID_BURN_AMOUNT = "502"; //invalid amount to burn
   string public constant CT_BORROW_ALLOWANCE_NOT_ENOUGH = "503";
+  string public constant CT_CALLER_MUST_BE_DEBT_MARKET = "504"; // 'The caller of this function must be a debt market'
 
   //reserve logic errors
   string public constant RL_RESERVE_ALREADY_INITIALIZED = "601"; // 'Reserve has already been initialized'
@@ -144,9 +154,28 @@ library Errors {
   string public constant LPAPR_PROVIDER_NOT_REGISTERED = "760"; // 'Provider is not registered'
   string public constant LPAPR_INVALID_ADDRESSES_PROVIDER_ID = "761";
 
-  //NFTXHelper
-  string public constant NFTX_INVALID_VAULTS_LENGTH = "800";
-
   //NFTOracleErrors
   string public constant NFTO_INVALID_PRICEM_ADDRESS = "900";
+
+  //Debt Market
+  string public constant DM_CALLER_NOT_THE_OWNER = "1000";
+  string public constant DM_DEBT_SHOULD_EXIST = "1001";
+  string public constant DM_INVALID_AMOUNT = "1002";
+  string public constant DM_FAIL_ON_SEND_ETH = "1003";
+  string public constant DM_DEBT_SHOULD_NOT_BE_SOLD = "1004";
+  string public constant DM_DEBT_ALREADY_EXIST = "1005";
+  string public constant DM_LOAN_SHOULD_EXIST = "1006";
+  string public constant DM_AUCTION_ALREADY_ENDED = "1007";
+  string public constant DM_BID_PRICE_HIGHER_THAN_SELL_PRICE = "1008";
+  string public constant DM_BID_PRICE_LESS_THAN_PREVIOUS_BID = "1009";
+  string public constant DM_INVALID_SELL_TYPE = "1010";
+  string public constant DM_AUCTION_NOT_ALREADY_ENDED = "1011";
+  string public constant DM_INVALID_CLAIM_RECEIVER = "1012";
+  string public constant DM_AMOUNT_DIFFERENT_FROM_SELL_PRICE = "1013";
+  string public constant DM_BID_PRICE_LESS_THAN_MIN_BID_PRICE = "1014";
+  string public constant DM_BORROWED_AMOUNT_DIVERGED = "1015";
+  string public constant DM_INVALID_AUTHORIZED_ADDRESS = "1016";
+  string public constant DM_CALLER_NOT_THE_OWNER_OR_AUTHORIZED = "1017";
+  string public constant DM_INVALID_DELTA_BID_PERCENT = "1018";
+  string public constant DM_IS_PAUSED = "1019";
 }

@@ -1,3 +1,4 @@
+import { Provider } from "@ethersproject/abstract-provider";
 import BigNumber from "bignumber.js";
 import {
   getDebtToken,
@@ -15,10 +16,10 @@ import type { IYVault } from "../../../types/IYVault";
 
 import { BigNumber as BN } from "ethers";
 import { parseEther } from "ethers/lib/utils";
+import hre from "hardhat";
 import { LendPool } from "../../../types/LendPool";
 import { UnlockdProtocolDataProvider } from "../../../types/UnlockdProtocolDataProvider";
 import { LoanData, NftData, ReserveData, UserReserveData } from "./interfaces";
-
 export const getReserveData = async (
   helper: UnlockdProtocolDataProvider,
   reserve: tEthereumAddress
@@ -202,3 +203,7 @@ const calculateLockedProfit = async (yVault: IYVault): Promise<BN> => {
   }
   return BN.from(0);
 };
+
+export const getCurrentTimestamp = async (provider: Provider) => provider.getBlock("latest").then((b) => b.timestamp);
+
+export const getChainId = () => hre.network.config.chainId;
