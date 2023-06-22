@@ -64,6 +64,9 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
   /*//////////////////////////////////////////////////////////////
                         INITIALIZERS
   //////////////////////////////////////////////////////////////*/
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() initializer {}
+
   /**
    * @dev Function is invoked by the proxy contract when the PunkGateway contract is added to the
    * LendPoolAddressesProvider of the market.

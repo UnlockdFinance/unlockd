@@ -15,25 +15,16 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
  * @notice Implements the calculation of the interest rates depending on the reserve state
  * @dev The model of interest rate is based on 2 slopes, one before the `OPTIMAL_UTILIZATION_RATE`
  * point of utilization and another from that one to 100%
- * @author BendDao; Forked and edited by Unlockd
+ * @author Unlockd
  **/
 contract InterestRate is IInterestRate {
   using WadRayMath for uint256;
   using PercentageMath for uint256;
 
-  /*//////////////////////////////////////////////////////////////
-                          Structs
-  //////////////////////////////////////////////////////////////*/
-  struct CalcInterestRatesLocalVars {
-    uint256 totalDebt;
-    uint256 currentVariableBorrowRate;
-    uint256 currentLiquidityRate;
-    uint256 utilizationRate;
+  modifier onlyPoolAdmin() {
+    require(msg.sender == addressesProvider.getPoolAdmin(), "Caller not pool admin");
+    _;
   }
-
-  /*//////////////////////////////////////////////////////////////
-                          CONSTANTS
-  //////////////////////////////////////////////////////////////*/
 
   ILendPoolAddressesProvider public immutable addressesProvider;
 
@@ -41,7 +32,7 @@ contract InterestRate is IInterestRate {
    * @dev this constant represents the utilization rate at which the pool aims to obtain most competitive borrow rates.
    * Expressed in ray
    **/
-  uint256 public immutable OPTIMAL_UTILIZATION_RATE;
+  uint256 public OPTIMAL_UTILIZATION_RATE;
 
   /**
    * @dev This constant represents the excess utilization rate above the optimal. It's always equal to
@@ -49,20 +40,17 @@ contract InterestRate is IInterestRate {
    * Expressed in ray
    **/
 
-  uint256 public immutable EXCESS_UTILIZATION_RATE;
+  uint256 public EXCESS_UTILIZATION_RATE;
 
   // Base variable borrow rate when Utilization rate = 0. Expressed in ray
-  uint256 internal immutable _baseVariableBorrowRate;
+  uint256 internal _baseVariableBorrowRate;
 
   // Slope of the variable interest curve when utilization rate > 0 and <= OPTIMAL_UTILIZATION_RATE. Expressed in ray
-  uint256 internal immutable _variableRateSlope1;
+  uint256 internal _variableRateSlope1;
 
   // Slope of the variable interest curve when utilization rate > OPTIMAL_UTILIZATION_RATE. Expressed in ray
-  uint256 internal immutable _variableRateSlope2;
+  uint256 internal _variableRateSlope2;
 
-  /*//////////////////////////////////////////////////////////////
-                          INITIALIZERS
-  //////////////////////////////////////////////////////////////*/
   constructor(
     ILendPoolAddressesProvider provider,
     uint256 optimalUtilizationRate_,
@@ -77,35 +65,6 @@ contract InterestRate is IInterestRate {
     _variableRateSlope1 = variableRateSlope1_;
     _variableRateSlope2 = variableRateSlope2_;
   }
-
-  /*//////////////////////////////////////////////////////////////
-                          INTERNALS
-  //////////////////////////////////////////////////////////////*/
-
-  /**
-   * @dev Calculates the overall borrow rate as the weighted average between the total variable debt and total stable debt
-   * @param totalVariableDebt The total borrowed from the reserve at a variable rate
-   * @param currentVariableBorrowRate The current variable borrow rate of the reserve
-   * @return The weighted averaged borrow rate
-   **/
-  function _getOverallBorrowRate(
-    uint256 totalVariableDebt,
-    uint256 currentVariableBorrowRate
-  ) internal pure returns (uint256) {
-    uint256 totalDebt = totalVariableDebt;
-
-    if (totalDebt == 0) return 0;
-
-    uint256 weightedVariableRate = totalVariableDebt.wadToRay().rayMul(currentVariableBorrowRate);
-
-    uint256 overallBorrowRate = weightedVariableRate.rayDiv(totalDebt.wadToRay());
-
-    return overallBorrowRate;
-  }
-
-  /*//////////////////////////////////////////////////////////////
-                          GETTERS
-  //////////////////////////////////////////////////////////////*/
 
   function variableRateSlope1() external view returns (uint256) {
     return _variableRateSlope1;
@@ -157,6 +116,13 @@ contract InterestRate is IInterestRate {
     return calculateInterestRates(reserve, availableLiquidity, totalVariableDebt, reserveFactor);
   }
 
+  struct CalcInterestRatesLocalVars {
+    uint256 totalDebt;
+    uint256 currentVariableBorrowRate;
+    uint256 currentLiquidityRate;
+    uint256 utilizationRate;
+  }
+
   /**
    * @dev Calculates the interest rates depending on the reserve's state and configurations.
    * NOTE This function is kept for compatibility with the previous DefaultInterestRateStrategy interface.
@@ -203,5 +169,39 @@ contract InterestRate is IInterestRate {
       .percentMul(PercentageMath.PERCENTAGE_FACTOR - (reserveFactor));
 
     return (vars.currentLiquidityRate, vars.currentVariableBorrowRate);
+  }
+
+  /**
+   * @dev Calculates the overall borrow rate as the weighted average between the total variable debt and total stable debt
+   * @param totalVariableDebt The total borrowed from the reserve at a variable rate
+   * @param currentVariableBorrowRate The current variable borrow rate of the reserve
+   * @return The weighted averaged borrow rate
+   **/
+  function _getOverallBorrowRate(
+    uint256 totalVariableDebt,
+    uint256 currentVariableBorrowRate
+  ) internal pure returns (uint256) {
+    uint256 totalDebt = totalVariableDebt;
+
+    if (totalDebt == 0) return 0;
+
+    uint256 weightedVariableRate = totalVariableDebt.wadToRay().rayMul(currentVariableBorrowRate);
+
+    uint256 overallBorrowRate = weightedVariableRate.rayDiv(totalDebt.wadToRay());
+
+    return overallBorrowRate;
+  }
+
+  function configInterestRate(
+    uint256 optimalUtilizationRate_,
+    uint256 baseVariableBorrowRate_,
+    uint256 variableRateSlope1_,
+    uint256 variableRateSlope2_
+  ) public onlyPoolAdmin {
+    OPTIMAL_UTILIZATION_RATE = optimalUtilizationRate_;
+    EXCESS_UTILIZATION_RATE = WadRayMath.ray() - (optimalUtilizationRate_);
+    _baseVariableBorrowRate = baseVariableBorrowRate_;
+    _variableRateSlope1 = variableRateSlope1_;
+    _variableRateSlope2 = variableRateSlope2_;
   }
 }

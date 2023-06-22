@@ -29,7 +29,7 @@ task("full:upgrade-utoken", "Upgrade UToken")
       for (const [assetSymbol, assetAddress] of Object.entries(reserveAssets) as [string, string][]) {
         reserveAddresses.push(assetAddress);
       }
-
+      console.log("RESERVE ADDRESSES: " + reserveAddresses);
       const updateUTokenInputParams: {
         asset: string;
         implementation: string;

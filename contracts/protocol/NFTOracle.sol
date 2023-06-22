@@ -85,6 +85,7 @@ contract NFTOracle is INFTOracle, Initializable, OwnableUpgradeable {
   /*//////////////////////////////////////////////////////////////
                         INITIALIZERS
   //////////////////////////////////////////////////////////////*/
+
   /**
    * @dev Function is invoked by the proxy contract when the NFTOracle contract is added to the
    * LendPoolAddressesProvider of the market.

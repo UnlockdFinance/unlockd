@@ -19,11 +19,6 @@ abstract contract EmergencyTokenRecoveryUpgradeable is OwnableUpgradeable {
   event EmergencyEtherTransfer(address indexed to, uint256 amount);
 
   /*//////////////////////////////////////////////////////////////
-                          GENERAL VARS
-  //////////////////////////////////////////////////////////////*/
-  uint256[50] private __gap;
-
-  /*//////////////////////////////////////////////////////////////
                           INITIALIZERS
   //////////////////////////////////////////////////////////////*/
   function __EmergencyTokenRecovery_init() internal onlyInitializing {
@@ -77,4 +72,6 @@ abstract contract EmergencyTokenRecoveryUpgradeable is OwnableUpgradeable {
     require(success, "ETH_TRANSFER_FAILED");
     emit EmergencyEtherTransfer(to, amount);
   }
+
+  uint256[50] private __gap;
 }

@@ -208,6 +208,9 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
                           INITIALIZATION
   //////////////////////////////////////////////////////////////*/
 
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() initializer {}
+
   function initialize(ILendPoolAddressesProvider addressesProvider) external initializer {
     _addressesProvider = addressesProvider;
     _deltaBidPercent = PercentageMath.ONE_PERCENT;

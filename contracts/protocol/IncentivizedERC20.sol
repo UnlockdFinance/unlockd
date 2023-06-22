@@ -20,8 +20,6 @@ abstract contract IncentivizedERC20 is Initializable, IERC20MetadataUpgradeable,
   //////////////////////////////////////////////////////////////*/
   uint8 private _customDecimals;
 
-  uint256[45] private __gap;
-
   /*//////////////////////////////////////////////////////////////
                           INITIALIZERS
   //////////////////////////////////////////////////////////////*/
@@ -89,4 +87,6 @@ abstract contract IncentivizedERC20 is Initializable, IERC20MetadataUpgradeable,
   function decimals() public view virtual override(ERC20Upgradeable, IERC20MetadataUpgradeable) returns (uint8) {
     return _customDecimals;
   }
+
+  uint256[45] private __gap;
 }
