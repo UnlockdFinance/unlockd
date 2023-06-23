@@ -23,14 +23,14 @@ const { expect } = chai;
 
 makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
   describe("Fixed Price", function () {
-    let nftBuyer;
+    let debtBuyer;
     let nftSeller;
     let nftAsset;
     let tokenId;
 
     beforeEach(async function () {
       const { users, debtMarket, bayc, pool, nftOracle, deployer } = testEnv;
-      nftBuyer = users[3];
+      debtBuyer = users[3];
       nftSeller = users[4];
       nftAsset = bayc.address;
       tokenId = testEnv.tokenIdTracker++;
@@ -39,7 +39,7 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
 
       // Fund the wallets
       await fundWithERC20("WETH", nftSeller.address, "1000");
-      await fundWithERC20("WETH", nftBuyer.address, "1000");
+      await fundWithERC20("WETH", debtBuyer.address, "1000");
 
       await debtMarket.connect(nftSeller.signer).createDebtListing(nftAsset, tokenId, 50, nftSeller.address, 0, 0);
 
@@ -62,14 +62,14 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
       const debtIdBefore = await dataProvider.getLoanDataByCollateral(nftAsset, tokenId);
 
       // Buyer buys the debt
-      await wethGateway.connect(nftBuyer.signer).buyDebtETH(nftAsset, tokenId, nftBuyer.address, { value: 50 });
+      await wethGateway.connect(debtBuyer.signer).buyDebtETH(nftAsset, tokenId, debtBuyer.address, { value: 50 });
 
       // Confirm the debt is sold
       const debtIdAfter = await dataProvider.getLoanDataByCollateral(nftAsset, tokenId);
 
       expect(debtIdBefore[2]).to.not.equal(debtIdAfter[2], "Seller and buyer should be different");
       expect(uBAYC.balanceOf(nftSeller.address), 0, "Invalid balance of UToken");
-      expect(uBAYC.balanceOf(nftBuyer.address), 1, "Invalid balance of UToken");
+      expect(uBAYC.balanceOf(debtBuyer.address), 1, "Invalid balance of UToken");
 
       // confirms health factor is below 1
       const nftDebtDataAfter = await pool.getNftDebtData(nftAsset, tokenId);
@@ -81,15 +81,15 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
   });
   describe("Auctions", function () {
     let auctionBuyer;
-    let nftBuyer;
+    let debtBuyer;
     let nftSeller;
     let nftAsset;
     let tokenId;
 
     beforeEach(async function () {
-      const { users, debtMarket, bayc, pool, nftOracle, deployer } = testEnv;
+      const { users, debtMarket, bayc, pool, nftOracle, deployer, configurator } = testEnv;
       auctionBuyer = users[2];
-      nftBuyer = users[3];
+      debtBuyer = users[3];
       nftSeller = users[4];
       nftAsset = bayc.address;
       tokenId = testEnv.tokenIdTracker++;
@@ -100,10 +100,10 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
 
       // Fund the wallets
       await fundWithERC20("WETH", nftSeller.address, "1000");
-      await fundWithERC20("WETH", nftBuyer.address, "1000");
+      await fundWithERC20("WETH", debtBuyer.address, "1000");
       await fundWithERC20("WETH", auctionBuyer.address, "1000");
       await approveERC20(testEnv, nftSeller, "WETH");
-      await approveERC20(testEnv, nftBuyer, "WETH");
+      await approveERC20(testEnv, debtBuyer, "WETH");
       await approveERC20(testEnv, auctionBuyer, "WETH");
 
       const blockNumber = await users[0].signer.provider!.getBlockNumber();
@@ -112,6 +112,23 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
       await debtMarket
         .connect(nftSeller.signer)
         .createDebtListing(nftAsset, tokenId, 0, nftSeller.address, 3, auctionEndTimestamp);
+
+      type NewType = IConfigNftAsCollateralInput;
+
+      const collData: NewType = {
+        asset: bayc.address,
+        nftTokenId: tokenId,
+        newPrice: parseEther("100"),
+        ltv: 4000,
+        liquidationThreshold: 7000,
+        redeemThreshold: 9000,
+        liquidationBonus: 500,
+        redeemDuration: 10,
+        auctionDuration: 15,
+        redeemFine: 500,
+        minBidFine: 2000,
+      };
+      await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
 
       // Set the price manager and drop health factor below 1
       await nftOracle.setPriceManagerStatus(deployer.address, true);
@@ -132,16 +149,16 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
       const debtIdBefore = await dataProvider.getLoanDataByCollateral(nftAsset, tokenId);
 
       // Buyer buys the debt
-      await wethGateway.connect(nftBuyer.signer).bidDebtETH(nftAsset, tokenId, nftBuyer.address, { value: 4 });
+      await wethGateway.connect(debtBuyer.signer).bidDebtETH(nftAsset, tokenId, debtBuyer.address, { value: 4 });
       await increaseTime(2000000);
-      await debtMarket.connect(nftBuyer.signer).claim(nftAsset, tokenId, nftBuyer.address);
+      await debtMarket.connect(debtBuyer.signer).claim(nftAsset, tokenId, debtBuyer.address);
 
       // Confirm the debt is sold
       const debtIdAfter = await dataProvider.getLoanDataByCollateral(nftAsset, tokenId);
 
       expect(debtIdBefore[2]).to.not.equal(debtIdAfter[2], "Seller and buyer should be different");
       expect(uBAYC.balanceOf(nftSeller.address), 0, "Invalid balance of UToken");
-      expect(uBAYC.balanceOf(nftBuyer.address), 1, "Invalid balance of UToken");
+      expect(uBAYC.balanceOf(debtBuyer.address), 1, "Invalid balance of UToken");
 
       // confirms health factor is below 1
       const nftDebtDataAfter = await pool.getNftDebtData(nftAsset, tokenId);
@@ -150,7 +167,7 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
         ProtocolErrors.VL_INVALID_HEALTH_FACTOR
       );
 
-      await pool.connect(nftBuyer.signer).repay(nftAsset, tokenId, "8000000000000000000");
+      await pool.connect(debtBuyer.signer).repay(nftAsset, tokenId, "8000000000000000000");
 
       const nftDebtData = await pool.getNftDebtData(nftAsset, tokenId);
       expect(nftDebtData.healthFactor.toString()).to.be.bignumber.gt(
@@ -163,12 +180,10 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
       const { pool, wethGateway, uBAYC, dataProvider, debtMarket } = testEnv;
 
       // Get the Id before reset to 0
-      const debtIdBefore = await dataProvider.getLoanDataByCollateral(nftAsset, tokenId);
-      const balanceBefore = await nftSeller.signer.getBalance();
-      console.log("Balance before: ", balanceBefore.toString());
+      const balanceBefore = await debtBuyer.signer.getBalance();
 
       // Buyer bids the debt
-      await wethGateway.connect(nftBuyer.signer).bidDebtETH(nftAsset, tokenId, nftBuyer.address, { value: 4 });
+      await wethGateway.connect(debtBuyer.signer).bidDebtETH(nftAsset, tokenId, debtBuyer.address, { value: 4 });
       await increaseTime(2000000);
 
       // auctionsBuyer bids on Auction to change state to auction
@@ -177,53 +192,84 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
       // Seller redeems the auction HF < 1
       await pool.connect(nftSeller.signer).redeem(nftAsset, tokenId, "6000000000000000000", "1000000000000000000");
 
-      const balanceAfter = await nftSeller.signer.getBalance();
-      console.log("Balance after: ", balanceAfter.toString());
+      const balanceAfter = await debtBuyer.signer.getBalance();
 
+      // The balance of the buyer should be the same as before + delta
+      const delta = "500000000000000"; // 0.0005 ETH
+      expect(balanceBefore).to.be.closeTo(balanceAfter, delta);
+
+      // After Redeem HF > 1
       const nftDebtData = await pool.getNftDebtData(nftAsset, tokenId);
       expect(nftDebtData.healthFactor.toString()).to.be.bignumber.gt(
         oneEther.toFixed(0),
         ProtocolErrors.VL_INVALID_HEALTH_FACTOR
       );
+      expect(uBAYC.balanceOf(nftSeller.address), 1, "Invalid balance of UToken");
+      expect(uBAYC.balanceOf(debtBuyer.address), 0, "Invalid balance of UToken");
+      expect(uBAYC.balanceOf(auctionBuyer.address), 0, "Invalid balance of UToken");
     });
 
-    // it("If debt auction ends after marketplace auction and debt claims 1st", async () => {
-    //     const { pool, wethGateway, uBAYC, dataProvider, debtMarket, users, weth } = testEnv;
+    it("Confirms HF < 1 after debt buyer bids the debt, and auctionBuyer bids and liquidates", async () => {
+      const { pool, wethGateway, uBAYC, dataProvider, bayc } = testEnv;
 
-    //     console.log("1");
-    //     const auctionBuyer = users[2];
-    //     await fundWithERC20("WETH", auctionBuyer.address, "1000");
-    //     await approveERC20(testEnv, auctionBuyer, "WETH");
-    //     //console.log(await weth.balanceOf(auctionBuyer.address).toString());
+      // Get the Id before reset to 0
+      const balanceBefore = await debtBuyer.signer.getBalance();
 
-    //     await pool.connect(auctionBuyer.signer).auction(nftAsset, tokenId, "12000000000000000000", auctionBuyer.address);
-    //     console.log("2");
-    //     // Get the Id before reset to 0
-    //     const debtIdBefore = await dataProvider.getLoanDataByCollateral(nftAsset, tokenId);
-    //     console.log("3");
-    //     // Buyer buys the debt
-    //     console.log(nftBuyer.address);
-    //     await debtMarket.connect(nftBuyer.signer).bid(nftAsset, tokenId, nftBuyer.address, "4000000000000000000");
-    //     console.log("4");
-    //     await increaseTime(2000000);
-    //     console.log("5");
-    //     await debtMarket.connect(nftBuyer.signer).claim(nftAsset, tokenId, nftBuyer.address);
+      // Buyer bids the debt
+      await wethGateway.connect(debtBuyer.signer).bidDebtETH(nftAsset, tokenId, debtBuyer.address, { value: 4 });
 
-    //     //console.log(await weth.balanceOf(auctionBuyer.address).toString());
-    //     // // Confirm the debt is sold
-    //     // const debtIdAfter = await dataProvider.getLoanDataByCollateral(nftAsset, tokenId);
+      // auctionsBuyer bids on Auction to change state to auction
+      await pool.connect(auctionBuyer.signer).auction(nftAsset, tokenId, "11000000000000000000", auctionBuyer.address);
 
-    //     // expect(debtIdBefore[2]).to.not.equal(debtIdAfter[2], "Seller and buyer should be different");
-    //     // expect(uBAYC.balanceOf(nftSeller.address), 0, "Invalid balance of UToken");
-    //     // expect(uBAYC.balanceOf(nftBuyer.address), 1, "Invalid balance of UToken");
+      // moves time to end both auctions
+      await increaseTime(2000000);
 
-    //     // // confirms health factor is below 1
-    //     // const nftDebtDataAfter = await pool.getNftDebtData(nftAsset, tokenId);
-    //     // expect(nftDebtDataAfter.healthFactor.toString()).to.be.bignumber.lt(
-    //     //     oneEther.toFixed(0),
-    //     //     ProtocolErrors.VL_INVALID_HEALTH_FACTOR
-    //     // );
-    // });
+      // the buyer liquidates, claiming the NFT
+      await pool.connect(auctionBuyer.signer).liquidate(nftAsset, tokenId, "11000000000000000000");
+
+      const balanceAfter = await debtBuyer.signer.getBalance();
+
+      // The balance of the buyer should be the same as before + delta
+      const delta = "500000000000000"; // 0.0005 ETH
+      expect(balanceBefore).to.be.closeTo(balanceAfter, delta);
+      expect(uBAYC.balanceOf(nftSeller.address), 0, "Invalid balance of UToken");
+      expect(uBAYC.balanceOf(debtBuyer.address), 0, "Invalid balance of UToken");
+      expect(uBAYC.balanceOf(auctionBuyer.address), 0, "Invalid balance of UToken");
+      expect(await bayc.ownerOf(tokenId)).to.be.equal(auctionBuyer.address);
+    });
+
+    it("Confirms HF < 1 after debt buyer bids the debt, and auctionBuyer bids, but debt buyer wins", async () => {
+      const { pool, wethGateway, uBAYC, dataProvider, debtMarket, weth } = testEnv;
+
+      // Get the Id before reset to 0
+      const balanceBefore = await weth.balanceOf(auctionBuyer.address);
+      console.log("balanceBefore", balanceBefore.toString());
+
+      // Buyer bids the debt
+      await wethGateway.connect(debtBuyer.signer).bidDebtETH(nftAsset, tokenId, debtBuyer.address, { value: 4 });
+
+      // auctionsBuyer bids on Auction to change state to auction
+      await pool.connect(auctionBuyer.signer).auction(nftAsset, tokenId, "11000000000000000000", auctionBuyer.address);
+      const balanceMid = await weth.balanceOf(auctionBuyer.address);
+      console.log("balance Mid", balanceMid.toString());
+
+      // moves time to end both auctions
+      await increaseTime(2000000);
+
+      // the debt buyer claims the debt
+      await debtMarket.connect(debtBuyer.signer).claim(nftAsset, tokenId, debtBuyer.address);
+
+      const balanceAfter = await weth.balanceOf(auctionBuyer.address);
+      console.log("balance after", balanceAfter.toString());
+
+      // The balance of the buyer should be the same as before + delta
+      const delta = "500000000000000"; // 0.0005 ETH
+      expect(balanceBefore).to.be.closeTo(balanceAfter, delta);
+
+      expect(uBAYC.balanceOf(nftSeller.address), 0, "Invalid balance of UToken");
+      expect(uBAYC.balanceOf(debtBuyer.address), 1, "Invalid balance of UToken");
+      expect(uBAYC.balanceOf(auctionBuyer.address), 0, "Invalid balance of UToken");
+    });
     // If auction time higher than HFAuction?? Tokens Returned?
   });
 });
