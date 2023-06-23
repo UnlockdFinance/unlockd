@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.8.4;
 
-import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
-
 import {ILendPoolAddressesProvider} from "../../interfaces/ILendPoolAddressesProvider.sol";
 import {IReservoirAdapter} from "../../interfaces/reservoir/IReservoirAdapter.sol";
 import {IDebtToken} from "../../interfaces/IDebtToken.sol";
@@ -42,6 +40,7 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
     if (!_liquidators[msg.sender]) _revert(NotReservoirLiquidator.selector);
     _;
   }
+
   /**
    * @notice Revert if called by any account other than the rescuer.
    */
@@ -125,6 +124,8 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
 
     _validateLoanHealthFactor(nftAsset, safeTransferFromDecodedData.tokenId);
 
+    (, , , , uint256 bidFine) = _lendPool.getNftAuctionData(nftAsset, safeTransferFromDecodedData.tokenId);
+
     SettlementData memory settlementData;
 
     // Clean loan state in LendPoolLoan and receive underlying NFT
@@ -137,8 +138,10 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
     settlementData.balanceBeforeLiquidation = IERC20(loanData.reserveAsset).balanceOf(address(this));
 
     // safeTransfer NFT to Reservoir Module. Trigger `onERC721Received` hook initiating the sell
-    (bool success, ) = nftAsset.call(data);
-    if (!success) _revert(LowLevelSafeTransferFromFailed.selector);
+    {
+      (bool success, ) = nftAsset.call(data);
+      if (!success) _revert(LowLevelSafeTransferFromFailed.selector);
+    }
 
     // check if liquidated amount is correct regarding the expected liquidation amount
     settlementData.liquidatedAmount =
@@ -149,11 +152,14 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
 
     // Liquidated amount can not cover borrow amount
     if (settlementData.liquidatedAmount < settlementData.borrowAmount) {
-      settlementData.extraDebtAmount = settlementData.borrowAmount - settlementData.liquidatedAmount;
-    }
-    // Liquidated amount exceeds borrow amount
-    if (settlementData.liquidatedAmount > settlementData.borrowAmount) {
-      settlementData.remainAmount = settlementData.liquidatedAmount - settlementData.borrowAmount;
+      unchecked {
+        settlementData.extraDebtAmount = settlementData.borrowAmount - settlementData.liquidatedAmount;
+      }
+    } else {
+      // Liquidated amount exceeds borrow amount
+      unchecked {
+        settlementData.remainAmount = settlementData.liquidatedAmount - settlementData.borrowAmount;
+      }
     }
 
     // Burn debt
@@ -170,12 +176,12 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
 
     // transfer amounts to reserve
     _settleLiquidation(
-      loanData.reserveAsset,
+      loanData,
       reserveData.uTokenAddress,
-      loanData.borrower,
       settlementData.borrowAmount,
       settlementData.extraDebtAmount,
-      settlementData.remainAmount
+      settlementData.remainAmount,
+      bidFine
     );
 
     emit LiquidatedReservoir(
@@ -199,7 +205,7 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
    **/
   function updateModules(address[] calldata modules, bool flag) external override onlyPoolAdmin {
     uint256 cachedLength = modules.length;
-    for (uint256 i; i < cachedLength; ) {
+    for (uint256 i = 0; i < cachedLength; ) {
       if (modules[i] == address(0)) _revert(InvalidZeroAddress.selector);
       _reservoirModules[modules[i]] = flag;
       unchecked {
@@ -216,11 +222,11 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
    **/
   function updateLiquidators(address[] calldata liquidators, bool flag) external override onlyPoolAdmin {
     uint256 cachedLength = liquidators.length;
-    for (uint256 i; i < cachedLength; ) {
+    for (uint256 i = 0; i < cachedLength; ) {
       if (liquidators[i] == address(0)) _revert(InvalidZeroAddress.selector);
       _liquidators[liquidators[i]] = flag;
       unchecked {
-        i = i + 1;
+        ++i;
       }
     }
     emit LiquidatorsUpdated(liquidators, flag);
@@ -238,8 +244,8 @@ contract ReservoirAdapter is BaseAdapter, IReservoirAdapter {
   function _decodeSafeTransferFromData(
     bytes calldata _data
   ) internal pure returns (SafeTransferFromDecodedData memory safeTransferFromDecodedData) {
-    //solhint-disable-next-line no-inline-assembly
     bytes4 selector;
+    //solhint-disable-next-line no-inline-assembly
     assembly {
       selector := calldataload(_data.offset)
     }

@@ -106,9 +106,11 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
       await approveERC20(testEnv, debtBuyer, "WETH");
       await approveERC20(testEnv, auctionBuyer, "WETH");
 
+      console.log("Test to see if beforeEach doesn't fail.");
       const blockNumber = await users[0].signer.provider!.getBlockNumber();
       const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
       const auctionEndTimestamp = moment(currTimestamp).add(5, "minutes").unix() * 1000;
+
       await debtMarket
         .connect(nftSeller.signer)
         .createDebtListing(nftAsset, tokenId, 0, nftSeller.address, 3, auctionEndTimestamp);
@@ -246,7 +248,6 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
 
       // Get the Id before reset to 0
       const balanceBefore = await weth.balanceOf(auctionBuyer.address);
-      console.log("balanceBefore", balanceBefore.toString());
 
       // Buyer bids the debt
       await weth.connect(debtBuyer.signer).approve(debtMarket.address, "4000000000000000000");
@@ -254,8 +255,6 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
 
       // auctionsBuyer bids on Auction to change state to auction
       await pool.connect(auctionBuyer.signer).auction(nftAsset, tokenId, "11000000000000000000", auctionBuyer.address);
-      const balanceMid = await weth.balanceOf(auctionBuyer.address);
-      console.log("balance Mid", balanceMid.toString());
 
       // moves time to end both auctions
       await increaseTime(2000000);
@@ -264,7 +263,6 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
       await debtMarket.connect(debtBuyer.signer).claim(nftAsset, tokenId, debtBuyer.address);
 
       const balanceAfter = await weth.balanceOf(auctionBuyer.address);
-      console.log("balance after", balanceAfter.toString());
 
       // The balance of the buyer should be the same as before + delta
       const delta = "500000000000000"; // 0.0005 ETH

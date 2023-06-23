@@ -62,7 +62,8 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   bytes32 public constant ADDRESS_ID_PUNK_GATEWAY = keccak256("PUNK_GATEWAY");
   bytes32 public constant ADDRESS_ID_PUNKS = keccak256("PUNKS");
   bytes32 public constant ADDRESS_ID_WPUNKS = keccak256("WPUNKS");
-
+  bytes32 public constant ADDRESS_ID_RESERVOIR_ADAPTER = keccak256("RESERVOIR_ADAPTER");
+  bytes32 public constant ADDRESS_ID_DEBT_MARKET = keccak256("DEBT_MARKET");
   /*//////////////////////////////////////////////////////////////
                           MODIFIERS
   //////////////////////////////////////////////////////////////*/
@@ -137,6 +138,15 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
       data = _nfts[_addressesProvider.getAddress(ADDRESS_ID_WPUNKS)];
     }
     require(data.uNftAddress != address(0), Errors.LP_COLLECTION_NOT_SUPPORTED);
+    _;
+  }
+
+  modifier onlyReservoirOrDebtMarket() {
+    require(
+      msg.sender == _addressesProvider.getAddress(ADDRESS_ID_RESERVOIR_ADAPTER) ||
+        msg.sender == _addressesProvider.getAddress(ADDRESS_ID_DEBT_MARKET),
+      Errors.LP_CALLER_NOT_RESERVOIR_OR_DEBT_MARKET
+    );
     _;
   }
 
@@ -570,6 +580,14 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     require(_configFee == msg.value, Errors.LP_MSG_VALUE_DIFFERENT_FROM_CONFIG_FEE);
 
     emit ValuationApproved(_msgSender(), nftAsset, nftTokenId);
+  }
+
+  function transferBidAmount(
+    address reserveAsset,
+    address bidder,
+    uint256 bidAmount
+  ) external override onlyReservoirOrDebtMarket {
+    IERC20(reserveAsset).safeTransfer(bidder, bidAmount);
   }
 
   /*//////////////////////////////////////////////////////////////

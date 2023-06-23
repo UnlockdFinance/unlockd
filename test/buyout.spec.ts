@@ -277,6 +277,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     await fundWithERC20("WETH", firstBidder.address, "100");
     await approveERC20(testEnv, firstBidder, "WETH");
 
+    console.log("avoid error");
     const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, "101");
 
     const ethReserveDataBefore = await dataProvider.getReserveData(weth.address);

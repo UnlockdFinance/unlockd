@@ -352,6 +352,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const nftAsset = bayc.address;
         const tokenId = testEnv.tokenIdTracker++;
         await borrowBayc(testEnv, seller, tokenId, 10);
+        console.log("Avoid Unix timestamp error");
         const blockNumber = await users[0].signer.provider!.getBlockNumber();
         const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
         const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
@@ -375,6 +376,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const nftAsset = bayc.address;
         const tokenId = testEnv.tokenIdTracker++;
         await borrowBayc(testEnv, seller, tokenId, 10);
+        console.log("Avoid Unix timestamp error");
         const blockNumber = await users[0].signer.provider!.getBlockNumber();
         const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
         const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
@@ -397,6 +399,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const nftAsset = bayc.address;
         const tokenId = testEnv.tokenIdTracker++;
         await borrowBayc(testEnv, seller, tokenId, 10);
+        console.log("Avoid Unix timestamp error");
         const blockNumber = await users[0].signer.provider!.getBlockNumber();
         const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
         const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
@@ -423,6 +426,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const nftAsset = bayc.address;
         const tokenId = testEnv.tokenIdTracker++;
         await borrowBayc(testEnv, seller, tokenId, 10);
+        console.log("Avoid Unix timestamp error");
         const blockNumber = await users[0].signer.provider!.getBlockNumber();
         const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
         const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
@@ -448,6 +452,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const nftAsset = bayc.address;
         const tokenId = testEnv.tokenIdTracker++;
         await borrowBayc(testEnv, seller, tokenId, 10);
+        console.log("Avoid Unix timestamp error");
         const blockNumber = await users[0].signer.provider!.getBlockNumber();
         const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
         const auctionEndTimestamp = moment(currTimestamp).add(5, "minutes").unix() * 1000;
@@ -494,7 +499,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const tokenId = testEnv.tokenIdTracker++;
 
         await borrowBayc(testEnv, seller, tokenId, 10);
-
+        console.log("Avoid Unix timestamp error");
         const blockNumber = await users[0].signer.provider!.getBlockNumber();
         const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
         const auctionEndTimestamp = moment(currTimestamp).add(5, "minutes").unix() * 1000;
@@ -523,7 +528,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const tokenId = testEnv.tokenIdTracker++;
 
         await borrowBayc(testEnv, seller, tokenId, 10);
-
+        console.log("Avoid Unix timestamp error");
         const blockNumber = await users[0].signer.provider!.getBlockNumber();
         const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
         const auctionEndTimestamp = moment(currTimestamp).add(5, "minutes").unix() * 1000;
@@ -549,6 +554,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const nftAsset = bayc.address;
         const tokenId = testEnv.tokenIdTracker++;
         await borrowBayc(testEnv, seller, tokenId, 10);
+        console.log("Avoid Unix timestamp error");
         const blockNumber = await users[0].signer.provider!.getBlockNumber();
         const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
         const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
@@ -618,6 +624,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const nftAsset = bayc.address;
         const tokenId = testEnv.tokenIdTracker++;
         await borrowBayc(testEnv, seller, tokenId, 10);
+        console.log("Avoid Unix timestamp error");
         const blockNumber = await users[0].signer.provider!.getBlockNumber();
         const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
         const auctionEndTimestamp = moment(currTimestamp).add(1, "days").unix() * 1000;
@@ -697,7 +704,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         const tokenId = testEnv.tokenIdTracker++;
 
         await borrowBayc(testEnv, seller, tokenId, 10);
-
+        console.log("Avoid Unix timestamp error");
         const oldLoan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
         const blockNumber = await users[0].signer.provider!.getBlockNumber();
         const currTimestamp = (await users[0].signer.provider!.getBlock(blockNumber)).timestamp;
