@@ -143,13 +143,14 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
     });
 
     it("Confirms HF < 1 after buyer buys the debt, new buyer repays and HF > 1", async () => {
-      const { pool, wethGateway, uBAYC, dataProvider, debtMarket } = testEnv;
+      const { pool, weth, uBAYC, dataProvider, debtMarket } = testEnv;
 
       // Get the Id before reset to 0
       const debtIdBefore = await dataProvider.getLoanDataByCollateral(nftAsset, tokenId);
 
       // Buyer buys the debt
-      await wethGateway.connect(debtBuyer.signer).bidDebtETH(nftAsset, tokenId, debtBuyer.address, { value: 4 });
+      await weth.connect(debtBuyer.signer).approve(debtMarket.address, "4000000000000000000");
+      await debtMarket.connect(debtBuyer.signer).bid(nftAsset, tokenId, "4000000000000000000", debtBuyer.address);
       await increaseTime(2000000);
       await debtMarket.connect(debtBuyer.signer).claim(nftAsset, tokenId, debtBuyer.address);
 
@@ -177,13 +178,14 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
     });
 
     it("Confirms HF < 1 after buyer bids the debt, seller redeems and HF > 1", async () => {
-      const { pool, wethGateway, uBAYC, dataProvider, debtMarket } = testEnv;
+      const { pool, uBAYC, debtMarket, weth } = testEnv;
 
       // Get the Id before reset to 0
-      const balanceBefore = await debtBuyer.signer.getBalance();
+      const balanceBefore = await weth.balanceOf(debtBuyer.address);
 
       // Buyer bids the debt
-      await wethGateway.connect(debtBuyer.signer).bidDebtETH(nftAsset, tokenId, debtBuyer.address, { value: 4 });
+      await weth.connect(debtBuyer.signer).approve(debtMarket.address, "4000000000000000000");
+      await debtMarket.connect(debtBuyer.signer).bid(nftAsset, tokenId, "4000000000000000000", debtBuyer.address);
       await increaseTime(2000000);
 
       // auctionsBuyer bids on Auction to change state to auction
@@ -192,7 +194,7 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
       // Seller redeems the auction HF < 1
       await pool.connect(nftSeller.signer).redeem(nftAsset, tokenId, "6000000000000000000", "1000000000000000000");
 
-      const balanceAfter = await debtBuyer.signer.getBalance();
+      const balanceAfter = await weth.balanceOf(debtBuyer.address);
 
       // The balance of the buyer should be the same as before + delta
       const delta = "500000000000000"; // 0.0005 ETH
@@ -210,13 +212,14 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
     });
 
     it("Confirms HF < 1 after debt buyer bids the debt, and auctionBuyer bids and liquidates", async () => {
-      const { pool, wethGateway, uBAYC, dataProvider, bayc } = testEnv;
+      const { pool, uBAYC, debtMarket, bayc, weth } = testEnv;
 
       // Get the Id before reset to 0
-      const balanceBefore = await debtBuyer.signer.getBalance();
+      const balanceBefore = await weth.balanceOf(debtBuyer.address);
 
       // Buyer bids the debt
-      await wethGateway.connect(debtBuyer.signer).bidDebtETH(nftAsset, tokenId, debtBuyer.address, { value: 4 });
+      await weth.connect(debtBuyer.signer).approve(debtMarket.address, "4000000000000000000");
+      await debtMarket.connect(debtBuyer.signer).bid(nftAsset, tokenId, "4000000000000000000", debtBuyer.address);
 
       // auctionsBuyer bids on Auction to change state to auction
       await pool.connect(auctionBuyer.signer).auction(nftAsset, tokenId, "11000000000000000000", auctionBuyer.address);
@@ -227,7 +230,7 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
       // the buyer liquidates, claiming the NFT
       await pool.connect(auctionBuyer.signer).liquidate(nftAsset, tokenId, "11000000000000000000");
 
-      const balanceAfter = await debtBuyer.signer.getBalance();
+      const balanceAfter = await weth.balanceOf(debtBuyer.address);
 
       // The balance of the buyer should be the same as before + delta
       const delta = "500000000000000"; // 0.0005 ETH
@@ -239,14 +242,15 @@ makeSuite("Sell the Debt with Health Factor below 1", (testEnv) => {
     });
 
     it("Confirms HF < 1 after debt buyer bids the debt, and auctionBuyer bids, but debt buyer wins", async () => {
-      const { pool, wethGateway, uBAYC, dataProvider, debtMarket, weth } = testEnv;
+      const { pool, uBAYC, debtMarket, weth } = testEnv;
 
       // Get the Id before reset to 0
       const balanceBefore = await weth.balanceOf(auctionBuyer.address);
       console.log("balanceBefore", balanceBefore.toString());
 
       // Buyer bids the debt
-      await wethGateway.connect(debtBuyer.signer).bidDebtETH(nftAsset, tokenId, debtBuyer.address, { value: 4 });
+      await weth.connect(debtBuyer.signer).approve(debtMarket.address, "4000000000000000000");
+      await debtMarket.connect(debtBuyer.signer).bid(nftAsset, tokenId, "4000000000000000000", debtBuyer.address);
 
       // auctionsBuyer bids on Auction to change state to auction
       await pool.connect(auctionBuyer.signer).auction(nftAsset, tokenId, "11000000000000000000", auctionBuyer.address);
