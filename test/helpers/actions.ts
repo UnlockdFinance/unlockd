@@ -1,7 +1,8 @@
 import BigNumber from "bignumber.js";
 import chai from "chai";
-import { BigNumber as BN, Contract, ContractReceipt } from "ethers";
+import { BigNumber as BN, Contract, ContractReceipt, ethers, Signer } from "ethers";
 import { parseEther } from "ethers/lib/utils";
+import moment from "moment";
 import weth from "../../abis/WETH.json";
 import erc20Artifact from "../../artifacts/contracts/mock/MintableERC20.sol/MintableERC20.json";
 import erc721Artifact from "../../artifacts/contracts/mock/MintableERC721.sol/MintableERC721.json";
@@ -965,3 +966,10 @@ export const repay = async (
       .to.be.reverted;
   }
 };
+
+export async function getAuctionEndTimestamp(minutes: number): Promise<number> {
+  const now = Math.floor(Date.now() / 1000); // current real-world time in seconds
+  const time = minutes * 60;
+  const auctionEndTimestamp = now + time; // 5 minutes from now
+  return auctionEndTimestamp;
+}

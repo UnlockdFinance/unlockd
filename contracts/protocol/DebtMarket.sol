@@ -128,8 +128,6 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
 
   bool internal _paused = false;
 
-  ILendPool internal _lendPool;
-
   /*//////////////////////////////////////////////////////////////
                           MODIFIERS
   //////////////////////////////////////////////////////////////*/
@@ -216,7 +214,6 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   function initialize(ILendPoolAddressesProvider addressesProvider) external initializer {
     _addressesProvider = addressesProvider;
     _deltaBidPercent = PercentageMath.ONE_PERCENT;
-    _lendPool = ILendPool(_addressesProvider.getLendPool());
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -471,11 +468,6 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
 
     IERC20Upgradeable(marketListing.reserveAsset).safeTransfer(marketListing.debtor, marketListing.bidPrice);
 
-    // Returns the bid amount to the bidder on the lendPool = HF < 1
-    ILendPoolLoan cachedLendPoolLoan = ILendPoolLoan(_addressesProvider.getLendPoolLoan());
-    uint256 loanId = cachedLendPoolLoan.getCollateralLoanId(nftAsset, tokenId);
-    _returnAuctionBidAmount(cachedLendPoolLoan.getLoan(loanId));
-
     // Create a event
     emit DebtClaimed(marketListing.debtor, onBehalfOf, vars.debtId);
   }
@@ -483,13 +475,6 @@ contract DebtMarket is Initializable, ContextUpgradeable, IDebtMarket {
   /*//////////////////////////////////////////////////////////////
                           INTERNALS
   //////////////////////////////////////////////////////////////*/
-  function _returnAuctionBidAmount(DataTypes.LoanData memory loanData) internal {
-    if (loanData.bidderAddress != address(0)) {
-      // Transfer bid amount to the loan bidder
-      _lendPool.transferBidAmount(loanData.reserveAsset, loanData.bidderAddress, loanData.bidPrice);
-    }
-  }
-
   function _createDebt(address nftAsset, uint256 tokenId, uint256 sellPrice, address onBehalfOf) internal {
     require(onBehalfOf != address(0), Errors.VL_INVALID_ONBEHALFOF_ADDRESS);
 

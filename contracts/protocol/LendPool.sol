@@ -63,7 +63,6 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
   bytes32 public constant ADDRESS_ID_PUNKS = keccak256("PUNKS");
   bytes32 public constant ADDRESS_ID_WPUNKS = keccak256("WPUNKS");
   bytes32 public constant ADDRESS_ID_RESERVOIR_ADAPTER = keccak256("RESERVOIR_ADAPTER");
-  bytes32 public constant ADDRESS_ID_DEBT_MARKET = keccak256("DEBT_MARKET");
   /*//////////////////////////////////////////////////////////////
                           MODIFIERS
   //////////////////////////////////////////////////////////////*/
@@ -141,10 +140,9 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     _;
   }
 
-  modifier onlyReservoirOrDebtMarket() {
+  modifier onlyReservoirAdapter() {
     require(
-      msg.sender == _addressesProvider.getAddress(ADDRESS_ID_RESERVOIR_ADAPTER) ||
-        msg.sender == _addressesProvider.getAddress(ADDRESS_ID_DEBT_MARKET),
+      msg.sender == _addressesProvider.getAddress(ADDRESS_ID_RESERVOIR_ADAPTER),
       Errors.LP_CALLER_NOT_RESERVOIR_OR_DEBT_MARKET
     );
     _;
@@ -586,7 +584,7 @@ contract LendPool is Initializable, ILendPool, ContextUpgradeable, IERC721Receiv
     address reserveAsset,
     address bidder,
     uint256 bidAmount
-  ) external override onlyReservoirOrDebtMarket {
+  ) external override onlyReservoirAdapter {
     IERC20(reserveAsset).safeTransfer(bidder, bidAmount);
   }
 
