@@ -427,6 +427,14 @@ interface ILendPool {
    **/
   function initNft(address asset, address uNftAddress) external;
 
+  /**
+   * @dev Transfer the last bid amount to the bidder
+   * @param reserveAsset address of the reserver asset (WETH)
+   * @param bidder the bidder address
+   * @param bidAmount  the bid amount
+   */
+  function transferBidAmount(address reserveAsset, address bidder, uint256 bidAmount) external;
+
   /*//////////////////////////////////////////////////////////////
                         GETTERS & SETTERS
   //////////////////////////////////////////////////////////////*/

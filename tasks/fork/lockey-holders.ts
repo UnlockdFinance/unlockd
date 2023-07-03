@@ -39,4 +39,7 @@ task("fork:deploy-lockey-holders", "Deploy the lockey holders contract")
     }
 
     await waitForTx(await addressesProvider.setAddress(ADDRESS_ID_LOCKEY_COLLECTION, lockeyAddress));
+
+    await waitForTx(await lockeyManagerProxy.setLockeyDiscountPercentageOnDebtMarket(10000));
+    await waitForTx(await lockeyManagerProxy.setLockeyDiscountPercentage(10000));
   });

@@ -409,7 +409,6 @@ library LiquidateLogic {
     vars.maxRepayAmount = GenericLogic.calculateOptimalMaxRedeemValue(vars.borrowAmount, vars.minRepayAmount);
 
     require(vars.repayAmount <= vars.maxRepayAmount, Errors.LP_AMOUNT_GREATER_THAN_MAX_REPAY);
-
     ILendPoolLoan(vars.poolLoan).redeemLoan(
       vars.initiator,
       vars.loanId,

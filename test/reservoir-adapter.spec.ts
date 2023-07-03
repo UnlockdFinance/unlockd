@@ -5,7 +5,7 @@ import { parseEther } from "ethers/lib/utils";
 import { FORK_BLOCK_NUMBER } from "../hardhat.config";
 import { ConfigNames, getTreasuryAddress, loadPoolConfig } from "../helpers/configuration";
 
-import { convertToCurrencyDecimals } from "../helpers/contracts-helpers";
+import { convertToCurrencyDecimals, getEthersSignerByAddress } from "../helpers/contracts-helpers";
 import {
   advanceTimeAndBlock,
   evmRevert,
@@ -23,7 +23,7 @@ import {
   setApprovalForAll,
   setPoolRescuer,
 } from "./helpers/actions";
-import { makeSuite, TestEnv } from "./helpers/make-suite";
+import { makeSuite, SignerWithAddress, TestEnv } from "./helpers/make-suite";
 import { getUserData } from "./helpers/utils/helpers";
 
 import "./helpers/utils/math";
@@ -464,5 +464,282 @@ makeSuite("Reservoir adapter tests", (testEnv: TestEnv) => {
     await testEnv.reservoirAdapter.connect(rescuer.signer).rescueNFT(bayc.address, "1318", user1.address);
 
     expect(await bayc.balanceOf(user1.address)).to.be.equal(initialBalance, "Balance should be the same");
+  });
+  it("ReservoirAdapter: liquidate an unhealthy NFT with bids, refund bid amount to bidder and bidfine to first bidder. (no extraDebtAmount) ", async () => {
+    if (FORK_BLOCK_NUMBER == "16784435") {
+      //block number for calldata for BAYC #100
+
+      const { reservoirAdapter, bayc, uWETH, pool, nftOracle, weth, deployer, users, configurator, dataProvider } =
+        testEnv;
+      const depositor = users[1];
+      const borrower = users[2];
+      const bidder = users[3];
+      const bidder2 = users[4];
+      const tokenId = "100";
+
+      /*//////////////////////////////////////////////////////////////
+                        BORROW PROCESS
+      //////////////////////////////////////////////////////////////*/
+
+      //mints WETH to the depositor
+      await fundWithERC20("WETH", depositor.address, "1000");
+      await approveERC20(testEnv, depositor, "WETH");
+
+      //deposits WETH
+      const amountDeposit = await convertToCurrencyDecimals(depositor, weth, "1000");
+
+      await pool.connect(depositor.signer).deposit(weth.address, amountDeposit, depositor.address, "0");
+
+      //mints BAYC to borrower
+      await fundWithERC721("BAYC", borrower.address, parseInt(tokenId));
+      //approve protocol to access borrower wallet
+      await setApprovalForAll(testEnv, borrower, "BAYC");
+
+      //borrows
+      const collData: IConfigNftAsCollateralInput = {
+        asset: bayc.address,
+        nftTokenId: tokenId,
+        newPrice: parseEther("100"), //100 ETH valuation
+        ltv: 6000,
+        liquidationThreshold: 7500,
+        redeemThreshold: 5000,
+        liquidationBonus: 500,
+        redeemDuration: 100,
+        auctionDuration: 200,
+        redeemFine: 500,
+        minBidFine: 2000,
+      };
+
+      await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
+
+      // Borrow 40 WETH
+      await pool
+        .connect(borrower.signer)
+        .borrow(weth.address, parseEther("40"), bayc.address, tokenId, borrower.address, "0");
+
+      /*//////////////////////////////////////////////////////////////
+                        LOWER HEALTH FACTOR
+      //////////////////////////////////////////////////////////////*/
+      await nftOracle.setNFTPrice(bayc.address, tokenId, parseEther("50"));
+
+      /*//////////////////////////////////////////////////////////////
+                                    BID
+      //////////////////////////////////////////////////////////////*/
+      //mints WETH to the bidders
+      await fundWithERC20("WETH", bidder.address, "1000");
+      await approveERC20(testEnv, bidder, "WETH");
+
+      await fundWithERC20("WETH", bidder2.address, "1000");
+      await approveERC20(testEnv, bidder2, "WETH");
+      // First bidder bid
+      await pool.connect(bidder.signer).auction(bayc.address, tokenId, parseEther("50"), bidder.address);
+      // Second bidder bids
+      await pool.connect(bidder2.signer).auction(bayc.address, tokenId, parseEther("60"), bidder2.address);
+
+      /*//////////////////////////////////////////////////////////////
+                      SETUP SEAPORT v1.4 LISTING
+      //////////////////////////////////////////////////////////////*/
+      const calldata =
+        "0xb88d4fde000000000000000000000000" +
+        reservoirAdapter.address.substring(2) +
+        "000000000000000000000000385df8cbc196f5f780367f3cdc96af072a916f7e0000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000004e4760f2a0b000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000385df8cbc196f5f780367f3cdc96af072a916f7e0000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e4267bf79700000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000001a0000000000000000000000000" +
+        reservoirAdapter.address.substring(2) +
+        "000000000000000000000000" +
+        reservoirAdapter.address.substring(2) +
+        "000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000003c00000000000000000000000000000000000000000000000000000000000000001000000000000000000000000385df8cbc196f5f780367f3cdc96af072a916f7e000000000000000000000000000000000000000000000003bd913e6c1df400000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000264800000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005705b71c9581208fbab754562447185b6895f3ac000000000000000000000000bc4ca0eda7647a8ab7c2061c2e118a18a936f13d000000000000000000000000000000000000000000000003bd913e6c1df400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000009f93623019049c76209c26517acc2af9d49c69b000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000000000000000000000000000000000000000000c1000000000000000000000000000000000000000000000000000000006407bf9c000000000000000000000000000000000000000000000000000000006409111900000000000000000000000000000000000000000000000000000000000026480000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001c9cfd9548580c9e5edffd87574fe96125ac7fd541750c44c1265e4fb92522fb2a7a5e5bd0f77641238feb100af3db4995e97d49e12076c97421a43461857a12c4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+      /*//////////////////////////////////////////////////////////////
+                      FETCH DATA BEFORE LIQUIDATION
+      //////////////////////////////////////////////////////////////*/
+      const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, tokenId);
+      const ethReserveDataBefore = await dataProvider.getReserveData(weth.address);
+      const userReserveDataBefore = await getUserData(pool, dataProvider, weth.address, borrower.address);
+      const firstBidderBalanceBefore = await weth.balanceOf(bidder.address);
+      const secondBidderBalanceBefore = await weth.balanceOf(bidder2.address);
+      const nftAuctionData = await pool.getNftAuctionData(bayc.address, tokenId);
+      const utokenBalanceBefore = await weth.balanceOf(uWETH.address);
+
+      /*//////////////////////////////////////////////////////////////
+                      LIQUIDATE RESERVOIR
+      //////////////////////////////////////////////////////////////*/
+      await reservoirAdapter.liquidateReservoir(bayc.address, weth.address, calldata, parseEther("67.62"));
+
+      /*//////////////////////////////////////////////////////////////
+                    VALIDATE DATA AFTER LIQUIDATION
+      //////////////////////////////////////////////////////////////*/
+      const userReserveDataAfter = await getUserData(pool, dataProvider, weth.address, borrower.address);
+      const ethReserveDataAfter = await dataProvider.getReserveData(weth.address);
+      const userVariableDebtAmountBeforeTx = new BigNumber(userReserveDataBefore.scaledVariableDebt).rayMul(
+        new BigNumber(ethReserveDataAfter.variableBorrowIndex.toString())
+      );
+
+      //the liquidity index of the principal reserve needs to be bigger than the index before
+      expect(ethReserveDataAfter.liquidityIndex.toString()).to.be.bignumber.gte(
+        ethReserveDataBefore.liquidityIndex.toString(),
+        "Invalid liquidity index"
+      );
+
+      //the principal APY after a liquidation needs to be lower than the APY before
+      expect(ethReserveDataAfter.liquidityRate.toString()).to.be.bignumber.lt(
+        ethReserveDataBefore.liquidityRate.toString(),
+        "Invalid liquidity APY"
+      );
+
+      // expect debt amount to be liquidated
+      const expectedLiquidateAmount = new BigNumber(loanDataBefore.scaledAmount.toString()).rayMul(
+        new BigNumber(ethReserveDataAfter.variableBorrowIndex.toString())
+      );
+
+      expect(userReserveDataAfter.currentVariableDebt.toString()).to.be.bignumber.almostEqual(
+        userVariableDebtAmountBeforeTx.minus(expectedLiquidateAmount).toString(),
+        "Invalid user debt after liquidation"
+      );
+
+      // Amount liquidated returned to uToken
+      const utokenBalanceAfter = await weth.balanceOf(uWETH.address);
+      expect(utokenBalanceAfter).to.be.closeTo(
+        utokenBalanceBefore.add(loanDataBefore.bidBorrowAmount),
+        utokenBalanceBefore.add(loanDataBefore.bidBorrowAmount).add(parseEther("0.1"))
+      );
+      // Amount liquidated was bigger than borrow amount. Expect bidder to get money back and first bidder to increase its balance by the fee
+      const firstBidderBalanceAfter = await weth.balanceOf(bidder.address);
+      const secondBidderBalanceAfter = await weth.balanceOf(bidder2.address);
+      expect(secondBidderBalanceAfter).to.be.eq(secondBidderBalanceBefore.add(parseEther("60")));
+
+      expect(firstBidderBalanceAfter).to.be.closeTo(
+        firstBidderBalanceBefore.add(nftAuctionData.bidFine),
+        firstBidderBalanceBefore.add(nftAuctionData.bidFine).add(parseEther("0.1"))
+      );
+    }
+  });
+  it("ReservoirAdapter: liquidate an unhealthy NFT with bids (extraDebtAmount, no refund for first bidder nor borrower) ", async () => {
+    if (FORK_BLOCK_NUMBER == "16784435") {
+      //block number for calldata for BAYC #100
+
+      const { reservoirAdapter, bayc, uWETH, pool, nftOracle, weth, deployer, users, configurator, dataProvider } =
+        testEnv;
+      const depositor = users[1];
+      const borrower = users[2];
+      const bidder = users[3];
+      const bidder2 = users[4];
+      const tokenId = "100";
+
+      /*//////////////////////////////////////////////////////////////
+                        BORROW PROCESS
+      //////////////////////////////////////////////////////////////*/
+
+      //mints WETH to the depositor
+      await fundWithERC20("WETH", depositor.address, "1000");
+      await approveERC20(testEnv, depositor, "WETH");
+
+      //deposits WETH
+      const amountDeposit = await convertToCurrencyDecimals(depositor, weth, "1000");
+
+      await pool.connect(depositor.signer).deposit(weth.address, amountDeposit, depositor.address, "0");
+
+      //mints BAYC to borrower
+      await fundWithERC721("BAYC", borrower.address, parseInt(tokenId));
+      //approve protocol to access borrower wallet
+      await setApprovalForAll(testEnv, borrower, "BAYC");
+
+      //borrows
+      const collData: IConfigNftAsCollateralInput = {
+        asset: bayc.address,
+        nftTokenId: tokenId,
+        newPrice: parseEther("100"), //100 ETH valuation
+        ltv: 9000,
+        liquidationThreshold: 9500,
+        redeemThreshold: 5000,
+        liquidationBonus: 500,
+        redeemDuration: 100,
+        auctionDuration: 200,
+        redeemFine: 500,
+        minBidFine: 2000,
+      };
+
+      await configurator.connect(deployer.signer).configureNftsAsCollateral([collData]);
+
+      // Borrow 40 WETH
+      await pool
+        .connect(borrower.signer)
+        .borrow(weth.address, parseEther("80"), bayc.address, tokenId, borrower.address, "0");
+
+      /*//////////////////////////////////////////////////////////////
+                        LOWER HEALTH FACTOR
+      //////////////////////////////////////////////////////////////*/
+      await nftOracle.setNFTPrice(bayc.address, tokenId, parseEther("50"));
+
+      /*//////////////////////////////////////////////////////////////
+                                    BID
+      //////////////////////////////////////////////////////////////*/
+      //mints WETH to the bidders
+      await fundWithERC20("WETH", bidder.address, "1000");
+      await approveERC20(testEnv, bidder, "WETH");
+
+      await fundWithERC20("WETH", bidder2.address, "1000");
+      await approveERC20(testEnv, bidder2, "WETH");
+      const firstBidderBalanceBeforeBid = await weth.balanceOf(bidder.address);
+      // First bidder bid
+      await pool.connect(bidder.signer).auction(bayc.address, tokenId, parseEther("85"), bidder.address);
+      // Second bidder bids
+      await pool.connect(bidder2.signer).auction(bayc.address, tokenId, parseEther("90"), bidder2.address);
+
+      /*//////////////////////////////////////////////////////////////
+                      SETUP SEAPORT v1.4 LISTING
+      //////////////////////////////////////////////////////////////*/
+      const calldata =
+        "0xb88d4fde000000000000000000000000" +
+        reservoirAdapter.address.substring(2) +
+        "000000000000000000000000385df8cbc196f5f780367f3cdc96af072a916f7e0000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000004e4760f2a0b000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000385df8cbc196f5f780367f3cdc96af072a916f7e0000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e4267bf79700000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000001a0000000000000000000000000" +
+        reservoirAdapter.address.substring(2) +
+        "000000000000000000000000" +
+        reservoirAdapter.address.substring(2) +
+        "000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000003c00000000000000000000000000000000000000000000000000000000000000001000000000000000000000000385df8cbc196f5f780367f3cdc96af072a916f7e000000000000000000000000000000000000000000000003bd913e6c1df400000000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000264800000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005705b71c9581208fbab754562447185b6895f3ac000000000000000000000000bc4ca0eda7647a8ab7c2061c2e118a18a936f13d000000000000000000000000000000000000000000000003bd913e6c1df400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000009f93623019049c76209c26517acc2af9d49c69b000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc200000000000000000000000000000000000000000000000000000000000000c1000000000000000000000000000000000000000000000000000000006407bf9c000000000000000000000000000000000000000000000000000000006409111900000000000000000000000000000000000000000000000000000000000026480000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001c9cfd9548580c9e5edffd87574fe96125ac7fd541750c44c1265e4fb92522fb2a7a5e5bd0f77641238feb100af3db4995e97d49e12076c97421a43461857a12c4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+      /*//////////////////////////////////////////////////////////////
+                      FETCH DATA BEFORE LIQUIDATION
+      //////////////////////////////////////////////////////////////*/
+      const loanDataBefore = await dataProvider.getLoanDataByCollateral(bayc.address, tokenId);
+      const ethReserveDataBefore = await dataProvider.getReserveData(weth.address);
+      const userReserveDataBefore = await getUserData(pool, dataProvider, weth.address, borrower.address);
+      const firstBidderBalanceBefore = await weth.balanceOf(bidder.address);
+      const secondBidderBalanceBefore = await weth.balanceOf(bidder2.address);
+      const nftAuctionData = await pool.getNftAuctionData(bayc.address, tokenId);
+      const utokenBalanceBefore = await weth.balanceOf(uWETH.address);
+
+      /*//////////////////////////////////////////////////////////////
+                      LIQUIDATE RESERVOIR
+      //////////////////////////////////////////////////////////////*/
+      const treasury = await uWETH.RESERVE_TREASURY_ADDRESS();
+      const signerTreasury = await getEthersSignerByAddress(treasury);
+
+      const signerTreasuryWithAddress: SignerWithAddress = {
+        signer: signerTreasury,
+        address: treasury,
+      };
+      await approveERC20Adapter(testEnv, signerTreasuryWithAddress, "WETH");
+      await reservoirAdapter.liquidateReservoir(bayc.address, weth.address, calldata, parseEther("67.62"));
+
+      /*//////////////////////////////////////////////////////////////
+                    VALIDATE DATA AFTER LIQUIDATION
+      //////////////////////////////////////////////////////////////*/
+      const userReserveDataAfter = await getUserData(pool, dataProvider, weth.address, borrower.address);
+      const ethReserveDataAfter = await dataProvider.getReserveData(weth.address);
+      const userVariableDebtAmountBeforeTx = new BigNumber(userReserveDataBefore.scaledVariableDebt).rayMul(
+        new BigNumber(ethReserveDataAfter.variableBorrowIndex.toString())
+      );
+
+      // Amount liquidated returned to uToken
+      const utokenBalanceAfter = await weth.balanceOf(uWETH.address);
+
+      expect(utokenBalanceAfter).to.be.closeTo(
+        utokenBalanceBefore.add(loanDataBefore.bidBorrowAmount),
+        utokenBalanceBefore.add(loanDataBefore.bidBorrowAmount).add(parseEther("0.1"))
+      );
+      // Amount liquidated was lower than borrow amount. Still expect bidder to get money back but first bidder to NOT increase its balance by the fee
+      const firstBidderBalanceAfter = await weth.balanceOf(bidder.address);
+      const secondBidderBalanceAfter = await weth.balanceOf(bidder2.address);
+
+      expect(secondBidderBalanceAfter).to.be.gt(secondBidderBalanceBefore);
+      expect(firstBidderBalanceAfter).to.be.eq(firstBidderBalanceBefore);
+    }
   });
 });
