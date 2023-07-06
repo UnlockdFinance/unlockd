@@ -24,9 +24,7 @@ Returns the price for a specific reserve
 
 #### Return values
 
-| Type    | Description                                        |
-| ------- | -------------------------------------------------- |
-| uint256 | The reserve price in ETH (WEI format, 18 decimals) |
+<table><thead><tr><th width="247.33333333333331">Type</th><th>Description</th></tr></thead><tbody><tr><td>uint256</td><td>The reserve price in ETH (WEI format, 18 decimals)</td></tr></tbody></table>
 
 ### getAggregator
 
