@@ -1,0 +1,1052 @@
+
+> @unlockddao/unlockd-protocol@1.0.2 test
+> npm run compile && TS_NODE_TRANSPILE_ONLY=1 hardhat test ./test/*.spec.ts
+
+
+> @unlockddao/unlockd-protocol@1.0.2 compile
+> cross-env SKIP_LOAD=true hardhat compile
+
+Compiled 3 Solidity files successfully
+Creating Typechain artifacts in directory types for target ethers-v5
+Successfully generated Typechain artifacts!
+/home/fvenancio/Projects/unlockd/unlockd-tasks/tasks
+Creating Typechain artifacts in directory types for target ethers-v5
+Successfully generated Typechain artifacts!
+
+- Enviroment
+  - Fork Mode activated at network:  main
+  - Provider URL: eth-mainnet.g.alchemy.com
+  - Network : hardhat
+Deployer: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15 Balance: 1000000.0 ETH
+PoolAdmin: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15 Balance: 1000000.0 ETH
+EmergencyAdmin: 0x51d25BEeef0193C96CFDA7fff9BD7411C2BdbDd3 Balance: 1000000.0 ETH
+LendPool Liquidator: 0xA2874be6Acdc314dd055f6869a2dBdF62c983436 Balance: 1000000.0 ETH
+
+
+Migration started
+
+
+Deploy Punks Market and Wrapped Punk
+0x638477e1440ed2c4b2a4cebf044368898ba4a274f2e93bcdbb4d939080e4e2ee
+0
+*** CryptoPunksMarket ***
+
+Network: hardhat
+tx: 0x638477e1440ed2c4b2a4cebf044368898ba4a274f2e93bcdbb4d939080e4e2ee
+contract address: 0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 32194607845
+gas used: 2378109
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: CryptoPunksMarket address: 0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x625137da1d044fe5f1d56a10480a99c230f6c7e0874745922cd215aa5ddd0b9d
+1
+*** WrappedPunk ***
+
+Network: hardhat
+tx: 0x625137da1d044fe5f1d56a10480a99c230f6c7e0874745922cd215aa5ddd0b9d
+contract address: 0xa05ffF82bcC0C599984b0839218DC6ee9328d1Fb
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 29784923987
+gas used: 1992593
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: WrappedPunk address: 0xa05ffF82bcC0C599984b0839218DC6ee9328d1Fb deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+
+
+Deploy proxy admin
+0x6888515fc5c3fe41c659c51880bf286fd8094614a7580f9f636657348b99f766
+3
+*** UnlockdProxyAdminPool ***
+
+Network: hardhat
+tx: 0x6888515fc5c3fe41c659c51880bf286fd8094614a7580f9f636657348b99f766
+contract address: 0xb2f97A3c2E48cd368901657e31Faaa93035CE390
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 24070303540
+gas used: 470704
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: UnlockdProxyAdminPool address: 0xb2f97A3c2E48cd368901657e31Faaa93035CE390 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+ProxyAdminPool Address: 0xb2f97A3c2E48cd368901657e31Faaa93035CE390 Owner Address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0xe75a7403b6c9783829cdd8cc0b46772fcdc9e8b310c2b71b595012d380699ddb
+4
+*** UnlockdProxyAdminFund ***
+
+Network: hardhat
+tx: 0xe75a7403b6c9783829cdd8cc0b46772fcdc9e8b310c2b71b595012d380699ddb
+contract address: 0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 21404573513
+gas used: 470704
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: UnlockdProxyAdminFund address: 0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+UnlockdProxyAdminFund Address: 0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847 Owner Address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+
+
+Deploy address provider
+- Deploying new Address Provider:
+0x334847adee4706dfdae1d2df21536b8e5fc0ac618c9b6abda346ac1a6b1e3ff7
+5
+*** LendPoolAddressesProvider ***
+
+Network: hardhat
+tx: 0x334847adee4706dfdae1d2df21536b8e5fc0ac618c9b6abda346ac1a6b1e3ff7
+contract address: 0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 19046863559
+gas used: 2761006
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: LendPoolAddressesProvider address: 0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+- Deploying a new Address Provider Registry:
+0x660c70eff047d3accd806307273baa7c1d9ca98be9657a25d19249854a3a6b7f
+6
+*** LendPoolAddressesProviderRegistry ***
+
+Network: hardhat
+tx: 0x660c70eff047d3accd806307273baa7c1d9ca98be9657a25d19249854a3a6b7f
+contract address: 0x2F7f69a3cd22FcfFB5E0C0fB7Ae5Eb278b3919Ff
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 17791557795
+gas used: 502283
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: LendPoolAddressesProviderRegistry address: 0x2F7f69a3cd22FcfFB5E0C0fB7Ae5Eb278b3919Ff deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+Deployed Registry Address: 0x2F7f69a3cd22FcfFB5E0C0fB7Ae5Eb278b3919Ff Owner Address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+Added LendPoolAddressesProvider with address "0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457" to registry located at 0x2F7f69a3cd22FcfFB5E0C0fB7Ae5Eb278b3919Ff
+LIQUIDATOR addrs 0xA2874be6Acdc314dd055f6869a2dBdF62c983436
+Pool Admin 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+Emergency Admin 0x51d25BEeef0193C96CFDA7fff9BD7411C2BdbDd3
+LendPool Liquidator 0xA2874be6Acdc314dd055f6869a2dBdF62c983436
+
+
+Deploy Incentives Controller
+Deploying new Incentives Controller Implementation...
+0x645f0ec690291c699b328e49b8ca0d7f6c0840ae854febd33d8804ebd427489d
+12
+*** MockIncentivesController ***
+
+Network: hardhat
+tx: 0x645f0ec690291c699b328e49b8ca0d7f6c0840ae854febd33d8804ebd427489d
+contract address: 0x10F6794a3Df86bD8B97c7d6D625BAB54677D443b
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 8667561720
+gas used: 142669
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: MockIncentivesController address: 0x10F6794a3Df86bD8B97c7d6D625BAB54677D443b deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+
+
+Deploy UNFT Registry
+Deploying new UnftRegistry implementation...
+0xfedf1924eb36ab67802b14985dcb4d3245f4774a93a82fcf551cf47fed5bec7a
+14
+*** UNFT ***
+
+Network: hardhat
+tx: 0xfedf1924eb36ab67802b14985dcb4d3245f4774a93a82fcf551cf47fed5bec7a
+contract address: 0x2cC3790f7CF280fA898E4913CA980410cF38e53b
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 6896097824
+gas used: 1503057
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: UNFT address: 0x2cC3790f7CF280fA898E4913CA980410cF38e53b deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+contracts-helpers:insertContractAddressInDb, id: UNFTRegistryImpl address 0x294E11ac81ED4018d5dC0cc9618Ff2890acC8977
+0xd56c77bf6768558ffdb6a3aa77bd95d1a3e30c9aefe7e8cc4480f5b12e682220
+15
+*** UNFTRegistry ***
+
+Network: hardhat
+tx: 0xd56c77bf6768558ffdb6a3aa77bd95d1a3e30c9aefe7e8cc4480f5b12e682220
+contract address: 0x294E11ac81ED4018d5dC0cc9618Ff2890acC8977
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 6337040840
+gas used: 2441528
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: UNFTRegistry address: 0x294E11ac81ED4018d5dC0cc9618Ff2890acC8977 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+Invalid Proxy Admin address in pool config. Trying to fetch from deployed contracts...
+0xf9e18f07decb2c06eb8638aaea11e362fe57cdcff97d3b9d683d0583873aa668
+16
+*** UNFTRegistry ***
+
+Network: hardhat
+tx: 0xf9e18f07decb2c06eb8638aaea11e362fe57cdcff97d3b9d683d0583873aa668
+contract address: 0x6B8dcBD1bb131ED184221902df1Fe21019ccD7dc
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 5931568058
+gas used: 740487
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: UNFTRegistry address: 0x6B8dcBD1bb131ED184221902df1Fe21019ccD7dc deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+UNFT created successfully for token WPUNKS with address 0xa05ffF82bcC0C599984b0839218DC6ee9328d1Fb
+UNFT Token: 0xa05ffF82bcC0C599984b0839218DC6ee9328d1Fb 0x04312C252649D74bc2445E21c5b1a4Cd962aC5A2
+UNFT created successfully for token BAYC with address 0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D
+UNFT Token: 0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D 0xb896D8e12b024e485AA4a017B45ddF104281f558
+UNFT created successfully for token AZUKI with address 0xED5AF388653567Af2F388E6224dC7C4b3241C544
+UNFT Token: 0xED5AF388653567Af2F388E6224dC7C4b3241C544 0x5AaCf1d38Ba2a03888b74c49Df3013C8e5Cb108B
+
+
+Deploy Lockey Holders
+Deploying new Lockey Holders implementation...
+contracts-helpers:insertContractAddressInDb, id: LockeyManagerImpl address 0xCE1e5D792d24F62b29D35DeB85eC04b1F66447b1
+0x738be8835f254e01033015a87fecd3eeba0294206026ffabde6f14c8128e5da5
+21
+*** LockeyManager ***
+
+Network: hardhat
+tx: 0x738be8835f254e01033015a87fecd3eeba0294206026ffabde6f14c8128e5da5
+contract address: 0xCE1e5D792d24F62b29D35DeB85eC04b1F66447b1
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 3707032503
+gas used: 321165
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: LockeyManager address: 0xCE1e5D792d24F62b29D35DeB85eC04b1F66447b1 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+Setting lockey holders implementation with address: 0xCE1e5D792d24F62b29D35DeB85eC04b1F66447b1
+contracts-helpers:insertContractAddressInDb, id: LockeyManager address 0xc831fAe49f2c324704F7133CB8bE08BC768904cf
+
+
+Deploy lend pool
+Setting UNFTRegistry to address provider...
+Setting IncentivesController to address provider...
+Deploying new libraries implementation...
+0xc3be065ee5739a75844fbe64fdaf96eb8eb8e9be01e3b71a22213a8425bca4d9
+28
+*** GenericLogic ***
+
+Network: hardhat
+tx: 0xc3be065ee5739a75844fbe64fdaf96eb8eb8e9be01e3b71a22213a8425bca4d9
+contract address: 0xD5A42dEB39C8EfbCE0f81cEb4c51500501809e89
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 2091984252
+gas used: 84290
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: GenericLogic address: 0xD5A42dEB39C8EfbCE0f81cEb4c51500501809e89 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x53dfefce40960b0445fe6756581d8c0d4090c2f0a2192225048455a392b4019e
+29
+*** ReserveLogic ***
+
+Network: hardhat
+tx: 0x53dfefce40960b0445fe6756581d8c0d4090c2f0a2192225048455a392b4019e
+contract address: 0x4E76d6429C6f9dD22F87f10BcA800664B8Cc118b
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1957334481
+gas used: 171208
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: ReserveLogic address: 0x4E76d6429C6f9dD22F87f10BcA800664B8Cc118b deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0xe98425e287b7251ed8b484beabb094d63636139eb492a74676071665afa74d2d
+30
+*** NftLogic ***
+
+Network: hardhat
+tx: 0xe98425e287b7251ed8b484beabb094d63636139eb492a74676071665afa74d2d
+contract address: 0x153a75c692b6f047974bc96e30d20546B0Bc2992
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1840958903
+gas used: 141022
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: NftLogic address: 0x153a75c692b6f047974bc96e30d20546B0Bc2992 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0xe6cca974b66940c81569eb146d3e2860113b40631545ea518e76b52951794ddf
+31
+*** ValidationLogic ***
+
+Network: hardhat
+tx: 0xe6cca974b66940c81569eb146d3e2860113b40631545ea518e76b52951794ddf
+contract address: 0x17624D935b72A4d765d7A69a68E7C0725A38d5bc
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1738220440
+gas used: 1573518
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: ValidationLogic address: 0x17624D935b72A4d765d7A69a68E7C0725A38d5bc deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0xa679f572fb6c915df62ab88ce56f5a5e463c3202fba36517c355715f845e061f
+32
+*** SupplyLogic ***
+
+Network: hardhat
+tx: 0xa679f572fb6c915df62ab88ce56f5a5e463c3202fba36517c355715f845e061f
+contract address: 0x7ECdCa35F3B55acE694A7DA48a759444Fe81b943
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1669268250
+gas used: 1235281
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: SupplyLogic address: 0x7ECdCa35F3B55acE694A7DA48a759444Fe81b943 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0xfdbe97b6711ea1af394367a962044e95f06ceaf42c3080211afe09277bf6bc90
+33
+*** BorrowLogic ***
+
+Network: hardhat
+tx: 0xfdbe97b6711ea1af394367a962044e95f06ceaf42c3080211afe09277bf6bc90
+contract address: 0xa25a322c846E3be3207365390A02864fdEDfA0CD
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1602210811
+gas used: 2247741
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: BorrowLogic address: 0xa25a322c846E3be3207365390A02864fdEDfA0CD deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x8567508cbcf5a37511a92d2ed4d74ebc692e5852b165c9026fc9d884fde86702
+34
+*** LiquidateLogic ***
+
+Network: hardhat
+tx: 0x8567508cbcf5a37511a92d2ed4d74ebc692e5852b165c9026fc9d884fde86702
+contract address: 0x7dDc7b2963AC96336Ec238e816FCbc30aDB113AD
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1554115463
+gas used: 4831531
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: LiquidateLogic address: 0x7dDc7b2963AC96336Ec238e816FCbc30aDB113AD deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x2f7d2cd7f8ebc1cb83f1b26a730ce46b8d7b7bca1eee28210becea8a5447c440
+35
+*** LendingLogic ***
+
+Network: hardhat
+tx: 0x2f7d2cd7f8ebc1cb83f1b26a730ce46b8d7b7bca1eee28210becea8a5447c440
+contract address: 0x58B6e24b2a462Ef81e154515Ab7adc804512325c
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1538610590
+gas used: 72205
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: LendingLogic address: 0x58B6e24b2a462Ef81e154515Ab7adc804512325c deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x217be572b83a885dd54869c5acef016073037bfe406238891180590a0840086f
+36
+*** ConfiguratorLogic ***
+
+Network: hardhat
+tx: 0x217be572b83a885dd54869c5acef016073037bfe406238891180590a0840086f
+contract address: 0xAAF09660FafD2138fC9e5dA036D2a101A623b52F
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1472065198
+gas used: 1970094
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: ConfiguratorLogic address: 0xAAF09660FafD2138fC9e5dA036D2a101A623b52F deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+Deploying new lend pool implementation ...
+contracts-helpers:insertContractAddressInDb, id: LendPoolImpl address 0x5c769753F192449c3c6AeC7BF2145928eb261699
+0x263d264c9d1c25ee7b836cdddfdca5198ad7acfcc85820b2e0d16cd3383dcc86
+37
+*** LendPool ***
+
+Network: hardhat
+tx: 0x263d264c9d1c25ee7b836cdddfdca5198ad7acfcc85820b2e0d16cd3383dcc86
+contract address: 0x5c769753F192449c3c6AeC7BF2145928eb261699
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1431732005
+gas used: 5117416
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: LendPool address: 0x5c769753F192449c3c6AeC7BF2145928eb261699 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+Setting lend pool implementation with address: 0x5c769753F192449c3c6AeC7BF2145928eb261699
+contracts-helpers:insertContractAddressInDb, id: LendPool address 0x80Fa1fA8B0CaF15CFC3961C934cFA860945d9139
+Deploying new loan implementation...
+contracts-helpers:insertContractAddressInDb, id: LendPoolLoanImpl address 0xDB8c2AE619685b26C26a9ff48698049C363784f3
+0xa7d4c5ad716756937ce9e00f1da960af6897be38c85728a1b7354478b9b5c855
+39
+*** LendPoolLoan ***
+
+Network: hardhat
+tx: 0xa7d4c5ad716756937ce9e00f1da960af6897be38c85728a1b7354478b9b5c855
+contract address: 0xDB8c2AE619685b26C26a9ff48698049C363784f3
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1375287572
+gas used: 2825846
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: LendPoolLoan address: 0xDB8c2AE619685b26C26a9ff48698049C363784f3 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+Setting lend pool loan implementation with address: 0xDB8c2AE619685b26C26a9ff48698049C363784f3
+contracts-helpers:insertContractAddressInDb, id: LendPoolLoan address 0x7D2386aA0b699eD5C9a8D9caa2efDA648C2418e7
+Deploying new configurator implementation...
+contracts-helpers:insertContractAddressInDb, id: LendPoolConfiguratorImpl address 0x32727fA2ad74483C8DC1F899C5c06AcCd5eDAED8
+0xb67027d009759877555fca51835e63ec37be1d431157913af56a3893616acb14
+41
+*** LendPoolConfigurator ***
+
+Network: hardhat
+tx: 0xb67027d009759877555fca51835e63ec37be1d431157913af56a3893616acb14
+contract address: 0x32727fA2ad74483C8DC1F899C5c06AcCd5eDAED8
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1310593332
+gas used: 5241521
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: LendPoolConfigurator address: 0x32727fA2ad74483C8DC1F899C5c06AcCd5eDAED8 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+Setting lend pool configurator implementation with address: 0x32727fA2ad74483C8DC1F899C5c06AcCd5eDAED8
+contracts-helpers:insertContractAddressInDb, id: LendPoolConfigurator address 0x8E170f8919F9f6e58EEbd6E7bF0f1E2CFfaBe5E4
+Deploying UToken implementation UToken
+0xc8ea026099ae5a4acb11e96652f0ac2765dbea4edc07e7c17b8b85371610196c
+44
+*** UToken ***
+
+Network: hardhat
+tx: 0xc8ea026099ae5a4acb11e96652f0ac2765dbea4edc07e7c17b8b85371610196c
+contract address: 0x8286b7d42cB141E1871a3475bB8E0C3F84db0352
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1207672690
+gas used: 2901541
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: UToken address: 0x8286b7d42cB141E1871a3475bB8E0C3F84db0352 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x9d8445cc7b3c08bfdab37cb10ca6c08d55f071384a72841d35bf0168f990b5c3
+45
+*** DebtToken ***
+
+Network: hardhat
+tx: 0x9d8445cc7b3c08bfdab37cb10ca6c08d55f071384a72841d35bf0168f990b5c3
+contract address: 0x53933349dA8E97b77c1f43Ba01192adb8C510fA7
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1193813420
+gas used: 1566912
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: DebtToken address: 0x53933349dA8E97b77c1f43Ba01192adb8C510fA7 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+
+
+Deploy Debt Market
+Deploying new Debt Market implementation...
+contracts-helpers:insertContractAddressInDb, id: DebtMarketImpl address 0x51998F16F707a0cdd5ECE2a56c034552dF3fb855
+0xde62efddee87555bb9681484f8e617ea95c1fed7349df9ceb24a6a4e44c0a73f
+47
+*** DebtMarket ***
+
+Network: hardhat
+tx: 0xde62efddee87555bb9681484f8e617ea95c1fed7349df9ceb24a6a4e44c0a73f
+contract address: 0x51998F16F707a0cdd5ECE2a56c034552dF3fb855
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1135001459
+gas used: 3646559
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: DebtMarket address: 0x51998F16F707a0cdd5ECE2a56c034552dF3fb855 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+Setting Debt Market implementation with address: 0x51998F16F707a0cdd5ECE2a56c034552dF3fb855
+contracts-helpers:insertContractAddressInDb, id: DebtMarket address 0xAAd52A86F916f46c2Dc87f2BfCEA0B03aEAa8AE1
+Adding LendPool as authorized address for Debt Market...
+
+
+Deploy reserve oracle
+PROXY admin: 0xb2f97A3c2E48cd368901657e31Faaa93035CE390
+contracts-helpers:insertContractAddressInDb, id: ReserveOracleImpl address 0xf3D4979e1d7b8a8b9750e79ceF466Efc46298403
+0x5ead5b6cd7d22bc2d315aa8a308ec0a2556dbc87c2bbddbea8e28eaa6e89b006
+51
+*** ReserveOracle ***
+
+Network: hardhat
+tx: 0x5ead5b6cd7d22bc2d315aa8a308ec0a2556dbc87c2bbddbea8e28eaa6e89b006
+contract address: 0xf3D4979e1d7b8a8b9750e79ceF466Efc46298403
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1087228668
+gas used: 1211618
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: ReserveOracle address: 0xf3D4979e1d7b8a8b9750e79ceF466Efc46298403 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+Deploying new reserve oracle proxy & implementation...
+0xc35d2f02b46643cf41616c8dfb6a33de095888ee46d0c6234c34b54abcacf74a
+52
+*** ReserveOracle ***
+
+Network: hardhat
+tx: 0xc35d2f02b46643cf41616c8dfb6a33de095888ee46d0c6234c34b54abcacf74a
+contract address: 0x941C6c63Def537699014d15605828339475ed33c
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1078447330
+gas used: 689038
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: ReserveOracle address: 0x941C6c63Def537699014d15605828339475ed33c deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+Reserve Oracle: proxy 0x941C6c63Def537699014d15605828339475ed33c, implementation 0xf3D4979e1d7b8a8b9750e79ceF466Efc46298403
+-> Deploy mock reserve oracle...
+0x6ed8b095fdedfac4414130ca6588c8686c619a15ce393845cf3393078e71b7e1
+55
+*** MockReserveOracle ***
+
+Network: hardhat
+tx: 0x6ed8b095fdedfac4414130ca6588c8686c619a15ce393845cf3393078e71b7e1
+contract address: 0x06A6737A0713e3DAe8DEfA7565f89D835C1594B7
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1053567089
+gas used: 1280668
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: MockReserveOracle address: 0x06A6737A0713e3DAe8DEfA7565f89D835C1594B7 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+-> Deploy mock ChainLink oracle...
+0x357fca336bdec4b42599e34339c775b7824d8a35b234d3e8532d08d9924485f9
+57
+*** MockChainlinkOracle ***
+
+Network: hardhat
+tx: 0x357fca336bdec4b42599e34339c775b7824d8a35b234d3e8532d08d9924485f9
+contract address: 0x9718F7A661C0137d13EB4f0659dA5E8697075492
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1042305739
+gas used: 620122
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: MockChainlinkOracle address: 0x9718F7A661C0137d13EB4f0659dA5E8697075492 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+
+
+Deploy nft oracle
+contracts-helpers:insertContractAddressInDb, id: NFTOracleImpl address 0x0c6ee9D95dD6e39C1808d3fF219a6cE9b70E8dA7
+0x5182ab22798a6d2c4d2452559837d8a4fb2a6f7ff892f5dc60d2a936afea511d
+58
+*** NFTOracle ***
+
+Network: hardhat
+tx: 0x5182ab22798a6d2c4d2452559837d8a4fb2a6f7ff892f5dc60d2a936afea511d
+contract address: 0x0c6ee9D95dD6e39C1808d3fF219a6cE9b70E8dA7
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1037544324
+gas used: 1047335
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: NFTOracle address: 0x0c6ee9D95dD6e39C1808d3fF219a6cE9b70E8dA7 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+Deploying new nft oracle proxy & implementation...
+0x2535a53d1ff5593e413fa0bd92871597af795ba85484a77d2d5f5c5a9cae596d
+59
+*** NFTOracle ***
+
+Network: hardhat
+tx: 0x2535a53d1ff5593e413fa0bd92871597af795ba85484a77d2d5f5c5a9cae596d
+contract address: 0xc5b75fA87Bc8F55bD989642DFE0Bbdd44748cD3b
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1033640872
+gas used: 712028
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: NFTOracle address: 0xc5b75fA87Bc8F55bD989642DFE0Bbdd44748cD3b deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+NFT Oracle: proxy 0xc5b75fA87Bc8F55bD989642DFE0Bbdd44748cD3b, implementation 0x0c6ee9D95dD6e39C1808d3fF219a6cE9b70E8dA7
+-> Prepare mock nft oracle...
+0x26d9e810d053a4efd4678acfc33d9643b9614a8383962395cd573db3deafd992
+65
+*** MockNFTOracle ***
+
+Network: hardhat
+tx: 0x26d9e810d053a4efd4678acfc33d9643b9614a8383962395cd573db3deafd992
+contract address: 0x2bDc03E97c90C269099931986078fb9e353a65C6
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1015431337
+gas used: 1117249
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: MockNFTOracle address: 0x2bDc03E97c90C269099931986078fb9e353a65C6 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+
+
+Initialize lend pool
+Init & Config Reserve assets
+RESERVES: WETH,[object Object]
+0xef03cf0e26db2aeaeaeb8d1fbc93a84a2e7fef23e377a659a92b6474d76e70fb
+67
+*** InterestRate ***
+
+Network: hardhat
+tx: 0xef03cf0e26db2aeaeaeb8d1fbc93a84a2e7fef23e377a659a92b6474d76e70fb
+contract address: 0x495DeE8247914e3176a4F9767596d15a09230aC7
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1012149185
+gas used: 702443
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: InterestRate address: 0x495DeE8247914e3176a4F9767596d15a09230aC7 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+contracts-helpers:rawInsertContractAddressInDb, id: rateStrategyWETH address 0x495DeE8247914e3176a4F9767596d15a09230aC7
+- Reserves initialization in 1 txs
+  - Reserve ready for: WETH 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+    * gasUsed 1631319
+addressesProvider: 0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457
+configuator: 0x8E170f8919F9f6e58EEbd6E7bF0f1E2CFfaBe5E4
+- Configure Reserves
+  - Params for WETH: 3000 true
+- Configure reserves in 1 txs
+  - batchConfigReserve for: WETH
+Setting YVaultWETH with address:  0xa258C4606Ca8206D8aA700cE2143D7db854D168c  in addressesProvider...
+Init & Config NFT assets
+- NFTs initialization in 3 txs
+  - NFT ready for: WPUNKS 0xa05ffF82bcC0C599984b0839218DC6ee9328d1Fb
+    * gasUsed 256742
+  - NFT ready for: BAYC 0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D
+    * gasUsed 241562
+  - NFT ready for: AZUKI 0xED5AF388653567Af2F388E6224dC7C4b3241C544
+    * gasUsed 241380
+addressesProvider: 0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457
+configuator: 0x8E170f8919F9f6e58EEbd6E7bF0f1E2CFfaBe5E4
+- Configure NFTs
+  - Params for WPUNKS: 4000 9000 500 24 24 500 5000 2000 10000 9999
+  - Params for BAYC: 4000 9000 500 24 24 500 5000 2000 10000 9999
+  - Params for AZUKI: 4000 9000 500 24 24 500 5000 2000 10000 9999
+- Configure NFTs in 6 txs
+  - batchConfigNft for: WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS
+  - batchConfigNft for: WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS, WPUNKS
+  - batchConfigNft for: BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC
+  - batchConfigNft for: BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC, BAYC
+  - batchConfigNft for: AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI
+  - batchConfigNft for: AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI, AZUKI
+
+
+Deploy WETH Gateway
+contracts-helpers:insertContractAddressInDb, id: WETHGatewayImpl address 0x6e41fB61F92789d78ed6b7B70B5452c13706c2fE
+0x77838b14ade26a98f190d11230d1b5496db0080894fa9954694912e70cf4116f
+81
+*** WETHGateway ***
+
+Network: hardhat
+tx: 0x77838b14ade26a98f190d11230d1b5496db0080894fa9954694912e70cf4116f
+contract address: 0x6e41fB61F92789d78ed6b7B70B5452c13706c2fE
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1002338610
+gas used: 3157821
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: WETHGateway address: 0x6e41fB61F92789d78ed6b7B70B5452c13706c2fE deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+0x8910eb7d1e3da9c8e329047009d8d7f9661625d65bccb8a9f882a48fd514c8f7
+82
+*** WETHGateway ***
+
+Network: hardhat
+tx: 0x8910eb7d1e3da9c8e329047009d8d7f9661625d65bccb8a9f882a48fd514c8f7
+contract address: 0xD0330Ac56A182aC22864D67D6f6E76aD628c9b2e
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1002194576
+gas used: 745477
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: WETHGateway address: 0xD0330Ac56A182aC22864D67D6f6E76aD628c9b2e deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+
+
+Deploy PUNK Gateway
+wethGateWay.address 0xD0330Ac56A182aC22864D67D6f6E76aD628c9b2e
+CryptoPunksMarket.address 0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104
+WPUNKS.address 0xa05ffF82bcC0C599984b0839218DC6ee9328d1Fb
+contracts-helpers:insertContractAddressInDb, id: PunkGatewayImpl address 0x51bda59320165617F7209a38D08b11ccefF58F1a
+0xa9c7ad8624bad5cc38b5f8e64bec5484eec2f38483ae073090db442b9dee08a6
+85
+*** PunkGateway ***
+
+Network: hardhat
+tx: 0xa9c7ad8624bad5cc38b5f8e64bec5484eec2f38483ae073090db442b9dee08a6
+contract address: 0x51bda59320165617F7209a38D08b11ccefF58F1a
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1001498737
+gas used: 3698365
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: PunkGateway address: 0x51bda59320165617F7209a38D08b11ccefF58F1a deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+Deploying new PunkGateway proxy & implementation...
+0xa46ab654268a7c33bcdc04eff59404aad00228f82d4e6b473f9c4b727d2edb30
+86
+*** PunkGateway ***
+
+Network: hardhat
+tx: 0xa46ab654268a7c33bcdc04eff59404aad00228f82d4e6b473f9c4b727d2edb30
+contract address: 0x816b2d94590fbcE4C06a70FBb770323166867549
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1001422698
+gas used: 998760
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: PunkGateway address: 0x816b2d94590fbcE4C06a70FBb770323166867549 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+
+
+Initialize gateway
+WETHGateway: authorizeLendPoolNFT: [
+  '0xa05ffF82bcC0C599984b0839218DC6ee9328d1Fb',
+  '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
+  '0xED5AF388653567Af2F388E6224dC7C4b3241C544'
+]
+PunkGateway: authorizeLendPoolERC20: [ '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' ]
+
+
+Deploy Reservoir Adapter
+Deploying new Reservoir Adapter implementation...
+contracts-helpers:insertContractAddressInDb, id: ReservoirAdapterImpl address 0x35793856D2b49B365748b532149E1C52Cfa1744F
+0x46f91c204c9651ca90e44a236eb57644bca9c9665be73103f9be2c409cd40344
+90
+*** ReservoirAdapter ***
+
+Network: hardhat
+tx: 0x46f91c204c9651ca90e44a236eb57644bca9c9665be73103f9be2c409cd40344
+contract address: 0x35793856D2b49B365748b532149E1C52Cfa1744F
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1000858040
+gas used: 2348322
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: ReservoirAdapter address: 0x35793856D2b49B365748b532149E1C52Cfa1744F deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+Setting reservoir adapter implementation with address: 0x35793856D2b49B365748b532149E1C52Cfa1744F
+contracts-helpers:insertContractAddressInDb, id: ReservoirAdapter address 0xa62929737dd645647f2030b1D0074F9FB687051F
+
+
+Deploy data provider
+0x177636966e512596c4423f7e4e838a07c81325066d4c5e210d8c89a32e7669a8
+92
+*** WalletBalanceProvider ***
+
+Network: hardhat
+tx: 0x177636966e512596c4423f7e4e838a07c81325066d4c5e210d8c89a32e7669a8
+contract address: 0x8Fe994bA879dF436bDA80d1fc559d192608939f6
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1000703216
+gas used: 1244243
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: WalletBalanceProvider address: 0x8Fe994bA879dF436bDA80d1fc559d192608939f6 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+WalletBalancerProvider deployed at: 0x8Fe994bA879dF436bDA80d1fc559d192608939f6
+0xa14442ab5939ec570e64dbc3588240dc77c28f974b48426e892bdddd581570e8
+94
+*** UnlockdProtocolDataProvider ***
+
+Network: hardhat
+tx: 0xa14442ab5939ec570e64dbc3588240dc77c28f974b48426e892bdddd581570e8
+contract address: 0xF79a1ab14b401d7032bdDD20D8Eb061557fa8D87
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1000554377
+gas used: 3025274
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: UnlockdProtocolDataProvider address: 0xF79a1ab14b401d7032bdDD20D8Eb061557fa8D87 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+UnlockdProtocolDataProvider deployed at: 0xF79a1ab14b401d7032bdDD20D8Eb061557fa8D87
+0xc017c644a3b967103df75a1f13eda197b67a025b3dce96bd6eeb7a20b2f9e08d
+96
+*** UIPoolDataProvider ***
+
+Network: hardhat
+tx: 0xc017c644a3b967103df75a1f13eda197b67a025b3dce96bd6eeb7a20b2f9e08d
+contract address: 0xF07191639A5ca3d5D28206429Df3E3adCc020b3f
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1000454407
+gas used: 3056737
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: UIPoolDataProvider address: 0xF07191639A5ca3d5D28206429Df3E3adCc020b3f deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+UiPoolDataProvider deployed at: 0xF07191639A5ca3d5D28206429Df3E3adCc020b3f
+
+
+Finished migrations
+Contracts deployed at hardhat
+---------------------------------
+N# Contracts: 53
+CryptoPunksMarket: 0xB4B4ead1A260F1572b88b9D8ABa5A152D166c104
+WrappedPunk: 0xa05ffF82bcC0C599984b0839218DC6ee9328d1Fb
+UnlockdProxyAdminPool: 0xb2f97A3c2E48cd368901657e31Faaa93035CE390
+UnlockdProxyAdminFund: 0x5a60c5d89A0A0e08ae0CAe73453e3AcC9C335847
+LendPoolAddressesProvider: 0x4e07D87De1CF586D51C3665e6a4d36eB9d99a457
+LendPoolAddressesProviderRegistry: 0x2F7f69a3cd22FcfFB5E0C0fB7Ae5Eb278b3919Ff
+MockIncentivesController: 0x10F6794a3Df86bD8B97c7d6D625BAB54677D443b
+UNFT: 0x2cC3790f7CF280fA898E4913CA980410cF38e53b
+UNFTRegistryImpl: 0x294E11ac81ED4018d5dC0cc9618Ff2890acC8977
+UNFTRegistry: 0x6B8dcBD1bb131ED184221902df1Fe21019ccD7dc
+LockeyManagerImpl: 0xCE1e5D792d24F62b29D35DeB85eC04b1F66447b1
+LockeyManager: 0xc831fAe49f2c324704F7133CB8bE08BC768904cf
+DebtMarketImpl: 0x51998F16F707a0cdd5ECE2a56c034552dF3fb855
+DebtMarket: 0xAAd52A86F916f46c2Dc87f2BfCEA0B03aEAa8AE1
+GenericLogic: 0xD5A42dEB39C8EfbCE0f81cEb4c51500501809e89
+ReserveLogic: 0x4E76d6429C6f9dD22F87f10BcA800664B8Cc118b
+NftLogic: 0x153a75c692b6f047974bc96e30d20546B0Bc2992
+ValidationLogic: 0x17624D935b72A4d765d7A69a68E7C0725A38d5bc
+SupplyLogic: 0x7ECdCa35F3B55acE694A7DA48a759444Fe81b943
+BorrowLogic: 0xa25a322c846E3be3207365390A02864fdEDfA0CD
+LiquidateLogic: 0x7dDc7b2963AC96336Ec238e816FCbc30aDB113AD
+LiquidateMarketsLogic: 0xDB8c2AE619685b26C26a9ff48698049C363784f3
+LendingLogic: 0x58B6e24b2a462Ef81e154515Ab7adc804512325c
+ConfiguratorLogic: 0xAAF09660FafD2138fC9e5dA036D2a101A623b52F
+LendPoolImpl: 0x5c769753F192449c3c6AeC7BF2145928eb261699
+LendPool: 0x80Fa1fA8B0CaF15CFC3961C934cFA860945d9139
+LendPoolLoanImpl: 0xDB8c2AE619685b26C26a9ff48698049C363784f3
+LendPoolLoan: 0x7D2386aA0b699eD5C9a8D9caa2efDA648C2418e7
+LendPoolConfiguratorImpl: 0x32727fA2ad74483C8DC1F899C5c06AcCd5eDAED8
+LendPoolConfigurator: 0x8E170f8919F9f6e58EEbd6E7bF0f1E2CFfaBe5E4
+UToken: 0x8286b7d42cB141E1871a3475bB8E0C3F84db0352
+DebtToken: 0x53933349dA8E97b77c1f43Ba01192adb8C510fA7
+ReserveOracleImpl: 0xf3D4979e1d7b8a8b9750e79ceF466Efc46298403
+ReserveOracle: 0x941C6c63Def537699014d15605828339475ed33c
+MockReserveOracle: 0x06A6737A0713e3DAe8DEfA7565f89D835C1594B7
+MockChainlinkOracle: 0x9718F7A661C0137d13EB4f0659dA5E8697075492
+NFTOracleImpl: 0x0c6ee9D95dD6e39C1808d3fF219a6cE9b70E8dA7
+NFTOracle: 0xc5b75fA87Bc8F55bD989642DFE0Bbdd44748cD3b
+MockNFTOracle: 0x2bDc03E97c90C269099931986078fb9e353a65C6
+InterestRate: 0x495DeE8247914e3176a4F9767596d15a09230aC7
+rateStrategyWETH: 0x495DeE8247914e3176a4F9767596d15a09230aC7
+WETHGatewayImpl: 0x6e41fB61F92789d78ed6b7B70B5452c13706c2fE
+WETHGateway: 0xD0330Ac56A182aC22864D67D6f6E76aD628c9b2e
+PunkGatewayImpl: 0x51bda59320165617F7209a38D08b11ccefF58F1a
+PunkGateway: 0x816b2d94590fbcE4C06a70FBb770323166867549
+ReservoirAdapterImpl: 0x35793856D2b49B365748b532149E1C52Cfa1744F
+ReservoirAdapter: 0xa62929737dd645647f2030b1D0074F9FB687051F
+WalletBalanceProvider: 0x8Fe994bA879dF436bDA80d1fc559d192608939f6
+UnlockdProtocolDataProvider: 0xF79a1ab14b401d7032bdDD20D8Eb061557fa8D87
+UIPoolDataProvider: 0xF07191639A5ca3d5D28206429Df3E3adCc020b3f
+SelfdestructTransferMock: 0x5aC94dED0Fe79C890AF99f92164D93941a3F6Ac7
+MockYVaultImpl: 0x24A7d384dea2e1Dea6d2fE4f04A3197b2d7a12de
+MockYVault: 0x222193c6A20b1596814ffEea6B320cbF3cFe2c6b 
+
+Deployer: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15 Balance: 999999.643018489934475891
+PoolAdmin: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15 Balance: 999999.643018489934475891
+EmergencyAdmin: 0x51d25BEeef0193C96CFDA7fff9BD7411C2BdbDd3 Balance: 999999.999779073881323311
+LendPoolLiquidator: 0xA2874be6Acdc314dd055f6869a2dBdF62c983436 Balance: 1000000.0
+-> Initialize make suite...
+uDai undefined
+uUSDC undefined
+uWETH 0xC6FCddb9e53C5E17d4dd401526593C801E13AA8D
+
+***************
+Setup and snapshot finished
+***************
+
+  LendPoolAddressesProvider
+    ✓ Test the accessibility of the LendPoolAddressesProvider
+contracts-helpers:insertContractAddressInDb, id: LendPoolImpl address 0xcEBC70fc3dA36e8719388e3Ee7527b0636c08b64
+0x90a22b2c15df6ebe1fc36995c49c7d6583ce74e6f9c2610a3f23e642ad605180
+106
+*** LendPool ***
+
+Network: hardhat
+tx: 0x90a22b2c15df6ebe1fc36995c49c7d6583ce74e6f9c2610a3f23e642ad605180
+contract address: 0xcEBC70fc3dA36e8719388e3Ee7527b0636c08b64
+deployer address: 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+gas price: 1000099285
+gas used: 5117416
+
+******
+
+contracts-helpers:registerContractInJsonDb, contractId: LendPool address: 0xcEBC70fc3dA36e8719388e3Ee7527b0636c08b64 deployer 0x5b69E6884C70f42819Fb35Bf3C25578ee11AAA15
+    ✓ Tests adding a proxied address with `setAddressAsProxy()`
+    ✓ Tests adding a non proxied address with `setAddress()`
+    ✓ Tests specific non-proxied addresses set via `setAddress()`
+
+  LendPool: Borrow/repay test cases
+    ✓ Delegatee try to Borrow WETH to different onBehalf
+
+  LendPool: Borrow negative test cases
+    ✓ Users 0 Deposits 100 WETH and user 1 tries to borrow 0 WETH (revert expected)
+    ✓ User 1 tries to use underpriced NFT as collateral to borrow 100 WETH (revert expected)
+    ✓ User 2 tries to uses user 1 owned NFT as collateral to borrow 10 WETH (revert expected)
+    ✓ Users 0 Deposits 100 WETH and user 1 tries to borrow but the timestamp exceeds
+
+  LendPool: Borrow/repay test cases
+    ✓ User 2 deposits 1 WETH and 1000 DAI to account for rounding errors
+    ✓ User 0 deposits 100 WETH, user 1 uses NFT as collateral and borrows 1 WETH
+    ✓ User 1 uses existed collateral and borrows more 100 DAI (revert expected)
+    ✓ User 1 uses existed collateral and borrows more 2 WETH
+    ✓ User 1 tries to borrow more than the rest of the WETH liquidity (revert expected)
+    ✓ User 1 tries to repay 0 WETH (revert expected)
+    ✓ User 1 repays 0.5 WETH, enough to cover a small part of the interest
+    ✓ User 1 repays all WETH borrow after one year
+    ✓ User 0 withdraws the deposited WETH plus interest
+    ✓ User 1 deposits 1 USDC to account for rounding errors
+    ✓ User 1 deposits 1000 USDC, user 3 uses not owned NFT as collateral and borrows 10 USDC
+    ✓ user 2 uses owned NFT as collateral on behalf of user 3 and borrows 10 USDC
+    ✓ user 2 uses existed collateral on behalf of user 3 and borrows more 20 USDC
+    ✓ user 3 repay 10 USDC, a fraction of borrow amount
+    ✓ user 3 repay all USDC, full of borrow amount
+
+  LendPool: buyout test cases
+    ✓ Borrower - Borrows WETH
+    ✓ Buyer tries to buy with HF above 1
+    ✓ Health Factor goes below 1
+    ✓ Buyer - tries to buy the NFT with a wrong tokenId
+    ✓ Buyer - tries to buy the NFT with a smaller amount than debt
+    ✓ Buyer - tries to buy the NFT with an amount higher than debt lower then valuation
+
+  LendPool: buyout test cases
+    ✓ Borrower - Borrows WETH
+    ✓ Health Factor goes below 1
+
+    1) Buyer - buys out the NFT in auction
+    ✓ Verifies if the debtMarket listing was cancelled
+
+    2) Lockey Holder: Borrower - Borrows WETH
+    ✓ Lockey Holder: Health Factor goes below 1
+avoid error
+
+    3) Lockey Holder: Buyer - buys out the NFT in auction and deducts because he is a lockey holder.
+
+  Configurator-NFT
+    ✓ Deactivates the BAYC NFT
+    ✓ Deactivates the BAYC NFT Token
+    ✓ Rectivates the BAYC NFT
+    ✓ Rectivates the BAYC NFT Token
+    ✓ Check the onlyAdmin on deactivateRNft 
+    ✓ Check the onlyAdmin on activateNft 
+    ✓ Freezes the BAYC NFT
+    ✓ Freezes the BAYC NFT Token
+    ✓ Unfreezes the BAYC NFT
+    ✓ Unfreezes the BAYC NFT Token
+    ✓ Check the onlyAdmin on freezeNft 
+    ✓ Check the onlyAdmin on unfreezeNft 
+    ✓ Deactivates the BAYC NFT as collateral
+    ✓ Activates the BAYC NFT as collateral
+    ✓ Check the onlyLtvManager on configureNftAsCollateral 
+    ✓ Deactivates the BAYC NFT as auction
+    ✓ Activates the BAYC NFT as auction
+    ✓ Check the onlyLtvManager on configureNftAsAuction 
+    ✓ Batch Deactivates the BAYC NFT as collateral
+    ✓ Batch Activates the BAYC NFT as collateral
+    ✓ Check the onlyAdmin on batchConfigNft 
+    ✓ Batch Deactivates the BAYC NFT as auction
+    ✓ Batch Activates the BAYC NFT as auction
+    ✓ Reverts when trying to disable the BAYC nft with liquidity on it
+    ✓ Config setMaxNumberOfNfts invalid value
+    ✓ Config setMaxNumberOfNfts invalid value overflowing
+    ✓ Check the onlyAdmin on setMaxNumberOfNfts 
+    ✓ Config the timeFrame for an X amount of time
+    ✓ Check if the config timestamp is correct
+    ✓ Check if general configurations are correct
+    ✓ Check the zero check on set rescuer
+    ✓ (LendPool): Check the only pool admin in safe health factor 
+    ✓ (LendPool): Check invalid 0 value in safe health factor 
+    ✓ (LendPool): Check correct value in safe health factor 
+
+  Configurator-Reserve
+    ✓ Reverts trying to set an invalid reserve factor
+    ✓ Rectivates the ETH reserve
+    ✓ Check the onlyAdmin on deactivateReserve 
+    ✓ Check the onlyAdmin on activateReserve 
+    ✓ Freezes the ETH reserve
+    ✓ Unfreezes the ETH reserve
+    ✓ Check the onlyAdmin on freezeReserve 
+    ✓ Check the onlyAdmin on unfreezeReserve 
+    ✓ Deactivates the ETH reserve for borrowing
+    ✓ Activates the ETH reserve for borrowing
+    ✓ Check the onlyAdmin on disableBorrowingOnReserve 
+    ✓ Check the onlyAdmin on enableBorrowingOnReserve 
+    ✓ Changes the reserve factor of WETH
+    ✓ Check the onlyLendPoolManager on setReserveFactor
+    ✓ Batch Changes the reserve factor of WETH & DAI
+    ✓ Check the onlyPoolAdmin on batchConfigReserve
+    ✓ Reverts when trying to disable the DAI reserve with liquidity on it
+    ✓ Config setMaxNumberOfReserves valid value
+    ✓ Config setMaxNumberOfReserves invalid value
+    ✓ Config setMaxNumberOfReserves invalid value overflow
+    ✓ Check the onlyAdmin on setMaxNumberOfReserves 
+
+  DataProvider
+    ✓ Borrows WETH using 1 BAYC
+    ✓ Query UI Reserve Data
+    ✓ Query UI NFT Data
+    ✓ Query UI Loan Data
+    ✓ Query Wallet Reserve Data
+    ✓ Query Wallet NFT Data
+
+  Buy and sell the debts
+    Positive
+      FIXED PRICE type debt
+        ✓ Create a debt listing
+        ✓ Cancel a debt listing
+        ✓ Create a debt listing and a hacker tries to cancel it, then the real user cancels it
+        ✓ Buy a debt with ETH 
+        ✓ Buy a debt with a LOCKEY HOLDER discount
+        ✓ Buy a PUNK debt with WETH
+        ✓ Repaying cancel the debt listing
+      AUCTION type debt
+        ✓ Create a debt listing
+        ✓ Create a bid
+        ✓ Cancel a debt listing with bids
+        ✓ Create a second bid 
+        ✓ Claim an auction
+        ✓ When claiming an auction the previous owner tries to borrow more
+        ✓ Repaying cancel the debt listing
+      MIXED type debt
+        ✓ Create a debt listing 
+
+        4) Buy a debt with ETH
+        ✓ Create a bid
+        ✓ Buy a debt with bids
+        ✓ Buy a debt with bids same as sell amount
+        ✓ Cancel a debt listing with bids
+        ✓ Cancel a debt listing without bids
+        ✓ Claim an auction
+        ✓ Buy a debt bids same as sell amount with a LOCKEY HOLDER discount
+        ✓ Update a debt listing delta bids
+        ✓ Cancel debt listing on borrow again when exist a bid
+        ✓ Cancel debt listing on borrow again
+        ✓ Repaying cancel the debt listing
+    Negative
+      Revert on try to buy a debt listing
+        ✓ When it is a the price is lowest than the offer
+        ✓ When it is a the price is highest than the offer
+      Revert on try to create listing
+        ✓ When it is a debt listing without the ownership of the nft
+        ✓ When it is a debt listing with wrong on behalf of
+        ✓ When it is a debt listing with 0 sell price
+        ✓ When it is a debt listing that already exist
+        ✓ When it is a debt listing on non existing loan
+      Revert on try to create listing with Auction
+        ✓ When it is a debt listing with the auctionEndTimestamp past
+      Revert on try to cancel listing
+        ✓ When debt no exist
+        ✓ When it has SOLD state 
+      Revert on try to bid a auction debt
+        ✓ When debt no exist
+        ✓ When the new bid price is lower than min initial bid price
+        ✓ When the new bid price is lower than the last bid price plus delta
+        ✓ When the bid type is PRICE FIXED
+        ✓ When auction already ended
+        ✓ When the initial bid is lower than initialMinBidPrice
+        ✓ When the bid is higher than sell price
+      Revert on try to claim a auction debt
+        ✓ When debt no exist
+        ✓ When onBehalfOf is not the last bidder
+        ✓ When bid type is not AUCTION or MIXED
+        ✓ When auction is not already ended
+    Revert with the Debt Market Paused
+      ✓ Tries to set a delt bid higher than 100%
+      ✓ Set the debt market state to paused
+      ✓ Fail to create a listing with the market paused
+      ✓ Fail to cancel a listing with the market paused
+      ✓ Fail to do a bid on a debt listing with the market paused
+      ✓ Fail to do a buy on a debt listing with the market paused
+      ✓ Fail to do a claim on a debt listing with the market paused
+      ✓ Set the debt market state to unpaused
+    DebtMarket Debt Listings with HF > 1
+      Fixed Price
+        ✓ Confirms HF < 1 after buyer buys the debt.
+      Auctions

@@ -190,6 +190,8 @@ library LiquidateLogic {
     uint256 nftPrice;
     address lockeysCollection;
     address lockeyManagerAddress;
+    uint256 buyoutPrice;
+    uint256 lockeyDiscount;
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -640,6 +642,11 @@ library LiquidateLogic {
 
     vars.nftPrice = INFTOracleGetter(vars.nftOracle).getNFTPrice(loanData.nftAsset, loanData.nftTokenId);
 
+    //buyoutPrice will be the NFTPrice the borrowAmount depending which of them is higher
+    vars.buyoutPrice = vars.nftPrice;
+
+    reserveData.updateState();
+
     // Check for health factor
     (, , uint256 healthFactor) = GenericLogic.calculateLoanData(
       loanData.reserveAsset,
@@ -671,6 +678,9 @@ library LiquidateLogic {
       vars.nftOracle
     );
 
+    // if borrowAmount is higher than buyoutPrice (nftPrice), buyoutPrice will be the borrowAmount
+    if (vars.borrowAmount > vars.buyoutPrice) vars.buyoutPrice = vars.borrowAmount;
+
     (, vars.bidFine) = GenericLogic.calculateLoanBidFine(
       loanData.reserveAsset,
       reserveData,
@@ -683,32 +693,21 @@ library LiquidateLogic {
 
     ValidationLogic.validateBuyout(reserveData, nftData, nftConfig, loanData);
 
-    require(params.amount > vars.borrowAmount, Errors.LP_AMOUNT_LESS_THAN_DEBT);
-
-    // If the user is a lockey holder, he gets a discount
-    if (IERC721Upgradeable(vars.lockeysCollection).balanceOf(vars.onBehalfOf) != 0) {
-      require(
-        params.amount ==
-          vars.nftPrice.percentMul(ILockeyManager(vars.lockeyManagerAddress).getLockeyDiscountPercentage()),
-        Errors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE
-      );
-    } else {
-      require(params.amount == vars.nftPrice, Errors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
-    }
-
-    reserveData.updateState();
-
-    (vars.borrowAmount, , ) = GenericLogic.calculateLoanLiquidatePrice(
-      vars.loanId,
-      loanData.reserveAsset,
-      reserveData,
-      loanData.nftAsset,
-      loanData.nftTokenId,
-      nftConfig,
-      vars.poolLoan,
-      vars.reserveOracle,
-      vars.nftOracle
+    // The provided amount needs to be higher than the buyoutPrice
+    require(params.amount >= vars.buyoutPrice, Errors.LP_AMOUNT_LESS_THAN_BUYOUT_PRICE);
+    vars.lockeyDiscount = vars.nftPrice.percentMul(
+      ILockeyManager(vars.lockeyManagerAddress).getLockeyDiscountPercentage()
     );
+
+    // This should only happen if a user holds a lockey and the lockeyDiscount is higher than the borrowed Amount
+    if (
+      vars.lockeyDiscount > vars.borrowAmount &&
+      IERC721Upgradeable(vars.lockeysCollection).balanceOf(vars.onBehalfOf) != 0
+    ) {
+      require(params.amount == vars.lockeyDiscount, Errors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
+    } else {
+      require(params.amount == vars.buyoutPrice, Errors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
+    }
 
     ILendPoolLoan(vars.poolLoan).buyoutLoan(
       loanData.bidderAddress,

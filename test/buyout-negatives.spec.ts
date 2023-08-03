@@ -25,6 +25,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE,
     VL_HEALTH_FACTOR_LOWER_THAN_LIQUIDATION_THRESHOLD,
     LP_NFT_IS_NOT_USED_AS_COLLATERAL,
+    LP_AMOUNT_LESS_THAN_BUYOUT_PRICE,
   } = ProtocolErrors;
 
   it("Borrower - Borrows WETH", async () => {
@@ -144,7 +145,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     const buyoutPrice = nftDebtData[3].sub(100);
 
     await expect(pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPrice, buyer.address)).to.be.revertedWith(
-      LP_AMOUNT_LESS_THAN_DEBT
+      LP_AMOUNT_LESS_THAN_BUYOUT_PRICE
     );
   });
 
@@ -162,7 +163,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     // BUYOUT
     // Debt is 40 eth but tries to buyout with 10 eth.
     await expect(pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPrice, buyer.address)).to.be.revertedWith(
-      LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE
+      LP_AMOUNT_LESS_THAN_BUYOUT_PRICE
     );
   });
 });
