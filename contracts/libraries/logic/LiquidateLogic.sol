@@ -642,9 +642,6 @@ library LiquidateLogic {
 
     vars.nftPrice = INFTOracleGetter(vars.nftOracle).getNFTPrice(loanData.nftAsset, loanData.nftTokenId);
 
-    //buyoutPrice will be the NFTPrice the borrowAmount depending which of them is higher
-    vars.buyoutPrice = vars.nftPrice;
-
     reserveData.updateState();
 
     // Check for health factor
@@ -678,8 +675,8 @@ library LiquidateLogic {
       vars.nftOracle
     );
 
-    // if borrowAmount is higher than buyoutPrice (nftPrice), buyoutPrice will be the borrowAmount
-    if (vars.borrowAmount > vars.buyoutPrice) vars.buyoutPrice = vars.borrowAmount;
+    // Buyout price becomes maximum value between the borrow amount and the NFT price
+    vars.buyoutPrice = vars.borrowAmount > vars.nftPrice ? vars.borrowAmount : vars.nftPrice;
 
     (, vars.bidFine) = GenericLogic.calculateLoanBidFine(
       loanData.reserveAsset,
@@ -693,8 +690,6 @@ library LiquidateLogic {
 
     ValidationLogic.validateBuyout(reserveData, nftData, nftConfig, loanData);
 
-    // The provided amount needs to be higher than the buyoutPrice
-    require(params.amount >= vars.buyoutPrice, Errors.LP_AMOUNT_LESS_THAN_BUYOUT_PRICE);
     vars.lockeyDiscount = vars.nftPrice.percentMul(
       ILockeyManager(vars.lockeyManagerAddress).getLockeyDiscountPercentage()
     );
