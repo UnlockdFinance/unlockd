@@ -134,7 +134,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     // Amount is less than borrow amount (revert expected)
     await expect(
       pool.connect(buyer.signer).buyout(bayc.address, "101", parseEther("1"), buyer.address)
-    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_LESS_THAN_DEBT);
+    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
 
     await waitForTx(await pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPrice, buyer.address));
 

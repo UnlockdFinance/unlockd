@@ -87,6 +87,7 @@ library Errors {
   string public constant LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE = "429";
   string public constant LP_CALLER_NOT_DEBT_TOKEN_MANAGER = "430";
   string public constant LP_CALLER_NOT_RESERVOIR_OR_DEBT_MARKET = "431";
+  string public constant LP_AMOUNT_LESS_THAN_BUYOUT_PRICE = "432";
 
   //lend pool loan errors
   string public constant LPL_CLAIM_HASNT_STARTED_YET = "479";

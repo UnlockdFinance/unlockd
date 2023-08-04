@@ -93,24 +93,25 @@ makeSuite("Buy and sell the debts", (testEnv) => {
         await borrowBayc(testEnv, seller, tokenId, 10);
 
         const oldLoan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
-
+        console.log("0");
         await waitForTx(
           await debtMarket.connect(seller.signer).createDebtListing(nftAsset, tokenId, 50, seller.address, 0, 0)
         );
 
         // Gets it before resseted to 0
         const debtId = await debtMarket.getDebtId(nftAsset, tokenId);
-
+        console.log("1");
         await waitForTx(
           await wethGateway.connect(buyer.signer).buyDebtETH(nftAsset, tokenId, buyer.address, { value: 50 })
         );
 
+        console.log("2");
         const debt = await debtMarket.getDebt(debtId);
         expect(await debtMarket.getDebtId(nftAsset, tokenId)).equals(0, "Id not resetted");
         expect(debt.state).equals(2, "Invalid debt offer state");
 
         const loan = await dataProvider.getLoanDataByCollateral(bayc.address, `${tokenId}`);
-
+        console.log("3");
         //Check previous unft brn and minted on the new
         expect(uBAYC.balanceOf(seller.address), 0, "Invalid balance of UToken");
         expect(uBAYC.balanceOf(buyer.address), 1, "Invalid balance of UToken");
@@ -119,6 +120,7 @@ makeSuite("Buy and sell the debts", (testEnv) => {
           oldLoan.currentAmount,
           oldLoan.currentAmount.add(parseEther("1")).toString()
         );
+        console.log("4");
         //Check previous owner of the loan
         expect(oldLoan.borrower).equals(seller.address, "Invalid previous loan debtor");
         expect(loan.borrower).equals(buyer.address, "Invalid new loan debtor");

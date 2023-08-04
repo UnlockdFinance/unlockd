@@ -125,7 +125,7 @@ export const CommonsConfig: ICommonConfiguration = {
     [eEthereumNetwork.hardhat]: "",
     [eEthereumNetwork.localhost]: "",
     [eEthereumNetwork.goerli]: "",
-    [eEthereumNetwork.main]: "",
+    [eEthereumNetwork.main]: "0xed1a46EBE904dD6562f5F20A515009752Fb5bAdE",
   },
 
   ReserveAggregators: {

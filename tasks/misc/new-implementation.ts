@@ -279,9 +279,8 @@ task("dev:upgrade-all-debtokens", "Update implementation to debt token")
     const network = DRE.network.name as eNetwork;
     const poolConfig = loadPoolConfig(pool);
     const addressesProviderRaw = await getLendPoolAddressesProvider();
-    const poolAdminAddress = await addressesProviderRaw.getPoolAdmin();
-    const poolAdminSigner = await getEthersSignerByAddress(poolAdminAddress);
-    console.log(addressesProviderRaw.address, poolAdminAddress);
+    console.log("Deploying new generic DebtToken implementation...");
+    //const debtTokenImpl = await deployGenericDebtToken(true);
 
     const lendPoolConfigurator = await getLendPoolConfiguratorProxy(
       await addressesProviderRaw.getLendPoolConfigurator()
@@ -289,9 +288,6 @@ task("dev:upgrade-all-debtokens", "Update implementation to debt token")
     const protocolDataProvider = await getUnlockdProtocolDataProvider(
       await addressesProviderRaw.getUnlockdDataProvider()
     );
-
-    const debtTokenImpl = await deployGenericDebtToken(verify);
-    console.log("DebtToken implementation:", debtTokenImpl.address);
 
     const inputs: {
       asset: string;
@@ -314,5 +310,5 @@ task("dev:upgrade-all-debtokens", "Update implementation to debt token")
       inputs.push(input);
     }
 
-    await waitForTx(await lendPoolConfigurator.connect(poolAdminSigner).updateDebtToken(inputs));
+    //await waitForTx(await lendPoolConfigurator.updateDebtToken(inputs));
   });

@@ -231,22 +231,22 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
 
     const wethPrice = await reserveOracle.getAssetPrice(weth.address);
     const amountBorrow = parseEther("1");
-
+    console.log("0");
     // Borrow with NFT
     await waitForTx(
       await wethGateway.connect(user.signer).borrowETH(amountBorrow, bayc.address, tokenId, user.address, "0")
     );
     const nftDebtDataAfterBorrow = await pool.getNftDebtData(bayc.address, tokenId);
     expect(nftDebtDataAfterBorrow.healthFactor.toString()).to.be.bignumber.gt(oneEther.toFixed(0));
-
+    console.log("1");
     // Drop the health factor below 1
     const nftDebtDataBefore = await pool.getNftDebtData(bayc.address, tokenId);
     const debAmountUnits = await convertToCurrencyUnits(deployer, weth, nftDebtDataBefore.totalDebt.toString());
     await setNftAssetPriceForDebt(testEnv, "BAYC", tokenIdNum, "WETH", debAmountUnits, "80");
-
+    console.log("2");
     const nftDebtDataBeforeAuction = await pool.getNftDebtData(bayc.address, tokenId);
     expect(nftDebtDataBeforeAuction.healthFactor.toString()).to.be.bignumber.lt(oneEther.toFixed(0));
-
+    console.log("3");
     // Liquidate ETH loan with native ETH
     const { liquidatePrice } = await dataProvider.getNftLiquidatePrice(weth.address, bayc.address, tokenId);
     const liquidateAmountSend = liquidatePrice.add(liquidatePrice.mul(5).div(100));
@@ -257,7 +257,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
         .connect(liquidator.signer)
         .auctionETH(bayc.address, tokenId, liquidator.address, { value: liquidateAmountSend })
     );
-
+    console.log("4");
     // Redeem ETH loan with native ETH
     await increaseTime(1200);
     const auctionData = await pool.getNftAuctionData(bayc.address, tokenId);
@@ -275,7 +275,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
 
     const tokenOwnerAfterRedeem = await bayc.ownerOf(tokenId);
     expect(tokenOwnerAfterRedeem).to.be.equal(uBAYC.address, "Invalid token owner after redeem");
-
+    console.log("5");
     // Repay loan
     await waitForTx(
       await wethGateway
