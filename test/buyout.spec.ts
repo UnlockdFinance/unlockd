@@ -122,19 +122,19 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     // Amount is more than nft price (revert expected)
     await expect(
       pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPrice.add(parseEther("1")), buyer.address)
-    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
+    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_LESS_THAN_BUYOUT_PRICE);
 
     // Amount is less than nft price (revert expected)
     await expect(
       pool
         .connect(buyer.signer)
         .buyout(bayc.address, "101", buyoutPrice.sub(parseEther("0.000000000000001")), buyer.address)
-    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
+    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_LESS_THAN_BUYOUT_PRICE);
 
     // Amount is less than borrow amount (revert expected)
     await expect(
       pool.connect(buyer.signer).buyout(bayc.address, "101", parseEther("1"), buyer.address)
-    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
+    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_LESS_THAN_BUYOUT_PRICE);
 
     await waitForTx(await pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPrice, buyer.address));
 
@@ -306,7 +306,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     );
     await expect(
       pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPriceIncorrect, buyer.address)
-    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
+    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_LESS_THAN_BUYOUT_PRICE);
 
     // First bidder bids
     const firstBidderBalanceBeforeBid = await weth.balanceOf(firstBidder.address);

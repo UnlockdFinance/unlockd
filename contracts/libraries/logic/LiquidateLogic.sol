@@ -699,9 +699,7 @@ library LiquidateLogic {
       vars.lockeyDiscount > vars.borrowAmount &&
       IERC721Upgradeable(vars.lockeysCollection).balanceOf(vars.onBehalfOf) != 0
     ) {
-      require(params.amount == vars.lockeyDiscount, Errors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
-    } else {
-      require(params.amount == vars.buyoutPrice, Errors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
+      vars.buyoutPrice = vars.lockeyDiscount;
     }
 
     ILendPoolLoan(vars.poolLoan).buyoutLoan(
@@ -710,7 +708,7 @@ library LiquidateLogic {
       nftData.uNftAddress,
       vars.borrowAmount,
       reserveData.variableBorrowIndex,
-      params.amount
+      vars.buyoutPrice
     );
 
     IDebtToken(reserveData.debtTokenAddress).burn(
@@ -729,7 +727,7 @@ library LiquidateLogic {
     reserveData.updateInterestRates(loanData.reserveAsset, reserveData.uTokenAddress, vars.borrowAmount, 0);
 
     //Transfer buyout amount to lendpool
-    IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, address(this), params.amount);
+    IERC20Upgradeable(loanData.reserveAsset).safeTransferFrom(vars.initiator, address(this), vars.buyoutPrice);
 
     // transfer borrow amount from lend pool to uToken, repay debt
     IERC20Upgradeable(loanData.reserveAsset).safeTransfer(reserveData.uTokenAddress, vars.borrowAmount);
@@ -737,7 +735,7 @@ library LiquidateLogic {
     // Deposit amount from debt repaid to lending protocol
     IUToken(reserveData.uTokenAddress).depositReserves(vars.borrowAmount);
 
-    vars.remainAmount = params.amount - vars.borrowAmount;
+    vars.remainAmount = vars.buyoutPrice - vars.borrowAmount;
 
     // In case the NFT has bids, transfer (give back) bid amount to bidder, and send incentive fine to first bidder
     if (loanData.bidderAddress != address(0)) {
@@ -779,7 +777,7 @@ library LiquidateLogic {
       emit Buyout(
         vars.initiator,
         loanData.reserveAsset,
-        params.amount,
+        vars.buyoutPrice,
         vars.borrowAmount,
         loanData.nftAsset,
         loanData.nftTokenId,

@@ -386,7 +386,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
       wethGateway
         .connect(buyer.signer)
         .buyoutETH(bayc.address, tokenId, buyer.address, { value: nftPrice.sub(parseEther("0.0000000000001")) })
-    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
+    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_LESS_THAN_BUYOUT_PRICE);
     const buyoutAmount = nftPrice;
 
     // Amount is more than nft price (revert expected)
@@ -394,7 +394,7 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
       wethGateway
         .connect(buyer.signer)
         .buyoutETH(bayc.address, tokenId, buyer.address, { value: nftPrice.add(parseEther("0.0000000000001")) })
-    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
+    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_LESS_THAN_BUYOUT_PRICE);
 
     // Execute buyout successfully (expect success)
     await waitForTx(
