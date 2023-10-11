@@ -356,7 +356,7 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
 
     IERC20Upgradeable(reserve).transferFrom(msg.sender, address(this), amount);
 
-    cachedPool.buyout(address(wrappedPunks), punkIndex, amount, onBehalfOf);
+    cachedPool.buyout(address(wrappedPunks), punkIndex, onBehalfOf);
 
     _withdrawPunk(punkIndex, onBehalfOf);
   }

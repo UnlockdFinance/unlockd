@@ -348,7 +348,7 @@ contract WETHGateway is IWETHGateway, ERC721HolderUpgradeable, EmergencyTokenRec
       WETH.deposit{value: msg.value}();
     }
 
-    cachedPool.buyout(nftAsset, nftTokenId, msg.value, onBehalfOf);
+    cachedPool.buyout(nftAsset, nftTokenId, onBehalfOf);
   }
 
   /*//////////////////////////////////////////////////////////////

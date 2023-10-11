@@ -381,24 +381,10 @@ makeSuite("WETHGateway - Liquidate", (testEnv: TestEnv) => {
     );
 
     const nftPrice = await nftOracle.getNFTPrice(bayc.address, tokenId);
-    // Amount is less than nft price (revert expected)
-    await expect(
-      wethGateway
-        .connect(buyer.signer)
-        .buyoutETH(bayc.address, tokenId, buyer.address, { value: nftPrice.sub(parseEther("0.0000000000001")) })
-    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_LESS_THAN_BUYOUT_PRICE);
-    const buyoutAmount = nftPrice;
-
-    // Amount is more than nft price (revert expected)
-    await expect(
-      wethGateway
-        .connect(buyer.signer)
-        .buyoutETH(bayc.address, tokenId, buyer.address, { value: nftPrice.add(parseEther("0.0000000000001")) })
-    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_LESS_THAN_BUYOUT_PRICE);
 
     // Execute buyout successfully (expect success)
     await waitForTx(
-      await wethGateway.connect(buyer.signer).buyoutETH(bayc.address, tokenId, buyer.address, { value: buyoutAmount })
+      await wethGateway.connect(buyer.signer).buyoutETH(bayc.address, tokenId, buyer.address, { value: nftPrice })
     );
 
     // Buyer should own the NFT.
