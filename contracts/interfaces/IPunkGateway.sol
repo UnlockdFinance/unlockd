@@ -56,8 +56,7 @@ interface IPunkGateway {
 
   /**
    * @notice Executes the buyout for an NFT with a non-healthy position collateral-wise
-   * @param punkIndex The index of the CryptoPunk used as collateral
-   * @param amount The amount to send for the buyout
+   * @param punkIndex The index of the CryptoPunk used as collateral«
    * @param onBehalfOf The address that will receive the NFT, same as msg.sender if the user
    *   wants to receive them on his own wallet, or a different address if the beneficiary of the NFT
    *   is a different wallet

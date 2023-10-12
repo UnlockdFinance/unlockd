@@ -118,25 +118,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // BUYOUT
-    const buyoutPrice = nftPrice;
-    // Amount is more than nft price (revert expected)
-    await expect(
-      pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPrice.add(parseEther("1")), buyer.address)
-    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
-
-    // Amount is less than nft price (revert expected)
-    await expect(
-      pool
-        .connect(buyer.signer)
-        .buyout(bayc.address, "101", buyoutPrice.sub(parseEther("0.000000000000001")), buyer.address)
-    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
-
-    // Amount is less than borrow amount (revert expected)
-    await expect(
-      pool.connect(buyer.signer).buyout(bayc.address, "101", parseEther("1"), buyer.address)
-    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
-
-    await waitForTx(await pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPrice, buyer.address));
+    await waitForTx(await pool.connect(buyer.signer).buyout(bayc.address, "101", buyer.address));
 
     expect(await bayc.ownerOf(101), "buyer should be the new owner").to.be.eq(buyer.address);
 
@@ -292,22 +274,6 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
 
     await fundWithERC721("LOCKEY", buyer.address, 1);
 
-    // Price is discounted by less amount. Revert expected
-    let buyoutPriceIncorrect = new BigNumber(
-      new BigNumber(nftPrice.toString()).percentMul(new BigNumber("9699"))
-    ).toFixed(0);
-    await expect(
-      pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPriceIncorrect, buyer.address)
-    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
-
-    // Price is bigger than nft price. Revert expected
-    buyoutPriceIncorrect = new BigNumber(new BigNumber(nftPrice.toString()).percentMul(new BigNumber("9999"))).toFixed(
-      0
-    );
-    await expect(
-      pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPriceIncorrect, buyer.address)
-    ).to.be.revertedWith(ProtocolErrors.LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE);
-
     // First bidder bids
     const firstBidderBalanceBeforeBid = await weth.balanceOf(firstBidder.address);
     await pool.connect(firstBidder.signer).auction(bayc.address, "101", parseEther("49"), firstBidder.address);
@@ -316,9 +282,8 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     const bidderBalanceBeforeBid = await weth.balanceOf(bidder.address);
     await pool.connect(bidder.signer).auction(bayc.address, "101", parseEther("50"), bidder.address);
 
-    // Price is discounted
-    const buyoutPrice = new BigNumber(new BigNumber(nftPrice.toString()).percentMul(new BigNumber("9700"))).toFixed(0);
-    await waitForTx(await pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPrice, buyer.address));
+    // Price is discounted by 3% because buyer is a lockey holder
+    await waitForTx(await pool.connect(buyer.signer).buyout(bayc.address, "101", buyer.address));
 
     const firstBidderBalanceAfterBid = await weth.balanceOf(firstBidder.address);
     const bidderBalanceAfterBuyout = await weth.balanceOf(bidder.address);

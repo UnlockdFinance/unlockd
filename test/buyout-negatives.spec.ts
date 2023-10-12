@@ -20,13 +20,7 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     BigNumber.config({ DECIMAL_PLACES: 20, ROUNDING_MODE: BigNumber.ROUND_HALF_UP });
   });
 
-  const {
-    LP_AMOUNT_LESS_THAN_DEBT,
-    LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE,
-    VL_HEALTH_FACTOR_LOWER_THAN_LIQUIDATION_THRESHOLD,
-    LP_NFT_IS_NOT_USED_AS_COLLATERAL,
-    LP_AMOUNT_LESS_THAN_BUYOUT_PRICE,
-  } = ProtocolErrors;
+  const { VL_HEALTH_FACTOR_LOWER_THAN_LIQUIDATION_THRESHOLD, LP_NFT_IS_NOT_USED_AS_COLLATERAL } = ProtocolErrors;
 
   it("Borrower - Borrows WETH", async () => {
     const { users, pool, nftOracle, weth, bayc, configurator, deployer } = testEnv;
@@ -90,12 +84,11 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     await approveERC20(testEnv, buyer, "WETH");
 
     const price = await nftOracle.getNFTPrice(bayc.address, "101");
-    const buyoutPrice = price;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // BUYOUT
     // Debt is 40 eth but tries to buyout with 10 eth.
-    await expect(pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPrice, buyer.address)).to.be.revertedWith(
+    await expect(pool.connect(buyer.signer).buyout(bayc.address, "101", buyer.address)).to.be.revertedWith(
       VL_HEALTH_FACTOR_LOWER_THAN_LIQUIDATION_THRESHOLD
     );
   });
@@ -123,47 +116,8 @@ makeSuite("LendPool: buyout test cases", (testEnv) => {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // BUYOUT
     // Debt is 40 eth but tries to buyout with 10 eth.
-    const nftDebtData = await pool.getNftDebtData(bayc.address, "101");
-    const buyoutPrice = nftDebtData[3].sub(100);
-
-    await expect(pool.connect(buyer.signer).buyout(bayc.address, "0", buyoutPrice, buyer.address)).to.be.revertedWith(
+    await expect(pool.connect(buyer.signer).buyout(bayc.address, "0", buyer.address)).to.be.revertedWith(
       LP_NFT_IS_NOT_USED_AS_COLLATERAL
-    );
-  });
-
-  it("Buyer - tries to buy the NFT with a smaller amount than debt", async () => {
-    const { users, pool, bayc } = testEnv;
-    const buyer = users[2];
-
-    await fundWithERC20("WETH", buyer.address, "1000");
-    await approveERC20(testEnv, buyer, "WETH");
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // BUYOUT
-    // Debt is 40 eth but tries to buyout with 10 eth.
-    const nftDebtData = await pool.getNftDebtData(bayc.address, "101");
-    const buyoutPrice = nftDebtData[3].sub(100);
-
-    await expect(pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPrice, buyer.address)).to.be.revertedWith(
-      LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE
-    );
-  });
-
-  it("Buyer - tries to buy the NFT with an amount higher than debt lower then valuation", async () => {
-    const { users, pool, bayc, nftOracle } = testEnv;
-    const buyer = users[2];
-
-    await fundWithERC20("WETH", buyer.address, "1000");
-    await approveERC20(testEnv, buyer, "WETH");
-
-    const price = await nftOracle.getNFTPrice(bayc.address, "101");
-    const buyoutPrice = price.sub(100);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // BUYOUT
-    // Debt is 40 eth but tries to buyout with 10 eth.
-    await expect(pool.connect(buyer.signer).buyout(bayc.address, "101", buyoutPrice, buyer.address)).to.be.revertedWith(
-      LP_AMOUNT_DIFFERENT_FROM_REQUIRED_BUYOUT_PRICE
     );
   });
 });
