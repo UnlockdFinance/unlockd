@@ -550,8 +550,14 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     await waitForTx(await punkGateway.connect(bidder.signer).auction(punkIndex, parseEther("50"), bidder.address));
     const bidderBalanceAfterAuction = await weth.balanceOf(bidder.address);
 
+    // Try to get a discount not being a lockey holder (expect revert)
+    const nftPrice = await nftOracle.getNFTPrice(wrappedPunk.address, punkIndex);
+
+    await fundWithERC20("WETH", buyer.address, "100");
+    await approveERC20PunkGateway(testEnv, buyer, "WETH");
+
     // Execute buyout successfully (expect success)
-    await waitForTx(await punkGateway.connect(buyer.signer).buyout(punkIndex, buyer.address)); // HERE
+    await waitForTx(await punkGateway.connect(buyer.signer).buyout(punkIndex, nftPrice, buyer.address)); // HERE
 
     // Buyer should own the NFT.
     expect(await cryptoPunksMarket.punkIndexToAddress(punkIndex), "buyer should be the new owner").to.be.eq(

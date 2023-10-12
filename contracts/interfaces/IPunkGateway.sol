@@ -61,7 +61,7 @@ interface IPunkGateway {
    *   wants to receive them on his own wallet, or a different address if the beneficiary of the NFT
    *   is a different wallet
    **/
-  function buyout(uint256 punkIndex, address onBehalfOf) external;
+  function buyout(uint256 punkIndex, uint256 amount, address onBehalfOf) external;
 
   /**
    * @dev Allows users to borrow a specific `amount` of the reserve underlying asset, provided that the borrower
