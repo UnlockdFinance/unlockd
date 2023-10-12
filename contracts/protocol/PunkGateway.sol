@@ -343,18 +343,10 @@ contract PunkGateway is IPunkGateway, ERC721HolderUpgradeable, EmergencyTokenRec
     return extraAmount;
   }
 
-  function buyout(uint256 punkIndex, uint256 amount, address onBehalfOf) external override nonReentrant {
+  function buyout(uint256 punkIndex, address onBehalfOf) external override nonReentrant {
     _checkValidCallerAndOnBehalfOf(onBehalfOf);
 
     ILendPool cachedPool = _getLendPool();
-    ILendPoolLoan cachedPoolLoan = _getLendPoolLoan();
-
-    uint256 loanId = cachedPoolLoan.getCollateralLoanId(address(wrappedPunks), punkIndex);
-    require(loanId != 0, "PunkGateway: no loan with such punkIndex");
-
-    (, , address reserve, ) = cachedPoolLoan.getLoanCollateralAndReserve(loanId);
-
-    IERC20Upgradeable(reserve).transferFrom(msg.sender, address(this), amount);
 
     cachedPool.buyout(address(wrappedPunks), punkIndex, onBehalfOf);
 

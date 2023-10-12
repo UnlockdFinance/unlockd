@@ -550,29 +550,25 @@ makeSuite("PunkGateway-Liquidate", (testEnv: TestEnv) => {
     await waitForTx(await punkGateway.connect(bidder.signer).auction(punkIndex, parseEther("50"), bidder.address));
     const bidderBalanceAfterAuction = await weth.balanceOf(bidder.address);
 
-    // Try to get a discount not being a lockey holder (expect revert)
-    let nftPrice = await nftOracle.getNFTPrice(wrappedPunk.address, punkIndex);
-    nftPrice = nftPrice.mul(10100).div(10000);
-
     // Execute buyout successfully (expect success)
-    await waitForTx(await punkGateway.connect(buyer.signer).buyout(punkIndex, parseEther("51"), buyer.address));
+    await waitForTx(await punkGateway.connect(buyer.signer).buyout(punkIndex, buyer.address)); // HERE
 
-    // // Buyer should own the NFT.
-    // expect(await cryptoPunksMarket.punkIndexToAddress(punkIndex), "buyer should be the new owner").to.be.eq(
-    //   buyer.address
-    // );
+    // Buyer should own the NFT.
+    expect(await cryptoPunksMarket.punkIndexToAddress(punkIndex), "buyer should be the new owner").to.be.eq(
+      buyer.address
+    );
 
-    // // Bidder should have its WETH bid amount back.
-    // const bidderBalanceAfterBuyout = await weth.balanceOf(bidder.address);
-    // expect(bidderBalanceAfterBuyout).to.be.gt(bidderBalanceAfterAuction.add(parseEther("50")));
+    // Bidder should have its WETH bid amount back.
+    const bidderBalanceAfterBuyout = await weth.balanceOf(bidder.address);
+    expect(bidderBalanceAfterBuyout).to.be.gt(bidderBalanceAfterAuction.add(parseEther("50")));
 
-    // // Loan should be defaulted
-    // const loanDataAfter = await dataProvider.getLoanDataByLoanId(nftDebtDataBeforeAuction.loanId);
-    // expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Defaulted, "Invalid loan state after liquidation");
+    // Loan should be defaulted
+    const loanDataAfter = await dataProvider.getLoanDataByLoanId(nftDebtDataBeforeAuction.loanId);
+    expect(loanDataAfter.state).to.be.equal(ProtocolLoanState.Defaulted, "Invalid loan state after liquidation");
 
-    // // Borrower should have the remaining amount (buyout amount - borrow amount) back
-    // const borrowerBalanceAfterBuyoutInWeth = await weth.balanceOf(borrower.address);
-    // await expect(borrowerBalanceAfterBuyoutInWeth).to.be.gt(0);
+    // Borrower should have the remaining amount (buyout amount - borrow amount) back
+    const borrowerBalanceAfterBuyoutInWeth = await weth.balanceOf(borrower.address);
+    await expect(borrowerBalanceAfterBuyoutInWeth).to.be.gt(0);
   });
   it("Borrow ETH and redeem it", async () => {
     const {
