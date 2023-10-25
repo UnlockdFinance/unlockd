@@ -426,19 +426,20 @@ Example: Bob wins the auction. He can call this function to get his collateral (
 
 ```
 function buyout(address nftAsset, uint256 nftTokenId, 
-uint256 buyoutAmount, address onBehalfOf) external override nonReentrant whenNotPaused
+address onBehalfOf) external override nonReentrant whenNotPaused
 ```
 
-The buyout In case the health factor goes below 1 an auction will start, and the minimum bid amount will be the debt amount. During the auction duration, the users will be able to do a buyout (a button available during the auction), if this happens, the user will pay the appraisal value of the NFT and will be the new owner after the transaction is done.&#x20;
+The buyout In case the health factor goes below one an auction will start, and the minimum bid amount will be the debt amount. During the auction duration, the users will be able to do a buyout (a button available during the auction).\
+The buyout amount will be calculated on the smart contract and it will be the highest between the NFT valuation and it's debt.  \
+In order for this to work, the approve function to spend ur WETH will have to take this into consideration.
 
 #### Call Params
 
-| Name         | Type    | Description                                                             |
-| ------------ | ------- | ----------------------------------------------------------------------- |
-| nftAsset     | address | the underlying NFT address used as collateral and bought on an auction  |
-| tokenId      | uint256 | the underlying NFT token Id used as collateral and bought on an auction |
-| buyoutAmount | uint256 | the amount in wei to pay for the nft (needs to be the NFTPrice)         |
-| onBehalfOf   | address | The address that will receive the NFT                                   |
+| Name       | Type    | Description                                                             |
+| ---------- | ------- | ----------------------------------------------------------------------- |
+| nftAsset   | address | the underlying NFT address used as collateral and bought on an auction  |
+| tokenId    | uint256 | the underlying NFT token Id used as collateral and bought on an auction |
+| onBehalfOf | address | The address that will receive the NFT                                   |
 
 
 
