@@ -429,9 +429,9 @@ function buyout(address nftAsset, uint256 nftTokenId,
 address onBehalfOf) external override nonReentrant whenNotPaused
 ```
 
-The buyout In case the health factor goes below one an auction will start, and the minimum bid amount will be the debt amount. During the auction duration, the users will be able to do a buyout (a button available during the auction).\
-The buyout amount will be calculated on the smart contract and it will be the highest between the NFT valuation and it's debt.  \
-In order for this to work, the approve function to spend ur WETH will have to take this into consideration.
+If the health factor of the NFT falls below one, an auction will be initiated. The minimum bid amount during the auction will be the same as the debt amount. Users will have the option to buyout the NFT during the auction by clicking on the buyout button.\
+\
+The buyout amount of the NFT will be calculated on the smart contract and will be the highest value between the NFT valuation and its debt. To enable this function, the "approve" function to spend WETH will need to take into consideration the buyout amount.
 
 #### Call Params
 
